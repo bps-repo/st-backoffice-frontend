@@ -1,6 +1,10 @@
 <div class="layout-topbar">
     <div class="topbar-start">
-        <button #menubutton type="button" class="topbar-menubutton p-link p-trigger" (click)="onMenuButtonClick()">
+        <button
+            type="button"
+            class="topbar-menubutton p-link p-trigger"
+            (click)="menuMode = 'slim-plus'"
+        >
             <i class="pi pi-bars"></i>
         </button>
 
@@ -12,14 +16,29 @@
             <li class="topbar-search">
                 <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
-                    <input type="text" pInputText placeholder="Search" class="w-12rem sm:w-full">
+                    <input
+                        type="text"
+                        pInputText
+                        placeholder="Pesquisar"
+                        class="w-12rem sm:w-full"
+                    />
                 </span>
             </li>
             <li class="ml-3">
-                <button pButton type="button" icon="pi pi-cog" class="p-button-text p-button-secondary p-button-rounded flex-shrink-0" (click)="onConfigButtonClick()"></button>
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-cog"
+                    class="p-button-text p-button-secondary p-button-rounded flex-shrink-0"
+                    (click)="onConfigButtonClick()"
+                ></button>
             </li>
             <li class="topbar-profile">
-                <button type="button" class="p-link" (click)="onProfileButtonClick()">
+                <button
+                    type="button"
+                    class="p-link"
+                    (click)="onProfileButtonClick()"
+                >
                     <img src="assets/layout/images/avatar.png" alt="Profile" />
                 </button>
             </li>
