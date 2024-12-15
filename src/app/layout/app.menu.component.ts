@@ -49,6 +49,22 @@ export class AppMenuComponent implements OnInit {
                 ],
             },
             {
+                label: 'Gestão de Processos',
+                icon: 'pi pi-fw pi-star-fill',
+                items: [
+                    {
+                        label: 'Overlay',
+                        icon: 'pi pi-fw pi-clone',
+                        routerLink: ['/uikit/overlay'],
+                    },
+                    {
+                        label: 'Media',
+                        icon: 'pi pi-fw pi-image',
+                        routerLink: ['/uikit/media'],
+                    },
+                ],
+            },
+            {
                 label: 'Faturação e Vendas',
                 icon: 'pi pi-fw pi-star-fill',
                 items: [
@@ -114,16 +130,6 @@ export class AppMenuComponent implements OnInit {
                                 label: 'Visualizar utilizador',
                                 icon: 'pi pi-user-check',
                                 routerLink: ['profile/view'],
-                            },
-                            {
-                                label: 'Alterar utilizador',
-                                icon: 'pi pi-pencil',
-                                routerLink: ['profile/edit'],
-                            },
-                            {
-                                label: 'Remover utilizador',
-                                icon: 'pi pi-trash',
-                                routerLink: ['profile/delete'],
                             },
                         ],
                     },
