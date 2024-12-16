@@ -11,19 +11,37 @@ export class AppMenuComponent implements OnInit {
     ngOnInit() {
         this.model = [
             {
-                label: 'Dashboards',
+                label: 'Escolar',
                 icon: 'pi pi-home',
                 items: [
                     {
-                        label: 'Visão Geral',
+                        label: 'Dashboard',
                         icon: 'pi pi-fw pi-home',
-                        routerLink: ['/'],
                     },
-                    // {
-                    //     label: 'Balanço',
-                    //     icon: 'pi pi-fw pi-image',
-                    //     routerLink: ['/dashboard-banking']
-                    // }
+                    {
+                        label: 'Alunos',
+                        icon: 'pi pi-fw pi-users',
+                    },
+                    {
+                        label: 'Aulas',
+                        icon: 'pi pi-fw pi-home',
+                    },
+                    {
+                        label: 'Calendário',
+                        icon: 'pi pi-fw pi-home',
+                    },
+                    {
+                        label: 'Matrículas',
+                        icon: 'pi pi-fw pi-home',
+                    },
+                    {
+                        label: 'Relatórios',
+                        icon: 'pi pi-fw pi-home',
+                    },
+                    {
+                        label: 'Configurações',
+                        icon: 'pi pi-fw pi-home',
+                    },
                 ],
             },
             {
@@ -31,84 +49,131 @@ export class AppMenuComponent implements OnInit {
                 icon: 'pi pi-th-large',
                 items: [
                     {
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-calendar',
+                    },
+                    {
                         label: 'Produtos',
                         icon: 'pi pi-fw pi-calendar',
                     },
                     {
-                        label: 'Pacotes',
+                        label: 'Produtos em Stock',
                         icon: 'pi pi-fw pi-calendar',
                     },
                     {
-                        label: 'Produtos em Stock',
+                        label: 'Armazém',
                         icon: 'pi pi-fw pi-envelope',
                     },
                     {
-                        label: 'Historico de produtos',
+                        label: 'Relatórios',
+                        icon: 'pi pi-fw pi-envelope',
+                    },
+                    {
+                        label: 'Configurações',
                         icon: 'pi pi-fw pi-envelope',
                     },
                 ],
             },
             {
-                label: 'Gestão de Processos',
+                label: 'Facturação',
                 icon: 'pi pi-fw pi-star-fill',
                 items: [
                     {
-                        label: 'Overlay',
-                        icon: 'pi pi-fw pi-clone',
-                        routerLink: ['/uikit/overlay'],
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-envelope',
                     },
                     {
-                        label: 'Media',
-                        icon: 'pi pi-fw pi-image',
-                        routerLink: ['/uikit/media'],
-                    },
-                ],
-            },
-            {
-                label: 'Faturação e Vendas',
-                icon: 'pi pi-fw pi-star-fill',
-                items: [
-                    {
-                        label: 'Overlay',
-                        icon: 'pi pi-fw pi-clone',
-                        routerLink: ['/uikit/overlay'],
-                    },
-                    {
-                        label: 'Media',
+                        label: 'Facturas',
                         icon: 'pi pi-fw pi-image',
                         routerLink: ['/uikit/media'],
                     },
                     {
-                        label: 'Chart',
-                        icon: 'pi pi-fw pi-chart-bar',
-                        routerLink: ['/uikit/charts'],
+                        label: 'Recibos',
+                        icon: 'pi pi-fw pi-envelope',
                     },
                     {
-                        label: 'Misc',
-                        icon: 'pi pi-fw pi-circle-off',
-                        routerLink: ['/uikit/misc'],
+                        label: 'Notas de crédito',
+                        icon: 'pi pi-fw pi-envelope',
+                    },
+                    {
+                        label: 'Notas de Débito',
+                        icon: 'pi pi-fw pi-envelope',
+                    },
+                    {
+                        label: 'Notas de Débito',
+                        icon: 'pi pi-fw pi-envelope',
+                    },
+                    {
+                        label: 'POS',
+                        icon: 'pi pi-fw pi-envelope',
+                    },
+                    {
+                        label: 'Configurações',
+                        icon: 'pi pi-fw pi-envelope',
                     },
                 ],
             },
             {
                 label: 'Contabilidade',
-                icon: 'pi pi-fw pi-prime',
+                icon: 'pi pi-fw pi-star-fill',
                 items: [
                     {
-                        label: 'Free Blocks',
-                        icon: 'pi pi-fw pi-eye',
-                        routerLink: ['/blocks'],
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-clone',
+                        routerLink: ['/uikit/overlay'],
                     },
                     {
-                        label: 'All Blocks',
-                        icon: 'pi pi-fw pi-globe',
-                        url: ['https://www.primefaces.org/primeblocks-ng'],
-                        target: '_blank',
+                        label: 'Plano de Contas',
+                        icon: 'pi pi-fw pi-image',
+                        routerLink: ['/uikit/media'],
+                    },
+                    {
+                        label: 'Reclamações',
+                        icon: 'pi pi-fw pi-chart-bar',
+                    },
+                    {
+                        label: 'Relatórios',
+                        icon: 'pi pi-fw pi-circle-off',
+                    },
+                    {
+                        label: 'Configurações',
+                        icon: 'pi pi-fw pi-circle-off',
                     },
                 ],
             },
             {
-                label: 'Configurações',
+                label: 'Recursos Humanos',
+                icon: 'pi pi-fw pi-prime',
+                items: [
+                    {
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-eye',
+                        routerLink: ['/blocks'],
+                    },
+                    {
+                        label: 'Funcionários',
+                        icon: 'pi pi-fw pi-globe',
+                    },
+                    {
+                        label: 'Processamento Salarial',
+                        icon: 'pi pi-fw pi-globe',
+                    },
+                    {
+                        label: 'Folha de Ponto',
+                        icon: 'pi pi-fw pi-globe',
+                    },
+                    {
+                        label: 'Relatório',
+                        icon: 'pi pi-fw pi-globe',
+                    },
+                    {
+                        label: 'Configurações',
+                        icon: 'pi pi-fw pi-globe',
+                    },
+                ],
+            },
+            {
+                label: 'Comunicação',
                 icon: 'pi pi-fw pi-compass',
                 items: [
                     {
@@ -150,18 +215,28 @@ export class AppMenuComponent implements OnInit {
                 ],
             },
             {
-                label: 'Start',
+                label: 'Configurações',
                 icon: 'pi pi-fw pi-download',
                 items: [
                     {
-                        label: 'Buy Now',
+                        label: 'Perfis',
                         icon: 'pi pi-fw pi-shopping-cart',
-                        url: ['https://www.primefaces.org/store'],
                     },
                     {
-                        label: 'Documentation',
+                        label: 'Utilizadores',
                         icon: 'pi pi-fw pi-info-circle',
-                        routerLink: ['/documentation'],
+                    },
+                    {
+                        label: 'Pagamentos',
+                        icon: 'pi pi-fw pi-shopping-cart',
+                    },
+                    {
+                        label: 'E-mails',
+                        icon: 'pi pi-fw pi-info-circle',
+                    },
+                    {
+                        label: 'Alertas',
+                        icon: 'pi pi-fw pi-info-circle',
                     },
                 ],
             },
