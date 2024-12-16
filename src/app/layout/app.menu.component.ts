@@ -16,7 +16,7 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Dashboard',
-                        icon: 'pi pi-fw pi-home',
+                        icon: 'pi pi-fw pi-th-large',
                     },
                     {
                         label: 'Alunos',
@@ -24,23 +24,23 @@ export class AppMenuComponent implements OnInit {
                     },
                     {
                         label: 'Aulas',
-                        icon: 'pi pi-fw pi-home',
+                        icon: 'pi pi-fw pi-wallet',
                     },
                     {
                         label: 'Calendário',
-                        icon: 'pi pi-fw pi-home',
+                        icon: 'pi pi-fw pi-calendar',
                     },
                     {
                         label: 'Matrículas',
-                        icon: 'pi pi-fw pi-home',
+                        icon: 'pi pi-fw pi-wallet',
                     },
                     {
                         label: 'Relatórios',
-                        icon: 'pi pi-fw pi-home',
+                        icon: 'pi pi-fw pi-file-pdf',
                     },
                     {
                         label: 'Configurações',
-                        icon: 'pi pi-fw pi-home',
+                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
@@ -50,27 +50,27 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Dashboard',
-                        icon: 'pi pi-fw pi-calendar',
+                        icon: 'pi pi-fw pi-th-large',
                     },
                     {
                         label: 'Produtos',
-                        icon: 'pi pi-fw pi-calendar',
+                        icon: 'pi pi-fw pi-sitemap',
                     },
                     {
                         label: 'Produtos em Stock',
-                        icon: 'pi pi-fw pi-calendar',
+                        icon: 'pi pi-fw pi-shopping-cart',
                     },
                     {
                         label: 'Armazém',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-shopping-cart',
                     },
                     {
                         label: 'Relatórios',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-file-pdf',
                     },
                     {
                         label: 'Configurações',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
@@ -80,36 +80,39 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Dashboard',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-th-large',
                     },
                     {
                         label: 'Facturas',
-                        icon: 'pi pi-fw pi-image',
-                        routerLink: ['/uikit/media'],
+                        icon: 'pi pi-fw pi-file',
                     },
                     {
                         label: 'Recibos',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-file',
                     },
                     {
                         label: 'Notas de crédito',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-file',
                     },
                     {
                         label: 'Notas de Débito',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-file',
                     },
                     {
                         label: 'Notas de Débito',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-file',
                     },
                     {
                         label: 'POS',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-globe',
+                    },
+                    {
+                        label: 'Relatórios',
+                        icon: 'pi pi-fw pi-file-pdf',
                     },
                     {
                         label: 'Configurações',
-                        icon: 'pi pi-fw pi-envelope',
+                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
@@ -119,25 +122,23 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Dashboard',
-                        icon: 'pi pi-fw pi-clone',
-                        routerLink: ['/uikit/overlay'],
+                        icon: 'pi pi-fw pi-th-large',
                     },
                     {
                         label: 'Plano de Contas',
-                        icon: 'pi pi-fw pi-image',
-                        routerLink: ['/uikit/media'],
+                        icon: 'pi pi-fw pi-money-bill',
                     },
                     {
                         label: 'Reclamações',
-                        icon: 'pi pi-fw pi-chart-bar',
+                        icon: 'pi pi-fw pi-',
                     },
                     {
                         label: 'Relatórios',
-                        icon: 'pi pi-fw pi-circle-off',
+                        icon: 'pi pi-fw pi-file-pdf',
                     },
                     {
                         label: 'Configurações',
-                        icon: 'pi pi-fw pi-circle-off',
+                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
@@ -147,7 +148,7 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Dashboard',
-                        icon: 'pi pi-fw pi-eye',
+                        icon: 'pi pi-fw pi-th-large',
                         routerLink: ['/blocks'],
                     },
                     {
