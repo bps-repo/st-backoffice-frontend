@@ -46,7 +46,7 @@ export class AppMenuComponent implements OnInit {
             },
             {
                 label: 'Produtos e Serviços',
-                icon: 'pi pi-th-large',
+                icon: 'pi pi-sitemap',
                 items: [
                     {
                         label: 'Dashboard',
@@ -76,7 +76,7 @@ export class AppMenuComponent implements OnInit {
             },
             {
                 label: 'Facturação',
-                icon: 'pi pi-fw pi-star-fill',
+                icon: 'pi pi-fw pi-file-pdf',
                 items: [
                     {
                         label: 'Dashboard',
@@ -118,7 +118,7 @@ export class AppMenuComponent implements OnInit {
             },
             {
                 label: 'Contabilidade',
-                icon: 'pi pi-fw pi-star-fill',
+                icon: 'pi pi-fw pi-money-bill',
                 items: [
                     {
                         label: 'Dashboard',
@@ -130,7 +130,7 @@ export class AppMenuComponent implements OnInit {
                     },
                     {
                         label: 'Reclamações',
-                        icon: 'pi pi-fw pi-',
+                        icon: 'pi pi-fw pi-tag',
                     },
                     {
                         label: 'Relatórios',
@@ -144,7 +144,7 @@ export class AppMenuComponent implements OnInit {
             },
             {
                 label: 'Recursos Humanos',
-                icon: 'pi pi-fw pi-prime',
+                icon: 'pi pi-fw pi-users',
                 items: [
                     {
                         label: 'Dashboard',
@@ -153,11 +153,11 @@ export class AppMenuComponent implements OnInit {
                     },
                     {
                         label: 'Funcionários',
-                        icon: 'pi pi-fw pi-globe',
+                        icon: 'pi pi-fw pi-users',
                     },
                     {
                         label: 'Processamento Salarial',
-                        icon: 'pi pi-fw pi-globe',
+                        icon: 'pi pi-fw pi-money-bill',
                     },
                     {
                         label: 'Folha de Ponto',
@@ -165,79 +165,67 @@ export class AppMenuComponent implements OnInit {
                     },
                     {
                         label: 'Relatório',
-                        icon: 'pi pi-fw pi-globe',
+                        icon: 'pi pi-fw pi-file-pdf',
                     },
                     {
                         label: 'Configurações',
-                        icon: 'pi pi-fw pi-globe',
+                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
             {
                 label: 'Comunicação',
-                icon: 'pi pi-fw pi-compass',
+                icon: 'pi pi-fw pi-comments',
                 items: [
                     {
-                        label: 'Gerais',
-                        icon: 'pi pi-fw pi-prime',
-                        routerLink: ['utilities/icons'],
+                        label: 'Chat',
+                        icon: 'pi pi-fw pi-comments',
                     },
                     {
-                        label: 'Utilizadores',
-                        icon: 'pi pi-users',
-                        routerLink: ['utilities/colors'],
-                        items: [
-                            {
-                                label: 'Adicionar utilizador',
-                                icon: 'pi pi-user-plus',
-                                routerLink: ['profile/create'],
-                            },
-                            {
-                                label: 'Visualizar utilizador',
-                                icon: 'pi pi-user-check',
-                                routerLink: ['profile/view'],
-                            },
-                        ],
+                        label: 'Notificações',
+                        icon: 'pi pi-bell',
                     },
                     {
-                        label: 'Centros',
-                        icon: 'pi pi-fw pi-desktop',
-                        url: ['https://www.primefaces.org/primeflex/'],
-                        target: '_blank',
+                        label: 'Comunicados',
+                        icon: 'pi pi-fw pi-comment',
                     },
                     {
-                        label: 'Sobre o centro',
-                        icon: 'pi pi-fw pi-pencil',
-                        url: [
-                            'https://www.figma.com/file/zQOW0XBXdCTqODzEOqwBtt/Preview-%7C-Apollo-2022?node-id=335%3A21768&t=urYI89V3PLNAZEJG-1/',
-                        ],
-                        target: '_blank',
+                        label: 'Configurações',
+                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
             {
                 label: 'Configurações',
-                icon: 'pi pi-fw pi-download',
+                icon: 'pi pi-fw pi-cog',
                 items: [
                     {
                         label: 'Perfis',
-                        icon: 'pi pi-fw pi-shopping-cart',
+                        icon: 'pi pi-fw pi-user',
                     },
                     {
                         label: 'Utilizadores',
-                        icon: 'pi pi-fw pi-info-circle',
+                        icon: 'pi pi-fw pi-users',
                     },
                     {
                         label: 'Pagamentos',
-                        icon: 'pi pi-fw pi-shopping-cart',
+                        icon: 'pi pi-fw pi-money-bill',
                     },
                     {
                         label: 'E-mails',
-                        icon: 'pi pi-fw pi-info-circle',
+                        icon: 'pi pi-fw pi-at',
                     },
                     {
                         label: 'Alertas',
-                        icon: 'pi pi-fw pi-info-circle',
+                        icon: 'pi pi-fw pi-bell',
+                    },
+                    {
+                        label: 'Empresa',
+                        icon: 'pi pi-fw pi-building',
+                    },
+                    {
+                        label: 'Suporte',
+                        icon: 'pi pi-fw pi-question-circle',
                     },
                 ],
             },
