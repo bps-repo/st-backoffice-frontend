@@ -23,6 +23,8 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Alunos',
                         icon: 'pi pi-fw pi-users',
+                        routerLink: ['/modules/schoolar/students'],
+
                     },
                     {
                         label: 'Professores',
