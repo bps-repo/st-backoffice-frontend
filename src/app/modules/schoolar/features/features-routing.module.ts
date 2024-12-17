@@ -7,10 +7,14 @@ const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
     },
+    {
+        path: 'students',
+        loadChildren: () => import('./students/students.module').then(m => m.StudentsModule),
+    },
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes), DashboardComponent],
+    imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
 export class FeaturesRoutingModule {}
