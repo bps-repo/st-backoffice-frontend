@@ -17,14 +17,17 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
+                        routerLink: ['/modules/schoolar/dashboard'],
                     },
                     {
                         label: 'Alunos',
                         icon: 'pi pi-fw pi-users',
+                        routerLink: ['/modules/schoolar/students'],
                     },
                     {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/modules/schoolar/classes'],
                     },
                     {
                         label: 'Calendário',
@@ -32,6 +35,14 @@ export class AppMenuComponent implements OnInit {
                     },
                     {
                         label: 'Matrículas',
+                        icon: 'pi pi-fw pi-wallet',
+                    },
+                    {
+                        label: 'Avaliações',
+                        icon: 'pi pi-fw pi-wallet',
+                    },
+                    {
+                        label: 'Materiais',
                         icon: 'pi pi-fw pi-wallet',
                     },
                     {
