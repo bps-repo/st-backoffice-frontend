@@ -1,10 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 
+interface alert {
+    label: string;
+    description: string;
+}
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ChartModule],
+    imports: [ChartModule, CommonModule],
     templateUrl: './dashboard.component.html',
     styleUrl: './dashboard.component.scss',
 })
@@ -12,6 +17,21 @@ export class DashboardComponent implements OnInit {
     pieDataLevels: any;
 
     pieLevelOptions: any;
+
+    alerts: alert[] = [
+        {
+            label: 'Inscrição',
+            description: 'Username foi inscrito no curso de Beginning',
+        },
+        {
+            label: 'Agendamento de aulas',
+            description: 'Usernamer8374 acabou de agendar uma aula para as 12h ',
+        },
+        {
+            label: 'Matricula',
+            description: '15 novos estudantes matriculados pela user2',
+        },
+    ];
 
     constructor() {}
 

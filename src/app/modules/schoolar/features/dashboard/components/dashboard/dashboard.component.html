@@ -77,13 +77,42 @@
 
     <div class="col-12 xl:col-6">
         <div class="card h-full">
-            <div class="text-900 text-xl font-semibold mb-6">Alunos activos por níveis</div>
+            <div class="text-900 text-xl font-semibold mb-6">
+                Alunos activos por níveis
+            </div>
             <p-chart
                 type="pie"
                 [data]="pieDataLevels"
                 [options]="pieLevelOptions"
                 height="300px"
             ></p-chart>
+        </div>
+    </div>
+
+    <div class="col-12 xl:col-6">
+        <div class="card h-full">
+            <div class="text-900 text-xl font-semibold mb-5">
+                Ultimas notificações
+            </div>
+            <div
+                *ngFor="let alert of alerts"
+                class="flex flex-column justify-content-start align-content-start mb-4 gap-1"
+            >
+                <div class="flex align-items-center gap-1">
+                    <i class="pi pi-bell font-bold"></i>
+                    <div class="flex flex-column ml-3">
+                        <span class="font-bold text-lg mb-1">{{
+                            alert.label
+                        }}</span>
+                    </div>
+                </div>
+
+                <div class="text-xl p-text-secondary ml-5">
+                    {{ alert.description }}
+                </div>
+
+                <div class="ml-5">12/12/2024 12:04</div>
+            </div>
         </div>
     </div>
 </div>
