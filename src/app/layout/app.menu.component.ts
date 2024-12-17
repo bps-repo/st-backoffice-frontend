@@ -32,6 +32,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Calendário',
                         icon: 'pi pi-fw pi-calendar',
+                        routerLink: ['/modules/schoolar/calendar'],
                     },
                     {
                         label: 'Matrículas',

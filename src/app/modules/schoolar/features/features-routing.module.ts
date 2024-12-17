@@ -17,6 +17,13 @@ const routes: Routes = [
         loadChildren: () =>
             import('./classes/classes.module').then((m) => m.ClassesModule),
     },
+    {
+        path: 'calendar',
+        loadChildren: () =>
+            import('./calendar/calendar.app.module').then(
+                (m) => m.CalendarAppModule
+            ),
+    },
 ];
 
 @NgModule({

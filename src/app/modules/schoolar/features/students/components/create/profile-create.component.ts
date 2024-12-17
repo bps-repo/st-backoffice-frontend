@@ -24,7 +24,7 @@ import { RippleModule } from 'primeng/ripple';
 		InputGroupModule,
         InputGroupAddonModule
     ],
-    templateUrl: './profilecreate.component.html'
+    templateUrl: './profile-create.component.html'
 })
 export class ProfileCreateComponent implements OnInit {
 
