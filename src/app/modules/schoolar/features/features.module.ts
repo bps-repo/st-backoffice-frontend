@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FeaturesRoutingModule } from './features-routing.module';
 
 @NgModule({
-    declarations: [],
     imports: [FeaturesRoutingModule, CommonModule],
+    declarations: [],
 })
 export class FeaturesModule {}

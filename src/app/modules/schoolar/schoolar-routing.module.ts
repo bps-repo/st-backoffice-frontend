@@ -1,12 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { EcommerceDashboardComponent } from 'src/app/demo/components/dashboards/ecommerce/ecommerce.dashboard.component';
-import { DashboardComponent } from './features/dashboard/components/dashboard/dashboard.component';
 
 const routes: Routes = [
     {
         path: '',
-        component: DashboardComponent,
+        loadChildren: () =>
+            import('./features/features.module').then((m) => m.FeaturesModule),
     },
 ];
 

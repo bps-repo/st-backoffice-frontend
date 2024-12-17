@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SchoolarRoutingModule } from './schoolar-routing.module';
 
 @NgModule({
-    declarations: [],
     imports: [SchoolarRoutingModule, CommonModule],
+    declarations: [],
 })
 export class SchoolarModule {}
