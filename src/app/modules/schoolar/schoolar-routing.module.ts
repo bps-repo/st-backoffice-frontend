@@ -5,7 +5,8 @@ import { EcommerceDashboardComponent } from 'src/app/demo/components/dashboards/
 export const routes: Routes = [
     {
         path: '',
-        component: EcommerceDashboardComponent,
+        loadChildren: () =>
+            import('./features/features.module').then((m) => m.FeaturesModule),
     },
 ];
 
