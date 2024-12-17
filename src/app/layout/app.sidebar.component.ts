@@ -3,14 +3,15 @@ import { LayoutService } from './service/app.layout.service';
 
 @Component({
     selector: 'app-sidebar',
-    templateUrl: './app.sidebar.component.html'
+    templateUrl: './app.sidebar.component.html',
+    styleUrls: ['./app.sidebar.component.css'],
 })
 export class AppSidebarComponent {
     timeout: any = null;
 
     @ViewChild('menuContainer') menuContainer!: ElementRef;
     constructor(public layoutService: LayoutService, public el: ElementRef) {}
-    
+
 
     onMouseEnter() {
         if (!this.layoutService.state.anchored) {
@@ -19,8 +20,8 @@ export class AppSidebarComponent {
                 this.timeout = null;
             }
             this.layoutService.state.sidebarActive = true;
-           
-    
+
+
         }
     }
 

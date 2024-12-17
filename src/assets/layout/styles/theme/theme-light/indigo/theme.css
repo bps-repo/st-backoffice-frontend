@@ -12,7 +12,7 @@
   --surface-f:#ffffff;
   --text-color:#4b5563;
   --text-color-secondary:#6b7280;
-  --primary-color:#6366f1;
+  --primary-color:#0e0457;
   --primary-color-text:#ffffff;
   --surface-0: #ffffff;
   --surface-50: #f9fafb;
@@ -47,7 +47,7 @@
   --focus-ring: 0 0 0 0.2rem #c7d2fe;
   --maskbg: rgba(0, 0, 0, 0.4);
   --highlight-bg: #eef2ff;
-  --highlight-text-color: #4338ca;
+  --highlight-text-color: #0e0457;
   color-scheme: light;
   --transition-duration: 0.2s;
 }

@@ -1,0 +1,16 @@
+/* Ensure the app-logo container has a defined size */
+.app-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px; /* Adjust the width as needed */
+    height: 60px; /* Adjust the height as needed */
+    overflow: hidden; /* Prevents overflow */
+}
+
+/* Ensure the image fits within the app-logo container */
+.logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Adjusts the image to fit within the container without distortion */
+}
