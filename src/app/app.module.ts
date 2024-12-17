@@ -5,16 +5,9 @@ import { AppComponent } from './app.component';
 import { AppLayoutModule } from './layout/app.layout.module';
 
 @NgModule({
-    declarations: [
-        AppComponent
-    ],
-    imports: [
-        AppRoutingModule,
-        AppLayoutModule
-    ],
-    providers: [
-        { provide: LocationStrategy, useClass: HashLocationStrategy }
-    ],
-    bootstrap: [AppComponent]
+    declarations: [AppComponent],
+    imports: [AppRoutingModule, AppLayoutModule],
+    providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
+    bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
