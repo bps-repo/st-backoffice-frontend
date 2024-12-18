@@ -25,6 +25,11 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/modules/schoolar/students'],
                     },
                     {
+                        label: 'Entidades',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/modules/schoolar/students'],
+                    },
+                    {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/modules/schoolar/classes'],
@@ -43,6 +48,14 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-wallet',
                     },
                     {
+                        label: 'Certificados',
+                        icon: 'pi pi-fw pi-wallet',
+                    },
+                    {
+                        label: 'Contratos',
+                        icon: 'pi pi-fw pi-wallet',
+                    },
+                    {
                         label: 'Materiais',
                         icon: 'pi pi-fw pi-wallet',
                     },
@@ -57,7 +70,7 @@ export class AppMenuComponent implements OnInit {
                 ],
             },
             {
-                label: 'Produtos e Serviços',
+                label: 'Cursos',
                 icon: 'pi pi-sitemap',
                 items: [
                     {
@@ -65,16 +78,12 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-th-large',
                     },
                     {
-                        label: 'Produtos',
+                        label: 'Cursos',
                         icon: 'pi pi-fw pi-sitemap',
                     },
                     {
-                        label: 'Produtos em Stock',
-                        icon: 'pi pi-fw pi-shopping-cart',
-                    },
-                    {
-                        label: 'Armazém',
-                        icon: 'pi pi-fw pi-shopping-cart',
+                        label: 'Pacotes',
+                        icon: 'pi pi-fw pi-sitemap',
                     },
                     {
                         label: 'Relatórios',
@@ -95,54 +104,12 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-th-large',
                     },
                     {
-                        label: 'Facturas',
+                        label: 'Facturas pró-forma',
                         icon: 'pi pi-fw pi-file',
                     },
                     {
                         label: 'Recibos',
                         icon: 'pi pi-fw pi-file',
-                    },
-                    {
-                        label: 'Notas de crédito',
-                        icon: 'pi pi-fw pi-file',
-                    },
-                    {
-                        label: 'Notas de Débito',
-                        icon: 'pi pi-fw pi-file',
-                    },
-                    {
-                        label: 'Notas de Débito',
-                        icon: 'pi pi-fw pi-file',
-                    },
-                    {
-                        label: 'POS',
-                        icon: 'pi pi-fw pi-globe',
-                    },
-                    {
-                        label: 'Relatórios',
-                        icon: 'pi pi-fw pi-file-pdf',
-                    },
-                    {
-                        label: 'Configurações',
-                        icon: 'pi pi-fw pi-cog',
-                    },
-                ],
-            },
-            {
-                label: 'Contabilidade',
-                icon: 'pi pi-fw pi-money-bill',
-                items: [
-                    {
-                        label: 'Dashboard',
-                        icon: 'pi pi-fw pi-th-large',
-                    },
-                    {
-                        label: 'Plano de Contas',
-                        icon: 'pi pi-fw pi-money-bill',
-                    },
-                    {
-                        label: 'Reclamações',
-                        icon: 'pi pi-fw pi-tag',
                     },
                     {
                         label: 'Relatórios',
