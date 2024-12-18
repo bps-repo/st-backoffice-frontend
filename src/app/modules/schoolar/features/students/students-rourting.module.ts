@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ListComponent } from './components/list/list.component';
 import { EditComponent } from './components/edit/edit.component';
 import { DetailComponent } from './components/detail/detail.component';
-import { ProfileCreateComponent } from 'src/app/demo/components/profile/create/profilecreate.component';
+import { ProfileCreateComponent } from './components/create/profile-create.component';
 
 const routes: Routes = [
     {
