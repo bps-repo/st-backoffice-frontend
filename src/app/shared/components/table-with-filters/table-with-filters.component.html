@@ -162,7 +162,7 @@
                             </p-columnFilter>
                         </div>
                     </th>
-                    <th style="min-width: 10rem">
+                    <th *ngIf="entity == 'students'" style="min-width: 10rem">
                         <div
                             class="flex justify-content-between align-items-center"
                         >
@@ -229,6 +229,7 @@
                     </th>
                     <th style="min-width: 12rem">
                         <div
+                            *ngIf="entity == 'students'"
                             class="flex justify-content-between align-items-center"
                         >
                             Data de Nascimento
@@ -263,6 +264,7 @@
                     </th>
                     <th style="min-width: 8rem">
                         <div
+                            *ngIf="entity == 'students'"
                             class="flex justify-content-between align-items-center"
                         >
                             Estado
@@ -282,13 +284,13 @@
                     </td>
                     <td>{{ customer.name }}</td>
                     <td>5008337741</td>
-                    <td>Beginner - Adults</td>
+                    <td *ngIf="entity == 'students'">Beginner - Adults</td>
                     <td>244 928833284</td>
                     <td>username&#64;gmail.com</td>
-                    <td>
+                    <td *ngIf="entity == 'students'">
                         {{ customer.date | date : "MM/dd/yyyy" }}
                     </td>
-                    <td class="text-center">
+                    <td *ngIf="entity == 'students'" class="text-center">
                         <i
                             class="pi"
                             [ngClass]="{

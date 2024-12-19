@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { ExtraOptions, RouterModule, Routes } from '@angular/router';
-import { AppLayoutComponent } from './layout/app.layout.component';
+import { AppLayoutComponent } from './layout/components/layout/app.layout.component';
 import { DashboardComponent } from './modules/schoolar/features/dashboard/components/dashboard/dashboard.component';
 
 const routerOptions: ExtraOptions = {

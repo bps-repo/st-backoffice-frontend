@@ -27,7 +27,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Entidades',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['/modules/schoolar/students'],
+                        routerLink: ['/modules/schoolar/entities'],
                     },
                     {
                         label: 'Aulas',

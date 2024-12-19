@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
-import { MenuService } from './app.menu.service';
-import { MenuMode } from '../shared/@types/layout';
+import { MenuMode } from '../../../shared/@types/layout';
+import { MenuService } from '../menu/app.menu.service';
 
 @Component({
     selector: 'app-topbar',

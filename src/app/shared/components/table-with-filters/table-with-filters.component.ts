@@ -50,6 +50,8 @@ import {
 })
 export class TableWithFiltersComponent implements OnInit {
     @Input() tableLable = '';
+    @Input() type = '';
+    @Input() entity = '';
 
     customers1: Customer[] = [];
 
@@ -99,6 +101,6 @@ export class TableWithFiltersComponent implements OnInit {
     }
 
     navigateToCreateStudent() {
-        this.router.navigate(['/modules/schoolar/students/create']);
+        this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
     }
 }
