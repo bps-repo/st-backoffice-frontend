@@ -3,17 +3,12 @@
         >Adicionar estudante</span
     >
     <div class="grid">
+        <!-- DADOS PESSOAIS -->
         <div class="col-12 lg:col-2">
             <div class="text-900 font-medium text-xl mb-3">Dados pessoais</div>
         </div>
         <div class="col-12 lg:col-10">
             <div class="grid formgrid p-fluid">
-                <div class="field mb-4 col-12 md:col-8">
-                    <label for="nickname" class="font-medium text-900"
-                        >Nome completo</label
-                    >
-                    <input id="nickname" type="text" pInputText />
-                </div>
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="avatar" class="font-medium text-900"
                         >Foto</label
@@ -28,7 +23,14 @@
                         chooseLabel="Carregue uma imagem"
                     ></p-fileUpload>
                 </div>
-                <div class="field mb-4 col-12 md:col-3">
+                <div class="field mb-4 col-12 md:col-8">
+                    <label for="nickname" class="font-medium text-900"
+                        >Nome completo</label
+                    >
+                    <input id="nickname" type="text" pInputText />
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
                         >Tipo de Identificacao</label
                     >
@@ -39,13 +41,13 @@
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
-                <div class="field mb-4 col-12 md:col-3">
+                <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
                         >Nº da Identificacao</label
                     >
                     <input id="email" type="text" pInputText />
                 </div>
-                <div class="field mb-4 col-12 md:col-3">
+                <div class="field mb-4 col-12 md:col-4">
                     <label for="country" class="font-medium text-900"
                         >Pais</label
                     >
@@ -56,7 +58,7 @@
                         [filter]="true"
                         filterBy="name"
                         [showClear]="true"
-                        placeholder="Select a Country"
+                        placeholder="Selecione um país"
                     >
                         <ng-template let-country pTemplate="item">
                             <div class="flex align-items-center">
@@ -73,33 +75,161 @@
                         </ng-template>
                     </p-dropdown>
                 </div>
-                <div class="field mb-4 col-12 md:col-3">
+                <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >NIF</label
+                        >Genero</label
+                    >
+                    <div class="grid formgrid">
+                        <div class="col-12 md:col-4">
+                            <div class="field-radiobutton">
+                                <p-radioButton
+                                    name="city"
+                                    value="Chicago"
+                                    [(ngModel)]="valRadio"
+                                    id="m"
+                                ></p-radioButton>
+                                <label for="city1">Masculino</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <div class="field-radiobutton">
+                                <p-radioButton
+                                    name="city"
+                                    value="Los Angeles"
+                                    [(ngModel)]="valRadio"
+                                    id="f"
+                                ></p-radioButton>
+                                <label for="city2">Femenino</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Data de Nascimento</label
                     >
                     <input id="email" type="text" pInputText />
                 </div>
-                <div class="field mb-4 col-12 md:col-6">
-                    <label for="city" class="font-medium text-900">City</label>
-                    <input id="city" type="text" pInputText />
-                </div>
-                <div class="field mb-4 col-12 md:col-6">
-                    <label for="state" class="font-medium text-900"
-                        >State</label
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Morada</label
                     >
-                    <input id="state" type="text" pInputText />
+                    <input id="email" type="text" pInputText />
                 </div>
-                <div class="field mb-4 col-12">
-                    <label for="website" class="font-medium text-900"
-                        >Website</label
+            </div>
+        </div>
+
+        <!-- DADOS DA MATRICULA -->
+
+        <div class="col-12 lg:col-2">
+            <div class="text-900 font-medium text-xl mb-3">
+                Dados da matricula
+            </div>
+        </div>
+
+        <div class="col-12 lg:col-10">
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Instalação</label
                     >
-                    <p-inputGroup>
-                        <p-inputGroupAddon>
-                            <span>www</span>
-                        </p-inputGroupAddon>
-                        <input id="website" type="text" pInputText />
-                    </p-inputGroup>
+                    <p-dropdown
+                        [options]="instalations"
+                        placeholder="Selecione"
+                        [(ngModel)]="id"
+                        [showClear]="true"
+                    ></p-dropdown>
                 </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Tipo de Inscrição</label
+                    >
+                    <p-dropdown
+                        [options]="levels"
+                        placeholder="Selecione"
+                        [(ngModel)]="id"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Estado</label
+                    >
+                    <div class="grid formgrid">
+                        <div class="col-12 md:col-4">
+                            <div class="field-radiobutton">
+                                <p-radioButton
+                                    name="city"
+                                    value="Chicago"
+                                    [(ngModel)]="valRadio"
+                                    id="m"
+                                ></p-radioButton>
+                                <label for="city1">Activo</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <div class="field-radiobutton">
+                                <p-radioButton
+                                    name="city"
+                                    value="Los Angeles"
+                                    [(ngModel)]="valRadio"
+                                    id="f"
+                                ></p-radioButton>
+                                <label for="city2">Inactivo</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-8">
+                    <label for="email" class="font-medium text-900"
+                        >Entidades</label
+                    >
+                    <p-dropdown
+                        [options]="entities"
+                        placeholder="Selecione"
+                        [(ngModel)]="id"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Descontos Automáticos</label
+                    >
+                    <p-dropdown
+                        [options]="discounts"
+                        placeholder="Selecione"
+                        [(ngModel)]="id"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="email" class="font-medium text-900"
+                        >Modalidade de Pagamento</label
+                    >
+                    <p-dropdown
+                        [options]="discounts"
+                        placeholder="Selecione"
+                        [(ngModel)]="id"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="email" class="font-medium text-900"
+                        >Mensalidade por Referência Multibanco</label
+                    >
+                    <p-dropdown
+                        [options]="discounts"
+                        placeholder="Selecione"
+                        [(ngModel)]="id"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+
                 <div class="col-12">
                     <button
                         pButton
