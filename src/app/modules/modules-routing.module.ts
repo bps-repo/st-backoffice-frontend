@@ -8,9 +8,33 @@ const routes: Routes = [
             import('./schoolar/schoolar.module').then((m) => m.SchoolarModule),
     },
     {
-        path: 'products',
+        path: 'courses',
         loadChildren: () =>
-            import('./courses/products.module').then((m) => m.ProductsModule),
+            import('./courses/courses.module').then((m) => m.CoursesModule),
+    },
+    {
+        path: 'comunication',
+        loadChildren: () =>
+            import('./comunication/comunication.module').then(
+                (m) => m.ComunicationModule
+            ),
+    },
+    {
+        path: 'settings',
+        loadChildren: () =>
+            import('./settings/settings.module').then((m) => m.SettingsModule),
+    },
+    {
+        path: 'human-resources',
+        loadChildren: () =>
+            import('./human-resources/human-resources.module').then(
+                (m) => m.HumanResourcesModule
+            ),
+    },
+    {
+        path: 'invoices',
+        loadChildren: () =>
+            import('./invoices/invoices.module').then((m) => m.InvoicesModule),
     },
 ];
 

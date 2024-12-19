@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { ExtraOptions, RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './layout/app.layout.component';
+import { DashboardComponent } from './modules/schoolar/features/dashboard/components/dashboard/dashboard.component';
 
 const routerOptions: ExtraOptions = {
     anchorScrolling: 'enabled',
@@ -13,10 +14,7 @@ const routes: Routes = [
         children: [
             {
                 path: '',
-                loadChildren: () =>
-                    import(
-                        './demo/components/dashboards/dashboards.module'
-                    ).then((m) => m.DashboardsModule),
+                component: DashboardComponent,
             },
             {
                 path: 'modules',
@@ -31,21 +29,19 @@ const routes: Routes = [
         path: 'auth',
         data: { breadcrumb: 'Auth' },
         loadChildren: () =>
-            import('./demo/components/auth/auth.module').then(
-                (m) => m.AuthModule
-            ),
+            import('./modules/auth/auth.module').then((m) => m.AuthModule),
     },
     {
         path: 'landing',
         loadChildren: () =>
-            import('./demo/components/landing/landing.module').then(
+            import('./shared/components/landing/landing.module').then(
                 (m) => m.LandingModule
             ),
     },
     {
         path: 'notfound',
         loadChildren: () =>
-            import('./demo/components/notfound/notfound.module').then(
+            import('./shared/components/notfound/notfound.module').then(
                 (m) => m.NotfoundModule
             ),
     },

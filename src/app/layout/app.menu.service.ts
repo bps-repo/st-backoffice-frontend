@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { MenuChangeEvent } from './api/menuchangeevent';
+import { MenuChangeEvent } from '../shared/@types/menuchangeevent';
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class MenuService {
-
     private menuSource = new Subject<MenuChangeEvent>();
     private resetSource = new Subject();
 

@@ -16,8 +16,8 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
-import { Customer, Representative } from 'src/app/core/api/customer';
-import { CustomerService } from 'src/app/core/service/customer.service';
+import { Customer, Representative } from 'src/app/core/models/customer';
+import { CustomerService } from 'src/app/core/services/customer.service';
 
 @Component({
     selector: 'app-table-with-filters',
