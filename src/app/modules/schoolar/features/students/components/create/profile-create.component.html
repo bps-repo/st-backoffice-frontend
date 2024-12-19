@@ -32,24 +32,24 @@
 
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Tipo de Identificacao</label
+                        >Tipo de Identificação</label
                     >
                     <p-dropdown
                         [options]="ids"
                         placeholder="Selecione"
-                        [(ngModel)]="id"
+                        [(ngModel)]="id[10]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Nº da Identificacao</label
+                        >Nº de Identificação</label
                     >
                     <input id="email" type="text" pInputText />
                 </div>
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="country" class="font-medium text-900"
-                        >Pais</label
+                        >País</label
                     >
                     <p-dropdown
                         inputId="country"
@@ -77,7 +77,7 @@
                 </div>
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Genero</label
+                        >Género</label
                     >
                     <div class="grid formgrid">
                         <div class="col-12 md:col-4">
@@ -136,7 +136,7 @@
                     <p-dropdown
                         [options]="instalations"
                         placeholder="Selecione"
-                        [(ngModel)]="id"
+                        [(ngModel)]="id[4]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
@@ -148,7 +148,7 @@
                     <p-dropdown
                         [options]="levels"
                         placeholder="Selecione"
-                        [(ngModel)]="id"
+                        [(ngModel)]="id[9]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
@@ -190,7 +190,7 @@
                     <p-dropdown
                         [options]="entities"
                         placeholder="Selecione"
-                        [(ngModel)]="id"
+                        [(ngModel)]="id[40]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
@@ -202,7 +202,7 @@
                     <p-dropdown
                         [options]="discounts"
                         placeholder="Selecione"
-                        [(ngModel)]="id"
+                        [(ngModel)]="id[3]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
@@ -212,9 +212,9 @@
                         >Modalidade de Pagamento</label
                     >
                     <p-dropdown
-                        [options]="discounts"
+                        [options]="payment_ways"
                         placeholder="Selecione"
-                        [(ngModel)]="id"
+                        [(ngModel)]="id[1]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
@@ -223,18 +223,108 @@
                         >Mensalidade por Referência Multibanco</label
                     >
                     <p-dropdown
-                        [options]="discounts"
+                        [options]="reference_monthly_sent"
                         placeholder="Selecione"
-                        [(ngModel)]="id"
+                        [(ngModel)]="id[0]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 md:col-3">
+                    <div class="field-checkbox">
+                        <p-checkbox
+                            name="group1"
+                            value="New York"
+                            [(ngModel)]="valCheck[0]"
+                            id="ny"
+                        ></p-checkbox>
+                        <label for="ny">Termos de Responsabilidades</label>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-3">
+                    <div class="field-checkbox">
+                        <p-checkbox
+                            name="group1"
+                            value="New York"
+                            [(ngModel)]="valCheck[1]"
+                            id="ny"
+                        ></p-checkbox>
+                        <label for="ny">
+                            Aceita receber comunicação sobre o funcionamento,
+                            alteração do horário de funcionamento das
+                            instalações e das atividades</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-3">
+                    <div class="field-checkbox">
+                        <p-checkbox
+                            name="group1"
+                            value="New York"
+                            [(ngModel)]="valCheck[2]"
+                            id="ny"
+                        ></p-checkbox>
+                        <label for="ny">
+                            Aceita receber informações por email
+                            (Publicidade)</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-3">
+                    <div class="field-checkbox">
+                        <p-checkbox
+                            name="group1"
+                            value="New York"
+                            [(ngModel)]="valCheck[3]"
+                            id="ny"
+                        ></p-checkbox>
+                        <label for="ny">
+                            Aceita a recolha e tratamento dos dados
+                            pessoais</label
+                        >
+                    </div>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-8">
+                    <label for="nickname" class="font-medium text-900"
+                        >E-mail</label
+                    >
+                    <input
+                        id="nickname"
+                        type="text"
+                        pInputText
+                        placeholder="ex. user@gmail.com"
+                    />
+                </div>
+
+                <div class="col-12 md:col-4 mt-5">
+                    <div class="field-checkbox">
+                        <p-checkbox
+                            name="group1"
+                            value="New York"
+                            [(ngModel)]="valCheck[4]"
+                            id="ny"
+                        ></p-checkbox>
+                        <label for="ny"> Receber facturas por e-mail</label>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-12">
+                    <textarea
+                        rows="5"
+                        cols="30"
+                        placeholder="Observações"
+                        pInputTextarea
+                    ></textarea>
+                </div>
+                <div class="col-12 md:col-6">
                     <button
                         pButton
                         pRipple
-                        label="Create User"
+                        label="Adicionar estudante"
                         class="w-auto mt-3"
                     ></button>
                 </div>

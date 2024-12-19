@@ -1,4 +1,4 @@
-import { ColorScheme, MenuColorScheme, MenuMode } from "./layout";
+import { ColorScheme, MenuColorScheme, MenuMode } from './layout';
 
 export interface AppConfig {
     inputStyle: string;

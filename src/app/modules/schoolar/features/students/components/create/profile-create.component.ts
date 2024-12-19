@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -11,7 +12,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
-import { COUNTRIES, DISCOUNTS, ENTITIES, INSTALATIONS, LEVELS } from 'src/app/shared/constants/app';
+import {
+    COUNTRIES,
+    DISCOUNTS,
+    ENTITIES,
+    INSTALATIONS,
+    LEVELS,
+} from 'src/app/shared/constants/app';
 
 @Component({
     standalone: true,
@@ -27,6 +34,7 @@ import { COUNTRIES, DISCOUNTS, ENTITIES, INSTALATIONS, LEVELS } from 'src/app/sh
         InputGroupModule,
         InputGroupAddonModule,
         RadioButtonModule,
+        CheckboxModule,
     ],
     templateUrl: './profile-create.component.html',
 })
@@ -37,15 +45,21 @@ export class ProfileCreateComponent implements OnInit {
 
     ids: SelectItem[] = [];
 
-    id: SelectItem = { value: '' };
+    id: string[] = [];
 
     instalations: string[] = INSTALATIONS;
+
+    payment_ways: any[] = ['Multicaixa', 'Transferência Bancária', 'Dinheiro'];
+
+    reference_monthly_sent: any[] = ['Enviar por E-mail', 'Enviar por SMS'];
 
     entities: SelectItem[] = ENTITIES;
 
     discounts: SelectItem[] = DISCOUNTS;
 
     valRadio: string = '';
+
+    valCheck: string[] = [];
 
     ngOnInit() {
         this.ids = [
