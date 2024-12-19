@@ -1,39 +1,10 @@
 import { Injectable, effect, signal } from '@angular/core';
 import { Subject } from 'rxjs';
+import {
+    AppConfig,
+    LayoutState,
+} from 'src/app/shared/@types/layout-interfaces';
 
-export type MenuMode =
-    | 'static'
-    | 'overlay'
-    | 'horizontal'
-    | 'slim'
-    | 'slim-plus'
-    | 'reveal'
-    | 'drawer';
-
-export type ColorScheme = 'light' | 'dark' | 'dim';
-
-export type MenuColorScheme = 'colorScheme' | 'primaryColor' | 'transparent';
-
-export interface AppConfig {
-    inputStyle: string;
-    colorScheme: ColorScheme;
-    theme: string;
-    ripple: boolean;
-    menuMode: MenuMode;
-    scale: number;
-    menuTheme: MenuColorScheme;
-}
-
-interface LayoutState {
-    staticMenuDesktopInactive: boolean;
-    overlayMenuActive: boolean;
-    profileSidebarVisible: boolean;
-    configSidebarVisible: boolean;
-    staticMenuMobileActive: boolean;
-    menuHoverActive: boolean;
-    sidebarActive: boolean;
-    anchored: boolean;
-}
 
 @Injectable({
     providedIn: 'root',

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -15,8 +16,8 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
-import { Customer, Representative } from 'src/app/demo/api/customer';
-import { CustomerService } from 'src/app/demo/service/customer.service';
+import { Customer, Representative } from 'src/app/core/models/customer';
+import { CustomerService } from 'src/app/core/services/customer.service';
 
 @Component({
     selector: 'app-table-with-filters',
@@ -37,6 +38,7 @@ import { CustomerService } from 'src/app/demo/service/customer.service';
         ToastModule,
         FileUploadModule,
         ToolbarModule,
+        RouterModule,
     ],
     templateUrl: './table-with-filters.component.html',
     styleUrl: './table-with-filters.component.scss',
@@ -61,7 +63,10 @@ export class TableWithFiltersComponent implements OnInit {
     selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private customerService: CustomerService) {}
+    constructor(
+        private customerService: CustomerService,
+        private router: Router
+    ) {}
     ngOnInit(): void {
         this.customerService.getCustomersLarge().then((customers) => {
             this.customers1 = customers;
@@ -125,5 +130,9 @@ export class TableWithFiltersComponent implements OnInit {
     clear(table: Table) {
         table.clear();
         this.filter.nativeElement.value = '';
+    }
+
+    navigateToCreateStudent() {
+        this.router.navigate(['/modules/schoolar/students/create']);
     }
 }

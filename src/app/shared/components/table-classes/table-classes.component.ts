@@ -22,8 +22,8 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
-import { Customer, Representative } from 'src/app/demo/api/customer';
-import { CustomerService } from 'src/app/demo/service/customer.service';
+import { Customer, Representative } from 'src/app/core/models/customer';
+import { CustomerService } from 'src/app/core/services/customer.service';
 
 @Component({
     selector: 'app-table-classes',
