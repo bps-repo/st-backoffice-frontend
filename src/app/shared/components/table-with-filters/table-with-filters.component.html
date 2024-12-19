@@ -276,7 +276,7 @@
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-customer>
-                <tr>
+                <tr [routerLink]="['/modules/schoolar/students', customer.id]">
                     <td>
                         {{ customer.id }}
                     </td>
