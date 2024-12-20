@@ -1,0 +1,11 @@
+<p-tabView class="border-round-top-3xl">
+    <p-tabPanel
+        *ngFor="let tab of tabs"
+        [header]="tab.header"
+        [leftIcon]="tab.icon"
+    >
+        <ng-container #dynamicComponentContainer>
+            <ng-container *ngComponentOutlet="tab.template"></ng-container>
+        </ng-container>
+    </p-tabPanel>
+</p-tabView>
