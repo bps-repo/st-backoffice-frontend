@@ -1,6 +1,6 @@
 <p-tabView class="border-round-top-3xl">
     <p-tabPanel
-        *ngFor="let tab of tabs"
+        *ngFor="let tab of tabs | async"
         [header]="tab.header"
         [leftIcon]="tab.icon"
     >
