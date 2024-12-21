@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { SelectItem } from 'primeng/api';
+import { MenuItem, SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -23,6 +23,7 @@ import {
     REPRESENTATIVIES,
     STATUSES,
 } from '../../constants/representatives';
+import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
     selector: 'app-table-with-filters',
@@ -44,6 +45,7 @@ import {
         FileUploadModule,
         ToolbarModule,
         RouterModule,
+        SplitButtonModule,
     ],
     templateUrl: './table-with-filters.component.html',
     styleUrl: './table-with-filters.component.scss',
@@ -52,6 +54,8 @@ export class TableWithFiltersComponent implements OnInit {
     @Input() tableLable = '';
     @Input() type = '';
     @Input() entity = '';
+
+    items: MenuItem[] = [];
 
     customers1: Customer[] = [];
 
@@ -86,6 +90,16 @@ export class TableWithFiltersComponent implements OnInit {
                     ).toISOString())
             );
         });
+
+        this.items = [
+            { label: 'Pdf', icon: 'pi pi-file' },
+            { label: 'Excel', icon: 'pi-file-excel' },
+            {
+                label: 'CSV',
+                icon: 'pi pi-file',
+                url: '#',
+            },
+        ];
     }
 
     onGlobalFilter(table: Table, event: Event) {

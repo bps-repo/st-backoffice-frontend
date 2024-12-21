@@ -2169,9 +2169,9 @@
   .p-button.p-button-info:not(:disabled):hover,
 .p-buttonset.p-button-info > .p-button:not(:disabled):hover,
 .p-splitbutton.p-button-info > .p-button:not(:disabled):hover {
-    background: #2563EB;
+    background: #0e0457;
     color: #ffffff;
-    border-color: #2563EB;
+    border-color: #0e0457;
   }
   .p-button.p-button-info:not(:disabled):focus,
 .p-buttonset.p-button-info > .p-button:not(:disabled):focus,

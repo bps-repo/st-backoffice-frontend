@@ -25,13 +25,11 @@
                     class="p-button-help"
                     (click)="dt1.exportCSV()"
                 ></button>
-                <button
-                    pButton
-                    pRipple
-                    icon="pi pi-file-pdf"
-                    class="p-button-help"
-                    (click)="dt1.exportCSV()"
-                ></button>
+                <p-splitButton
+                    icon="pi pi-file-export"
+                    [model]="items"
+                    styleClass="p-button-info h-5rem text-5xl"
+                ></p-splitButton>
             </div>
         </div>
         <p-table

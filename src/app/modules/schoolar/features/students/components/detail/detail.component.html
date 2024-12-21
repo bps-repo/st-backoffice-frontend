@@ -1,10 +1,17 @@
 <div class="grid">
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title">Tab View</h1>
-            <button pButton>
-                <i class="icon icon-plus"></i>
-            </button>
+    <div class="card w-full">
+        <div class="flex justify-content-between gap-5">
+            <div>
+                <h1 class="text-3xl text-primary">Helder Santiago - 2864</h1>
+            </div>
+            <div class="action-buttons">
+                <p-splitButton
+                    label="Acções rápidas"
+                    icon="pi pi-sliders-h"
+                    [model]="items"
+                    styleClass="p-button-info text-5xl"
+                ></p-splitButton>
+            </div>
         </div>
     </div>
     <app-tab-view [tabs]="tabs" class="w-full"></app-tab-view>
