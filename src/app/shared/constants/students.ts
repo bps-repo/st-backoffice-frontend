@@ -1,7 +1,9 @@
 import { GeneralComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/general/general.component';
 import { Tab } from '../@types/tab';
-import { ClassesComponent } from 'src/app/modules/schoolar/features/classes/components/classes/classes.component';
 import { Observable, of } from 'rxjs';
+import { ClassesComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/classes/classes.component';
+import { InvoicesComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/invoices/invoices.component';
+import { CoursesComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/courses/courses.component';
 
 export const STUDENTS_TABS: Observable<Tab[]> = of([
     {
@@ -27,18 +29,11 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         template: GeneralComponent,
     },
     {
-        header: 'Aulas',
-        icon: 'pi pi-wallet',
-        title: 'Suas Aulas',
-        description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: ClassesComponent,
-    },
-    {
         header: 'Cursos',
         icon: 'pi pi-wallet',
         title: 'Overview ',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: GeneralComponent,
+        template: CoursesComponent,
     },
     {
         header: 'Avaliações',
@@ -52,7 +47,7 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         icon: 'pi pi-file',
         title: 'Overview ',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: GeneralComponent,
+        template: InvoicesComponent,
     },
     {
         header: 'Documentos',

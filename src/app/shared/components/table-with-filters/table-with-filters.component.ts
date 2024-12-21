@@ -24,6 +24,7 @@ import {
     STATUSES,
 } from '../../constants/representatives';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { TableHeaderComponent } from './table-header.component';
 
 @Component({
     selector: 'app-table-with-filters',
@@ -46,6 +47,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
         ToolbarModule,
         RouterModule,
         SplitButtonModule,
+        TableHeaderComponent
     ],
     templateUrl: './table-with-filters.component.html',
     styleUrl: './table-with-filters.component.scss',

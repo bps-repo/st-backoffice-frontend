@@ -9,15 +9,16 @@
             <div
                 class="flex flex-column justify-content-center align-items-center mt-3 mb-3 w-full"
             >
-                <span class="font-bold text-xl">Manuel Ikuma</span>
-                <span>user284sgmail.com</span>
+                <span class="font-bold text-3xl">Manuel Ikuma</span>
+                <span>user273&#64;gmail.com</span>
+                <span class="text-blue-500 font-bold">Pre-Intermediate 2</span>
             </div>
             <div class="mt-6">
                 <div *ngFor="let user of user_personal_info" class="flex">
                     <label
                         for="nickname"
                         class="col-12 md:col-5 font-medium text-900"
-                        >{{ user.label }}</label
+                        >{{ user.title }}</label
                     >
                     <label
                         for="nickname"
@@ -28,28 +29,40 @@
             </div>
         </div>
 
-        <div class="user-stats shadow-2 p-5 col-12 lg:col-8">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis
-            hic debitis laboriosam illo quos et omnis doloribus laborum in illum
-            error, tempore voluptates fuga facere? Sed alias placeat numquam
-            dolorem.
-            <div class="grid formgrid p-fluid">
-                <div class="field mb-4 col-12 md:col-12">
-                    <label for="nickname" class="font-medium text-900"
-                        >Nome completo</label
-                    >
-                    <input id="nickname" type="text" pInputText />
-                </div>
-                <div class="field mb-4 col-12 md:col-12">
-                    <label for="nickname" class="font-medium text-900"
-                        >Nome completo</label
-                    >
-                    <input
-                        id="nickname"
-                        type="text"
-                        placeholder="Username"
-                        pInputText
-                    />
+        <div class="flex shadow-2 p-5 col-12 lg:col-8">
+            <app-pie-chart
+                class="w-6 h-4 shadow-1 p-4"
+                title="Progresso academico"
+                pieChartType="doughnut"
+            ></app-pie-chart>
+            <div class="notifications shadow-1 w-6 p-2">
+                <div class="flex flex-column mt-3 mx-auto md:mx-0">
+                    <h5 class="mb-5 text-center font-semibold">Notificações</h5>
+                    <ul class="list-none m-0 p-0">
+                        <li *ngFor="let notification of notifications">
+                            <a
+                                class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-bottom-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150"
+                            >
+                                <span>
+                                    <i
+                                        [ngClass]="notification.icon"
+                                        class="text-xl text-primary"
+                                    ></i>
+                                </span>
+                                <div class="ml-3">
+                                    <span class="mb-2 font-semibold">{{
+                                        notification.message
+                                    }}</span>
+                                    <p class="text-color-secondary m-0">
+                                        5 min ago
+                                    </p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="text-center font-semibold cursor-pointer">
+                        Ver mais
+                    </p>
                 </div>
             </div>
         </div>

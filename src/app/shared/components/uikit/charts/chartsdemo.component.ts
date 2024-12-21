@@ -42,6 +42,7 @@ export class ChartsDemoComponent implements OnInit, OnDestroy {
 
     initCharts() {
         const documentStyle = getComputedStyle(document.documentElement);
+
         const textColor = documentStyle.getPropertyValue('--text-color');
         const textColorSecondary = documentStyle.getPropertyValue(
             '--text-color-secondary'
