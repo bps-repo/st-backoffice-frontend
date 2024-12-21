@@ -1,0 +1,14 @@
+.user-info {
+    position: relative;
+    padding-top: 3rem; /* Add padding to make space for the image */
+}
+
+.user-avatar {
+    position: absolute;
+    top: 0;
+    left: -50%;
+    transform: translate(100%, -50%); /* Center the image and move it up */
+    width: 5rem; /* Adjust width as needed */
+    height: 6rem; /* Adjust height as needed */
+    border-radius: 50%; /* Makes the image circular */
+}

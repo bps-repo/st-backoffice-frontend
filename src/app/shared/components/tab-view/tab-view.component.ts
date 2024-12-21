@@ -15,5 +15,6 @@ import { Observable, of } from 'rxjs';
 export class TabViewComponent {
     @ViewChild('dynamicComponentContainer', { read: ViewContainerRef })
     container!: ViewContainerRef;
+
     @Input() tabs: Observable<Tab[]> = of([]);
 }

@@ -1,0 +1,57 @@
+<section class="mt-5">
+    <div class="flex justify-content-between flex-wrap">
+        <div class="user-info shadow-2 p-5 relative col-12 lg:col-4">
+            <img
+                src="https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg"
+                alt="user-image"
+                class="user-avatar w-4 h-4 absolute top-0 left-0"
+            />
+            <div
+                class="flex flex-column justify-content-center align-items-center mt-3 mb-3 w-full"
+            >
+                <span class="font-bold text-xl">Manuel Ikuma</span>
+                <span>user284sgmail.com</span>
+            </div>
+            <div class="mt-6">
+                <div *ngFor="let user of user_personal_info" class="flex">
+                    <label
+                        for="nickname"
+                        class="col-12 md:col-5 font-medium text-900"
+                        >{{ user.label }}</label
+                    >
+                    <label
+                        for="nickname"
+                        class="col-12 md:col-7 font-normal text-900"
+                        >{{ user.value }}</label
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div class="user-stats shadow-2 p-5 col-12 lg:col-8">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis
+            hic debitis laboriosam illo quos et omnis doloribus laborum in illum
+            error, tempore voluptates fuga facere? Sed alias placeat numquam
+            dolorem.
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12 md:col-12">
+                    <label for="nickname" class="font-medium text-900"
+                        >Nome completo</label
+                    >
+                    <input id="nickname" type="text" pInputText />
+                </div>
+                <div class="field mb-4 col-12 md:col-12">
+                    <label for="nickname" class="font-medium text-900"
+                        >Nome completo</label
+                    >
+                    <input
+                        id="nickname"
+                        type="text"
+                        placeholder="Username"
+                        pInputText
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
