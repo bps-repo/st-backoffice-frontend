@@ -40,10 +40,15 @@ interface TableColumn {
 })
 export class TableWithFiltersComponent<T> implements OnInit {
     @Input() columns: TableColumn[] = []; // Dynamic column definitions
+
     @Input() data: T[] = [];
+
     @Input() entity: string = '';
+
     @Input() globalFilterFields: string[] = []; // Fields to be filtered globally
+
     @Input() loading: boolean = false; // Loading state
+
     @Input() tableLabel = '';
 
     @ViewChild('filter') filter!: ElementRef;
