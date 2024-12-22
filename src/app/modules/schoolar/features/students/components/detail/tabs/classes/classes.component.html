@@ -1,1 +1,10 @@
-<p>classes works!</p>
+<div class="grid">
+    <app-table-with-filters
+        tableLabel="Aulas"
+        [data]="lessons"
+        [entity]="'lessons'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        class="w-full"
+    ></app-table-with-filters>
+</div>

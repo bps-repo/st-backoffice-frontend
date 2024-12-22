@@ -1,7 +1,11 @@
 <div class="grid">
     <app-table-with-filters
-        class="w-full overflow-hidden"
-        tableLable="Alunos"
-        entity="students"
+        tableLabel="Alunos"
+        [data]="students"
+        [entity]="'students'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        [loading]="loading"
+        class="w-full"
     ></app-table-with-filters>
 </div>

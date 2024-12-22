@@ -1,13 +1,72 @@
-export const REPRESENTATIVIES = [
-    { id: 1, name: 'Amy Elsner', image: 'amyelsner.png' },
-    { id: 2, name: 'Anna Fali', image: 'annafali.png' },
-    { id: 3, name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-    { id: 4, name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-    { id: 5, name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-    { id: 6, name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-    { id: 7, name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-    { id: 8, name: 'Onyama Limba', image: 'onyamalimba.png' },
-    { id: 9, name: 'XuXue Feng', image: 'xuxuefeng.png' },
+import { Student } from 'src/app/core/models/student';
+
+export const STUDENTS: Student[] = [
+    {
+        id: 1,
+        name: 'Amy Elsner',
+        email: 'username@gmail.com',
+        city: 'luanda',
+        course: 'beginner',
+        grade: 'beginner',
+        birtdate: '12.04-2004',
+        phone: 9283736747,
+        nif: 83373,
+    },
+    {
+        id: 2,
+        name: 'Anna Fali',
+        email: 'username@gmail.com',
+        city: 'benguela',
+        course: 'beginner',
+        grade: 'beginner',
+        birtdate: '12.04-2004',
+        phone: 9283736747,
+        nif: 83373,
+    },
+    {
+        id: 6,
+        name: 'Ioni Bowcher',
+        email: 'username@gmail.com',
+        city: 'Bie',
+        course: 'beginner',
+        grade: 'beginner',
+        birtdate: '12.04-2004',
+        phone: 9283736747,
+        nif: 83373,
+    },
+    {
+        id: 7,
+        name: 'Ivan Magalhaes',
+        email: 'username@gmail.com',
+        city: 'luanda',
+        course: 'beginner',
+        grade: 'beginner',
+        birtdate: '12.04-2004',
+        phone: 9283736747,
+        nif: 83373,
+    },
+    {
+        id: 8,
+        name: 'Onyama Limba',
+        email: 'username@gmail.com',
+        city: 'Benguela',
+        course: 'beginner',
+        grade: 'beginner',
+        birtdate: '12.04-2004',
+        phone: 9283736747,
+        nif: 83373,
+    },
+    {
+        id: 9,
+        name: 'XuXue Feng',
+        email: 'username@gmail.com',
+        city: 'Uige',
+        course: 'beginner',
+        grade: 'beginner',
+        birtdate: '12.04-2004',
+        phone: 9283736747,
+        nif: 83373,
+    },
 ];
 
 export const STATUSES: any[] = [
@@ -19,7 +78,7 @@ export const STATUSES: any[] = [
     { label: 'Proposal', value: 'proposal' },
 ];
 
-export const CITIES: any[] = [
+export const INSTALATIONS: any[] = [
     {
         label: 'Cidade',
         value: { id: 1, name: 'New York', code: 'NY' },
