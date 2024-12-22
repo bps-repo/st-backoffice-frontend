@@ -1,0 +1,85 @@
+<div class="card">
+    <span class="text-900 text-xl font-bold mb-4 block"
+        >Adicionar Materias</span
+    >
+    <div class="grid">
+        <!-- DADOS PESSOAIS -->
+        <div class="col-12 lg:col-10">
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12 md:col-8">
+                    <label for="upload" class="font-medium text-900">Carregar Arquivo</label>
+                    <input
+                        type="file"
+                        id="upload"
+                        (change)="onFileSelect($event)"
+                        accept=".pdf, .mp4, .avi, .mov, .jpg, .png"
+                        class="p-inputtext p-component"
+                    />
+                    <small class="p-d-block">Selecione um PDF, vídeo, ou imagem.</small>
+                </div>
+
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Data de publicação</label
+                    >
+                    <input id="date" type="date" pInputText />
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Disponibilidade</label
+                    >
+                    <div class="grid formgrid">
+                        <div class="col-12 md:col-4">
+                            <div class="field-radiobutton">
+                                <p-radioButton
+                                    name="city"
+                                    value="Chicago"
+                                    [(ngModel)]="valRadio"
+                                    id="m"
+                                ></p-radioButton>
+                                <label for="city1">Sim</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <div class="field-radiobutton">
+                                <p-radioButton
+                                    name="city"
+                                    value="Los Angeles"
+                                    [(ngModel)]="valRadio"
+                                    id="f"
+                                ></p-radioButton>
+                                <label for="city2">Não</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="col-12 lg:col-10">
+            <div class="grid formgrid p-fluid">
+
+                <div class="col-12 md:col-12">
+                    <textarea
+                        rows="5"
+                        cols="30"
+                        placeholder="Observações"
+                        pInputTextarea
+                    ></textarea>
+                </div>
+                <div class="col-12 md:col-6">
+                    <button
+                        pButton
+                        pRipple
+                        label="Adicionar o material"
+                        class="w-auto mt-3"
+                    ></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

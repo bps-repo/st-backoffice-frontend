@@ -1,0 +1,243 @@
+<div class="col-12">
+    <div class="card">
+        <div class="flex justify-content-between gap-2 mb-5">
+            <div class="flex align-items-center gap-4">
+                <h1>{{ tableLable }}</h1>
+                <p-dropdown
+                    [options]="options"
+                    [(ngModel)]="selectedOption"
+                    placeholder="Listagem por alunos"
+                    [showClear]="true"
+                ></p-dropdown>
+                <p-dropdown
+                    [options]="instalations"
+                    [(ngModel)]="selectedDrop"
+                    placeholder="Selecione a Instalação"
+                    [showClear]="true"
+                ></p-dropdown>
+            </div>
+            <div class="flex gap-1 h-rem">
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-plus"
+                    class="p-button-success"
+                    (click)="navigateToCreateReviews()"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-upload"
+                    class="p-button-help"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-file-pdf"
+                    class="p-button-help"
+                ></button>
+            </div>
+        </div>
+        <p-table
+            #dt1
+            [value]="customers1"
+            dataKey="id"
+            [rows]="10"
+            [loading]="loading"
+            [rowHover]="true"
+            styleClass="p-datatable-gridlines"
+            [paginator]="true"
+            [globalFilterFields]="[
+                'name',
+                'country.name',
+                'representative.name',
+                'status',
+                'turma'
+            ]"
+            responsiveLayout="scroll"
+            *ngIf="selectedOption() == 'table_reviews'"
+        >
+            <ng-template pTemplate="caption">
+                <div
+                    class="flex justify-content-between flex-column sm:flex-row"
+                >
+                    <button
+                        pButton
+                        label="Limpar filtro"
+                        class="p-button-outlined mb-2"
+                        icon="pi pi-filter-slash"
+                        (click)="clear(dt1)"
+                    ></button>
+                    <span class="p-input-icon-left mb-2">
+                        <i class="pi pi-search"></i>
+                        <input
+                            pInputText
+                            type="text"
+                            #filter
+                            (input)="onGlobalFilter(dt1, $event)"
+                            placeholder="Pesquisar..."
+                            class="w-full"
+                        />
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="min-width: 12rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Aluno
+                            <p-columnFilter
+                                type="text"
+                                field="name"
+                                display="menu"
+                                placeholder="Search by name"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+
+                    <th style="min-width: 12rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Data de Avaliação
+                            <p-columnFilter
+                                type="text"
+                                field="name"
+                                display="menu"
+                                placeholder="Search by name"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Turma
+                            <p-columnFilter
+                                    type="text"
+                                    field="turma"
+                                    display="menu"
+                                    placeholder="Search by name"
+                                ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Nível
+                            <p-columnFilter
+                                type="date"
+                                field="date"
+                                display="menu"
+                                placeholder="mm/dd/yyyy"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Professor
+                            <p-columnFilter
+                                type="date"
+                                field="date"
+                                display="menu"
+                                placeholder="mm/dd/yyyy"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">Compreensão Auditiva</th>
+                    <th style="min-width: 10rem">Leitura</th>
+                    <th style="min-width: 10rem">Escrita</th>
+                    <th style="min-width: 10rem">Fala</th>
+                    <th style="min-width: 10rem">Vocabulário</th>
+                    <th style="min-width: 10rem">Gramática</th>
+
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Observações
+                            <p-columnFilter
+                                type="date"
+                                field="date"
+                                display="menu"
+                                placeholder="mm/dd/yyyy"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                        Feedback Geral
+                            <p-columnFilter
+                                type="date"
+                                field="date"
+                                display="menu"
+                                placeholder="mm/dd/yyyy"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+
+                    <th style="min-width: 8rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Presença
+                            <p-columnFilter
+                                type="boolean"
+                                field="verified"
+                                display="menu"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-customer>
+                <tr>
+                    <td>
+                        {{ customer.name }}
+                    </td>
+                    <td>{{ customer.date | date : "MM/dd/yyyy" }}</td>
+                    <td>5008337741</td>
+                    <td>Beginner - Adults</td>
+                    <td>Marc Simon</td>
+                    <td>Bom</td>
+                    <td>Bom</td>
+                    <td>Bom</td>
+                    <td>Bom</td>
+                    <td>Bom</td>
+                    <td>Bom</td>
+                    <td>Capacidade de identificar informações específicas</td>
+                    <td>Precisa ouvir mais áudios com diferentes sotaques.</td>
+                    <td class="text-center">
+                        <i
+                            class="pi"
+                            [ngClass]="{
+                                'true-icon pi-check-circle text-green-500':
+                                    customer.verified,
+                                'false-icon pi-times-circle text-pink-500':
+                                    !customer.verified
+                            }"
+                        ></i>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="8">No customers found.</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="loadingbody">
+                <tr>
+                    <td colspan="8">Loading customers data. Please wait.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
