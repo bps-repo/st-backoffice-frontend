@@ -35,6 +35,16 @@ const routes: Routes = [
                 (m) => m.CalendarAppModule
             ),
     },
+    {
+        path: 'reviews',
+        loadChildren: () =>
+            import('./reviews/reviews.app.module').then((m) => m.ReviewsAppModule),
+    },
+    {
+        path: 'materials',
+        loadChildren: () =>
+            import('./materials/materials.app.module').then((m) => m.MaterialsAppModule),
+    },
 ];
 
 @NgModule({
