@@ -2,5 +2,10 @@
     <app-table-with-filters
         tableLable="Entidades"
         entity="entities"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        class="w-full"
+        [loading]="loading"
+        [data]="data"
     ></app-table-with-filters>
 </div>

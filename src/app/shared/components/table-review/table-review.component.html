@@ -39,203 +39,173 @@
             </div>
         </div>
         <p-table
-            #dt1
-            [value]="customers1"
-            dataKey="id"
-            [rows]="10"
-            [loading]="loading"
-            [rowHover]="true"
-            styleClass="p-datatable-gridlines"
-            [paginator]="true"
-            [globalFilterFields]="[
-                'name',
-                'country.name',
-                'representative.name',
-                'status',
-                'turma'
-            ]"
+            [value]="exams"
+            dataKey="name"
+            [expandedRowKeys]="expandedRows"
             responsiveLayout="scroll"
-            *ngIf="selectedOption() == 'table_reviews'"
         >
             <ng-template pTemplate="caption">
-                <div
-                    class="flex justify-content-between flex-column sm:flex-row"
-                >
-                    <button
-                        pButton
-                        label="Limpar filtro"
-                        class="p-button-outlined mb-2"
-                        icon="pi pi-filter-slash"
-                        (click)="clear(dt1)"
-                    ></button>
-                    <span class="p-input-icon-left mb-2">
-                        <i class="pi pi-search"></i>
-                        <input
-                            pInputText
-                            type="text"
-                            #filter
-                            (input)="onGlobalFilter(dt1, $event)"
-                            placeholder="Pesquisar..."
-                            class="w-full"
-                        />
-                    </span>
-                </div>
+                <button
+                    pButton
+                    icon="pi pi-fw {{ isExpanded ? 'pi-minus' : 'pi-plus' }}"
+                    label="{{ isExpanded ? 'Collapse All' : 'Expand All' }}"
+                    (click)="expandAll()"
+                ></button>
+                <div class="flex table-header"></div>
             </ng-template>
             <ng-template pTemplate="header">
                 <tr>
-                    <th style="min-width: 12rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                            Aluno
-                            <p-columnFilter
-                                type="text"
-                                field="name"
-                                display="menu"
-                                placeholder="Search by name"
-                            ></p-columnFilter>
-                        </div>
+                    <th style="width: 3rem"></th>
+                    <th pSortableColumn="name">
+                        Name <p-sortIcon field="name"></p-sortIcon>
                     </th>
-
-                    <th style="min-width: 12rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                            Data de Avaliação
-                            <p-columnFilter
-                                type="text"
-                                field="name"
-                                display="menu"
-                                placeholder="Search by name"
-                            ></p-columnFilter>
-                        </div>
+                    <th>Image</th>
+                    <th pSortableColumn="price">
+                        Price <p-sortIcon field="price"></p-sortIcon>
                     </th>
-                    <th style="min-width: 10rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                            Turma
-                            <p-columnFilter
-                                    type="text"
-                                    field="turma"
-                                    display="menu"
-                                    placeholder="Search by name"
-                                ></p-columnFilter>
-                        </div>
+                    <th pSortableColumn="category">
+                        Category <p-sortIcon field="category"></p-sortIcon>
                     </th>
-                    <th style="min-width: 12rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                            Nível
-                            <p-columnFilter
-                                type="date"
-                                field="date"
-                                display="menu"
-                                placeholder="mm/dd/yyyy"
-                            ></p-columnFilter>
-                        </div>
+                    <th pSortableColumn="rating">
+                        Reviews <p-sortIcon field="rating"></p-sortIcon>
                     </th>
-                    <th style="min-width: 10rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                            Professor
-                            <p-columnFilter
-                                type="date"
-                                field="date"
-                                display="menu"
-                                placeholder="mm/dd/yyyy"
-                            ></p-columnFilter>
-                        </div>
-                    </th>
-                    <th style="min-width: 10rem">Compreensão Auditiva</th>
-                    <th style="min-width: 10rem">Leitura</th>
-                    <th style="min-width: 10rem">Escrita</th>
-                    <th style="min-width: 10rem">Fala</th>
-                    <th style="min-width: 10rem">Vocabulário</th>
-                    <th style="min-width: 10rem">Gramática</th>
-
-                    <th style="min-width: 10rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                            Observações
-                            <p-columnFilter
-                                type="date"
-                                field="date"
-                                display="menu"
-                                placeholder="mm/dd/yyyy"
-                            ></p-columnFilter>
-                        </div>
-                    </th>
-
-                    <th style="min-width: 10rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                        Feedback Geral
-                            <p-columnFilter
-                                type="date"
-                                field="date"
-                                display="menu"
-                                placeholder="mm/dd/yyyy"
-                            ></p-columnFilter>
-                        </div>
-                    </th>
-
-                    <th style="min-width: 8rem">
-                        <div
-                            class="flex justify-content-between align-items-center"
-                        >
-                            Presença
-                            <p-columnFilter
-                                type="boolean"
-                                field="verified"
-                                display="menu"
-                            ></p-columnFilter>
-                        </div>
+                    <th pSortableColumn="inventoryStatus">
+                        Status
+                        <p-sortIcon field="inventoryStatus"></p-sortIcon>
                     </th>
                 </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-customer>
+            <ng-template pTemplate="body" let-product let-expanded="expanded">
                 <tr>
                     <td>
-                        {{ customer.name }}
+                        <button
+                            type="button"
+                            pButton
+                            pRipple
+                            [pRowToggler]="product"
+                            class="p-button-text p-button-rounded p-button-plain"
+                            [icon]="
+                                expanded
+                                    ? 'pi pi-chevron-down'
+                                    : 'pi pi-chevron-right'
+                            "
+                        ></button>
                     </td>
-                    <td>{{ customer.date | date : "MM/dd/yyyy" }}</td>
-                    <td>5008337741</td>
-                    <td>Beginner - Adults</td>
-                    <td>Marc Simon</td>
-                    <td>Bom</td>
-                    <td>Bom</td>
-                    <td>Bom</td>
-                    <td>Bom</td>
-                    <td>Bom</td>
-                    <td>Bom</td>
-                    <td>Capacidade de identificar informações específicas</td>
-                    <td>Precisa ouvir mais áudios com diferentes sotaques.</td>
-                    <td class="text-center">
-                        <i
-                            class="pi"
-                            [ngClass]="{
-                                'true-icon pi-check-circle text-green-500':
-                                    customer.verified,
-                                'false-icon pi-times-circle text-pink-500':
-                                    !customer.verified
-                            }"
-                        ></i>
+                    <td style="min-width: 12rem">{{ product.name }}</td>
+                    <td>
+                        <img
+                            [src]="
+                                'assets/demo/images/product/' + product.image
+                            "
+                            [alt]="product.name"
+                            width="100"
+                            class="shadow-4"
+                        />
+                    </td>
+                    <td style="min-width: 8rem">
+                        {{ product.price | currency : "USD" }}
+                    </td>
+                    <td style="min-width: 10rem">{{ product.category }}</td>
+                    <td style="min-width: 10rem">
+                        <p-rating
+                            [ngModel]="product.rating"
+                            [readonly]="true"
+                            [cancel]="false"
+                        ></p-rating>
+                    </td>
+                    <td>
+                        <span
+                            [class]="
+                                'product-badge status-' +
+                                product.inventoryStatus.toLowerCase()
+                            "
+                            >{{ product.inventoryStatus }}</span
+                        >
                     </td>
                 </tr>
             </ng-template>
-            <ng-template pTemplate="emptymessage">
+            <ng-template pTemplate="rowexpansion" let-product>
                 <tr>
-                    <td colspan="8">No customers found.</td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="loadingbody">
-                <tr>
-                    <td colspan="8">Loading customers data. Please wait.</td>
+                    <td colspan="7">
+                        <div class="p-3">
+                            <p-table
+                                [value]="product.orders"
+                                dataKey="id"
+                                responsiveLayout="scroll"
+                            >
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="id">
+                                            Id
+                                            <p-sortIcon
+                                                field="price"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="customer">
+                                            Customer
+                                            <p-sortIcon
+                                                field="customer"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="date">
+                                            Date
+                                            <p-sortIcon
+                                                field="date"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="amount">
+                                            Amount
+                                            <p-sortIcon
+                                                field="amount"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="status">
+                                            Status
+                                            <p-sortIcon
+                                                field="status"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th style="width: 4rem"></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-order>
+                                    <tr>
+                                        <td>{{ order.id }}</td>
+                                        <td>{{ order.customer }}</td>
+                                        <td>{{ order.date }}</td>
+                                        <td>
+                                            {{
+                                                order.amount | currency : "USD"
+                                            }}
+                                        </td>
+                                        <td>
+                                            <span
+                                                [class]="
+                                                    'order-badge order-' +
+                                                    order.status.toLowerCase()
+                                                "
+                                                >{{ order.status }}</span
+                                            >
+                                        </td>
+                                        <td>
+                                            <p-button
+                                                type="button"
+                                                icon="pi pi-search"
+                                            ></p-button>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6">
+                                            There are no order for this product
+                                            yet.
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </td>
                 </tr>
             </ng-template>
         </p-table>

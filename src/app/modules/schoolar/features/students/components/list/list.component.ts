@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import {
+    TableColumn,
+    TableWithFiltersComponent,
+} from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { STUDENTS } from 'src/app/shared/constants/representatives';
 import { Student } from 'src/app/core/models/student';
 import { TableService } from 'src/app/shared/services/table.service';
+import { TableColumnFilterTemplates } from 'primeng/table';
 
 type studentKeys = keyof Student;
 
@@ -17,7 +21,7 @@ type studentKeys = keyof Student;
 export class ListComponent implements OnInit {
     students: Student[] = STUDENTS;
 
-    columns: any[] = [];
+    columns: TableColumn[] = [];
 
     globalFilterFields: string[] = [];
 
@@ -27,12 +31,51 @@ export class ListComponent implements OnInit {
 
     ngOnInit(): void {
         // Dynamically populate columns and globalFilterFields
-        if (STUDENTS.length > 0) {
-            this.tableService.populateColumnsFromModel(
-                STUDENTS[0],
-                this.columns,
-                this.globalFilterFields
-            );
-        }
+        // if (STUDENTS.length > 0) {
+        //     this.tableService.populateColumnsFromModel(
+        //         STUDENTS[0],
+        //         this.columns,
+        //         this.globalFilterFields
+        //     );
+        // }
+
+        // Define custom column templates for different filter types
+        this.columns = [
+            {
+                field: 'name',
+                header: 'Nome',
+                filterType: 'text',
+            },
+            {
+                field: 'course',
+                header: 'Curso',
+                filterType: 'text',
+            },
+            {
+                field: 'center',
+                header: 'Centro',
+                filterType: 'text',
+            },
+            {
+                field: 'grade',
+                header: 'Nível',
+                filterType: 'text',
+            },
+            {
+                field: 'level',
+                header: 'E-mail',
+                filterType: 'text',
+            },
+            {
+                field: 'phone',
+                header: 'Telefone',
+                filterType: 'text',
+            },
+            {
+                field: 'birtdate',
+                header: 'Data de Nascimento',
+                filterType: 'date',
+            },
+        ];
     }
 }

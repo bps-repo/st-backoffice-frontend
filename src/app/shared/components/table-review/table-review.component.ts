@@ -27,40 +27,46 @@ import { Customer, Representative } from 'src/app/core/models/customer';
 import { CustomerService } from 'src/app/core/services/customer.service';
 
 @Component({
-  selector: 'app-table-review',
-  standalone: true,
-  imports: [
-      CommonModule,
-      FormsModule,
-      TableModule,
-      RatingModule,
-      ButtonModule,
-      SliderModule,
-      InputTextModule,
-      ToggleButtonModule,
-      RippleModule,
-      MultiSelectModule,
-      DropdownModule,
-      ProgressBarModule,
-      ToastModule,
-      FileUploadModule,
-      ToolbarModule,
-  ],
-  templateUrl: './table-review.component.html',
-  styleUrl: './table-review.component.scss'
+    selector: 'app-table-review',
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        TableModule,
+        RatingModule,
+        ButtonModule,
+        SliderModule,
+        InputTextModule,
+        ToggleButtonModule,
+        RippleModule,
+        MultiSelectModule,
+        DropdownModule,
+        ProgressBarModule,
+        ToastModule,
+        FileUploadModule,
+        ToolbarModule,
+    ],
+    templateUrl: './table-review.component.html',
+    styleUrl: './table-review.component.scss',
 })
-export class TableReviewComponent implements OnInit{
-
+export class TableReviewComponent implements OnInit {
     @Input() tableLable = '';
+
     @Input() entity = '';
 
-    customers1: Customer[] = [];
+    exams: Customer[] = [];
 
     loading: boolean = true;
 
     statuses: any[] = [];
 
     representatives: Representative[] = [];
+
+    expandedRows: expandedRows = {};
+
+    isExpanded: boolean = false;
+
+    idFrozen: boolean = false;
 
     activityValues: number[] = [0, 100];
 
@@ -75,15 +81,16 @@ export class TableReviewComponent implements OnInit{
     selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private customerService: CustomerService, private router: Router) {
-
-    }
+    constructor(
+        private customerService: CustomerService,
+        private router: Router
+    ) {}
     ngOnInit(): void {
         this.customerService.getCustomersLarge().then((customers) => {
-            this.customers1 = customers;
+            this.reviews = customers;
             this.loading = false;
 
-            this.customers1.forEach(
+            this.reviews.forEach(
                 (customer) =>
                     (customer.date = new Date(
                         customer.date as string
@@ -118,7 +125,10 @@ export class TableReviewComponent implements OnInit{
                 label: 'Listagem da Avaliações por presença',
                 value: 'table_reviews',
             },
-            { label: 'Listagem de Avaliações por Alunos', value: 'table_presences' },
+            {
+                label: 'Listagem de Avaliações por Alunos',
+                value: 'table_presences',
+            },
             {
                 label: 'Listagem de presenças de orientadores',
                 value: 'table_presences_supervisors',
@@ -143,6 +153,17 @@ export class TableReviewComponent implements OnInit{
         ];
     }
 
+    expandAll() {
+        if (!this.isExpanded) {
+            this.exams.forEach((exam) =>
+                exam && exam.name ? (this.expandedRows[exam.name] = true) : ''
+            );
+        } else {
+            this.expandedRows = {};
+        }
+        this.isExpanded = !this.isExpanded;
+    }
+
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal(
             (event.target as HTMLInputElement).value,
@@ -158,5 +179,4 @@ export class TableReviewComponent implements OnInit{
     navigateToCreateReviews() {
         this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
     }
-
 }

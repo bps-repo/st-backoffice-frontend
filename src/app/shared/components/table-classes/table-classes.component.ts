@@ -65,7 +65,7 @@ export class TableClassesComponent implements OnInit {
 
     options: any[] = [];
 
-    selectedOption = signal('table_students');
+    selectedOption = signal('table_presences');
 
     selectedList: SelectItem = { value: '' };
 

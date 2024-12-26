@@ -11,7 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { Table } from 'primeng/table';
 import { TableHeaderComponent } from './table-header.component';
 
-interface TableColumn {
+export interface TableColumn {
     field: string;
     header: string;
     filterType?: 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
