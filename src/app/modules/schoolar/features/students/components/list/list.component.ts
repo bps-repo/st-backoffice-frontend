@@ -42,6 +42,11 @@ export class ListComponent implements OnInit {
         // Define custom column templates for different filter types
         this.columns = [
             {
+                field: 'id',
+                header: 'Nº',
+                filterType: 'text',
+            },
+            {
                 field: 'name',
                 header: 'Nome',
                 filterType: 'text',
@@ -57,24 +62,14 @@ export class ListComponent implements OnInit {
                 filterType: 'text',
             },
             {
-                field: 'grade',
-                header: 'Nível',
-                filterType: 'text',
-            },
-            {
                 field: 'level',
-                header: 'E-mail',
+                header: 'Nível',
                 filterType: 'text',
             },
             {
                 field: 'phone',
                 header: 'Telefone',
                 filterType: 'text',
-            },
-            {
-                field: 'birtdate',
-                header: 'Data de Nascimento',
-                filterType: 'date',
             },
         ];
     }

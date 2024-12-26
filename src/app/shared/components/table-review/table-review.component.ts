@@ -26,6 +26,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { Customer, Representative } from 'src/app/core/models/customer';
 import { CustomerService } from 'src/app/core/services/customer.service';
 import { INSTALATIONS } from '../../constants/representatives';
+import { TableColumn } from '../table-with-filters/table-with-filters.component';
+import { Exam } from 'src/app/core/models/exam';
+import { EXAMS } from '../../constants/exams';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -59,13 +62,15 @@ export class TableReviewComponent implements OnInit {
 
     @Input() entity = '';
 
-    exams: Customer[] = [];
+    exams: Exam[] = EXAMS;
 
     expandedRows: expandedRows = {};
 
     isExpanded: boolean = false;
 
     instalations: SelectItem[] = INSTALATIONS;
+
+    columns: TableColumn[] = [];
 
     options: any[] = [];
 

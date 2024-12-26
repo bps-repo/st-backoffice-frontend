@@ -1,3 +1,10 @@
 <div class="grid">
-    <app-table-classes  class="w-full overflow-hidden" tableLable="Aulas"></app-table-classes>
+    <app-table-with-filters
+        tableLabel="Aulas"
+        [data]="lessons"
+        [entity]="'students'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        class="w-full"
+    ></app-table-with-filters>
 </div>

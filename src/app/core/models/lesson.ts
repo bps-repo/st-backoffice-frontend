@@ -3,7 +3,8 @@ export interface Lesson {
     class: string;
     time: string;
     teacher: string;
+    center: string;
     level: string;
     description: string;
-    presence: boolean;
+    students: string;
 }

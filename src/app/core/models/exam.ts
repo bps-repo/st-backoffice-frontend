@@ -1,19 +1,21 @@
 import { Student } from './student';
 
 export interface Exam {
-    id: number;
-    name: string;
+    name?: string;
     date: string;
     status: string;
-    students: Student[];
-    total: number;
+    students: string[];
+    teacher: string;
+    class: string;
+    level: string;
+    reading: string;
+    writing: string;
+    listening: string;
+    speaking: string;
+    grammar: string;
+    vocabulary: string;
+    comprehension: string;
+    notes: string[];
+    feedback: string[];
     average: number;
-    percentage: number;
-    grade: string;
-    studentsPresent: number;
-    studentsNotPresent: number;
-    studentsLate: number;
-    studentsExcused: number;
-    studentsDisciplinaryAction: number;
-    studentsTotal: number;
 }

@@ -7,16 +7,15 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 
 @Component({
     templateUrl: './calendar.app.component.html',
-    styleUrls: ['./calendar.app.component.scss']
+    styleUrls: ['./calendar.app.component.scss'],
 })
 export class CalendarAppComponent implements OnInit {
-
     events: any[] = [];
 
     today: string = '';
 
     calendarOptions: any = {
-        initialView: 'dayGridMonth'
+        initialView: 'dayGridMonth',
     };
 
     showDialog: boolean = false;
@@ -33,15 +32,18 @@ export class CalendarAppComponent implements OnInit {
 
     changedEvent: any;
 
-    constructor(private eventService: EventService) { }
+    constructor(private eventService: EventService) {}
 
     ngOnInit(): void {
         this.today = '2022-05-11';
 
-        this.eventService.getEvents().then(events => {
+        this.eventService.getEvents().then((events) => {
             this.events = events;
-            this.calendarOptions = { ...this.calendarOptions, ...{ events: events } };
-            this.tags = this.events.map(item => item.tag);
+            this.calendarOptions = {
+                ...this.calendarOptions,
+                ...{ events: events },
+            };
+            this.tags = this.events.map((item) => item.tag);
         });
 
         this.calendarOptions = {
@@ -51,51 +53,103 @@ export class CalendarAppComponent implements OnInit {
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                right: 'dayGridMonth,timeGridWeek,timeGridDay',
             },
             editable: true,
             selectable: true,
             selectMirror: true,
             dayMaxEvents: true,
             eventClick: (e: MouseEvent) => this.onEventClick(e),
-            select: (e: MouseEvent) => this.onDateSelect(e)
+            select: (e: MouseEvent) => this.onDateSelect(e),
+            eventContent: (args: any) => this.onEventRender(args),
+            eventHover: (args: any) => this.onEventHover(args),
+        };
+    }
+
+    onEventHover(args: any) {
+        console.log(args);
+        return {
+            title: 'New',
+            backgroundColor: args.event.backgroundColor,
+        };
+    }
+    onEventRender(args: any) {
+        console.log(args);
+        return {
+            html: `
+              <div>
+                <b>10:00 - 11:00</b><br/>
+                <b>Beginner(Online)</b><br/>
+                <b>Sala 2</b><br/>
+              </div>
+            `,
         };
     }
 
     onEventClick(e: any) {
         this.clickedEvent = e.event;
-        let plainEvent = e.event.toPlainObject({ collapseExtendedProps: true, collapseColor: true });
+        let plainEvent = e.event.toPlainObject({
+            collapseExtendedProps: true,
+            collapseColor: true,
+        });
         this.view = 'display';
-        this.showDialog = true;
+        this.showDialog = false;
 
         this.changedEvent = { ...plainEvent, ...this.clickedEvent };
         this.changedEvent.start = this.clickedEvent.start;
-        this.changedEvent.end = this.clickedEvent.end ? this.clickedEvent.end : this.clickedEvent.start;
+        this.changedEvent.end = this.clickedEvent.end
+            ? this.clickedEvent.end
+            : this.clickedEvent.start;
     }
 
     onDateSelect(e: any) {
-        this.view = 'new'
-        this.showDialog = true;
-        this.changedEvent = { ...e, title: null, description: null, location: null, backgroundColor: null, borderColor: null, textColor: null, tag: { color: null, name: null } };
+        this.view = 'new';
+        this.showDialog = false;
+        this.changedEvent = {
+            ...e,
+            title: null,
+            description: null,
+            location: null,
+            backgroundColor: null,
+            borderColor: null,
+            textColor: null,
+            tag: { color: null, name: null },
+        };
     }
 
     handleSave() {
         if (!this.validate()) {
             return;
-        }
-        else {
+        } else {
             this.showDialog = false;
-            this.clickedEvent = { ...this.changedEvent, backgroundColor: this.changedEvent.tag.color, borderColor: this.changedEvent.tag.color, textColor: '#212121' };
+            this.clickedEvent = {
+                ...this.changedEvent,
+                backgroundColor: this.changedEvent.tag.color,
+                borderColor: this.changedEvent.tag.color,
+                textColor: '#212121',
+            };
 
             if (this.clickedEvent.hasOwnProperty('id')) {
-                this.events = this.events.map(i => i.id.toString() === this.clickedEvent.id.toString() ? i = this.clickedEvent : i);
+                this.events = this.events.map((i) =>
+                    i.id.toString() === this.clickedEvent.id.toString()
+                        ? (i = this.clickedEvent)
+                        : i
+                );
             } else {
-                this.events = [...this.events, { ...this.clickedEvent, id: Math.floor(Math.random() * 10000) }];
+                this.events = [
+                    ...this.events,
+                    {
+                        ...this.clickedEvent,
+                        id: Math.floor(Math.random() * 10000),
+                    },
+                ];
             }
-            this.calendarOptions = { ...this.calendarOptions, ...{ events: this.events } };
+            this.calendarOptions = {
+                ...this.calendarOptions,
+                ...{ events: this.events },
+            };
             this.clickedEvent = null;
         }
-
     }
 
     onEditClick() {
@@ -103,8 +157,13 @@ export class CalendarAppComponent implements OnInit {
     }
 
     delete() {
-        this.events = this.events.filter(i => i.id.toString() !== this.clickedEvent.id.toString());
-        this.calendarOptions = { ...this.calendarOptions, ...{ events: this.events } };
+        this.events = this.events.filter(
+            (i) => i.id.toString() !== this.clickedEvent.id.toString()
+        );
+        this.calendarOptions = {
+            ...this.calendarOptions,
+            ...{ events: this.events },
+        };
         this.showDialog = false;
     }
 
@@ -112,5 +171,4 @@ export class CalendarAppComponent implements OnInit {
         let { start, end } = this.changedEvent;
         return start && end;
     }
-
 }
