@@ -25,6 +25,11 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Customer, Representative } from 'src/app/core/models/customer';
 import { CustomerService } from 'src/app/core/services/customer.service';
+import { INSTALATIONS } from '../../constants/representatives';
+
+interface expandedRows {
+    [key: string]: boolean;
+}
 
 @Component({
     selector: 'app-table-review',
@@ -56,21 +61,11 @@ export class TableReviewComponent implements OnInit {
 
     exams: Customer[] = [];
 
-    loading: boolean = true;
-
-    statuses: any[] = [];
-
-    representatives: Representative[] = [];
-
     expandedRows: expandedRows = {};
 
     isExpanded: boolean = false;
 
-    idFrozen: boolean = false;
-
-    activityValues: number[] = [0, 100];
-
-    instalations: SelectItem[] = [];
+    instalations: SelectItem[] = INSTALATIONS;
 
     options: any[] = [];
 
@@ -81,45 +76,8 @@ export class TableReviewComponent implements OnInit {
     selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(
-        private customerService: CustomerService,
-        private router: Router
-    ) {}
+    constructor(private router: Router) {}
     ngOnInit(): void {
-        this.customerService.getCustomersLarge().then((customers) => {
-            this.reviews = customers;
-            this.loading = false;
-
-            this.reviews.forEach(
-                (customer) =>
-                    (customer.date = new Date(
-                        customer.date as string
-                    ).toISOString())
-            );
-        });
-
-        this.representatives = [
-            { name: 'Amy Elsner', image: 'amyelsner.png' },
-            { name: 'Anna Fali', image: 'annafali.png' },
-            { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-            { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-            { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-            { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-            { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-            { name: 'Onyama Limba', image: 'onyamalimba.png' },
-            { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-            { name: 'XuXue Feng', image: 'xuxuefeng.png' },
-        ];
-
-        this.statuses = [
-            { label: 'Unqualified', value: 'unqualified' },
-            { label: 'Qualified', value: 'qualified' },
-            { label: 'New', value: 'new' },
-            { label: 'Negotiation', value: 'negotiation' },
-            { label: 'Renewal', value: 'renewal' },
-            { label: 'Proposal', value: 'proposal' },
-        ];
-
         this.options = [
             {
                 label: 'Listagem da Avaliações por presença',
@@ -133,23 +91,6 @@ export class TableReviewComponent implements OnInit {
                 label: 'Listagem de presenças de orientadores',
                 value: 'table_presences_supervisors',
             },
-        ];
-
-        this.instalations = [
-            {
-                label: 'Cidade',
-                value: { id: 1, name: 'New York', code: 'NY' },
-            },
-            { label: 'Centro', value: { id: 2, name: 'Rome', code: 'RM' } },
-            {
-                label: 'Maculusso',
-                value: { id: 3, name: 'London', code: 'LDN' },
-            },
-            {
-                label: 'Nova Vida',
-                value: { id: 4, name: 'Istanbul', code: 'IST' },
-            },
-            { label: 'Patriota', value: { id: 5, name: 'Paris', code: 'PRS' } },
         ];
     }
 
