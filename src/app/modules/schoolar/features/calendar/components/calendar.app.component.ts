@@ -2,20 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { EventService } from 'src/app/core/services/event.service';
 // @fullcalendar plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import { LessonEvent } from 'src/app/core/models/lesson';
+import { LESSONS_EVENTS } from 'src/app/shared/constants/lessons';
 
 @Component({
     templateUrl: './calendar.app.component.html',
     styleUrls: ['./calendar.app.component.scss'],
 })
 export class CalendarAppComponent implements OnInit {
-    events: any[] = [];
+    events: LessonEvent[] = LESSONS_EVENTS;
 
     today: string = '';
 
     calendarOptions: any = {
-        initialView: 'dayGridMonth',
+        initialView: 'timeGridWeek',
     };
 
     showDialog: boolean = false;
@@ -35,52 +37,72 @@ export class CalendarAppComponent implements OnInit {
     constructor(private eventService: EventService) {}
 
     ngOnInit(): void {
-        this.today = '2022-05-11';
-
-        this.eventService.getEvents().then((events) => {
-            this.events = events;
-            this.calendarOptions = {
-                ...this.calendarOptions,
-                ...{ events: events },
-            };
-            this.tags = this.events.map((item) => item.tag);
-        });
+        this.today = '2024-12-26';
+        this.tags = this.events.map((item) => item.tag);
 
         this.calendarOptions = {
+            initialView: 'timeGridWeek',
+            locale: 'pt-br',
+            events: this.events,
+            slotMinTime: '08:00:00',
+            slotMaxTime: '23:00:00',
             plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
             height: 720,
+            hiddenDays: [0],
             initialDate: this.today,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay',
             },
-            editable: true,
-            selectable: true,
+            editable: false,
+            selectable: false,
             selectMirror: true,
-            dayMaxEvents: true,
+            Draggable: false,
+            dayMaxEvents: false,
             eventClick: (e: MouseEvent) => this.onEventClick(e),
             select: (e: MouseEvent) => this.onDateSelect(e),
             eventContent: (args: any) => this.onEventRender(args),
-            eventHover: (args: any) => this.onEventHover(args),
+            eventMouseEnter: this.handleEventMouseEnter.bind(this), // Evento para hover
+            eventMouseLeave: this.handleEventMouseLeave.bind(this),
         };
     }
 
-    onEventHover(args: any) {
-        console.log(args);
-        return {
-            title: 'New',
-            backgroundColor: args.event.backgroundColor,
-        };
+    handleEventMouseEnter(mouseEnterInfo: any) {
+        const { title, extendedProps } = mouseEnterInfo.event;
+        const tooltip = document.createElement('div');
+        tooltip.id = 'event-tooltip';
+        tooltip.style.position = 'absolute';
+        tooltip.style.backgroundColor = '#333';
+        tooltip.style.color = '#fff';
+        tooltip.style.padding = '5px';
+        tooltip.style.borderRadius = '5px';
+        tooltip.style.fontSize = '12px';
+        tooltip.style.top = `${mouseEnterInfo.jsEvent.pageY + 10}px`;
+        tooltip.style.left = `${mouseEnterInfo.jsEvent.pageX + 10}px`;
+        tooltip.style.zIndex = '1000';
+        tooltip.textContent =
+            mouseEnterInfo.event.extendedProps.description || 'Sem descrição';
+
+        document.body.appendChild(tooltip);
     }
+
+    handleEventMouseLeave() {
+        const tooltip = document.getElementById('event-tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+    }
+
     onEventRender(args: any) {
-        console.log(args);
+        const { title, extendedProps } = args.event;
+        console.log(extendedProps);
         return {
             html: `
               <div>
-                <b>10:00 - 11:00</b><br/>
-                <b>Beginner(Online)</b><br/>
-                <b>Sala 2</b><br/>
+                <b>${extendedProps.time}</b><br/>
+                <b>${extendedProps.center}(Online)</b><br/>
+                <b>${extendedProps.teacher}</b><br/>
               </div>
             `,
         };
@@ -131,7 +153,7 @@ export class CalendarAppComponent implements OnInit {
 
             if (this.clickedEvent.hasOwnProperty('id')) {
                 this.events = this.events.map((i) =>
-                    i.id.toString() === this.clickedEvent.id.toString()
+                    i.id!.toString() === this.clickedEvent.id.toString()
                         ? (i = this.clickedEvent)
                         : i
                 );
@@ -158,7 +180,7 @@ export class CalendarAppComponent implements OnInit {
 
     delete() {
         this.events = this.events.filter(
-            (i) => i.id.toString() !== this.clickedEvent.id.toString()
+            (i) => i.id!.toString() !== this.clickedEvent.id.toString()
         );
         this.calendarOptions = {
             ...this.calendarOptions,
