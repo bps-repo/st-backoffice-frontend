@@ -1,6 +1,9 @@
 <div class="col-12">
     <div class="card">
-        <app-table-header tableLable="{{ tableLabel }}"></app-table-header>
+        <app-table-header
+            entity="{{ entity }}"
+            tableLable="{{ tableLabel }}"
+        ></app-table-header>
         <p-table
             #dt
             [value]="data"

@@ -43,7 +43,7 @@ export class TableWithFiltersComponent<T> implements OnInit {
 
     @Input() data: T[] = [];
 
-    @Input() entity: string = '';
+    @Input() entity: string = 'students';
 
     @Input() globalFilterFields: string[] = []; // Fields to be filtered globally
 
@@ -67,9 +67,5 @@ export class TableWithFiltersComponent<T> implements OnInit {
     clear(table: Table) {
         table.clear();
         this.filter.nativeElement.value = '';
-    }
-
-    navigateToCreate() {
-        this.router.navigate([`/modules/schoolar/create`]);
     }
 }

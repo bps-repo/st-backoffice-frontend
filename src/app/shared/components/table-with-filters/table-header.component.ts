@@ -25,7 +25,7 @@ import { FormsModule } from '@angular/forms';
             <button
                 pButton
                 pRipple
-                (click)="navigateToCreateStudent()"
+                (click)="navigateToCreateEntity()"
                 icon="pi pi-plus"
                 class="p-button-success"
             ></button>
@@ -48,9 +48,11 @@ export class TableHeaderComponent implements OnInit {
     items: any[] = [];
     selectedDrop: SelectItem = { value: '' };
     @Input() tableLable = 'Alunos';
+    @Input() entity = 'students';
     constructor(private router: Router) {}
-    navigateToCreateStudent() {
-        this.router.navigate(['/students/create']);
+    navigateToCreateEntity() {
+        console.log(`/modules/schoolar/${this.entity}/create`);
+        this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
     }
 
     ngOnInit(): void {
@@ -65,7 +67,6 @@ export class TableHeaderComponent implements OnInit {
                 icon: 'pi pi-file-pdf',
                 command: () => this.exportToPdf(),
             },
-
         ];
     }
     exportToExcel() {
