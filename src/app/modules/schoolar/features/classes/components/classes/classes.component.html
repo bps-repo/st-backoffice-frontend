@@ -7,4 +7,69 @@
         [globalFilterFields]="globalFilterFields"
         class="w-full"
     ></app-table-with-filters>
+
+    <p-dialog
+        [(visible)]="createClassDialog"
+        [style]="{ width: '450px' }"
+        header="Criar Aula"
+        [modal]="true"
+        class="p-fluid"
+    >
+        <ng-template pTemplate="content"> </ng-template>
+
+        <ng-template pTemplate="footer">
+            <button
+                pButton
+                pRipple
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-text"
+                (click)="hideDialog()"
+            ></button>
+            <button
+                pButton
+                pRipple
+                label="Save"
+                icon="pi pi-check"
+                class="p-button-text"
+                (click)="saveClass()"
+            ></button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog
+        [(visible)]="deleteClasstDialog"
+        header="Confirm"
+        [modal]="true"
+        [style]="{ width: '450px' }"
+    >
+        <div class="flex align-items-center justify-content-center">
+            <i
+                class="pi pi-exclamation-triangle mr-3"
+                style="font-size: 2rem"
+            ></i>
+            <span *ngIf="lessons[0]"
+                >Are you sure you want to delete <b>{{ lessons[0].id }}</b
+                >?</span
+            >
+        </div>
+        <ng-template pTemplate="footer">
+            <button
+                pButton
+                pRipple
+                icon="pi pi-times"
+                class="p-button-text"
+                label="No"
+                (click)="deleteClasstDialog = false"
+            ></button>
+            <button
+                pButton
+                pRipple
+                icon="pi pi-check"
+                class="p-button-text"
+                label="Yes"
+                (click)="confirmDelete()"
+            ></button>
+        </ng-template>
+    </p-dialog>
 </div>
