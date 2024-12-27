@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { TableStudentsEntityComponent } from 'src/app/shared/components/table-students-entity/table-students-entity.component';
+import { CommonModule } from '@angular/common';
+import { TableInvoicesComponent } from 'src/app/shared/components/table-invoices/table-invoices.component';
 
 @Component({
     selector: 'app-list',
     standalone: true,
-    imports: [TableStudentsEntityComponent],
+    imports: [TableInvoicesComponent, CommonModule],
     templateUrl: './list.component.html',
     styleUrl: './list.component.scss',
 })
