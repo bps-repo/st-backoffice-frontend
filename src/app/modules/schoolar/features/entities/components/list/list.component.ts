@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import { TableStudentsEntityComponent } from 'src/app/shared/components/table-students-entity/table-students-entity.component';
 
 @Component({
     selector: 'app-list',
     standalone: true,
-    imports: [TableWithFiltersComponent],
+    imports: [TableStudentsEntityComponent],
     templateUrl: './list.component.html',
     styleUrl: './list.component.scss',
 })
