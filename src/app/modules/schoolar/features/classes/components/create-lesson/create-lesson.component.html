@@ -6,16 +6,36 @@
         </div> -->
         <div class="col-12 lg:col-10">
             <div class="grid formgrid p-fluid">
-                <div class="field mb-4 col-12 md:col-8">
+                <div class="field mb-4 col-12 md:col-4">
                     <label for="nickname" class="font-medium text-900"
-                        >Nome completo</label
+                        >Data</label
                     >
-                    <input id="nickname" type="text" pInputText />
+                    <input id="nickname" type="date" pInputText />
                 </div>
 
                 <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900">Tipo</label>
+                    <p-dropdown
+                        [options]="types"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Tipo de Identificação</label
+                        >Nível</label
+                    >
+                    <p-dropdown
+                        [options]="levels"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Centro</label
                     >
                     <p-dropdown
                         [options]="instalations"
@@ -24,24 +44,18 @@
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Nº de Identificação</label
-                    >
-                    <input id="email" type="text" pInputText />
-                </div>
 
                 <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Data de Nascimento</label
+                    <label for="startTime" class="font-medium text-900"
+                        >Hora de ìnício</label
                     >
-                    <input id="email" type="text" pInputText />
+                    <input id="startTime" type="time" pInputText />
                 </div>
                 <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Morada</label
+                    <label for="endTime" class="font-medium text-900"
+                        >Hora de término</label
                     >
-                    <input id="email" type="text" pInputText />
+                    <input id="endTime" type="time" pInputText />
                 </div>
             </div>
         </div>

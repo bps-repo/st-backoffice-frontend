@@ -30,63 +30,62 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 interface Estudantes {
     nome: string;
     associados: string;
-  }
+}
 
-  interface SelectItems {
+interface SelectItems {
     label: string;
     value: any;
-  }
+}
 
 @Component({
-  selector: 'app-table-students-entity',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    RatingModule,
-    ButtonModule,
-    SliderModule,
-    InputTextModule,
-    ToggleButtonModule,
-    RippleModule,
-    MultiSelectModule,
-    DropdownModule,
-    ProgressBarModule,
-    ToastModule,
-    FileUploadModule,
-    ToolbarModule,
-    SplitButtonModule,
-],
-  templateUrl: './table-students-entity.component.html',
-  styleUrl: './table-students-entity.component.scss'
+    selector: 'app-table-students-entity',
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        TableModule,
+        RatingModule,
+        ButtonModule,
+        SliderModule,
+        InputTextModule,
+        ToggleButtonModule,
+        RippleModule,
+        MultiSelectModule,
+        DropdownModule,
+        ProgressBarModule,
+        ToastModule,
+        FileUploadModule,
+        ToolbarModule,
+        SplitButtonModule,
+    ],
+    templateUrl: './table-students-entity.component.html',
+    styleUrl: './table-students-entity.component.scss',
 })
-export class TableStudentsEntityComponent implements OnInit{
-
+export class TableStudentsEntityComponent implements OnInit {
     @Input() tableLable = '';
     @Input() entity = '';
 
+    customers1: Customer[] = [];
+    estudantes: Estudantes[] = [];
+    loading: boolean = true;
+    items: any[] = [];
 
-  customers1: Customer[] = [];
-  estudantes: Estudantes[] = [];
-  loading: boolean = true;
-  items: any[] = [];
+    tiposDeMateriais: any[] = [];
 
-  tiposDeMateriais: any[] = [];
-  instalations: SelectItem[] = [];
-  options: SelectItem[] = [];
+    instalations: SelectItem[] = [];
 
-  selectedOption = signal('table_entities');
-  selectedDrop: SelectItem = { value: '' };
+    options: SelectItem[] = [];
 
-  @ViewChild('filter') filter!: ElementRef;
+    selectedOption = signal('table_entities');
+    selectedDrop: SelectItem = { value: '' };
 
+    @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private customerService: CustomerService, private router: Router) {
-
-    }
+    constructor(
+        private customerService: CustomerService,
+        private router: Router
+    ) {}
     ngOnInit(): void {
-
         this.items = [
             {
                 label: 'Exportar para Excel',
@@ -98,7 +97,6 @@ export class TableStudentsEntityComponent implements OnInit{
                 icon: 'pi pi-file-pdf',
                 command: () => this.exportToPdf(),
             },
-
         ];
 
         this.customerService.getCustomersLarge().then((customers) => {
@@ -115,35 +113,33 @@ export class TableStudentsEntityComponent implements OnInit{
 
         this.estudantes = [
             {
-              nome: 'Aphonso Davies',
-              associados: 'Internacional',
+                nome: 'Aphonso Davies',
+                associados: 'Internacional',
             },
             {
-              nome: 'Aphonso Davies',
-              associados: 'Internacional',
-
+                nome: 'Aphonso Davies',
+                associados: 'Internacional',
             },
             {
-              nome: 'Aphonso Davies',
-              associados: 'Internacional',
+                nome: 'Aphonso Davies',
+                associados: 'Internacional',
             },
-          ];
+        ];
 
-          this.loading = false;
+        this.loading = false;
 
-
-          this.tiposDeMateriais = [
+        this.tiposDeMateriais = [
             { label: 'PDF', value: 'PDF' },
             { label: 'Vídeo', value: 'Vídeo' },
             { label: 'Documento Word', value: 'Word' },
-          ];
+        ];
 
-          this.options = [
+        this.options = [
             { label: 'Materiais Didáticos', value: 'table_materials' },
             { label: 'Relatórios de Presença', value: 'table_presences' },
-          ];
+        ];
 
-          this.instalations = [
+        this.instalations = [
             {
                 label: 'Cidade',
                 value: { id: 1, name: 'New York', code: 'NY' },
@@ -183,5 +179,4 @@ export class TableStudentsEntityComponent implements OnInit{
     navigateToEvaluateStudents() {
         this.router.navigate([`/modules/schoolar/${this.entity}/evaluate`]);
     }
-
 }

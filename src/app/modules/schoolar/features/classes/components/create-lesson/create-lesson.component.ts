@@ -8,6 +8,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { Lesson } from 'src/app/core/models/lesson';
+import { LEVELS } from 'src/app/shared/constants/app';
 import { INSTALATIONS } from 'src/app/shared/constants/representatives';
 
 @Component({
@@ -27,7 +29,13 @@ import { INSTALATIONS } from 'src/app/shared/constants/representatives';
     styleUrl: './create-lesson.component.scss',
 })
 export class CreateLessonComponent {
+    lesson: Lesson = {} as Lesson;
+
     instalations: any[] = INSTALATIONS;
 
     selected: SelectItem[] = [];
+
+    types: any[] = ['VIP', 'Online', 'In Center'];
+
+    levels = LEVELS;
 }
