@@ -28,13 +28,12 @@
                     pRipple
                     icon="pi pi-upload"
                     class="p-button-help"
-
                 ></button>
-            <p-splitButton
-                icon="pi pi-file-export"
-                [model]="items"
-                styleClass="p-button-info h-5rem text-5xl"
-            ></p-splitButton>
+                <p-splitButton
+                    icon="pi pi-file-export"
+                    [model]="items"
+                    styleClass="p-button-info h-5rem text-5xl"
+                ></p-splitButton>
             </div>
         </div>
         <p-table
@@ -82,36 +81,89 @@
             </ng-template>
             <ng-template pTemplate="header">
                 <tr>
-                  <th style="min-width: 15rem">
-                    <div class="flex justify-content-between align-items-center">
-                      Nome do Aluno
-                      <p-columnFilter type="text" field="titulo" display="menu" placeholder="Buscar por título"></p-columnFilter>
-                    </div>
-                  </th>
-                  <th style="min-width: 10rem">
-                    <div class="flex justify-content-between align-items-center">
-                      Entidade associada
-                      <p-columnFilter type="text" field="titulo" display="menu" placeholder="Buscar por título"></p-columnFilter>
-                    </div>
-                  </th>
-                  <th style="min-width: 20rem">
-                    <div class="flex justify-content-between align-items-center text-center">
-                      Ações
-                    </div>
-                  </th>
+                    <th style="min-width: 15rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Número
+                            <p-columnFilter
+                                type="text"
+                                field="titulo"
+                                display="menu"
+                                placeholder="Buscar por título"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Nome
+                            <p-columnFilter
+                                type="text"
+                                field="titulo"
+                                display="menu"
+                                placeholder="Buscar por título"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            NIF
+                            <p-columnFilter
+                                type="text"
+                                field="titulo"
+                                display="menu"
+                                placeholder="Buscar por título"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Alunos
+                            <p-columnFilter
+                                type="text"
+                                field="titulo"
+                                display="menu"
+                                placeholder="Buscar por título"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 20rem">
+                        <div
+                            class="flex justify-content-between align-items-center text-center"
+                        >
+                            Ações
+                        </div>
+                    </th>
                 </tr>
-              </ng-template>
+            </ng-template>
 
-              <ng-template pTemplate="body" let-estudantes>
+            <ng-template pTemplate="body" let-estudantes>
                 <tr (click)="navigateToEvaluateStudents()">
-                  <td>{{ estudantes.nome }}</td>
-                  <td>{{ estudantes.associados }}</td>
-                  <td class="text-center" style="min-width: 20rem">
-                    <button pButton label="Editar" icon="pi pi-pencil" class="p-button-rounded p-button-warning" style="margin-right:5px ;"></button>
-                    <button pButton label="Remover" icon="pi pi-trash" class="p-button-rounded p-button-danger"></button>
-                </td>
+                    <td>{{ estudantes.nome }}</td>
+                    <td>{{ estudantes.associados }}</td>
+                    <td class="text-center" style="min-width: 20rem">
+                        <button
+                            pButton
+                            label="Editar"
+                            icon="pi pi-pencil"
+                            class="p-button-rounded p-button-warning"
+                            style="margin-right: 5px"
+                        ></button>
+                        <button
+                            pButton
+                            label="Remover"
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-danger"
+                        ></button>
+                    </td>
                 </tr>
-              </ng-template>
+            </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
                     <td colspan="8">No customers found.</td>

@@ -15,7 +15,61 @@
         [modal]="true"
         class="p-fluid"
     >
-        <ng-template pTemplate="content"> </ng-template>
+        <ng-template pTemplate="content">
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12 md:col-12">
+                    <label for="nickname" class="font-medium text-900"
+                        >Data</label
+                    >
+                    <input id="nickname" type="date" pInputText />
+                </div>
+
+                <div class="field mb-4 col-12 md:col-12">
+                    <label for="email" class="font-medium text-900">Tipo</label>
+                    <p-dropdown
+                        [options]="types"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-12">
+                    <label for="email" class="font-medium text-900"
+                        >Nível</label
+                    >
+                    <p-dropdown
+                        [options]="levels"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-12">
+                    <label for="email" class="font-medium text-900"
+                        >Centro</label
+                    >
+                    <p-dropdown
+                        [options]="instalations"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="startTime" class="font-medium text-900"
+                        >Hora de ìnício</label
+                    >
+                    <input id="startTime" type="time" pInputText />
+                </div>
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="endTime" class="font-medium text-900"
+                        >Hora de término</label
+                    >
+                    <input id="endTime" type="time" pInputText />
+                </div>
+            </div>
+        </ng-template>
 
         <ng-template pTemplate="footer">
             <button

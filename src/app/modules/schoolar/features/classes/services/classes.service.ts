@@ -1,27 +1,24 @@
 import { Injectable, signal } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ClassesService {
     // Signals to manage dialog states
-    createClassDialog = signal(false);
-    deleteClassDialog = signal(false);
+    private createClassDialogState = new BehaviorSubject<boolean>(false);
+    private deleteClassDialogState = new BehaviorSubject<boolean>(false);
+
+    // Observables for components to subscribe to
+    createClassDialog$ = this.createClassDialogState.asObservable();
+    deleteClassDialog$ = this.deleteClassDialogState.asObservable();
 
     // Methods to update dialog states
-    openCreateClassDialog() {
-        this.createClassDialog.set(true);
+    setCreateClassDialogState(state: boolean) {
+        this.createClassDialogState.next(state);
     }
 
-    closeCreateClassDialog() {
-        this.createClassDialog.set(false);
-    }
-
-    openDeleteClassDialog() {
-        this.deleteClassDialog.set(true);
-    }
-
-    closeDeleteClassDialog() {
-        this.deleteClassDialog.set(false);
+    setDeleteClassDialogState(state: boolean) {
+        this.deleteClassDialogState.next(state);
     }
 }

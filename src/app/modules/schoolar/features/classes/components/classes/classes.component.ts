@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/lesson';
@@ -7,6 +7,14 @@ import { TableClassesComponent } from 'src/app/shared/components/table-classes/t
 import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { LESSONS } from 'src/app/shared/constants/lessons';
 import { ClassesService } from '../../services/classes.service';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { SelectItem } from 'primeng/api';
+import { LEVELS } from 'src/app/shared/constants/app';
+import { INSTALATIONS } from 'src/app/shared/constants/representatives';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-classes',
@@ -16,11 +24,26 @@ import { ClassesService } from '../../services/classes.service';
         DialogModule,
         ToastModule,
         CommonModule,
+        DropdownModule,
+        InputTextModule,
+        InputTextareaModule,
+        FormsModule,
+        ButtonModule,
     ],
     templateUrl: './classes.component.html',
     styleUrl: './classes.component.scss',
 })
-export class ClassesComponent implements OnInit {
+export class ClassesComponent implements OnInit, OnDestroy {
+    lesson: Lesson = {} as Lesson;
+
+    instalations: any[] = INSTALATIONS;
+
+    selected: SelectItem[] = [];
+
+    types: any[] = ['VIP', 'Online', 'In Center'];
+
+    levels = LEVELS;
+
     lessons: Lesson[] = LESSONS; //
 
     columns: any[] = []; //
@@ -45,13 +68,26 @@ export class ClassesComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.createClassDialog = this.classeService.createClassDialog();
-        this.deleteClasstDialog = this.classeService.deleteClassDialog();
+        this.classeService.createClassDialog$.subscribe((state) => {
+            this.createClassDialog = state;
+        });
+
+        this.classeService.deleteClassDialog$.subscribe((state) => {
+            this.deleteClasstDialog = state;
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.classeService.setCreateClassDialogState(false);
+        this.classeService.setDeleteClassDialogState(false);
     }
 
     saveClass(): void {}
 
-    hideDialog() {}
+    hideDialog() {
+        this.classeService.setCreateClassDialogState(false);
+        this.classeService.setDeleteClassDialogState(false);
+    }
 
     confirmDelete() {}
 }
