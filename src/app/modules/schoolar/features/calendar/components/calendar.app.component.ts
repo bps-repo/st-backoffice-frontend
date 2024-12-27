@@ -1,4 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {
+    Component,
+    ComponentRef,
+    OnInit,
+    ViewContainerRef,
+} from '@angular/core';
 import { EventService } from 'src/app/core/services/event.service';
 // @fullcalendar plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -6,6 +11,7 @@ import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { LessonEvent } from 'src/app/core/models/lesson';
 import { LESSONS_EVENTS } from 'src/app/shared/constants/lessons';
+import { EventTooltipComponent } from 'src/app/shared/components/event-tooltip/event-tooltip.component';
 
 @Component({
     templateUrl: './calendar.app.component.html',
@@ -33,8 +39,9 @@ export class CalendarAppComponent implements OnInit {
     view: string = '';
 
     changedEvent: any;
+    private tooltipRef: ComponentRef<EventTooltipComponent> | null = null;
 
-    constructor(private eventService: EventService) {}
+    constructor(private viewContainerRef: ViewContainerRef) {}
 
     ngOnInit(): void {
         this.today = '2024-12-26';
@@ -70,27 +77,27 @@ export class CalendarAppComponent implements OnInit {
 
     handleEventMouseEnter(mouseEnterInfo: any) {
         const { title, extendedProps } = mouseEnterInfo.event;
-        const tooltip = document.createElement('div');
-        tooltip.id = 'event-tooltip';
-        tooltip.style.position = 'absolute';
-        tooltip.style.backgroundColor = '#333';
-        tooltip.style.color = '#fff';
-        tooltip.style.padding = '5px';
-        tooltip.style.borderRadius = '5px';
-        tooltip.style.fontSize = '12px';
-        tooltip.style.top = `${mouseEnterInfo.jsEvent.pageY + 10}px`;
-        tooltip.style.left = `${mouseEnterInfo.jsEvent.pageX + 10}px`;
-        tooltip.style.zIndex = '1000';
-        tooltip.textContent =
-            mouseEnterInfo.event.extendedProps.description || 'Sem descrição';
+        const position = {
+            x: mouseEnterInfo.jsEvent.pageX + 10,
+            y: mouseEnterInfo.jsEvent.pageY + 10,
+        };
 
-        document.body.appendChild(tooltip);
+        // Create the tooltip dynamically
+        this.tooltipRef = this.viewContainerRef.createComponent(
+            EventTooltipComponent
+        );
+        this.tooltipRef.instance.title = title;
+        this.tooltipRef.instance.data = extendedProps;
+        this.tooltipRef.instance.description =
+            extendedProps.description || 'Sem descrição';
+        this.tooltipRef.instance.position = position;
     }
 
     handleEventMouseLeave() {
-        const tooltip = document.getElementById('event-tooltip');
-        if (tooltip) {
-            tooltip.remove();
+        // Destroy the tooltip on mouse leave
+        if (this.tooltipRef) {
+            this.tooltipRef.destroy();
+            this.tooltipRef = null;
         }
     }
 

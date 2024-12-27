@@ -24,9 +24,9 @@ import { FileAppComponent } from './file.app.component';
         TableModule,
         MenuModule,
         FileUploadModule,
-        ChartModule
+        ChartModule,
     ],
-    declarations: [FileAppComponent, UploaderComponent],
-    providers: [FileAppService]
+    declarations: [FileAppComponent],
+    providers: [FileAppService],
 })
-export class FileAppModule { }
+export class FileAppModule {}

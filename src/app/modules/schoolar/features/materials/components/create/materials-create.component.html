@@ -4,20 +4,18 @@
     >
     <div class="grid">
         <!-- DADOS PESSOAIS -->
-        <div class="col-12 lg:col-10">
+        <div class="col-12 lg:col-12">
             <div class="grid formgrid p-fluid">
-                <div class="field mb-4 col-12 md:col-8">
-                    <label for="upload" class="font-medium text-900">Carregar Arquivo</label>
-                    <input
-                        type="file"
-                        id="upload"
-                        (change)="onFileSelect($event)"
-                        accept=".pdf, .mp4, .avi, .mov, .jpg, .png"
-                        class="p-inputtext p-component"
-                    />
-                    <small class="p-d-block">Selecione um PDF, vídeo, ou imagem.</small>
+                <div class="field mb-6 col-12 md:col-12">
+                    <app-file-uploader></app-file-uploader>
                 </div>
 
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="title" class="font-medium text-900"
+                        >Título</label
+                    >
+                    <input id="title" type="text" pInputText />
+                </div>
 
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
@@ -28,7 +26,7 @@
 
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Disponibilidade</label
+                        >Disponibilizar</label
                     >
                     <div class="grid formgrid">
                         <div class="col-12 md:col-4">
@@ -55,14 +53,11 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
 
-        <div class="col-12 lg:col-10">
+        <div class="col-12 lg:col-12">
             <div class="grid formgrid p-fluid">
-
                 <div class="col-12 md:col-12">
                     <textarea
                         rows="5"
