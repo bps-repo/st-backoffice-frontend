@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Mail } from 'src/app/demo/api/mail';
-import { MailService } from 'src/app/demo/components/apps/mail/service/mail.service';
+import { MailService } from 'src/app/shared/components/demo/components/apps/mail/service/mail.service';
 
 @Component({
     selector: 'app-mail-table',
@@ -101,7 +101,7 @@ export class MailTableComponent implements OnInit {
         this.mail = mail;
         this.dialogVisible = true;
     }
-    
+
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }

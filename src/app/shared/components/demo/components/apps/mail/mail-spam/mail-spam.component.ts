@@ -1,24 +1,23 @@
 import { Component, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Mail } from 'src/app/demo/api/mail';
-import { MailService } from 'src/app/demo/components/apps/mail/service/mail.service';
+import { MailService } from 'src/app/shared/components/demo/components/apps/mail/service/mail.service';
 
 @Component({
-    selector: 'app-mail-inbox',
-    templateUrl: './mail-inbox.component.html',
+    selector: 'app-mail-spam',
+    templateUrl: './mail-spam.component.html',
 })
-export class MailInboxComponent implements OnDestroy {
-    mails: Mail[] = [];
+export class MailSpamComponent implements OnDestroy {
+    spamMails: Mail[] = [];
 
     subscription: Subscription;
 
-    constructor(private mailService: MailService, private router: Router) {
+    constructor(private mailService: MailService) {
         this.subscription = this.mailService.mails$.subscribe((data) => {
-            this.mails = data.filter(
+            this.spamMails = data.filter(
                 (d) =>
+                    d.spam &&
                     !d.archived &&
-                    !d.spam &&
                     !d.trash &&
                     !d.hasOwnProperty('sent')
             );

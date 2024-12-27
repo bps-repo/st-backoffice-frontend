@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { NavigationEnd, Router } from '@angular/router';
 import { Mail } from 'src/app/demo/api/mail';
-import { MailService } from 'src/app/demo/components/apps/mail/service/mail.service';
+import { MailService } from 'src/app/shared/components/demo/components/apps/mail/service/mail.service';
 import { filter, Subscription } from 'rxjs';
 
 @Component({
