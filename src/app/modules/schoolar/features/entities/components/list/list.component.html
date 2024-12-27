@@ -1,7 +1,10 @@
 <div class="grid">
-    <app-table-students-entity
-        tableLable="Entidades"
-        entity="entities"
+    <app-table-with-filters
+        tableLabel="Entidades"
+        [data]="entities"
+        [entity]="'entities'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
         class="w-full"
-    ></app-table-students-entity>
+    ></app-table-with-filters>
 </div>
