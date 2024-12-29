@@ -52,11 +52,6 @@ export class ListComponent implements OnInit {
                 filterType: 'text',
             },
             {
-                field: 'course',
-                header: 'Curso',
-                filterType: 'text',
-            },
-            {
                 field: 'center',
                 header: 'Centro',
                 filterType: 'text',

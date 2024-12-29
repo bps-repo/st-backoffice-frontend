@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
+import { TableCreateInvoice } from 'src/app/shared/components/table-create-invoice/table-create-invoice.component';
 import {
     COUNTRIES,
     DISCOUNTS,
@@ -35,6 +36,7 @@ import {
         InputGroupAddonModule,
         RadioButtonModule,
         CheckboxModule,
+        TableCreateInvoice,
     ],
     templateUrl: './invoices-create.component.html',
 })
@@ -43,13 +45,11 @@ export class InvoicesCreateComponent implements OnInit {
 
     levels: any[] = LEVELS;
 
-
-
     estudantes: SelectItem[] = [];
 
     id: string[] = [];
 
-   reviews1: SelectItem[] = [];
+    reviews1: SelectItem[] = [];
 
     payment_ways: any[] = ['Multicaixa', 'Transferência Bancária', 'Dinheiro'];
 
@@ -66,22 +66,18 @@ export class InvoicesCreateComponent implements OnInit {
     valCheck: string[] = [];
 
     ngOnInit() {
-
         this.estudantes = [
-            {label: 'João Mateus Diogo', value: 234234 },
-            {label: 'Guilherme Francisco Mario', value: 234234},
-            {label: 'Antonio Mendes Pereira', value: 93234},
-            {label: 'Ana Sampaio', value:13123}
-        ]
+            { label: 'João Mateus Diogo', value: 234234 },
+            { label: 'Guilherme Francisco Mario', value: 234234 },
+            { label: 'Antonio Mendes Pereira', value: 93234 },
+            { label: 'Ana Sampaio', value: 13123 },
+        ];
 
         this.reviews1 = [
-            {label:'Mau', value:12},
-            {label:'Mediano', value:30},
-            {label:'Bom', value:50},
-            {label:'Melhor',value:10}
-
-        ]
-
-
+            { label: 'Mau', value: 12 },
+            { label: 'Mediano', value: 30 },
+            { label: 'Bom', value: 50 },
+            { label: 'Melhor', value: 10 },
+        ];
     }
 }

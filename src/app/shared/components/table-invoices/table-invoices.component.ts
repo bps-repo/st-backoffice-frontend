@@ -28,31 +28,30 @@ import { CustomerService } from 'src/app/core/services/customer.service';
 import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
-  selector: 'app-table-invoices',
-  standalone: true,
-  imports: [
-      CommonModule,
-      FormsModule,
-      TableModule,
-      RatingModule,
-      ButtonModule,
-      SliderModule,
-      InputTextModule,
-      ToggleButtonModule,
-      RippleModule,
-      MultiSelectModule,
-      DropdownModule,
-      ProgressBarModule,
-      ToastModule,
-      FileUploadModule,
-      ToolbarModule,
-      SplitButtonModule
-  ],
-  templateUrl: './table-invoices.component.html',
-  styleUrl: './table-invoices.component.scss'
+    selector: 'app-table-invoices',
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        TableModule,
+        RatingModule,
+        ButtonModule,
+        SliderModule,
+        InputTextModule,
+        ToggleButtonModule,
+        RippleModule,
+        MultiSelectModule,
+        DropdownModule,
+        ProgressBarModule,
+        ToastModule,
+        FileUploadModule,
+        ToolbarModule,
+        SplitButtonModule,
+    ],
+    templateUrl: './table-invoices.component.html',
+    styleUrl: './table-invoices.component.scss',
 })
-export class TableInvoicesComponent implements OnInit{
-
+export class TableInvoicesComponent implements OnInit {
     @Input() tableLable = '';
     @Input() entity = '';
 
@@ -79,11 +78,11 @@ export class TableInvoicesComponent implements OnInit{
     selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private customerService: CustomerService, private router: Router) {
-
-    }
+    constructor(
+        private customerService: CustomerService,
+        private router: Router
+    ) {}
     ngOnInit(): void {
-
         this.items = [
             {
                 label: 'Exportar para Excel',
@@ -95,9 +94,7 @@ export class TableInvoicesComponent implements OnInit{
                 icon: 'pi pi-file-pdf',
                 command: () => this.exportToPdf(),
             },
-
         ];
-
 
         this.customerService.getCustomersLarge().then((customers) => {
             this.customers1 = customers;
@@ -185,5 +182,4 @@ export class TableInvoicesComponent implements OnInit{
     navigateToCreateInvoices() {
         this.router.navigate([`/modules/invoices/${this.entity}/create`]);
     }
-
 }

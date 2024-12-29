@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SelectItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
+import { ClassesService } from 'src/app/modules/schoolar/features/classes/services/classes.service';
 
 @Component({
     selector: 'app-table-header',
@@ -49,10 +50,13 @@ export class TableHeaderComponent implements OnInit {
     selectedDrop: SelectItem = { value: '' };
     @Input() tableLable = 'Alunos';
     @Input() entity = 'students';
-    constructor(private router: Router) {}
+    constructor(private router: Router, private classService: ClassesService) {}
     navigateToCreateEntity() {
-        console.log(`/modules/schoolar/${this.entity}/create`);
-        this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
+        if (this.entity == 'classes') {
+            this.classService.setCreateClassDialogState(true);
+        } else {
+            this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
+        }
     }
 
     ngOnInit(): void {

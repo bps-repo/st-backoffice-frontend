@@ -31,59 +31,57 @@ interface Material {
     tipo: string; // Ex.: 'PDF', 'Vídeo'
     dataPublicacao: string;
     disponivel: boolean;
-  }
+}
 
-  interface SelectItems {
+interface SelectItems {
     label: string;
     value: any;
-  }
+}
 
 @Component({
-  selector: 'app-table-material',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    RatingModule,
-    ButtonModule,
-    SliderModule,
-    InputTextModule,
-    ToggleButtonModule,
-    RippleModule,
-    MultiSelectModule,
-    DropdownModule,
-    ProgressBarModule,
-    ToastModule,
-    FileUploadModule,
-    ToolbarModule,
-],
-  templateUrl: './table-material.component.html',
-  styleUrl: './table-material.component.scss'
+    selector: 'app-table-material',
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        TableModule,
+        RatingModule,
+        ButtonModule,
+        SliderModule,
+        InputTextModule,
+        ToggleButtonModule,
+        RippleModule,
+        MultiSelectModule,
+        DropdownModule,
+        ProgressBarModule,
+        ToastModule,
+        FileUploadModule,
+        ToolbarModule,
+    ],
+    templateUrl: './table-material.component.html',
+    styleUrl: './table-material.component.scss',
 })
-export class TableMaterialComponent implements OnInit{
-
+export class TableMaterialComponent implements OnInit {
     @Input() tableLable = '';
     @Input() entity = '';
 
+    customers1: Customer[] = [];
+    materiais: Material[] = [];
+    loading: boolean = true;
 
-  customers1: Customer[] = [];
-  materiais: Material[] = [];
-  loading: boolean = true;
+    tiposDeMateriais: any[] = [];
+    instalations: SelectItem[] = [];
+    options: SelectItem[] = [];
 
-  tiposDeMateriais: any[] = [];
-  instalations: SelectItem[] = [];
-  options: SelectItem[] = [];
+    selectedOption = signal('table_material');
+    selectedDrop: SelectItem = { value: '' };
 
-  selectedOption = signal('table_material');
-  selectedDrop: SelectItem = { value: '' };
+    @ViewChild('filter') filter!: ElementRef;
 
-  @ViewChild('filter') filter!: ElementRef;
-
-
-    constructor(private customerService: CustomerService, private router: Router) {
-
-    }
+    constructor(
+        private customerService: CustomerService,
+        private router: Router
+    ) {}
     ngOnInit(): void {
         this.customerService.getCustomersLarge().then((customers) => {
             this.customers1 = customers;
@@ -99,40 +97,39 @@ export class TableMaterialComponent implements OnInit{
 
         this.materiais = [
             {
-              titulo: 'Guia de Estudos - Matemática',
-              tipo: 'PDF',
-              dataPublicacao: new Date('2024-01-15').toISOString(),
-              disponivel: true,
+                titulo: 'Guia de Estudos - Matemática',
+                tipo: 'PDF',
+                dataPublicacao: new Date('2024-01-15').toISOString(),
+                disponivel: true,
             },
             {
-              titulo: 'Aula Introdução à Física',
-              tipo: 'Vídeo',
-              dataPublicacao: new Date('2024-02-10').toISOString(),
-              disponivel: true,
+                titulo: 'Aula Introdução à Física',
+                tipo: 'Vídeo',
+                dataPublicacao: new Date('2024-02-10').toISOString(),
+                disponivel: true,
             },
             {
-              titulo: 'Exercícios Práticos de Química',
-              tipo: 'PDF',
-              dataPublicacao: new Date('2023-12-05').toISOString(),
-              disponivel: false,
+                titulo: 'Exercícios Práticos de Química',
+                tipo: 'PDF',
+                dataPublicacao: new Date('2023-12-05').toISOString(),
+                disponivel: false,
             },
-          ];
+        ];
 
-          this.loading = false;
+        this.loading = false;
 
-
-          this.tiposDeMateriais = [
+        this.tiposDeMateriais = [
             { label: 'PDF', value: 'PDF' },
             { label: 'Vídeo', value: 'Vídeo' },
             { label: 'Documento Word', value: 'Word' },
-          ];
+        ];
 
-          this.options = [
+        this.options = [
             { label: 'Materiais Didáticos', value: 'table_materials' },
             { label: 'Relatórios de Presença', value: 'table_presences' },
-          ];
+        ];
 
-          this.instalations = [
+        this.instalations = [
             {
                 label: 'Cidade',
                 value: { id: 1, name: 'New York', code: 'NY' },
@@ -165,5 +162,4 @@ export class TableMaterialComponent implements OnInit{
     navigateToCreateMaterial() {
         this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
     }
-
 }

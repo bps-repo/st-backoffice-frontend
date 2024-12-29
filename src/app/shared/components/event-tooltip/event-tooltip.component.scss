@@ -1,0 +1,11 @@
+.event-tooltip {
+    position: absolute;
+    background-color: #FFF;
+    color: #fff;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    z-index: 1000;
+    pointer-events: none; /* Ensures it doesn't interfere with mouse events */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}

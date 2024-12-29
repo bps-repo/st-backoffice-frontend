@@ -10,6 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Table } from 'primeng/table';
 import { TableHeaderComponent } from './table-header.component';
+import { ClassesService } from 'src/app/modules/schoolar/features/classes/services/classes.service';
 
 export interface TableColumn {
     field: string;
@@ -53,7 +54,7 @@ export class TableWithFiltersComponent<T> implements OnInit {
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private router: Router) {}
+    constructor(private router: Router, private classService: ClassesService) {}
 
     ngOnInit(): void {}
 
