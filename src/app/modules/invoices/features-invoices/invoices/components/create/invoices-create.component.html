@@ -4,7 +4,7 @@
     >
     <div class="grid">
         <!-- DADOS PESSOAIS -->
-        <div class="col-12 lg:col-10">
+        <div class="col-12 lg:col-12">
             <div class="grid formgrid p-fluid">
                 <div class="field mb-4 col-12 md:col-6">
                     <label for="nickname" class="font-medium text-900"
@@ -17,27 +17,9 @@
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
-
-                <div class="field mb-4 col-12 md:col-4">
+                <div class="field mb-4 col-12 md:col-6">
                     <label for="nickname" class="font-medium text-900"
-                        >Série</label
-                    >
-                    <p-dropdown
-                        [options]="instalations"
-                        placeholder="C2025(Cidade)"
-                        [(ngModel)]="id[2]"
-                        [showClear]="true"
-                    ></p-dropdown>
-                </div>
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Data</label
-                    >
-                    <input id="date" type="date" pInputText />
-                </div>
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="nickname" class="font-medium text-900"
-                        >Condição de pagamento</label
+                        >Método de pagamento</label
                     >
                     <p-dropdown
                         [options]="payment_ways"
@@ -46,105 +28,68 @@
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
-
-                <form class="flex items-center" >
-                    <p-checkbox  value="enviar por email" />
-                   <label  class="ml-2">Enviar por email</label>
-                </form>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="nickname" class="font-medium text-900"
+                        >Nº da Factura</label
+                    >
+                    <p-inputGroup>
+                        <p-inputGroupAddon> FPF-2025 </p-inputGroupAddon>
+                        <input pInputText type="text" placeholder="0002" />
+                    </p-inputGroup>
+                </div>
 
                 <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Leitura</label
+                    <label for="nickname" class="font-medium text-900"
+                        >Série</label
                     >
                     <p-dropdown
-                        [options]="reviews1"
-                        placeholder="Selecione o nível"
+                        [options]="instalations"
+                        placeholder="2025"
+                        [(ngModel)]="id[2]"
+                        [showClear]="true"
+                        [disabled]="true"
+                    >
+                        ></p-dropdown
+                    >
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Tipo de desconto</label
+                    >
+                    <p-dropdown
+                        [options]="discounts"
                         [(ngModel)]="id[3]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-12 lg:col-10">
-            <div class="grid formgrid p-fluid">
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Escrita</label
+                        >Data de Emissão</label
                     >
-                    <p-dropdown
-                        [options]="reviews1"
-                        placeholder="Selecione o nível"
-                        [(ngModel)]="id[4]"
-                        [showClear]="true"
-                    ></p-dropdown>
+                    <input id="date" type="date" pInputText />
                 </div>
-
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Fala</label
+                        >Data de Vencimento</label
                     >
-                    <p-dropdown
-                        [options]="reviews1"
-                        placeholder="Selecione o nível"
-                        [(ngModel)]="id[5]"
-                        [showClear]="true"
-                    ></p-dropdown>
+                    <input id="date" type="date" pInputText />
                 </div>
-
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Vocabuário</label
-                    >
-                    <p-dropdown
-                        [options]="reviews1"
-                        placeholder="Selecione o nível"
-                        [(ngModel)]="id[6]"
-                        [showClear]="true"
-                    ></p-dropdown>
-                </div>
-
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Gramática</label
-                    >
-                    <p-dropdown
-                        [options]="reviews1"
-                        placeholder="Selecione o nível"
-                        [(ngModel)]="id[7]"
-                        [showClear]="true"
-                    ></p-dropdown>
-                </div>
-
-                <div class="field mb-4 col-12 md:col-8">
+                <div class="field mb-4 col-12 md:col-4 relative">
                     <label for="nickname" class="font-medium text-900"
-                        >Presenças</label
+                        >Retenção</label
                     >
-                    <input
-                        id="nickname"
-                        type="number"
-                        pInputText
-                        placeholder="Mais de 5 faltas reprova"
-                    />
+                    <input id="nickname" type="number" pInputText />
                 </div>
-
-
-                <div class="col-12 md:col-12">
-                    <textarea
-                        rows="5"
-                        cols="30"
-                        placeholder="Observações"
-                        pInputTextarea
-                    ></textarea>
+                <div class="field mb-4 col-12 md:col-8 relative">
+                    <label for="nickname" class="font-medium text-900"
+                        >Observações</label
+                    >
+                    <textarea pInputTextarea rows="5" cols="30"> </textarea>
                 </div>
-
-                <div class="col-12 md:col-6">
-                    <button
-                        pButton
-                        pRipple
-                        label="Criar Fatura"
-                        class="w-auto mt-3"
-                    ></button>
+                <div class="field col-12 md:col-12 z-5 relative">
+                    <app-table-create-invoice
+                        class="w-full"
+                    ></app-table-create-invoice>
                 </div>
             </div>
         </div>

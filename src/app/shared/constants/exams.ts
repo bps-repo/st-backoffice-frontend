@@ -59,3 +59,25 @@ export const EXAMS: Exam[] = [
         average: 88,
     },
 ];
+
+export const EXAMS_: Exam[] = [
+    {
+        name: 'Examen 4',
+        date: '01/01/2024',
+        status: 'Pendente',
+        students: ['23', '24', '26'],
+        class: 'Classe 1',
+        teacher: 'Paulo Tumbaria',
+        level: 'Pre-Intermediate',
+        writing: '85',
+        reading: '90',
+        listening: '90',
+        speaking: '95',
+        grammar: '80',
+        vocabulary: '85',
+        comprehension: '90',
+        notes: ['Nota 1', 'Nota 2'],
+        feedback: ['Feedback 1', 'Feedback 2'],
+        average: 88,
+    },
+];
