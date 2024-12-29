@@ -29,7 +29,6 @@
                     pRipple
                     icon="pi pi-upload"
                     class="p-button-help"
-
                 ></button>
                 <button
                     pButton
@@ -46,7 +45,6 @@
             [rows]="10"
             [loading]="loading"
             [rowHover]="true"
-            styleClass="p-datatable-gridlines"
             [paginator]="true"
             [globalFilterFields]="[
                 'name',
@@ -84,63 +82,98 @@
             </ng-template>
             <ng-template pTemplate="header">
                 <tr>
-                  <th style="min-width: 15rem">
-                    <div class="flex justify-content-between align-items-center">
-                      Título
-                      <p-columnFilter type="text" field="titulo" display="menu" placeholder="Buscar por título"></p-columnFilter>
-                    </div>
-                  </th>
-                  <th style="min-width: 10rem">
-                    <div class="flex justify-content-between align-items-center">
-                      Tipo
-                      <p-columnFilter
-                        type="text"
-                        field="tipo"
-                        display="menu"
-                        placeholder="PDF, Vídeo, etc."
-                      ></p-columnFilter>
-                    </div>
-                  </th>
-                  <th style="min-width: 10rem">
-                    <div class="flex justify-content-between align-items-center">
-                      Data de Publicação
-                      <p-columnFilter type="date" field="dataPublicacao" display="menu" placeholder="Buscar por data"></p-columnFilter>
-                    </div>
-                  </th>
-                  <th style="min-width: 8rem">
-                    <div class="flex justify-content-between align-items-center">
-                      Disponibilidade
-                      <p-columnFilter type="boolean" field="disponivel" display="menu"></p-columnFilter>
-                    </div>
-                  </th>
-                  <th style="min-width: 20rem">
-                    <div class="flex justify-content-between align-items-center">
-                      Ações
-                    </div>
-                  </th>
+                    <th style="min-width: 15rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Título
+                            <p-columnFilter
+                                type="text"
+                                field="titulo"
+                                display="menu"
+                                placeholder="Buscar por título"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Tipo
+                            <p-columnFilter
+                                type="text"
+                                field="tipo"
+                                display="menu"
+                                placeholder="PDF, Vídeo, etc."
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Data de Publicação
+                            <p-columnFilter
+                                type="date"
+                                field="dataPublicacao"
+                                display="menu"
+                                placeholder="Buscar por data"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 8rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Disponibilidade
+                            <p-columnFilter
+                                type="boolean"
+                                field="disponivel"
+                                display="menu"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 20rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Ações
+                        </div>
+                    </th>
                 </tr>
-              </ng-template>
+            </ng-template>
 
-              <ng-template pTemplate="body" let-material>
+            <ng-template pTemplate="body" let-material>
                 <tr>
-                  <td>{{ material.titulo }}</td>
-                  <td>{{ material.tipo }}</td>
-                  <td>{{ material.dataPublicacao | date: 'dd/MM/yyyy' }}</td>
-                  <td>
-                    <i
-                      class="pi"
-                      [ngClass]="{
-                        'pi-check-circle text-green-500': material.disponivel,
-                        'pi-times-circle text-red-500': !material.disponivel
-                      }"
-                    ></i>
-                  </td>
-                  <td class="text-center" style="min-width: 20rem">
-                    <button pButton label="Visualizar" icon="pi pi-eye" class="p-button-rounded p-button-info" style="margin-right:5px ;"></button>
-                    <button pButton label="Baixar" icon="pi pi-download" class="p-button-rounded p-button-success"></button>
-                  </td>
+                    <td>{{ material.titulo }}</td>
+                    <td>{{ material.tipo }}</td>
+                    <td>{{ material.dataPublicacao | date : "dd/MM/yyyy" }}</td>
+                    <td>
+                        <i
+                            class="pi"
+                            [ngClass]="{
+                                'pi-check-circle text-green-500':
+                                    material.disponivel,
+                                'pi-times-circle text-red-500':
+                                    !material.disponivel
+                            }"
+                        ></i>
+                    </td>
+                    <td class="text-center" style="min-width: 20rem">
+                        <button
+                            pButton
+                            icon="pi pi-eye"
+                            class="p-button-rounded p-button-info"
+                            style="margin-right: 5px"
+                        ></button>
+                        <button
+                            pButton
+                            icon="pi pi-download"
+                            class="p-button-rounded p-button-success"
+                        ></button>
+                    </td>
                 </tr>
-              </ng-template>
+            </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
                     <td colspan="8">No customers found.</td>
