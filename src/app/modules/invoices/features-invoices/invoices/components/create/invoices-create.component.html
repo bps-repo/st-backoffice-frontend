@@ -1,0 +1,97 @@
+<div class="card">
+    <span class="text-900 text-xl font-bold mb-4 block"
+        >Criação de Faturas</span
+    >
+    <div class="grid">
+        <!-- DADOS PESSOAIS -->
+        <div class="col-12 lg:col-12">
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="nickname" class="font-medium text-900"
+                        >Cliente</label
+                    >
+                    <p-dropdown
+                        [options]="estudantes"
+                        placeholder="Selecione um utente"
+                        [(ngModel)]="id[1]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="nickname" class="font-medium text-900"
+                        >Método de pagamento</label
+                    >
+                    <p-dropdown
+                        [options]="payment_ways"
+                        placeholder="Condição de pagamento"
+                        [(ngModel)]="id[3]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="nickname" class="font-medium text-900"
+                        >Nº da Factura</label
+                    >
+                    <p-inputGroup>
+                        <p-inputGroupAddon> FPF-2025 </p-inputGroupAddon>
+                        <input pInputText type="text" placeholder="0002" />
+                    </p-inputGroup>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="nickname" class="font-medium text-900"
+                        >Série</label
+                    >
+                    <p-dropdown
+                        [options]="instalations"
+                        placeholder="2025"
+                        [(ngModel)]="id[2]"
+                        [showClear]="true"
+                        [disabled]="true"
+                    >
+                        ></p-dropdown
+                    >
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Tipo de desconto</label
+                    >
+                    <p-dropdown
+                        [options]="discounts"
+                        [(ngModel)]="id[3]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Data de Emissão</label
+                    >
+                    <input id="date" type="date" pInputText />
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Data de Vencimento</label
+                    >
+                    <input id="date" type="date" pInputText />
+                </div>
+                <div class="field mb-4 col-12 md:col-4 relative">
+                    <label for="nickname" class="font-medium text-900"
+                        >Retenção</label
+                    >
+                    <input id="nickname" type="number" pInputText />
+                </div>
+                <div class="field mb-4 col-12 md:col-8 relative">
+                    <label for="nickname" class="font-medium text-900"
+                        >Observações</label
+                    >
+                    <textarea pInputTextarea rows="5" cols="30"> </textarea>
+                </div>
+                <div class="field col-12 md:col-12 z-5 relative">
+                    <app-table-create-invoice
+                        class="w-full"
+                    ></app-table-create-invoice>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

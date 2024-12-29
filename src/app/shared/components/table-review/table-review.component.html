@@ -1,0 +1,200 @@
+<div class="col-12">
+    <div class="card">
+        <div class="flex justify-content-between gap-2 mb-5">
+            <div class="flex align-items-center gap-4">
+                <h1>{{ tableLable }}</h1>
+                <p-dropdown
+                    [options]="options"
+                    [(ngModel)]="selectedOption"
+                    placeholder="Listagem por alunos"
+                    [showClear]="true"
+                ></p-dropdown>
+                <p-dropdown
+                    [options]="instalations"
+                    [(ngModel)]="selectedDrop"
+                    placeholder="Selecione a Instalação"
+                    [showClear]="true"
+                ></p-dropdown>
+            </div>
+            <div class="flex gap-1 h-rem">
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-plus"
+                    class="p-button-success"
+                    (click)="navigateToCreateReviews()"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-upload"
+                    class="p-button-help"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-file-pdf"
+                    class="p-button-help"
+                ></button>
+            </div>
+        </div>
+        <p-table
+            [value]="exams"
+            dataKey="name"
+            [expandedRowKeys]="expandedRows"
+            responsiveLayout="scroll"
+        >
+            <ng-template pTemplate="caption">
+                <button
+                    pButton
+                    icon="pi pi-fw {{ isExpanded ? 'pi-minus' : 'pi-plus' }}"
+                    label="{{ isExpanded ? 'Collapse All' : 'Expand All' }}"
+                    (click)="expandAll()"
+                ></button>
+                <div class="flex table-header"></div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem"></th>
+                    <th>Id</th>
+                    <th pSortableColumn="date">
+                        Data <p-sortIcon field="date"></p-sortIcon>
+                    </th>
+                    <th>Turma</th>
+                    <th pSortableColumn="class">
+                        Nível <p-sortIcon field="class"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="teacher">
+                        Professor <p-sortIcon field="teacher"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="average">
+                        Média <p-sortIcon field="average"></p-sortIcon>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-exam let-expanded="expanded">
+                <tr>
+                    <td>
+                        <button
+                            type="button"
+                            pButton
+                            pRipple
+                            [pRowToggler]="exam"
+                            class="p-button-text p-button-rounded p-button-plain"
+                            [icon]="
+                                expanded
+                                    ? 'pi pi-chevron-down'
+                                    : 'pi pi-chevron-right'
+                            "
+                        ></button>
+                    </td>
+                    <td style="min-width: 12rem">{{ exam.name }}</td>
+                    <td>
+                        {{ exam.date }}
+                    </td>
+                    <td style="min-width: 8rem">
+                        {{ exam.class }}
+                    </td>
+                    <td style="min-width: 10rem">{{ exam.level }}</td>
+                    <td style="min-width: 10rem">{{ exam.teacher }}</td>
+                    <td>
+                        <p-progressBar
+                            [value]="exam.reading"
+                            [showValue]="true"
+                            [style]="{ height: '1rem' }"
+                            [color]="exam.reading < 50 ? 'red' : ''"
+                        ></p-progressBar>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-exam>
+                <tr>
+                    <td colspan="7">
+                        <div class="p-3">
+                            <p-table
+                                [value]="exams"
+                                dataKey="id"
+                                responsiveLayout="scroll"
+                            >
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="reading">
+                                            Leitura
+                                            <p-sortIcon
+                                                field="reading"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="writing">
+                                            Escrita
+                                            <p-sortIcon
+                                                field="writing"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="speaking">
+                                            Fala
+                                            <p-sortIcon
+                                                field="speaking"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="vocabulary">
+                                            Vocabulário
+                                            <p-sortIcon
+                                                field="vocabulary"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="grammar">
+                                            Gramática
+                                            <p-sortIcon
+                                                field="grammar"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="notes">
+                                            Observações
+                                            <p-sortIcon
+                                                field="notes"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th pSortableColumn="feedback">
+                                            Feedback
+                                            <p-sortIcon
+                                                field="feedback"
+                                            ></p-sortIcon>
+                                        </th>
+                                        <th style="width: 4rem"></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-exam>
+                                    <tr>
+                                        <td>{{ exam.reading }}%</td>
+                                        <td>{{ exam.writing }}%</td>
+                                        <td>{{ exam.speaking }}%</td>
+                                        <td>
+                                            {{ exam.vocabulary }}%
+                                        </td>
+                                        <td>
+                                            {{ exam.grammar }}%
+                                        </td>
+                                        <td>
+                                            {{ exam.notes[0] }}
+                                        </td>
+                                        <td>
+                                            {{ exam.feedback[0] }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6">
+                                            There are no order for this product
+                                            yet.
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

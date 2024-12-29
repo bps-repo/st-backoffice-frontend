@@ -13,6 +13,17 @@ const routes: Routes = [
             import('./students/students.module').then((m) => m.StudentsModule),
     },
     {
+        path: 'entities',
+        loadChildren: () =>
+            import('./entities/entities.module').then((m) => m.EntitiesModule),
+    },
+    {
+        path: 'students',
+        loadChildren: () =>
+            import('./students/students.module').then((m) => m.StudentsModule),
+    },
+
+    {
         path: 'classes',
         loadChildren: () =>
             import('./classes/classes.module').then((m) => m.ClassesModule),
@@ -23,6 +34,16 @@ const routes: Routes = [
             import('./calendar/calendar.app.module').then(
                 (m) => m.CalendarAppModule
             ),
+    },
+    {
+        path: 'reviews',
+        loadChildren: () =>
+            import('./reviews/reviews.app.module').then((m) => m.ReviewsAppModule),
+    },
+    {
+        path: 'materials',
+        loadChildren: () =>
+            import('./materials/materials.app.module').then((m) => m.MaterialsAppModule),
     },
 ];
 

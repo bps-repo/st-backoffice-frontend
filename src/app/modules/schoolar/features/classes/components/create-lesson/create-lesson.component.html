@@ -1,0 +1,63 @@
+<div class="card">
+    <span class="text-900 text-xl font-bold mb-4 block">Criação de aula</span>
+    <div class="grid">
+        <!-- <div class="col-12 lg:col-2">
+            <div class="text-900 font-medium text-xl mb-3">Dados pessoais</div>
+        </div> -->
+        <div class="col-12 lg:col-10">
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="nickname" class="font-medium text-900"
+                        >Data</label
+                    >
+                    <input id="nickname" type="date" pInputText />
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900">Tipo</label>
+                    <p-dropdown
+                        [options]="types"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Nível</label
+                    >
+                    <p-dropdown
+                        [options]="levels"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900"
+                        >Centro</label
+                    >
+                    <p-dropdown
+                        [options]="instalations"
+                        placeholder="Selecione"
+                        [(ngModel)]="selected[10]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="startTime" class="font-medium text-900"
+                        >Hora de ìnício</label
+                    >
+                    <input id="startTime" type="time" pInputText />
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="endTime" class="font-medium text-900"
+                        >Hora de término</label
+                    >
+                    <input id="endTime" type="time" pInputText />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

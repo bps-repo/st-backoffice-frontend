@@ -1,0 +1,73 @@
+<div>
+    <p-table [value]="exams" responsiveLayout="stack" class="overflow-hidden">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="product">Produto</th>
+                <th pSortableColumn="price">Preço</th>
+                <th pSortableColumn="discount">Desconto</th>
+                <th pSortableColumn="iva">IVA</th>
+                <th pSortableColumn="amount">Montante</th>
+                <th pSortableColumn="action">Acções</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-exam>
+            <tr>
+                <td style="min-width: 12rem">
+                    <p-multiSelect
+                        [options]="courses"
+                        [(ngModel)]="selectedList"
+                        placeholder="Selecione um produto"
+                        optionLabel="name"
+                        class="multiselect-custom"
+                        display="chip"
+                    >
+                        <ng-template let-course pTemplate="item">
+                            <div class="flex align-items-center z-5">
+                                <span class="ml-2">{{ course.label }}</span>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                </td>
+                <td style="min-width: 12rem">
+                    <input type="number" pInputText />
+                </td>
+                <td style="min-width: 12rem">
+                    <p-dropdown
+                        [options]="discounts"
+                        [(ngModel)]="selectedDrop[0]"
+                        [showClear]="false"
+                    ></p-dropdown>
+                </td>
+                <td style="min-width: 12rem">
+                    <p-dropdown
+                        [options]="discounts"
+                        [(ngModel)]="selectedDrop[0]"
+                        [showClear]="false"
+                    ></p-dropdown>
+                </td>
+                <td style="min-width: 12rem">
+                    <input type="text" pInputText />
+                </td>
+                <td style="min-width: 12rem">
+                    <button
+                        type="button"
+                        pButton
+                        pRipple
+                        icon="pi pi-plus"
+                        [pRowToggler]="exam"
+                        class="p-button-rounded p-button-success"
+                    ></button>
+                    <button
+                        ngClass="hidden"
+                        type="button"
+                        pButton
+                        pRipple
+                        icon="pi pi-minus"
+                        [pRowToggler]="exam"
+                        class="p-button-rounded p-button-danger"
+                    ></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

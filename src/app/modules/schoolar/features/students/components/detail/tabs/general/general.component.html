@@ -1,0 +1,115 @@
+<section class="mt-5">
+    <div class="grid">
+        <div class="col-12 md:col-6 xl:col-4">
+            <div class="card h-full">
+                <span class="font-semibold text-lg"
+                    >Tempo passado na aplicação</span
+                >
+                <div
+                    class="flex justify-content-between align-items-start mt-3"
+                >
+                    <div class="w-6">
+                        <span class="text-4xl font-bold text-900">30min/dia</span>
+                        <div class="text-green-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 md:col-6 xl:col-4">
+            <div class="card h-full">
+                <span class="font-semibold text-lg">Assiduidade</span>
+                <div
+                    class="flex justify-content-between align-items-start mt-3"
+                >
+                    <div class="w-6">
+                        <span class="text-4xl font-bold text-900">45%</span>
+                        <div class="text-green-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 md:col-6 xl:col-4">
+            <div class="card h-full">
+                <span class="font-semibold text-lg"
+                    >Avaliações e Provas feitas</span
+                >
+                <div
+                    class="flex justify-content-between align-items-start mt-3"
+                >
+                    <div class="w-6">
+                        <span class="text-4xl font-bold text-900">30%</span>
+                        <div class="text-pink-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex justify-content-between flex-wrap">
+        <div class="user-info shadow-2 p-5 relative col-12 lg:col-4">
+            <img
+                src="https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg"
+                alt="user-image"
+                class="user-avatar w-4 h-4 absolute top-0 left-0"
+            />
+            <div
+                class="flex flex-column justify-content-center align-items-center mt-3 mb-3 w-full"
+            >
+                <span class="font-bold text-3xl">Manuel Ikuma</span>
+                <span>user273&#64;gmail.com</span>
+                <span class="text-blue-500 font-bold">Pre-Intermediate 2</span>
+            </div>
+            <div class="mt-6">
+                <div *ngFor="let user of user_personal_info" class="flex">
+                    <label
+                        for="nickname"
+                        class="col-12 md:col-5 font-medium text-900"
+                        >{{ user.title }}</label
+                    >
+                    <label
+                        for="nickname"
+                        class="col-12 md:col-7 font-normal text-900"
+                        >{{ user.value }}</label
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div class="flex shadow-2 p-5 col-12 lg:col-8">
+            <app-pie-chart
+                class="w-6 h-4 shadow-1 p-4"
+                title="Progresso academico"
+                pieChartType="doughnut"
+            ></app-pie-chart>
+            <div class="notifications shadow-1 w-6 p-2">
+                <div class="flex flex-column mt-3 mx-auto md:mx-0">
+                    <h5 class="mb-5 text-center font-semibold">Notificações</h5>
+                    <ul class="list-none m-0 p-0">
+                        <li *ngFor="let notification of notifications">
+                            <a
+                                class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-bottom-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150"
+                            >
+                                <span>
+                                    <i
+                                        [ngClass]="notification.icon"
+                                        class="text-xl text-primary"
+                                    ></i>
+                                </span>
+                                <div class="ml-3">
+                                    <span class="mb-2 font-semibold">{{
+                                        notification.message
+                                    }}</span>
+                                    <p class="text-color-secondary m-0">
+                                        5 min ago
+                                    </p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="text-center font-semibold cursor-pointer">
+                        Ver mais
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

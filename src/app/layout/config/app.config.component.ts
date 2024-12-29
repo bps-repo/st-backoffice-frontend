@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MenuService } from '../app.menu.service';
 import { LayoutService } from '../service/app.layout.service';
 import {
     ColorScheme,
     MenuColorScheme,
     MenuMode,
 } from 'src/app/shared/@types/layout';
+import { MenuService } from '../components/menu/app.menu.service';
 
 @Component({
     selector: 'app-config',

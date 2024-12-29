@@ -2,22 +2,24 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { SelectItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { RatingModule } from 'primeng/rating';
-import { RippleModule } from 'primeng/ripple';
 import { SliderModule } from 'primeng/slider';
-import { Table, TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
-import { ToggleButtonModule } from 'primeng/togglebutton';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Customer, Representative } from 'src/app/core/models/customer';
-import { CustomerService } from 'src/app/core/services/customer.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { Table } from 'primeng/table';
+import { TableHeaderComponent } from './table-header.component';
+import { ClassesService } from 'src/app/modules/schoolar/features/classes/services/classes.service';
+
+export interface TableColumn {
+    field: string;
+    header: string;
+    filterType?: 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
+    filterOptions?: any; // For dropdown, multiselect, etc.
+    filterTemplate?: boolean; // Indicates custom filter template usage
+    customTemplate?: boolean; // Indicates custom column template usage
+}
 
 @Component({
     selector: 'app-table-with-filters',
@@ -26,99 +28,35 @@ import { CustomerService } from 'src/app/core/services/customer.service';
         CommonModule,
         FormsModule,
         TableModule,
-        RatingModule,
-        ButtonModule,
-        SliderModule,
         InputTextModule,
-        ToggleButtonModule,
-        RippleModule,
-        MultiSelectModule,
         DropdownModule,
-        ProgressBarModule,
-        ToastModule,
-        FileUploadModule,
-        ToolbarModule,
+        MultiSelectModule,
+        SliderModule,
+        ButtonModule,
         RouterModule,
+        TableHeaderComponent,
     ],
     templateUrl: './table-with-filters.component.html',
-    styleUrl: './table-with-filters.component.scss',
+    styleUrls: ['./table-with-filters.component.scss'],
 })
-export class TableWithFiltersComponent implements OnInit {
-    @Input() tableLable = '';
+export class TableWithFiltersComponent<T> implements OnInit {
+    @Input() columns: TableColumn[] = []; // Dynamic column definitions
 
-    customers1: Customer[] = [];
+    @Input() data: T[] = [];
 
-    loading: boolean = true;
+    @Input() entity: string = 'students';
 
-    statuses: any[] = [];
+    @Input() globalFilterFields: string[] = []; // Fields to be filtered globally
 
-    representatives: Representative[] = [];
+    @Input() loading: boolean = false; // Loading state
 
-    activityValues: number[] = [0, 100];
+    @Input() tableLabel = '';
 
-    cities: SelectItem[] = [];
-
-    selectedList: SelectItem = { value: '' };
-
-    selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(
-        private customerService: CustomerService,
-        private router: Router
-    ) {}
-    ngOnInit(): void {
-        this.customerService.getCustomersLarge().then((customers) => {
-            this.customers1 = customers;
-            this.loading = false;
+    constructor(private router: Router, private classService: ClassesService) {}
 
-            this.customers1.forEach(
-                (customer) =>
-                    (customer.date = new Date(
-                        customer.date as string
-                    ).toISOString())
-            );
-        });
-
-        this.representatives = [
-            { name: 'Amy Elsner', image: 'amyelsner.png' },
-            { name: 'Anna Fali', image: 'annafali.png' },
-            { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-            { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-            { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-            { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-            { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-            { name: 'Onyama Limba', image: 'onyamalimba.png' },
-            { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-            { name: 'XuXue Feng', image: 'xuxuefeng.png' },
-        ];
-
-        this.statuses = [
-            { label: 'Unqualified', value: 'unqualified' },
-            { label: 'Qualified', value: 'qualified' },
-            { label: 'New', value: 'new' },
-            { label: 'Negotiation', value: 'negotiation' },
-            { label: 'Renewal', value: 'renewal' },
-            { label: 'Proposal', value: 'proposal' },
-        ];
-
-        this.cities = [
-            {
-                label: 'Cidade',
-                value: { id: 1, name: 'New York', code: 'NY' },
-            },
-            { label: 'Centro', value: { id: 2, name: 'Rome', code: 'RM' } },
-            {
-                label: 'Maculusso',
-                value: { id: 3, name: 'London', code: 'LDN' },
-            },
-            {
-                label: 'Nova Vida',
-                value: { id: 4, name: 'Istanbul', code: 'IST' },
-            },
-            { label: 'Patriota', value: { id: 5, name: 'Paris', code: 'PRS' } },
-        ];
-    }
+    ngOnInit(): void {}
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal(
@@ -130,9 +68,5 @@ export class TableWithFiltersComponent implements OnInit {
     clear(table: Table) {
         table.clear();
         this.filter.nativeElement.value = '';
-    }
-
-    navigateToCreateStudent() {
-        this.router.navigate(['/modules/schoolar/students/create']);
     }
 }
