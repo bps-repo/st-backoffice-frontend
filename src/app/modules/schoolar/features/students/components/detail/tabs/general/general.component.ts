@@ -1,10 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgApexchartsModule } from 'ng-apexcharts';
 import { BadgeModule } from 'primeng/badge';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
 import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
+
+import {
+    ChartComponent,
+    ApexAxisChartSeries,
+    ApexChart,
+    ApexXAxis,
+    ApexTitleSubtitle,
+} from 'ng-apexcharts';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+
+export type ChartOptions = {
+    series: ApexAxisChartSeries;
+    chart: ApexChart;
+    xaxis: ApexXAxis;
+    title: ApexTitleSubtitle;
+};
 
 @Component({
     selector: 'app-general',
@@ -16,13 +34,52 @@ import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart
         PieChartComponent,
         BadgeModule,
         PanelModule,
+        NgApexchartsModule,
+        ReactiveFormsModule,
+        FormsModule,
+        BrowserModule,
     ],
     templateUrl: './general.component.html',
     styleUrl: './general.component.scss',
 })
 export class GeneralComponent implements OnInit {
+    @ViewChild('chart') chart?: ChartComponent;
+    public chartOptions: ChartOptions;
+
     user_personal_info: any[] = [];
     notifications: any[] = [];
+
+    constructor() {
+        this.chartOptions = {
+            series: [
+                {
+                    name: 'My-series',
+                    data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+                },
+            ],
+            chart: {
+                height: 350,
+                type: 'bar',
+            },
+            title: {
+                text: 'My First Angular Chart',
+            },
+            xaxis: {
+                categories: [
+                    'Jan',
+                    'Feb',
+                    'Mar',
+                    'Apr',
+                    'May',
+                    'Jun',
+                    'Jul',
+                    'Aug',
+                    'Sep',
+                ],
+            },
+        };
+    }
+
     ngOnInit(): void {
         this.user_personal_info = [
             {
