@@ -1,13 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { BadgeModule } from 'primeng/badge';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
+import { PanelModule } from 'primeng/panel';
 import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 
 @Component({
     selector: 'app-general',
     standalone: true,
-    imports: [InputTextModule, CommonModule, ChartModule, PieChartComponent],
+    imports: [
+        InputTextModule,
+        CommonModule,
+        ChartModule,
+        PieChartComponent,
+        BadgeModule,
+        PanelModule,
+    ],
     templateUrl: './general.component.html',
     styleUrl: './general.component.scss',
 })

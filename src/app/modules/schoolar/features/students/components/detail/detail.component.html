@@ -1,16 +1,38 @@
 <div class="grid">
     <div class="card w-full">
         <div class="flex justify-content-between gap-5">
-            <div>
-                <h1 class="text-3xl text-dark">Manuel Ikuma - 1000</h1>
+            <div class="flex gap-3">
+                <h1 class="text-3xl text-dark">Manuel Mulesoft - N192736</h1>
+                <div>
+                    <p-tag
+                        ngcl
+                        class="p-0 m-0"
+                        pTooltip="Estado do estudante"
+                        icon="pi pi-circle-on"
+                        severity="success"
+                        value="Activo"
+                        [rounded]="false"
+                    ></p-tag>
+                </div>
             </div>
-            <div class="action-buttons">
-                <p-splitButton
-                    label="Acções rápidas"
-                    icon="pi pi-sliders-h"
-                    [model]="items"
-                    styleClass="p-button-info text-5xl"
-                ></p-splitButton>
+            <div class="flex align-items-center gap-1">
+                <div>
+                    <i
+                        class="pi pi-bell mr-4 p-text-secondary cursor-pointer"
+                        pBadge
+                        pTooltip="4 novas notificações"
+                        style="font-size: 2rem"
+                        value="4"
+                    ></i>
+                </div>
+                <div class="action-buttons">
+                    <p-splitButton
+                        label="Acções rápidas"
+                        icon="pi pi-sliders-h"
+                        [model]="items"
+                        styleClass="p-button-info text-5xl m-2"
+                    ></p-splitButton>
+                </div>
             </div>
         </div>
     </div>

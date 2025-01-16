@@ -8,6 +8,9 @@ import { STUDENTS_TABS } from 'src/app/shared/constants/students';
 import { Observable } from 'rxjs';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
+import { TagModule } from 'primeng/tag';
+import { PanelModule } from 'primeng/panel';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
     selector: 'app-detail',
@@ -18,6 +21,9 @@ import { MenuItem } from 'primeng/api';
         CommonModule,
         TabViewComponent,
         SplitButtonModule,
+        TagModule,
+        PanelModule,
+        BadgeModule,
     ],
     templateUrl: './detail.component.html',
     styleUrl: './detail.component.scss',
