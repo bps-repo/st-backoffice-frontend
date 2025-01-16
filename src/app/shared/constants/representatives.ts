@@ -9,7 +9,7 @@ export const STUDENTS: Student[] = [
         course: 'beginner',
         level: 'beginner',
         birthdate: '12.04-2004',
-        phone: 9283736747,
+        phone: 9293736747,
         status: StudentStatus.ACTIVE,
     },
     {
@@ -20,7 +20,7 @@ export const STUDENTS: Student[] = [
         course: 'beginner',
         level: 'beginner',
         birthdate: '12.04-2004',
-        phone: 9283736747,
+        phone: 9223736237,
         status: StudentStatus.ACTIVE,
     },
     {
@@ -32,7 +32,7 @@ export const STUDENTS: Student[] = [
         level: 'beginner',
         birthdate: '12.04-2004',
         phone: 9283736747,
-        status: StudentStatus.INACTIVE,
+        status: StudentStatus.ACTIVE,
     },
     {
         id: 7,
@@ -42,7 +42,7 @@ export const STUDENTS: Student[] = [
         course: 'beginner',
         level: 'beginner',
         birthdate: '12.04-2004',
-        phone: 9283736747,
+        phone: 9213736747,
         status: StudentStatus.INACTIVE,
     },
     {
@@ -53,7 +53,7 @@ export const STUDENTS: Student[] = [
         course: 'Talatona',
         level: 'beginner',
         birthdate: '12.04-2004',
-        phone: 9283736747,
+        phone: 9223736747,
         status: StudentStatus.QUIT,
     },
     {
@@ -64,8 +64,8 @@ export const STUDENTS: Student[] = [
         course: 'beginner',
         level: 'beginner',
         birthdate: '12.04-2004',
-        phone: 9283736747,
-        status: StudentStatus.SUSPENDED,
+        phone: 9276736747,
+        status: StudentStatus.ACTIVE,
     },
 ];
 

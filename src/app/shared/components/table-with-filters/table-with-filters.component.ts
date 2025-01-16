@@ -24,7 +24,7 @@ export interface TableColumn {
     header: string;
     filterType?: 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
     filterOptions?: any;
-    filterTemplate?: boolean;
+    filterTemplate?: TemplateRef<any>;
     customTemplate?: TemplateRef<any>;
 }
 

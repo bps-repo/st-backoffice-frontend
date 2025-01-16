@@ -41,7 +41,7 @@
             <!-- Dynamic Columns -->
             <ng-template pTemplate="header">
                 <tr>
-                    <th *ngFor="let col of columns" [style.minWidth]="'2rem'">
+                    <th *ngFor="let col of columns" [style.minWidth]="'1rem'">
                         <div class="flex justify-content-between">
                             {{ col.header }}
                             <p-columnFilter
@@ -67,6 +67,7 @@
                         <ng-container *ngIf="!col.customTemplate">
                             {{ rowData[col.field] }}
                         </ng-container>
+
                         <ng-container *ngIf="col.customTemplate">
                             <ng-container
                                 *ngTemplateOutlet="
