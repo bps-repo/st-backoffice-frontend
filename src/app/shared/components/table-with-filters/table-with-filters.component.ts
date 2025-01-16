@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    Input,
+    OnInit,
+    TemplateRef,
+    ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
@@ -16,9 +23,9 @@ export interface TableColumn {
     field: string;
     header: string;
     filterType?: 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
-    filterOptions?: any; // For dropdown, multiselect, etc.
-    filterTemplate?: boolean; // Indicates custom filter template usage
-    customTemplate?: boolean; // Indicates custom column template usage
+    filterOptions?: any;
+    filterTemplate?: boolean;
+    customTemplate?: TemplateRef<any>;
 }
 
 @Component({
@@ -39,10 +46,12 @@ export interface TableColumn {
     templateUrl: './table-with-filters.component.html',
     styleUrls: ['./table-with-filters.component.scss'],
 })
-export class TableWithFiltersComponent<T> implements OnInit {
+export class TableWithFiltersComponent implements OnInit {
     @Input() columns: TableColumn[] = []; // Dynamic column definitions
 
-    @Input() data: T[] = [];
+    @Input() customTemplate?: TemplateRef<any>;
+
+    @Input() data: any[] = [];
 
     @Input() entity: string = 'students';
 

@@ -41,7 +41,7 @@
             <!-- Dynamic Columns -->
             <ng-template pTemplate="header">
                 <tr>
-                    <th *ngFor="let col of columns" [style.minWidth]="'5rem'">
+                    <th *ngFor="let col of columns" [style.minWidth]="'2rem'">
                         <div class="flex justify-content-between">
                             {{ col.header }}
                             <p-columnFilter
@@ -68,7 +68,12 @@
                             {{ rowData[col.field] }}
                         </ng-container>
                         <ng-container *ngIf="col.customTemplate">
-                            <!-- Custom content for a column -->
+                            <ng-container
+                                *ngTemplateOutlet="
+                                    col.customTemplate;
+                                    context: { $implicit: rowData }
+                                "
+                            ></ng-container>
                         </ng-container>
                     </td>
                 </tr>

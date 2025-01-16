@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TableColumn,
@@ -6,6 +6,7 @@ import {
 } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { STUDENTS } from 'src/app/shared/constants/representatives';
 import { Student } from 'src/app/core/models/student';
+import { EditComponent } from '../edit/edit.component';
 
 @Component({
     selector: 'app-list',
@@ -15,6 +16,9 @@ import { Student } from 'src/app/core/models/student';
     styleUrl: './list.component.scss',
 })
 export class ListComponent implements OnInit {
+    @ViewChild('editTemplate', { static: true })
+    editTemplate?: TemplateRef<any>;
+
     students: Student[] = STUDENTS;
 
     columns: TableColumn[] = [];
@@ -57,7 +61,13 @@ export class ListComponent implements OnInit {
                 field: 'status',
                 header: 'Estado',
                 filterType: 'boolean',
+                customTemplate: this.editTemplate,
             },
         ];
+    }
+
+    editItem(item: Student): void {
+        // Implement the edit logic here
+        console.log('Editing item:', item);
     }
 }
