@@ -6,10 +6,6 @@ import {
 } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { STUDENTS } from 'src/app/shared/constants/representatives';
 import { Student } from 'src/app/core/models/student';
-import { TableService } from 'src/app/shared/services/table.service';
-import { TableColumnFilterTemplates } from 'primeng/table';
-
-type studentKeys = keyof Student;
 
 @Component({
     selector: 'app-list',
@@ -27,18 +23,9 @@ export class ListComponent implements OnInit {
 
     loading = false;
 
-    constructor(private tableService: TableService<Student>) {}
+    constructor() {}
 
     ngOnInit(): void {
-        // Dynamically populate columns and globalFilterFields
-        // if (STUDENTS.length > 0) {
-        //     this.tableService.populateColumnsFromModel(
-        //         STUDENTS[0],
-        //         this.columns,
-        //         this.globalFilterFields
-        //     );
-        // }
-
         // Define custom column templates for different filter types
         this.columns = [
             {
@@ -65,6 +52,11 @@ export class ListComponent implements OnInit {
                 field: 'phone',
                 header: 'Telefone',
                 filterType: 'text',
+            },
+            {
+                field: 'status',
+                header: 'Estado',
+                filterType: 'boolean',
             },
         ];
     }

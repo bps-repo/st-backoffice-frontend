@@ -1,4 +1,4 @@
-import { Student } from 'src/app/core/models/student';
+import { Student, StudentStatus } from 'src/app/core/models/student';
 
 export const STUDENTS: Student[] = [
     {
@@ -10,6 +10,7 @@ export const STUDENTS: Student[] = [
         level: 'beginner',
         birthdate: '12.04-2004',
         phone: 9283736747,
+        status: StudentStatus.ACTIVE,
     },
     {
         id: 2,
@@ -20,6 +21,7 @@ export const STUDENTS: Student[] = [
         level: 'beginner',
         birthdate: '12.04-2004',
         phone: 9283736747,
+        status: StudentStatus.ACTIVE,
     },
     {
         id: 6,
@@ -30,6 +32,7 @@ export const STUDENTS: Student[] = [
         level: 'beginner',
         birthdate: '12.04-2004',
         phone: 9283736747,
+        status: StudentStatus.INACTIVE,
     },
     {
         id: 7,
@@ -40,6 +43,7 @@ export const STUDENTS: Student[] = [
         level: 'beginner',
         birthdate: '12.04-2004',
         phone: 9283736747,
+        status: StudentStatus.INACTIVE,
     },
     {
         id: 8,
@@ -50,6 +54,7 @@ export const STUDENTS: Student[] = [
         level: 'beginner',
         birthdate: '12.04-2004',
         phone: 9283736747,
+        status: StudentStatus.QUIT,
     },
     {
         id: 9,
@@ -60,6 +65,7 @@ export const STUDENTS: Student[] = [
         level: 'beginner',
         birthdate: '12.04-2004',
         phone: 9283736747,
+        status: StudentStatus.SUSPENDED,
     },
 ];
 
