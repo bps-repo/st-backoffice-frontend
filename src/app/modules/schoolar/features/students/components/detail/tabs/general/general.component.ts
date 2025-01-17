@@ -5,23 +5,29 @@ import { BadgeModule } from 'primeng/badge';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
-import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 
 import {
-    ChartComponent,
     ApexAxisChartSeries,
     ApexChart,
+    ChartComponent,
+    ApexDataLabels,
+    ApexPlotOptions,
+    ApexResponsive,
     ApexXAxis,
-    ApexTitleSubtitle,
+    ApexLegend,
+    ApexFill,
 } from 'ng-apexcharts';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
+import { NOTIFICATIONS } from 'src/app/shared/constants/notifications';
 
 export type ChartOptions = {
     series: ApexAxisChartSeries;
     chart: ApexChart;
+    plotOptions: ApexPlotOptions;
+    responsive: ApexResponsive[];
     xaxis: ApexXAxis;
-    title: ApexTitleSubtitle;
+    legend: ApexLegend;
+    fill: ApexFill;
 };
 
 @Component({
@@ -31,13 +37,11 @@ export type ChartOptions = {
         InputTextModule,
         CommonModule,
         ChartModule,
-        PieChartComponent,
         BadgeModule,
         PanelModule,
         NgApexchartsModule,
         ReactiveFormsModule,
         FormsModule,
-        BrowserModule,
     ],
     templateUrl: './general.component.html',
     styleUrl: './general.component.scss',
@@ -47,35 +51,78 @@ export class GeneralComponent implements OnInit {
     public chartOptions: ChartOptions;
 
     user_personal_info: any[] = [];
-    notifications: any[] = [];
+
+    notifications: any[] = NOTIFICATIONS;
 
     constructor() {
         this.chartOptions = {
             series: [
                 {
-                    name: 'My-series',
-                    data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+                    name: 'Speaking',
+                    data: [44, 55, 41, 67, 22, 43],
+                    color: '#4338ca',
+                },
+                {
+                    name: 'Talking',
+                    data: [13, 23, 20, 8, 13, 27],
+                    color: '#0e0457',
+                },
+                {
+                    name: 'Writing',
+                    data: [11, 17, 15, 15, 21, 14],
+                    color: '#136c34',
+                },
+                {
+                    name: 'Listening',
+                    data: [21, 7, 25, 13, 22, 8],
+                    color: '#5e1d3d',
                 },
             ],
             chart: {
-                height: 350,
                 type: 'bar',
+                height: 350,
+                stacked: true,
+                toolbar: {
+                    show: true,
+                },
+                zoom: {
+                    enabled: true,
+                },
             },
-            title: {
-                text: 'My First Angular Chart',
+            responsive: [
+                {
+                    breakpoint: 480,
+                    options: {
+                        legend: {
+                            position: 'bottom',
+                            offsetX: -10,
+                            offsetY: 0,
+                        },
+                    },
+                },
+            ],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                },
             },
             xaxis: {
+                type: 'category',
                 categories: [
-                    'Jan',
-                    'Feb',
-                    'Mar',
-                    'Apr',
-                    'May',
-                    'Jun',
-                    'Jul',
-                    'Aug',
-                    'Sep',
+                    '01/2025',
+                    '02/2025',
+                    '03/2025',
+                    '04/2025',
+                    '05/2025',
+                    '06/2025',
                 ],
+            },
+            legend: {
+                position: 'right',
+                offsetY: 40,
+            },
+            fill: {
+                opacity: 1,
             },
         };
     }
@@ -113,29 +160,6 @@ export class GeneralComponent implements OnInit {
             {
                 title: 'Género',
                 value: 'Masculino',
-            },
-        ];
-
-        this.notifications = [
-            {
-                title: 'Aviso 1',
-                message: 'Terminou o quiz n#03-adjectives...',
-                icon: 'pi pi-wallet',
-            },
-            {
-                title: 'Aviso 2',
-                message: 'Acabou de agendar uma aula para as 12h',
-                icon: 'pi pi-bell',
-            },
-            {
-                title: 'Aviso 3',
-                message: 'Fez abertura de um inquerito para as 12h',
-                icon: 'pi pi-file-pdf',
-            },
-            {
-                title: 'Aviso 4',
-                message: 'Pagamento do certificado Beginner',
-                icon: 'pi pi-money-bill',
             },
         ];
     }

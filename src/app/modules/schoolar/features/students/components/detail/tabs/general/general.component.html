@@ -30,17 +30,16 @@
         </div>
 
         <div class="flex shadow-2 col-12 lg:col-8">
-            <app-pie-chart
-                class="w-6 h-4 shadow-1 p-4"
-                title="Progresso academico"
-                pieChartType="doughnut"
-            ></app-pie-chart>
+            <apx-chart
+                class="w-full"
+                [series]="chartOptions.series"
+                [chart]="chartOptions.chart"
+                [plotOptions]="chartOptions.plotOptions"
+                [responsive]="chartOptions.responsive"
+                [xaxis]="chartOptions.xaxis"
+                [legend]="chartOptions.legend"
+                [fill]="chartOptions.fill"
+            ></apx-chart>
         </div>
-    </div>
-    <div class="card">
-        <apx-chart
-            [series]="chartOptions.series"
-            [chart]="chartOptions.chart"
-        ></apx-chart>
     </div>
 </section>
