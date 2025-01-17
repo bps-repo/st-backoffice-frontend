@@ -38,7 +38,6 @@ import { AppLayoutComponent } from './app.layout.component';
     imports: [
         BrowserModule,
         FormsModule,
-        //HttpClientModule,
         BrowserAnimationsModule,
         InputTextModule,
         SidebarModule,

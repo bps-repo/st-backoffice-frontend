@@ -8,6 +8,7 @@ import {
 import { MenuService } from '../components/menu/app.menu.service';
 
 @Component({
+    standalone: false,
     selector: 'app-config',
     templateUrl: './app.config.component.html',
 })

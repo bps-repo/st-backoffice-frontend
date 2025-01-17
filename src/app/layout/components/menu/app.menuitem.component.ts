@@ -25,6 +25,7 @@ import { AppSidebarComponent } from '../sidebar/app.sidebar.component';
 import { LayoutService } from '../../service/app.layout.service';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: '[app-menuitem]',
     template: `

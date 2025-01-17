@@ -4,6 +4,7 @@ import { MenuMode } from '../../../shared/@types/layout';
 import { MenuService } from '../menu/app.menu.service';
 
 @Component({
+    standalone: false,
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
 })

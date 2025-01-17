@@ -14,6 +14,7 @@ import { LESSONS_EVENTS } from 'src/app/shared/constants/lessons';
 import { EventTooltipComponent } from 'src/app/shared/components/event-tooltip/event-tooltip.component';
 
 @Component({
+    standalone: false,
     templateUrl: './calendar.app.component.html',
     styleUrls: ['./calendar.app.component.scss'],
 })

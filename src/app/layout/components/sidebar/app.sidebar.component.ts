@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { LayoutService } from '../../service/app.layout.service';
 
 @Component({
+    standalone: false,
     selector: 'app-sidebar',
     templateUrl: './app.sidebar.component.html',
     styleUrls: ['./app.sidebar.component.css'],

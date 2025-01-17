@@ -9,6 +9,7 @@ interface Breadcrumb {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-breadcrumb',
     templateUrl: './app.breadcrumb.component.html',
 })
