@@ -9,8 +9,6 @@ ST Andrews Internal Management System is a comprehensive solution designed to st
 - [Build](#build)
 - [Running Unit Tests](#running-unit-tests)
 - [Running End-to-End Tests](#running-end-to-end-tests)
-- [Dependencies](#dependencies)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Installation
@@ -24,7 +22,7 @@ ng install
 If you encounter an error, try to run:
 
 ```sh
-ng install --legacy-peer-deps
+npm install --legacy-peer-deps
 ```
 
 ## Development Server
@@ -39,7 +37,7 @@ ng serve
 In case you dont have the Angular CLI installed, run:
 
 ```sh
-ng run start
+npm run start
 ```
 
 Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
