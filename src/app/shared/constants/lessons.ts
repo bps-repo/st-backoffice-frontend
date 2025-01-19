@@ -34,7 +34,7 @@ export const LESSONS_BY_STUDENT: Lesson[] = [
         level: 'Beginner',
         description: 'Learn the basics of English for business',
         center: 'Patriota',
-        status: 'Presente',
+        status: 'presente',
     },
     {
         date: '2024-12-26',
@@ -44,7 +44,27 @@ export const LESSONS_BY_STUDENT: Lesson[] = [
         level: 'Intermediate',
         description: 'Learn the basics of math for business',
         center: 'Benguela',
-        status: 'Presente',
+        status: 'ausente',
+    },
+    {
+        date: '2024-12-25',
+        class: 'Online 1',
+        time: '10:00 AM - 12:00 PM',
+        teacher: 'Dr. Mary Jane Smith',
+        level: 'Beginner',
+        description: 'Learn the basics of English for business',
+        center: 'Patriota',
+        status: 'presente',
+    },
+    {
+        date: '2024-12-26',
+        class: 'Online 1',
+        time: '10:00 AM - 12:00 PM',
+        teacher: 'Mr. John Doe',
+        level: 'Intermediate',
+        description: 'Learn the basics of math for business',
+        center: 'Benguela',
+        status: 'ausente',
     },
 ];
 

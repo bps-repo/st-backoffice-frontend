@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
     selector: 'app-list',
     standalone: true,
-    imports: [GlobalTableComponent, CommonModule, DropdownModule, FormsModule],
+    imports: [GlobalTableComponent, CommonModule, DropdownModule],
     templateUrl: './list.component.html',
     styleUrl: './list.component.scss',
 })

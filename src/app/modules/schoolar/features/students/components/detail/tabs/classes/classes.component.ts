@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Lesson } from 'src/app/core/models/lesson';
 import {
     TableColumn,
@@ -14,8 +14,19 @@ import { LESSONS, LESSONS_BY_STUDENT } from 'src/app/shared/constants/lessons';
     styleUrl: './classes.component.scss',
 })
 export class ClassesComponent implements OnInit {
+    @ViewChild('statusTemplate', { static: true })
+    statusTemplate?: TemplateRef<any>;
+
+    statusColor: Map<string, string> = new Map([
+        ['presente', 'bg-green-500'],
+        ['ausente', 'bg-red-500'],
+        ['warning', 'bg-yellow-400'],
+    ]);
+
     lessons: Lesson[] = LESSONS_BY_STUDENT;
+
     columns: TableColumn[] = [];
+
     globalFilterFields: string[] = [];
     constructor() {}
 
@@ -27,7 +38,11 @@ export class ClassesComponent implements OnInit {
             { field: 'teacher', header: 'Professor' },
             { field: 'level', header: 'Nível' },
             { field: 'description', header: 'Descrição' },
-            { field: 'status', header: 'Estado' },
+            {
+                field: 'status',
+                header: 'Estado',
+                customTemplate: this.statusTemplate,
+            },
         ];
         this.globalFilterFields = [
             'date',
@@ -37,5 +52,9 @@ export class ClassesComponent implements OnInit {
             'level',
             'description',
         ];
+    }
+
+    getStatusClass(status: string): string {
+        return this.statusColor.get(status) || '';
     }
 }
