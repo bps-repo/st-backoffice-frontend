@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Lesson } from 'src/app/core/models/lesson';
 import {
-    TableColumn,
     GlobalTableComponent,
-} from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+    TableColumn,
+} from 'src/app/shared/components/global-table/global-table.component';
+
 import { LESSONS, LESSONS_BY_STUDENT } from 'src/app/shared/constants/lessons';
 @Component({
     selector: 'app-classes',

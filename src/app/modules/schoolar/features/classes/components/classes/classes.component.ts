@@ -3,8 +3,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/lesson';
-import { TableClassesComponent } from 'src/app/shared/components/table-classes/table-classes.component';
-import { GlobalTableComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { LESSONS } from 'src/app/shared/constants/lessons';
 import { ClassesService } from '../../services/classes.service';
 import { DropdownModule } from 'primeng/dropdown';
@@ -15,6 +13,7 @@ import { LEVELS } from 'src/app/shared/constants/app';
 import { INSTALATIONS } from 'src/app/shared/constants/representatives';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { GlobalTableComponent } from 'src/app/shared/components/global-table/global-table.component';
 
 @Component({
     selector: 'app-classes',

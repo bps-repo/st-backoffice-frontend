@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GlobalTableComponent } from './table-with-filters.component';
+import { GlobalTableComponent } from './global-table.component';
 
 describe('TableWithFiltersComponent', () => {
   let component: GlobalTableComponent;

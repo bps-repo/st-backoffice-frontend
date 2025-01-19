@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { Company } from 'src/app/core/models/company';
-import { TableStudentsEntityComponent } from 'src/app/shared/components/table-students-entity/table-students-entity.component';
-import { GlobalTableComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
-import { ENTITIES } from 'src/app/shared/constants/app';
+import { GlobalTableComponent } from 'src/app/shared/components/global-table/global-table.component';
 import { COMPANIES } from 'src/app/shared/constants/companies';
 
 @Component({

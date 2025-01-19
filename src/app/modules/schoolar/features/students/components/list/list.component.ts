@@ -1,13 +1,14 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-    TableColumn,
-    GlobalTableComponent,
-} from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+
 import { STUDENTS } from 'src/app/shared/constants/representatives';
 import { Student, StudentStatus } from 'src/app/core/models/student';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
+import {
+    GlobalTableComponent,
+    TableColumn,
+} from 'src/app/shared/components/global-table/global-table.component';
 
 @Component({
     selector: 'app-list',

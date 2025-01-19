@@ -44,8 +44,8 @@ export interface TableColumn {
         RouterModule,
         TableHeaderComponent,
     ],
-    templateUrl: './table-with-filters.component.html',
-    styleUrls: ['./table-with-filters.component.scss'],
+    templateUrl: './global-table.component.html',
+    styleUrls: ['./global-table.component.scss'],
 })
 export class GlobalTableComponent implements OnInit {
     @Input() columns: TableColumn[] = [];
