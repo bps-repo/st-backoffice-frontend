@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Class } from 'src/app/core/models/class';
 import { Lesson } from 'src/app/core/models/lesson';
 import {
     GlobalTableComponent,
     TableColumn,
 } from 'src/app/shared/components/global-table/global-table.component';
+import { CLASSES_BY_STUDENT } from 'src/app/shared/constants/classes';
 
 import { LESSONS, LESSONS_BY_STUDENT } from 'src/app/shared/constants/lessons';
 @Component({
@@ -15,16 +17,7 @@ import { LESSONS, LESSONS_BY_STUDENT } from 'src/app/shared/constants/lessons';
     styleUrl: './classes.component.scss',
 })
 export class ClassesComponent implements OnInit {
-    @ViewChild('statusTemplate', { static: true })
-    statusTemplate?: TemplateRef<any>;
-
-    statusColor: Map<string, string> = new Map([
-        ['presente', 'bg-green-500'],
-        ['ausente', 'bg-red-500'],
-        ['warning', 'bg-yellow-400'],
-    ]);
-
-    lessons: Lesson[] = LESSONS_BY_STUDENT;
+    lessons: Class[] = CLASSES_BY_STUDENT;
 
     columns: TableColumn[] = [];
 
@@ -33,29 +26,13 @@ export class ClassesComponent implements OnInit {
 
     ngOnInit(): void {
         this.columns = [
-            { field: 'date', header: 'Data' },
-            { field: 'class', header: 'Turma' },
-            { field: 'time', header: 'Hora' },
-            { field: 'teacher', header: 'Professor' },
-            { field: 'level', header: 'Nível' },
+            { field: 'name', filterType: 'text', header: 'Nome' },
+            { field: 'teacher', header: 'Professor', filterType: 'text' },
+            { field: 'timetable', header: 'Horário', filterType: 'date' },
+            { field: 'start_at', header: 'Início', filterType: 'date' },
+            { field: 'end_at', header: 'Término', filterType: 'text' },
             { field: 'description', header: 'Descrição' },
-            {
-                field: 'status',
-                header: 'Estado',
-                customTemplate: this.statusTemplate,
-            },
+            { field: 'status', header: 'Estado' },
         ];
-        this.globalFilterFields = [
-            'date',
-            'class',
-            'time',
-            'teacher',
-            'level',
-            'description',
-        ];
-    }
-
-    getStatusClass(status: string): string {
-        return this.statusColor.get(status) || '';
     }
 }
