@@ -4,7 +4,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/lesson';
 import { TableClassesComponent } from 'src/app/shared/components/table-classes/table-classes.component';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import { GlobalTableComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { LESSONS } from 'src/app/shared/constants/lessons';
 import { ClassesService } from '../../services/classes.service';
 import { DropdownModule } from 'primeng/dropdown';
@@ -20,7 +20,7 @@ import { ButtonModule } from 'primeng/button';
     selector: 'app-classes',
     standalone: true,
     imports: [
-        TableWithFiltersComponent,
+        GlobalTableComponent,
         DialogModule,
         ToastModule,
         CommonModule,

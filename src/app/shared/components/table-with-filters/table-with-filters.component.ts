@@ -19,17 +19,18 @@ import { Table } from 'primeng/table';
 import { TableHeaderComponent } from './table-header.component';
 import { ClassesService } from 'src/app/modules/schoolar/features/classes/services/classes.service';
 
+type FilterType = 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
 export interface TableColumn {
     field: string;
     header: string;
-    filterType?: 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
+    filterType?: FilterType;
     filterOptions?: any;
     filterTemplate?: TemplateRef<any>;
     customTemplate?: TemplateRef<any>;
 }
 
 @Component({
-    selector: 'app-table-with-filters',
+    selector: 'app-global-table',
     standalone: true,
     imports: [
         CommonModule,
@@ -46,8 +47,8 @@ export interface TableColumn {
     templateUrl: './table-with-filters.component.html',
     styleUrls: ['./table-with-filters.component.scss'],
 })
-export class TableWithFiltersComponent implements OnInit {
-    @Input() columns: TableColumn[] = []; // Dynamic column definitions
+export class GlobalTableComponent implements OnInit {
+    @Input() columns: TableColumn[] = [];
 
     @Input() customTemplate?: TemplateRef<any>;
 

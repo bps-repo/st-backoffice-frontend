@@ -23,6 +23,31 @@ export const LESSONS: Lesson[] = [
     },
 ];
 
+
+
+export const LESSONS_BY_STUDENT: Lesson[] = [
+    {
+        date: '2024-12-25',
+        class: 'Online 1',
+        time: '10:00 AM - 12:00 PM',
+        teacher: 'Dr. Mary Jane Smith',
+        level: 'Beginner',
+        description: 'Learn the basics of English for business',
+        center: 'Patriota',
+        status: 'Presente',
+    },
+    {
+        date: '2024-12-26',
+        class: 'Online 1',
+        time: '10:00 AM - 12:00 PM',
+        teacher: 'Mr. John Doe',
+        level: 'Intermediate',
+        description: 'Learn the basics of math for business',
+        center: 'Benguela',
+        status: 'Presente',
+    },
+];
+
 export const LESSONS_EVENTS: LessonEvent[] = [
     {
         date: '2024-12-26',

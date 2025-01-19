@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TableWithFiltersComponent } from './table-with-filters.component';
+import { GlobalTableComponent } from './table-with-filters.component';
 
 describe('TableWithFiltersComponent', () => {
-  let component: TableWithFiltersComponent;
-  let fixture: ComponentFixture<TableWithFiltersComponent>;
+  let component: GlobalTableComponent;
+  let fixture: ComponentFixture<GlobalTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TableWithFiltersComponent]
+      imports: [GlobalTableComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TableWithFiltersComponent);
+    fixture = TestBed.createComponent(GlobalTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,5 +1,5 @@
 <div class="grid">
-    <app-table-with-filters
+    <app-global-table
         tableLabel="Alunos"
         [data]="students"
         [entity]="'students'"
@@ -7,7 +7,7 @@
         [globalFilterFields]="globalFilterFields"
         [loading]="loading"
         class="w-full"
-    ></app-table-with-filters>
+    ></app-global-table>
 </div>
 
 <ng-template #editTemplate let-item>
@@ -19,4 +19,3 @@
         >{{ item.status }}</span
     >
 </ng-template>
-

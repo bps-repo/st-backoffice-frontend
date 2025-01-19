@@ -7,7 +7,8 @@ export interface Lesson {
     center: string;
     level: string;
     description: string;
-    students: string;
+    students?: string;
+    status?: string;
 }
 
 export interface LessonEvent extends Lesson {

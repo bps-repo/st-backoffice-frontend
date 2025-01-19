@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TableColumn,
-    TableWithFiltersComponent,
+    GlobalTableComponent,
 } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { STUDENTS } from 'src/app/shared/constants/representatives';
 import { Student, StudentStatus } from 'src/app/core/models/student';
@@ -12,12 +12,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
     selector: 'app-list',
     standalone: true,
-    imports: [
-        TableWithFiltersComponent,
-        CommonModule,
-        DropdownModule,
-        FormsModule,
-    ],
+    imports: [GlobalTableComponent, CommonModule, DropdownModule, FormsModule],
     templateUrl: './list.component.html',
     styleUrl: './list.component.scss',
 })
