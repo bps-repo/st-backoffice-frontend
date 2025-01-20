@@ -3,7 +3,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/lesson';
-import { LESSONS } from 'src/app/shared/constants/lessons';
 import { LessonsService } from '../../services/classes.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,6 +13,7 @@ import { INSTALATIONS } from 'src/app/shared/constants/representatives';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { GlobalTableComponent } from 'src/app/shared/components/global-table/global-table.component';
+import { LessonService } from 'src/app/core/services/lesson.service';
 
 @Component({
     selector: 'app-classes',
@@ -43,7 +43,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
     levels = LEVELS;
 
-    lessons: Lesson[] = LESSONS; //
+    lessons: Lesson[] = []; //
 
     columns: any[] = []; //
 
@@ -53,7 +53,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
     deleteClasstDialog: boolean = false;
 
-    constructor(private classeService: LessonsService) {
+    constructor(
+        private classeService: LessonsService,
+        private lessonService: LessonService
+    ) {
         this.columns = [
             { field: 'date', header: 'Data' },
             { field: 'class', header: 'Turma' },
@@ -67,6 +70,12 @@ export class LessonsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.lessonService.getLessons().subscribe((lessons) => {
+            this.lessons = lessons;
+            console.log(this.lessons);
+        });
+
+
         this.classeService.createClassDialog$.subscribe((state) => {
             this.createClassDialog = state;
         });

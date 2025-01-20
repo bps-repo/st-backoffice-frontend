@@ -1,0 +1,114 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "date": "2024-12-25",
+            "class": "Online 1",
+            "time": "10:00 AM - 12:00 PM",
+            "teacher": "Dr. Mary Jane Smith",
+            "level": "Beginner",
+            "description": "Learn the basics of English for business",
+            "students": "12",
+            "center": "Patriota"
+        },
+        {
+            "id": 2,
+            "date": "2024-12-26",
+            "class": "Online 2",
+            "time": "01:00 PM - 03:00 PM",
+            "teacher": "Dr. John Doe",
+            "level": "Intermediate",
+            "description": "Intermediate English for business",
+            "students": "15",
+            "center": "Patriota"
+        },
+        {
+            "id": 3,
+            "date": "2024-12-27",
+            "class": "Online 3",
+            "time": "02:00 PM - 04:00 PM",
+            "teacher": "Dr. Jane Roe",
+            "level": "Advanced",
+            "description": "Advanced English for business",
+            "students": "10",
+            "center": "Patriota"
+        },
+        {
+            "id": 4,
+            "date": "2024-12-28",
+            "class": "Online 4",
+            "time": "09:00 AM - 11:00 AM",
+            "teacher": "Dr. Alice Johnson",
+            "level": "Beginner",
+            "description": "Basic English grammar",
+            "students": "20",
+            "center": "Patriota"
+        },
+        {
+            "id": 5,
+            "date": "2024-12-29",
+            "class": "Online 5",
+            "time": "11:00 AM - 01:00 PM",
+            "teacher": "Dr. Bob Brown",
+            "level": "Intermediate",
+            "description": "Conversational English",
+            "students": "18",
+            "center": "Patriota"
+        },
+        {
+            "id": 6,
+            "date": "2024-12-30",
+            "class": "Online 6",
+            "time": "03:00 PM - 05:00 PM",
+            "teacher": "Dr. Carol White",
+            "level": "Advanced",
+            "description": "Advanced English writing",
+            "students": "12",
+            "center": "Patriota"
+        },
+        {
+            "id": 7,
+            "date": "2024-12-31",
+            "class": "Online 7",
+            "time": "10:00 AM - 12:00 PM",
+            "teacher": "Dr. David Green",
+            "level": "Beginner",
+            "description": "English pronunciation",
+            "students": "22",
+            "center": "Patriota"
+        },
+        {
+            "id": 8,
+            "date": "2025-01-01",
+            "class": "Online 8",
+            "time": "01:00 PM - 03:00 PM",
+            "teacher": "Dr. Emma Black",
+            "level": "Intermediate",
+            "description": "Business English",
+            "students": "16",
+            "center": "Patriota"
+        },
+        {
+            "id": 9,
+            "date": "2025-01-02",
+            "class": "Online 9",
+            "time": "02:00 PM - 04:00 PM",
+            "teacher": "Dr. Frank Blue",
+            "level": "Advanced",
+            "description": "English literature",
+            "students": "14",
+            "center": "Patriota"
+        },
+        {
+            "id": 10,
+            "date": "2025-01-03",
+            "class": "Online 10",
+            "time": "09:00 AM - 11:00 AM",
+            "teacher": "Dr. Grace Yellow",
+            "level": "Beginner",
+            "description": "English for travel",
+            "students": "25",
+            "center": "Patriota"
+        }
+    ]
+}
