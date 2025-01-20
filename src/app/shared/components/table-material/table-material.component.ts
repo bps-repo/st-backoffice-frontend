@@ -24,7 +24,6 @@ import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Customer, Representative } from 'src/app/core/models/customer';
-import { CustomerService } from 'src/app/core/services/customer.service';
 
 interface Material {
     titulo: string;
@@ -78,23 +77,8 @@ export class TableMaterialComponent implements OnInit {
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(
-        private customerService: CustomerService,
-        private router: Router
-    ) {}
+    constructor(private router: Router) {}
     ngOnInit(): void {
-        this.customerService.getCustomersLarge().then((customers) => {
-            this.customers1 = customers;
-            this.loading = false;
-
-            this.customers1.forEach(
-                (customer) =>
-                    (customer.date = new Date(
-                        customer.date as string
-                    ).toISOString())
-            );
-        });
-
         this.materiais = [
             {
                 titulo: 'Guia de Estudos - Matemática',

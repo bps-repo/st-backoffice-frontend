@@ -24,7 +24,6 @@ import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Customer, Representative } from 'src/app/core/models/customer';
-import { CustomerService } from 'src/app/core/services/customer.service';
 import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
@@ -78,10 +77,7 @@ export class TableInvoicesComponent implements OnInit {
     selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(
-        private customerService: CustomerService,
-        private router: Router
-    ) {}
+    constructor(private router: Router) {}
     ngOnInit(): void {
         this.items = [
             {
@@ -95,18 +91,6 @@ export class TableInvoicesComponent implements OnInit {
                 command: () => this.exportToPdf(),
             },
         ];
-
-        this.customerService.getCustomersLarge().then((customers) => {
-            this.customers1 = customers;
-            this.loading = false;
-
-            this.customers1.forEach(
-                (customer) =>
-                    (customer.date = new Date(
-                        customer.date as string
-                    ).toISOString())
-            );
-        });
 
         this.representatives = [
             { name: 'Amy Elsner', image: 'amyelsner.png' },

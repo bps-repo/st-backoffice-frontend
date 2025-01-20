@@ -4,7 +4,6 @@ import {
     OnInit,
     ViewContainerRef,
 } from '@angular/core';
-import { EventService } from 'src/app/core/services/event.service';
 // @fullcalendar plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
