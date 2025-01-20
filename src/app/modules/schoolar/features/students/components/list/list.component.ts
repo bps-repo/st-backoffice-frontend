@@ -9,6 +9,7 @@ import {
     GlobalTableComponent,
     TableColumn,
 } from 'src/app/shared/components/global-table/global-table.component';
+import { StudentService } from 'src/app/core/services/students.service';
 
 @Component({
     selector: 'app-list',
@@ -33,7 +34,7 @@ export class ListComponent implements OnInit {
         [StudentStatus.QUIT, 'bg-red-400'],
     ]);
 
-    students: Student[] = STUDENTS;
+    students: Student[] = [];
 
     columns: TableColumn[] = [];
 
@@ -41,10 +42,12 @@ export class ListComponent implements OnInit {
 
     loading = false;
 
-    constructor() {}
+    constructor(private studentService: StudentService) {}
 
     ngOnInit(): void {
-        // Define custom column templates for different filter types
+        this.studentService.getStudents().subscribe((students) => {
+            this.students = students;
+        });
         this.columns = [
             {
                 field: 'id',
