@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable({
     providedIn: 'root',
 })
-export class ClassesService {
+export class LessonsService {
     // Signals to manage dialog states
     private createClassDialogState = new BehaviorSubject<boolean>(false);
     private deleteClassDialogState = new BehaviorSubject<boolean>(false);

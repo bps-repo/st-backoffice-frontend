@@ -17,7 +17,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Table } from 'primeng/table';
 import { TableHeaderComponent } from './table-header.component';
-import { ClassesService } from 'src/app/modules/schoolar/features/classes/services/classes.service';
+import { LessonsService } from 'src/app/modules/schoolar/features/lessons/services/classes.service';
 
 type FilterType = 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
 export interface TableColumn {
@@ -64,7 +64,7 @@ export class GlobalTableComponent implements OnInit {
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private router: Router, private classService: ClassesService) {}
+    constructor(private router: Router, private classService: LessonsService) {}
 
     ngOnInit(): void {}
 

@@ -4,7 +4,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/lesson';
 import { LESSONS } from 'src/app/shared/constants/lessons';
-import { ClassesService } from '../../services/classes.service';
+import { LessonsService } from '../../services/classes.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -32,7 +32,7 @@ import { GlobalTableComponent } from 'src/app/shared/components/global-table/glo
     templateUrl: './classes.component.html',
     styleUrl: './classes.component.scss',
 })
-export class ClassesComponent implements OnInit, OnDestroy {
+export class LessonsComponent implements OnInit, OnDestroy {
     lesson: Lesson = {} as Lesson;
 
     instalations: any[] = INSTALATIONS;
@@ -53,7 +53,7 @@ export class ClassesComponent implements OnInit, OnDestroy {
 
     deleteClasstDialog: boolean = false;
 
-    constructor(private classeService: ClassesService) {
+    constructor(private classeService: LessonsService) {
         this.columns = [
             { field: 'date', header: 'Data' },
             { field: 'class', header: 'Turma' },

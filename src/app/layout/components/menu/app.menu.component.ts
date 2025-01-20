@@ -33,7 +33,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/modules/schoolar/classes'],
+                        routerLink: ['/modules/schoolar/lessons'],
                     },
                     {
                         label: 'Calendário',

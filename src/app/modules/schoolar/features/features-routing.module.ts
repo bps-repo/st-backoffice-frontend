@@ -24,9 +24,9 @@ const routes: Routes = [
     },
 
     {
-        path: 'classes',
+        path: 'lessons',
         loadChildren: () =>
-            import('./classes/classes.module').then((m) => m.ClassesModule),
+            import('./lessons/lessons.module').then((m) => m.LessonsModule),
     },
     {
         path: 'calendar',
