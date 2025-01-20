@@ -12,4 +12,8 @@ export class StudentService extends BaseService<Student> {
     getStudents() {
         return this.getAll();
     }
+
+    getStudentById(id: number) {
+        return this.getById(id);
+    }
 }
