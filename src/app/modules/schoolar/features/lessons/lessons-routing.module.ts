@@ -1,4 +1,4 @@
-import { Component, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LessonsComponent } from './components/lessons/classes.component';
 import { DetailsComponent } from './components/details/details.component';

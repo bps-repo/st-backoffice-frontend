@@ -12,6 +12,8 @@ import { TagModule } from 'primeng/tag';
 import { PanelModule } from 'primeng/panel';
 import { BadgeModule } from 'primeng/badge';
 import { StudentService } from 'src/app/core/services/students.service';
+import { ActivatedRoute } from '@angular/router';
+import { Student } from 'src/app/core/models/student';
 
 @Component({
     selector: 'app-detail',
@@ -31,16 +33,35 @@ import { StudentService } from 'src/app/core/services/students.service';
 })
 export class DetailComponent implements OnInit {
     tabs: Observable<Tab[]> = STUDENTS_TABS;
+
+    student: Student = {} as Student;
+
     items!: MenuItem[];
 
-    constructor(private studentService: StudentService) {
-        this.studentService.getById(1).subscribe((student) => {
-            console.log('AQUI PEGANDO STUDENT');
-            console.log(student);
+    id!: number;
+
+    constructor(
+        private studentService: StudentService,
+        private router: ActivatedRoute
+    ) {
+        this.router.params.subscribe((params) => {
+            this.id = params['id'];
         });
     }
 
     ngOnInit() {
+        this.loadStudent();
+        this.initializeItems();
+    }
+
+    private loadStudent(): void {
+        this.studentService.getStudentById(+this.id).subscribe((student) => {
+            this.student = student;
+            console.log(this.student);
+        });
+    }
+
+    private initializeItems(): void {
         this.items = [
             { label: 'Imprimir cartão', icon: 'pi pi-file-pdf' },
             {

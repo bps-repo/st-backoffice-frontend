@@ -1,31 +1,36 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 export class BaseService<U, T extends { id?: U }> {
     constructor(protected httpClient: HttpClient, private baseUrl: string) {}
 
-    getAll(): Observable<T[]> {
+    protected getAll(): Observable<T[]> {
         return this.httpClient
             .get<{ data: T[] }>(this.baseUrl)
             .pipe(map((response) => response.data));
     }
 
-    getById(id: U): Observable<T> {
+    protected getById(id: U): Observable<T> {
         return this.httpClient
-            .get<T>(`${this.baseUrl}`)
-            .pipe(filter((item) => item.id === id));
+            .get<{ data: T[] }>(`${this.baseUrl}`)
+            .pipe(
+                map(
+                    (response) =>
+                        response.data.find((item) => item.id === id) as T
+                )
+            );
     }
 
-    create(item: T): Observable<T> {
+    protected create(item: T): Observable<T> {
         return this.httpClient.post<T>(this.baseUrl, item);
     }
 
-    update(id: U, item: T): Observable<T> {
+    protected update(id: U, item: T): Observable<T> {
         return this.httpClient.put<T>(`${this.baseUrl}/${id}`, item);
     }
 
-    delete(id: U): Observable<void> {
+    protected delete(id: U): Observable<void> {
         return this.httpClient.delete<void>(`${this.baseUrl}/${id}`);
     }
 }
