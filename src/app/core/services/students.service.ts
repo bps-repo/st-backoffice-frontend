@@ -4,7 +4,7 @@ import { BaseService } from './base.service';
 import { Student } from '../models/student';
 
 @Injectable({ providedIn: 'root' })
-export class StudentService extends BaseService<Student> {
+export class StudentService extends BaseService<number, Student> {
     constructor(httpClient: HttpClient) {
         super(httpClient, 'assets/mock-data/student.json');
     }

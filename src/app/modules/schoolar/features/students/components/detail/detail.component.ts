@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
 import { Tab } from 'src/app/shared/@types/tab';
@@ -12,7 +12,6 @@ import { TagModule } from 'primeng/tag';
 import { PanelModule } from 'primeng/panel';
 import { BadgeModule } from 'primeng/badge';
 import { StudentService } from 'src/app/core/services/students.service';
-import { Router, RouterStateSnapshot } from '@angular/router';
 
 @Component({
     selector: 'app-detail',
@@ -34,12 +33,14 @@ export class DetailComponent implements OnInit {
     tabs: Observable<Tab[]> = STUDENTS_TABS;
     items!: MenuItem[];
 
-    constructor(private studentService: StudentService) {}
-
-    ngOnInit() {
+    constructor(private studentService: StudentService) {
         this.studentService.getById(1).subscribe((student) => {
+            console.log('AQUI PEGANDO STUDENT');
             console.log(student);
         });
+    }
+
+    ngOnInit() {
         this.items = [
             { label: 'Imprimir cartão', icon: 'pi pi-file-pdf' },
             {

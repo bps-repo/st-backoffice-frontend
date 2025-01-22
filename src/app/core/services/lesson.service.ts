@@ -5,7 +5,7 @@ import { BaseService } from './base.service';
 import { map, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
-export class LessonService extends BaseService<Lesson> {
+export class LessonService extends BaseService<string, Lesson> {
     constructor(httpClient: HttpClient) {
         super(httpClient, 'assets/mock-data/lessons.json');
     }
