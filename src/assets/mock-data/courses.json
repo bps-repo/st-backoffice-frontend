@@ -1,0 +1,44 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "name": "English Adults",
+            "level": "Intermediate",
+            "start": "2023-01-01",
+            "end": "2023-03-12",
+            "status": "ongoing"
+        },
+        {
+            "id": 2,
+            "name": "English Adults",
+            "level": "Elementary",
+            "start": "2023-04-01",
+            "end": "2023-05-27",
+            "status": "finished"
+        },
+        {
+            "id": 3,
+            "name": "English Adults",
+            "level": "Beginner",
+            "start": "2023-06-01",
+            "end": "2023-08-24",
+            "status": "finished"
+        },
+        {
+            "id": 4,
+            "name": "English Kids",
+            "level": "Flyers 2",
+            "start": "2023-09-01",
+            "end": "2023-12-08",
+            "status": "finished"
+        },
+        {
+            "id": 5,
+            "name": "English Kids",
+            "level": "Flyers 1",
+            "start": "2024-01-01",
+            "end": "2024-04-21",
+            "status": "finished"
+        }
+    ]
+}

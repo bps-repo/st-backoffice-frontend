@@ -1,9 +1,10 @@
-<div>
+<div class="grid">
     <app-global-table
+        class="w-full"
         [columns]="columns"
-        [data]="data"
-        entity="course"
-        tableLabel="Coursos"
+        [data]="courses"
+        [route]="'schoolar/courses'"
+        [tableLabel]="'Cursos'"
     >
     </app-global-table>
 </div>
