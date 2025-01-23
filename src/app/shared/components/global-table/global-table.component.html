@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card">
         <app-table-header
-            entity="{{ entity }}"
+            route="{{ route }}"
             tableLable="{{ tableLabel }}"
         ></app-table-header>
         <p-table
@@ -60,7 +60,7 @@
                     <td
                         *ngFor="let col of columns"
                         [routerLink]="[
-                            '/modules/schoolar/' + entity,
+                            '/modules/' + route,
                             rowData.id
                         ]"
                     >

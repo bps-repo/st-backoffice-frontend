@@ -1,7 +1,9 @@
 <div class="grid">
-    <app-table-invoices
+    <app-global-table
         class="w-full overflow-hidden"
-        tableLable="Faturas pró-forma"
-        entity="invoices"
-    ></app-table-invoices>
+        [tableLabel]="'Faturas pró-forma'"
+        [route]="'invoices'"
+        [columns]="columns"
+        [data]="invoices"
+    ></app-global-table>
 </div>

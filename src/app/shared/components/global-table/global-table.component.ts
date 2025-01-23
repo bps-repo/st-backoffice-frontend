@@ -8,7 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -54,7 +54,7 @@ export class GlobalTableComponent implements OnInit {
 
     @Input() data: any[] = [];
 
-    @Input() entity: string = 'students';
+    @Input() route: string = 'students';
 
     @Input() globalFilterFields: string[] = []; // Fields to be filtered globally
 
@@ -64,9 +64,13 @@ export class GlobalTableComponent implements OnInit {
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private router: Router) {}
+    constructor(private router: Router, private activeRoute: ActivatedRoute) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.activeRoute.url.subscribe((url) => {
+            console.log(url);
+        });
+    }
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal(

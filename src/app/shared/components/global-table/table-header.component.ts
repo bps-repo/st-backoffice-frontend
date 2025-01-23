@@ -49,13 +49,13 @@ export class TableHeaderComponent implements OnInit {
     items: any[] = [];
     selectedDrop: SelectItem = { value: '' };
     @Input() tableLable = 'Alunos';
-    @Input() entity = 'students';
+    @Input() route = 'students';
     constructor(private router: Router, private classService: LessonsService) {}
     navigateToCreateEntity() {
-        if (this.entity == 'classes') {
+        if (this.route == 'classes') {
             this.classService.setCreateClassDialogState(true);
         } else {
-            this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
+            this.router.navigate([`/modules/${this.route}/create`]);
         }
     }
 

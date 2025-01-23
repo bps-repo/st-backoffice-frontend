@@ -105,7 +105,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Facturas pró-forma',
                         icon: 'pi pi-fw pi-file',
-                        routerLink: ['/modules/invoices/invoices'],
+                        routerLink: ['/modules/invoices'],
                     },
                     {
                         label: 'Recibos',

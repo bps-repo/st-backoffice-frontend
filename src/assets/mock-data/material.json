@@ -1,0 +1,94 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "title": "Introduction to Business English",
+            "type": "texto",
+            "description": "Basic concepts of Business English",
+            "quantity": 10,
+            "createdDate": "2023-01-01T00:00:00Z",
+            "updatedDate": "2023-01-02T00:00:00Z"
+        },
+        {
+            "id": 2,
+            "title": "Advanced Grammar",
+            "type": "video",
+            "description": "Video lessons on advanced grammar",
+            "quantity": 5,
+            "createdDate": "2023-02-01T00:00:00Z",
+            "updatedDate": "2023-02-02T00:00:00Z"
+        },
+        {
+            "id": 3,
+            "title": "Pronunciation Guide",
+            "type": "audio",
+            "description": "Audio guide for pronunciation",
+            "quantity": 8,
+            "createdDate": "2023-03-01T00:00:00Z",
+            "updatedDate": "2023-03-02T00:00:00Z"
+        },
+        {
+            "id": 4,
+            "title": "Business Vocabulary",
+            "type": "documento",
+            "description": "Document containing business vocabulary",
+            "quantity": 12,
+            "createdDate": "2023-04-01T00:00:00Z",
+            "updatedDate": "2023-04-02T00:00:00Z"
+        },
+        {
+            "id": 5,
+            "title": "Marketing Strategies",
+            "type": "imagem",
+            "description": "Images related to marketing strategies",
+            "quantity": 15,
+            "createdDate": "2023-05-01T00:00:00Z",
+            "updatedDate": "2023-05-02T00:00:00Z"
+        },
+        {
+            "id": 6,
+            "title": "Financial Reports",
+            "type": "pdf",
+            "description": "PDF files of financial reports",
+            "quantity": 7,
+            "createdDate": "2023-06-01T00:00:00Z",
+            "updatedDate": "2023-06-02T00:00:00Z"
+        },
+        {
+            "id": 7,
+            "title": "Sales Data",
+            "type": "excel",
+            "description": "Excel sheets of sales data",
+            "quantity": 9,
+            "createdDate": "2023-07-01T00:00:00Z",
+            "updatedDate": "2023-07-02T00:00:00Z"
+        },
+        {
+            "id": 8,
+            "title": "Project Plan",
+            "type": "word",
+            "description": "Word documents of project plans",
+            "quantity": 6,
+            "createdDate": "2023-08-01T00:00:00Z",
+            "updatedDate": "2023-08-02T00:00:00Z"
+        },
+        {
+            "id": 9,
+            "title": "Presentation Slides",
+            "type": "powerpoint",
+            "description": "PowerPoint slides for presentations",
+            "quantity": 11,
+            "createdDate": "2023-09-01T00:00:00Z",
+            "updatedDate": "2023-09-02T00:00:00Z"
+        },
+        {
+            "id": 10,
+            "title": "Compressed Files",
+            "type": "zip",
+            "description": "ZIP files containing various resources",
+            "quantity": 4,
+            "createdDate": "2023-10-01T00:00:00Z",
+            "updatedDate": "2023-10-02T00:00:00Z"
+        }
+    ]
+}
