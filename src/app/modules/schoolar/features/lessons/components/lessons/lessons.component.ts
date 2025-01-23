@@ -29,8 +29,7 @@ import { LessonService } from 'src/app/core/services/lesson.service';
         FormsModule,
         ButtonModule,
     ],
-    templateUrl: './classes.component.html',
-    styleUrl: './classes.component.scss',
+    templateUrl: './lessons.component.html',
 })
 export class LessonsComponent implements OnInit, OnDestroy {
     lesson: Lesson = {} as Lesson;
@@ -74,7 +73,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
             this.lessons = lessons;
             console.log(this.lessons);
         });
-
 
         this.classeService.createClassDialog$.subscribe((state) => {
             this.createClassDialog = state;

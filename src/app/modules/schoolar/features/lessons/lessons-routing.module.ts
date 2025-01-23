@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LessonsComponent } from './components/lessons/classes.component';
+import { LessonsComponent } from './components/lessons/lessons.component';
 import { DetailsComponent } from './components/details/details.component';
 import { CreateLessonComponent } from './components/create-lesson/create-lesson.component';
 
