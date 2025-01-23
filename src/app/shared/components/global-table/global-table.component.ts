@@ -64,7 +64,7 @@ export class GlobalTableComponent implements OnInit {
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private router: Router, private classService: LessonsService) {}
+    constructor(private router: Router) {}
 
     ngOnInit(): void {}
 

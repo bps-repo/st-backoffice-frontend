@@ -23,19 +23,7 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
-import { Customer, Representative } from 'src/app/core/models/customer';
-
-interface Material {
-    titulo: string;
-    tipo: string; // Ex.: 'PDF', 'Vídeo'
-    dataPublicacao: string;
-    disponivel: boolean;
-}
-
-interface SelectItems {
-    label: string;
-    value: any;
-}
+import { Customer } from 'src/app/core/models/customer';
 
 @Component({
     selector: 'app-table-material',
@@ -65,7 +53,7 @@ export class TableMaterialComponent implements OnInit {
     @Input() entity = '';
 
     customers1: Customer[] = [];
-    materiais: Material[] = [];
+    materiais: any[] = [];
     loading: boolean = true;
 
     tiposDeMateriais: any[] = [];

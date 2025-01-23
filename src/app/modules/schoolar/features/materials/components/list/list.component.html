@@ -1,7 +1,10 @@
 <div class="grid">
-    <app-table-material
-        class="w-full overflow-hidden"
-        tableLable="Materiais"
-        entity="materials"
-    ></app-table-material>
+    <app-global-table
+        class="w-full"
+        [tableLabel]="'Materiais'"
+        [entity]="'materials'"
+        [columns]="columns"
+        [data]="materials"
+    >
+    </app-global-table>
 </div>
