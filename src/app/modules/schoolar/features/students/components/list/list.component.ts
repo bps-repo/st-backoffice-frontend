@@ -7,6 +7,8 @@ import {
     TableColumn,
 } from 'src/app/shared/components/global-table/global-table.component';
 import { StudentService } from 'src/app/core/services/students.service';
+import { STATUS_CLASSES } from 'src/app/shared/constants/status-class';
+import { Utils } from 'src/app/shared/utils/status.service';
 
 @Component({
     selector: 'app-list',
@@ -24,17 +26,7 @@ export class ListComponent implements OnInit {
     globalFilterFields: string[] = [];
     loading = false;
 
-    statusClass: Map<StudentStatus, string> = new Map([
-        [StudentStatus.ACTIVE, 'bg-green-500'],
-        [StudentStatus.INACTIVE, 'bg-red-500'],
-        [StudentStatus.WARNING, 'bg-yellow-400'],
-        [StudentStatus.REMOVED, 'bg-gray-500'],
-        [StudentStatus.PLUNKED, 'bg-red-500'],
-        [StudentStatus.PENDING, 'bg-blue-500'],
-        [StudentStatus.FINISHED, 'bg-green-500'],
-        [StudentStatus.SUSPENDED, 'bg-red-800'],
-        [StudentStatus.QUIT, 'bg-red-400'],
-    ]);
+    statusColor: Map<StudentStatus, string> = STATUS_CLASSES;
 
     constructor(private studentService: StudentService) {}
 
@@ -65,7 +57,9 @@ export class ListComponent implements OnInit {
         ];
     }
 
-    getClass(status: StudentStatus): string {
-        return this.statusClass.get(status) || '';
+    get statusClass() {
+        return (status: string): { [key: string]: boolean } => {
+            return Utils.StatusService.getStatusClass(this.statusColor, status);
+        };
     }
 }
