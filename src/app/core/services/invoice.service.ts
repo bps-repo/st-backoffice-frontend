@@ -17,7 +17,7 @@ export class InvoiceService extends BaseService<number, Invoice> {
         return this.getAll();
     }
 
-    getInvoiceById(id: number): Observable<Invoice | undefined> {
+    getInvoiceByCustomerId(id: number): Observable<Invoice | undefined> {
         return this.getAll().pipe(
             map((invoices) =>
                 invoices.find((invoice) => invoice.customer?.id === id)

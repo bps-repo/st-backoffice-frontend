@@ -3,13 +3,14 @@ import { Course } from '../models/course';
 import { BaseService } from './base.service';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { PATH_TO_MOCK_DATA } from 'src/app/shared/constants/app';
 
 @Injectable({
     providedIn: 'root',
 })
 export class CourseService extends BaseService<number, Course> {
     constructor(httpClient: HttpClient) {
-        super(httpClient, 'assets/mock-data/courses.json');
+        super(httpClient, PATH_TO_MOCK_DATA + 'courses.json');
     }
 
     getCourses(): Observable<Course[]> {

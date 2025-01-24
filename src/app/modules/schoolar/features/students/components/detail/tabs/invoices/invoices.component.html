@@ -1,1 +1,11 @@
-<p>invoices works!</p>
+<div>
+    <app-global-table
+        [tableLabel]="'Facturas'"
+        [data]="invoices"
+        [columns]="columns"
+        [loading]="false"
+        [showAddButtom]="false"
+        [showExportButtom]="false"
+    >
+    </app-global-table>
+</div>

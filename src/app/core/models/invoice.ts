@@ -25,3 +25,11 @@ export interface Invoice {
     shippingDate: string;
     shippingStatus: string;
 }
+
+export enum InvocieStatus {
+    DRAFT = 'draft',
+    PENDING = 'pending',
+    PAID = 'paid',
+    CANCELLED = 'cancelled',
+    COMPLETED = 'completed',
+}
