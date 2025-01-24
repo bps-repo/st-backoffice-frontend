@@ -1,20 +1,31 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { Course } from 'src/app/core/models/course';
 import { CourseService } from 'src/app/core/services/course.service';
 import {
     GlobalTableComponent,
     TableColumn,
 } from 'src/app/shared/components/global-table/global-table.component';
+import { STATUS_CLASSES } from 'src/app/shared/constants/status-class';
+import { Utils } from 'src/app/shared/utils/status.service';
 
 @Component({
     selector: 'app-courses',
     standalone: true,
-    imports: [GlobalTableComponent, CommonModule],
+    imports: [GlobalTableComponent, CommonModule, ButtonModule, TooltipModule],
     templateUrl: './courses.component.html',
-    styleUrl: './courses.component.scss',
 })
 export class CoursesComponent implements OnInit {
+    @ViewChild('actionsTemplate', { static: true })
+    actionsTemplate?: TemplateRef<any>;
+
+    @ViewChild('statusTemplate', { static: true })
+    statusTemplate?: TemplateRef<any>;
+
+    statusColor: Map<string, string> = STATUS_CLASSES;
+
     columns: TableColumn[] = [];
 
     courses: Course[] = [];
@@ -30,6 +41,10 @@ export class CoursesComponent implements OnInit {
             this.courses = courses;
         });
     }
+
+    viewCourse(course: Course) {}
+
+    editCourse(course: Course) {}
 
     private loadColumns() {
         this.columns = [
@@ -52,11 +67,19 @@ export class CoursesComponent implements OnInit {
             {
                 field: 'status',
                 header: 'Estado',
+                customTemplate: this.statusTemplate,
             },
             {
-                field: 'actions',
+                field: '#',
                 header: 'Acções',
+                customTemplate: this.actionsTemplate,
             },
         ];
+    }
+
+    get statusClass() {
+        return (status: string): { [key: string]: boolean } => {
+            return Utils.StatusService.getStatusClass(this.statusColor, status);
+        };
     }
 }

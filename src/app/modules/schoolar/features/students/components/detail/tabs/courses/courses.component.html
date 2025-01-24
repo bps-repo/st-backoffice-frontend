@@ -10,3 +10,32 @@
     >
     </app-global-table>
 </div>
+
+<ng-template #actionsTemplate let-item>
+    <div class="flex">
+        <button
+            pButton
+            pRipple
+            pTooltip="Ver detalhes"
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="viewCourse(item)"
+        ></button>
+        <button
+            pButton
+            pRipple
+            pTooltip="Editar detalhes"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-warning"
+            (click)="editCourse(item)"
+        ></button>
+    </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+    <span
+        [ngClass]="statusClass(item.status)"
+        class="customer-badge font-bold text-white px-2 py-1 border-round-lg"
+        >{{ item.status }}</span
+    >
+</ng-template>

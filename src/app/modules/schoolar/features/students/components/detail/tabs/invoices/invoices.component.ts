@@ -11,7 +11,6 @@ import {
     standalone: true,
     imports: [GlobalTableComponent],
     templateUrl: './invoices.component.html',
-    styleUrl: './invoices.component.scss',
 })
 export class InvoicesComponent {
     columns: TableColumn[] = [];

@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Class } from 'src/app/core/models/class';
 import {
     GlobalTableComponent,
     TableColumn,
 } from 'src/app/shared/components/global-table/global-table.component';
 import { CLASSES_BY_STUDENT } from 'src/app/shared/constants/classes';
+import { STATUS_CLASSES } from 'src/app/shared/constants/status-class';
+import { Utils } from 'src/app/shared/utils/status.service';
 @Component({
     selector: 'app-classes',
     standalone: true,
@@ -16,7 +18,12 @@ import { CLASSES_BY_STUDENT } from 'src/app/shared/constants/classes';
 export class ClassesComponent implements OnInit {
     lessons: Class[] = CLASSES_BY_STUDENT;
 
+    @ViewChild('statusTemplate', { static: true })
+    statusTemplate?: TemplateRef<any>;
+
     columns: TableColumn[] = [];
+
+    statusColor = STATUS_CLASSES;
 
     globalFilterFields: string[] = [];
     constructor() {}
@@ -29,7 +36,17 @@ export class ClassesComponent implements OnInit {
             { field: 'start_at', header: 'Início', filterType: 'date' },
             { field: 'end_at', header: 'Término', filterType: 'text' },
             { field: 'description', header: 'Descrição' },
-            { field: 'status', header: 'Estado' },
+            {
+                field: 'status',
+                header: 'Estado',
+                customTemplate: this.statusTemplate,
+            },
         ];
+    }
+
+    get statusClass() {
+        return (status: string): { [key: string]: boolean } => {
+            return Utils.StatusService.getStatusClass(this.statusColor, status);
+        };
     }
 }

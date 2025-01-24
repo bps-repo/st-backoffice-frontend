@@ -7,22 +7,19 @@ import {
 } from 'src/app/shared/components/global-table/global-table.component';
 
 import { LESSONS_BY_STUDENT } from 'src/app/shared/constants/lessons';
+import { STATUS_CLASSES } from 'src/app/shared/constants/status-class';
+import { Utils } from 'src/app/shared/utils/status.service';
 @Component({
     selector: 'app-lessons',
     standalone: true,
     imports: [GlobalTableComponent, CommonModule],
     templateUrl: './lessons.component.html',
-    styleUrl: './lessons.component.scss',
 })
 export class LessonsComponent implements OnInit {
     @ViewChild('statusTemplate', { static: true })
     statusTemplate?: TemplateRef<any>;
 
-    statusColor: Map<string, string> = new Map([
-        ['presente', 'bg-green-500'],
-        ['ausente', 'bg-red-500'],
-        ['warning', 'bg-yellow-400'],
-    ]);
+    statusColor: Map<string, string> = STATUS_CLASSES;
 
     lessons: Lesson[] = LESSONS_BY_STUDENT;
 
@@ -55,7 +52,9 @@ export class LessonsComponent implements OnInit {
         ];
     }
 
-    getStatusClass(status: string): string {
-        return this.statusColor.get(status) || '';
+    get statusClass() {
+        return (status: string): { [key: string]: boolean } => {
+            return Utils.StatusService.getStatusClass(this.statusColor, status);
+        };
     }
 }

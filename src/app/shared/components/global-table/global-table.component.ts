@@ -45,7 +45,6 @@ export interface TableColumn {
         TableHeaderComponent,
     ],
     templateUrl: './global-table.component.html',
-    styleUrls: ['./global-table.component.scss'],
 })
 export class GlobalTableComponent implements OnInit {
     @Input() columns: TableColumn[] = [];

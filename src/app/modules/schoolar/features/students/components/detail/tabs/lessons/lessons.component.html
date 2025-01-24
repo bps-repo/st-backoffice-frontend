@@ -14,7 +14,7 @@
 <ng-template #statusTemplate let-item>
     <span
         pTooltip="Editar"
-        [ngClass]="getStatusClass(item.status)"
+        [ngClass]="statusClass(item.status)"
         class="customer-badge font-bold text-white px-2 py-1 border-round-lg"
         >{{ item.status }}</span
     >

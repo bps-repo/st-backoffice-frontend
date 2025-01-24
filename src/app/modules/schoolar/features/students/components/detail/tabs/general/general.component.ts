@@ -10,7 +10,6 @@ import {
     ApexAxisChartSeries,
     ApexChart,
     ChartComponent,
-    ApexDataLabels,
     ApexPlotOptions,
     ApexResponsive,
     ApexXAxis,
@@ -44,7 +43,6 @@ export type ChartOptions = {
         FormsModule,
     ],
     templateUrl: './general.component.html',
-    styleUrl: './general.component.scss',
 })
 export class GeneralComponent implements OnInit {
     @ViewChild('chart') chart?: ChartComponent;
