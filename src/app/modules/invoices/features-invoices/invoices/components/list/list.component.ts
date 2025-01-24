@@ -25,7 +25,7 @@ export class ListComponent implements OnInit {
         this.loadInvoices();
         this.columns = [
             { field: 'code', header: 'Factura' },
-            { field: 'price', header: 'Preço' },
+            { field: 'price', header: 'Valor' },
             { field: `customer.id`, header: 'Cliente' },
             { field: 'date', header: 'Data de Emissão' },
             { field: 'dueDate', header: 'Data de Vencimento' },

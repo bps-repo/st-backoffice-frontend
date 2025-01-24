@@ -27,9 +27,9 @@ export interface Invoice {
 }
 
 export enum InvocieStatus {
-    DRAFT = 'draft',
-    PENDING = 'pending',
-    PAID = 'paid',
-    CANCELLED = 'cancelled',
-    COMPLETED = 'completed',
+    DRAFT = 'rascunho',
+    PENDING = 'pendente',
+    PAID = 'pago',
+    CANCELLED = 'cancelado',
+    DUEDATED = 'vencido',
 }
