@@ -60,6 +60,10 @@ export class GlobalTableComponent implements OnInit {
 
     @Input() loading: boolean = false; // Loading state
 
+    @Input() showAddButtom: boolean = true;
+
+    @Input() showExportButtom: boolean = true;
+
     @Input() tableLabel = '';
 
     @ViewChild('filter') filter!: ElementRef;

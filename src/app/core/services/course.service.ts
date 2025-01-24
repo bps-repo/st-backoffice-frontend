@@ -4,9 +4,8 @@ import { BaseService } from './base.service';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 
-
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class CourseService extends BaseService<number, Course> {
     constructor(httpClient: HttpClient) {

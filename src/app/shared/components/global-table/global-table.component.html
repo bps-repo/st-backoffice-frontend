@@ -3,6 +3,8 @@
         <app-table-header
             route="{{ route }}"
             tableLable="{{ tableLabel }}"
+            [showAddButtom]="showAddButtom"
+            [showExportButtom]="showExportButtom"
         ></app-table-header>
         <p-table
             #dt
@@ -59,10 +61,7 @@
                 <tr>
                     <td
                         *ngFor="let col of columns"
-                        [routerLink]="[
-                            '/modules/' + route,
-                            rowData.id
-                        ]"
+                        [routerLink]="['/modules/' + route, rowData.id]"
                     >
                         <ng-container *ngIf="!col.customTemplate">
                             {{ rowData[col.field] }}

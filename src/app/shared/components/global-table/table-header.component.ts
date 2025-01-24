@@ -24,6 +24,7 @@ import { LessonsService } from 'src/app/modules/schoolar/features/lessons/servic
         </div>
         <div class="flex gap-1 h-rem">
             <button
+                *ngIf="showAddButtom"
                 pButton
                 pRipple
                 (click)="navigateToCreateEntity()"
@@ -31,6 +32,7 @@ import { LessonsService } from 'src/app/modules/schoolar/features/lessons/servic
                 class="p-button-success"
             ></button>
             <button
+                *ngIf="showExportButtom"
                 pButton
                 pRipple
                 icon="pi pi-upload"
@@ -46,8 +48,15 @@ import { LessonsService } from 'src/app/modules/schoolar/features/lessons/servic
 })
 export class TableHeaderComponent implements OnInit {
     instalations: any[] = INSTALATIONS;
+
     items: any[] = [];
+
     selectedDrop: SelectItem = { value: '' };
+
+    @Input() showAddButtom: boolean = false;
+
+    @Input() showExportButtom: boolean = false;
+
     @Input() tableLable = 'Alunos';
     @Input() route = 'students';
     constructor(private router: Router, private classService: LessonsService) {}
