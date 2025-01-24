@@ -1,5 +1,7 @@
 import { SelectItem } from 'primeng/api';
 
+export const PATH_TO_MOCK_DATA: string = 'assets/mock-data/';
+
 export const INSTALATIONS: string[] = [
     'Cidade',
     'Patriota',
