@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SelectItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
-import { ClassesService } from 'src/app/modules/schoolar/features/classes/services/classes.service';
+import { ClassesService } from 'src/app/features/schoolar/features/classes/services/classes.service';
 
 @Component({
     selector: 'app-table-header',
@@ -43,6 +43,7 @@ import { ClassesService } from 'src/app/modules/schoolar/features/classes/servic
             ></p-splitButton>
         </div>
     </div>`,
+
 })
 export class TableHeaderComponent implements OnInit {
     instalations: any[] = INSTALATIONS;

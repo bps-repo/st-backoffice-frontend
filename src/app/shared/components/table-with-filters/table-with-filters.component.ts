@@ -10,7 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Table } from 'primeng/table';
 import { TableHeaderComponent } from './table-header.component';
-import { ClassesService } from 'src/app/modules/schoolar/features/classes/services/classes.service';
+import { ClassesService } from 'src/app/features/schoolar/features/classes/services/classes.service';
 
 export interface TableColumn {
     field: string;
@@ -37,7 +37,6 @@ export interface TableColumn {
         TableHeaderComponent,
     ],
     templateUrl: './table-with-filters.component.html',
-    styleUrls: ['./table-with-filters.component.scss'],
 })
 export class TableWithFiltersComponent<T> implements OnInit {
     @Input() columns: TableColumn[] = []; // Dynamic column definitions

@@ -1,9 +1,9 @@
-import { GeneralComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/general/general.component';
+import { GeneralComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/general/general.component';
 import { Tab } from '../@types/tab';
 import { Observable, of } from 'rxjs';
-import { ClassesComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/classes/classes.component';
-import { InvoicesComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/invoices/invoices.component';
-import { CoursesComponent } from 'src/app/modules/schoolar/features/students/components/detail/tabs/courses/courses.component';
+import { ClassesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/classes/classes.component';
+import { InvoicesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/invoices/invoices.component';
+import { CoursesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/courses/courses.component';
 
 export const STUDENTS_TABS: Observable<Tab[]> = of([
     {

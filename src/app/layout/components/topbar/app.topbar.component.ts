@@ -2,10 +2,31 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
 import { MenuMode } from '../../../shared/@types/layout';
 import { MenuService } from '../menu/app.menu.service';
+import { AppBreadcrumbComponent } from "../breadcrumb/app.breadcrumb.component";
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { SidebarModule } from 'primeng/sidebar';
+import { InputTextModule } from 'primeng/inputtext';
+import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
+import { RippleModule } from 'primeng/ripple';
+import { ButtonModule } from 'primeng/button';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @Component({
+    standalone: true,
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
+    imports: [AppBreadcrumbComponent,
+        ButtonModule,
+        InputTextModule,
+        SidebarModule,
+        BadgeModule,
+        RadioButtonModule,
+        InputSwitchModule,
+        TooltipModule,
+        RippleModule,
+
+    ],
 })
 export class AppTopbarComponent {
     @ViewChild('menubutton') menuButton!: ElementRef;

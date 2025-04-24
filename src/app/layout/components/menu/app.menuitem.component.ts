@@ -8,7 +8,16 @@ import {
     OnInit,
     ViewChild,
 } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { InputTextModule } from 'primeng/inputtext';
+import { SidebarModule } from 'primeng/sidebar';
+import { BadgeModule } from 'primeng/badge';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { TooltipModule } from 'primeng/tooltip';
+import { RippleModule } from 'primeng/ripple';
+import { ButtonModule } from 'primeng/button';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import {
     animate,
     state,
@@ -26,7 +35,20 @@ import { LayoutService } from '../../service/app.layout.service';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
+    standalone: true,
     selector: '[app-menuitem]',
+    imports: [
+        CommonModule,
+        RouterModule,
+        InputTextModule,
+        SidebarModule,
+        BadgeModule,
+        RadioButtonModule,
+        InputSwitchModule,
+        TooltipModule,
+        RippleModule,
+        ButtonModule,
+    ],
     template: `
         <ng-container>
             <div
