@@ -38,16 +38,16 @@
                   placeholder="••••••••"
                 />
                 <button type="button" (click)="togglePasswordVisibility()" class="eye-button">
-                    <i [ngClass]="hidePassword ? 'pi pi-eye-slash' : 'pi pi-eye'" style="color: #1e2e6d"></i>
-                  </button>
+                  <i [ngClass]="hidePassword ? 'pi pi-eye-slash' : 'pi pi-eye'" style="color: #1e2e6d"></i>
+                </button>
               </div>
             </div>
 
             <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-                <i *ngIf="!isSubmitting" class="pi pi-sign-in mr-2"></i>
-                <i *ngIf="isSubmitting" class="pi pi-spin pi-spinner mr-2"></i>
-                {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
-              </button>
+              <i *ngIf="!isSubmitting" class="pi pi-sign-in mr-2"></i>
+              <i *ngIf="isSubmitting" class="pi pi-spin pi-spinner mr-2"></i>
+              {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+            </button>
 
             <div class="forgot">
               <a routerLink="/auth/request-password-reset">Esqueci a palavra-passe</a>

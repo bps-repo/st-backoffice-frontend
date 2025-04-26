@@ -2,10 +2,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './layout/app.layout.component';
 import { DashboardComponent } from './features/schoolar/features/dashboard/components/dashboard/dashboard.component';
-import { authGuard } from './core/guards/auth.guard';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const AppRoutes: Routes = [
-  // Rotas Públicas
+
+  // Rotas Públicas//
   {
     path: '',
     loadChildren: () =>
@@ -22,11 +23,13 @@ export const AppRoutes: Routes = [
       import('./shared/components/notfound/notfound.module').then((m) => m.NotfoundModule),
   },
 
-  // Rotas Protegidas
+  // Rotas Protegidas //
   {
     path: '',
     component: AppLayoutComponent,
-    //canActivate: [authGuard],
+    canActivate: [AuthGuard], //Protege a rota AppLayoutComponent
+    //canActivateChild: [AuthGuard], //Protege as rotas filhas
+    //canLoad: [AuthGuard], //Protege o carregamento do módulo
     children: [
       {
         path: 'dashboard',

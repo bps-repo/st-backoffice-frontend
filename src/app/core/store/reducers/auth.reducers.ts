@@ -10,7 +10,7 @@ export interface AuthState {
 
 export const initialState: AuthState = {
   isAuthenticated: false,
-  token: localStorage.getItem('token') || null,
+  token: localStorage.getItem('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
   error: null,
 };
@@ -20,7 +20,7 @@ export const authFeature = createFeature({
   reducer: createReducer(
     initialState,
     on(authActions.loginSuccess, (state, { token, refreshToken }) => {
-      localStorage.setItem('authToken', token);
+      localStorage.setItem('accessToken', token);
       localStorage.setItem('refreshToken', refreshToken);
       return {
         ...state,

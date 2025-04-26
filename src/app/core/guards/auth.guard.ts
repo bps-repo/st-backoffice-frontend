@@ -1,24 +1,28 @@
-import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { map, take } from 'rxjs';
 import { authFeature } from '../store/reducers/auth.reducers';
+import { map, Observable, take } from 'rxjs';
 
-export const authGuard = () => {
-  const store = inject(Store);
-  const router = inject(Router);
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthGuard implements CanActivate {
+  constructor(private store: Store, private router: Router) {}
 
-  return store.select(authFeature.selectToken).pipe(
-    take(1),
-    map((token) => {
-      const storedToken = localStorage.getItem('authToken');
-      const isAuthenticated = !!token || !!storedToken;
+  canActivate(): Observable<boolean> {
+    return this.store.select(authFeature.selectToken).pipe(
+      take(1),
+      map((token) => {
+        const storedToken = localStorage.getItem('accessToken');
+        const isAuthenticated = !!token || !!storedToken;
 
-      if (!isAuthenticated) {
-        router.navigate(['/auth/login']);
-      }
+        if (!isAuthenticated) {
+          this.router.navigate(['/login']);
+        }
 
-      return isAuthenticated;
-    })
-  );
-};
+        return isAuthenticated;
+      })
+    );
+  }
+}

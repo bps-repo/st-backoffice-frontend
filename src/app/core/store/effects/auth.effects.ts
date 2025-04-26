@@ -20,7 +20,7 @@ export class AuthEffects {
           map((response) =>
             authActions.loginSuccess({
               refreshToken: response.refreshToken,
-              token: response.token,
+              token: response.accessToken,
             })
           ),
           catchError((response) =>
@@ -40,7 +40,7 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(authActions.loginSuccess),
         tap(() => {
-          this.router.navigate(['/Dashboard']);
+          this.router.navigate(['/schoolar/dashboard']);
         })
       ),
     { dispatch: false }
