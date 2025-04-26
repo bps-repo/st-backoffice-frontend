@@ -39,13 +39,13 @@ export const AppRoutes: Routes = [
             ),
     },
     {
-        path: 'notfound',
+        path: 'error404',
         loadChildren: () =>
             import('./shared/components/notfound/notfound.module').then(
                 (m) => m.NotfoundModule
             ),
     },
-    { path: '**', redirectTo: '/notfound' },
+    { path: '**', redirectTo: '/error404' },
 ];
 
 @NgModule({

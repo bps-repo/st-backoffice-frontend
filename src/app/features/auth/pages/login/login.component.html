@@ -1,0 +1,59 @@
+<!-- Tela inteira com fundo verde -->
+<div class="login-container">
+    <!-- Painel central com dois lados -->
+    <div class="login-box">
+      <!-- Painel esquerdo -->
+      <div class="left-panel">
+        <img src="../../../../../assets/st_andrews.jpeg" alt="Logo" />
+        <h1>ST. Andrews English School</h1>
+        <button>Voltar</button>
+      </div>
+
+      <!-- Painel direito -->
+      <div class="right-panel">
+        <div class="form-wrapper">
+          <div class="text-center">
+            <img src="../../../../../assets/BPS.png" alt="Security Icon" />
+            <p>Asseguramos a sua segurança!</p>
+          </div>
+
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div>
+              <label for="email">Email</label>
+              <input
+                id="email"
+                type="text"
+                formControlName="email"
+                placeholder="Email"
+              />
+            </div>
+
+            <div>
+              <label for="password">Password</label>
+              <div class="relative">
+                <input
+                  id="password"
+                  [type]="hidePassword ? 'password' : 'text'"
+                  formControlName="password"
+                  placeholder="••••••••"
+                />
+                <button type="button" (click)="togglePasswordVisibility()" class="eye-button">
+                    <i [ngClass]="hidePassword ? 'pi pi-eye-slash' : 'pi pi-eye'" style="color: #1e2e6d"></i>
+                  </button>
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+                <i *ngIf="!isSubmitting" class="pi pi-sign-in mr-2"></i>
+                <i *ngIf="isSubmitting" class="pi pi-spin pi-spinner mr-2"></i>
+                {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+              </button>
+
+            <div class="forgot">
+              <a routerLink="/auth/request-password-reset">Esqueci a palavra-passe</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
