@@ -4,9 +4,9 @@ import { RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
 
     {
-        path: '',
+        path: 'invoices',
         loadChildren: () =>
-            import('./features-invoices/features-invoices.module').then((m) => m.FeaturesInvoicesModule),
+            import('../invoices/features/form-invoices/form-invoices.module').then((m) => m.FormInvoicesModule),
     },
 ];
 
