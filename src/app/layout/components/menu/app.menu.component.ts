@@ -24,32 +24,32 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/modules/schoolar/dashboard'],
+                        routerLink: ['/schoolar/dashboard'],
                     },
                     {
                         label: 'Alunos',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['/modules/schoolar/students'],
+                        routerLink: ['/schoolar/students'],
                     },
                     {
                         label: 'Entidades',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['/modules/schoolar/entities'],
+                        routerLink: ['/schoolar/entities'],
                     },
                     {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/modules/schoolar/classes'],
+                        routerLink: ['/schoolar/classes'],
                     },
                     {
                         label: 'Calendário',
                         icon: 'pi pi-fw pi-calendar',
-                        routerLink: ['/modules/schoolar/calendar'],
+                        routerLink: ['/schoolar/calendar'],
                     },
                     {
                         label: 'Avaliações',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/modules/schoolar/reviews'],
+                        routerLink: ['/schoolar/reviews'],
                     },
                     {
                         label: 'Certificados',
@@ -62,7 +62,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Materiais',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/modules/schoolar/materials'],
+                        routerLink: ['/schoolar/materials'],
                     },
                     {
                         label: 'Relatórios',
@@ -111,7 +111,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Facturas pró-forma',
                         icon: 'pi pi-fw pi-file',
-                        routerLink: ['/modules/invoices/invoices'],
+                        routerLink: ['/invoices/invoices'],
                     },
                     {
                         label: 'Recibos',
