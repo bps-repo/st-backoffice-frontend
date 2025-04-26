@@ -23,11 +23,11 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
-import { Customer, Representative } from 'src/app/core/models/customer';
+import { Customer, Representative } from 'src/app/core/models/mocks/customer';
 import { CustomerService } from 'src/app/core/services/customer.service';
 import { INSTALATIONS } from '../../constants/representatives';
 import { TableColumn } from '../table-with-filters/table-with-filters.component';
-import { Exam } from 'src/app/core/models/exam';
+import { Exam } from 'src/app/core/models/academic/exam';
 import { EXAMS } from '../../constants/exams';
 
 interface expandedRows {

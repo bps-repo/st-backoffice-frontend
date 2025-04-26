@@ -1,4 +1,4 @@
-import { Exam } from 'src/app/core/models/exam';
+import { Exam } from 'src/app/core/models/academic/exam';
 
 export const EXAMS: Exam[] = [
     {

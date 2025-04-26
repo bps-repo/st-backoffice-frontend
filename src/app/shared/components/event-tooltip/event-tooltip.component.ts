@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { LessonEvent } from 'src/app/core/models/lesson';
+import {LessonEvent} from "../../../core/models/academic/lesson-event";
 
 @Component({
     selector: 'app-event-tooltip',
     templateUrl: './event-tooltip.component.html',
     styleUrls: ['./event-tooltip.component.scss'],
+    standalone: true
 })
 export class EventTooltipComponent {
     @Input() title: string = '';

@@ -9,16 +9,16 @@ import { EventService } from 'src/app/core/services/event.service';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { LessonEvent } from 'src/app/core/models/lesson';
 import { LESSONS_EVENTS } from 'src/app/shared/constants/lessons';
 import { EventTooltipComponent } from 'src/app/shared/components/event-tooltip/event-tooltip.component';
+import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
 
 @Component({
     templateUrl: './calendar.app.component.html',
     styleUrls: ['./calendar.app.component.scss'],
 })
 export class CalendarAppComponent implements OnInit {
-    events: LessonEvent[] = LESSONS_EVENTS;
+    events: Partial<LessonEvent>[] = LESSONS_EVENTS;
 
     today: string = '';
 

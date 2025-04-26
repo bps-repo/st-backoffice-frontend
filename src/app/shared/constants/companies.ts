@@ -1,4 +1,4 @@
-import { Company } from 'src/app/core/models/company';
+import { Company } from 'src/app/core/models/mocks/company';
 
 export const COMPANIES: Company[] = [
     {

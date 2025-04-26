@@ -27,7 +27,7 @@ export const AppRoutes: Routes = [
   {
     path: '',
     component: AppLayoutComponent,
-    canActivate: [AuthGuard], //Protege a rota AppLayoutComponent
+    canActivate: [], //Protege a rota AppLayoutComponent
     //canActivateChild: [AuthGuard], //Protege as rotas filhas
     //canLoad: [AuthGuard], //Protege o carregamento do módulo
     children: [

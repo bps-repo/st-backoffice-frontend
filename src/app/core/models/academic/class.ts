@@ -1,0 +1,26 @@
+import {Level} from "./level";
+import {Employee} from "./lead-service";
+import {Unit} from "./unit";
+import {Center} from "../corporate/center";
+import {Lesson} from "./lesson";
+import {Student} from "./student";
+import {UnitProgress} from "./unit-progress";
+import {ClassStatus} from "../../enums/class-status";
+
+export interface Class {
+    id: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+    level: Level;
+    teacher: Employee;
+    center: Center;
+    status: ClassStatus;
+    unit: Unit;
+    maxCapacity: number;
+    lessons: Lesson[];
+    unitProgresses: UnitProgress[];
+    students: Student[];
+    createdAt: string;
+    updatedAt: string;
+}

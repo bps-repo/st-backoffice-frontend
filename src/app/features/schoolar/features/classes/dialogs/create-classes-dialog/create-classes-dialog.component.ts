@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
-import { Lesson } from 'src/app/core/models/lesson';
+import { Lesson } from 'src/app/core/models/academic/lesson';
 import { LESSONS } from 'src/app/shared/constants/lessons';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';

@@ -1,4 +1,5 @@
-import { Lesson, LessonEvent } from 'src/app/core/models/lesson';
+import {Lesson} from "../../core/models/academic/lesson";
+import {LessonEvent} from "../../core/models/academic/lesson-event";
 
 export const LESSONS: Lesson[] = [
     {
@@ -23,7 +24,8 @@ export const LESSONS: Lesson[] = [
     },
 ];
 
-export const LESSONS_EVENTS: LessonEvent[] = [
+
+export const LESSONS_EVENTS: Partial<LessonEvent>[] = [
     {
         date: '2024-12-26',
         class: 'Online 1',
