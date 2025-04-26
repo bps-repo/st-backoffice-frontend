@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Company } from 'src/app/core/models/company';
+import { Company } from 'src/app/core/models/mocks/company';
 import { TableStudentsEntityComponent } from 'src/app/shared/components/table-students-entity/table-students-entity.component';
 import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { ENTITIES } from 'src/app/shared/constants/app';

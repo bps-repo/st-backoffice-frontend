@@ -5,7 +5,7 @@ import {
     TableWithFiltersComponent,
 } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { STUDENTS } from 'src/app/shared/constants/representatives';
-import { Student } from 'src/app/core/models/student';
+import { Student } from 'src/app/core/models/academic/student';
 import { TableService } from 'src/app/shared/services/table.service';
 import { TableColumnFilterTemplates } from 'primeng/table';
 

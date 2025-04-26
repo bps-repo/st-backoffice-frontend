@@ -1,4 +1,4 @@
-import { Student } from 'src/app/core/models/student';
+import { Student } from 'src/app/core/models/academic/student';
 
 export const STUDENTS: Student[] = [
     {

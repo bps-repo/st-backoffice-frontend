@@ -23,7 +23,7 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
-import { Customer, Representative } from 'src/app/core/models/customer';
+import { Customer, Representative } from 'src/app/core/models/mocks/customer';
 import { CustomerService } from 'src/app/core/services/customer.service';
 
 interface Material {
