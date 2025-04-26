@@ -1,16 +1,15 @@
 import { NgModule } from '@angular/core';
-import { ExtraOptions, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './layout/app.layout.component';
 import { DashboardComponent } from './features/schoolar/features/dashboard/components/dashboard/dashboard.component';
+import { authGuard } from './core/guards/auth.guard';
 
-const routerOptions: ExtraOptions = {
-    anchorScrolling: 'enabled',
-};
 
 export const AppRoutes: Routes = [
     {
         path: '',
         component: AppLayoutComponent,
+        //canActivate: [authGuard], //Rotas protegidas
         children: [
             {
                 path: '',
@@ -19,12 +18,11 @@ export const AppRoutes: Routes = [
             {
                 path: 'modules',
                 loadChildren: () =>
-                    import('./features/features.module').then(
-                        (m) => m.FeaturesModule
-                    ),
+                    import('./features/features.module').then((m) => m.FeaturesModule),
             },
         ],
     },
+
     {
         path: 'auth',
         data: { breadcrumb: 'Auth' },
@@ -47,9 +45,3 @@ export const AppRoutes: Routes = [
     },
     { path: '**', redirectTo: '/error404' },
 ];
-
-@NgModule({
-    imports: [RouterModule.forRoot(AppRoutes, routerOptions)],
-    exports: [RouterModule],
-})
-export class AppRoutingModule {}
