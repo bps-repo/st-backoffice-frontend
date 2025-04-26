@@ -10,5 +10,4 @@ export const AuthRoutes: Routes = [
   { path: 'request-password-reset', component: RequestPasswordResetComponent },
 
   { path: 'password-reset', component: PasswordResetComponent }
-
 ];
