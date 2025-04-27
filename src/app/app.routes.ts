@@ -11,7 +11,7 @@ export const AppRoutes: Routes = [
     {
         path: 'landing',
         loadChildren: () =>
-            import('./shared/components/landing/landing.module').then((m) => m.LandingModule),
+            import('./shared/components/landing/landing-routing.module').then((m) => m.LandingRoutingModule),
     },
     {
         path: 'error404',
