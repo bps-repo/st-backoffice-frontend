@@ -12,7 +12,7 @@ import { LEVELS } from 'src/app/shared/constants/app';
 import { INSTALATIONS } from 'src/app/shared/constants/representatives';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { ClassesService } from '../../services/classes.service';
+import { ClassesService } from '../../../../../../core/services/classes.service';
 import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { Store } from '@ngrx/store';
 import { classesActions } from 'src/app/core/store/schoolar';

@@ -10,7 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Table } from 'primeng/table';
 import { TableHeaderComponent } from './table-header.component';
-import { ClassesService } from 'src/app/features/schoolar/features/classes/services/classes.service';
+import { ClassesService } from 'src/app/core/services/classes.service';
 
 export interface TableColumn {
     field: string;

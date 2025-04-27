@@ -6,11 +6,12 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SelectItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
-import { ClassesService } from 'src/app/features/schoolar/features/classes/services/classes.service';
+import { ClassesService } from 'src/app/core/services/classes.service';
+import {RippleModule} from "primeng/ripple";
 
 @Component({
     selector: 'app-table-header',
-    imports: [DropdownModule, SplitButtonModule, CommonModule, FormsModule],
+    imports: [DropdownModule, SplitButtonModule, CommonModule, FormsModule, RippleModule],
     template: ` <div class="flex justify-content-between gap-2 mb-5">
         <div class="flex align-items-center gap-4">
             <h1>{{ tableLable }}</h1>
@@ -54,7 +55,7 @@ export class TableHeaderComponent implements OnInit {
         if (this.entity == 'classes') {
             this.classService.setCreateClassDialogState(true);
         } else {
-            this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
+            this.router.navigate([`/schoolar/${this.entity}/create`]);
         }
     }
 
