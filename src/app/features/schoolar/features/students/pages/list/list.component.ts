@@ -12,7 +12,7 @@ import {
     studentsActions,
     selectAllStudents,
     selectLoading
-} from 'src/app/features/schoolar/store';
+} from 'src/app/core/store/schoolar/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
 
 type studentKeys = keyof Student;

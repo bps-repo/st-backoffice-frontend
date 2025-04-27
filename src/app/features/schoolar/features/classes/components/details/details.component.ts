@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
 import { Class } from 'src/app/core/models/academic/class';
-import { classesActions, selectSelectedClass, selectLoadingClass } from 'src/app/features/schoolar/store';
+import { classesActions, selectSelectedClass, selectLoadingClass } from 'src/app/core/store/schoolar/store';
 import { CardModule } from 'primeng/card';
 import { TabViewModule } from 'primeng/tabview';
 import { ButtonModule } from 'primeng/button';

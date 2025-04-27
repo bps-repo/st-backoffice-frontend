@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, exhaustMap, map } from 'rxjs/operators';
-import { StudentsService } from '../../features/students/services/students.service';
+import { StudentsService } from '../../../../../features/schoolar/features/students/services/students.service';
 import { studentsActions } from '../actions/students.actions';
 
 @Injectable()

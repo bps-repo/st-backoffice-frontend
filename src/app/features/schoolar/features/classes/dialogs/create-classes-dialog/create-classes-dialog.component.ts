@@ -15,7 +15,7 @@ import { ButtonModule } from 'primeng/button';
 import { ClassesService } from '../../services/classes.service';
 import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
 import { Store } from '@ngrx/store';
-import { classesActions, selectAllClasses, selectLoadingClass } from 'src/app/features/schoolar/store';
+import { classesActions, selectAllClasses, selectLoadingClass } from 'src/app/core/store/schoolar/store';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({

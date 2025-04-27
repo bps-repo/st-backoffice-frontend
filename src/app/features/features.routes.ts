@@ -5,7 +5,7 @@ const routes: Routes = [
     {
         path: 'schoolar',
         loadChildren: () =>
-            import('./schoolar/schoolar.module').then((m) => m.SchoolarModule),
+            import('./schoolar/schoolar.routes').then((m) => m.SCHOOLAR_ROUTES),
     },
     {
         path: 'academic',
