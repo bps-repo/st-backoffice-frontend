@@ -29,7 +29,6 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
     selector: 'app-table-invoices',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -49,7 +48,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
         SplitButtonModule,
     ],
     templateUrl: './table-invoices.component.html',
-    styleUrl: './table-invoices.component.scss',
+    styleUrl: './table-invoices.component.scss'
 })
 export class TableInvoicesComponent implements OnInit {
     @Input() tableLable = '';

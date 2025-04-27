@@ -10,7 +10,6 @@ import { ChartModule } from 'primeng/chart';
 
 @Component({
     selector: 'app-acesso-portal',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -21,7 +20,7 @@ import { ChartModule } from 'primeng/chart';
         TableModule,
         ChartModule
     ],
-    templateUrl: './acesso-portal.component.html',
+    templateUrl: './acesso-portal.component.html'
 })
 export class AcessoPortalComponent implements OnInit {
     userInfo = {

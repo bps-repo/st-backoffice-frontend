@@ -7,9 +7,8 @@ import { COMPANIES } from 'src/app/shared/constants/companies';
 
 @Component({
     selector: 'app-list',
-    standalone: true,
     imports: [TableWithFiltersComponent],
-    templateUrl: './list.component.html',
+    templateUrl: './list.component.html'
 })
 export class ListComponent {
     tableLabel = 'Entidades';

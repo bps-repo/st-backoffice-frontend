@@ -5,9 +5,8 @@ import { TableService } from 'src/app/shared/services/table.service';
 
 @Component({
     selector: 'app-turmas',
-    standalone: true,
     imports: [TableWithFiltersComponent, CommonModule],
-    templateUrl: './turmas.component.html',
+    templateUrl: './turmas.component.html'
 })
 export class TurmasComponent implements OnInit {
     classes: any[] = [

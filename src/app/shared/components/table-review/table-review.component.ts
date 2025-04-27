@@ -36,7 +36,6 @@ interface expandedRows {
 
 @Component({
     selector: 'app-table-review',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -55,7 +54,7 @@ interface expandedRows {
         ToolbarModule,
     ],
     templateUrl: './table-review.component.html',
-    styleUrl: './table-review.component.scss',
+    styleUrl: './table-review.component.scss'
 })
 export class TableReviewComponent implements OnInit {
     @Input() tableLable = '';

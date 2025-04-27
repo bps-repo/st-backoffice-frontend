@@ -4,11 +4,10 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
-  standalone: true,
-  selector: 'app-request-password-reset',
-  templateUrl: './request-password-reset.component.html',
-  styleUrls: ['./request-password-reset.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule]
+    selector: 'app-request-password-reset',
+    templateUrl: './request-password-reset.component.html',
+    styleUrls: ['./request-password-reset.component.scss'],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule]
 })
 export class RequestPasswordResetComponent {
   resetForm: FormGroup;

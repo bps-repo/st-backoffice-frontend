@@ -8,7 +8,6 @@ import { ChartModule } from 'primeng/chart';
 
 @Component({
     selector: 'app-pagamentos',
-    standalone: true,
     imports: [
         CommonModule,
         TableModule,
@@ -17,7 +16,7 @@ import { ChartModule } from 'primeng/chart';
         TagModule,
         ChartModule
     ],
-    templateUrl: './pagamentos.component.html',
+    templateUrl: './pagamentos.component.html'
 })
 export class PagamentosComponent implements OnInit {
     payments = [

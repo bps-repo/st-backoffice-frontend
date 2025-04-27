@@ -4,8 +4,7 @@ import { TableInvoicesComponent } from 'src/app/shared/components/table-invoices
 
 @Component({
     selector: 'app-list',
-    standalone: true,
     imports: [TableInvoicesComponent, CommonModule],
-    templateUrl: './list.component.html',
+    templateUrl: './list.component.html'
 })
 export class ListComponent {}

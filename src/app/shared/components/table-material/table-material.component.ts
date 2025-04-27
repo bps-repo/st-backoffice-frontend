@@ -40,7 +40,6 @@ interface SelectItems {
 
 @Component({
     selector: 'app-table-material',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -59,7 +58,7 @@ interface SelectItems {
         ToolbarModule,
     ],
     templateUrl: './table-material.component.html',
-    styleUrl: './table-material.component.scss',
+    styleUrl: './table-material.component.scss'
 })
 export class TableMaterialComponent implements OnInit {
     @Input() tableLable = '';

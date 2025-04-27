@@ -29,12 +29,10 @@ import { AppConfigModule } from './config/app.config.module';
 
 @Component({
     selector: 'app-layout',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
         RouterModule,
-
         // PrimeNG
         InputTextModule,
         SidebarModule,
@@ -44,17 +42,15 @@ import { AppConfigModule } from './config/app.config.module';
         TooltipModule,
         RippleModule,
         ButtonModule,
-
         // AppConfig
         AppConfigModule,
-
         // Components usados no layout
         AppSidebarComponent,
         AppTopbarComponent,
         AppProfileSidebarComponent,
         AppBreadcrumbComponent,
     ],
-    templateUrl: './app.layout.component.html',
+    templateUrl: './app.layout.component.html'
 })
 export class AppLayoutComponent implements OnDestroy {
     overlayMenuOpenSubscription: Subscription;

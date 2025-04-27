@@ -9,7 +9,6 @@ import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-detail',
-    standalone: true,
     imports: [
         CommonModule,
         TabViewModule,
@@ -18,7 +17,7 @@ import { TagModule } from 'primeng/tag';
         TableModule,
         TagModule
     ],
-    templateUrl: './detail.component.html',
+    templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit {
     evaluationId: string | null = null;

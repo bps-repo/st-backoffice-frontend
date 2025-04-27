@@ -13,23 +13,22 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    standalone: true,
     selector: 'app-sidebar',
     templateUrl: './app.sidebar.component.html',
     styleUrls: ['./app.sidebar.component.css'],
     imports: [
-            CommonModule,
-            RouterModule,
-            AppMenuComponent,
-            InputTextModule,
-            SidebarModule,
-            BadgeModule,
-            RadioButtonModule,
-            InputSwitchModule,
-            TooltipModule,
-            RippleModule,
-            ButtonModule,
-    ],
+        CommonModule,
+        RouterModule,
+        AppMenuComponent,
+        InputTextModule,
+        SidebarModule,
+        BadgeModule,
+        RadioButtonModule,
+        InputSwitchModule,
+        TooltipModule,
+        RippleModule,
+        ButtonModule,
+    ]
 })
 export class AppSidebarComponent {
     timeout: any = null;

@@ -7,9 +7,8 @@ import { CardModule } from 'primeng/card';
 
 @Component({
     selector: 'app-detail',
-    standalone: true,
     imports: [CommonModule, TabViewModule, ButtonModule, CardModule],
-    templateUrl: './detail.component.html',
+    templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit {
     assessmentId: string | null = null;

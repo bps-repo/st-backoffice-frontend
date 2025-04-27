@@ -8,18 +8,17 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-invoices',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TableModule,
-    ButtonModule,
-    TagModule,
-    CardModule,
-    DropdownModule,
-    FormsModule
-  ],
-  templateUrl: './invoices.component.html',
+    selector: 'app-invoices',
+    imports: [
+        CommonModule,
+        TableModule,
+        ButtonModule,
+        TagModule,
+        CardModule,
+        DropdownModule,
+        FormsModule
+    ],
+    templateUrl: './invoices.component.html'
 })
 export class InvoicesComponent implements OnInit {
   invoices: any[] = [];

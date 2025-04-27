@@ -8,10 +8,9 @@ interface alert {
 }
 
 @Component({
-  selector: 'app-create',
-  standalone: true,
-  imports: [ChartModule, CommonModule],
-  templateUrl: './evaluate.component.html',
+    selector: 'app-create',
+    imports: [ChartModule, CommonModule],
+    templateUrl: './evaluate.component.html'
 })
 export class EvaluateComponent implements OnInit{
 

@@ -4,8 +4,7 @@ import { TableReviewComponent } from 'src/app/shared/components/table-review/tab
 
 @Component({
     selector: 'app-list',
-    standalone: true,
     imports: [TableReviewComponent, CommonModule],
-    templateUrl: './list.component.html',
+    templateUrl: './list.component.html'
 })
 export class ListComponent {}

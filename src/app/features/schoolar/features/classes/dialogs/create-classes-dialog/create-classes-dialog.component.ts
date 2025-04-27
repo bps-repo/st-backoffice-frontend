@@ -20,7 +20,6 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-classes',
-    standalone: true,
     imports: [
         TableWithFiltersComponent,
         DialogModule,
@@ -32,8 +31,7 @@ import { Subject, takeUntil } from 'rxjs';
         FormsModule,
         ButtonModule,
     ],
-    templateUrl: './create-classes-dialog.component.html',
-
+    templateUrl: './create-classes-dialog.component.html'
 })
 export class CreateClassesDialogComponent implements OnInit, OnDestroy {
     lesson: Lesson = {} as Lesson;

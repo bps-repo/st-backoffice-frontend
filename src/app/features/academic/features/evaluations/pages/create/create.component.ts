@@ -11,7 +11,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
     selector: 'app-create',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -23,7 +22,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
         CalendarModule,
         InputNumberModule
     ],
-    templateUrl: './create.component.html',
+    templateUrl: './create.component.html'
 })
 export class CreateComponent {
     evaluation: any = {

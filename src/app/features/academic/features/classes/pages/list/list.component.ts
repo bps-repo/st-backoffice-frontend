@@ -8,9 +8,8 @@ import { TableService } from 'src/app/shared/services/table.service';
 
 @Component({
     selector: 'app-list',
-    standalone: true,
     imports: [TableWithFiltersComponent, CommonModule],
-    templateUrl: './list.component.html',
+    templateUrl: './list.component.html'
 })
 export class ListComponent implements OnInit {
     classes: any[] = []; // This would be populated from a service

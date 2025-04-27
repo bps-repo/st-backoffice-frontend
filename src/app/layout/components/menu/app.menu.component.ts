@@ -4,13 +4,12 @@ import { AppMenuitemComponent } from './app.menuitem.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    standalone: true,
     selector: 'app-menu',
     templateUrl: './app.menu.component.html',
     imports: [
         CommonModule,
         AppMenuitemComponent
-    ],
+    ]
 })
 export class AppMenuComponent implements OnInit {
     model: any[] = [];

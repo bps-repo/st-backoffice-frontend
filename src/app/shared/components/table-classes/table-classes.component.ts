@@ -27,7 +27,6 @@ import { CustomerService } from 'src/app/core/services/customer.service';
 
 @Component({
     selector: 'app-table-classes',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -46,7 +45,7 @@ import { CustomerService } from 'src/app/core/services/customer.service';
         ToolbarModule,
     ],
     templateUrl: './table-classes.component.html',
-    styleUrl: './table-classes.component.scss',
+    styleUrl: './table-classes.component.scss'
 })
 export class TableClassesComponent implements OnInit {
     @Input() tableLable = '';

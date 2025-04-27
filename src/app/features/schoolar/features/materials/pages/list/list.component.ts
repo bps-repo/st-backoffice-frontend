@@ -4,8 +4,7 @@ import { TableMaterialComponent } from 'src/app/shared/components/table-material
 
 @Component({
     selector: 'app-list',
-    standalone: true,
     imports: [TableMaterialComponent, CommonModule],
-    templateUrl: './list.component.html',
+    templateUrl: './list.component.html'
 })
 export class ListComponent {}

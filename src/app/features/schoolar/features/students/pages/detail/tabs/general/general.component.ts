@@ -6,9 +6,8 @@ import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart
 
 @Component({
     selector: 'app-general',
-    standalone: true,
     imports: [InputTextModule, CommonModule, ChartModule, PieChartComponent],
-    templateUrl: './general.component.html',
+    templateUrl: './general.component.html'
 })
 export class GeneralComponent implements OnInit {
     user_personal_info: any[] = [];

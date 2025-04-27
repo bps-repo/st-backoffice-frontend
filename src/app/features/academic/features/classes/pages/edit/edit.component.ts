@@ -12,7 +12,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
     selector: 'app-edit',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -24,7 +23,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
         CalendarModule,
         InputNumberModule
     ],
-    templateUrl: './edit.component.html',
+    templateUrl: './edit.component.html'
 })
 export class EditComponent implements OnInit {
     classId: string | null = null;

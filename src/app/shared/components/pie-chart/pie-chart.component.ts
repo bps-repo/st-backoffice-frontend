@@ -8,10 +8,9 @@ export type pieType = 'doughnut' | 'pie';
 
 @Component({
     selector: 'app-pie-chart',
-    standalone: true,
     imports: [ChartModule, CommonModule],
     templateUrl: './pie-chart.component.html',
-    styleUrl: './pie-chart.component.scss',
+    styleUrl: './pie-chart.component.scss'
 })
 export class PieChartComponent implements OnInit, OnDestroy {
     pieData: any;

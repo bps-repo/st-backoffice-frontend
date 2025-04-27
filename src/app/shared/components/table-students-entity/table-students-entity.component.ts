@@ -39,7 +39,6 @@ interface SelectItems {
 
 @Component({
     selector: 'app-table-students-entity',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -59,7 +58,7 @@ interface SelectItems {
         SplitButtonModule,
     ],
     templateUrl: './table-students-entity.component.html',
-    styleUrl: './table-students-entity.component.scss',
+    styleUrl: './table-students-entity.component.scss'
 })
 export class TableStudentsEntityComponent implements OnInit {
     @Input() tableLable = '';

@@ -19,13 +19,12 @@ type studentKeys = keyof Student;
 
 @Component({
     selector: 'app-list',
-    standalone: true,
     imports: [
         CommonModule,
         RouterModule,
         TableWithFiltersComponent
     ],
-    templateUrl: './list.component.html',
+    templateUrl: './list.component.html'
 })
 export class ListComponent implements OnInit, OnDestroy {
     students$: Observable<Student[]>;

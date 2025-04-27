@@ -18,7 +18,6 @@ interface Breadcrumb {
 }
 
 @Component({
-    standalone: true,
     selector: 'app-breadcrumb',
     templateUrl: './app.breadcrumb.component.html',
     imports: [
@@ -31,7 +30,7 @@ interface Breadcrumb {
         TooltipModule,
         RippleModule,
         ButtonModule,
-    ],
+    ]
 })
 export class AppBreadcrumbComponent {
     private readonly _breadcrumbs$ = new BehaviorSubject<Breadcrumb[]>([]);

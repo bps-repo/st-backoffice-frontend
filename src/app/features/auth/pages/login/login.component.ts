@@ -22,9 +22,8 @@ import {
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
-    imports: [ReactiveFormsModule, FormsModule, CommonModule, RouterModule],
-  })
+    imports: [ReactiveFormsModule, FormsModule, CommonModule, RouterModule]
+})
   export class LoginComponent implements OnDestroy {
     loginForm: FormGroup;
     hidePassword = true;

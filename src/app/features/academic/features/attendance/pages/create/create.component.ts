@@ -12,7 +12,6 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 
 @Component({
     selector: 'app-create',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -25,7 +24,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
         TableModule,
         SelectButtonModule
     ],
-    templateUrl: './create.component.html',
+    templateUrl: './create.component.html'
 })
 export class CreateComponent {
     date: Date = new Date();

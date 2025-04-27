@@ -7,10 +7,9 @@ import { Observable, of } from 'rxjs';
 
 @Component({
     selector: 'app-tab-view',
-    standalone: true,
     imports: [TabMenuModule, TabViewModule, CommonModule],
     templateUrl: './tab-view.component.html',
-    styleUrl: './tab-view.component.scss',
+    styleUrl: './tab-view.component.scss'
 })
 export class TabViewComponent {
     @ViewChild('dynamicComponentContainer', { read: ViewContainerRef })

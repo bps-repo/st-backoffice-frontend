@@ -6,9 +6,8 @@ import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-documentos',
-    standalone: true,
     imports: [TableWithFiltersComponent, CommonModule, ButtonModule],
-    templateUrl: './documentos.component.html',
+    templateUrl: './documentos.component.html'
 })
 export class DocumentosComponent implements OnInit {
     documents: any[] = [

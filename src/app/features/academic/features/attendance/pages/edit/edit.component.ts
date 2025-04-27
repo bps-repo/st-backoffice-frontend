@@ -13,7 +13,6 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 
 @Component({
     selector: 'app-edit',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -26,7 +25,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
         TableModule,
         SelectButtonModule
     ],
-    templateUrl: './edit.component.html',
+    templateUrl: './edit.component.html'
 })
 export class EditComponent implements OnInit {
     attendanceId: string | null = null;

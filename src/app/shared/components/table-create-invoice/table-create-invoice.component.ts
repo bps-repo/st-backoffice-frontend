@@ -38,7 +38,6 @@ interface expandedRows {
 
 @Component({
     selector: 'app-table-create-invoice',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -59,7 +58,7 @@ interface expandedRows {
         MultiSelectModule,
     ],
     templateUrl: './table-review.component.html',
-    styleUrl: './table-review.component.scss',
+    styleUrl: './table-review.component.scss'
 })
 export class TableCreateInvoice implements OnInit {
     exams: Exam[] = EXAMS_;

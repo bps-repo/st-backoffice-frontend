@@ -12,9 +12,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-details',
-    standalone: true,
     imports: [CommonModule, CardModule, TabViewModule, ButtonModule, ProgressSpinnerModule],
-    templateUrl: './details.component.html',
+    templateUrl: './details.component.html'
 })
 export class DetailsComponent implements OnInit, OnDestroy {
     classItem: Class | null = null;

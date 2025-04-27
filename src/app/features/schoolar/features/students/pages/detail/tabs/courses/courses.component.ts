@@ -6,16 +6,15 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TagModule } from 'primeng/tag';
 
 @Component({
-  selector: 'app-courses',
-  standalone: true,
-  imports: [
-    CommonModule,
-    CardModule,
-    ButtonModule,
-    ProgressBarModule,
-    TagModule
-  ],
-  templateUrl: './courses.component.html',
+    selector: 'app-courses',
+    imports: [
+        CommonModule,
+        CardModule,
+        ButtonModule,
+        ProgressBarModule,
+        TagModule
+    ],
+    templateUrl: './courses.component.html'
 })
 export class CoursesComponent implements OnInit {
   courses = [

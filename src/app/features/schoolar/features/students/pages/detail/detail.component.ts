@@ -11,7 +11,6 @@ import { MenuItem } from 'primeng/api';
 
 @Component({
     selector: 'app-detail',
-    standalone: true,
     imports: [
         TabMenuModule,
         TabViewModule,
@@ -19,7 +18,7 @@ import { MenuItem } from 'primeng/api';
         TabViewComponent,
         SplitButtonModule,
     ],
-    templateUrl: './detail.component.html',
+    templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit {
     tabs!: Observable<Tab[]>;

@@ -23,7 +23,6 @@ export interface TableColumn {
 
 @Component({
     selector: 'app-table-with-filters',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -36,7 +35,7 @@ export interface TableColumn {
         RouterModule,
         TableHeaderComponent,
     ],
-    templateUrl: './table-with-filters.component.html',
+    templateUrl: './table-with-filters.component.html'
 })
 export class TableWithFiltersComponent<T> implements OnInit {
     @Input() columns: TableColumn[] = []; // Dynamic column definitions

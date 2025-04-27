@@ -34,8 +34,6 @@ import { AppSidebarComponent } from '../sidebar/app.sidebar.component';
 import { LayoutService } from '../../service/app.layout.service';
 
 @Component({
-    // eslint-disable-next-line @angular-eslint/component-selector
-    standalone: true,
     selector: '[app-menuitem]',
     imports: [
         CommonModule,
@@ -139,36 +137,21 @@ import { LayoutService } from '../../service/app.layout.service';
     `,
     animations: [
         trigger('children', [
-            state(
-                'collapsed',
-                style({
-                    height: '0',
-                })
-            ),
-            state(
-                'expanded',
-                style({
-                    height: '*',
-                })
-            ),
-            state(
-                'hidden',
-                style({
-                    display: 'none',
-                })
-            ),
-            state(
-                'visible',
-                style({
-                    display: 'block',
-                })
-            ),
-            transition(
-                'collapsed <=> expanded',
-                animate('400ms cubic-bezier(0.86, 0, 0.07, 1)')
-            ),
+            state('collapsed', style({
+                height: '0',
+            })),
+            state('expanded', style({
+                height: '*',
+            })),
+            state('hidden', style({
+                display: 'none',
+            })),
+            state('visible', style({
+                display: 'block',
+            })),
+            transition('collapsed <=> expanded', animate('400ms cubic-bezier(0.86, 0, 0.07, 1)')),
         ]),
-    ],
+    ]
 })
 export class AppMenuitemComponent implements OnInit, OnDestroy {
     @Input() item: any;

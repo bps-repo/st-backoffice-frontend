@@ -8,9 +8,8 @@ interface alert {
 }
 @Component({
     selector: 'app-dashboard',
-    standalone: true,
     imports: [ChartModule, CommonModule],
-    templateUrl: './dashboard.component.html',
+    templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
     pieDataLevels: any;

@@ -6,9 +6,8 @@ import { LESSONS } from 'src/app/shared/constants/lessons';
 import { TableService } from 'src/app/shared/services/table.service';
 @Component({
     selector: 'app-classes',
-    standalone: true,
     imports: [TableWithFiltersComponent, CommonModule],
-    templateUrl: './classes.component.html',
+    templateUrl: './classes.component.html'
 })
 export class ClassesComponent {
     lessons: Lesson[] = LESSONS;

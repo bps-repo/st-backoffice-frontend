@@ -10,7 +10,6 @@ import { ClassesService } from 'src/app/features/schoolar/features/classes/servi
 
 @Component({
     selector: 'app-table-header',
-    standalone: true,
     imports: [DropdownModule, SplitButtonModule, CommonModule, FormsModule],
     template: ` <div class="flex justify-content-between gap-2 mb-5">
         <div class="flex align-items-center gap-4">
@@ -42,8 +41,7 @@ import { ClassesService } from 'src/app/features/schoolar/features/classes/servi
                 styleClass="p-button-info h-5rem text-5xl"
             ></p-splitButton>
         </div>
-    </div>`,
-
+    </div>`
 })
 export class TableHeaderComponent implements OnInit {
     instalations: any[] = INSTALATIONS;

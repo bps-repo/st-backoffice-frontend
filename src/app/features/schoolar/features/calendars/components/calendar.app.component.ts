@@ -24,8 +24,7 @@ import {InputTextareaModule} from "primeng/inputtextarea";
 @Component({
     templateUrl: './calendar.app.component.html',
     imports: [FormsModule, ReactiveFormsModule, PaginatorModule, FullCalendarModule, DialogModule, CalendarModule, CommonModule, InputTextModule, InputTextareaModule],
-    styleUrls: ['./calendar.app.component.scss'],
-    standalone: true
+    styleUrls: ['./calendar.app.component.scss']
 })
 export class CalendarAppComponent implements OnInit {
     events: Partial<LessonEvent>[] = LESSONS_EVENTS;

@@ -5,9 +5,8 @@ import { TableService } from 'src/app/shared/services/table.service';
 
 @Component({
     selector: 'app-avaliacoes',
-    standalone: true,
     imports: [TableWithFiltersComponent, CommonModule],
-    templateUrl: './avaliacoes.component.html',
+    templateUrl: './avaliacoes.component.html'
 })
 export class AvaliacoesComponent implements OnInit {
     evaluations: any[] = [
