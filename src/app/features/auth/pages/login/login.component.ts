@@ -12,8 +12,8 @@ import {Subject, takeUntil} from 'rxjs';
 import {
     authFeature,
     AuthState,
-} from '../../../../core/store/reducers/auth.reducers';
-import {authActions} from '../../../../core/store/actions/auth.actions';
+} from '../../../../core/store/auth/reducers/auth.reducers';
+import {authActions} from '../../../../core/store/auth/actions/auth.actions';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 

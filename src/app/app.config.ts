@@ -11,10 +11,10 @@ import {provideEffects} from '@ngrx/effects';
 import {provideStoreDevtools} from '@ngrx/store-devtools';
 import {provideRouterStore, routerReducer} from '@ngrx/router-store';
 import {tokenInterceptor} from './core/interceptors/token.interceptor';
-import {authFeature} from './core/store/reducers/auth.reducers';
-import {AuthEffects} from './core/store/effects/auth.effects';
+import {authFeature} from './core/store/auth/reducers/auth.reducers';
+import {AuthEffects} from './core/store/auth/effects/auth.effects';
 import {CustomSerializer} from './core/router/custom-serializer';
-import {classesFeature, scholarEffects, studentsFeature} from "./core/store/schoolar/store";
+import {classesFeature, scholarEffects, studentsFeature} from "./core/store/schoolar";
 
 export const AppConfig: ApplicationConfig = {
     providers: [

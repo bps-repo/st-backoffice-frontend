@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from '../schoolar/features/dashboard/components/dashboard/dashboard.component';
 import { provideState } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
-import { classesFeature, scholarEffects, studentsFeature } from '../../core/store/schoolar/store';
+import { classesFeature, scholarEffects, studentsFeature } from '../../core/store/schoolar';
 
 /**
  * Routes for the schoolar feature

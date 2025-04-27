@@ -8,9 +8,6 @@ import {
 } from './reducers/students.reducers';
 import {
   classesFeature,
-  selectAllClasses,
-  selectClassEntities,
-  selectSelectedClass
 } from './reducers/classes.reducers';
 
 /**
@@ -36,12 +33,10 @@ export * from './reducers/students.reducers';
 export * from './reducers/classes.reducers';
 export * from './schoolar.state';
 
+
 // Export entity selectors
 export {
   selectAllStudents,
   selectStudentEntities,
   selectSelectedStudent,
-  selectAllClasses,
-  selectClassEntities,
-  selectSelectedClass
 };

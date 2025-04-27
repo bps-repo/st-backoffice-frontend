@@ -2,7 +2,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { Inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { take, switchMap } from 'rxjs';
-import { AuthState, authFeature } from '../store/reducers/auth.reducers';
+import { AuthState, authFeature } from '../store/auth/reducers/auth.reducers';
 
 export const tokenInterceptor: HttpInterceptorFn = (request, next) => {
   const excludedUrls = ['/login'];

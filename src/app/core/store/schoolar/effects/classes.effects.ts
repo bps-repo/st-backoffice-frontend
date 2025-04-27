@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, exhaustMap, map } from 'rxjs/operators';
-import { ClassesApiService } from '../../../../../features/schoolar/features/classes/services/classes-api.service';
+import { ClassesApiService } from '../../../../features/schoolar/features/classes/services/classes-api.service';
 import { classesActions } from '../actions/classes.actions';
 
 @Injectable()

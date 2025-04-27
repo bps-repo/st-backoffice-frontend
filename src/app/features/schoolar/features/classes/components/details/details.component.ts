@@ -4,11 +4,15 @@ import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
 import { Class } from 'src/app/core/models/academic/class';
-import { classesActions, selectSelectedClass, selectLoadingClass } from 'src/app/core/store/schoolar/store';
+import { classesActions } from 'src/app/core/store/schoolar';
 import { CardModule } from 'primeng/card';
 import { TabViewModule } from 'primeng/tabview';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import {
+    selectLoadingClass,
+    selectSelectedClass
+} from "../../../../../../core/store/schoolar/selectors/classes.selectors";
 
 @Component({
     selector: 'app-details',
