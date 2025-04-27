@@ -1,1 +1,77 @@
-<p>invoices works!</p>
+<div class="grid">
+    <div class="col-12">
+        <p-card>
+            <ng-template pTemplate="title">
+                <div class="flex justify-content-between align-items-center">
+                    <h2>Invoice Summary</h2>
+                    <p-dropdown [options]="years" [(ngModel)]="selectedYear" optionLabel="label" placeholder="Select Year"></p-dropdown>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+                <div class="grid">
+                    <div class="col-12 md:col-4">
+                        <div class="text-center p-3 border-round bg-blue-50">
+                            <div class="text-xl font-semibold mb-2">Total Amount</div>
+                            <div class="text-3xl font-bold text-blue-500">{{ getTotalAmount() | currency }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="text-center p-3 border-round bg-green-50">
+                            <div class="text-xl font-semibold mb-2">Paid Invoices</div>
+                            <div class="text-3xl font-bold text-green-500">{{ getPaidInvoicesCount() }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="text-center p-3 border-round bg-yellow-50">
+                            <div class="text-xl font-semibold mb-2">Unpaid Invoices</div>
+                            <div class="text-3xl font-bold text-yellow-500">{{ getUnpaidInvoicesCount() }}</div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+
+    <div class="col-12 mt-3">
+        <p-card header="Invoice History">
+            <p-table [value]="invoices" [paginator]="true" [rows]="5" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Date</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Payment Method</th>
+                        <th>Payment Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-invoice>
+                    <tr>
+                        <td>{{ invoice.id }}</td>
+                        <td>{{ invoice.date }}</td>
+                        <td>{{ invoice.dueDate }}</td>
+                        <td>{{ invoice.amount | currency }}</td>
+                        <td>{{ invoice.description }}</td>
+                        <td>
+                            <p-tag [value]="invoice.status" [severity]="getSeverity(invoice.status)"></p-tag>
+                        </td>
+                        <td>{{ invoice.paymentMethod || 'N/A' }}</td>
+                        <td>{{ invoice.paymentDate || 'N/A' }}</td>
+                        <td>
+                            <button pButton icon="pi pi-download" class="p-button-rounded p-button-text"
+                                (click)="downloadInvoice(invoice)" title="Download Invoice"></button>
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text"
+                                (click)="viewInvoice(invoice)" title="View Invoice"></button>
+                            <button *ngIf="invoice.status === 'Unpaid'" pButton icon="pi pi-credit-card"
+                                class="p-button-rounded p-button-text" (click)="payInvoice(invoice)"
+                                title="Pay Invoice"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+</div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {booleanAttribute, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
@@ -47,7 +47,7 @@ export class TableWithFiltersComponent<T> implements OnInit {
 
     @Input() globalFilterFields: string[] = []; // Fields to be filtered globally
 
-    @Input() loading: boolean = false; // Loading state
+    @Input({transform: booleanAttribute}) loading: boolean = false; // Loading state
 
     @Input() tableLabel = '';
 

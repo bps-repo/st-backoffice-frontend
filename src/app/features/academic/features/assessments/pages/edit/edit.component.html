@@ -1,0 +1,49 @@
+<div class="grid">
+    <div class="col-12">
+        <p-card>
+            <ng-template pTemplate="title">
+                <h2>Edit Assessment</h2>
+            </ng-template>
+            <ng-template pTemplate="content">
+                <div class="grid p-fluid">
+                    <div class="col-12 field">
+                        <label for="title" class="font-bold">Title</label>
+                        <input id="title" type="text" pInputText [(ngModel)]="assessment.title" required>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="type" class="font-bold">Type</label>
+                        <p-dropdown id="type" [options]="assessmentTypes" [(ngModel)]="assessment.type"
+                            optionLabel="label" placeholder="Select a type" [showClear]="true"></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="date" class="font-bold">Date</label>
+                        <p-calendar id="date" [(ngModel)]="assessment.date" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="totalPoints" class="font-bold">Total Points</label>
+                        <p-inputNumber id="totalPoints" [(ngModel)]="assessment.totalPoints" [min]="0" [max]="1000"></p-inputNumber>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="passingScore" class="font-bold">Passing Score</label>
+                        <p-inputNumber id="passingScore" [(ngModel)]="assessment.passingScore" [min]="0" [max]="1000"></p-inputNumber>
+                    </div>
+
+                    <div class="col-12 field">
+                        <label for="description" class="font-bold">Description</label>
+                        <textarea id="description" pInputTextarea [(ngModel)]="assessment.description" rows="5"></textarea>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="flex justify-content-end">
+                    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2"></button>
+                    <button pButton label="Save" icon="pi pi-check" (click)="saveAssessment()"></button>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+</div>

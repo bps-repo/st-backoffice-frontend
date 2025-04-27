@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/academic/lesson';
-import { LESSONS } from 'src/app/shared/constants/lessons';
+import { Class } from 'src/app/core/models/academic/class';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -14,6 +14,9 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ClassesService } from '../../services/classes.service';
 import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import { Store } from '@ngrx/store';
+import { classesActions, selectAllClasses, selectLoadingClass } from 'src/app/features/schoolar/store';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-classes',
@@ -34,59 +37,97 @@ import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-
 })
 export class CreateClassesDialogComponent implements OnInit, OnDestroy {
     lesson: Lesson = {} as Lesson;
+    lessons: Lesson[] = [];
+    classToCreate: Class = {} as Class;
+    classes: Class[] = [];
+    loading = false;
 
     instalations: any[] = INSTALATIONS;
-
     selected: SelectItem[] = [];
-
     types: any[] = ['VIP', 'Online', 'In Center'];
-
     levels = LEVELS;
-
-    lessons: Lesson[] = LESSONS; //
-
-    columns: any[] = []; //
-
-    globalFilterFields: string[] = []; //
-
+    columns: any[] = [];
+    globalFilterFields: string[] = [];
     createClassDialog: boolean = false;
-
     deleteClasstDialog: boolean = false;
 
-    constructor(private classeService: ClassesService) {
+    private destroy$ = new Subject<void>();
+
+    constructor(
+        private classeService: ClassesService,
+        private store: Store
+    ) {
         this.columns = [
-            { field: 'date', header: 'Data' },
-            { field: 'class', header: 'Turma' },
-            { field: 'time', header: 'Horário' },
-            { field: 'teacher', header: 'Professor' },
-            { field: 'center', header: 'Centro' },
-            { field: 'level', header: 'Nível' },
-            { field: 'description', header: 'Descrição' },
-            { field: 'students', header: 'Alunos' },
+            { field: 'id', header: 'ID' },
+            { field: 'name', header: 'Turma' },
+            { field: 'startDate', header: 'Data Início' },
+            { field: 'endDate', header: 'Data Fim' },
+            { field: 'teacher.name', header: 'Professor' },
+            { field: 'center.name', header: 'Centro' },
+            { field: 'level.name', header: 'Nível' },
+            { field: 'status', header: 'Status' },
+            { field: 'maxCapacity', header: 'Capacidade' },
         ];
     }
 
     ngOnInit(): void {
-        this.classeService.createClassDialog$.subscribe((state) => {
-            this.createClassDialog = state;
-        });
+        // Subscribe to dialog state
+        this.classeService.createClassDialog$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((state) => {
+                this.createClassDialog = state;
+            });
 
-        this.classeService.deleteClassDialog$.subscribe((state) => {
-            this.deleteClasstDialog = state;
-        });
+        this.classeService.deleteClassDialog$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((state) => {
+                this.deleteClasstDialog = state;
+            });
+
+        // Dispatch action to load classes
+        this.store.dispatch(classesActions.loadClasses());
+
+        // Subscribe to classes from store
+        this.store.select(selectAllClasses)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(classes => {
+                this.classes = classes;
+            });
+
+        // Subscribe to loading state
+        this.store.select(selectLoadingClass)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(loading => {
+                this.loading = loading;
+            });
     }
 
     ngOnDestroy(): void {
         this.classeService.setCreateClassDialogState(false);
         this.classeService.setDeleteClassDialogState(false);
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
-    saveClass(): void {}
+    saveClass(): void {
+        if (this.classToCreate.id) {
+            this.store.dispatch(classesActions.updateClass({ class: this.classToCreate }));
+        } else {
+            this.store.dispatch(classesActions.createClass({ class: this.classToCreate }));
+        }
+        this.hideDialog();
+    }
 
     hideDialog() {
         this.classeService.setCreateClassDialogState(false);
         this.classeService.setDeleteClassDialogState(false);
+        this.classToCreate = {} as Class;
     }
 
-    confirmDelete() {}
+    confirmDelete() {
+        if (this.classToCreate.id) {
+            this.store.dispatch(classesActions.deleteClass({ id: this.classToCreate.id }));
+        }
+        this.hideDialog();
+    }
 }

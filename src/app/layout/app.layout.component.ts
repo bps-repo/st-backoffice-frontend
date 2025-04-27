@@ -52,8 +52,6 @@ import { AppConfigModule } from './config/app.config.module';
         AppSidebarComponent,
         AppTopbarComponent,
         AppProfileSidebarComponent,
-        AppMenuComponent,
-        AppMenuitemComponent,
         AppBreadcrumbComponent,
     ],
     templateUrl: './app.layout.component.html',

@@ -1,42 +1,53 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import {
     TableColumn,
     TableWithFiltersComponent,
 } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
-import { STUDENTS } from 'src/app/shared/constants/representatives';
 import { Student } from 'src/app/core/models/academic/student';
 import { TableService } from 'src/app/shared/services/table.service';
-import { TableColumnFilterTemplates } from 'primeng/table';
+import { Store } from '@ngrx/store';
+import {
+    studentsActions,
+    selectAllStudents,
+    selectLoading
+} from 'src/app/features/schoolar/store';
+import { Observable, Subject, takeUntil } from 'rxjs';
 
 type studentKeys = keyof Student;
 
 @Component({
     selector: 'app-list',
     standalone: true,
-    imports: [TableWithFiltersComponent, CommonModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        TableWithFiltersComponent
+    ],
     templateUrl: './list.component.html',
 })
-export class ListComponent implements OnInit {
-    students: Student[] = STUDENTS;
+export class ListComponent implements OnInit, OnDestroy {
+    students$: Observable<Student[]>;
+    loading$: Observable<boolean>;
 
     columns: TableColumn[] = [];
+    globalFilterFields: string[] = ['id', 'name', 'center', 'level', 'phone'];
 
-    globalFilterFields: string[] = [];
+    private destroy$ = new Subject<void>();
 
-    loading = false;
-
-    constructor(private tableService: TableService<Student>) {}
+    constructor(
+        private tableService: TableService<Student>,
+        private store: Store
+    ) {
+        // Use the entity selectors
+        this.students$ = this.store.select(selectAllStudents);
+        this.loading$ = this.store.select(selectLoading);
+    }
 
     ngOnInit(): void {
-        // Dynamically populate columns and globalFilterFields
-        // if (STUDENTS.length > 0) {
-        //     this.tableService.populateColumnsFromModel(
-        //         STUDENTS[0],
-        //         this.columns,
-        //         this.globalFilterFields
-        //     );
-        // }
+        // Dispatch action to load students
+        this.store.dispatch(studentsActions.loadStudents());
 
         // Define custom column templates for different filter types
         this.columns = [
@@ -66,5 +77,19 @@ export class ListComponent implements OnInit {
                 filterType: 'text',
             },
         ];
+    }
+
+    /**
+     * Navigate to student detail
+     * @param student The selected student
+     */
+    onRowSelect(student: Student): void {
+        // You can use the router to navigate to the student detail page
+        // this.router.navigate(['/schoolar/students', student.id]);
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 }

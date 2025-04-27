@@ -1,1 +1,55 @@
-<p>courses works!</p>
+<div class="grid">
+    <div class="col-12">
+        <h2>Enrolled Courses</h2>
+        <div class="grid">
+            <div *ngFor="let course of courses" class="col-12 md:col-6 lg:col-4 mb-3">
+                <p-card styleClass="h-full">
+                    <ng-template pTemplate="header">
+                        <div class="course-image" style="height: 150px; overflow: hidden; position: relative;">
+                            <img [src]="course.image" alt="{{ course.name }}" style="width: 100%; height: 100%; object-fit: cover;"
+                                onerror="this.src='assets/demo/images/courses/default-course.jpg'">
+                            <p-tag [value]="course.status" [severity]="getSeverity(course.status)"
+                                styleClass="absolute top-0 right-0 m-2"></p-tag>
+                        </div>
+                    </ng-template>
+
+                    <ng-template pTemplate="title">
+                        <div class="text-xl font-bold">{{ course.name }}</div>
+                    </ng-template>
+
+                    <ng-template pTemplate="subtitle">
+                        <div class="text-sm text-500">Instructor: {{ course.instructor }}</div>
+                    </ng-template>
+
+                    <ng-template pTemplate="content">
+                        <div class="mb-3">{{ course.description }}</div>
+
+                        <div class="mb-2">
+                            <div class="flex justify-content-between">
+                                <span class="font-semibold">Progress</span>
+                                <span>{{ course.progress }}%</span>
+                            </div>
+                            <p-progressBar [value]="course.progress" [showValue]="false"></p-progressBar>
+                        </div>
+
+                        <div class="grid">
+                            <div class="col-6">
+                                <div class="text-sm font-semibold">Start Date</div>
+                                <div>{{ course.startDate }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-sm font-semibold">End Date</div>
+                                <div>{{ course.endDate }}</div>
+                            </div>
+                        </div>
+                    </ng-template>
+
+                    <ng-template pTemplate="footer">
+                        <button pButton label="View Details" icon="pi pi-external-link"
+                            (click)="viewCourseDetails(course.id)" class="p-button-outlined"></button>
+                    </ng-template>
+                </p-card>
+            </div>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,11 @@ import { Observable, of } from 'rxjs';
 import { ClassesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/classes/classes.component';
 import { InvoicesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/invoices/invoices.component';
 import { CoursesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/courses/courses.component';
+import { TurmasComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/turmas/turmas.component';
+import { AvaliacoesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/avaliacoes/avaliacoes.component';
+import { DocumentosComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/documentos/documentos.component';
+import { AcessoPortalComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/acesso-portal/acesso-portal.component';
+import { PagamentosComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/pagamentos.component';
 
 export const STUDENTS_TABS: Observable<Tab[]> = of([
     {
@@ -20,54 +25,53 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: ClassesComponent,
     },
-
     {
         header: 'Turmas',
-        icon: 'pi pi-wallet',
-        title: 'Overview ',
+        icon: 'pi pi-users',
+        title: 'Suas Turmas',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: GeneralComponent,
+        template: TurmasComponent,
     },
     {
         header: 'Cursos',
-        icon: 'pi pi-wallet',
-        title: 'Overview ',
+        icon: 'pi pi-book',
+        title: 'Seus Cursos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: CoursesComponent,
     },
     {
         header: 'Avaliações',
-        icon: 'pi pi-wallet',
-        title: 'Overview ',
+        icon: 'pi pi-chart-bar',
+        title: 'Suas Avaliações',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: GeneralComponent,
+        template: AvaliacoesComponent,
     },
     {
         header: 'Facturas',
         icon: 'pi pi-file',
-        title: 'Overview ',
+        title: 'Suas Facturas',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: InvoicesComponent,
     },
     {
         header: 'Documentos',
         icon: 'pi pi-file-pdf',
-        title: 'Suas Aulas',
+        title: 'Seus Documentos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: ClassesComponent,
+        template: DocumentosComponent,
     },
     {
         header: 'Acesso ao Portal',
-        icon: 'pi pi-th-large',
-        title: 'Suas Aulas',
+        icon: 'pi pi-desktop',
+        title: 'Acesso ao Portal',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: ClassesComponent,
+        template: AcessoPortalComponent,
     },
     {
         header: 'Pagamentos',
         icon: 'pi pi-money-bill',
-        title: 'Overview ',
+        title: 'Seus Pagamentos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: GeneralComponent,
+        template: PagamentosComponent,
     },
 ]);

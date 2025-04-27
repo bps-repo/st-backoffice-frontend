@@ -8,6 +8,11 @@ const routes: Routes = [
             import('./schoolar/schoolar.module').then((m) => m.SchoolarModule),
     },
     {
+        path: 'academic',
+        loadChildren: () =>
+            import('./academic/academic.module').then((m) => m.AcademicModule),
+    },
+    {
         path: 'courses',
         loadChildren: () =>
             import('./courses/courses.module').then((m) => m.CoursesModule),

@@ -1,0 +1,66 @@
+<div class="grid">
+    <div class="col-12">
+        <p-card>
+            <ng-template pTemplate="title">
+                <h2>Create New Class</h2>
+            </ng-template>
+            <ng-template pTemplate="content">
+                <div class="grid p-fluid">
+                    <div class="col-12 md:col-6 field">
+                        <label for="name" class="font-bold">Name</label>
+                        <input id="name" type="text" pInputText [(ngModel)]="class.name" required>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="code" class="font-bold">Code</label>
+                        <input id="code" type="text" pInputText [(ngModel)]="class.code" required>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="level" class="font-bold">Level</label>
+                        <p-dropdown id="level" [options]="levels" [(ngModel)]="class.level"
+                            optionLabel="label" placeholder="Select a level" [showClear]="true"></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="teacher" class="font-bold">Teacher</label>
+                        <p-dropdown id="teacher" [options]="teachers" [(ngModel)]="class.teacher"
+                            optionLabel="label" placeholder="Select a teacher" [showClear]="true"></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="startDate" class="font-bold">Start Date</label>
+                        <p-calendar id="startDate" [(ngModel)]="class.startDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="endDate" class="font-bold">End Date</label>
+                        <p-calendar id="endDate" [(ngModel)]="class.endDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="schedule" class="font-bold">Schedule</label>
+                        <input id="schedule" type="text" pInputText [(ngModel)]="class.schedule" placeholder="e.g., Mon, Wed 18:00-19:30">
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="capacity" class="font-bold">Capacity</label>
+                        <p-inputNumber id="capacity" [(ngModel)]="class.capacity" [min]="1" [max]="100"></p-inputNumber>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="status" class="font-bold">Status</label>
+                        <p-dropdown id="status" [options]="statuses" [(ngModel)]="class.status"
+                            optionLabel="label" placeholder="Select a status" [showClear]="true"></p-dropdown>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="flex justify-content-end">
+                    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2"></button>
+                    <button pButton label="Save" icon="pi pi-check" (click)="saveClass()"></button>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+</div>

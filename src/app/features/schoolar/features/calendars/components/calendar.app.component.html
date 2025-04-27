@@ -12,17 +12,17 @@
     >
         <ng-template pTemplate="header">
             <span class="text-900 font-semibold text-xl">{{
-                view === "display"
-                    ? changedEvent.title
-                    : view === "new"
-                    ? "New Event"
-                    : "Edit Event"
-            }}</span>
+                    view === "display"
+                        ? changedEvent.title
+                        : view === "new"
+                            ? "New Event"
+                            : "Edit Event"
+                }}</span>
         </ng-template>
         <ng-template pTemplate="content">
             <div *ngIf="view === 'display'">
                 <span class="text-900 font-semibold block mb-2"
-                    >Description</span
+                >Description</span
                 >
                 <span class="block mb-3">{{ changedEvent.description }}</span>
 
@@ -32,8 +32,8 @@
                         <p class="flex align-items-center m-0">
                             <i class="pi pi-fw pi-clock text-700 mr-2"></i>
                             <span>{{
-                                changedEvent.start.toISOString().slice(0, 10)
-                            }}</span>
+                                    changedEvent.start.toISOString().slice(0, 10)
+                                }}</span>
                         </p>
                     </div>
                     <div class="col-6">
@@ -41,8 +41,8 @@
                         <p class="flex align-items-center m-0">
                             <i class="pi pi-fw pi-clock text-700 mr-2"></i>
                             <span>{{
-                                changedEvent.end.toISOString().slice(0, 10)
-                            }}</span>
+                                    changedEvent.end.toISOString().slice(0, 10)
+                                }}</span>
                         </p>
                     </div>
                     <div class="col-12">
@@ -57,7 +57,6 @@
                         <p class="flex align-items-center m-0">
                             <span
                                 class="inline-flex flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                                [style.backgroundColor]="changedEvent.tag.color"
                             ></span>
                             <span>{{ changedEvent.tag.name }}</span>
                         </p>
@@ -68,7 +67,7 @@
                 <div class="grid p-fluid formgrid">
                     <div class="col-12 md:col-6 field">
                         <label for="title" class="text-900 font-semibold"
-                            >Title</label
+                        >Title</label
                         >
                         <span class="p-input-icon-left">
                             <i class="pi pi-pencil"></i>
@@ -83,7 +82,7 @@
                     </div>
                     <div class="col-12 md:col-6 field">
                         <label for="location" class="text-900 font-semibold"
-                            >Location</label
+                        >Location</label
                         >
                         <span class="p-input-icon-left">
                             <i class="pi pi-map-marker"></i>
@@ -98,7 +97,7 @@
                     </div>
                     <div class="col-12 field">
                         <label for="description" class="text-900 font-semibold"
-                            >Event Description</label
+                        >Event Description</label
                         >
                         <textarea
                             id="description"
@@ -112,7 +111,7 @@
 
                     <div class="col-12 md:col-6 field">
                         <label for="start" class="text-900 font-semibold"
-                            >Start Date</label
+                        >Start Date</label
                         >
                         <p-calendar
                             [appendTo]="dd"
@@ -126,7 +125,7 @@
                     </div>
                     <div class="col-12 md:col-6 field">
                         <label for="start" class="text-900 font-semibold"
-                            >End Date</label
+                        >End Date</label
                         >
                         <p-calendar
                             [appendTo]="dd"
@@ -142,7 +141,7 @@
                         <label
                             for="company-color"
                             class="text-900 font-semibold"
-                            >Color</label
+                        >Color</label
                         >
                         <p-dropdown
                             inputId="company-color"
@@ -158,9 +157,6 @@
                                 >
                                     <div
                                         class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                                        [style.backgroundColor]="
-                                            changedEvent.tag.color
-                                        "
                                     ></div>
                                     <div>{{ changedEvent.tag.name }}</div>
                                 </div>
@@ -169,7 +165,6 @@
                                 <div class="flex align-items-center">
                                     <div
                                         class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                                        [style.backgroundColor]="tag.color"
                                     ></div>
                                     <div>{{ tag.name }}</div>
                                 </div>

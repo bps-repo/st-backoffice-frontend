@@ -12,7 +12,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forChild(AuthRoutes),
-
     LoginComponent,
     RequestPasswordResetComponent,
   ],

@@ -1,11 +1,11 @@
 <div class="grid">
     <app-table-with-filters
         tableLabel="Alunos"
-        [data]="students"
+        [data]="(students$ | async)!"
         [entity]="'students'"
         [columns]="columns"
         [globalFilterFields]="globalFilterFields"
-        [loading]="loading"
+        [loading]="loading$ | async"
         class="w-full"
     ></app-table-with-filters>
 </div>
