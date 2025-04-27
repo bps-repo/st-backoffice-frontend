@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
     TableColumn,
-    TableWithFiltersComponent,
-} from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+    GlobalTable,
+} from 'src/app/shared/components/tables/global-table/global-table.component';
 import { Student } from 'src/app/core/models/academic/student';
 import { TableService } from 'src/app/shared/services/table.service';
 import { Store } from '@ngrx/store';
@@ -22,7 +22,7 @@ type studentKeys = keyof Student;
     imports: [
         CommonModule,
         RouterModule,
-        TableWithFiltersComponent
+        GlobalTable
     ],
     templateUrl: './list.component.html'
 })

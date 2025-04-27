@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableMaterialComponent } from 'src/app/shared/components/table-material/table-material.component';
+import { TableMaterialComponent } from 'src/app/shared/components/tables/table-material/table-material.component';
 
 @Component({
     selector: 'app-list',

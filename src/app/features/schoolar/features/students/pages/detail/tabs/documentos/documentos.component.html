@@ -3,7 +3,7 @@
         <button pButton label="Upload New Document" icon="pi pi-upload" class="p-button-primary"></button>
     </div>
 
-    <app-table-with-filters
+    <app-global-table
         tableLabel="Documentos"
         [data]="documents"
         [entity]="'documents'"
@@ -27,5 +27,5 @@
                 </td>
             </tr>
         </ng-template>
-    </app-table-with-filters>
+    </app-global-table>
 </div>

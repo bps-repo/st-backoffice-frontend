@@ -13,7 +13,7 @@ import { INSTALATIONS } from 'src/app/shared/constants/representatives';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ClassesService } from '../../services/classes.service';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { Store } from '@ngrx/store';
 import { classesActions } from 'src/app/core/store/schoolar';
 import { Subject, takeUntil } from 'rxjs';
@@ -22,7 +22,7 @@ import {selectAllClasses, selectLoadingClass} from "../../../../../../core/store
 @Component({
     selector: 'app-classes',
     imports: [
-        TableWithFiltersComponent,
+        GlobalTable,
         DialogModule,
         ToastModule,
         CommonModule,

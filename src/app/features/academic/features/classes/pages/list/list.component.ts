@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TableColumn,
-    TableWithFiltersComponent,
-} from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+    GlobalTable,
+} from 'src/app/shared/components/tables/global-table/global-table.component';
 import { TableService } from 'src/app/shared/services/table.service';
 
 @Component({
     selector: 'app-list',
-    imports: [TableWithFiltersComponent, CommonModule],
+    imports: [GlobalTable, CommonModule],
     templateUrl: './list.component.html'
 })
 export class ListComponent implements OnInit {

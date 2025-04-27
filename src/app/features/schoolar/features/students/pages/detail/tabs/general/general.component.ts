@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
-import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
+import { PieChartComponent } from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
 
 @Component({
     selector: 'app-general',

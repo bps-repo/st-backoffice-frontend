@@ -25,17 +25,19 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Customer, Representative } from 'src/app/core/models/mocks/customer';
 import { CustomerService } from 'src/app/core/services/customer.service';
-import { INSTALATIONS } from '../../constants/representatives';
-import { TableColumn } from '../table-with-filters/table-with-filters.component';
+import { INSTALATIONS } from '../../../constants/representatives';
+import { TableColumn } from '../global-table/global-table.component';
 import { Exam } from 'src/app/core/models/academic/exam';
-import { EXAMS } from '../../constants/exams';
+import { EXAMS, EXAMS_ } from '../../../constants/exams';
+import { DISCOUNTS, LEVELS } from '../../../constants/app';
+import { ListboxModule } from 'primeng/listbox';
 
 interface expandedRows {
     [key: string]: boolean;
 }
 
 @Component({
-    selector: 'app-table-review',
+    selector: 'app-table-create-invoice',
     imports: [
         CommonModule,
         FormsModule,
@@ -52,62 +54,26 @@ interface expandedRows {
         ToastModule,
         FileUploadModule,
         ToolbarModule,
+        ListboxModule,
+        MultiSelectModule,
     ],
     templateUrl: './table-review.component.html',
     styleUrl: './table-review.component.scss'
 })
-export class TableReviewComponent implements OnInit {
-    @Input() tableLable = '';
+export class TableCreateInvoice implements OnInit {
+    exams: Exam[] = EXAMS_;
 
-    @Input() entity = '';
+    discounts: SelectItem[] = DISCOUNTS;
 
-    exams: Exam[] = EXAMS;
+    selectedDrop: SelectItem[] = [{ value: '' }];
 
-    expandedRows: expandedRows = {};
+    courses: any[] = LEVELS;
+    selectedList: any[] = [];
 
-    isExpanded: boolean = false;
-
-    instalations: SelectItem[] = INSTALATIONS;
-
-    columns: TableColumn[] = [];
-
-    options: any[] = [];
-
-    selectedOption = signal('table_reviews');
-
-    selectedList: SelectItem = { value: '' };
-
-    selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(private router: Router) {}
-    ngOnInit(): void {
-        this.options = [
-            {
-                label: 'Listagem da Avaliações por presença',
-                value: 'table_reviews',
-            },
-            {
-                label: 'Listagem de Avaliações por Alunos',
-                value: 'table_presences',
-            },
-            {
-                label: 'Listagem de presenças de orientadores',
-                value: 'table_presences_supervisors',
-            },
-        ];
-    }
-
-    expandAll() {
-        if (!this.isExpanded) {
-            this.exams.forEach((exam) =>
-                exam && exam.name ? (this.expandedRows[exam.name] = true) : ''
-            );
-        } else {
-            this.expandedRows = {};
-        }
-        this.isExpanded = !this.isExpanded;
-    }
+    ngOnInit(): void {}
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal(
@@ -119,9 +85,5 @@ export class TableReviewComponent implements OnInit {
     clear(table: Table) {
         table.clear();
         this.filter.nativeElement.value = '';
-    }
-
-    navigateToCreateReviews() {
-        this.router.navigate([`/modules/schoolar/${this.entity}/create`]);
     }
 }

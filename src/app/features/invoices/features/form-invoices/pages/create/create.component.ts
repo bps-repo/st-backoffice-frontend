@@ -12,7 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
-import { TableCreateInvoice } from 'src/app/shared/components/table-create-invoice/table-create-invoice.component';
+import { TableCreateInvoice } from 'src/app/shared/components/tables/table-create-invoice/table-create-invoice.component';
 import {
     COUNTRIES,
     DISCOUNTS,

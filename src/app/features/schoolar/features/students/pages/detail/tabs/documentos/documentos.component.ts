@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { TableService } from 'src/app/shared/services/table.service';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-documentos',
-    imports: [TableWithFiltersComponent, CommonModule, ButtonModule],
+    imports: [GlobalTable, CommonModule, ButtonModule],
     templateUrl: './documentos.component.html'
 })
 export class DocumentosComponent implements OnInit {

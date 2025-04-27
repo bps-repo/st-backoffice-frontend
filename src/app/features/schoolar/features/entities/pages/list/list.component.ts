@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
 import { Company } from 'src/app/core/models/mocks/company';
-import { TableStudentsEntityComponent } from 'src/app/shared/components/table-students-entity/table-students-entity.component';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
-import { ENTITIES } from 'src/app/shared/constants/app';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { COMPANIES } from 'src/app/shared/constants/companies';
 
 @Component({
     selector: 'app-list',
-    imports: [TableWithFiltersComponent],
+    imports: [GlobalTable],
     templateUrl: './list.component.html'
 })
 export class ListComponent {

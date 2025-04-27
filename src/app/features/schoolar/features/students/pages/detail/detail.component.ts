@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
 import { Tab } from 'src/app/shared/@types/tab';
-import { TabViewComponent } from 'src/app/shared/components/tab-view/tab-view.component';
+import { TabViewComponent } from 'src/app/shared/components/tables/tab-view/tab-view.component';
 import { STUDENTS_TABS } from 'src/app/shared/constants/students';
 import { Observable } from 'rxjs';
 import { SplitButtonModule } from 'primeng/splitbutton';

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { TableService } from 'src/app/shared/services/table.service';
 
 @Component({
     selector: 'app-avaliacoes',
-    imports: [TableWithFiltersComponent, CommonModule],
+    imports: [GlobalTable, CommonModule],
     templateUrl: './avaliacoes.component.html'
 })
 export class AvaliacoesComponent implements OnInit {

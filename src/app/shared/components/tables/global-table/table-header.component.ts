@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DropdownModule } from 'primeng/dropdown';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import { INSTALATIONS } from '../../constants/representatives';
+import { INSTALATIONS } from '../../../constants/representatives';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SelectItem } from 'primeng/api';
