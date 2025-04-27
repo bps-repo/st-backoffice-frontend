@@ -11,11 +11,6 @@ import { classesFeature, scholarEffects, studentsFeature } from '../../core/stor
 export const SCHOOLAR_ROUTES: Routes = [
     {
         path: '',
-        providers: [
-            provideState(studentsFeature),
-            provideState(classesFeature),
-            provideEffects(scholarEffects)
-        ],
         children: [
             {
                 path: '',
@@ -59,15 +54,3 @@ export const SCHOOLAR_ROUTES: Routes = [
         ]
     }
 ];
-
-/**
- * @deprecated Use the SCHOOLAR_ROUTES constant directly with RouterModule.forChild() or in a Route configuration
- */
-import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
-
-@NgModule({
-    imports: [RouterModule.forChild(SCHOOLAR_ROUTES)],
-    exports: [RouterModule],
-})
-export class SchoolarRoutes {}
