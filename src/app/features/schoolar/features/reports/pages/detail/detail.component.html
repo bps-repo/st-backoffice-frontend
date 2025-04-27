@@ -1,0 +1,108 @@
+<div class="grid" *ngIf="!loading && report">
+    <div class="col-12">
+        <div class="card">
+            <h5>Detalhes do Relatório</h5>
+            <div class="p-fluid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="name">Nome</label>
+                    <input id="name" type="text" pInputText [value]="report.name" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="type">Tipo</label>
+                    <input id="type" type="text" pInputText [value]="report.type" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="generatedDate">Data de Geração</label>
+                    <input id="generatedDate" type="text" pInputText [value]="report.generatedDate" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="generatedBy">Gerado Por</label>
+                    <input id="generatedBy" type="text" pInputText [value]="report.generatedBy" readonly />
+                </div>
+                <div class="field col-12">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" pInputTextarea [value]="report.description" readonly rows="5"></textarea>
+                </div>
+                <div class="field col-12">
+                    <label for="status">Estado</label>
+                    <div>
+                        <span class="p-badge"
+                              [ngClass]="{
+                                'p-badge-success': report.status === 'Generated',
+                                'p-badge-warning': report.status === 'Pending'
+                              }">
+                            {{ report.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Parameters section -->
+                <div class="field col-12" *ngIf="report.parameters && report.parameters.length > 0">
+                    <h6>Parâmetros</h6>
+                    <div class="p-datatable p-component">
+                        <div class="p-datatable-wrapper">
+                            <table class="p-datatable-table">
+                                <thead class="p-datatable-thead">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="p-datatable-tbody">
+                                    <tr *ngFor="let param of report.parameters">
+                                        <td>{{ param.name }}</td>
+                                        <td>{{ param.value }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data visualization section -->
+                <div class="field col-12" *ngIf="report.data">
+                    <h6>Visualização de Dados</h6>
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <!-- In a real app, this would be a chart component -->
+                        <div class="p-card p-component p-text-center">
+                            <div class="p-card-body">
+                                <div class="p-card-content">
+                                    <p>Dados do relatório seriam visualizados aqui com um componente de gráfico.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-primary" (click)="downloadReport()"></button>
+                <button pButton pRipple label="Regenerar" icon="pi pi-refresh" class="p-button-secondary" (click)="regenerateReport()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="loading">
+    <div class="col-12">
+        <div class="card">
+            <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+            <div class="grid">
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-12">
+                    <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

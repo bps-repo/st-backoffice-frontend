@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
+import * as CertificatesActions from 'src/app/core/store/schoolar/actions/certificates.actions';
+import { selectAllCertificates, selectCertificatesLoading } from 'src/app/core/store/schoolar/selectors/certificates.selectors';
 
 interface Certificate {
     id: string;
@@ -22,40 +26,32 @@ interface Certificate {
     standalone: true
 })
 export class ListComponent implements OnInit {
-    certificates: Certificate[] = [
-        {
-            id: '1',
-            name: 'Certificate of Completion',
-            student: 'John Doe',
-            course: 'English Level 1',
-            issueDate: '2023-01-15',
-            status: 'Issued'
-        },
-        {
-            id: '2',
-            name: 'Certificate of Achievement',
-            student: 'Jane Smith',
-            course: 'Mathematics Advanced',
-            issueDate: '2023-02-20',
-            status: 'Pending'
-        },
-        {
-            id: '3',
-            name: 'Certificate of Excellence',
-            student: 'Bob Johnson',
-            course: 'Science Fundamentals',
-            issueDate: '2023-03-10',
-            status: 'Issued'
-        }
-    ];
+    certificates$: Observable<any[]>;
+    certificates: any[] = [];
+    loading$: Observable<boolean>;
     loading = false;
 
     columns: TableColumn[] = [];
     globalFilterFields: string[] = ['id', 'name', 'student', 'course', 'issueDate', 'status'];
 
-    constructor(private router: Router) {}
+    constructor(private router: Router, private store: Store) {
+        this.certificates$ = this.store.select(selectAllCertificates);
+        this.loading$ = this.store.select(selectCertificatesLoading);
+    }
 
     ngOnInit(): void {
+        // Load certificates from store
+        this.store.dispatch(CertificatesActions.loadCertificates());
+
+        // Subscribe to certificates and loading observables
+        this.certificates$.subscribe(certificates => {
+            this.certificates = certificates;
+        });
+
+        this.loading$.subscribe(loading => {
+            this.loading = loading;
+        });
+
         // Define columns for the table
         this.columns = [
             {
@@ -97,11 +93,14 @@ export class ListComponent implements OnInit {
         ];
     }
 
-    viewDetails(certificate: Certificate): void {
+    viewDetails(certificate: any): void {
+        // Dispatch loadCertificate action to load the selected certificate
+        this.store.dispatch(CertificatesActions.loadCertificate({ id: certificate.id }));
         this.router.navigate(['/schoolar/certificates', certificate.id]);
     }
 
     createCertificate(): void {
+        // Navigate to create page
         this.router.navigate(['/schoolar/certificates/create']);
     }
 }

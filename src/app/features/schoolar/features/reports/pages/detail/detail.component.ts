@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { SkeletonModule } from 'primeng/skeleton';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ButtonModule } from 'primeng/button';
 
 interface Report {
     id: string;
@@ -18,7 +22,7 @@ interface Report {
     selector: 'app-detail',
     templateUrl: './detail.component.html',
     standalone: true,
-    imports: [CommonModule]
+    imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule]
 })
 export class DetailComponent implements OnInit {
     reportId: string = '';

@@ -10,6 +10,9 @@ export interface SchoolarState {
   entities: EntitiesState;
   reviews: ReviewsState;
   materials: MaterialsState;
+  certificates: CertificatesState;
+  reports: ReportsState;
+  settings: SettingsState;
 }
 
 export interface StudentsState extends EntityState<Student> {
@@ -46,4 +49,24 @@ export interface MaterialsState extends EntityState<any> {
   selectedMaterialId: string | null;
   loading: boolean;
   error: string | null;
+}
+
+export interface CertificatesState extends EntityState<any> {
+  selectedCertificateId: string | null;
+  loading: boolean;
+  errors: string | null;
+}
+
+export interface ReportsState extends EntityState<any> {
+  selectedReportId: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface SettingsState {
+  loading: boolean;
+  error: string | null;
+  settings: {
+    [key: string]: any;
+  };
 }

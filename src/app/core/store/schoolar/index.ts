@@ -1,5 +1,6 @@
 import { StudentsEffects } from './effects/students.effects';
 import { LessonsEffects } from './effects/lessons.effects';
+import { CertificatesEffects } from './effects/certificates.effects';
 import {
   studentsFeature,
   selectAllStudents,
@@ -13,6 +14,10 @@ import {
   examsFeature,
   selectSelectedExam as selectExam
 } from './reducers/exams.feature';
+import {
+  certificatesFeature,
+  selectSelectedCertificate
+} from './reducers/certificates.feature';
 
 /**
  * All effects for the schoolar feature
@@ -20,6 +25,7 @@ import {
 export const scholarEffects = [
   StudentsEffects,
   LessonsEffects,
+  CertificatesEffects,
 ];
 
 /**
@@ -29,15 +35,18 @@ export const scholarReducers = {
   [studentsFeature.name]: studentsFeature.reducer,
   [classesFeature.name]: classesFeature.reducer,
   [examsFeature.name]: examsFeature.reducer,
+  [certificatesFeature.name]: certificatesFeature.reducer,
 };
 
 // Re-export all the actions, reducers, and state
 export * from './actions/students.actions';
 export * from './actions/lessons.actions';
 export * from './actions/exams.actions';
+export * from './actions/certificates.actions';
 export * from './reducers/students.reducers';
 export * from './reducers/classes.reducers';
 export * from './reducers/exams.feature';
+export * from './reducers/certificates.feature';
 export * from './schoolar.state';
 
 
@@ -46,4 +55,5 @@ export {
   selectAllStudents,
   selectStudentEntities,
   selectSelectedStudent,
+  selectSelectedCertificate,
 };

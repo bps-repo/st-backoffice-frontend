@@ -48,6 +48,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Certificados',
                         icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/schoolar/certificates'],
                     },
 
                     {
@@ -58,10 +59,12 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/schoolar/reports'],
                     },
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/schoolar/settings'],
                     },
                 ],
             },

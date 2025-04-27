@@ -1,4 +1,5 @@
 import {ListComponent} from "./pages/list/list.component";
+import {DetailComponent} from "./pages/detail/detail.component";
 
 export const reportsRoutes = [
     {
@@ -7,6 +8,6 @@ export const reportsRoutes = [
     },
     {
         path: ':id',
-        component: ListComponent,
+        component: DetailComponent,
     }
 ];

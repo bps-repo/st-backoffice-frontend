@@ -57,6 +57,16 @@ export const SCHOOLAR_ROUTES: Routes = [
                 loadChildren: () =>
                     import('../schoolar/features/reports/reports.routes').then((m) => m.reportsRoutes),
             },
+            {
+                path: 'certificates',
+                loadChildren: () =>
+                    import('../schoolar/features/certificates/certificates.routes').then((m) => m.CertificatesRoutes),
+            },
+            {
+                path: 'settings',
+                loadChildren: () =>
+                    import('../schoolar/features/settings/settings.routes').then((m) => m.SettingsRoutes),
+            },
         ]
     }
 ];
