@@ -1,0 +1,78 @@
+<div class="grid" *ngIf="!loading && certificate">
+    <div class="col-12">
+        <div class="card">
+            <h5>Detalhes do Certificado</h5>
+            <div class="p-fluid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="name">Nome</label>
+                    <input id="name" type="text" pInputText [value]="certificate.name" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="student">Aluno</label>
+                    <input id="student" type="text" pInputText [value]="certificate.student" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="course">Curso</label>
+                    <input id="course" type="text" pInputText [value]="certificate.course" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="issueDate">Data de Emissão</label>
+                    <input id="issueDate" type="text" pInputText [value]="certificate.issueDate" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="validUntil">Válido Até</label>
+                    <input id="validUntil" type="text" pInputText [value]="certificate.validUntil" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="issuedBy">Emitido Por</label>
+                    <input id="issuedBy" type="text" pInputText [value]="certificate.issuedBy" readonly />
+                </div>
+                <div class="field col-12">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" pInputTextarea [value]="certificate.description" readonly rows="5"></textarea>
+                </div>
+                <div class="field col-12">
+                    <label for="status">Estado</label>
+                    <div>
+                        <span class="p-badge"
+                              [ngClass]="{
+                                'p-badge-success': certificate.status === 'Issued',
+                                'p-badge-warning': certificate.status === 'Pending'
+                              }">
+                            {{ certificate.status }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-primary" (click)="downloadCertificate()"></button>
+                <button pButton pRipple label="Enviar" icon="pi pi-send" class="p-button-secondary" (click)="sendCertificate()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="loading">
+    <div class="col-12">
+        <div class="card">
+            <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+            <div class="grid">
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-12">
+                    <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

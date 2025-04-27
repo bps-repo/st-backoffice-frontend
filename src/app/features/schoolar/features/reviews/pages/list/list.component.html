@@ -1,7 +1,51 @@
 <div class="grid">
-    <app-table-review
-        class="w-full overflow-hidden"
-        tableLable="Avaliações"
-        entity="reviews"
-    ></app-table-review>
+    <div class="col-12">
+        <app-global-table
+            tableLabel="Avaliações"
+            [data]="exams"
+            [entity]="'reviews'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilterFields"
+            [loading]="loading"
+            class="w-full"
+        >
+            <!-- Custom template for the reading column -->
+            <ng-template pTemplate="reading" let-exam>
+                <div class="flex align-items-center">
+                    <div class="w-8rem mr-2">
+                        <div class="surface-300 border-round" style="height: 0.5rem">
+                            <div class="h-full border-round"
+                                 [ngClass]="{
+                                    'bg-green-500': exam.reading >= 70,
+                                    'bg-yellow-500': exam.reading >= 50 && exam.reading < 70,
+                                    'bg-red-500': exam.reading < 50
+                                 }"
+                                 [ngStyle]="{'width': exam.reading + '%', 'transition': 'width 1s'}">
+                            </div>
+                        </div>
+                    </div>
+                    <span>{{ exam.reading }}%</span>
+                </div>
+            </ng-template>
+
+            <!-- Custom template for the actions column -->
+            <ng-template pTemplate="actions" let-exam>
+                <div class="flex gap-2 justify-content-center">
+                    <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
+                            (click)="viewDetails(exam)"
+                            pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                            pTooltip="Editar" tooltipPosition="top"></button>
+                </div>
+            </ng-template>
+
+            <!-- Custom template for the table header -->
+            <ng-template pTemplate="header">
+                <div class="flex justify-content-end">
+                    <button pButton pRipple label="Criar Avaliação" icon="pi pi-plus" class="p-button-primary"
+                            (click)="createReview()"></button>
+                </div>
+            </ng-template>
+        </app-global-table>
+    </div>
 </div>

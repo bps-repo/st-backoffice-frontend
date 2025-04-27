@@ -1,0 +1,42 @@
+<div class="grid">
+    <app-global-table
+        tableLabel="Certificados"
+        [data]="certificates"
+        [entity]="'certificates'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        [loading]="loading"
+        class="w-full"
+    >
+        <!-- Custom template for the status column -->
+        <ng-template pTemplate="status" let-certificate>
+            <span class="p-badge"
+                  [ngClass]="{
+                    'p-badge-success': certificate.status === 'Issued',
+                    'p-badge-warning': certificate.status === 'Pending'
+                  }">
+                {{ certificate.status }}
+            </span>
+        </ng-template>
+
+        <!-- Custom template for the actions column -->
+        <ng-template pTemplate="actions" let-certificate>
+            <div class="flex gap-2 justify-content-center">
+                <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
+                        (click)="viewDetails(certificate)"
+                        pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                        pTooltip="Editar" tooltipPosition="top"></button>
+                <button pButton pRipple icon="pi pi-download" class="p-button-rounded p-button-text"
+                        pTooltip="Descarregar" tooltipPosition="top"></button>
+            </div>
+        </ng-template>
+        <!-- Custom template for the table header -->
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-end">
+                <button pButton pRipple label="Criar Certificado" icon="pi pi-plus" class="p-button-primary"
+                        (click)="createCertificate()"></button>
+            </div>
+        </ng-template>
+    </app-global-table>
+</div>

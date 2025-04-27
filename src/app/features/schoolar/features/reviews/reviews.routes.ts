@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ListComponent } from './pages/list/list.component';
 import { CreateComponent } from './pages/create/create.component';
+import { DetailComponent } from './pages/detail/detail.component';
 
 
 @NgModule({
@@ -13,8 +14,11 @@ import { CreateComponent } from './pages/create/create.component';
         {
                 path: 'create',
                 component: CreateComponent,
-            },
-
+        },
+        {
+                path: ':id',
+                component: DetailComponent,
+        },
     ])],
     exports: [RouterModule]
 })

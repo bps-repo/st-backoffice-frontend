@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { authFeature } from '../store/reducers/auth.reducers';
+import { authFeature } from '../store/auth/reducers/auth.reducers';
 import { map, Observable, take } from 'rxjs';
 
 @Injectable({

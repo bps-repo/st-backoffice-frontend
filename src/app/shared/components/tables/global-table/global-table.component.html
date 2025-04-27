@@ -1,0 +1,77 @@
+<div class="col-12">
+    <div class="card">
+        <app-table-header
+            entity="{{ entity }}"
+            tableLable="{{ tableLabel }}"
+        ></app-table-header>
+        <p-table
+            #dt
+            [value]="data"
+            [rows]="10"
+            [loading]="loading"
+            [paginator]="true"
+            [globalFilterFields]="globalFilterFields"
+            [scrollable]="true"
+            scrollHeight="400px"
+            responsiveLayout="scroll"
+        >
+            <!-- Global Filter -->
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between">
+                    <button
+                        pButton
+                        label="Limpar filtro"
+                        class="p-button-outlined"
+                        icon="pi pi-filter-slash"
+                        (click)="clear(dt)"
+                    ></button>
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input
+                            pInputText
+                            type="text"
+                            (input)="onGlobalFilter(dt, $event)"
+                            placeholder="Pesquisar..."
+                        />
+                    </span>
+                </div>
+            </ng-template>
+
+            <!-- Dynamic Columns -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th *ngFor="let col of columns" [style.minWidth]="'5rem'">
+                        <div class="flex justify-content-between">
+                            {{ col.header }}
+                            <p-columnFilter
+                                *ngIf="col.filterType && !col.filterTemplate"
+                                [type]="col.filterType"
+                                [field]="col.field"
+                                display="menu"
+                            ></p-columnFilter>
+                        </div>
+                    </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-rowData>
+                <tr>
+                    <td
+                        *ngFor="let col of columns"
+                        [routerLink]="[
+                            '/modules/schoolar/' + entity,
+                            rowData.id
+                        ]"
+                    >
+                        <ng-container *ngIf="!col.customTemplate">
+                            {{ rowData[col.field] }}
+                        </ng-container>
+                        <ng-container *ngIf="col.customTemplate">
+                            <!-- Custom content for a column -->
+                        </ng-container>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

@@ -13,7 +13,6 @@ import { ButtonModule } from 'primeng/button';
 import { RadioButtonModule } from 'primeng/radiobutton';
 
 @Component({
-    standalone: true,
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
     imports: [AppBreadcrumbComponent,
@@ -25,8 +24,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
         InputSwitchModule,
         TooltipModule,
         RippleModule,
-
-    ],
+    ]
 })
 export class AppTopbarComponent {
     @ViewChild('menubutton') menuButton!: ElementRef;

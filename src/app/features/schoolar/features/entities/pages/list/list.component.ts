@@ -1,26 +1,74 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Company } from 'src/app/core/models/mocks/company';
-import { TableStudentsEntityComponent } from 'src/app/shared/components/table-students-entity/table-students-entity.component';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
-import { ENTITIES } from 'src/app/shared/constants/app';
+import { GlobalTable, TableColumn } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { COMPANIES } from 'src/app/shared/constants/companies';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-list',
-    standalone: true,
-    imports: [TableWithFiltersComponent],
+    imports: [CommonModule, GlobalTable, ButtonModule],
     templateUrl: './list.component.html',
+    standalone: true
 })
-export class ListComponent {
+export class ListComponent implements OnInit {
     tableLabel = 'Entidades';
-    columns = [
-        { field: 'id', header: 'Número' },
-        { field: 'name', header: 'Nome' },
-        { field: 'phone', header: 'Telefone' },
-        { field: 'address', header: 'Endereço' },
-        { field: 'students', header: 'Estudantes' },
-    ];
+    columns: TableColumn[] = [];
     entities: Company[] = COMPANIES;
+    loading: boolean = false;
 
-    globalFilterFields: string[] = [];
+    globalFilterFields: string[] = ['id', 'name', 'phone', 'address', 'students'];
+
+    constructor(private router: Router) {}
+
+    ngOnInit(): void {
+        // Simulate loading
+        this.loading = true;
+        setTimeout(() => {
+            this.loading = false;
+        }, 500);
+
+        // Define columns for the table
+        this.columns = [
+            {
+                field: 'id',
+                header: 'Número',
+                filterType: 'text',
+            },
+            {
+                field: 'name',
+                header: 'Nome',
+                filterType: 'text',
+            },
+            {
+                field: 'phone',
+                header: 'Telefone',
+                filterType: 'text',
+            },
+            {
+                field: 'address',
+                header: 'Endereço',
+                filterType: 'text',
+            },
+            {
+                field: 'students',
+                header: 'Estudantes',
+                filterType: 'text',
+            },
+            {
+                field: 'actions',
+                header: 'Ações',
+                customTemplate: true,
+            },
+        ];
+    }
+
+    viewDetails(entity: Company): void {
+        this.router.navigate(['/schoolar/entities', entity.id]);
+    }
+
+    createEntity(): void {
+        this.router.navigate(['/schoolar/entities/create']);
+    }
 }

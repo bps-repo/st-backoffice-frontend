@@ -1,0 +1,81 @@
+<div class="grid" *ngIf="!loading && material">
+    <div class="col-12">
+        <div class="card">
+            <h5>Detalhes do Material</h5>
+            <div class="p-fluid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="titulo">Título</label>
+                    <input id="titulo" type="text" pInputText [value]="material.titulo" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="tipo">Tipo</label>
+                    <input id="tipo" type="text" pInputText [value]="material.tipo" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="dataPublicacao">Data de Publicação</label>
+                    <input id="dataPublicacao" type="text" pInputText [value]="material.dataPublicacao" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="autor">Autor</label>
+                    <input id="autor" type="text" pInputText [value]="material.autor" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="tamanho">Tamanho</label>
+                    <input id="tamanho" type="text" pInputText [value]="material.tamanho" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="downloads">Downloads</label>
+                    <input id="downloads" type="text" pInputText [value]="material.downloads" readonly />
+                </div>
+                <div class="field col-12">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" pInputTextarea [value]="material.descricao" readonly rows="5"></textarea>
+                </div>
+                <div class="field col-12">
+                    <label for="disponivel">Disponibilidade</label>
+                    <div>
+                        <span class="p-badge"
+                              [ngClass]="{
+                                'p-badge-success': material.disponivel,
+                                'p-badge-warning': !material.disponivel
+                              }">
+                            {{ material.disponivel ? 'Disponível' : 'Indisponível' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-primary" (click)="downloadMaterial()"></button>
+                <button pButton pRipple [label]="material.disponivel ? 'Tornar Indisponível' : 'Tornar Disponível'"
+                        [icon]="material.disponivel ? 'pi pi-lock' : 'pi pi-lock-open'"
+                        class="p-button-secondary"
+                        (click)="toggleAvailability()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="loading">
+    <div class="col-12">
+        <div class="card">
+            <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+            <div class="grid">
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-12">
+                    <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

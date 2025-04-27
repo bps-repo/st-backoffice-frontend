@@ -1,45 +1,43 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-const routes: Routes = [
+export const FeaturesRoutes: Routes = [
     {
         path: 'schoolar',
         loadChildren: () =>
-            import('./schoolar/schoolar.module').then((m) => m.SchoolarModule),
+            import('./schoolar/schoolar.routes').then((m) => m.SCHOOLAR_ROUTES),
+    },
+    {
+        path: 'academic',
+        loadChildren: () =>
+            import('./academic/academic.routes').then((m) => m.AcademicRoutes),
     },
     {
         path: 'courses',
         loadChildren: () =>
-            import('./courses/courses.module').then((m) => m.CoursesModule),
+            import('./courses/courses.routes').then((m) => m.CoursesRoutes),
     },
     {
         path: 'comunication',
         loadChildren: () =>
-            import('./comunication/comunication.module').then(
-                (m) => m.ComunicationModule
+            import('./comunication/comunication.routes').then(
+                (m) => m.ComunicationRoutes
             ),
     },
     {
         path: 'settings',
         loadChildren: () =>
-            import('./settings/settings.module').then((m) => m.SettingsModule),
+            import('./settings/settings-routing.module').then((m) => m.SettingsRoutingModule),
     },
     {
         path: 'human-resources',
         loadChildren: () =>
-            import('./human-resources/human-resources.module').then(
-                (m) => m.HumanResourcesModule
+            import('./human-resources/human-resources.routes').then(
+                (m) => m.HumanResourcesRoutes
             ),
     },
     {
         path: 'invoices',
         loadChildren: () =>
-            import('./invoices/invoices.module').then((m) => m.InvoicesModule),
+            import('./invoices/invoices.routes').then((m) => m.InvoicesRoutes),
     },
 ];
-
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
-})
-export class FeaturesRoutes {}

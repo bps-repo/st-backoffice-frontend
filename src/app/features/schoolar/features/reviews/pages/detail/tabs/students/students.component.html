@@ -1,0 +1,62 @@
+<div class="card">
+    <h2 class="text-xl font-semibold mb-3">Students</h2>
+
+    <p-table [value]="students" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10"
+             styleClass="p-datatable-gridlines" [showCurrentPageReport]="true"
+             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} students">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Attendance</th>
+                <th>Score</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-student>
+            <tr>
+                <td>{{ student.id }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.email }}</td>
+                <td>
+                    <span class="p-badge"
+                          [ngClass]="{
+                            'p-badge-success': student.attendance === 'Present',
+                            'p-badge-danger': student.attendance === 'Absent'
+                          }">
+                        {{ student.attendance }}
+                    </span>
+                </td>
+                <td>
+                    <div class="flex align-items-center">
+                        <div class="w-8rem mr-2">
+                            <div class="surface-300 border-round" style="height: 0.5rem">
+                                <div class="h-full"
+                                     [ngClass]="{
+                                        'bg-green-500': student.score >= 70,
+                                        'bg-yellow-500': student.score >= 50 && student.score < 70,
+                                        'bg-red-500': student.score < 50
+                                     }"
+                                     [ngStyle]="{'width': student.score + '%', 'transition': 'width 1s'}">
+                                </div>
+                            </div>
+                        </div>
+                        <span>{{ student.score }}%</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex gap-2">
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"></button>
+                        <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6" class="text-center p-4">No students found for this evaluation.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

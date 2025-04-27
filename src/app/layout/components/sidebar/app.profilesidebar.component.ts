@@ -10,7 +10,6 @@ import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '../../service/app.layout.service';
 
 @Component({
-    standalone: true,
     selector: 'app-profilemenu',
     templateUrl: './app.profilesidebar.component.html',
     imports: [
@@ -22,7 +21,7 @@ import { LayoutService } from '../../service/app.layout.service';
         TooltipModule,
         RippleModule,
         ButtonModule,
-    ],
+    ]
 })
 export class AppProfileSidebarComponent {
     constructor(public layoutService: LayoutService) {}

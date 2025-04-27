@@ -6,6 +6,10 @@ export interface Lesson {
     teacher: string;
     center: string;
     level: string;
+    unit?: string,
     description: string;
-    students: string;
+    students: any[];
+    status?:any,
+    createdAt?: Date,
+    updatedAt?: Date
 }

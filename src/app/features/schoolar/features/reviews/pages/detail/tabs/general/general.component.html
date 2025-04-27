@@ -1,0 +1,56 @@
+<div class="grid" *ngIf="exam$ | async as exam">
+    <div class="col-12 md:col-6">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-3">General Information</h2>
+            <div class="field mb-3">
+                <label class="block text-sm font-medium text-gray-700">Exam Name</label>
+                <div class="text-lg">{{ exam.name }}</div>
+            </div>
+            <div class="field mb-3">
+                <label class="block text-sm font-medium text-gray-700">Date</label>
+                <div class="text-lg">{{ exam.date }}</div>
+            </div>
+            <div class="field mb-3">
+                <label class="block text-sm font-medium text-gray-700">Status</label>
+                <div class="text-lg">
+                    <span class="p-badge"
+                          [ngClass]="{
+                            'p-badge-success': exam.status === 'Concluído',
+                            'p-badge-warning': exam.status === 'Pendente',
+                            'p-badge-danger': exam.status === 'Cancelado'
+                          }">
+                        {{ exam.status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Class Information</h2>
+            <div class="field mb-3">
+                <label class="block text-sm font-medium text-gray-700">Class</label>
+                <div class="text-lg">{{ exam.class }}</div>
+            </div>
+            <div class="field mb-3">
+                <label class="block text-sm font-medium text-gray-700">Level</label>
+                <div class="text-lg">{{ exam.level }}</div>
+            </div>
+            <div class="field mb-3">
+                <label class="block text-sm font-medium text-gray-700">Teacher</label>
+                <div class="text-lg">{{ exam.teacher }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Notes</h2>
+            <ul class="list-none p-0 m-0">
+                <li *ngFor="let note of exam.notes" class="mb-2 p-2 border-bottom-1 surface-border">
+                    {{ note }}
+                </li>
+                <li *ngIf="!exam.notes?.length" class="text-gray-500">No notes available</li>
+            </ul>
+        </div>
+    </div>
+</div>

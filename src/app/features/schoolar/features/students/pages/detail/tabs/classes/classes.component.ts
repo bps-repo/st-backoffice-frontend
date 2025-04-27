@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Lesson } from 'src/app/core/models/academic/lesson';
-import { TableWithFiltersComponent } from 'src/app/shared/components/table-with-filters/table-with-filters.component';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { LESSONS } from 'src/app/shared/constants/lessons';
 import { TableService } from 'src/app/shared/services/table.service';
 @Component({
-    selector: 'app-classes',
-    standalone: true,
-    imports: [TableWithFiltersComponent, CommonModule],
-    templateUrl: './classes.component.html',
+    selector: 'app-lessons',
+    imports: [GlobalTable, CommonModule],
+    templateUrl: './classes.component.html'
 })
 export class ClassesComponent {
     lessons: Lesson[] = LESSONS;

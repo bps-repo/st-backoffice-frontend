@@ -1,0 +1,96 @@
+<div class="card">
+    <div *ngIf="loading" class="flex justify-content-center align-items-center">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+
+    <div *ngIf="!loading && classItem">
+        <p-card [header]="classItem.name" subheader="Class Details">
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <div class="p-field">
+                        <label class="font-bold">ID:</label>
+                        <div>{{ classItem.id }}</div>
+                    </div>
+
+                    <div class="p-field mt-3">
+                        <label class="font-bold">Start Date:</label>
+                        <div>{{ classItem.startDate | date:'mediumDate' }}</div>
+                    </div>
+
+                    <div class="p-field mt-3">
+                        <label class="font-bold">End Date:</label>
+                        <div>{{ classItem.endDate | date:'mediumDate' }}</div>
+                    </div>
+
+                    <div class="p-field mt-3">
+                        <label class="font-bold">Level:</label>
+                        <div>{{ classItem.level.name }}</div>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                    <div class="p-field">
+                        <label class="font-bold">Teacher:</label>
+                        <div>{{ classItem.teacher.name }}</div>
+                    </div>
+
+                    <div class="p-field mt-3">
+                        <label class="font-bold">Center:</label>
+                        <div>{{ classItem.center.name }}</div>
+                    </div>
+
+                    <div class="p-field mt-3">
+                        <label class="font-bold">Status:</label>
+                        <div>{{ classItem.status }}</div>
+                    </div>
+
+                    <div class="p-field mt-3">
+                        <label class="font-bold">Max Capacity:</label>
+                        <div>{{ classItem.maxCapacity }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <p-tabView>
+                <p-tabPanel header="Students">
+                    <div *ngIf="classItem.students && classItem.students.length > 0; else noStudents">
+                        <ul>
+                            <li *ngFor="let student of classItem.students">
+                                {{ student.name }} - {{ student.email }}
+                            </li>
+                        </ul>
+                    </div>
+                    <ng-template #noStudents>
+                        <p>No students enrolled in this class.</p>
+                    </ng-template>
+                </p-tabPanel>
+
+                <p-tabPanel header="Lessons">
+                    <div *ngIf="classItem.lessons && classItem.lessons.length > 0; else noLessons">
+                        <ul>
+                            <li *ngFor="let lesson of classItem.lessons">
+                                {{ lesson.date | date:'mediumDate' }} - {{ lesson.description }}
+                            </li>
+                        </ul>
+                    </div>
+                    <ng-template #noLessons>
+                        <p>No lessons scheduled for this class.</p>
+                    </ng-template>
+                </p-tabPanel>
+            </p-tabView>
+
+            <div class="flex justify-content-end mt-4">
+                <button pButton label="Edit" icon="pi pi-pencil" class="p-button-primary mr-2"></button>
+                <button pButton label="Delete" icon="pi pi-trash" class="p-button-danger"></button>
+            </div>
+        </p-card>
+    </div>
+
+    <div *ngIf="!loading && !classItem" class="p-card p-4">
+        <div class="text-center">
+            <i class="pi pi-exclamation-triangle" style="font-size: 3rem"></i>
+            <h3>Class not found</h3>
+            <p>The requested class could not be found.</p>
+        </div>
+    </div>
+</div>

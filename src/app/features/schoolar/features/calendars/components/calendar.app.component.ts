@@ -12,10 +12,19 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { LESSONS_EVENTS } from 'src/app/shared/constants/lessons';
 import { EventTooltipComponent } from 'src/app/shared/components/event-tooltip/event-tooltip.component';
 import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {PaginatorModule} from "primeng/paginator";
+import {FullCalendarModule} from "@fullcalendar/angular";
+import {DialogModule} from "primeng/dialog";
+import {CalendarModule} from "primeng/calendar";
+import {CommonModule} from "@angular/common";
+import {InputTextModule} from "primeng/inputtext";
+import {InputTextareaModule} from "primeng/inputtextarea";
 
 @Component({
     templateUrl: './calendar.app.component.html',
-    styleUrls: ['./calendar.app.component.scss'],
+    imports: [FormsModule, ReactiveFormsModule, PaginatorModule, FullCalendarModule, DialogModule, CalendarModule, CommonModule, InputTextModule, InputTextareaModule],
+    styleUrls: ['./calendar.app.component.scss']
 })
 export class CalendarAppComponent implements OnInit {
     events: Partial<LessonEvent>[] = LESSONS_EVENTS;

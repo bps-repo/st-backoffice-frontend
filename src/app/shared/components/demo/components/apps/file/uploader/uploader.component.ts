@@ -14,7 +14,6 @@ interface Image {
 @Component({
     selector: 'app-file-uploader',
     templateUrl: './uploader.component.html',
-    standalone: true,
     imports: [
         FileUploadModule,
         CommonModule,
@@ -22,7 +21,7 @@ interface Image {
         ButtonModule,
         FormsModule,
     ],
-    providers: [MessageService],
+    providers: [MessageService]
 })
 export class UploaderComponent {
     uploadedFiles: any[] = [];

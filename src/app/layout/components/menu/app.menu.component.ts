@@ -4,13 +4,12 @@ import { AppMenuitemComponent } from './app.menuitem.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    standalone: true,
     selector: 'app-menu',
     templateUrl: './app.menu.component.html',
     imports: [
         CommonModule,
         AppMenuitemComponent
-    ],
+    ]
 })
 export class AppMenuComponent implements OnInit {
     model: any[] = [];
@@ -32,14 +31,9 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/schoolar/students'],
                     },
                     {
-                        label: 'Entidades',
-                        icon: 'pi pi-fw pi-users',
-                        routerLink: ['/schoolar/entities'],
-                    },
-                    {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/schoolar/classes'],
+                        routerLink: ['/schoolar/lessons'],
                     },
                     {
                         label: 'Calendário',
@@ -54,11 +48,9 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Certificados',
                         icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/schoolar/certificates'],
                     },
-                    {
-                        label: 'Contratos',
-                        icon: 'pi pi-fw pi-wallet',
-                    },
+
                     {
                         label: 'Materiais',
                         icon: 'pi pi-fw pi-wallet',
@@ -67,10 +59,12 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/schoolar/reports'],
                     },
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/schoolar/settings'],
                     },
                 ],
             },
@@ -128,7 +122,7 @@ export class AppMenuComponent implements OnInit {
                 ],
             },
             {
-                label: 'Recursos Humanos',
+                label: 'Empresa',
                 icon: 'pi pi-fw pi-users',
                 items: [
                     {
@@ -137,42 +131,20 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/blocks'],
                     },
                     {
+                        label: 'Centros',
+                        icon: 'pi pi-fw pi-wallet',
+                    },
+                    {
+                        label: 'Contratos',
+                        icon: 'pi pi-fw pi-wallet',
+                    },
+                    {
                         label: 'Funcionários',
                         icon: 'pi pi-fw pi-users',
                     },
                     {
-                        label: 'Processamento Salarial',
-                        icon: 'pi pi-fw pi-money-bill',
-                    },
-                    {
-                        label: 'Folha de Ponto',
-                        icon: 'pi pi-fw pi-globe',
-                    },
-                    {
                         label: 'Relatório',
                         icon: 'pi pi-fw pi-file-pdf',
-                    },
-                    {
-                        label: 'Configurações',
-                        icon: 'pi pi-fw pi-cog',
-                    },
-                ],
-            },
-            {
-                label: 'Comunicação',
-                icon: 'pi pi-fw pi-comments',
-                items: [
-                    {
-                        label: 'Chat',
-                        icon: 'pi pi-fw pi-comments',
-                    },
-                    {
-                        label: 'Notificações',
-                        icon: 'pi pi-bell',
-                    },
-                    {
-                        label: 'Comunicados',
-                        icon: 'pi pi-fw pi-comment',
                     },
                     {
                         label: 'Configurações',
@@ -193,19 +165,11 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-users',
                     },
                     {
-                        label: 'Pagamentos',
-                        icon: 'pi pi-fw pi-money-bill',
-                    },
-                    {
-                        label: 'E-mails',
-                        icon: 'pi pi-fw pi-at',
-                    },
-                    {
                         label: 'Alertas',
                         icon: 'pi pi-fw pi-bell',
                     },
                     {
-                        label: 'Empresa',
+                        label: 'Info Geral',
                         icon: 'pi pi-fw pi-building',
                     },
                     {

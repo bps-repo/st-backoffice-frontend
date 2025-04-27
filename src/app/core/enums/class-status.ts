@@ -1,4 +1,8 @@
 export enum ClassStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED',
+    SUSPENDED = 'SUSPENDED',
+    PENDING = 'PENDING',
 }

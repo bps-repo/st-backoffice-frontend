@@ -1,0 +1,33 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Configurações do Sistema</h5>
+
+            <div class="p-field mb-4">
+                <label for="category">Categoria</label>
+                <select id="category" class="p-inputtext w-full" [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+                    <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+                </select>
+            </div>
+
+            <div class="p-fluid">
+                <div *ngFor="let setting of filteredSettings" class="p-field mb-4">
+                    <div class="flex align-items-center justify-content-between">
+                        <label [for]="setting.id">{{ setting.name }}</label>
+                        <small class="text-color-secondary">{{ setting.category }}</small>
+                    </div>
+                    <input [id]="setting.id" type="text" class="p-inputtext w-full" [(ngModel)]="setting.value">
+                    <small class="text-color-secondary">{{ setting.description }}</small>
+                </div>
+            </div>
+
+            <div class="flex justify-content-end mt-4">
+                <button class="p-button p-button-primary" (click)="saveSettings()" [disabled]="loading">
+                    <i class="pi pi-save mr-2"></i>
+                    <span *ngIf="!loading">Salvar Configurações</span>
+                    <span *ngIf="loading">Salvando...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

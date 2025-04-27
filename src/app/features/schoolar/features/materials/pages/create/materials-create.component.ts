@@ -22,7 +22,6 @@ import {
 } from 'src/app/shared/constants/app';
 
 @Component({
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -38,7 +37,7 @@ import {
         CheckboxModule,
         UploaderComponent,
     ],
-    templateUrl: './materials-create.component.html',
+    templateUrl: './materials-create.component.html'
 })
 export class MaterialsCreateComponent implements OnInit {
     countries: any[] = COUNTRIES;

@@ -1,0 +1,71 @@
+<div class="card">
+    <div *ngIf="lessonItem" class="grid">
+        <div class="col-12 md:col-6">
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="title">
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-info-circle text-primary"></i>
+                        <span class="font-bold">Basic Information</span>
+                    </div>
+                </ng-template>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">ID</label>
+                            <div class="text-lg">{{ lessonItem.id }}</div>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+
+        <div class="col-12 md:col-6">
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="title">
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-users text-primary"></i>
+                        <span class="font-bold">Related Information</span>
+                    </div>
+                </ng-template>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Level</label>
+                            <div class="text-lg">{{ lessonItem.level }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Teacher</label>
+                            <div class="text-lg">{{ lessonItem.teacher }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Center</label>
+                            <div class="text-lg">{{ lessonItem.center }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Unit</label>
+                            <div class="text-lg">{{ lessonItem.unit }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Created At</label>
+                            <div class="text-lg">{{ lessonItem.createdAt | date:'medium' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Updated At</label>
+                            <div class="text-lg">{{ lessonItem.updatedAt | date:'medium' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>
