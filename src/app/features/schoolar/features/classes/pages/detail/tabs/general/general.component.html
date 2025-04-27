@@ -1,0 +1,101 @@
+<div class="card">
+    <div *ngIf="classItem" class="grid">
+        <div class="col-12 md:col-6">
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="title">
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-info-circle text-primary"></i>
+                        <span class="font-bold">Basic Information</span>
+                    </div>
+                </ng-template>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">ID</label>
+                            <div class="text-lg">{{ classItem.id }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Name</label>
+                            <div class="text-lg">{{ classItem.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Start Date</label>
+                            <div class="text-lg">{{ classItem.startDate | date:'mediumDate' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">End Date</label>
+                            <div class="text-lg">{{ classItem.endDate | date:'mediumDate' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Status</label>
+                            <div class="text-lg">{{ classItem.status }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Max Capacity</label>
+                            <div class="text-lg">{{ classItem.maxCapacity }}</div>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+
+        <div class="col-12 md:col-6">
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="title">
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-users text-primary"></i>
+                        <span class="font-bold">Related Information</span>
+                    </div>
+                </ng-template>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Level</label>
+                            <div class="text-lg">{{ classItem.level.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Teacher</label>
+                            <div class="text-lg">{{ classItem.teacher.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Center</label>
+                            <div class="text-lg">{{ classItem.center.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Unit</label>
+                            <div class="text-lg">{{ classItem.unit.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Created At</label>
+                            <div class="text-lg">{{ classItem.createdAt | date:'medium' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Updated At</label>
+                            <div class="text-lg">{{ classItem.updatedAt | date:'medium' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>

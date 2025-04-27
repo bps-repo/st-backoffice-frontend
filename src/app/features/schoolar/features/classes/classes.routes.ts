@@ -1,7 +1,7 @@
 import { Component, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CreateClassesDialogComponent } from './dialogs/create-classes-dialog/create-classes-dialog.component';
-import { DetailsComponent } from './components/details/details.component';
+import { DetailComponent } from './pages/detail/detail.component';
 
 const routes: Routes = [
     {
@@ -10,7 +10,7 @@ const routes: Routes = [
     },
     {
         path: ':id',
-        component: DetailsComponent,
+        component: DetailComponent,
     },
 ];
 

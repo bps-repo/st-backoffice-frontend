@@ -13,7 +13,9 @@ import {
     selectAllStudents,
     selectLoading
 } from 'src/app/core/store/schoolar';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, takeUntil, map } from 'rxjs';
+import { ChartModule } from 'primeng/chart';
+import { ButtonModule } from 'primeng/button';
 
 type studentKeys = keyof Student;
 
@@ -22,7 +24,9 @@ type studentKeys = keyof Student;
     imports: [
         CommonModule,
         RouterModule,
-        GlobalTable
+        GlobalTable,
+        ChartModule,
+        ButtonModule
     ],
     templateUrl: './list.component.html'
 })
@@ -31,7 +35,12 @@ export class ListComponent implements OnInit, OnDestroy {
     loading$: Observable<boolean>;
 
     columns: TableColumn[] = [];
-    globalFilterFields: string[] = ['id', 'name', 'center', 'level', 'phone'];
+    globalFilterFields: string[] = ['id', 'name', 'center', 'level', 'phone', 'email', 'course'];
+
+    // Chart data
+    centerChartData: any;
+    levelChartData: any;
+    chartOptions: any;
 
     private destroy$ = new Subject<void>();
 
@@ -42,6 +51,23 @@ export class ListComponent implements OnInit, OnDestroy {
         // Use the entity selectors
         this.students$ = this.store.select(selectAllStudents);
         this.loading$ = this.store.select(selectLoading);
+
+        // Initialize chart options
+        this.chartOptions = {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#495057'
+                    }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        };
+
+        // Generate chart data from students
+        this.generateChartData();
     }
 
     ngOnInit(): void {
@@ -61,8 +87,18 @@ export class ListComponent implements OnInit, OnDestroy {
                 filterType: 'text',
             },
             {
+                field: 'email',
+                header: 'Email',
+                filterType: 'text',
+            },
+            {
                 field: 'center',
                 header: 'Centro',
+                filterType: 'text',
+            },
+            {
+                field: 'course',
+                header: 'Curso',
                 filterType: 'text',
             },
             {
@@ -75,7 +111,79 @@ export class ListComponent implements OnInit, OnDestroy {
                 header: 'Telefone',
                 filterType: 'text',
             },
+            {
+                field: 'birthdate',
+                header: 'Data de Nascimento',
+                filterType: 'date',
+            },
         ];
+    }
+
+    /**
+     * Generate chart data from students
+     */
+    generateChartData(): void {
+        // Subscribe to students$ to generate chart data
+        this.students$.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(students => {
+            // Generate center chart data
+            const centerCounts = this.countByProperty(students, 'center');
+            this.centerChartData = {
+                labels: Object.keys(centerCounts),
+                datasets: [
+                    {
+                        data: Object.values(centerCounts),
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40'
+                        ]
+                    }
+                ]
+            };
+
+            // Generate level chart data
+            const levelCounts = this.countByProperty(students, 'level');
+            this.levelChartData = {
+                labels: Object.keys(levelCounts),
+                datasets: [
+                    {
+                        data: Object.values(levelCounts),
+                        backgroundColor: [
+                            '#4BC0C0',
+                            '#FF6384',
+                            '#FFCE56',
+                            '#36A2EB',
+                            '#9966FF',
+                            '#FF9F40'
+                        ]
+                    }
+                ]
+            };
+        });
+    }
+
+    /**
+     * Count students by a specific property
+     * @param students Array of students
+     * @param property Property to count by
+     * @returns Object with counts by property value
+     */
+    countByProperty(students: Student[], property: keyof Student): Record<string, number> {
+        const counts: Record<string, number> = {};
+
+        students.forEach(student => {
+            const value = student[property] as string;
+            if (value) {
+                counts[value] = (counts[value] || 0) + 1;
+            }
+        });
+
+        return counts;
     }
 
     /**

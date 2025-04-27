@@ -1,7 +1,11 @@
 <div class="grid">
-    <app-table-review
-        class="w-full overflow-hidden"
-        tableLable="Avaliações"
-        entity="reviews"
-    ></app-table-review>
+    <app-global-table
+        tableLabel="Avaliações"
+        [data]="exams"
+        [entity]="'reviews'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        [loading]="loading"
+        class="w-full"
+    ></app-global-table>
 </div>

@@ -1,7 +1,52 @@
 <div class="grid">
-    <app-table-invoices
-        class="w-full overflow-hidden"
-        tableLable="Faturas pró-forma"
-        entity="invoices"
-    ></app-table-invoices>
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between gap-2 mb-5">
+                <div class="flex align-items-center gap-4">
+                    <h1>Faturas pró-forma</h1>
+                    <p-dropdown
+                        [options]="options"
+                        [(ngModel)]="selectedOption"
+                        placeholder="Filtrar por produto"
+                        [showClear]="true"
+                    ></p-dropdown>
+                    <p-dropdown
+                        [options]="instalations"
+                        [(ngModel)]="selectedDrop"
+                        placeholder="Filtrar por cidade"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="flex gap-1 h-rem">
+                    <button
+                        pButton
+                        pRipple
+                        icon="pi pi-plus"
+                        class="p-button-success"
+                        (click)="navigateToCreateInvoices()"
+                    ></button>
+                    <button
+                        pButton
+                        pRipple
+                        icon="pi pi-upload"
+                        class="p-button-help"
+                    ></button>
+                    <p-splitButton
+                        icon="pi pi-file-export"
+                        [model]="items"
+                        styleClass="p-button-info h-5rem text-5xl"
+                    ></p-splitButton>
+                </div>
+            </div>
+            <app-global-table
+                tableLabel="Faturas pró-forma"
+                [data]="customers"
+                [entity]="'invoices'"
+                [columns]="columns"
+                [globalFilterFields]="globalFilterFields"
+                [loading]="loading"
+                class="w-full"
+            ></app-global-table>
+        </div>
+    </div>
 </div>

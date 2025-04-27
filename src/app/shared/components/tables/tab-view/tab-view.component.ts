@@ -9,6 +9,7 @@ import { Observable, of } from 'rxjs';
     selector: 'app-tab-view',
     imports: [TabMenuModule, TabViewModule, CommonModule],
     templateUrl: './tab-view.component.html',
+    standalone: true,
     styleUrl: './tab-view.component.scss'
 })
 export class TabViewComponent {

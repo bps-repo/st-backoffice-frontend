@@ -1,7 +1,13 @@
 <div class="grid">
-    <app-table-material
-        class="w-full overflow-hidden"
-        tableLable="Materiais"
-        entity="materials"
-    ></app-table-material>
+    <div class="col-12">
+        <app-global-table
+            tableLabel="Materiais"
+            [data]="materiais"
+            [entity]="'materials'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilterFields"
+            [loading]="loading"
+            class="w-full"
+        ></app-global-table>
+    </div>
 </div>
