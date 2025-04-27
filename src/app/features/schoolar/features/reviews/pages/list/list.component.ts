@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
     TableColumn,
     GlobalTable,
@@ -10,7 +11,8 @@ import { Exam } from 'src/app/core/models/academic/exam';
 @Component({
     selector: 'app-list',
     imports: [CommonModule, GlobalTable],
-    templateUrl: './list.component.html'
+    templateUrl: './list.component.html',
+    standalone: true
 })
 export class ListComponent implements OnInit {
     exams: Exam[] = EXAMS;
@@ -18,6 +20,8 @@ export class ListComponent implements OnInit {
 
     columns: TableColumn[] = [];
     globalFilterFields: string[] = ['name', 'date', 'class', 'level', 'teacher'];
+
+    constructor(private router: Router) {}
 
     ngOnInit(): void {
         // Define columns for the table
@@ -53,6 +57,17 @@ export class ListComponent implements OnInit {
                 filterType: 'numeric',
                 customTemplate: true,
             },
+            {
+                field: 'actions',
+                header: 'Actions',
+                customTemplate: true,
+            },
         ];
+    }
+
+    viewDetails(exam: Exam): void {
+        // Navigate to the detail page with the exam name as the ID
+        // In a real app, you would use a unique ID
+        this.router.navigate(['/schoolar/reviews', exam.name]);
     }
 }

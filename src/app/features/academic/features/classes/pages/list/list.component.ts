@@ -20,7 +20,7 @@ export class ListComponent implements OnInit {
     constructor(private tableService: TableService<any>) {}
 
     ngOnInit(): void {
-        // Mock data for classes
+        // Mock data for lessons
         this.classes = [
             {
                 id: 1,

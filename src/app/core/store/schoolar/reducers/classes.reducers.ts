@@ -1,127 +1,127 @@
-import { createFeature, createReducer, on } from '@ngrx/store';
-import { ClassesState } from '../schoolar.state';
-import { classesActions } from '../actions/classes.actions';
-import { createEntityAdapter, EntityAdapter } from '@ngrx/entity';
-import { Class } from 'src/app/core/models/academic/class';
+import {createFeature, createReducer, on} from '@ngrx/store';
+import {ClassesState} from '../schoolar.state';
+import {lessonsActions} from '../actions/lessons.actions';
+import {createEntityAdapter, EntityAdapter} from '@ngrx/entity';
+import {Class} from 'src/app/core/models/academic/class';
+import {Lesson} from "../../../models/academic/lesson";
 
 // Create entity adapter
-export const classesAdapter: EntityAdapter<Class> = createEntityAdapter<Class>({
-  selectId: (classItem: Class) => classItem.id,
-  sortComparer: (a: Class, b: Class) => a.name.localeCompare(b.name),
+export const lessonsAdapter: EntityAdapter<Lesson> = createEntityAdapter<Lesson>({
+    selectId: (classItem: Lesson) => classItem.id!,
 });
 
 // Initial state
-export const classesInitialState: ClassesState = classesAdapter.getInitialState({
-  selectedClassId: null,
-  loading: false,
-  error: null,
+export const lessonsInitialState: ClassesState = lessonsAdapter.getInitialState({
+    selectedLessonId: null,
+    loading: false,
+    error: null,
 });
 
 // Create feature
 export const classesFeature = createFeature({
-  name: 'classes',
-  reducer: createReducer(
-    classesInitialState,
-    // Load classes
-    on(classesActions.loadClasses, (state) => ({
-      ...state,
-      loading: true,
-      error: null,
-    })),
-    on(classesActions.loadClassesSuccess, (state, { classes }) =>
-      classesAdapter.setAll(classes, {
-        ...state,
-        loading: false,
-      })
-    ),
-    on(classesActions.loadClassesFailure, (state, { error }) => ({
-      ...state,
-      loading: false,
-      error,
-    })),
+    name: 'lessons',
+    reducer: createReducer(
+        lessonsInitialState,
+        // Load lessons
+        on(lessonsActions.loadLessons, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+        on(lessonsActions.loadLessonsSuccess, (state, {lessons}) =>
+            lessonsAdapter.setAll(lessons, {
+                ...state,
+                loading: false,
+            })
+        ),
+        on(lessonsActions.loadLessonFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
 
-    // Load class
-    on(classesActions.loadClass, (state) => ({
-      ...state,
-      loading: true,
-      error: null,
-    })),
-    on(classesActions.loadClassSuccess, (state, { class: classItem }) =>
-      classesAdapter.upsertOne(classItem, {
-        ...state,
-        selectedClassId: classItem.id,
-        loading: false,
-      })
-    ),
-    on(classesActions.loadClassFailure, (state, { error }) => ({
-      ...state,
-      loading: false,
-      error,
-    })),
+        // Load class
+        on(lessonsActions.loadLessons, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+        on(lessonsActions.loadLessonSuccess, (state, {lesson}) =>
+            lessonsAdapter.upsertOne(lesson, {
+                ...state,
+                selectedClassId: lesson.id!,
+                loading: false,
+            })
+        ),
+        on(lessonsActions.loadLessonFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
 
-    // Create class
-    on(classesActions.createClass, (state) => ({
-      ...state,
-      loading: true,
-      error: null,
-    })),
-    on(classesActions.createClassSuccess, (state, { class: classItem }) =>
-      classesAdapter.addOne(classItem, {
-        ...state,
-        loading: false,
-      })
-    ),
-    on(classesActions.createClassFailure, (state, { error }) => ({
-      ...state,
-      loading: false,
-      error,
-    })),
+        // Create class
+        on(lessonsActions.createLesson, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+        on(lessonsActions.createLessonSuccess, (state, {lesson: classItem}) =>
+            lessonsAdapter.addOne(classItem, {
+                ...state,
+                loading: false,
+            })
+        ),
+        on(lessonsActions.createLessonFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
 
-    // Update class
-    on(classesActions.updateClass, (state) => ({
-      ...state,
-      loading: true,
-      error: null,
-    })),
-    on(classesActions.updateClassSuccess, (state, { class: classItem }) =>
-      classesAdapter.updateOne(
-        { id: classItem.id, changes: classItem },
-        {
-          ...state,
-          loading: false,
-        }
-      )
-    ),
-    on(classesActions.updateClassFailure, (state, { error }) => ({
-      ...state,
-      loading: false,
-      error,
-    })),
+        // Update class
+        on(lessonsActions.updateLesson, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+        on(lessonsActions.updateLessonSuccess, (state, {lesson: lessonItem}) =>
+            lessonsAdapter.updateOne(
+                {id: lessonItem.id!, changes: lessonItem},
+                {
+                    ...state,
+                    loading: false,
+                }
+            )
+        ),
+        on(lessonsActions.updateLessonFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
 
-    // Delete class
-    on(classesActions.deleteClass, (state) => ({
-      ...state,
-      loading: true,
-      error: null,
-    })),
-    on(classesActions.deleteClassSuccess, (state, { id }) =>
-      classesAdapter.removeOne(id, {
-        ...state,
-        selectedClassId: state.selectedClassId === id ? null : state.selectedClassId,
-        loading: false,
-      })
-    ),
-    on(classesActions.deleteClassFailure, (state, { error }) => ({
-      ...state,
-      loading: false,
-      error,
-    })),
+        // Delete class
+        on(lessonsActions.deleteLesson, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+        on(lessonsActions.deleteLessonSuccess, (state, {id}) =>
+            lessonsAdapter.removeOne(id, {
+                ...state,
+                selectedClassId: state.selectedLessonId === id ? null : state.selectedLessonId,
+                loading: false,
+            })
+        ),
+        on(lessonsActions.deleteLessonFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
 
-    // Clear error
-    on(classesActions.clearError, (state) => ({
-      ...state,
-      error: null,
-    }))
-  ),
+        // Clear error
+        on(lessonsActions.clearError, (state) => ({
+            ...state,
+            error: null,
+        }))
+    ),
 });
 

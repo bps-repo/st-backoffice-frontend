@@ -1,19 +1,19 @@
 // Create selectors
-import {classesAdapter, classesFeature} from "../reducers/classes.reducers";
+import {lessonsAdapter, classesFeature} from "../reducers/classes.reducers";
 
 export const {
-    selectClassesState,
+    selectLessonsState,
     selectLoading: selectLoadingClass,
     selectError: selectClassesError,
-    selectSelectedClassId,
+    selectSelectedLessonId,
 } = classesFeature;
 
 // Additional selectors
-const { selectIds, selectEntities, selectAll, selectTotal } = classesAdapter.getSelectors(selectClassesState);
+const {selectIds, selectEntities, selectAll, selectTotal} = lessonsAdapter.getSelectors(selectLessonsState);
 
 export const selectAllClasses = selectAll;
 export const selectClassEntities = selectEntities;
 export const selectSelectedClass = (state: any) => {
-    const selectedId = selectSelectedClassId(state);
+    const selectedId = selectSelectedLessonId(state);
     return selectedId ? selectClassEntities(state)[selectedId] : null;
 };

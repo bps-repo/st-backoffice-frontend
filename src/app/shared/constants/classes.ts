@@ -1,6 +1,6 @@
-import { GeneralComponent } from 'src/app/features/schoolar/features/classes/pages/detail/tabs/general/general.component';
-import { StudentsComponent } from 'src/app/features/schoolar/features/classes/pages/detail/tabs/students/students.component';
-import { LessonsComponent } from 'src/app/features/schoolar/features/classes/pages/detail/tabs/lessons/lessons.component';
+import { GeneralComponent } from 'src/app/features/schoolar/features/lessons/pages/detail/tabs/general/general.component';
+import { StudentsComponent } from 'src/app/features/schoolar/features/lessons/pages/detail/tabs/students/students.component';
+import { LessonsComponent } from 'src/app/features/schoolar/features/lessons/pages/detail/tabs/lessons/lessons.component';
 import { Tab } from '../@types/tab';
 import { Observable, of } from 'rxjs';
 

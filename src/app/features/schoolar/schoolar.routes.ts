@@ -32,9 +32,9 @@ export const SCHOOLAR_ROUTES: Routes = [
                     import('../schoolar/features/entities/entities.routes').then((m) => m.EntitiesRoutes),
             },
             {
-                path: 'classes',
+                path: 'lessons',
                 loadChildren: () =>
-                    import('../schoolar/features/classes/classes.routes').then((m) => m.ClassesRoutes),
+                    import('./features/lessons/lessons-routes.module').then((m) => m.LessonsRoutes),
             },
             {
                 path: 'calendar',
@@ -50,6 +50,12 @@ export const SCHOOLAR_ROUTES: Routes = [
                 path: 'materials',
                 loadChildren: () =>
                     import('../schoolar/features/materials/materials.routes').then((m) => m.MaterialsRoutes),
+            },
+
+            {
+                path: 'reports',
+                loadChildren: () =>
+                    import('../schoolar/features/reports/reports.routes').then((m) => m.reportsRoutes),
             },
         ]
     }

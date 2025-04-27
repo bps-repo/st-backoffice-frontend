@@ -11,7 +11,7 @@ import { Store } from '@ngrx/store';
 import {
     studentsActions,
     selectAllStudents,
-    selectLoading
+    selectExamLoading
 } from 'src/app/core/store/schoolar';
 import { Observable, Subject, takeUntil, map } from 'rxjs';
 import { ChartModule } from 'primeng/chart';
@@ -50,7 +50,7 @@ export class ListComponent implements OnInit, OnDestroy {
     ) {
         // Use the entity selectors
         this.students$ = this.store.select(selectAllStudents);
-        this.loading$ = this.store.select(selectLoading);
+        this.loading$ = this.store.select(selectExamLoading);
 
         // Initialize chart options
         this.chartOptions = {

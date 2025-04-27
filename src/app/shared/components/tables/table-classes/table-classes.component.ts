@@ -26,7 +26,7 @@ import { Customer, Representative } from 'src/app/core/models/mocks/customer';
 import { CustomerService } from 'src/app/core/services/customer.service';
 
 @Component({
-    selector: 'app-table-classes',
+    selector: 'app-table-lessons',
     imports: [
         CommonModule,
         FormsModule,

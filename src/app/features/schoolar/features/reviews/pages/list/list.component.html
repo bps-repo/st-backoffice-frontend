@@ -7,5 +7,35 @@
         [globalFilterFields]="globalFilterFields"
         [loading]="loading"
         class="w-full"
-    ></app-global-table>
+    >
+        <!-- Custom template for the reading column -->
+        <ng-template pTemplate="reading" let-exam>
+            <div class="flex align-items-center">
+                <div class="w-8rem mr-2">
+                    <div class="surface-300 border-round" style="height: 0.5rem">
+                        <div class="h-full border-round"
+                             [ngClass]="{
+                                'bg-green-500': exam.reading >= 70,
+                                'bg-yellow-500': exam.reading >= 50 && exam.reading < 70,
+                                'bg-red-500': exam.reading < 50
+                             }"
+                             [ngStyle]="{'width': exam.reading + '%', 'transition': 'width 1s'}">
+                        </div>
+                    </div>
+                </div>
+                <span>{{ exam.reading }}%</span>
+            </div>
+        </ng-template>
+
+        <!-- Custom template for the actions column -->
+        <ng-template pTemplate="actions" let-exam>
+            <div class="flex gap-2 justify-content-center">
+                <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
+                        (click)="viewDetails(exam)"
+                        pTooltip="View Details" tooltipPosition="top"></button>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                        pTooltip="Edit" tooltipPosition="top"></button>
+            </div>
+        </ng-template>
+    </app-global-table>
 </div>

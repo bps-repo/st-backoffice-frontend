@@ -5,7 +5,7 @@ import { GlobalTable } from 'src/app/shared/components/tables/global-table/globa
 import { LESSONS } from 'src/app/shared/constants/lessons';
 import { TableService } from 'src/app/shared/services/table.service';
 @Component({
-    selector: 'app-classes',
+    selector: 'app-lessons',
     imports: [GlobalTable, CommonModule],
     templateUrl: './classes.component.html'
 })

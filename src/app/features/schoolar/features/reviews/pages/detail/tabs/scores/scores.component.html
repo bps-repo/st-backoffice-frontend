@@ -1,0 +1,99 @@
+<div class="grid" *ngIf="exam$ | async as exam">
+    <div class="col-12 md:col-6">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Skill Scores</h2>
+            <p-chart type="radar" [data]="radarData" [options]="chartOptions" height="300px"></p-chart>
+        </div>
+    </div>
+    <div class="col-12 md:col-6">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Comparison with Class Average</h2>
+            <p-chart type="bar" [data]="barData" [options]="chartOptions" height="300px"></p-chart>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Detailed Scores</h2>
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-500 font-medium mb-3">Reading</span>
+                                <div class="text-900 font-medium text-xl">{{ exam.reading || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-book text-blue-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="surface-300 border-round" style="height: 0.5rem">
+                            <div class="bg-blue-500 h-full border-round" [ngStyle]="{'width': (exam.reading || '0') + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-500 font-medium mb-3">Writing</span>
+                                <div class="text-900 font-medium text-xl">{{ exam.writing || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-pencil text-purple-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="surface-300 border-round" style="height: 0.5rem">
+                            <div class="bg-purple-500 h-full border-round" [ngStyle]="{'width': (exam.writing || '0') + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-500 font-medium mb-3">Listening</span>
+                                <div class="text-900 font-medium text-xl">{{ exam.listening || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-volume-up text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="surface-300 border-round" style="height: 0.5rem">
+                            <div class="bg-green-500 h-full border-round" [ngStyle]="{'width': (exam.listening || '0') + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-500 font-medium mb-3">Speaking</span>
+                                <div class="text-900 font-medium text-xl">{{ exam.speaking || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-comment text-orange-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="surface-300 border-round" style="height: 0.5rem">
+                            <div class="bg-orange-500 h-full border-round" [ngStyle]="{'width': (exam.speaking || '0') + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Feedback</h2>
+            <ul class="list-none p-0 m-0">
+                <li *ngFor="let feedback of exam.feedback" class="mb-3 p-3 border-1 border-round surface-border">
+                    <div class="flex align-items-start">
+                        <i class="pi pi-comments text-primary mr-2 mt-1"></i>
+                        <div>{{ feedback }}</div>
+                    </div>
+                </li>
+                <li *ngIf="!exam.feedback?.length" class="text-gray-500">No feedback available</li>
+            </ul>
+        </div>
+    </div>
+</div>

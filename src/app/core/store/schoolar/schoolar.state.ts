@@ -1,6 +1,7 @@
 import { Student } from 'src/app/core/models/academic/student';
 import { Class } from 'src/app/core/models/academic/class';
 import { EntityState } from '@ngrx/entity';
+import {Lesson} from "../../models/academic/lesson";
 
 export interface SchoolarState {
   students: StudentsState;
@@ -17,8 +18,8 @@ export interface StudentsState extends EntityState<Student> {
   error: string | null;
 }
 
-export interface ClassesState extends EntityState<Class> {
-  selectedClassId: string | null;
+export interface ClassesState extends EntityState<Lesson> {
+  selectedLessonId: string | null;
   loading: boolean;
   error: string | null;
 }
