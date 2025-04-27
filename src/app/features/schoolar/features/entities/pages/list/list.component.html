@@ -1,10 +1,34 @@
 <div class="grid">
-    <app-global-table
-        tableLabel="Entidades"
-        [data]="entities"
-        [entity]="'entities'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        class="w-full"
-    ></app-global-table>
+    <div class="col-12">
+        <app-global-table
+            tableLabel="Entidades"
+            [data]="entities"
+            [entity]="'entities'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilterFields"
+            [loading]="loading"
+            class="w-full"
+        >
+            <!-- Custom template for the actions column -->
+            <ng-template pTemplate="actions" let-entity>
+                <div class="flex gap-2 justify-content-center">
+                    <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
+                            (click)="viewDetails(entity)"
+                            pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                            pTooltip="Editar" tooltipPosition="top"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                            pTooltip="Eliminar" tooltipPosition="top"></button>
+                </div>
+            </ng-template>
+
+            <!-- Custom template for the table header -->
+            <ng-template pTemplate="header">
+                <div class="flex justify-content-end">
+                    <button pButton pRipple label="Criar Entidade" icon="pi pi-plus" class="p-button-primary"
+                            (click)="createEntity()"></button>
+                </div>
+            </ng-template>
+        </app-global-table>
+    </div>
 </div>

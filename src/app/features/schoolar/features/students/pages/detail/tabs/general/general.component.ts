@@ -3,10 +3,29 @@ import { Component, OnInit } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
 import { PieChartComponent } from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { BadgeModule } from 'primeng/badge';
+import { DividerModule } from 'primeng/divider';
+import { TagModule } from 'primeng/tag';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
     selector: 'app-general',
-    imports: [InputTextModule, CommonModule, ChartModule, PieChartComponent],
+    imports: [
+        InputTextModule,
+        CommonModule,
+        ChartModule,
+        PieChartComponent,
+        CardModule,
+        AvatarModule,
+        BadgeModule,
+        DividerModule,
+        TagModule,
+        ButtonModule,
+        RippleModule
+    ],
     templateUrl: './general.component.html'
 })
 export class GeneralComponent implements OnInit {

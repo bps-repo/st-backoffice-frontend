@@ -5,6 +5,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
+import {RippleModule} from "primeng/ripple";
 
 interface Report {
     id: string;
@@ -22,7 +23,7 @@ interface Report {
     selector: 'app-detail',
     templateUrl: './detail.component.html',
     standalone: true,
-    imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule]
+    imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule, RippleModule]
 })
 export class DetailComponent implements OnInit {
     reportId: string = '';

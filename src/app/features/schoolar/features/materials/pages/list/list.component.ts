@@ -7,13 +7,8 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { GlobalTable, TableColumn } from 'src/app/shared/components/tables/global-table/global-table.component';
+import {Material} from "../../../../../../core/models/academic/material";
 
-interface Material {
-    titulo: string;
-    tipo: string; // Ex.: 'PDF', 'Vídeo'
-    dataPublicacao: string;
-    disponivel: boolean;
-}
 
 @Component({
     selector: 'app-list',
@@ -28,7 +23,7 @@ interface Material {
     templateUrl: './list.component.html'
 })
 export class ListComponent implements OnInit {
-    materiais: Material[] = [];
+    materiais: Partial<Material>[] = [];
     loading: boolean = false;
 
     columns: TableColumn[] = [];
@@ -48,22 +43,18 @@ export class ListComponent implements OnInit {
     ngOnInit(): void {
         this.materiais = [
             {
-                titulo: 'Guia de Estudos - Matemática',
-                tipo: 'PDF',
-                dataPublicacao: new Date('2024-01-15').toISOString(),
-                disponivel: true,
-            },
-            {
-                titulo: 'Aula Introdução à Física',
-                tipo: 'Vídeo',
-                dataPublicacao: new Date('2024-02-10').toISOString(),
-                disponivel: true,
-            },
-            {
-                titulo: 'Exercícios Práticos de Química',
-                tipo: 'PDF',
-                dataPublicacao: new Date('2023-12-05').toISOString(),
-                disponivel: false,
+                title: 'Guia de Estudos - Matemática',
+                type: 'PDF',
+                uploadDate: new Date('2024-01-15').toISOString(),
+                active: true,
+                availabilityStartDate: new Date('2024-01-01').toISOString(),
+                availabilityEndDate: new Date('2024-12-31').toISOString(),
+                units: [],
+                createdAt: new Date('2023-01-01').toISOString(),
+                updatedAt: new Date('2023-01-01').toISOString(),
+                id: '1',
+                description: 'Guia de estudos abrangente para o exame de Matemática.',
+                fileUrl: 'https://example.com/guia-matematica.pdf',
             },
         ];
 
@@ -127,6 +118,10 @@ export class ListComponent implements OnInit {
     }
 
     navigateToCreateMaterial() {
-        this.router.navigate(['/modules/schoolar/materials/create']);
+        this.router.navigate(['/schoolar/materials/create']);
+    }
+
+    viewDetails(material: Material): void {
+        this.router.navigate(['/schoolar/materials', material.id]);
     }
 }

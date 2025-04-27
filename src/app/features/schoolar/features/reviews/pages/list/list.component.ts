@@ -59,7 +59,7 @@ export class ListComponent implements OnInit {
             },
             {
                 field: 'actions',
-                header: 'Actions',
+                header: 'Ações',
                 customTemplate: true,
             },
         ];
@@ -69,5 +69,10 @@ export class ListComponent implements OnInit {
         // Navigate to the detail page with the exam name as the ID
         // In a real app, you would use a unique ID
         this.router.navigate(['/schoolar/reviews', exam.name]);
+    }
+
+    createReview(): void {
+        // Navigate to create page
+        this.router.navigate(['/schoolar/reviews/create']);
     }
 }

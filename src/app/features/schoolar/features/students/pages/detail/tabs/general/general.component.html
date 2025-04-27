@@ -1,113 +1,118 @@
 <section class="mt-5">
+    <!-- Key Metrics Cards -->
     <div class="grid">
         <div class="col-12 md:col-6 xl:col-4">
-            <div class="card h-full">
-                <span class="font-semibold text-lg"
-                    >Tempo passado na aplicação</span
-                >
-                <div
-                    class="flex justify-content-between align-items-start mt-3"
-                >
-                    <div class="w-6">
-                        <span class="text-4xl font-bold text-900">30min/dia</span>
-                        <div class="text-green-500"></div>
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="header">
+                    <div class="flex align-items-center justify-content-between px-3 pt-3">
+                        <span class="font-semibold text-lg">Tempo na aplicação</span>
+                        <i class="pi pi-clock text-primary text-xl"></i>
                     </div>
+                </ng-template>
+                <div class="flex flex-column align-items-center justify-content-center">
+                    <span class="text-5xl font-bold text-900">30</span>
+                    <span class="text-lg font-medium text-600">min/dia</span>
+                    <p-tag severity="success" value="+5% que semana passada" class="mt-2"></p-tag>
                 </div>
-            </div>
+            </p-card>
         </div>
         <div class="col-12 md:col-6 xl:col-4">
-            <div class="card h-full">
-                <span class="font-semibold text-lg">Assiduidade</span>
-                <div
-                    class="flex justify-content-between align-items-start mt-3"
-                >
-                    <div class="w-6">
-                        <span class="text-4xl font-bold text-900">45%</span>
-                        <div class="text-green-500"></div>
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="header">
+                    <div class="flex align-items-center justify-content-between px-3 pt-3">
+                        <span class="font-semibold text-lg">Assiduidade</span>
+                        <i class="pi pi-calendar-check text-primary text-xl"></i>
                     </div>
+                </ng-template>
+                <div class="flex flex-column align-items-center justify-content-center">
+                    <span class="text-5xl font-bold text-900">45%</span>
+                    <span class="text-lg font-medium text-600">presença</span>
+                    <p-tag severity="success" value="+2% que mês passado" class="mt-2"></p-tag>
                 </div>
-            </div>
+            </p-card>
         </div>
         <div class="col-12 md:col-6 xl:col-4">
-            <div class="card h-full">
-                <span class="font-semibold text-lg"
-                    >Avaliações e Provas feitas</span
-                >
-                <div
-                    class="flex justify-content-between align-items-start mt-3"
-                >
-                    <div class="w-6">
-                        <span class="text-4xl font-bold text-900">30%</span>
-                        <div class="text-pink-500"></div>
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="header">
+                    <div class="flex align-items-center justify-content-between px-3 pt-3">
+                        <span class="font-semibold text-lg">Avaliações</span>
+                        <i class="pi pi-chart-bar text-primary text-xl"></i>
                     </div>
+                </ng-template>
+                <div class="flex flex-column align-items-center justify-content-center">
+                    <span class="text-5xl font-bold text-900">30%</span>
+                    <span class="text-lg font-medium text-600">completadas</span>
+                    <p-tag severity="warning" value="-5% que média da turma" class="mt-2"></p-tag>
                 </div>
-            </div>
+            </p-card>
         </div>
     </div>
-    <div class="flex justify-content-between flex-wrap">
-        <div class="user-info shadow-2 p-5 relative col-12 lg:col-4">
-            <img
-                src="https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg"
-                alt="user-image"
-                class="user-avatar w-4 h-4 absolute top-0 left-0"
-            />
-            <div
-                class="flex flex-column justify-content-center align-items-center mt-3 mb-3 w-full"
-            >
-                <span class="font-bold text-3xl">Manuel Ikuma</span>
-                <span>user273&#64;gmail.com</span>
-                <span class="text-blue-500 font-bold">Pre-Intermediate 2</span>
-            </div>
-            <div class="mt-6">
-                <div *ngFor="let user of user_personal_info" class="flex">
-                    <label
-                        for="nickname"
-                        class="col-12 md:col-5 font-medium text-900"
-                        >{{ user.title }}</label
-                    >
-                    <label
-                        for="nickname"
-                        class="col-12 md:col-7 font-normal text-900"
-                        >{{ user.value }}</label
-                    >
+
+    <!-- Main Content -->
+    <div class="grid mt-3">
+        <!-- Student Profile Card -->
+        <div class="col-12 lg:col-4">
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="header">
+                    <div class="flex flex-column align-items-center pt-3">
+                        <p-avatar image="https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg"
+                                 size="xlarge" shape="circle"
+                                 [style]="{'box-shadow': '0 3px 6px rgba(0, 0, 0, 0.16)'}">
+                        </p-avatar>
+                        <span class="font-bold text-2xl mt-3">Manuel Ikuma</span>
+                        <span class="text-600">user273&#64;gmail.com</span>
+                        <p-tag severity="info" value="Pre-Intermediate 2" class="mt-2"></p-tag>
+                    </div>
+                </ng-template>
+
+                <p-divider>
+                    <span class="font-medium">Informações Pessoais</span>
+                </p-divider>
+
+                <div class="grid">
+                    <div *ngFor="let user of user_personal_info" class="col-12 mb-2">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="font-medium text-600">{{ user.title }}</span>
+                            <span class="font-medium text-900">{{ user.value }}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </p-card>
         </div>
 
-        <div class="flex shadow-2 p-5 col-12 lg:col-8">
-            <app-pie-chart
-                class="w-6 h-4 shadow-1 p-4"
-                title="Progresso academico"
-                pieChartType="doughnut"
-            ></app-pie-chart>
-            <div class="notifications shadow-1 w-6 p-2">
-                <div class="flex flex-column mt-3 mx-auto md:mx-0">
-                    <h5 class="mb-5 text-center font-semibold">Notificações</h5>
-                    <ul class="list-none m-0 p-0">
-                        <li *ngFor="let notification of notifications">
-                            <a
-                                class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-bottom-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150"
-                            >
-                                <span>
-                                    <i
-                                        [ngClass]="notification.icon"
-                                        class="text-xl text-primary"
-                                    ></i>
-                                </span>
-                                <div class="ml-3">
-                                    <span class="mb-2 font-semibold">{{
-                                        notification.message
-                                    }}</span>
-                                    <p class="text-color-secondary m-0">
-                                        5 min ago
-                                    </p>
+        <!-- Academic Progress and Notifications -->
+        <div class="col-12 lg:col-8">
+            <div class="grid">
+                <!-- Academic Progress Chart -->
+                <div class="col-12 lg:col-6">
+                    <p-card styleClass="h-full" header="Progresso Acadêmico">
+                        <app-pie-chart
+                            pieChartType="doughnut"
+                        ></app-pie-chart>
+                    </p-card>
+                </div>
+
+                <!-- Notifications -->
+                <div class="col-12 lg:col-6">
+                    <p-card styleClass="h-full" header="Notificações Recentes">
+                        <ul class="list-none m-0 p-0">
+                            <li *ngFor="let notification of notifications" class="mb-3">
+                                <div class="flex align-items-center p-3 border-round surface-hover cursor-pointer">
+                                    <span class="flex align-items-center justify-content-center border-circle bg-primary-100" style="width: 3rem; height: 3rem">
+                                        <i [ngClass]="notification.icon" class="text-xl text-primary-700"></i>
+                                    </span>
+                                    <div class="ml-3">
+                                        <span class="font-medium block mb-1">{{ notification.title }}</span>
+                                        <span class="text-600 block">{{ notification.message }}</span>
+                                        <small class="text-500">5 min ago</small>
+                                    </div>
                                 </div>
-                            </a>
-                        </li>
-                    </ul>
-                    <p class="text-center font-semibold cursor-pointer">
-                        Ver mais
-                    </p>
+                            </li>
+                        </ul>
+                        <div class="flex justify-content-center mt-3">
+                            <button pButton pRipple label="Ver todas" icon="pi pi-arrow-right" class="p-button-text"></button>
+                        </div>
+                    </p-card>
                 </div>
             </div>
         </div>

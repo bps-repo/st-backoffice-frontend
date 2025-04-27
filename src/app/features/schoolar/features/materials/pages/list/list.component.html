@@ -8,6 +8,38 @@
             [globalFilterFields]="globalFilterFields"
             [loading]="loading"
             class="w-full"
-        ></app-global-table>
+        >
+            <!-- Custom template for the disponivel column -->
+            <ng-template pTemplate="disponivel" let-material>
+                <span class="p-badge"
+                      [ngClass]="{
+                        'p-badge-success': material.disponivel,
+                        'p-badge-warning': !material.disponivel
+                      }">
+                    {{ material.disponivel ? 'Disponível' : 'Indisponível' }}
+                </span>
+            </ng-template>
+
+            <!-- Custom template for the actions column -->
+            <ng-template pTemplate="actions" let-material>
+                <div class="flex gap-2 justify-content-center">
+                    <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
+                            (click)="viewDetails(material)"
+                            pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                            pTooltip="Editar" tooltipPosition="top"></button>
+                    <button pButton pRipple icon="pi pi-download" class="p-button-rounded p-button-text"
+                            pTooltip="Descarregar" tooltipPosition="top"></button>
+                </div>
+            </ng-template>
+
+            <!-- Custom template for the table header -->
+            <ng-template pTemplate="header">
+                <div class="flex justify-content-end">
+                    <button pButton pRipple label="Criar Material" icon="pi pi-plus" class="p-button-primary"
+                            (click)="navigateToCreateMaterial()"></button>
+                </div>
+            </ng-template>
+        </app-global-table>
     </div>
 </div>

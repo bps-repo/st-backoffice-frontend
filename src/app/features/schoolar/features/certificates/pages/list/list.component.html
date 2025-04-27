@@ -31,5 +31,12 @@
                         pTooltip="Descarregar" tooltipPosition="top"></button>
             </div>
         </ng-template>
+        <!-- Custom template for the table header -->
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-end">
+                <button pButton pRipple label="Criar Certificado" icon="pi pi-plus" class="p-button-primary"
+                        (click)="createCertificate()"></button>
+            </div>
+        </ng-template>
     </app-global-table>
 </div>
