@@ -25,9 +25,9 @@ import {Lesson} from "../../../../../../core/models/academic/lesson";
         TabViewComponent,
         SplitButtonModule,
     ],
-    templateUrl: './detail.component.html'
+    templateUrl: './attendence-detail.component.html'
 })
-export class DetailComponent implements OnInit, OnDestroy {
+export class AttendenceDetailComponent implements OnInit, OnDestroy {
     tabs!: Observable<Tab[]>;
     items!: MenuItem[];
     classItem: Lesson | null = null;

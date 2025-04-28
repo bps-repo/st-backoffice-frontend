@@ -1,16 +1,21 @@
-import { Component, NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { CreateClassesDialogComponent } from './dialogs/create-classes-dialog/create-classes-dialog.component';
-import { DetailComponent } from './pages/detail/detail.component';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {CreateLessonDialogComponent} from './dialogs/create-lesson-dialog/create-lesson-dialog.component';
+import {AttendenceDetailComponent} from './pages/detail/attendence-detail.component';
+import {LessonComponent} from "./pages/list/lesson.component";
 
 const routes: Routes = [
     {
         path: '',
-        component: CreateClassesDialogComponent,
+        component: LessonComponent,
+    },
+    {
+        path: 'create',
+        component: CreateLessonDialogComponent,
     },
     {
         path: ':id',
-        component: DetailComponent,
+        component: AttendenceDetailComponent,
     },
 ];
 
@@ -18,4 +23,5 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class LessonsRoutes {}
+export class LessonsRoutes {
+}

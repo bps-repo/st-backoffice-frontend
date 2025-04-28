@@ -1,8 +1,5 @@
-import { Routes } from '@angular/router';
-import { DashboardComponent } from '../schoolar/features/dashboard/components/dashboard/dashboard.component';
-import { provideState } from '@ngrx/store';
-import { provideEffects } from '@ngrx/effects';
-import { classesFeature, scholarEffects, studentsFeature } from '../../core/store/schoolar';
+import {Routes} from '@angular/router';
+import {DashboardComponent} from './features/dashboard/components/dashboard/dashboard.component';
 
 /**
  * Routes for the schoolar feature
@@ -24,48 +21,67 @@ export const SCHOOLAR_ROUTES: Routes = [
             {
                 path: 'students',
                 loadChildren: () =>
-                    import('../schoolar/features/students/students.routes').then((m) => m.STUDENTS_ROUTES),
+                    import('./features/students/students.routes').then((m) => m.STUDENTS_ROUTES),
             },
             {
                 path: 'entities',
                 loadChildren: () =>
-                    import('../schoolar/features/entities/entities.routes').then((m) => m.EntitiesRoutes),
+                    import('./features/entities/entities.routes').then((m) => m.EntitiesRoutes),
             },
             {
                 path: 'lessons',
                 loadChildren: () =>
-                    import('./features/lessons/lessons-routes.module').then((m) => m.LessonsRoutes),
+                    import('./features/lessons/lessons.module').then((m) => m.LessonsModule),
             },
             {
                 path: 'calendar',
                 loadChildren: () =>
-                    import('../schoolar/features/calendars/calendar.routes').then((m) => m.CalendarRoutes),
+                    import('./features/calendars/calendar.routes').then((m) => m.CalendarRoutes),
             },
             {
                 path: 'reviews',
                 loadChildren: () =>
-                    import('../schoolar/features/reviews/reviews.routes').then((m) => m.ReviewsRoutes),
+                    import('./features/reviews/reviews.routes').then((m) => m.ReviewsRoutes),
             },
             {
                 path: 'materials',
                 loadChildren: () =>
-                    import('../schoolar/features/materials/materials.routes').then((m) => m.MaterialsRoutes),
+                    import('./features/materials/materials.routes').then((m) => m.MaterialsRoutes)
             },
-
             {
                 path: 'reports',
                 loadChildren: () =>
-                    import('../schoolar/features/reports/reports.routes').then((m) => m.reportsRoutes),
+                    import('./features/reports/reports.routes').then((m) => m.reportsRoutes),
             },
             {
                 path: 'certificates',
                 loadChildren: () =>
-                    import('../schoolar/features/certificates/certificates.routes').then((m) => m.CertificatesRoutes),
+                    import('./features/certificates/certificates.routes').then((m) => m.CertificatesRoutes),
             },
             {
                 path: 'settings',
                 loadChildren: () =>
                     import('../schoolar/features/settings/settings.routes').then((m) => m.SettingsRoutes),
+            },
+            {
+                path: 'assessments',
+                loadChildren: () =>
+                    import('./features/assessments/assessments.module').then((m) => m.AssessmentsModule),
+            },
+            {
+                path: 'classes',
+                loadChildren: () =>
+                    import('./features/classes/classes.module').then((m) => m.ClassesModule),
+            },
+            {
+                path: 'evaluations',
+                loadChildren: () =>
+                    import('./features/evaluations/evaluations.module').then((m) => m.EvaluationsModule),
+            },
+            {
+                path: 'lessons',
+                loadChildren: () =>
+                    import('./features/lessons/lessons.module').then((m) => m.LessonsModule),
             },
         ]
     }

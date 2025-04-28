@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -12,6 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
+import { CalendarModule } from 'primeng/calendar';
 import {
     COUNTRIES,
     DISCOUNTS,
@@ -21,6 +23,7 @@ import {
 } from 'src/app/shared/constants/app';
 
 @Component({
+    selector: 'app-student-create',
     imports: [
         CommonModule,
         FormsModule,
@@ -34,37 +37,90 @@ import {
         InputGroupAddonModule,
         RadioButtonModule,
         CheckboxModule,
+        CardModule,
+        CalendarModule
     ],
     templateUrl: './create.component.html'
 })
 export class CreateComponent implements OnInit {
+    student: any = {
+        personalData: {
+            fullName: '',
+            idType: null,
+            idNumber: '',
+            country: null,
+            gender: '',
+            birthDate: null,
+            address: '',
+            email: '',
+            photo: null
+        },
+        enrollmentData: {
+            installation: null,
+            registrationType: null,
+            status: 'active',
+            entity: null,
+            automaticDiscount: null,
+            paymentMethod: null,
+            monthlyReference: null,
+            observations: '',
+            termsAccepted: {
+                responsibility: false,
+                communication: false,
+                emailMarketing: false,
+                dataProcessing: false,
+                emailInvoices: false
+            }
+        }
+    };
+
+    idTypes: SelectItem[] = [];
     countries: any[] = COUNTRIES;
-
     levels: any[] = LEVELS;
-
-    ids: SelectItem[] = [];
-
-    id: string[] = [];
-
-    instalations: string[] = INSTALATIONS;
-
-    payment_ways: any[] = ['Multicaixa', 'Transferência Bancária', 'Dinheiro'];
-
-    reference_monthly_sent: any[] = ['Enviar por E-mail', 'Enviar por SMS'];
-
+    installations: SelectItem[] = [];
+    paymentMethods: SelectItem[] = [];
+    referenceOptions: SelectItem[] = [];
     entities: SelectItem[] = ENTITIES;
-
     discounts: SelectItem[] = DISCOUNTS;
 
-    valRadio: string = '';
+    genderOptions: SelectItem[] = [
+        { label: 'Masculino', value: 'male' },
+        { label: 'Femenino', value: 'female' }
+    ];
 
-    valCheck: string[] = [];
+    statusOptions: SelectItem[] = [
+        { label: 'Activo', value: 'active' },
+        { label: 'Inactivo', value: 'inactive' }
+    ];
 
     ngOnInit() {
-        this.ids = [
-            { label: 'Bilhete de identidade', value: '12345' },
-            { label: 'Passaporte', value: '67890' },
-            { label: 'Carta de Conduçao', value: '101112' },
+        // Initialize dropdown options
+        this.idTypes = [
+            { label: 'Bilhete de identidade', value: 'bi' },
+            { label: 'Passaporte', value: 'passport' },
+            { label: 'Carta de Conduçao', value: 'license' },
         ];
+
+        this.installations = INSTALATIONS.map(installation => ({
+            label: installation,
+            value: installation
+        }));
+
+        this.paymentMethods = [
+            { label: 'Multicaixa', value: 'multicaixa' },
+            { label: 'Transferência Bancária', value: 'bank_transfer' },
+            { label: 'Dinheiro', value: 'cash' }
+        ];
+
+        this.referenceOptions = [
+            { label: 'Enviar por E-mail', value: 'email' },
+            { label: 'Enviar por SMS', value: 'sms' }
+        ];
+    }
+
+    saveStudent() {
+        // In a real application, you would save the student data using a service
+        console.log('Student saved:', this.student);
+        // Navigate back to the list page or show success message
     }
 }
