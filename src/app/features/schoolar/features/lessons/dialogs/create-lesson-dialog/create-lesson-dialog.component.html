@@ -1,0 +1,124 @@
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '500px' }"
+    header="Create Lesson"
+    [modal]="true"
+    styleClass="p-fluid"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="resetForm()">
+
+    <div class="grid p-fluid">
+        <div class="col-12 field">
+            <label for="date" class="font-bold">Date</label>
+            <p-calendar
+                id="date"
+                [(ngModel)]="lesson.date"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                [required]="true">
+            </p-calendar>
+        </div>
+
+        <div class="col-12 field">
+            <label for="type" class="font-bold">Type</label>
+            <p-dropdown
+                id="type"
+                [options]="typeOptions"
+                [(ngModel)]="lesson.type"
+                optionLabel="label"
+                placeholder="Select a type"
+                [showClear]="true"
+                [required]="true">
+            </p-dropdown>
+        </div>
+
+        <div class="col-12 field">
+            <label for="level" class="font-bold">Level</label>
+            <p-dropdown
+                id="level"
+                [options]="levelOptions"
+                [(ngModel)]="lesson.level"
+                optionLabel="label"
+                placeholder="Select a level"
+                [showClear]="true"
+                [required]="true">
+            </p-dropdown>
+        </div>
+
+        <div class="col-12 field">
+            <label for="center" class="font-bold">Center</label>
+            <p-dropdown
+                id="center"
+                [options]="centerOptions"
+                [(ngModel)]="lesson.center"
+                optionLabel="label"
+                placeholder="Select a center"
+                [showClear]="true"
+                [required]="true">
+            </p-dropdown>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+            <label for="startTime" class="font-bold">Start Time</label>
+            <input
+                id="startTime"
+                type="time"
+                pInputText
+                [(ngModel)]="lesson.startTime"
+                required>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+            <label for="endTime" class="font-bold">End Time</label>
+            <input
+                id="endTime"
+                type="time"
+                pInputText
+                [(ngModel)]="lesson.endTime"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="status" class="font-bold">Status</label>
+            <p-dropdown
+                id="status"
+                [options]="statusOptions"
+                [(ngModel)]="lesson.status"
+                optionLabel="label"
+                placeholder="Select a status"
+                [showClear]="true">
+            </p-dropdown>
+        </div>
+
+        <div class="col-12 field">
+            <label for="description" class="font-bold">Description</label>
+            <textarea
+                id="description"
+                rows="3"
+                pInputTextarea
+                [(ngModel)]="lesson.description"
+                placeholder="Enter lesson description">
+            </textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+            <button
+                pButton
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-text mr-2"
+                (click)="hide()">
+            </button>
+            <button
+                pButton
+                label="Save"
+                icon="pi pi-check"
+                (click)="saveLesson()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

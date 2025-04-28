@@ -1,7 +1,7 @@
-import { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
-import { AppMenuitemComponent } from './app.menuitem.component';
-import { CommonModule } from '@angular/common';
+import {OnInit} from '@angular/core';
+import {Component} from '@angular/core';
+import {AppMenuitemComponent} from './app.menuitem.component';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'app-menu',
@@ -34,6 +34,11 @@ export class AppMenuComponent implements OnInit {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/lessons'],
+                    },
+                    {
+                        label: 'Turmas',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/schoolar/classes'],
                     },
                     {
                         label: 'Calendário',

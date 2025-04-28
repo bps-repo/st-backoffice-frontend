@@ -52,7 +52,7 @@ export class TableHeaderComponent implements OnInit {
     @Input() entity = 'students';
     constructor(private router: Router, private classService: ClassesService) {}
     navigateToCreateEntity() {
-        if (this.entity == 'classes') {
+        if (this.entity == 'lessons') {
             this.classService.setCreateClassDialogState(true);
         } else {
             this.router.navigate([`/schoolar/${this.entity}/create`]);

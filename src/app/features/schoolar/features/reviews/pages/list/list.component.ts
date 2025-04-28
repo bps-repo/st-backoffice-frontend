@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
 import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { EXAMS } from 'src/app/shared/constants/exams';
-import { Exam } from 'src/app/core/models/academic/exam';
+import {EXAMS} from 'src/app/shared/constants/exams';
+import {Exam} from 'src/app/core/models/academic/exam';
+import {ButtonModule} from "primeng/button";
+import {RippleModule} from "primeng/ripple";
+import {DockModule} from "primeng/dock";
 
 @Component({
     selector: 'app-list',
-    imports: [CommonModule, GlobalTable],
+    imports: [CommonModule, GlobalTable, ButtonModule, RippleModule, DockModule],
     templateUrl: './list.component.html',
     standalone: true
 })
@@ -21,7 +24,8 @@ export class ListComponent implements OnInit {
     columns: TableColumn[] = [];
     globalFilterFields: string[] = ['name', 'date', 'class', 'level', 'teacher'];
 
-    constructor(private router: Router) {}
+    constructor(private router: Router) {
+    }
 
     ngOnInit(): void {
         // Define columns for the table

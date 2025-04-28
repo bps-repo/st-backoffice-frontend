@@ -32,9 +32,9 @@ import {selectAllClasses, selectLoadingClass} from "../../../../../../core/store
         FormsModule,
         ButtonModule,
     ],
-    templateUrl: './create-classes-dialog.component.html'
+    templateUrl: './lesson.component.html'
 })
-export class CreateClassesDialogComponent implements OnInit, OnDestroy {
+export class LessonComponent implements OnInit, OnDestroy {
     lesson: Lesson = {} as Lesson;
     lessons: Lesson[] = [];
     lessonToCreate: Lesson = {} as Lesson;

@@ -7,21 +7,9 @@ export const FeaturesRoutes: Routes = [
             import('./schoolar/schoolar.routes').then((m) => m.SCHOOLAR_ROUTES),
     },
     {
-        path: 'academic',
-        loadChildren: () =>
-            import('./academic/academic.routes').then((m) => m.AcademicRoutes),
-    },
-    {
         path: 'courses',
         loadChildren: () =>
             import('./courses/courses.routes').then((m) => m.CoursesRoutes),
-    },
-    {
-        path: 'comunication',
-        loadChildren: () =>
-            import('./comunication/comunication.routes').then(
-                (m) => m.ComunicationRoutes
-            ),
     },
     {
         path: 'settings',
@@ -31,7 +19,7 @@ export const FeaturesRoutes: Routes = [
     {
         path: 'human-resources',
         loadChildren: () =>
-            import('./human-resources/human-resources.routes').then(
+            import('./corporate/human-resources/human-resources.routes').then(
                 (m) => m.HumanResourcesRoutes
             ),
     },
