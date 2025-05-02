@@ -2,11 +2,12 @@ import {GeneralComponent} from 'src/app/features/schoolar/features/lessons/pages
 import {
     StudentsComponent
 } from 'src/app/features/schoolar/features/lessons/pages/detail/tabs/students/students.component';
+
 import {Tab} from '../@types/tab';
+
 import {Observable, of} from 'rxjs';
-import {
-    AttendanceComponent
-} from "../../features/schoolar/features/lessons/pages/detail/tabs/attendences/list/attendance.component";
+
+import {LessonsComponent} from "../../features/schoolar/features/lessons/pages/detail/tabs/lessons/lessons.component";
 
 export const CLASSES_TABS: Observable<Tab[]> = of([
     {
@@ -28,6 +29,6 @@ export const CLASSES_TABS: Observable<Tab[]> = of([
         icon: 'pi pi-check',
         title: 'Class Attendance',
         description: 'Manage attendance records for this class',
-        template: AttendanceComponent,
+        template: LessonsComponent,
     }
 ]);

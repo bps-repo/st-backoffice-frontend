@@ -63,26 +63,6 @@ export const SCHOOLAR_ROUTES: Routes = [
                 loadChildren: () =>
                     import('../schoolar/features/settings/settings.routes').then((m) => m.SettingsRoutes),
             },
-            {
-                path: 'assessments',
-                loadChildren: () =>
-                    import('./features/assessments/assessments.module').then((m) => m.AssessmentsModule),
-            },
-            {
-                path: 'classes',
-                loadChildren: () =>
-                    import('./features/classes/classes.module').then((m) => m.ClassesModule),
-            },
-            {
-                path: 'evaluations',
-                loadChildren: () =>
-                    import('./features/evaluations/evaluations.module').then((m) => m.EvaluationsModule),
-            },
-            {
-                path: 'lessons',
-                loadChildren: () =>
-                    import('./features/lessons/lessons.module').then((m) => m.LessonsModule),
-            },
         ]
     }
 ];

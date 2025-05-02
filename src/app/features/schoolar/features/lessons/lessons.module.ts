@@ -1,14 +1,8 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LessonsRoutes } from './lessons-routes.module';
-import { CreateLessonDialogComponent } from './dialogs/create-lesson-dialog/create-lesson-dialog.component';
+import { LessonsRoutes } from './lessons.routes';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        LessonsRoutes,
-        CreateLessonDialogComponent
-    ],
+    imports: [LessonsRoutes],
     declarations: [],
 })
 export class LessonsModule {}
