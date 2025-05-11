@@ -1,5 +1,5 @@
 import {Material} from "../../models/academic/material";
-import {Unit} from "../../models/academic/unit";
+import {Unit} from "../../models/course/unit";
 
 export interface MaterialService {
     createMaterial(

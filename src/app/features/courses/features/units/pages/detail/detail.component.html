@@ -1,0 +1,66 @@
+<div class="grid" *ngIf="!loading && unit">
+    <div class="col-12">
+        <div class="card">
+            <h5>Detalhes da Unidade</h5>
+            <div class="p-fluid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="name">Nome</label>
+                    <input id="name" type="text" pInputText [value]="unit.name" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" pInputTextarea [value]="unit.description" readonly></textarea>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="level">Nível</label>
+                    <input id="level" type="text" pInputText [value]="unit.level.name" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="order">Ordem</label>
+                    <input id="order" type="text" pInputText [value]="unit.order" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="maximumAssessmentAttempt">Máximo de Tentativas</label>
+                    <input id="maximumAssessmentAttempt" type="text" pInputText [value]="unit.maximumAssessmentAttempt" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="createdAt">Criado Em</label>
+                    <input id="createdAt" type="text" pInputText [value]="unit.createdAt" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="updatedAt">Atualizado Em</label>
+                    <input id="updatedAt" type="text" pInputText [value]="unit.updatedAt" readonly />
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-primary" (click)="downloadUnitDetails()"></button>
+                <button pButton pRipple label="Enviar" icon="pi pi-send" class="p-button-secondary" (click)="sendUnitDetails()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="loading">
+    <div class="col-12">
+        <div class="card">
+            <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+            <div class="grid">
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-12">
+                    <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

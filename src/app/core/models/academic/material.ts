@@ -1,5 +1,5 @@
 import {Employee} from "./lead-service";
-import {Unit} from "./unit";
+import {Unit} from "../course/unit";
 
 export interface Material {
     id: string;

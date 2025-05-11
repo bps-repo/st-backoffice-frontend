@@ -1,5 +1,5 @@
 import {Assessment} from "../../models/academic/assessment";
-import {Unit} from "../../models/academic/unit";
+import {Unit} from "../../models/course/unit";
 import {Class} from "../../models/academic/class";
 import {UnitProgress} from "../../models/academic/unit-progress";
 import {Material} from "../../models/academic/material";

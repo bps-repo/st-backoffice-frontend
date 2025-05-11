@@ -17,11 +17,9 @@ export const FeaturesRoutes: Routes = [
             import('./settings/settings-routing.module').then((m) => m.SettingsRoutingModule),
     },
     {
-        path: 'human-resources',
+        path: 'corporate',
         loadChildren: () =>
-            import('./corporate/human-resources/human-resources.routes').then(
-                (m) => m.HumanResourcesRoutes
-            ),
+            import('./corporate/corporate.routes').then((m) => m.CorporateRoutes),
     },
     {
         path: 'invoices',

@@ -86,9 +86,9 @@ export class LoginComponent implements OnDestroy {
         this.isSubmitting = true;
         this.detectChange.detectChanges();
 
-        const {email, password} = this.loginForm.value;
+        const { email, password } = this.loginForm.value;
 
-        this.store.dispatch(authActions.login({email, password}));
+        this.store.dispatch(authActions.login({ email, password }));
     }
 
     dismissError() {

@@ -1,6 +1,4 @@
-import {Service} from "../corporate/service";
-import {Unit} from "./unit";
-import {Class} from "./class";
+import {Service} from "./service";
 
 export interface Level {
     id: string;
@@ -9,8 +7,6 @@ export interface Level {
     duration: number;
     maximumUnits: number;
     course: Service;
-    units: Unit[];
-    classes: Class[];
     createdAt: string;
     updatedAt: string;
 }

@@ -1,10 +1,11 @@
 export interface Center {
+    data: Center;
     id: string;
     name: string;
     address: string;
-    phoneNumber: string;
-    email: string;
-    website: string;
+    city: string;
+    phone: string;
+    active: boolean;
     createdAt: string;
     updatedAt: string;
 }

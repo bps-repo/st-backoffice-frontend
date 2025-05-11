@@ -15,6 +15,10 @@ import {authFeature} from './core/store/auth/reducers/auth.reducers';
 import {AuthEffects} from './core/store/auth/effects/auth.effects';
 import {CustomSerializer} from './core/router/custom-serializer';
 import {classesFeature, scholarEffects, studentsFeature} from "./core/store/schoolar";
+import { centerFeature } from './core/store/corporate/reducers/center.reducer';
+import { CenterEffects } from './core/store/corporate/effects/center.effects';
+import { serviceFeature } from './core/store/course/reducers/service.reducer';
+import { ServiceEffects } from './core/store/course/effects/service.effects';
 
 export const AppConfig: ApplicationConfig = {
     providers: [
@@ -37,8 +41,12 @@ export const AppConfig: ApplicationConfig = {
         provideState(authFeature),
         provideState(studentsFeature),
         provideState(classesFeature),
+        provideState(centerFeature),
+        provideState(serviceFeature),
         provideEffects(scholarEffects),
         provideEffects([AuthEffects]),
+        provideEffects([CenterEffects]),
+        provideEffects([ServiceEffects]),
         provideStoreDevtools({
             maxAge: 25,
             logOnly: !isDevMode(),

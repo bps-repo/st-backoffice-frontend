@@ -1,6 +1,6 @@
 import {AssessmentType} from "../../enums/assessment-type";
 import {AssessmentStatus} from "../../enums/assessment-status";
-import {Unit} from "./unit";
+import {Unit} from "../course/unit";
 import {Evaluation} from "./evaluation";
 
 export interface Assessment {

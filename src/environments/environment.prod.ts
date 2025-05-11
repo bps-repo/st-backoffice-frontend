@@ -1,4 +1,4 @@
 export const environment = {
-    prodution: true,
-    apiStAndrewsUrl: 'http://api.stAndrews.com',
+    production: true,
+    apiUrl: 'https://st-backend-api.onrender.com/api/v1',
 };

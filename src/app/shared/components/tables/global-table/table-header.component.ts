@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DropdownModule } from 'primeng/dropdown';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { INSTALATIONS } from '../../../constants/representatives';
@@ -23,13 +23,13 @@ import {RippleModule} from "primeng/ripple";
             ></p-dropdown>
         </div>
         <div class="flex gap-1 h-rem">
-            <button
-                pButton
-                pRipple
-                (click)="navigateToCreateEntity()"
-                icon="pi pi-plus"
-                class="p-button-success"
-            ></button>
+        <button
+                    pButton
+                    pRipple
+                    (click)="onCreateEntity()"
+                    icon="pi pi-plus"
+                    class="p-button-success"
+                ></button>
             <button
                 pButton
                 pRipple
@@ -50,7 +50,11 @@ export class TableHeaderComponent implements OnInit {
     selectedDrop: SelectItem = { value: '' };
     @Input() tableLable = 'Alunos';
     @Input() entity = 'students';
+
+    @Output() createEntity = new EventEmitter<void>();
+
     constructor(private router: Router, private classService: ClassesService) {}
+
     navigateToCreateEntity() {
         if (this.entity == 'lessons') {
             this.classService.setCreateClassDialogState(true);
@@ -73,6 +77,11 @@ export class TableHeaderComponent implements OnInit {
             },
         ];
     }
+
+    onCreateEntity() {
+        this.createEntity.emit();
+    }
+
     exportToExcel() {
         throw new Error('Method not implemented.');
     }

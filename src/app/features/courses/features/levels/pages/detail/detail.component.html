@@ -1,0 +1,66 @@
+<div class="grid" *ngIf="!loading && level">
+    <div class="col-12">
+        <div class="card">
+            <h5>Detalhes do Nível</h5>
+            <div class="p-fluid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="name">Nome</label>
+                    <input id="name" type="text" pInputText [value]="level.name" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" pInputTextarea [value]="level.description" readonly></textarea>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="duration">Duração</label>
+                    <input id="duration" type="text" pInputText [value]="level.duration + ' horas'" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="maximumUnits">Unidades Máximas</label>
+                    <input id="maximumUnits" type="text" pInputText [value]="level.maximumUnits" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="course">Curso</label>
+                    <input id="course" type="text" pInputText [value]="level.course.name" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="createdAt">Criado Em</label>
+                    <input id="createdAt" type="text" pInputText [value]="level.createdAt" readonly />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="updatedAt">Atualizado Em</label>
+                    <input id="updatedAt" type="text" pInputText [value]="level.updatedAt" readonly />
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-primary" (click)="downloadLevelDetails()"></button>
+                <button pButton pRipple label="Enviar" icon="pi pi-send" class="p-button-secondary" (click)="sendLevelDetails()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="loading">
+    <div class="col-12">
+        <div class="card">
+            <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+            <div class="grid">
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-6">
+                    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                </div>
+                <div class="col-12">
+                    <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

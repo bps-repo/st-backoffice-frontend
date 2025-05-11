@@ -80,10 +80,22 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
+                        routerLink: ['/schoolar/dashboard'],
                     },
                     {
                         label: 'Cursos',
                         icon: 'pi pi-fw pi-sitemap',
+                        routerLink: ['/courses/courses'],
+                    },
+                    {
+                        label: 'Niveis',
+                        icon: 'pi pi-fw pi-sitemap',
+                        routerLink: ['/courses/levels'],
+                    },
+                    {
+                        label: 'Unidades',
+                        icon: 'pi pi-fw pi-sitemap',
+                        routerLink: ['/courses/units'],
                     },
                     {
                         label: 'Pacotes',
@@ -106,6 +118,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
+                        routerLink: ['/schoolar/dashboard'],
                     },
                     {
                         label: 'Facturas pró-forma',
@@ -133,11 +146,12 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/blocks'],
+                        routerLink: ['/schoolar/dashboard'],
                     },
                     {
                         label: 'Centros',
                         icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/corporate/centers'],
                     },
                     {
                         label: 'Contratos',

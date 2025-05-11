@@ -1,9 +1,11 @@
 <div class="col-12">
     <div class="card">
         <app-table-header
-            entity="{{ entity }}"
-            tableLable="{{ tableLabel }}"
+            [entity]="entity"
+            [tableLable]="tableLabel"
+            (createEntity)="createEntity.emit()"
         ></app-table-header>
+
         <p-table
             #dt
             [value]="data"
@@ -37,7 +39,7 @@
                 </div>
             </ng-template>
 
-            <!-- Dynamic Columns -->
+            <!-- Header -->
             <ng-template pTemplate="header">
                 <tr>
                     <th *ngFor="let col of columns" [style.minWidth]="'5rem'">
@@ -51,24 +53,27 @@
                             ></p-columnFilter>
                         </div>
                     </th>
+                    <th *ngIf="actionsTemplate" [style.minWidth]="'5rem'">Ações</th>
                 </tr>
             </ng-template>
 
+            <!-- Body -->
             <ng-template pTemplate="body" let-rowData>
                 <tr>
-                    <td
-                        *ngFor="let col of columns"
-                        [routerLink]="[
-                            '/schoolar/' + entity,
-                            rowData.id
-                        ]"
-                    >
+                    <td *ngFor="let col of columns">
                         <ng-container *ngIf="!col.customTemplate">
                             {{ rowData[col.field] }}
                         </ng-container>
-                        <ng-container *ngIf="col.customTemplate">
-                            <!-- Custom content for a column -->
+                        <ng-container *ngIf="col.customTemplate && columnTemplates[col.field]">
+                            <ng-container
+                                *ngTemplateOutlet="columnTemplates[col.field]; context: { $implicit: rowData }"
+                            ></ng-container>
                         </ng-container>
+                    </td>
+                    <td *ngIf="actionsTemplate">
+                        <ng-container
+                            *ngTemplateOutlet="actionsTemplate; context: { $implicit: rowData }"
+                        ></ng-container>
                     </td>
                 </tr>
             </ng-template>

@@ -1,14 +1,24 @@
 import { CommonModule } from '@angular/common';
-import {booleanAttribute, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {
+    booleanAttribute,
+    Component,
+    ContentChild,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    TemplateRef,
+    ViewChild
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { TableModule } from 'primeng/table';
+import { TableModule, Table } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SliderModule } from 'primeng/slider';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { Table } from 'primeng/table';
 import { TableHeaderComponent } from './table-header.component';
 import { ClassesService } from 'src/app/core/services/classes.service';
 
@@ -16,13 +26,14 @@ export interface TableColumn {
     field: string;
     header: string;
     filterType?: 'text' | 'numeric' | 'date' | 'boolean' | 'custom';
-    filterOptions?: any; // For dropdown, multiselect, etc.
-    filterTemplate?: boolean; // Indicates custom filter template usage
-    customTemplate?: boolean; // Indicates custom column template usage
+    filterOptions?: any;
+    filterTemplate?: boolean;
+    customTemplate?: boolean;
 }
 
 @Component({
     selector: 'app-global-table',
+    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -35,32 +46,39 @@ export interface TableColumn {
         RouterModule,
         TableHeaderComponent,
     ],
-    templateUrl: './global-table.component.html'
+    templateUrl: './global-table.component.html',
 })
 export class GlobalTable<T> implements OnInit {
-    @Input() columns: TableColumn[] = []; // Dynamic column definitions
+    @Input() columns: TableColumn[] = [];
+    @Input() columnTemplates: Record<string, TemplateRef<any>> = {};
 
-    @Input() data: T[] = [];
+    private _data: T[] = [];
+
+    @Input()
+    set data(value: T[] | null) {
+        this._data = value || [];
+    }
+
+    get data(): T[] {
+        return this._data;
+    }
 
     @Input() entity: string = 'students';
-
-    @Input() globalFilterFields: string[] = []; // Fields to be filtered globally
-
-    @Input({transform: booleanAttribute}) loading: boolean = false; // Loading state
-
+    @Input() globalFilterFields: string[] = [];
+    @Input({ transform: booleanAttribute }) loading: boolean = false;
     @Input() tableLabel = '';
 
+    @Output() createEntity = new EventEmitter<void>();
+
     @ViewChild('filter') filter!: ElementRef;
+    @ContentChild('actions', { static: false }) actionsTemplate!: TemplateRef<any>;
 
     constructor(private router: Router, private classService: ClassesService) {}
 
     ngOnInit(): void {}
 
     onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal(
-            (event.target as HTMLInputElement).value,
-            'contains'
-        );
+        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
     clear(table: Table) {

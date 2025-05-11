@@ -1,0 +1,42 @@
+<div class="grid" *ngIf="!loading && editableCenter">
+    <div class="col-12">
+        <div class="card">
+            <h5>Detalhes do Center</h5>
+            <div class="p-fluid grid">
+                <div class="field col-12 md:col-6">
+                    <label for="name">Nome</label>
+                    <input id="name" type="text" pInputText [(ngModel)]="editableCenter.name" />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="address">Endereço</label>
+                    <input id="address" type="text" pInputText [(ngModel)]="editableCenter.address" />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="phoneNumber">Telefone</label>
+                    <input id="phoneNumber" type="text" pInputText [(ngModel)]="editableCenter.phone" />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="city">City</label>
+                    <input id="city" type="text" pInputText [(ngModel)]="editableCenter.city" />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="active">Ativo</label>
+                    <p-dropdown
+                        id="active"
+                        [options]="activeOptions"
+                        [(ngModel)]="editableCenter.active"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecione o status"
+                        [showClear]="true">
+                    </p-dropdown>
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-primary" (click)="editCenter()"></button>
+                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-secondary" (click)="downloadCenterDetails()"></button>
+                <button pButton pRipple label="Enviar" icon="pi pi-send" class="p-button-secondary" (click)="sendCenterDetails()"></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '500px' }"
+    header="Create Unit"
+    [modal]="true"
+    styleClass="p-fluid"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="resetForm()">
+
+    <div class="grid p-fluid">
+        <div class="col-12 field">
+            <label for="name" class="font-bold">Name</label>
+            <input
+                id="name"
+                type="text"
+                pInputText
+                [(ngModel)]="unit.name"
+                placeholder="Enter unit name"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="description" class="font-bold">Description</label>
+            <textarea
+                id="description"
+                rows="3"
+                pInputTextarea
+                [(ngModel)]="unit.description"
+                placeholder="Enter unit description">
+            </textarea>
+        </div>
+
+        <div class="col-12 field">
+            <label for="order" class="font-bold">Order</label>
+            <input
+                id="order"
+                type="number"
+                pInputText
+                [(ngModel)]="unit.order"
+                placeholder="Enter unit order"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="maximumAssessmentAttempt" class="font-bold">Maximum Assessment Attempts</label>
+            <input
+                id="maximumAssessmentAttempt"
+                type="number"
+                pInputText
+                [(ngModel)]="unit.maximumAssessmentAttempt"
+                placeholder="Enter maximum assessment attempts"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="level" class="font-bold">Level</label>
+            <p-dropdown
+                id="level"
+                [options]="levelOptions"
+                [(ngModel)]="unit.level"
+                optionLabel="name"
+                placeholder="Select a level"
+                [showClear]="true"
+                [required]="true">
+            </p-dropdown>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+            <button
+                pButton
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-text mr-2"
+                (click)="hide()">
+            </button>
+            <button
+                pButton
+                label="Save"
+                icon="pi pi-check"
+                (click)="saveUnit()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

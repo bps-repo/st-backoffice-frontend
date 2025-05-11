@@ -1,0 +1,88 @@
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '500px' }"
+    header="Criar Centro"
+    [modal]="true"
+    styleClass="p-fluid"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="resetForm()">
+
+    <div class="grid p-fluid">
+        <div class="col-12 field">
+            <label for="name" class="font-bold">Nome</label>
+            <input
+                id="name"
+                type="text"
+                pInputText
+                [(ngModel)]="center.name"
+                placeholder="Digite o nome do centro"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="address" class="font-bold">Endereço</label>
+            <textarea
+                id="address"
+                rows="3"
+                pInputTextarea
+                [(ngModel)]="center.address"
+                placeholder="Digite o endereço do centro">
+            </textarea>
+        </div>
+
+        <div class="col-12 field">
+            <label for="phone" class="font-bold">Telefone</label>
+            <input
+                id="phone"
+                type="text"
+                pInputText
+                [(ngModel)]="center.phone"
+                placeholder="Digite o telefone do centro"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="city" class="font-bold">Cidade</label>
+            <input
+                id="city"
+                type="text"
+                pInputText
+                [(ngModel)]="center.city"
+                placeholder="Digite a cidade do centro"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="active" class="font-bold">Ativo</label>
+            <p-dropdown
+                id="active"
+                [options]="activeOptions"
+                [(ngModel)]="center.active"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione o status"
+                [showClear]="true">
+            </p-dropdown>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+            <button
+                pButton
+                label="Cancelar"
+                icon="pi pi-times"
+                class="p-button-text mr-2"
+                (click)="hide()">
+            </button>
+            <button
+                pButton
+                label="Salvar"
+                icon="pi pi-check"
+                (click)="saveCenter()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

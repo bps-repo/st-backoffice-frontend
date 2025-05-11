@@ -31,7 +31,7 @@ export const SCHOOLAR_ROUTES: Routes = [
             {
                 path: 'lessons',
                 loadChildren: () =>
-                    import('./features/lessons/lessons.module').then((m) => m.LessonsModule),
+                    import('./features/lessons/lessons.routes').then((m) => m.LessonsRoutes),
             },
             {
                 path: 'calendar',

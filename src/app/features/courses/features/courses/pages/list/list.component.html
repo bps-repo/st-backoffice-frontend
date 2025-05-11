@@ -1,0 +1,42 @@
+<div class="grid">
+    <app-global-table
+        tableLabel="Serviços"
+        [data]="(services$ | async) ?? []"
+        [entity]="'services'"
+        [columns]="columns"
+        [columnTemplates]="{ actions: actionsTemplate }"
+        [loading]="loading$ | async"
+        (createEntity)="createService()"
+        class="w-full"
+    ></app-global-table>
+
+        <!-- Template para a coluna de ações -->
+    <ng-template #actionsTemplate let-service>
+        <div class="flex gap-2 justify-content-center">
+            <button
+                pButton
+                pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-text"
+                (click)="viewDetails(service)"
+                pTooltip="Ver Detalhes"
+                tooltipPosition="top"
+            ></button>
+
+            <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                (click)="deleteService(service)"
+                pTooltip="Excluir"
+                tooltipPosition="top"
+            ></button>
+        </div>
+    </ng-template>
+
+    <!-- Diálogo de criação -->
+    <app-create-service-dialog></app-create-service-dialog>
+    <!-- Diálogo de confirmação -->
+    <p-confirmDialog></p-confirmDialog>
+</div>

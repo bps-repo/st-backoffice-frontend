@@ -1,5 +1,5 @@
-import {createFeature, createReducer, on} from '@ngrx/store';
-import {authActions} from '../actions/auth.actions';
+import { createFeature, createReducer, on } from '@ngrx/store';
+import { authActions } from '../actions/auth.actions';
 
 export interface AuthState {
     isAuthenticated: boolean;
@@ -19,7 +19,7 @@ export const authFeature = createFeature({
     name: 'auth',
     reducer: createReducer(
         initialState,
-        on(authActions.loginSuccess, (state, {token, refreshToken}) => {
+        on(authActions.loginSuccess, (state, { token, refreshToken }) => {
             localStorage.setItem('accessToken', token);
             localStorage.setItem('refreshToken', refreshToken);
             return {
@@ -27,10 +27,11 @@ export const authFeature = createFeature({
                 isAuthenticated: true,
                 token,
                 refreshToken,
+                error: null,
             };
         }),
 
-        on(authActions.loginFailure, (state, {error}) => ({
+        on(authActions.loginFailure, (state, { error }) => ({
             ...state,
             isAuthenticated: false,
             token: null,
@@ -38,6 +39,6 @@ export const authFeature = createFeature({
             error,
         })),
 
-        on(authActions.clearError, (state) => ({...state, error: null}))
+        on(authActions.clearError, (state) => ({ ...state, error: null }))
     ),
 });

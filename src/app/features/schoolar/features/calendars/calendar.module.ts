@@ -18,6 +18,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
         CommonModule,
         FormsModule,
         CalendarRoutes,
+        CalendarAppComponent,
         FullCalendarModule,
         DialogModule,
         InputTextareaModule,
@@ -28,7 +29,6 @@ import { FullCalendarModule } from '@fullcalendar/angular';
         ToastModule,
         RippleModule
     ],
-    declarations: [CalendarAppComponent],
     providers: [EventService]
 })
 export class CalendarsModule { }

@@ -1,5 +1,5 @@
-import {Level} from "../../models/academic/level";
-import {Unit} from "../../models/academic/unit";
+import {Level} from "../../models/course/level";
+import {Unit} from "../../models/course/unit";
 import {Class} from "../../models/academic/class";
 
 export interface LevelService {
