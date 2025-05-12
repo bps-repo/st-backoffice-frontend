@@ -8,7 +8,13 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { Level } from 'src/app/core/models/course/level';
-import { Service } from 'src/app/core/models/course/service';
+//import { Service } from 'src/app/core/models/course/service';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
+//import * as ServiceActions from 'src/app/core/store/course/actions/service.actions';
+import { selectLevelError, selectLevelLoading } from 'src/app/core/store/course/selectors/level.selector';
+//import { selectAllServices } from 'src/app/core/store/course/selectors/service.selector';
 
 @Component({
     selector: 'app-create-level-dialog',
@@ -25,31 +31,36 @@ import { Service } from 'src/app/core/models/course/service';
     templateUrl: './create-level-dialog.component.html'
 })
 export class CreateLevelDialogComponent implements OnInit {
+
     visible: boolean = false;
 
-    level: Level = {
-        id: '',
+    level: Partial<Level> = {
         name: '',
         description: '',
         duration: 0,
         maximumUnits: 0,
-        course: { id: '', name: '', description: '', value: 0, active: true, type: 'REGULAR_COURSE' },
-        createdAt: '',
-        updatedAt: ''
-    };
+        //course: undefined
+      };
 
-    // Dropdown options
-    courseOptions: Service[] = [];
 
-    constructor() {}
+    loading$: Observable<boolean>;
+    error$: Observable<any>;
+    //courseOptions$: Observable<Service[]>;
+
+    constructor(private store: Store) {
+        this.loading$ = this.store.select(selectLevelLoading);
+        this.error$ = this.store.select(selectLevelError);
+        //this.courseOptions$ = this.store.select(selectAllServices);
+    }
 
     ngOnInit() {
-        // Initialize course options (mocked for now, replace with real data)
-        this.courseOptions = [
-            { id: '1', name: 'Course A', description: 'Description A', value: 100, active: true, type: 'REGULAR_COURSE' },
-            { id: '2', name: 'Course B', description: 'Description B', value: 200, active: true, type: 'WORKSHOP' },
-            { id: '3', name: 'Course C', description: 'Description C', value: 300, active: false, type: 'PRIVATE_LESSONS' }
-        ];
+        this.error$.subscribe((error) => {
+            if (error) {
+                console.error('Erro ao criar o Level:', error);
+            }
+        });
+
+       //this.store.dispatch(ServiceActions.loadPagedServices({ size: 10 }));
     }
 
     show() {
@@ -61,21 +72,34 @@ export class CreateLevelDialogComponent implements OnInit {
     }
 
     saveLevel() {
-        // In a real application, you would save the level data using a service
-        console.log('Level saved:', this.level);
-        this.hide();
+        const payload = {
+            name: this.level.name,
+            description: this.level.description,
+            duration: this.level.duration,
+            maximumUnits: this.level.maximumUnits,
+            //course: this.level.course
+
+        };
+
+        console.log('Payload:', payload);
+
+        this.store.dispatch(LevelActions.createLevel({ level: payload }));
+
+        this.store.select(selectLevelError).subscribe(error => {
+            if (!error) {
+                this.hide();
+                this.resetForm();
+            }
+        });
     }
 
     resetForm() {
         this.level = {
-            id: '',
             name: '',
             description: '',
             duration: 0,
             maximumUnits: 0,
-            course: { id: '', name: '', description: '', value: 0, active: true, type: 'REGULAR_COURSE' },
-            createdAt: '',
-            updatedAt: ''
+            //course: undefined
         };
     }
 }

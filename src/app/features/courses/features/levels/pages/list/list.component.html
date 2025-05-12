@@ -1,31 +1,41 @@
 <div class="grid">
     <app-global-table
-        tableLabel="Levels"
-        [data]="levels"
+        tableLabel="Níveis"
+        [data]="(levels$ | async) ?? []"
         [entity]="'levels'"
         [columns]="columns"
-        [loading]="loading"
+        [loading]="loading$ | async"
         class="w-full"
-    >
-        <!-- Custom template for the actions column -->
-        <ng-template pTemplate="actions" let-level>
-            <div class="flex gap-2 justify-content-center">
-                <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
-                        (click)="viewDetails(level)"
-                        pTooltip="Ver Detalhes" tooltipPosition="top"></button>
-                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
-                        pTooltip="Editar" tooltipPosition="top"></button>
-                <button pButton pRipple icon="pi pi-download" class="p-button-rounded p-button-text"
-                        pTooltip="Descarregar" tooltipPosition="top"></button>
-            </div>
-        </ng-template>
+        [columnTemplates]="{ actions: actionsTemplate }"
+        (createEntity)="createLevel()"
+    ></app-global-table>
 
-        <!-- Custom template for the table header -->
-        <ng-template pTemplate="header">
-            <div class="flex justify-content-end">
-                <button pButton pRipple label="Criar Nível" icon="pi pi-plus" class="p-button-primary"
-                        (click)="createLevel()"></button>
-            </div>
-        </ng-template>
-    </app-global-table>
+    <!-- Template para ações -->
+    <ng-template #actionsTemplate let-level>
+        <div class="flex gap-2 justify-content-center">
+            <button
+                pButton pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-text"
+                (click)="viewDetails(level)"
+                pTooltip="Ver Detalhes"
+                tooltipPosition="top"
+            ></button>
+
+            <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                (click)="deleteLevel(level)"
+                pTooltip="Excluir"
+                tooltipPosition="top"
+            ></button>
+        </div>
+    </ng-template>
+
+    <!-- Diálogo de criação -->
+    <app-create-level-dialog></app-create-level-dialog>
+    <!-- Diálogo de confirmação -->
+    <p-confirmDialog></p-confirmDialog>
 </div>

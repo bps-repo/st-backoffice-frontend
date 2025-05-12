@@ -1,3 +1,6 @@
+<div *ngIf="loading" class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE" ></p-progressSpinner>
+ </div>
 <div class="grid" *ngIf="!loading && editableCenter">
     <div class="col-12">
         <div class="card">

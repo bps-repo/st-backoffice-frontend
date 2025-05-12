@@ -1,23 +1,39 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Unit } from 'src/app/core/models/course/unit';
+import { Unit } from '../models/course/unit';
+import { environment } from 'src/environments/environment';
+import { ApiResponse } from './interfaces/ApiResponseService';
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 export class UnitService {
-    private apiUrl = '/api/units'; // URL base da API
 
-    constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiUrl}/units`;
 
-    // Busca todas as unidades
-    getAllUnits(): Observable<Unit[]> {
-        return this.http.get<Unit[]>(this.apiUrl);
-    }
+  constructor(private http: HttpClient) {}
 
-    // Busca uma unidade pelo ID
-    getUnitById(id: string): Observable<Unit> {
-        return this.http.get<Unit>(`${this.apiUrl}/${id}`);
-    }
+  createUnit(unit: Partial<Unit>): Observable<ApiResponse<Unit>> {
+    return this.http.post<ApiResponse<Unit>>(this.apiUrl, unit);
+  }
+
+  updateUnit(id: string, unit: Partial<Unit>): Observable<ApiResponse<Unit>> {
+    return this.http.patch<ApiResponse<Unit>>(`${this.apiUrl}/${id}`, unit);
+  }
+
+  getUnitById(id: string): Observable<ApiResponse<Unit>> {
+    return this.http.get<ApiResponse<Unit>>(`${this.apiUrl}/${id}`);
+  }
+
+  getPagedUnits(size: number): Observable<ApiResponse<{ content: Unit[] }>> {
+    return this.http.get<ApiResponse<{ content: Unit[] }>>(`${this.apiUrl}/paged`, {
+      params: { size: size.toString() }
+    });
+  }
+
+  deleteUnit(id: string): Observable<ApiResponse<null>> {
+    return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/${id}`);
+  }
+
 }

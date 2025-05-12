@@ -13,6 +13,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
 import { Center } from 'src/app/core/models/corporate/center';
 import { FormsModule } from '@angular/forms';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-center-detail',
@@ -24,7 +25,8 @@ import { FormsModule } from '@angular/forms';
         DropdownModule,
         FormsModule,
         InputTextareaModule,
-        ButtonModule]
+        ButtonModule,
+        ProgressSpinnerModule]
 })
 export class DetailComponent implements OnInit {
 

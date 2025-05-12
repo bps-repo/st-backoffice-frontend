@@ -13,14 +13,23 @@ import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { Service } from 'src/app/core/models/course/service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
     selector: 'app-service-detail',
     templateUrl: './detail.component.html',
     standalone: true,
-    imports: [CommonModule, ProgressSpinnerModule ,SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule, FormsModule]
+    imports: [CommonModule,
+        DropdownModule ,
+        SkeletonModule,
+        InputTextModule,
+        InputTextareaModule,
+        ButtonModule,
+        FormsModule,
+        ProgressSpinnerModule]
 })
 export class DetailComponent implements OnInit {
+
     serviceId: string = '';
     service$: Observable<Service | null>;
     service: Service | null = null;

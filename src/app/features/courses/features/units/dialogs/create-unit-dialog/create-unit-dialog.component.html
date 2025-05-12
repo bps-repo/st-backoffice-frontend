@@ -1,7 +1,7 @@
 <p-dialog
     [(visible)]="visible"
     [style]="{ width: '500px' }"
-    header="Create Unit"
+    header="Criar Unidade"
     [modal]="true"
     styleClass="p-fluid"
     [draggable]="false"
@@ -38,7 +38,7 @@
                 id="order"
                 type="number"
                 pInputText
-                [(ngModel)]="unit.order"
+                [(ngModel)]="unit.orderUnit"
                 placeholder="Enter unit order"
                 required>
         </div>
@@ -58,7 +58,7 @@
             <label for="level" class="font-bold">Level</label>
             <p-dropdown
                 id="level"
-                [options]="levelOptions"
+                [options]="(levelOptions$ | async) ?? []"
                 [(ngModel)]="unit.level"
                 optionLabel="name"
                 placeholder="Select a level"

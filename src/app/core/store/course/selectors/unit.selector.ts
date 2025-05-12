@@ -1,29 +1,29 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { UnitState } from '../reducers/unit.reducer';
 
-// Seleciona o estado das unidades
+// Seleciona todo o estado do recurso "unit"
 export const selectUnitState = createFeatureSelector<UnitState>('unit');
 
-// Seleciona todas as unidades
+// Lista de todas as unidades
 export const selectAllUnits = createSelector(
-    selectUnitState,
-    (state) => state.units
+  selectUnitState,
+  (state) => state.units || []
 );
 
-// Seleciona a unidade atualmente carregada
+// Unidade atualmente selecionada
 export const selectSelectedUnit = createSelector(
-    selectUnitState,
-    (state) => state.selectedUnit
+  selectUnitState,
+  (state) => state.unit
 );
 
-// Seleciona o estado de carregamento
+// Status de carregamento
 export const selectUnitLoading = createSelector(
-    selectUnitState,
-    (state) => state.loading
+  selectUnitState,
+  (state) => state.loading
 );
 
-// Seleciona o erro, se houver
+// Erros do estado
 export const selectUnitError = createSelector(
-    selectUnitState,
-    (state) => state.error
+  selectUnitState,
+  (state) => state.error
 );

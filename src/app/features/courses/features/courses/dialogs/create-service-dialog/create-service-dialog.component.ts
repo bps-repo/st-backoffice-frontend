@@ -42,11 +42,11 @@ export class CreateServiceDialogComponent implements OnInit {
     };
 
     typeOptions: SelectItem[] = [
-        { label: 'Regular Course', value: 'REGULAR_COURSE' },
-        { label: 'Intensive Course', value: 'INTENSIVE_COURSE' },
-        { label: 'Private Lessons', value: 'PRIVATE_LESSONS' },
+        { label: 'Curso Regular', value: 'REGULAR_COURSE' },
+        { label: 'Curso Intensivo', value: 'INTENSIVE_COURSE' },
+        { label: 'Aulas Particulares', value: 'PRIVATE_LESSONS' },
         { label: 'Workshop', value: 'WORKSHOP' },
-        { label: 'Exam Preparation', value: 'EXAM_PREPARATION' }
+        { label: 'Preparação para exames', value: 'EXAM_PREPARATION' }
     ];
 
     activeOptions: SelectItem[] = [

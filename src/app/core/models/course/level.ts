@@ -6,7 +6,7 @@ export interface Level {
     description: string;
     duration: number;
     maximumUnits: number;
-    course: Service;
-    createdAt: string;
-    updatedAt: string;
+    //course: Service;
+    createdAt?: string;
+    updatedAt?: string;
 }

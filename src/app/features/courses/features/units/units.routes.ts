@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DetailComponent } from './pages/detail/detail.component';
 import { ListComponent } from './pages/list/list.component';
-import { CreateUnitDialogComponent } from './dialogs/create-unit-dialog/create-unit-dialog.component';
 
 export const UnitsRoutes: Routes = [
         {
@@ -12,11 +11,7 @@ export const UnitsRoutes: Routes = [
         {
             path: ':id',
             component: DetailComponent,
-        },
-        {
-                path: 'create',
-                component: CreateUnitDialogComponent,
-            },
+        }
     ];
 
 

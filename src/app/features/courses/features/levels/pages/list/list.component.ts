@@ -1,48 +1,49 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import {
-    TableColumn,
-    GlobalTable,
-} from 'src/app/shared/components/tables/global-table/global-table.component';
+import { Observable, startWith } from 'rxjs';
+import { CreateLevelDialogComponent } from '../../dialogs/create-level-dialog/create-level-dialog.component';
+import { ButtonModule } from 'primeng/button';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TableColumn, GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
 import { selectAllLevels, selectLevelLoading } from 'src/app/core/store/course/selectors/level.selector';
 import { Level } from 'src/app/core/models/course/level';
 
 @Component({
     selector: 'app-level-list',
-    imports: [CommonModule, GlobalTable],
+    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateLevelDialogComponent],
     templateUrl: './list.component.html',
-    standalone: true
+    standalone: true,
+    providers: [ConfirmationService]
 })
 export class ListComponent implements OnInit {
+
+    @ViewChild(CreateLevelDialogComponent) createLevelDialog!: CreateLevelDialogComponent;
+
     levels$: Observable<Level[]>;
     levels: Level[] = [];
     loading$: Observable<boolean>;
     loading = false;
 
     columns: TableColumn[] = [];
-    globalFilterFields: string[] = ['id', 'name', 'description', 'duration', 'maximumUnits', 'course.name'];
+    size = 10;
 
-    constructor(private router: Router, private store: Store) {
-        this.levels$ = this.store.select(selectAllLevels);
-        this.loading$ = this.store.select(selectLevelLoading);
+    constructor(private router: Router,
+        private store: Store,
+        private confirmationService: ConfirmationService) {
+
+        this.levels$ = this.store.select(selectAllLevels).pipe(
+                                startWith([])
+                            );
+                    this.loading$ = this.store.select(selectLevelLoading);
     }
 
     ngOnInit(): void {
-        // Load levels from store
-        this.store.dispatch(LevelActions.loadLevels());
 
-        // Subscribe to levels and loading observables
-        this.levels$.subscribe(levels => {
-            this.levels = levels;
-        });
-
-        this.loading$.subscribe(loading => {
-            this.loading = loading;
-        });
+        this.loadLevels();
 
         // Define columns for the table
         this.columns = [
@@ -72,11 +73,6 @@ export class ListComponent implements OnInit {
                 filterType: 'numeric',
             },
             {
-                field: 'course.name',
-                header: 'Curso',
-                filterType: 'text',
-            },
-            {
                 field: 'actions',
                 header: 'Ações',
                 customTemplate: true,
@@ -84,14 +80,34 @@ export class ListComponent implements OnInit {
         ];
     }
 
+    loadLevels(): void {
+        this.store.dispatch(LevelActions.loadPagedLevels({ size: this.size }));
+    }
+
+
     viewDetails(level: Level): void {
-        // Dispatch loadLevel action to load the selected level
-        this.store.dispatch(LevelActions.loadLevel({ id: level.id }));
         this.router.navigate(['/courses/levels', level.id]);
     }
 
     createLevel(): void {
-        // Navigate to create page
-        this.router.navigate(['/courses/levels/create']);
+        this.createLevelDialog.show();
     }
+
+    deleteLevel(level: Level): void {
+            this.confirmationService.confirm({
+                message: `Tem certeza de que deseja excluir o nivel "${level.name}"?`,
+                header: 'Confirmação',
+                icon: 'pi pi-exclamation-triangle text-warning',
+                acceptLabel: 'Sim',
+                rejectLabel: 'Não',
+                acceptButtonStyleClass: 'p-button-danger',
+                rejectButtonStyleClass: 'p-button-secondary',
+                accept: () => {
+                    this.store.dispatch(LevelActions.deleteLevel({ id: level.id }));
+                },
+                reject: () => {
+                    console.log('Ação de exclusão cancelada.');
+                }
+            });
+        }
 }

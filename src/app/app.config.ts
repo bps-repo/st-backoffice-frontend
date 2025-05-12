@@ -19,6 +19,10 @@ import { centerFeature } from './core/store/corporate/reducers/center.reducer';
 import { CenterEffects } from './core/store/corporate/effects/center.effects';
 import { serviceFeature } from './core/store/course/reducers/service.reducer';
 import { ServiceEffects } from './core/store/course/effects/service.effects';
+import { LevelEffects } from './core/store/course/effects/level.effects';
+import { levelFeature } from './core/store/course/reducers/level.reducer';
+import { UnitEffects } from './core/store/course/effects/unit.effects';
+import { unitFeature } from './core/store/course/reducers/unit.reducer';
 
 export const AppConfig: ApplicationConfig = {
     providers: [
@@ -39,14 +43,18 @@ export const AppConfig: ApplicationConfig = {
             router: routerReducer
         }),
         provideState(authFeature),
-        provideState(studentsFeature),
+        //provideState(studentsFeature),
         provideState(classesFeature),
         provideState(centerFeature),
         provideState(serviceFeature),
+        provideState(levelFeature),
+        provideState(unitFeature),
         provideEffects(scholarEffects),
         provideEffects([AuthEffects]),
         provideEffects([CenterEffects]),
         provideEffects([ServiceEffects]),
+        provideEffects([LevelEffects]),
+        provideEffects([UnitEffects]),
         provideStoreDevtools({
             maxAge: 25,
             logOnly: !isDevMode(),

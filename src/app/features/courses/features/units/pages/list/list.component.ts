@@ -1,97 +1,113 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import {
-    TableColumn,
-    GlobalTable,
-} from 'src/app/shared/components/tables/global-table/global-table.component';
+import { Observable, startWith } from 'rxjs';
+import { CreateUnitDialogComponent } from '../../dialogs/create-unit-dialog/create-unit-dialog.component';
+import { ButtonModule } from 'primeng/button';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TableColumn, GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import * as UnitActions from 'src/app/core/store/course/actions/unit.actions';
+import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
 import { selectAllUnits, selectUnitLoading } from 'src/app/core/store/course/selectors/unit.selector';
+import { selectAllLevels } from 'src/app/core/store/course/selectors/level.selector';
 import { Unit } from 'src/app/core/models/course/unit';
+import { Level } from 'src/app/core/models/course/level';
 
 @Component({
     selector: 'app-unit-list',
-    imports: [CommonModule, GlobalTable],
+    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateUnitDialogComponent],
     templateUrl: './list.component.html',
-    standalone: true
+    standalone: true,
+    providers: [ConfirmationService]
 })
 export class ListComponent implements OnInit {
+
+    @ViewChild(CreateUnitDialogComponent) createUnitDialog!: CreateUnitDialogComponent;
+
     units$: Observable<Unit[]>;
-    units: Unit[] = [];
     loading$: Observable<boolean>;
-    loading = false;
+    units: Unit[] = [];
+    levels: Level[] = [];
 
     columns: TableColumn[] = [];
-    globalFilterFields: string[] = ['id', 'name', 'description', 'level.name', 'order', 'maximumAssessmentAttempt'];
+    size = 10;
 
-    constructor(private router: Router, private store: Store) {
-        this.units$ = this.store.select(selectAllUnits);
+    constructor(
+        private router: Router,
+        private store: Store,
+        private confirmationService: ConfirmationService
+    ) {
+        this.units$ = this.store.select(selectAllUnits).pipe(startWith([]));
         this.loading$ = this.store.select(selectUnitLoading);
     }
 
     ngOnInit(): void {
-        // Load units from store
-        this.store.dispatch(UnitActions.loadUnits());
+        this.loadUnits();
+        this.store.dispatch(LevelActions.loadLevels()); // Carrega os níveis
 
-        // Subscribe to units and loading observables
+        // Carrega níveis e unidades em memória e cruza os dados
+        this.store.select(selectAllLevels).subscribe(levels => {
+            this.levels = levels;
+            this.mapLevelNames();
+        });
+
         this.units$.subscribe(units => {
             this.units = units;
+            this.mapLevelNames();
         });
 
-        this.loading$.subscribe(loading => {
-            this.loading = loading;
-        });
-
-        // Define columns for the table
         this.columns = [
-            {
-                field: 'id',
-                header: 'ID',
-                filterType: 'text',
-            },
-            {
-                field: 'name',
-                header: 'Nome',
-                filterType: 'text',
-            },
-            {
-                field: 'description',
-                header: 'Descrição',
-                filterType: 'text',
-            },
-            {
-                field: 'level.name',
-                header: 'Nível',
-                filterType: 'text',
-            },
-            {
-                field: 'order',
-                header: 'Ordem',
-                filterType: 'numeric',
-            },
-            {
-                field: 'maximumAssessmentAttempt',
-                header: 'Máximo de Tentativas',
-                filterType: 'numeric',
-            },
-            {
-                field: 'actions',
-                header: 'Ações',
-                customTemplate: true,
-            },
+            { field: 'id', header: 'ID', filterType: 'text' },
+            { field: 'name', header: 'Nome', filterType: 'text' },
+            { field: 'description', header: 'Descrição', filterType: 'text' },
+            { field: 'orderUnit', header: 'Unidade de pedido', filterType: 'numeric' },
+            { field: 'levelName', header: 'Nível', filterType: 'text' },
+            { field: 'actions', header: 'Ações', customTemplate: true },
         ];
     }
 
+    loadUnits(): void {
+        this.store.dispatch(UnitActions.loadPagedUnits({ size: this.size }));
+    }
+
+    mapLevelNames(): void {
+        if (!this.units || !this.levels) return;
+
+        this.units = this.units.map(unit => {
+            const level = this.levels.find(l => l.id === unit.levelId);
+            return {
+                ...unit,
+                level: level ?? null,
+                levelName: level?.name ?? 'Nível não encontrado'
+            };
+        });
+    }
+
     viewDetails(unit: Unit): void {
-        // Dispatch loadUnit action to load the selected unit
-        this.store.dispatch(UnitActions.loadUnit({ id: unit.id }));
         this.router.navigate(['/courses/units', unit.id]);
     }
 
     createUnit(): void {
-        // Navigate to create page
-        this.router.navigate(['/courses/units/create']);
+        this.createUnitDialog.show();
+    }
+
+    deleteUnit(unit: Unit): void {
+        this.confirmationService.confirm({
+            message: `Tem certeza de que deseja excluir a unidade "${unit.name}"?`,
+            header: 'Confirmação',
+            icon: 'pi pi-exclamation-triangle text-warning',
+            acceptLabel: 'Sim',
+            rejectLabel: 'Não',
+            acceptButtonStyleClass: 'p-button-danger',
+            rejectButtonStyleClass: 'p-button-secondary',
+            accept: () => {
+                this.store.dispatch(UnitActions.deleteUnit({ id: unit.id }));
+            },
+            reject: () => {
+                console.log('Ação de exclusão cancelada.');
+            }
+        });
     }
 }

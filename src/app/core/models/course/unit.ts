@@ -4,9 +4,10 @@ export interface Unit {
     id: string;
     name: string;
     description: string;
-    level: Level;
-    order: number;
+    level: Level | null;
+    levelId: string;
+    orderUnit: number;
     maximumAssessmentAttempt: number;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
 }

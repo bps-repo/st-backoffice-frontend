@@ -58,7 +58,7 @@ export const serviceFeature = createFeature({
     })),
     on(ServiceActions.loadServiceSuccess, (state, { service }) => ({
         ...state,
-        selectedService: service,
+        service: service,
         loading: false,
         error: null,
     })),

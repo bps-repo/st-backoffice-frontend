@@ -9,6 +9,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { Unit } from 'src/app/core/models/course/unit';
 import { Level } from 'src/app/core/models/course/level';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import * as UnitActions from 'src/app/core/store/course/actions/unit.actions';
+import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
+import { selectUnitError, selectUnitLoading } from 'src/app/core/store/course/selectors/unit.selector';
+import { selectAllLevels } from 'src/app/core/store/course/selectors/level.selector';
 
 @Component({
     selector: 'app-create-unit-dialog',
@@ -25,31 +31,36 @@ import { Level } from 'src/app/core/models/course/level';
     templateUrl: './create-unit-dialog.component.html'
 })
 export class CreateUnitDialogComponent implements OnInit {
+
     visible: boolean = false;
 
-    unit: Unit = {
-        id: '',
+    unit: Partial<Unit> = {
         name: '',
         description: '',
-        level: { id: '', name: '', description: '', duration: 0, maximumUnits: 0, course: { id: '', name: '', description: '', value: 0, active: false, type: 'REGULAR_COURSE' }, createdAt: '', updatedAt: '' },
-        order: 0,
+        orderUnit: 0,
         maximumAssessmentAttempt: 0,
-        createdAt: '',
-        updatedAt: ''
-    };
+        level: undefined
+      };
 
-    // Dropdown options
-    levelOptions: Level[] = [];
 
-    constructor() {}
+    loading$: Observable<boolean>;
+    error$: Observable<any>;
+    levelOptions$: Observable<Level[]>;
+
+    constructor(private store: Store) {
+        this.loading$ = this.store.select(selectUnitLoading);
+        this.error$ = this.store.select(selectUnitError);
+        this.levelOptions$ = this.store.select(selectAllLevels);
+    }
 
     ngOnInit() {
-        // Initialize level options (mocked for now, replace with real data)
-        this.levelOptions = [
-            { id: '1', name: 'Level A', description: 'Description A', duration: 10, maximumUnits: 5, course: { id: '1', name: 'Course A', description: 'Course Description A', value: 100, active: true, type: 'REGULAR_COURSE' }, createdAt: '', updatedAt: '' },
-            { id: '2', name: 'Level B', description: 'Description B', duration: 20, maximumUnits: 10, course: { id: '2', name: 'Course B', description: 'Course Description B', value: 200, active: true, type: 'REGULAR_COURSE' }, createdAt: '', updatedAt: '' },
-            { id: '3', name: 'Level C', description: 'Description C', duration: 30, maximumUnits: 15, course: { id: '3', name: 'Course C', description: 'Course Description C', value: 300, active: true, type: 'REGULAR_COURSE' }, createdAt: '', updatedAt: '' }
-        ];
+        this.error$.subscribe((error) => {
+            if (error) {
+                console.error('Erro ao criar o Unit:', error);
+            }
+        });
+
+       this.store.dispatch(LevelActions.loadPagedLevels({ size: 10 }));
     }
 
     show() {
@@ -61,21 +72,38 @@ export class CreateUnitDialogComponent implements OnInit {
     }
 
     saveUnit() {
-        // In a real application, you would save the unit data using a service
-        console.log('Unit saved:', this.unit);
-        this.hide();
+
+        if (!this.unit.level?.id) {
+            console.error('LevelId é obrigatório');
+            return;
+        }
+
+        const payload = {
+            name: this.unit.name,
+            description: this.unit.description,
+            orderUnit: this.unit.orderUnit,
+            maximumAssessmentAttempt: this.unit.maximumAssessmentAttempt,
+            levelId: this.unit.level?.id
+        };
+        console.log('Payload:', payload);
+
+        this.store.dispatch(UnitActions.createUnit({ unit: payload }));
+
+        this.store.select(selectUnitError).subscribe(error => {
+            if (!error) {
+                this.hide();
+                this.resetForm();
+            }
+        });
     }
 
     resetForm() {
         this.unit = {
-            id: '',
             name: '',
             description: '',
-            level: { id: '', name: '', description: '', duration: 0, maximumUnits: 0, course: { id: '', name: '', description: '', value: 0, active: false, type: 'REGULAR_COURSE' }, createdAt: '', updatedAt: '' },
-            order: 0,
+            orderUnit: 0,
             maximumAssessmentAttempt: 0,
-            createdAt: '',
-            updatedAt: ''
+            level: undefined
         };
     }
 }

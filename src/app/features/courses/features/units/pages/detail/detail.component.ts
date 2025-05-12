@@ -1,3 +1,4 @@
+// detail.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -9,20 +10,37 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Unit } from 'src/app/core/models/course/unit';
+import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
+import { selectAllLevels } from 'src/app/core/store/course/selectors/level.selector';
+import { Level } from 'src/app/core/models/course/level';
 
 @Component({
     selector: 'app-unit-detail',
     templateUrl: './detail.component.html',
     standalone: true,
-    imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule]
+    imports: [
+        CommonModule,
+        SkeletonModule,
+        InputTextModule,
+        InputTextareaModule,
+        ButtonModule,
+        FormsModule,
+        ProgressSpinnerModule
+    ]
 })
 export class DetailComponent implements OnInit {
+
     unitId: string = '';
     unit$: Observable<Unit | null>;
     unit: Unit | null = null;
+    editableUnit: Unit | null = null;
     loading$: Observable<boolean>;
     loading: boolean = true;
+    levels: Level[] = [];
+
 
     constructor(private route: ActivatedRoute, private store: Store) {
         this.unit$ = this.store.select(selectSelectedUnit);
@@ -35,9 +53,18 @@ export class DetailComponent implements OnInit {
             this.loadUnit();
         });
 
-        // Subscribe to unit and loading observables
+        // Carrega níveis
+        this.store.dispatch(LevelActions.loadLevels());
+
+        this.store.select(selectAllLevels).subscribe(levels => {
+            this.levels = levels;
+            this.setUnitLevel();
+        });
+
         this.unit$.subscribe(unit => {
             this.unit = unit;
+            this.editableUnit = unit ? { ...unit } : null;
+            this.setUnitLevel();
         });
 
         this.loading$.subscribe(loading => {
@@ -46,19 +73,43 @@ export class DetailComponent implements OnInit {
     }
 
     loadUnit(): void {
-        // Dispatch action to load the selected unit
         this.store.dispatch(UnitActions.loadUnit({ id: this.unitId }));
     }
 
+    editUnit(): void {
+
+        if (this.editableUnit) {
+            const updatedUnit: any = {
+                name: this.editableUnit.name,
+                description: this.editableUnit.description,
+                orderUnit: this.editableUnit.orderUnit,
+
+            };
+
+            this.store.dispatch(UnitActions.updateUnit({ id: this.unitId, unit: updatedUnit }));
+        }
+    }
+
+    setUnitLevel(): void {
+        if (this.unit && this.levels.length > 0) {
+            const matchedLevel = this.levels.find(l => l.id === this.unit?.levelId);
+            if (matchedLevel) {
+                this.unit = {
+                    ...this.unit,
+                    level: matchedLevel
+                };
+                this.editableUnit = { ...this.unit };
+            }
+        }
+    }
+
     downloadUnitDetails(): void {
-        // Simulação de download dos detalhes da unidade
         console.log('Downloading unit details:', this.unit);
-        alert('Download dos detalhes da Unidade iniciado');
+        alert('Download dos detalhes do Nível iniciado');
     }
 
     sendUnitDetails(): void {
-        // Simulação de envio dos detalhes da unidade
         console.log('Sending unit details:', this.unit?.name);
-        alert('Detalhes da Unidade enviados para ' + this.unit?.name);
+        alert('Detalhes do Nível enviados para ' + this.unit?.name);
     }
 }

@@ -1,7 +1,7 @@
 <p-dialog
     [(visible)]="visible"
     [style]="{ width: '500px' }"
-    header="Create Level"
+    header="Criar Nível"
     [modal]="true"
     styleClass="p-fluid"
     [draggable]="false"
@@ -53,19 +53,21 @@
                 placeholder="Enter maximum units"
                 required>
         </div>
-
+        <!--
         <div class="col-12 field">
             <label for="course" class="font-bold">Course</label>
+
             <p-dropdown
                 id="course"
-                [options]="courseOptions"
+                [options]="(courseOptions$ | async) ?? []"
                 [(ngModel)]="level.course"
                 optionLabel="name"
-                placeholder="Select a course"
+                placeholder="Selecione um curso"
                 [showClear]="true"
                 [required]="true">
             </p-dropdown>
         </div>
+        -->
     </div>
 
     <ng-template pTemplate="footer">
