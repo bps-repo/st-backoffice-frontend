@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { DetailComponent } from './pages/detail/detail.component';
 import { ListComponent } from './pages/list/list.component';
 
-export const CentersRoutes: Routes = [
+const routes: Routes = [
         {
             path: '',
             component: ListComponent,
@@ -16,9 +16,9 @@ export const CentersRoutes: Routes = [
 
 
 @NgModule({
-    imports: [RouterModule.forChild(CentersRoutes)],
+    imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class LessonsRoutes {
+export class CentersRoutes {
 }
 

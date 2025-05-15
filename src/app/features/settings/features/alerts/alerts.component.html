@@ -1,0 +1,65 @@
+<div class="grid">
+    <div class="col-12 xl:col-4">
+      <div class="card">
+        <h2 class="mb-3">Novo Alerta</h2>
+        <form [formGroup]="alertForm" (ngSubmit)="addAlert()" class="p-fluid">
+          <div class="field">
+            <label>Tipo</label>
+            <p-dropdown [options]="alertTypes" formControlName="type" placeholder="Selecionar tipo"></p-dropdown>
+          </div>
+          <div class="field">
+            <label>Título</label>
+            <input pInputText formControlName="title" />
+          </div>
+          <div class="field">
+            <label>Descrição</label>
+            <input pInputText formControlName="description" />
+          </div>
+          <button pButton type="submit" label="Adicionar Alerta" [disabled]="alertForm.invalid"></button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-12 xl:col-8">
+      <div class="card">
+        <h2>Lista de Alertas</h2>
+        <p-table [value]="alerts">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Tipo</th>
+              <th>Título</th>
+              <th>Descrição</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-alert>
+            <tr>
+              <td>
+                <i class="pi mr-2" [ngClass]="getIcon(alert.type)" [class]="getColor(alert.type)"></i>
+                {{ alert.type }}
+              </td>
+              <td>{{ alert.title }}</td>
+              <td>{{ alert.description }}</td>
+              <td>{{ alert.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <span [ngClass]="alert.read ? 'text-green-500' : 'text-orange-500'">
+                  {{ alert.read ? 'Lido' : 'Não lido' }}
+                </span>
+              </td>
+              <td>
+                <button
+                  pButton
+                  icon="pi pi-eye"
+                  class="p-button-text"
+                  [disabled]="alert.read"
+                  (click)="markAsRead(alert)"
+                ></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>

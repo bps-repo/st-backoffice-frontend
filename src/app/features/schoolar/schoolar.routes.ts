@@ -1,16 +1,12 @@
 import {Routes} from '@angular/router';
 import {DashboardComponent} from './features/dashboard/components/dashboard/dashboard.component';
 
-/**
- * Routes for the schoolar feature
- * Using functional approach for lazy loading and providing store features
- */
-export const SCHOOLAR_ROUTES: Routes = [
+export const SchoolarRoutes: Routes = [
     {
         path: '',
         children: [
             {
-                path: '',
+                path: 'dashboard',
                 redirectTo: 'dashboard',
                 pathMatch: 'full',
             },
@@ -21,7 +17,7 @@ export const SCHOOLAR_ROUTES: Routes = [
             {
                 path: 'students',
                 loadChildren: () =>
-                    import('./features/students/students.routes').then((m) => m.STUDENTS_ROUTES),
+                    import('./features/students/students.routes').then((m) => m.StudentsRoutes),
             },
             {
                 path: 'entities',
@@ -51,7 +47,7 @@ export const SCHOOLAR_ROUTES: Routes = [
             {
                 path: 'reports',
                 loadChildren: () =>
-                    import('./features/reports/reports.routes').then((m) => m.reportsRoutes),
+                    import('./features/reports/reports.routes').then((m) => m.ReportsRoutes),
             },
             {
                 path: 'certificates',

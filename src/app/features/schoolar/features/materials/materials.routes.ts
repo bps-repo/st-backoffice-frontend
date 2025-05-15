@@ -8,7 +8,7 @@ import { DetailComponent } from './pages/detail/detail.component';
     imports: [RouterModule.forChild([
         {
             path: '',
-             component: ListComponent,
+            component: ListComponent,
         },
         {
             path: 'create',

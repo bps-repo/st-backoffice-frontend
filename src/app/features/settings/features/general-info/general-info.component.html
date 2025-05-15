@@ -1,0 +1,46 @@
+<div class="grid">
+
+    <!-- Apresentação -->
+    <div class="col-12">
+      <p-card header="Bem-vindo à ST - Andrews School">
+        <p>
+          Este sistema foi desenvolvido para facilitar a gestão acadêmica e administrativa da ST - Andrews School.
+          Aqui você pode acessar informações sobre alunos, professores, cursos, centros e relatórios.
+        </p>
+      </p-card>
+    </div>
+
+    <!-- Indicadores Rápidos -->
+    <div class="col-12 md:col-6 xl:col-3" *ngFor="let item of kpis">
+      <p-card>
+        <div class="text-900 text-xl font-bold mb-2">{{ item.value }}</div>
+        <div class="text-500">{{ item.label }}</div>
+      </p-card>
+    </div>
+
+    <!-- Avisos -->
+    <div class="col-12">
+      <p-card header="Avisos e Comunicados">
+        <div *ngFor="let notice of notices" class="mb-4">
+          <div class="text-lg font-bold mb-1">{{ notice.title }}</div>
+          <p>{{ notice.message }}</p>
+          <p-tag [value]="notice.status" severity="warning"></p-tag>
+          <p-divider type="dashed"></p-divider>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Contatos -->
+    <div class="col-12 md:col-6">
+      <p-card header="Contatos Importantes">
+        <ul class="list-none pl-0">
+          <li *ngFor="let contact of contacts" class="mb-3">
+            <strong>{{ contact.role }}</strong><br />
+            <span>Email: {{ contact.email }}</span><br />
+            <span>Telefone: {{ contact.phone }}</span>
+          </li>
+        </ul>
+      </p-card>
+    </div>
+
+  </div>

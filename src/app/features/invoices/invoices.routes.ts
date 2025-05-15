@@ -1,13 +1,27 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { DashboardComponent } from './features/dashboard/components/dashboard/dashboard.component';
 
 const routes: Routes = [
-
     {
-        path: 'invoices',
-        loadChildren: () =>
-            import('../invoices/features/form-invoices/form-invoices.module').then((m) => m.FormInvoicesModule),
-    },
+            path: '',
+                    children: [
+                        {
+                            path: '',
+                            redirectTo: 'dashboard',
+                            pathMatch: 'full',
+                        },
+                        {
+                            path: 'dashboard',
+                            component: DashboardComponent,
+                        },
+                        {
+                        path: 'invoices',
+                            loadChildren: () =>
+                            import('../invoices/features/form-invoices/form-invoices.routes').then((m) => m.FormInvoicesRoutes),
+                 },
+        ]
+    }
 ];
 
 @NgModule({

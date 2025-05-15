@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ChartModule } from 'primeng/chart';
 import { CalendarModule } from 'primeng/calendar';
 
 interface Alert {
@@ -10,72 +10,69 @@ interface Alert {
 }
 
 @Component({
-    selector: 'app-dashboard',
+    selector: 'app-dashboard-empresa',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule],
+    imports: [CommonModule, FormsModule, ChartModule, CalendarModule],
     templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
+    kpis = [
+        { label: 'Centros Ativos', current: 5, diff: 0 },
+        { label: 'Contratos Ativos', current: 38, diff: 12 },
+        { label: 'Funcionários', current: 124, diff: 8 },
+        { label: 'Relatórios Emitidos', current: 47, diff: -2 },
+    ];
 
-    pieDataLevels: any;
-    pieLevelOptions: any;
+    alerts: Alert[] = [
+        { label: 'Novo Centro', description: 'Centro Zona Sul foi inaugurado' },
+        { label: 'Contrato Renovado', description: 'Contrato da empresa X renovado por mais 12 meses' },
+        { label: 'Novo Funcionário', description: 'João da Silva foi contratado como analista' },
+    ];
+
+    pieData: any;
+    pieOptions: any;
     barChartData: any;
     barChartOptions: any;
     dateRange: Date[] | undefined;
 
-    alerts: Alert[] = [
-        { label: 'Inscrição', description: 'Username foi inscrito no curso de Beginning' },
-        { label: 'Agendamento de aulas', description: 'Usernamer8374 acabou de agendar uma aula para as 12h' },
-        { label: 'Matrícula', description: '15 novos estudantes matriculados pela user2' },
-    ];
-
-    kpis = [
-        { label: 'Inscrições (mês)', current: 250, diff: 12 },
-        { label: 'Aulas marcadas', current: 360, diff: 4 },
-        { label: 'Desistências', current: 45, diff: -5 },
-        { label: 'Novos professores', current: 6, diff: 20 },
-    ];
-
-    constructor() {}
-
     ngOnInit(): void {
-        this.initCharts();
+        this.initPieChart();
         this.initBarChart();
     }
 
-    initCharts() {
+    initPieChart() {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        this.pieDataLevels = {
-            labels: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+        this.pieData = {
+            labels: ['Centro Norte', 'Centro Sul', 'Centro Leste', 'Centro Oeste'],
             datasets: [
                 {
-                    data: [400, 100, 150, 100],
+                    data: [35, 40, 25, 24],
                     backgroundColor: [
-                        documentStyle.getPropertyValue('--primary-800'),
-                        documentStyle.getPropertyValue('--primary-600'),
+                        documentStyle.getPropertyValue('--primary-700'),
+                        documentStyle.getPropertyValue('--primary-500'),
                         documentStyle.getPropertyValue('--primary-300'),
                         documentStyle.getPropertyValue('--primary-100'),
                     ],
                     hoverBackgroundColor: [
                         documentStyle.getPropertyValue('--primary-600'),
-                        documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-300'),
+                        documentStyle.getPropertyValue('--primary-400'),
                         documentStyle.getPropertyValue('--primary-200'),
+                        documentStyle.getPropertyValue('--primary-100'),
                     ],
                 },
             ],
         };
 
-        this.pieLevelOptions = {
+        this.pieOptions = {
             plugins: {
                 legend: {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
                         font: { weight: 700 },
-                        padding: 28,
+                        padding: 20,
                     },
                     position: 'bottom',
                 },
@@ -91,19 +88,14 @@ export class DashboardComponent implements OnInit {
             labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
             datasets: [
                 {
-                    label: 'Inscrições',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-800'),
-                    data: [150, 200, 180, 220, 240, 250],
+                    label: 'Novos Contratos',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    data: [4, 5, 6, 7, 5, 8],
                 },
                 {
-                    label: 'Aulas Marcadas',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-400'),
-                    data: [300, 320, 310, 330, 350, 360],
-                },
-                {
-                    label: 'Desistências',
-                    backgroundColor: documentStyle.getPropertyValue('--red-400'),
-                    data: [50, 12, 20, 10, 40, 13],
+                    label: 'Contratos Ativos',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-300'),
+                    data: [30, 32, 34, 35, 36, 38],
                 },
             ],
         };
@@ -112,9 +104,7 @@ export class DashboardComponent implements OnInit {
             responsive: true,
             plugins: {
                 legend: {
-                    labels: {
-                        color: textColor,
-                    },
+                    labels: { color: textColor },
                 },
             },
             scales: {
@@ -132,7 +122,6 @@ export class DashboardComponent implements OnInit {
     }
 
     filtrarDados() {
-        // Simule ou faça uma chamada para API aqui com base na data
-        console.log('Filtrar por:', this.dateRange);
+        console.log('Filtrando dados de empresa entre:', this.dateRange);
     }
 }

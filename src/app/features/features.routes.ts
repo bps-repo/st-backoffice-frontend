@@ -4,7 +4,7 @@ export const FeaturesRoutes: Routes = [
     {
         path: 'schoolar',
         loadChildren: () =>
-            import('./schoolar/schoolar.routes').then((m) => m.SCHOOLAR_ROUTES),
+            import('./schoolar/schoolar.routes').then((m) => m.SchoolarRoutes),
     },
     {
         path: 'courses',
@@ -14,7 +14,7 @@ export const FeaturesRoutes: Routes = [
     {
         path: 'settings',
         loadChildren: () =>
-            import('./settings/settings-routing.module').then((m) => m.SettingsRoutingModule),
+            import('./settings/settings.routes').then((m) => m.SettingsRoutes),
     },
     {
         path: 'corporate',

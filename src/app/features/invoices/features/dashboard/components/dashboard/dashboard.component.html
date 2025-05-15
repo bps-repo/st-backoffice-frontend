@@ -1,13 +1,13 @@
 <div class="grid">
-    <!-- Indicadores -->
+    <!-- Indicadores de faturação -->
     <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis">
         <div class="card h-full">
             <span class="font-semibold text-lg">{{ kpi.label }}</span>
             <div class="flex justify-content-between align-items-start mt-3">
                 <div class="w-6">
                     <span class="text-4xl font-bold text-900">{{ kpi.current }}</span>
-                    <div [ngClass]="kpi.diff > 0 ? 'text-green-500' : 'text-red-500'">
-                        <i class="pi" [ngClass]="kpi.diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'"></i>
+                    <div [ngClass]="kpi.diff >= 0 ? 'text-green-500' : 'text-red-500'">
+                        <i class="pi" [ngClass]="kpi.diff >= 0 ? 'pi-arrow-up' : 'pi-arrow-down'"></i>
                         {{ kpi.diff }}%
                     </div>
                 </div>
@@ -31,11 +31,11 @@
         </div>
     </div>
 
-    <!-- Gráfico de evolução -->
+    <!-- Evolução de faturação -->
     <div class="col-12 xl:col-12">
         <div class="card h-full">
             <div class="text-xl font-semibold mb-5">
-                Evolução mensal (Últimos 6 meses)
+                Evolução de Faturação (últimos 6 meses)
             </div>
             <p-chart
                 type="bar"
@@ -46,33 +46,33 @@
         </div>
     </div>
 
-    <!-- Gráfico de pizza -->
+    <!-- Distribuição de documentos -->
     <div class="col-12 xl:col-6">
         <div class="card h-full">
             <div class="text-xl font-semibold mb-6">
-                Alunos ativos por níveis
+                Tipos de Documentos Emitidos
             </div>
             <p-chart
                 type="pie"
-                [data]="pieDataLevels"
-                [options]="pieLevelOptions"
+                [data]="pieDataDocs"
+                [options]="pieDocOptions"
                 height="300px"
             ></p-chart>
         </div>
     </div>
 
-    <!-- Últimas notificações -->
+    <!-- Últimas atualizações -->
     <div class="col-12 xl:col-6">
         <div class="card h-full">
             <div class="text-xl font-semibold mb-5">
-                Últimas notificações
+                Últimas movimentações
             </div>
             <div
                 *ngFor="let alert of alerts"
                 class="flex flex-column justify-content-start align-content-start mb-4 gap-1"
             >
                 <div class="flex align-items-center gap-1">
-                    <i class="pi pi-bell font-bold"></i>
+                    <i class="pi pi-file font-bold"></i>
                     <div class="flex flex-column ml-3">
                         <span class="font-bold text-lg mb-1">{{ alert.label }}</span>
                     </div>

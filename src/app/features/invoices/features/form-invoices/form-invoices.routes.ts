@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { ListComponent } from './pages/list/list.component';
 import { CreateComponent } from './pages/create/create.component';
 
+const routes: Routes = [
 
-@NgModule({
-    imports: [RouterModule.forChild([
         {
                 path: '',
                 component: ListComponent,
@@ -13,9 +12,11 @@ import { CreateComponent } from './pages/create/create.component';
         {
                 path: 'create',
                 component: CreateComponent,
-            },
+            }
+];
 
-    ])],
-    exports: [RouterModule]
+@NgModule({
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
-export class FormInvoicesRoutes { }
+export class FormInvoicesRoutes {}

@@ -1,10 +1,7 @@
-import { Routes } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
-/**
- * Routes for the students feature
- * Using standalone components approach
- */
-export const STUDENTS_ROUTES: Routes = [
+const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
@@ -25,11 +22,6 @@ export const STUDENTS_ROUTES: Routes = [
         redirectTo: 'info',
         pathMatch: 'full'
       },
-      // {
-      //   path: 'info',
-      //   loadComponent: () =>
-      //     import('./pages/detail/tabs/info/info.component').then(c => c.InfoComponent)
-      // },
       {
         path: 'courses',
         loadComponent: () =>
@@ -43,3 +35,9 @@ export const STUDENTS_ROUTES: Routes = [
     ]
   }
 ];
+@NgModule({
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
+})
+export class StudentsRoutes{
+}

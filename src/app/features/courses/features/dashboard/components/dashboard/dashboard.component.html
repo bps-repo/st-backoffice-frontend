@@ -1,5 +1,5 @@
 <div class="grid">
-    <!-- Indicadores -->
+    <!-- Indicadores de cursos -->
     <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis">
         <div class="card h-full">
             <span class="font-semibold text-lg">{{ kpi.label }}</span>
@@ -31,11 +31,11 @@
         </div>
     </div>
 
-    <!-- Gráfico de evolução -->
+    <!-- Gráfico de evolução de cursos -->
     <div class="col-12 xl:col-12">
         <div class="card h-full">
             <div class="text-xl font-semibold mb-5">
-                Evolução mensal (Últimos 6 meses)
+                Evolução de cursos (últimos 6 meses)
             </div>
             <p-chart
                 type="bar"
@@ -46,11 +46,11 @@
         </div>
     </div>
 
-    <!-- Gráfico de pizza -->
+    <!-- Distribuição de cursos por categoria -->
     <div class="col-12 xl:col-6">
         <div class="card h-full">
             <div class="text-xl font-semibold mb-6">
-                Alunos ativos por níveis
+                Cursos por categoria
             </div>
             <p-chart
                 type="pie"
@@ -61,18 +61,18 @@
         </div>
     </div>
 
-    <!-- Últimas notificações -->
+    <!-- Últimas atualizações de cursos -->
     <div class="col-12 xl:col-6">
         <div class="card h-full">
             <div class="text-xl font-semibold mb-5">
-                Últimas notificações
+                Últimas atualizações de cursos
             </div>
             <div
                 *ngFor="let alert of alerts"
                 class="flex flex-column justify-content-start align-content-start mb-4 gap-1"
             >
                 <div class="flex align-items-center gap-1">
-                    <i class="pi pi-bell font-bold"></i>
+                    <i class="pi pi-book font-bold"></i>
                     <div class="flex flex-column ml-3">
                         <span class="font-bold text-lg mb-1">{{ alert.label }}</span>
                     </div>

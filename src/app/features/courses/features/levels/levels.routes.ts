@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { DetailComponent } from './pages/detail/detail.component';
 import { ListComponent } from './pages/list/list.component';
 
-export const LevelsRoutes: Routes = [
+const routes: Routes = [
         {
             path: '',
             component: ListComponent,
@@ -16,8 +16,7 @@ export const LevelsRoutes: Routes = [
 
 
 @NgModule({
-    imports: [RouterModule.forChild(LevelsRoutes)],
+    imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class LevelsRoutingModule {}
-
+export class LevelsRoutes{}

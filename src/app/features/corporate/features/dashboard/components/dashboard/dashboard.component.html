@@ -1,5 +1,5 @@
 <div class="grid">
-    <!-- Indicadores -->
+    <!-- Indicadores de empresa -->
     <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis">
         <div class="card h-full">
             <span class="font-semibold text-lg">{{ kpi.label }}</span>
@@ -16,7 +16,7 @@
     </div>
 
     <!-- Filtro por período -->
-    <div class="col-12 xl:col-12">
+    <div class="col-12">
         <div class="card">
             <div class="flex gap-3 align-items-center">
                 <p-calendar
@@ -31,12 +31,10 @@
         </div>
     </div>
 
-    <!-- Gráfico de evolução -->
-    <div class="col-12 xl:col-12">
+    <!-- Gráfico de evolução de contratos -->
+    <div class="col-12">
         <div class="card h-full">
-            <div class="text-xl font-semibold mb-5">
-                Evolução mensal (Últimos 6 meses)
-            </div>
+            <div class="text-xl font-semibold mb-5">Evolução de contratos (últimos 6 meses)</div>
             <p-chart
                 type="bar"
                 [data]="barChartData"
@@ -46,39 +44,32 @@
         </div>
     </div>
 
-    <!-- Gráfico de pizza -->
+    <!-- Distribuição de funcionários por centro -->
     <div class="col-12 xl:col-6">
         <div class="card h-full">
-            <div class="text-xl font-semibold mb-6">
-                Alunos ativos por níveis
-            </div>
+            <div class="text-xl font-semibold mb-6">Funcionários por centro</div>
             <p-chart
                 type="pie"
-                [data]="pieDataLevels"
-                [options]="pieLevelOptions"
+                [data]="pieData"
+                [options]="pieOptions"
                 height="300px"
             ></p-chart>
         </div>
     </div>
 
-    <!-- Últimas notificações -->
+    <!-- Últimas atualizações -->
     <div class="col-12 xl:col-6">
         <div class="card h-full">
-            <div class="text-xl font-semibold mb-5">
-                Últimas notificações
-            </div>
-            <div
-                *ngFor="let alert of alerts"
-                class="flex flex-column justify-content-start align-content-start mb-4 gap-1"
-            >
-                <div class="flex align-items-center gap-1">
-                    <i class="pi pi-bell font-bold"></i>
-                    <div class="flex flex-column ml-3">
-                        <span class="font-bold text-lg mb-1">{{ alert.label }}</span>
+            <div class="text-xl font-semibold mb-5">Últimas atualizações</div>
+            <div *ngFor="let alert of alerts" class="mb-4">
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-building font-bold"></i>
+                    <div class="ml-2">
+                        <span class="font-bold text-lg">{{ alert.label }}</span>
+                        <div class="text-base p-text-secondary">{{ alert.description }}</div>
+                        <div class="text-sm text-500">12/12/2024 12:04</div>
                     </div>
                 </div>
-                <div class="text-xl p-text-secondary ml-5">{{ alert.description }}</div>
-                <div class="ml-5">12/12/2024 12:04</div>
             </div>
         </div>
     </div>

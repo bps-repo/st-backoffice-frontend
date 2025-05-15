@@ -16,66 +16,63 @@ interface Alert {
     templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
-
-    pieDataLevels: any;
-    pieLevelOptions: any;
+    pieDataDocs: any;
+    pieDocOptions: any;
     barChartData: any;
     barChartOptions: any;
     dateRange: Date[] | undefined;
 
     alerts: Alert[] = [
-        { label: 'Inscrição', description: 'Username foi inscrito no curso de Beginning' },
-        { label: 'Agendamento de aulas', description: 'Usernamer8374 acabou de agendar uma aula para as 12h' },
-        { label: 'Matrícula', description: '15 novos estudantes matriculados pela user2' },
+        { label: 'Nova Fatura Pro-Forma', description: 'Fatura no valor de 500€ emitida para cliente X' },
+        { label: 'Recibo Emitido', description: 'Pagamento de 300€ confirmado' },
+        { label: 'Relatório Financeiro', description: 'Relatório mensal de abril gerado' },
     ];
 
     kpis = [
-        { label: 'Inscrições (mês)', current: 250, diff: 12 },
-        { label: 'Aulas marcadas', current: 360, diff: 4 },
-        { label: 'Desistências', current: 45, diff: -5 },
-        { label: 'Novos professores', current: 6, diff: 20 },
+        { label: 'Total Faturado (Mês)', current: 8500, diff: 15 },
+        { label: 'Faturas Pro-Forma', current: 23, diff: 10 },
+        { label: 'Recibos Emitidos', current: 18, diff: -5 },
+        { label: 'Relatórios Gerados', current: 6, diff: 20 },
     ];
 
     constructor() {}
 
     ngOnInit(): void {
-        this.initCharts();
+        this.initPieChart();
         this.initBarChart();
     }
 
-    initCharts() {
+    initPieChart() {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        this.pieDataLevels = {
-            labels: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+        this.pieDataDocs = {
+            labels: ['Faturas Pro-Forma', 'Recibos', 'Relatórios'],
             datasets: [
                 {
-                    data: [400, 100, 150, 100],
+                    data: [23, 18, 6],
                     backgroundColor: [
                         documentStyle.getPropertyValue('--primary-800'),
-                        documentStyle.getPropertyValue('--primary-600'),
-                        documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-100'),
+                        documentStyle.getPropertyValue('--primary-400'),
+                        documentStyle.getPropertyValue('--primary-200'),
                     ],
                     hoverBackgroundColor: [
                         documentStyle.getPropertyValue('--primary-600'),
                         documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-200'),
+                        documentStyle.getPropertyValue('--primary-100'),
                     ],
                 },
             ],
         };
 
-        this.pieLevelOptions = {
+        this.pieDocOptions = {
             plugins: {
                 legend: {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
                         font: { weight: 700 },
-                        padding: 28,
+                        padding: 20,
                     },
                     position: 'bottom',
                 },
@@ -91,19 +88,14 @@ export class DashboardComponent implements OnInit {
             labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
             datasets: [
                 {
-                    label: 'Inscrições',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-800'),
-                    data: [150, 200, 180, 220, 240, 250],
+                    label: 'Faturado (€)',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    data: [6000, 7200, 8100, 7500, 8200, 8500],
                 },
                 {
-                    label: 'Aulas Marcadas',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-400'),
-                    data: [300, 320, 310, 330, 350, 360],
-                },
-                {
-                    label: 'Desistências',
-                    backgroundColor: documentStyle.getPropertyValue('--red-400'),
-                    data: [50, 12, 20, 10, 40, 13],
+                    label: 'Recibos Emitidos',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-300'),
+                    data: [15, 18, 20, 19, 17, 18],
                 },
             ],
         };
@@ -132,7 +124,7 @@ export class DashboardComponent implements OnInit {
     }
 
     filtrarDados() {
-        // Simule ou faça uma chamada para API aqui com base na data
-        console.log('Filtrar por:', this.dateRange);
+        console.log('Filtrando faturação entre:', this.dateRange);
+        // Aqui você pode aplicar filtro com base nas datas
     }
 }

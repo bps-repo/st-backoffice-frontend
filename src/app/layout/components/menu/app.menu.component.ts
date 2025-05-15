@@ -80,7 +80,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/schoolar/dashboard'],
+                        routerLink: ['/courses/dashboard'],
                     },
                     {
                         label: 'Cursos',
@@ -118,7 +118,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/schoolar/dashboard'],
+                        routerLink: ['/invoices/dashboard'],
                     },
                     {
                         label: 'Facturas pró-forma',
@@ -146,7 +146,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/schoolar/dashboard'],
+                        routerLink: ['/corporate/dashboard'],
                     },
                     {
                         label: 'Centros',
@@ -176,24 +176,24 @@ export class AppMenuComponent implements OnInit {
                 icon: 'pi pi-fw pi-cog',
                 items: [
                     {
-                        label: 'Perfis',
-                        icon: 'pi pi-fw pi-user',
-                    },
-                    {
                         label: 'Utilizadores',
                         icon: 'pi pi-fw pi-users',
+                        routerLink: ['/settings/users-management'],
                     },
                     {
                         label: 'Alertas',
                         icon: 'pi pi-fw pi-bell',
+                        routerLink: ['/settings/alerts'],
                     },
                     {
                         label: 'Info Geral',
                         icon: 'pi pi-fw pi-building',
+                        routerLink: ['/settings/general-info'],
                     },
                     {
                         label: 'Suporte',
                         icon: 'pi pi-fw pi-question-circle',
+                        routerLink: ['/settings/support'],
                     },
                 ],
             },

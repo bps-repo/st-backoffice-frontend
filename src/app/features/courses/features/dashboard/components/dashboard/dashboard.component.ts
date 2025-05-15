@@ -16,7 +16,6 @@ interface Alert {
     templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
-
     pieDataLevels: any;
     pieLevelOptions: any;
     barChartData: any;
@@ -24,45 +23,47 @@ export class DashboardComponent implements OnInit {
     dateRange: Date[] | undefined;
 
     alerts: Alert[] = [
-        { label: 'Inscrição', description: 'Username foi inscrito no curso de Beginning' },
-        { label: 'Agendamento de aulas', description: 'Usernamer8374 acabou de agendar uma aula para as 12h' },
-        { label: 'Matrícula', description: '15 novos estudantes matriculados pela user2' },
+        { label: 'Novo Curso', description: 'Curso de Design Gráfico foi adicionado' },
+        { label: 'Atualização', description: 'Curso de Programação Avançada atualizado com novos módulos' },
+        { label: 'Curso Removido', description: 'Curso de Fotografia Básica foi arquivado' },
     ];
 
     kpis = [
-        { label: 'Inscrições (mês)', current: 250, diff: 12 },
-        { label: 'Aulas marcadas', current: 360, diff: 4 },
-        { label: 'Desistências', current: 45, diff: -5 },
-        { label: 'Novos professores', current: 6, diff: 20 },
+        { label: 'Cursos Ativos', current: 42, diff: 10 },
+        { label: 'Novos Cursos', current: 8, diff: 25 },
+        { label: 'Total de Unidades', current: 6, diff: 0 },
+        { label: 'Alunos por Curso (média)', current: 120, diff: 5 },
     ];
 
     constructor() {}
 
     ngOnInit(): void {
-        this.initCharts();
+        this.initPieChart();
         this.initBarChart();
     }
 
-    initCharts() {
+    initPieChart() {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
         this.pieDataLevels = {
-            labels: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+            labels: ['Tecnologia', 'Idiomas', 'Negócios', 'Design', 'Marketing'],
             datasets: [
                 {
-                    data: [400, 100, 150, 100],
+                    data: [14, 10, 8, 6, 4],
                     backgroundColor: [
                         documentStyle.getPropertyValue('--primary-800'),
                         documentStyle.getPropertyValue('--primary-600'),
+                        documentStyle.getPropertyValue('--primary-400'),
                         documentStyle.getPropertyValue('--primary-300'),
                         documentStyle.getPropertyValue('--primary-100'),
                     ],
                     hoverBackgroundColor: [
                         documentStyle.getPropertyValue('--primary-600'),
-                        documentStyle.getPropertyValue('--primary-300'),
+                        documentStyle.getPropertyValue('--primary-400'),
                         documentStyle.getPropertyValue('--primary-300'),
                         documentStyle.getPropertyValue('--primary-200'),
+                        documentStyle.getPropertyValue('--primary-100'),
                     ],
                 },
             ],
@@ -75,7 +76,7 @@ export class DashboardComponent implements OnInit {
                         color: textColor,
                         usePointStyle: true,
                         font: { weight: 700 },
-                        padding: 28,
+                        padding: 20,
                     },
                     position: 'bottom',
                 },
@@ -91,19 +92,14 @@ export class DashboardComponent implements OnInit {
             labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
             datasets: [
                 {
-                    label: 'Inscrições',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-800'),
-                    data: [150, 200, 180, 220, 240, 250],
+                    label: 'Novos Cursos',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    data: [2, 3, 4, 6, 5, 8],
                 },
                 {
-                    label: 'Aulas Marcadas',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-400'),
-                    data: [300, 320, 310, 330, 350, 360],
-                },
-                {
-                    label: 'Desistências',
-                    backgroundColor: documentStyle.getPropertyValue('--red-400'),
-                    data: [50, 12, 20, 10, 40, 13],
+                    label: 'Cursos Ativos',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-200'),
+                    data: [30, 32, 35, 37, 39, 42],
                 },
             ],
         };
@@ -132,7 +128,6 @@ export class DashboardComponent implements OnInit {
     }
 
     filtrarDados() {
-        // Simule ou faça uma chamada para API aqui com base na data
-        console.log('Filtrar por:', this.dateRange);
+        console.log('Filtrando cursos entre:', this.dateRange);
     }
 }
