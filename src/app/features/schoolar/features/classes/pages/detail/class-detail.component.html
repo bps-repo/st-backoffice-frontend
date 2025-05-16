@@ -1,0 +1,119 @@
+<div class="grid">
+    <div class="col-12">
+        <p-card>
+            <ng-template pTemplate="title">
+                <div class="flex justify-content-between align-items-center">
+                    <h2>{{ class.name }} ({{ class.code }})</h2>
+                    <div>
+                        <button pButton label="Edit" icon="pi pi-pencil" class="p-button-primary mr-2"></button>
+                        <button pButton label="Delete" icon="pi pi-trash" class="p-button-danger"></button>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <h3>Class Details</h3>
+                        <div class="field">
+                            <label class="font-bold">ID:</label>
+                            <div>{{ class.id }}</div>
+                        </div>
+                        <div class="field">
+                            <label class="font-bold">Level:</label>
+                            <div>{{ class.level }}</div>
+                        </div>
+                        <div class="field">
+                            <label class="font-bold">Teacher:</label>
+                            <div>{{ class.teacher }}</div>
+                        </div>
+                        <div class="field">
+                            <label class="font-bold">Schedule:</label>
+                            <div>{{ class.schedule }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <h3>Enrollment Information</h3>
+                        <div class="field">
+                            <label class="font-bold">Start Date:</label>
+                            <div>{{ class.startDate }}</div>
+                        </div>
+                        <div class="field">
+                            <label class="font-bold">End Date:</label>
+                            <div>{{ class.endDate }}</div>
+                        </div>
+                        <div class="field">
+                            <label class="font-bold">Capacity:</label>
+                            <div>{{ class.enrolled }} / {{ class.capacity }}</div>
+                        </div>
+                        <div class="field">
+                            <label class="font-bold">Status:</label>
+                            <div>
+                                <p-tag [value]="class.status" [severity]="getSeverity(class.status)"></p-tag>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+
+    <div class="col-12 mt-4">
+        <p-tabView>
+            <p-tabPanel header="Students">
+                <p-table [value]="class.students" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Enrollment Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-student>
+                        <tr>
+                            <td>{{ student.id }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.email }}</td>
+                            <td>{{ student.enrollmentDate }}</td>
+                            <td>
+                                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text" title="View Student"></button>
+                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" title="Remove from Class"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabPanel>
+            <p-tabPanel header="Lessons">
+                <p-table [value]="class.lessons" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-lesson>
+                        <tr>
+                            <td>{{ lesson.id }}</td>
+                            <td>{{ lesson.title }}</td>
+                            <td>{{ lesson.date }}</td>
+                            <td>
+                                <p-tag [value]="lesson.status" [severity]="getSeverity(lesson.status)"></p-tag>
+                            </td>
+                            <td>
+                                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text" title="View Lesson"></button>
+                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" title="Edit Lesson"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabPanel>
+            <p-tabPanel header="Attendance">
+                <p>Attendance records would appear here.</p>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</div>

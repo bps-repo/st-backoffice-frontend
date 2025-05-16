@@ -1,0 +1,61 @@
+<div class="grid">
+    <div class="col-12">
+        <p-card>
+            <ng-template pTemplate="title">
+                <h2>Create New Evaluation</h2>
+            </ng-template>
+            <ng-template pTemplate="content">
+                <div class="grid p-fluid">
+                    <div class="col-12 field">
+                        <label for="title" class="font-bold">Title</label>
+                        <input id="title" type="text" pInputText [(ngModel)]="evaluation.title" required>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="class" class="font-bold">Class</label>
+                        <p-dropdown id="class" [options]="classes" [(ngModel)]="evaluation.class"
+                            optionLabel="label" placeholder="Select a class" [showClear]="true"></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="type" class="font-bold">Type</label>
+                        <p-dropdown id="type" [options]="evaluationTypes" [(ngModel)]="evaluation.type"
+                            optionLabel="label" placeholder="Select a type" [showClear]="true"></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="date" class="font-bold">Date</label>
+                        <p-calendar id="date" [(ngModel)]="evaluation.date" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="status" class="font-bold">Status</label>
+                        <p-dropdown id="status" [options]="statuses" [(ngModel)]="evaluation.status"
+                            optionLabel="label" placeholder="Select a status" [showClear]="true"></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="maxScore" class="font-bold">Maximum Score</label>
+                        <p-inputNumber id="maxScore" [(ngModel)]="evaluation.maxScore" [min]="0" [max]="1000"></p-inputNumber>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="passingScore" class="font-bold">Passing Score</label>
+                        <p-inputNumber id="passingScore" [(ngModel)]="evaluation.passingScore" [min]="0" [max]="1000"></p-inputNumber>
+                    </div>
+
+                    <div class="col-12 field">
+                        <label for="description" class="font-bold">Description</label>
+                        <textarea id="description" pInputTextarea [(ngModel)]="evaluation.description" rows="5"></textarea>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="flex justify-content-end">
+                    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2"></button>
+                    <button pButton label="Save" icon="pi pi-check" (click)="saveEvaluation()"></button>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+</div>
