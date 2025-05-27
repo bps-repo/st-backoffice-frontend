@@ -19,7 +19,6 @@ export const LESSONS: Lesson[] = [
     },
 ];
 
-
 export const LESSONS_EVENTS: Partial<LessonEvent>[] = [
     {
         id: "1001",

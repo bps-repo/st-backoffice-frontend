@@ -68,6 +68,11 @@ export class CalendarAppComponent implements OnInit {
 
     edit: boolean = false;
 
+    // Variables for double-click detection
+    lastClickedDate: Date | null = null;
+    lastClickTime: number = 0;
+    doubleClickDelay: number = 300; // milliseconds
+
     tags: any[] = [];
     selectedTags: any[] = [];
 
@@ -153,7 +158,7 @@ export class CalendarAppComponent implements OnInit {
                 };
             },
             eventClick: (e: MouseEvent) => this.onEventClick(e),
-            select: (e: MouseEvent) => this.onDateSelect(e),
+            dateClick: (e: any) => this.onDateClick(e),
             eventContent: (args: any) => this.onEventRender(args),
             eventMouseEnter: this.handleEventMouseEnter.bind(this),
             eventMouseLeave: this.handleEventMouseLeave.bind(this),
@@ -460,18 +465,70 @@ export class CalendarAppComponent implements OnInit {
             : this.clickedEvent.start;
     }
 
-    onDateSelect(e: any) {
-        // Format dates for URL parameters
-        const startDate = e.start instanceof Date ? e.start.toISOString() : e.start;
-        const endDate = e.end instanceof Date ? e.end.toISOString() : e.end;
+    /**
+     * Handle date click event with double-click detection
+     */
+    onDateClick(e: any) {
+        const currentTime = new Date().getTime();
+        const clickedDate = e.date;
 
-        // Redirect to lessons create page with date parameters
+        // Check if this is a double-click (same date clicked within the delay period)
+        if (
+            this.lastClickedDate &&
+            this.isSameDate(this.lastClickedDate, clickedDate) &&
+            (currentTime - this.lastClickTime) < this.doubleClickDelay
+        ) {
+            // Double-click detected, navigate to create lesson
+            this.onDateDoubleClick(clickedDate);
+        }
+
+        // Update last click info for next time
+        this.lastClickedDate = clickedDate;
+        this.lastClickTime = currentTime;
+    }
+
+    /**
+     * Check if two dates are the same day
+     */
+    private isSameDate(date1: Date, date2: Date): boolean {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    }
+
+    /**
+     * Handle double-click on a date
+     */
+    onDateDoubleClick(date: Date) {
+        // Format date for URL parameters
+        const startDate = date.toISOString();
+
+        // Create end date (1 hour after start)
+        const endDate = new Date(date.getTime() + 60 * 60 * 1000).toISOString();
+
+        // Extract time from the date
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const time = `${hours}:${minutes}`;
+
+        // Redirect to lessons create page with date and time parameters
         this.router.navigate(['/schoolar/lessons/create'], {
             queryParams: {
                 startDate: startDate,
-                endDate: endDate
+                endDate: endDate,
+                time: time
             }
         });
+    }
+
+    /**
+     * Legacy method for backward compatibility
+     */
+    onDateSelect(e: any) {
+        // This method is kept for backward compatibility
+        // The actual functionality is now in onDateDoubleClick
+        const date = e.start instanceof Date ? e.start : new Date(e.start);
+        this.onDateDoubleClick(date);
     }
 
     handleSave() {
