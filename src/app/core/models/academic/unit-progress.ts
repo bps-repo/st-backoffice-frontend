@@ -6,9 +6,11 @@ export interface UnitProgress {
     id: string;
     student: Student;
     unit: Unit;
-    classEntity: Class;
     completionPercentage: number;
-    assessmentComplete: boolean;
+    completed: boolean;
+    lessonProgress: number,
+    assessmentsPassed?: number
+    assessmentsFailed?: number;
     completionDate: string | null;
     createdAt: string;
     updatedAt: string;

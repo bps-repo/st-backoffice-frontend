@@ -1,6 +1,199 @@
 <div class="card">
-    <full-calendar [options]="calendarOptions"></full-calendar>
+    <div class="calendar-toolbar p-3">
+        <div class="grid">
+            <div class="col-12 md:col-6 lg:col-4 mb-2">
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">
+                        <i class="pi pi-search"></i>
+                    </span>
+                    <input
+                        type="text"
+                        pInputText
+                        placeholder="Search events..."
+                        [(ngModel)]="searchTerm"
+                        (input)="applyFilters()"
+                    />
+                    <button
+                        *ngIf="searchTerm"
+                        pButton
+                        type="button"
+                        icon="pi pi-times"
+                        class="p-button-danger"
+                        (click)="searchTerm=''; applyFilters()"
+                    ></button>
+                </div>
+            </div>
 
+            <div class="col-12 md:col-6 lg:col-4 mb-2">
+                <div class="p-buttonset">
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-filter"
+                        label="Filters"
+                        (click)="showFilterDialog = true"
+                        [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
+                        [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
+                    ></button>
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-plus"
+                        label="New Event"
+                        (click)="createNewEvent()"
+                    ></button>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-4 mb-2">
+                <div class="p-buttonset float-right">
+                    <button
+                        *ngFor="let option of viewOptions"
+                        pButton
+                        type="button"
+                        [label]="option.label"
+                        [class.p-button-outlined]="selectedView !== option.value"
+                        [class.p-button-info]="selectedView === option.value"
+                        (click)="changeView(option.value)"
+                    ></button>
+                    <button
+                        pButton
+                        type="button"
+                        [icon]="darkMode ? 'pi pi-sun' : 'pi pi-moon'"
+                        pTooltip="Toggle Dark Mode"
+                        tooltipPosition="bottom"
+                        (click)="toggleDarkMode()"
+                    ></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active filters display -->
+        <div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length" class="active-filters mt-2">
+            <span class="filter-label mr-2">Active Filters:</span>
+
+            <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
+                <span class="tag-color" [style.background-color]="tag.color"></span>
+                <span class="tag-name">{{tag.name}}</span>
+                <i class="pi pi-times" (click)="removeTag(tag.name)"></i>
+            </span>
+
+            <span *ngFor="let teacher of selectedTeachers" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-user"></i>
+                <span class="tag-name">{{teacher.label}}</span>
+                <i class="pi pi-times" (click)="removeTeacher(teacher.value)"></i>
+            </span>
+
+            <span *ngFor="let center of selectedCenters" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-map-marker"></i>
+                <span class="tag-name">{{center.label}}</span>
+                <i class="pi pi-times" (click)="removeCenter(center.value)"></i>
+            </span>
+
+            <span *ngFor="let classEntity of selectedClasses" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-users"></i>
+                <span class="tag-name">{{classEntity.label}}</span>
+                <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
+            </span>
+
+            <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                label="Clear All"
+                class="p-button-sm p-button-text p-button-danger ml-2"
+                (click)="clearFilters()"
+            ></button>
+        </div>
+    </div>
+
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+
+    <!-- Filter Dialog -->
+    <p-dialog
+        [(visible)]="showFilterDialog"
+        [style]="{width: '450px'}"
+        header="Filter Events"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+    >
+        <div class="p-fluid">
+            <div class="field">
+                <label for="tags">Filter by Tags</label>
+                <p-multiSelect
+                    id="tags"
+                    [options]="tags"
+                    [(ngModel)]="selectedTags"
+                    optionLabel="name"
+                    placeholder="Select Tags"
+                    [showToggleAll]="true"
+                >
+                    <ng-template let-tag pTemplate="item">
+                        <div class="flex align-items-center">
+                            <span class="color-dot mr-2" [style.background-color]="tag.color"></span>
+                            <span>{{tag.name}}</span>
+                        </div>
+                    </ng-template>
+                </p-multiSelect>
+            </div>
+
+            <div class="field">
+                <div class="flex align-items-center">
+                    <p-inputSwitch [(ngModel)]="filterByTeacher" class="mr-2"></p-inputSwitch>
+                    <label for="teachers">Filter by Teachers</label>
+                </div>
+                <p-multiSelect
+                    id="teachers"
+                    [options]="teachers"
+                    [(ngModel)]="selectedTeachers"
+                    optionLabel="label"
+                    placeholder="Select Teachers"
+                    [disabled]="!filterByTeacher"
+                    [showToggleAll]="true"
+                ></p-multiSelect>
+            </div>
+
+            <div class="field">
+                <div class="flex align-items-center">
+                    <p-inputSwitch [(ngModel)]="filterByCenter" class="mr-2"></p-inputSwitch>
+                    <label for="centers">Filter by Centers</label>
+                </div>
+                <p-multiSelect
+                    id="centers"
+                    [options]="centers"
+                    [(ngModel)]="selectedCenters"
+                    optionLabel="label"
+                    placeholder="Select Centers"
+                    [disabled]="!filterByCenter"
+                    [showToggleAll]="true"
+                ></p-multiSelect>
+            </div>
+
+            <div class="field">
+                <div class="flex align-items-center">
+                    <p-inputSwitch [(ngModel)]="filterByClass" class="mr-2"></p-inputSwitch>
+                    <label for="classes">Filter by Classes</label>
+                </div>
+                <p-multiSelect
+                    id="classes"
+                    [options]="classes"
+                    [(ngModel)]="selectedClasses"
+                    optionLabel="label"
+                    placeholder="Select Classes"
+                    [disabled]="!filterByClass"
+                    [showToggleAll]="true"
+                ></p-multiSelect>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button pButton type="button" label="Apply" icon="pi pi-check" (click)="applyFilters(); showFilterDialog = false"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-times" class="p-button-outlined" (click)="clearFilters(); showFilterDialog = false"></button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Event Dialog -->
     <p-dialog
         #dd
         [(visible)]="showDialog"

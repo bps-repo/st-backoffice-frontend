@@ -3,31 +3,55 @@ import {
     ComponentRef,
     OnInit,
     ViewContainerRef,
+    ViewChild,
 } from '@angular/core';
-import { EventService } from 'src/app/core/services/event.service';
-// @fullcalendar plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
+import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { LESSONS_EVENTS } from 'src/app/shared/constants/lessons';
-import { EventTooltipComponent } from 'src/app/shared/components/event-tooltip/event-tooltip.component';
+import listPlugin from '@fullcalendar/list';
+import {LESSONS_EVENTS} from 'src/app/shared/constants/lessons';
+import {EventTooltipComponent} from 'src/app/shared/components/event-tooltip/event-tooltip.component';
 import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PaginatorModule} from "primeng/paginator";
-import {FullCalendarModule} from "@fullcalendar/angular";
+import {FullCalendarModule, FullCalendarComponent} from "@fullcalendar/angular";
 import {DialogModule} from "primeng/dialog";
 import {CalendarModule} from "primeng/calendar";
 import {CommonModule} from "@angular/common";
 import {InputTextModule} from "primeng/inputtext";
 import {InputTextareaModule} from "primeng/inputtextarea";
+import {DropdownModule} from "primeng/dropdown";
+import {ButtonModule} from "primeng/button";
+import {TooltipModule} from "primeng/tooltip";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {MultiSelectModule} from "primeng/multiselect";
+import {Router} from "@angular/router";
 
 @Component({
     templateUrl: './calendar.app.component.html',
-    imports: [FormsModule, ReactiveFormsModule, PaginatorModule, FullCalendarModule, DialogModule, CalendarModule, CommonModule, InputTextModule, InputTextareaModule],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        PaginatorModule,
+        FullCalendarModule,
+        DialogModule,
+        CalendarModule,
+        CommonModule,
+        InputTextModule,
+        InputTextareaModule,
+        DropdownModule,
+        ButtonModule,
+        TooltipModule,
+        InputSwitchModule,
+        MultiSelectModule
+    ],
     styleUrls: ['./calendar.app.component.scss']
 })
 export class CalendarAppComponent implements OnInit {
+    @ViewChild('calendar') calendarComponent?: FullCalendarComponent;
+
     events: Partial<LessonEvent>[] = LESSONS_EVENTS;
+    filteredEvents: Partial<LessonEvent>[] = [];
 
     today: string = '';
 
@@ -36,6 +60,7 @@ export class CalendarAppComponent implements OnInit {
     };
 
     showDialog: boolean = false;
+    showFilterDialog: boolean = false;
 
     clickedEvent: any = null;
 
@@ -43,49 +68,171 @@ export class CalendarAppComponent implements OnInit {
 
     edit: boolean = false;
 
+    // Variables for double-click detection
+    lastClickedDate: Date | null = null;
+    lastClickTime: number = 0;
+    doubleClickDelay: number = 300; // milliseconds
+
     tags: any[] = [];
+    selectedTags: any[] = [];
 
     view: string = '';
 
     changedEvent: any;
+
+    searchTerm: string = '';
+
+    // Calendar view options
+    viewOptions: any[] = [
+        {label: 'Month', value: 'dayGridMonth'},
+        {label: 'Week', value: 'timeGridWeek'},
+        {label: 'Day', value: 'timeGridDay'},
+        {label: 'List', value: 'listWeek'}
+    ];
+    selectedView: string = 'dayGridMonth';
+
+    // Filter options
+    filterByTeacher: boolean = false;
+    filterByCenter: boolean = false;
+    filterByClass: boolean = false;
+
+    // Available teachers, centers, and classes for filtering
+    teachers: any[] = [];
+    centers: any[] = [];
+    classes: any[] = [];
+
+    selectedTeachers: any[] = [];
+    selectedCenters: any[] = [];
+    selectedClasses: any[] = [];
+
+    // Dark mode toggle
+    darkMode: boolean = false;
+
     private tooltipRef: ComponentRef<EventTooltipComponent> | null = null;
 
-    constructor(private viewContainerRef: ViewContainerRef) {}
+    constructor(
+        private viewContainerRef: ViewContainerRef,
+        private router: Router
+    ) {
+    }
 
     ngOnInit(): void {
-        this.today = '2024-12-26';
-        this.tags = this.events.map((item) => item.tag);
+        // Set today's date in the format YYYY-MM-DD
+        const now = new Date();
+        this.today = now.toISOString().split('T')[0];
 
+        // Initialize events
+        this.filteredEvents = [...this.events];
+
+        // Extract unique tags from events
+        this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
+            .map(item => JSON.parse(item));
+
+        // Extract unique teachers, centers, and classes for filtering
+        this.extractFilterOptions();
+
+        // Initialize calendar options
         this.calendarOptions = {
-            initialView: 'timeGridWeek',
+            initialView: this.selectedView,
             locale: 'pt-br',
-            events: this.events,
+            events: this.filteredEvents,
             slotMinTime: '08:00:00',
             slotMaxTime: '23:00:00',
-            plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+            plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin],
             height: 720,
             hiddenDays: [0],
             initialDate: this.today,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                //right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
             },
-            editable: false,
-            selectable: false,
+            editable: true,
+            selectable: true,
             selectMirror: true,
-            Draggable: false,
-            dayMaxEvents: false,
+            droppable: true,
+            dayMaxEvents: 4,
+            moreLinkContent: (args: { num: number }) => {
+                return {
+                    html: `<span class="show-more-link">mostrar mais...</span>`
+                };
+            },
             eventClick: (e: MouseEvent) => this.onEventClick(e),
-            select: (e: MouseEvent) => this.onDateSelect(e),
+            dateClick: (e: any) => this.onDateClick(e),
             eventContent: (args: any) => this.onEventRender(args),
-            eventMouseEnter: this.handleEventMouseEnter.bind(this), // Evento para hover
+            eventMouseEnter: this.handleEventMouseEnter.bind(this),
             eventMouseLeave: this.handleEventMouseLeave.bind(this),
+            eventDrop: (info: any) => this.handleEventDrop(info),
+            eventResize: (info: any) => this.handleEventResize(info),
+            themeSystem: this.darkMode ? 'bootstrap5' : 'standard',
         };
     }
 
+    /**
+     * Extract unique teachers, centers, and classes from events for filtering
+     */
+    private extractFilterOptions(): void {
+        // Extract unique teachers
+        this.teachers = Array.from(new Set(this.events
+            .filter(event => event.extendedProps?.teacher)
+            .map(event => event.extendedProps?.teacher)))
+            .map(teacher => ({label: teacher, value: teacher}));
+
+        // Extract unique centers
+        this.centers = Array.from(new Set(this.events
+            .filter(event => event.extendedProps?.center)
+            .map(event => event.extendedProps?.center)))
+            .map(center => ({label: center, value: center}));
+
+        // Extract unique classes
+        this.classes = Array.from(new Set(this.events
+            .filter(event => event.extendedProps?.classEntity)
+            .map(event => event.extendedProps?.classEntity)))
+            .map(classEntity => ({label: classEntity, value: classEntity}));
+    }
+
+    /**
+     * Handle event drop (drag and drop)
+     */
+    handleEventDrop(info: any): void {
+        // Update the event dates
+        const eventId = info.event.id;
+        this.events = this.events.map(event => {
+            if (event.id?.toString() === eventId) {
+                return {
+                    ...event,
+                    start: info.event.start,
+                    end: info.event.end || info.event.start
+                };
+            }
+            return event;
+        });
+
+        this.applyFilters();
+    }
+
+    /**
+     * Handle event resize
+     */
+    handleEventResize(info: any): void {
+        // Update the event dates
+        const eventId = info.event.id;
+        this.events = this.events.map(event => {
+            if (event.id?.toString() === eventId) {
+                return {
+                    ...event,
+                    start: info.event.start,
+                    end: info.event.end
+                };
+            }
+            return event;
+        });
+
+        this.applyFilters();
+    }
+
     handleEventMouseEnter(mouseEnterInfo: any) {
-        const { title, extendedProps } = mouseEnterInfo.event;
+        const {title, extendedProps} = mouseEnterInfo.event;
         const position = {
             x: mouseEnterInfo.jsEvent.pageX + 10,
             y: mouseEnterInfo.jsEvent.pageY + 10,
@@ -110,18 +257,185 @@ export class CalendarAppComponent implements OnInit {
         }
     }
 
+    /**
+     * Custom event rendering for better visual appearance
+     */
     onEventRender(args: any) {
-        const { title, extendedProps } = args.event;
-        console.log(extendedProps);
+        const {title, extendedProps} = args.event;
+        const isOnline = extendedProps.isOnline ? 'Online' : 'Presencial';
+        const statusClass = extendedProps.status ? `status-${extendedProps.status.toLowerCase()}` : '';
+
         return {
             html: `
-              <div>
-                <b>${extendedProps.time}</b><br/>
-                <b>${extendedProps.center}(Online)</b><br/>
-                <b>${extendedProps.teacher}</b><br/>
+              <div class="event-container ${statusClass}">
+                <div class="event-time">${extendedProps.time || args.timeText}</div>
+                <div class="event-title">${title}</div>
+                <div class="event-details">
+                  <span class="event-location"><i class="pi pi-map-marker"></i> ${extendedProps.center || 'N/A'} (${isOnline})</span>
+                  <span class="event-teacher"><i class="pi pi-user"></i> ${extendedProps.teacher || 'N/A'}</span>
+                  ${extendedProps.classEntity ? `<span class="event-class"><i class="pi pi-users"></i> ${extendedProps.classEntity}</span>` : ''}
+                </div>
               </div>
             `,
         };
+    }
+
+    /**
+     * Apply filters to events
+     */
+    applyFilters(): void {
+        let filtered = [...this.events];
+
+        // Apply search term filter
+        if (this.searchTerm) {
+            const searchLower = this.searchTerm.toLowerCase();
+            filtered = filtered.filter(event =>
+                (event.title && event.title.toLowerCase().includes(searchLower)) ||
+                (event.extendedProps?.description && event.extendedProps.description.toLowerCase().includes(searchLower)) ||
+                (event.extendedProps?.teacher && event.extendedProps.teacher.toLowerCase().includes(searchLower)) ||
+                (event.extendedProps?.center && event.extendedProps.center.toLowerCase().includes(searchLower)) ||
+                (event.extendedProps?.classEntity && event.extendedProps.classEntity.toLowerCase().includes(searchLower))
+            );
+        }
+
+        // Apply tag filter
+        if (this.selectedTags && this.selectedTags.length > 0) {
+            filtered = filtered.filter(event =>
+                this.selectedTags.some(tag =>
+                    event.tag && event.tag.name === tag.name
+                )
+            );
+        }
+
+        // Apply teacher filter
+        if (this.filterByTeacher && this.selectedTeachers.length > 0) {
+            filtered = filtered.filter(event =>
+                this.selectedTeachers.some(teacher =>
+                    event.extendedProps?.teacher === teacher.value
+                )
+            );
+        }
+
+        // Apply center filter
+        if (this.filterByCenter && this.selectedCenters.length > 0) {
+            filtered = filtered.filter(event =>
+                this.selectedCenters.some(center =>
+                    event.extendedProps?.center === center.value
+                )
+            );
+        }
+
+        // Apply class filter
+        if (this.filterByClass && this.selectedClasses.length > 0) {
+            filtered = filtered.filter(event =>
+                this.selectedClasses.some(classEntity =>
+                    event.extendedProps?.classEntity === classEntity.value
+                )
+            );
+        }
+
+        this.filteredEvents = filtered;
+
+        // Update calendar events
+        this.calendarOptions = {
+            ...this.calendarOptions,
+            events: this.filteredEvents
+        };
+    }
+
+    /**
+     * Clear all filters
+     */
+    clearFilters(): void {
+        this.searchTerm = '';
+        this.selectedTags = [];
+        this.selectedTeachers = [];
+        this.selectedCenters = [];
+        this.selectedClasses = [];
+        this.filterByTeacher = false;
+        this.filterByCenter = false;
+        this.filterByClass = false;
+
+        this.filteredEvents = [...this.events];
+
+        // Update calendar events
+        this.calendarOptions = {
+            ...this.calendarOptions,
+            events: this.filteredEvents
+        };
+    }
+
+    /**
+     * Remove a tag from the selected tags
+     */
+    removeTag(tagName: string): void {
+        this.selectedTags = this.selectedTags.filter(t => t.name !== tagName);
+        this.applyFilters();
+    }
+
+    /**
+     * Remove a teacher from the selected teachers
+     */
+    removeTeacher(teacherValue: string): void {
+        this.selectedTeachers = this.selectedTeachers.filter(t => t.value !== teacherValue);
+        this.applyFilters();
+    }
+
+    /**
+     * Remove a center from the selected centers
+     */
+    removeCenter(centerValue: string): void {
+        this.selectedCenters = this.selectedCenters.filter(c => c.value !== centerValue);
+        this.applyFilters();
+    }
+
+    /**
+     * Remove a class from the selected classes
+     */
+    removeClass(classValue: string): void {
+        this.selectedClasses = this.selectedClasses.filter(c => c.value !== classValue);
+        this.applyFilters();
+    }
+
+    /**
+     * Create a new event
+     */
+    createNewEvent(): void {
+        // Redirect to lessons create page
+        this.router.navigate(['/schoolar/lessons/create']);
+    }
+
+    /**
+     * Toggle dark mode
+     */
+    toggleDarkMode(): void {
+        this.darkMode = !this.darkMode;
+
+        // Update calendar theme
+        this.calendarOptions = {
+            ...this.calendarOptions,
+            themeSystem: this.darkMode ? 'bootstrap5' : 'standard'
+        };
+
+        // Apply dark mode class to body
+        if (this.darkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }
+
+    /**
+     * Change calendar view
+     */
+    changeView(view: string): void {
+        this.selectedView = view;
+
+        // Get calendar API
+        const calendarApi = this.calendarComponent?.getApi();
+        if (calendarApi) {
+            calendarApi.changeView(view);
+        }
     }
 
     onEventClick(e: any) {
@@ -130,29 +444,91 @@ export class CalendarAppComponent implements OnInit {
             collapseExtendedProps: true,
             collapseColor: true,
         });
-        this.view = 'display';
-        this.showDialog = false;
 
-        this.changedEvent = { ...plainEvent, ...this.clickedEvent };
+        // Get the event ID
+        const eventId = e.event.id;
+
+        // Redirect to lesson detail page
+        if (eventId) {
+            this.router.navigate(['/schoolar/lessons', eventId]);
+            return;
+        }
+
+        // If no ID is available, show the event details in the dialog
+        this.view = 'display';
+        this.showDialog = true;
+
+        this.changedEvent = {...plainEvent, ...this.clickedEvent};
         this.changedEvent.start = this.clickedEvent.start;
         this.changedEvent.end = this.clickedEvent.end
             ? this.clickedEvent.end
             : this.clickedEvent.start;
     }
 
+    /**
+     * Handle date click event with double-click detection
+     */
+    onDateClick(e: any) {
+        const currentTime = new Date().getTime();
+        const clickedDate = e.date;
+
+        // Check if this is a double-click (same date clicked within the delay period)
+        if (
+            this.lastClickedDate &&
+            this.isSameDate(this.lastClickedDate, clickedDate) &&
+            (currentTime - this.lastClickTime) < this.doubleClickDelay
+        ) {
+            // Double-click detected, navigate to create lesson
+            this.onDateDoubleClick(clickedDate);
+        }
+
+        // Update last click info for next time
+        this.lastClickedDate = clickedDate;
+        this.lastClickTime = currentTime;
+    }
+
+    /**
+     * Check if two dates are the same day
+     */
+    private isSameDate(date1: Date, date2: Date): boolean {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    }
+
+    /**
+     * Handle double-click on a date
+     */
+    onDateDoubleClick(date: Date) {
+        // Format date for URL parameters
+        const startDate = date.toISOString();
+
+        // Create end date (1 hour after start)
+        const endDate = new Date(date.getTime() + 60 * 60 * 1000).toISOString();
+
+        // Extract time from the date
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const time = `${hours}:${minutes}`;
+
+        // Redirect to lessons create page with date and time parameters
+        this.router.navigate(['/schoolar/lessons/create'], {
+            queryParams: {
+                startDate: startDate,
+                endDate: endDate,
+                time: time
+            }
+        });
+    }
+
+    /**
+     * Legacy method for backward compatibility
+     */
     onDateSelect(e: any) {
-        this.view = 'new';
-        this.showDialog = false;
-        this.changedEvent = {
-            ...e,
-            title: null,
-            description: null,
-            location: null,
-            backgroundColor: null,
-            borderColor: null,
-            textColor: null,
-            tag: { color: null, name: null },
-        };
+        // This method is kept for backward compatibility
+        // The actual functionality is now in onDateDoubleClick
+        const date = e.start instanceof Date ? e.start : new Date(e.start);
+        this.onDateDoubleClick(date);
     }
 
     handleSave() {
@@ -167,24 +543,37 @@ export class CalendarAppComponent implements OnInit {
                 textColor: '#212121',
             };
 
+            let eventId;
+
             if (this.clickedEvent.hasOwnProperty('id')) {
+                // Update existing event
+                eventId = this.clickedEvent.id;
                 this.events = this.events.map((i) =>
                     i.id!.toString() === this.clickedEvent.id.toString()
                         ? (i = this.clickedEvent)
                         : i
                 );
+
+                // Redirect to lesson detail page
+                this.router.navigate(['/schoolar/lessons/detail', eventId]);
             } else {
+                // Create new event
+                eventId = Math.floor(Math.random() * 10000);
                 this.events = [
                     ...this.events,
                     {
                         ...this.clickedEvent,
-                        id: Math.floor(Math.random() * 10000),
+                        id: eventId,
                     },
                 ];
+
+                // Redirect to lesson detail page for the new event
+                this.router.navigate(['/schoolar/lessons/detail', eventId]);
             }
+
             this.calendarOptions = {
                 ...this.calendarOptions,
-                ...{ events: this.events },
+                ...{events: this.events},
             };
             this.clickedEvent = null;
         }
@@ -200,13 +589,13 @@ export class CalendarAppComponent implements OnInit {
         );
         this.calendarOptions = {
             ...this.calendarOptions,
-            ...{ events: this.events },
+            ...{events: this.events},
         };
         this.showDialog = false;
     }
 
     validate() {
-        let { start, end } = this.changedEvent;
+        let {start, end} = this.changedEvent;
         return start && end;
     }
 }

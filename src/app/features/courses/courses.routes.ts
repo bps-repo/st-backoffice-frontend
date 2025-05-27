@@ -30,8 +30,17 @@ export const CoursesRoutes: Routes = [
                             loadChildren: () =>
                                 import('./features/units/units.routes').then((m) => m.UnitsRoutes),
                         },
+                        {
+                            path: 'reports',
+                            loadChildren: () =>
+                                import('./features/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
+                        },
+                        {
+                            path: 'settings',
+                            loadChildren: () =>
+                                import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+                        },
 
                     ]
         }
 ];
-

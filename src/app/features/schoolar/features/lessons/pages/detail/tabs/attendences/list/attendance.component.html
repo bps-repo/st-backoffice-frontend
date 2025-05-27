@@ -1,0 +1,11 @@
+<div class="grid">
+    <app-global-table
+        tableLabel="Attendance Records"
+        [data]="attendanceRecords"
+        [entity]="'attendances'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        [loading]="loading"
+        class="w-full"
+    ></app-global-table>
+</div>

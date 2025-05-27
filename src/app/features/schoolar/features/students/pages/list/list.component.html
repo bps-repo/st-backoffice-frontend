@@ -1,5 +1,5 @@
 <div class="grid">
-    <!-- Student Statistics Cards -->
+    <!-- Student Statistics Cards - Row 1 -->
     <div class="col-12 md:col-6 xl:col-3">
         <div class="card h-full">
             <span class="font-semibold text-lg">Total de Alunos</span>
@@ -50,6 +50,68 @@
                 <button pButton icon="pi pi-plus" label="Novo Aluno" class="p-button-success" [routerLink]="['/schoolar/students/create']"></button>
                 <button pButton icon="pi pi-file-export" label="Exportar Lista" class="p-button-info"></button>
                 <button pButton icon="pi pi-envelope" label="Enviar Email" class="p-button-secondary"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Statistics Cards - Row 2 -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Alunos por Unidade</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="unitChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Alunos por Status</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="statusChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Alunos por Turma</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="classChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Progresso nas Unidades</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="unitProgressChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
             </div>
         </div>
     </div>

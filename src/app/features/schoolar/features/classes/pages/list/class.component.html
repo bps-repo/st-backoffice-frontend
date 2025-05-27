@@ -1,0 +1,119 @@
+<div class="grid">
+    <!-- Class Statistics Cards - Row 1 -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Total de Turmas</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <span class="text-4xl font-bold text-900">{{ classes.length }}</span>
+                </div>
+                <div class="w-6">
+                    <i class="pi pi-users text-4xl text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Turmas por Centro</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="centerChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Turmas por Nível</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="levelChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Ações Rápidas</span>
+            <div class="flex flex-column gap-2 mt-3">
+                <button pButton icon="pi pi-plus" label="Nova Turma" class="p-button-success" [routerLink]="['/schoolar/classes/create']"></button>
+                <button pButton icon="pi pi-file-export" label="Exportar Lista" class="p-button-info"></button>
+                <button pButton icon="pi pi-calendar" label="Ver Calendário" class="p-button-secondary"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Statistics Cards - Row 2 -->
+    <div class="col-12 md:col-6 xl:col-4">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Turmas por Professor</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="teacherChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-4">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Turmas por Status</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="statusChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 md:col-6 xl:col-4">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">Ocupação de Vagas</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <p-chart
+                        type="doughnut"
+                        [data]="enrollmentChartData"
+                        [options]="chartOptions"
+                        height="150px"
+                    ></p-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Table -->
+    <div class="col-12">
+        <div class="card">
+            <h2>Lista de Turmas</h2>
+            <app-global-table
+                tableLabel="Turmas"
+                [data]="classes"
+                [entity]="'classes'"
+                [columns]="columns"
+                [globalFilterFields]="globalFilterFields"
+                [loading]="loading"
+                class="w-full"
+            ></app-global-table>
+        </div>
+    </div>
+</div>

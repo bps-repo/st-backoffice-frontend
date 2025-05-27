@@ -9,6 +9,7 @@ import { AvaliacoesComponent } from 'src/app/features/schoolar/features/students
 import { DocumentosComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/documentos/documentos.component';
 import { AcessoPortalComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/acesso-portal/acesso-portal.component';
 import { PagamentosComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/pagamentos.component';
+import {HistoryComponent} from "../../features/schoolar/features/students/pages/detail/tabs/history/history.component";
 
 export const STUDENTS_TABS: Observable<Tab[]> = of([
     {
@@ -17,6 +18,13 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         title: 'Overview ',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: GeneralComponent,
+    },
+    {
+        header: 'Histórico',
+        icon: 'pi pi-history',
+        title: 'Histórico do Aluno',
+        description: 'Histórico acadêmico e atividades do aluno',
+        template: HistoryComponent,
     },
     {
         header: 'Aulas',

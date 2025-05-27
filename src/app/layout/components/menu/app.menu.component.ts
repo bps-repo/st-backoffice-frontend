@@ -38,7 +38,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Turmas',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['/schoolar/lessons'],
+                        routerLink: ['/schoolar/classes'],
                     },
                     {
                         label: 'Calendário',
@@ -98,16 +98,14 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/courses/units'],
                     },
                     {
-                        label: 'Pacotes',
-                        icon: 'pi pi-fw pi-sitemap',
-                    },
-                    {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/courses/reports'],
                     },
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/courses/settings'],
                     },
                 ],
             },

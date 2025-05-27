@@ -64,3 +64,51 @@
       </div>
     </div>
   </div>
+
+  <!-- Dashboard Charts Section -->
+  <div class="col-12">
+    <div class="card">
+      <h5>Dashboard do Nível</h5>
+
+      <!-- Units Distribution and Completion Rate Charts Row -->
+      <div class="grid">
+        <!-- Units Distribution Chart -->
+        <div class="col-12 md:col-6">
+          <div class="card mb-0">
+            <p-chart
+              type="pie"
+              [data]="unitsChartData"
+              [options]="unitsChartOptions"
+              height="300px">
+            </p-chart>
+          </div>
+        </div>
+
+        <!-- Completion Rate Chart -->
+        <div class="col-12 md:col-6">
+          <div class="card mb-0">
+            <p-chart
+              type="doughnut"
+              [data]="completionRateChartData"
+              [options]="completionRateChartOptions"
+              height="300px">
+            </p-chart>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Enrollment Chart Row -->
+      <div class="grid mt-3">
+        <div class="col-12">
+          <div class="card mb-0">
+            <p-chart
+              type="bar"
+              [data]="enrollmentChartData"
+              [options]="enrollmentChartOptions"
+              height="300px">
+            </p-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

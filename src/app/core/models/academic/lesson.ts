@@ -1,15 +1,28 @@
+import {Center} from "../corporate/center";
+import {Student} from "./student";
+import {LessonStatus} from "../../enums/lesson-status";
+import {Attendance} from "./attendance";
+import {Material} from "./material";
+import {Class} from "./class";
+
 export interface Lesson {
     id?: string;
-    date: string;
-    class: string;
-    time: string;
     teacher: string;
-    center: string;
     level: string;
     unit?: string,
     description: string;
     students: any[];
-    status?:any,
-    createdAt?: Date,
-    updatedAt?: Date
+    title: string;
+    online: boolean;
+    onlineLink?: string;
+    startDatetime: Date;
+    endDatetime: Date;
+    center?: Center | string;
+    classEntity?: Class;
+    student?: Student[];
+    status: LessonStatus;
+    attendances?: Attendance[];
+    materials?: Material[];
+    createdAt?: Date;
+    updatedAt?: Date;
 }

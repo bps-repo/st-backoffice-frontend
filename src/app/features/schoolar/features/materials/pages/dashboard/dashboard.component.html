@@ -1,0 +1,94 @@
+<div class="grid">
+    <!-- KPIs -->
+    <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">{{ kpi.label }}</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <span class="text-4xl font-bold text-900">{{ kpi.current }}</span>
+                    <div [ngClass]="kpi.diff > 0 ? 'text-green-500' : 'text-red-500'">
+                        <i class="pi" [ngClass]="kpi.diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'"></i>
+                        {{ kpi.diff }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex gap-3 align-items-center">
+                <p-calendar
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    dateFormat="mm/yy"
+                    view="month"
+                    placeholder="Filter by period"
+                ></p-calendar>
+                <button pButton type="button" label="Filter" (click)="filterData()"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Material Usage Trends Line Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="line"
+                [data]="lineChartData"
+                [options]="lineChartOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Material Ratings Distribution Bar Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="barChartData"
+                [options]="barChartOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Material Type Distribution Pie Chart -->
+    <div class="col-12 md:col-6">
+        <div class="card h-full">
+            <p-chart
+                type="pie"
+                [data]="pieDataMaterialType"
+                [options]="pieMaterialTypeOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Top Materials Table -->
+    <div class="col-12 md:col-6">
+        <div class="card h-full">
+            <h5 class="text-xl font-semibold mb-4">Top Downloaded Materials</h5>
+            <p-table [value]="topMaterials" [tableStyle]="{ 'min-width': '50rem' }">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Downloads</th>
+                        <th>Rating</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-material>
+                    <tr>
+                        <td>{{ material.title }}</td>
+                        <td>{{ material.type }}</td>
+                        <td>{{ material.downloads }}</td>
+                        <td>{{ material.rating }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

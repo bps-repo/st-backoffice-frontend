@@ -16,7 +16,6 @@ export interface Class {
     teacher: Employee;
     center: Center;
     status: ClassStatus;
-    unit: Unit;
     maxCapacity: number;
     lessons: Lesson[];
     unitProgresses: UnitProgress[];

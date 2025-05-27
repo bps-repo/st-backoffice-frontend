@@ -6,5 +6,6 @@ export enum StudentStatus {
     SUSPENDED = 'SUSPENDED',
     TRANSFERRED = 'TRANSFERRED',
     ON_LEAVE = 'ON_LEAVE',
-    PROBATION = 'PROBATION'
+    PROBATION = 'PROBATION',
+    RENEWABLE = 'RENEWABLE',
 }

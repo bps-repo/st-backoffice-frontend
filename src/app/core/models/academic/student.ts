@@ -1,3 +1,6 @@
+import {Unit} from "../course/unit";
+import {Class} from "./class";
+
 export interface Student {
     id?: number;
     name: string;
@@ -7,4 +10,8 @@ export interface Student {
     phone: number;
     email: string;
     birthdate: string;
+    unit?: Unit,
+    classEntity?: Class
+    createdAt?: string;
+    updatedAt?: string;
 }

@@ -1,43 +1,120 @@
 <div class="grid">
-    <div class="col-12">
-        <app-global-table
-            tableLabel="Relatórios"
-            [data]="reports"
-            [entity]="'reports'"
-            [columns]="columns"
-            [globalFilterFields]="globalFilterFields"
-            [loading]="loading"
-            class="w-full"
-        >
-            <!-- Custom template for the status column -->
-            <ng-template pTemplate="status" let-report>
-                <span class="p-badge"
-                      [ngClass]="{
-                        'p-badge-success': report.status === 'Generated',
-                        'p-badge-warning': report.status === 'Pending'
-                      }">
-                    {{ report.status }}
-                </span>
-            </ng-template>
+  <div class="col-12">
+    <div class="card">
+      <h5>Relatórios Acadêmicos</h5>
+      <div class="p-fluid grid">
+        <div class="field col-12 md:col-4">
+          <label for="reportType">Tipo de Relatório</label>
+          <p-dropdown
+            id="reportType"
+            [options]="reportTypes"
+            [(ngModel)]="selectedReportType"
+            optionLabel="name"
+            placeholder="Selecione um tipo de relatório"
+            [showClear]="true">
+          </p-dropdown>
+        </div>
 
-            <!-- Custom template for the actions column -->
-            <ng-template pTemplate="actions" let-report>
-                <div class="flex gap-2 justify-content-center">
-                    <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
-                            (click)="viewDetails(report)"
-                            pTooltip="Ver Detalhes" tooltipPosition="top"></button>
-                    <button pButton pRipple icon="pi pi-download" class="p-button-rounded p-button-text"
-                            pTooltip="Descarregar" tooltipPosition="top"></button>
-                </div>
-            </ng-template>
+        <div class="field col-12 md:col-4">
+          <label for="dateRange">Período</label>
+          <p-calendar
+            id="dateRange"
+            [(ngModel)]="dateRange"
+            selectionMode="range"
+            [readonlyInput]="true"
+            placeholder="Selecione um período"
+            dateFormat="dd/mm/yy">
+          </p-calendar>
+        </div>
 
-            <!-- Custom template for the table header -->
-            <ng-template pTemplate="header">
-                <div class="flex justify-content-end">
-                    <button pButton pRipple label="Gerar Relatório" icon="pi pi-plus" class="p-button-primary"
-                            (click)="generateReport()"></button>
-                </div>
-            </ng-template>
-        </app-global-table>
+        <div class="field col-12 md:col-4 flex align-items-end">
+          <button
+            pButton
+            pRipple
+            label="Gerar Relatório"
+            icon="pi pi-chart-bar"
+            class="p-button-primary"
+            (click)="generateReport()">
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Report Display Section -->
+  <div class="col-12" *ngIf="reportGenerated">
+    <div class="card">
+      <div class="flex justify-content-between align-items-center mb-5">
+        <h5>{{ selectedReportType?.name }}</h5>
+        <div class="flex gap-2">
+          <button
+            pButton
+            pRipple
+            label="Exportar"
+            icon="pi pi-download"
+            class="p-button-secondary"
+            (click)="exportReport()">
+          </button>
+          <button
+            pButton
+            pRipple
+            label="Imprimir"
+            icon="pi pi-print"
+            class="p-button-secondary"
+            (click)="printReport()">
+          </button>
+        </div>
+      </div>
+
+      <!-- Report Chart -->
+      <div class="grid">
+        <div class="col-12">
+          <p-chart
+            [type]="selectedReportType?.code === 'student-performance' ? 'doughnut' :
+                   selectedReportType?.code === 'financial-summary' ? 'pie' : 'bar'"
+            [data]="reportData"
+            [options]="reportOptions"
+            height="400px">
+          </p-chart>
+        </div>
+      </div>
+
+      <!-- Report Summary -->
+      <div class="grid mt-4">
+        <div class="col-12">
+          <h6>Resumo do Relatório</h6>
+          <p>Este relatório mostra os dados de {{ selectedReportType?.name }} para o período selecionado.</p>
+
+          <div class="mt-3" *ngIf="selectedReportType?.code === 'student-performance'">
+            <p><strong>Alunos com desempenho excelente:</strong> 40%</p>
+            <p><strong>Alunos com bom desempenho:</strong> 30%</p>
+            <p><strong>Alunos com desempenho médio:</strong> 20%</p>
+            <p><strong>Alunos com desempenho abaixo da média:</strong> 10%</p>
+          </div>
+
+          <div class="mt-3" *ngIf="selectedReportType?.code === 'class-attendance'">
+            <p><strong>Taxa média de presença:</strong> 91.25%</p>
+            <p><strong>Semana com maior presença:</strong> Semana 1 (95%)</p>
+            <p><strong>Semana com menor presença:</strong> Semana 2 (88%)</p>
+          </div>
+
+          <div class="mt-3" *ngIf="selectedReportType?.code === 'financial-summary'">
+            <p><strong>Receita de matrículas:</strong> 40%</p>
+            <p><strong>Receita de mensalidades:</strong> 35%</p>
+            <p><strong>Receita de material didático:</strong> 15%</p>
+            <p><strong>Receita de atividades extras:</strong> 10%</p>
+          </div>
+
+          <div class="mt-3" *ngIf="selectedReportType?.code === 'academic-stats'">
+            <p><strong>Total de novas matrículas:</strong> 396</p>
+            <p><strong>Total de conclusões:</strong> 248</p>
+            <p><strong>Taxa de conclusão:</strong> 62.6%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast for notifications -->
+  <p-toast></p-toast>
 </div>

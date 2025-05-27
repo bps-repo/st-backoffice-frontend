@@ -24,6 +24,7 @@
     "@fullcalendar/core": "^6.0.3",
     "@fullcalendar/daygrid": "^6.0.3",
     "@fullcalendar/interaction": "^6.0.3",
+    "@fullcalendar/list": "^6.0.3",
     "@fullcalendar/timegrid": "^6.0.3",
     "@ngrx/effects": "^19.1.0",
     "@ngrx/entity": "^19.1.0",

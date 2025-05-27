@@ -1,4 +1,9 @@
 export enum AssessmentType {
-  SELF = 'self',
-  TEAM = 'team'
+    SELF,
+    TEAM,
+    QUIZ,
+    MIDTERM,
+    FINAL,
+    PLACEMENT,
+    SKILLS_CHECK
 }

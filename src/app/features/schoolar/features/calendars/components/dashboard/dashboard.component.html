@@ -1,0 +1,132 @@
+<div class="grid">
+    <!-- KPIs -->
+    <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis">
+        <div class="card h-full">
+            <span class="font-semibold text-lg">{{ kpi.label }}</span>
+            <div class="flex justify-content-between align-items-start mt-3">
+                <div class="w-6">
+                    <span class="text-4xl font-bold text-900">{{ kpi.current }}</span>
+                    <div [ngClass]="kpi.diff > 0 ? 'text-green-500' : 'text-red-500'">
+                        <i class="pi" [ngClass]="kpi.diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'"></i>
+                        {{ kpi.diff }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex gap-3 align-items-center">
+                <p-calendar
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    dateFormat="mm/yy"
+                    view="month"
+                    placeholder="Filter by period"
+                ></p-calendar>
+                <button pButton type="button" label="Filter" (click)="filterData()"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Scheduled Lessons Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="monthlyLessonsData"
+                [options]="monthlyLessonsOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Lessons by Attendance Rate Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="attendanceBarData"
+                [options]="attendanceBarOptions"
+                height="400px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Schedule Trends Line Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="line"
+                [data]="lineChartData"
+                [options]="lineChartOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Schedules by Day of Week Bar Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="barChartData"
+                [options]="barChartOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Time Slot Utilization Heatmap -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="heatmapData"
+                [options]="heatmapOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Schedule Type Distribution Pie Chart -->
+    <div class="col-12 md:col-6">
+        <div class="card h-full">
+            <p-chart
+                type="pie"
+                [data]="pieDataScheduleType"
+                [options]="pieScheduleTypeOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Upcoming Schedules Table -->
+    <div class="col-12 md:col-6">
+        <div class="card h-full">
+            <h5 class="text-xl font-semibold mb-4">Upcoming Schedules</h5>
+            <p-table [value]="upcomingSchedules" [tableStyle]="{ 'min-width': '50rem' }">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Title</th>
+                        <th>Teacher</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Room</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-schedule>
+                    <tr>
+                        <td>{{ schedule.title }}</td>
+                        <td>{{ schedule.teacher }}</td>
+                        <td>{{ schedule.date }}</td>
+                        <td>{{ schedule.time }}</td>
+                        <td>{{ schedule.room }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
