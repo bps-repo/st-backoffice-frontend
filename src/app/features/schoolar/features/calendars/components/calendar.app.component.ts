@@ -25,6 +25,7 @@ import {ButtonModule} from "primeng/button";
 import {TooltipModule} from "primeng/tooltip";
 import {InputSwitchModule} from "primeng/inputswitch";
 import {MultiSelectModule} from "primeng/multiselect";
+import {Router} from "@angular/router";
 
 @Component({
     templateUrl: './calendar.app.component.html',
@@ -83,7 +84,7 @@ export class CalendarAppComponent implements OnInit {
         {label: 'Day', value: 'timeGridDay'},
         {label: 'List', value: 'listWeek'}
     ];
-    selectedView: string = 'timeGridWeek';
+    selectedView: string = 'dayGridMonth';
 
     // Filter options
     filterByTeacher: boolean = false;
@@ -104,7 +105,10 @@ export class CalendarAppComponent implements OnInit {
 
     private tooltipRef: ComponentRef<EventTooltipComponent> | null = null;
 
-    constructor(private viewContainerRef: ViewContainerRef) {
+    constructor(
+        private viewContainerRef: ViewContainerRef,
+        private router: Router
+    ) {
     }
 
     ngOnInit(): void {
@@ -136,13 +140,18 @@ export class CalendarAppComponent implements OnInit {
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+                //right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
             },
             editable: true,
             selectable: true,
             selectMirror: true,
             droppable: true,
-            dayMaxEvents: true,
+            dayMaxEvents: 4,
+            moreLinkContent: (args: { num: number }) => {
+                return {
+                    html: `<span class="show-more-link">mostrar mais...</span>`
+                };
+            },
             eventClick: (e: MouseEvent) => this.onEventClick(e),
             select: (e: MouseEvent) => this.onDateSelect(e),
             eventContent: (args: any) => this.onEventRender(args),
@@ -387,12 +396,8 @@ export class CalendarAppComponent implements OnInit {
      * Create a new event
      */
     createNewEvent(): void {
-        const now = new Date();
-        const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-        this.onDateSelect({
-            start: now,
-            end: oneHourLater
-        });
+        // Redirect to lessons create page
+        this.router.navigate(['/schoolar/lessons/create']);
     }
 
     /**
@@ -434,8 +439,19 @@ export class CalendarAppComponent implements OnInit {
             collapseExtendedProps: true,
             collapseColor: true,
         });
+
+        // Get the event ID
+        const eventId = e.event.id;
+
+        // Redirect to lesson detail page
+        if (eventId) {
+            this.router.navigate(['/schoolar/lessons', eventId]);
+            return;
+        }
+
+        // If no ID is available, show the event details in the dialog
         this.view = 'display';
-        this.showDialog = false;
+        this.showDialog = true;
 
         this.changedEvent = {...plainEvent, ...this.clickedEvent};
         this.changedEvent.start = this.clickedEvent.start;
@@ -445,18 +461,17 @@ export class CalendarAppComponent implements OnInit {
     }
 
     onDateSelect(e: any) {
-        this.view = 'new';
-        this.showDialog = false;
-        this.changedEvent = {
-            ...e,
-            title: null,
-            description: null,
-            location: null,
-            backgroundColor: null,
-            borderColor: null,
-            textColor: null,
-            tag: {color: null, name: null},
-        };
+        // Format dates for URL parameters
+        const startDate = e.start instanceof Date ? e.start.toISOString() : e.start;
+        const endDate = e.end instanceof Date ? e.end.toISOString() : e.end;
+
+        // Redirect to lessons create page with date parameters
+        this.router.navigate(['/schoolar/lessons/create'], {
+            queryParams: {
+                startDate: startDate,
+                endDate: endDate
+            }
+        });
     }
 
     handleSave() {
@@ -471,21 +486,34 @@ export class CalendarAppComponent implements OnInit {
                 textColor: '#212121',
             };
 
+            let eventId;
+
             if (this.clickedEvent.hasOwnProperty('id')) {
+                // Update existing event
+                eventId = this.clickedEvent.id;
                 this.events = this.events.map((i) =>
                     i.id!.toString() === this.clickedEvent.id.toString()
                         ? (i = this.clickedEvent)
                         : i
                 );
+
+                // Redirect to lesson detail page
+                this.router.navigate(['/schoolar/lessons/detail', eventId]);
             } else {
+                // Create new event
+                eventId = Math.floor(Math.random() * 10000);
                 this.events = [
                     ...this.events,
                     {
                         ...this.clickedEvent,
-                        id: Math.floor(Math.random() * 10000),
+                        id: eventId,
                     },
                 ];
+
+                // Redirect to lesson detail page for the new event
+                this.router.navigate(['/schoolar/lessons/detail', eventId]);
             }
+
             this.calendarOptions = {
                 ...this.calendarOptions,
                 ...{events: this.events},

@@ -3,4 +3,22 @@
     [style.top.px]="position.y"
     [style.left.px]="position.x"
 >
+    <h3 class="tooltip-title">{{title}}</h3>
+    <div class="tooltip-content">
+        <div *ngIf="data?.teacher" class="tooltip-item">
+            <i class="pi pi-user"></i> {{data.teacher}}
+        </div>
+        <div *ngIf="data?.center" class="tooltip-item">
+            <i class="pi pi-map-marker"></i> {{data.center}} ({{data.online ? 'Online' : 'Presencial'}})
+        </div>
+        <div *ngIf="data?.classEntity" class="tooltip-item">
+            <i class="pi pi-users"></i> {{data.classEntity}}
+        </div>
+        <div *ngIf="data?.time" class="tooltip-item">
+            <i class="pi pi-clock"></i> {{data.time}}
+        </div>
+        <div class="tooltip-description">
+            <p>{{description}}</p>
+        </div>
+    </div>
 </div>

@@ -1,5 +1,6 @@
-export interface LessonEvent {
-    id: string | number;
+import {Lesson} from "./lesson";
+
+export interface LessonEvent extends Partial<Lesson> {
     allDay?: boolean;
     tag?: { color: string; name: string; };
     color?: string;
@@ -13,7 +14,6 @@ export interface LessonEvent {
     teacher: string;
     level: string;
     description: string;
-    students: string;
     center: string;
     title: string;
     start: string;
