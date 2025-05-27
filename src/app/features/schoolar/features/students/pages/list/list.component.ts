@@ -35,11 +35,15 @@ export class ListComponent implements OnInit, OnDestroy {
     loading$: Observable<boolean>;
 
     columns: TableColumn[] = [];
-    globalFilterFields: string[] = ['id', 'name', 'center', 'level', 'phone', 'email', 'course'];
+    globalFilterFields: string[] = ['id', 'name', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'unitProgress'];
 
     // Chart data
     centerChartData: any;
     levelChartData: any;
+    unitChartData: any;
+    statusChartData: any;
+    classChartData: any;
+    unitProgressChartData: any;
     chartOptions: any;
 
     private destroy$ = new Subject<void>();
@@ -107,6 +111,41 @@ export class ListComponent implements OnInit, OnDestroy {
                 filterType: 'text',
             },
             {
+                field: 'unit',
+                header: 'Unidade',
+                filterType: 'text',
+            },
+            {
+                field: 'classEntity',
+                header: 'Turma',
+                filterType: 'text',
+            },
+            {
+                field: 'status',
+                header: 'Status',
+                filterType: 'text',
+                // Mock data for status since it's not in the Student model
+                filterOptions: [
+                    { label: 'Active', value: 'Active' },
+                    { label: 'Inactive', value: 'Inactive' },
+                    { label: 'Graduated', value: 'Graduated' },
+                    { label: 'On Leave', value: 'On Leave' }
+                ]
+            },
+            {
+                field: 'unitProgress',
+                header: 'Progresso',
+                filterType: 'text',
+                // Mock data for unitProgress since it's not in the Student model
+                filterOptions: [
+                    { label: 'Not Started', value: 'Not Started' },
+                    { label: '0-25%', value: '0-25%' },
+                    { label: '26-50%', value: '26-50%' },
+                    { label: '51-75%', value: '51-75%' },
+                    { label: '76-100%', value: '76-100%' }
+                ]
+            },
+            {
                 field: 'phone',
                 header: 'Telefone',
                 filterType: 'text',
@@ -160,6 +199,90 @@ export class ListComponent implements OnInit, OnDestroy {
                             '#36A2EB',
                             '#9966FF',
                             '#FF9F40'
+                        ]
+                    }
+                ]
+            };
+
+            // Generate unit chart data
+            const unitCounts = this.countByProperty(students, 'unit');
+            this.unitChartData = {
+                labels: Object.keys(unitCounts).map(key => key ? key : 'Not Assigned'),
+                datasets: [
+                    {
+                        data: Object.values(unitCounts),
+                        backgroundColor: [
+                            '#FF9F40',
+                            '#4BC0C0',
+                            '#FF6384',
+                            '#FFCE56',
+                            '#36A2EB',
+                            '#9966FF'
+                        ]
+                    }
+                ]
+            };
+
+            // Generate class chart data
+            const classCounts = this.countByProperty(students, 'classEntity');
+            this.classChartData = {
+                labels: Object.keys(classCounts).map(key => key ? key : 'Not Assigned'),
+                datasets: [
+                    {
+                        data: Object.values(classCounts),
+                        backgroundColor: [
+                            '#36A2EB',
+                            '#FF9F40',
+                            '#4BC0C0',
+                            '#FF6384',
+                            '#FFCE56',
+                            '#9966FF'
+                        ]
+                    }
+                ]
+            };
+
+            // Generate status chart data (mock data since status is not in the Student model)
+            const statusData = {
+                'Active': Math.floor(students.length * 0.7),
+                'Inactive': Math.floor(students.length * 0.1),
+                'Graduated': Math.floor(students.length * 0.1),
+                'On Leave': Math.floor(students.length * 0.1)
+            };
+            this.statusChartData = {
+                labels: Object.keys(statusData),
+                datasets: [
+                    {
+                        data: Object.values(statusData),
+                        backgroundColor: [
+                            '#4BC0C0', // Active - Green
+                            '#FF6384', // Inactive - Red
+                            '#FFCE56', // Graduated - Yellow
+                            '#9966FF'  // On Leave - Purple
+                        ]
+                    }
+                ]
+            };
+
+            // Generate unit progress chart data (mock data since unitProgress is not in the Student model)
+            const progressData = {
+                'Not Started': Math.floor(students.length * 0.2),
+                '0-25%': Math.floor(students.length * 0.2),
+                '26-50%': Math.floor(students.length * 0.2),
+                '51-75%': Math.floor(students.length * 0.2),
+                '76-100%': Math.floor(students.length * 0.2)
+            };
+            this.unitProgressChartData = {
+                labels: Object.keys(progressData),
+                datasets: [
+                    {
+                        data: Object.values(progressData),
+                        backgroundColor: [
+                            '#FF6384', // Not Started - Red
+                            '#FF9F40', // 0-25% - Orange
+                            '#FFCE56', // 26-50% - Yellow
+                            '#36A2EB', // 51-75% - Blue
+                            '#4BC0C0'  // 76-100% - Green
                         ]
                     }
                 ]

@@ -54,12 +54,20 @@
                         <td>{{ invoice.description }}</td>
                         <td>
                             <p-tag [value]="invoice.status" [severity]="getSeverity(invoice.status)"></p-tag>
+                            <div class="mt-2">
+                                <div class="text-xs mb-1">Installment Progress: {{ invoice.installmentProgress }}%</div>
+                                <div class="h-1.5 w-full bg-gray-200 rounded-full">
+                                    <div [ngClass]="getProgressBarClass(invoice.installmentProgress)"
+                                         class="h-1.5 rounded-full"
+                                         [ngStyle]="{'width': invoice.installmentProgress + '%'}"></div>
+                                </div>
+                            </div>
                         </td>
                         <td>
                             <button pButton icon="pi pi-download" class="p-button-rounded p-button-text" title="Download Invoice"></button>
                             <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text" title="View Invoice"></button>
                             <button pButton icon="pi pi-credit-card" class="p-button-rounded p-button-text"
-                                title="Pay Invoice" *ngIf="invoice.status === 'Unpaid'"></button>
+                                title="Pay Invoice" *ngIf="invoice.status === 'Unpaid' || invoice.status === 'Partial'"></button>
                         </td>
                     </tr>
                 </ng-template>

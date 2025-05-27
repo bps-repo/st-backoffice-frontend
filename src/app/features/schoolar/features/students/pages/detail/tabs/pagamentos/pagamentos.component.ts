@@ -61,7 +61,12 @@ export class PagamentosComponent implements OnInit {
             dueDate: '2023-06-15',
             amount: 250.00,
             status: 'Paid',
-            description: 'Monthly Tuition - June 2023'
+            description: 'Monthly Tuition - June 2023',
+            installments: [
+                { number: 1, dueDate: '2023-06-15', amount: 125.00, status: 'Paid', paymentDate: '2023-06-10' },
+                { number: 2, dueDate: '2023-06-30', amount: 125.00, status: 'Paid', paymentDate: '2023-06-28' }
+            ],
+            installmentProgress: 100 // percentage
         },
         {
             id: 'INV-2023-002',
@@ -69,7 +74,25 @@ export class PagamentosComponent implements OnInit {
             dueDate: '2023-07-15',
             amount: 250.00,
             status: 'Unpaid',
-            description: 'Monthly Tuition - July 2023'
+            description: 'Monthly Tuition - July 2023',
+            installments: [
+                { number: 1, dueDate: '2023-07-15', amount: 125.00, status: 'Unpaid', paymentDate: null },
+                { number: 2, dueDate: '2023-07-30', amount: 125.00, status: 'Unpaid', paymentDate: null }
+            ],
+            installmentProgress: 0 // percentage
+        },
+        {
+            id: 'INV-2023-003',
+            date: '2023-08-01',
+            dueDate: '2023-08-15',
+            amount: 250.00,
+            status: 'Partial',
+            description: 'Monthly Tuition - August 2023',
+            installments: [
+                { number: 1, dueDate: '2023-08-15', amount: 125.00, status: 'Paid', paymentDate: '2023-08-12' },
+                { number: 2, dueDate: '2023-08-30', amount: 125.00, status: 'Unpaid', paymentDate: null }
+            ],
+            installmentProgress: 50 // percentage
         }
     ];
 
@@ -132,8 +155,22 @@ export class PagamentosComponent implements OnInit {
                 return 'info';
             case 'Overdue':
                 return 'danger';
+            case 'Partial':
+                return 'info';
             default:
                 return 'info';
+        }
+    }
+
+    getProgressBarClass(progress: number) {
+        if (progress === 100) {
+            return 'bg-green-500';
+        } else if (progress >= 50) {
+            return 'bg-blue-500';
+        } else if (progress > 0) {
+            return 'bg-yellow-500';
+        } else {
+            return 'bg-gray-300';
         }
     }
 

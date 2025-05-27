@@ -1,21 +1,21 @@
 // detail.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable} from 'rxjs';
 import * as UnitActions from 'src/app/core/store/course/actions/unit.actions';
-import { selectSelectedUnit, selectUnitLoading } from 'src/app/core/store/course/selectors/unit.selector';
-import { SkeletonModule } from 'primeng/skeleton';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { FormsModule } from '@angular/forms';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { Unit } from 'src/app/core/models/course/unit';
+import {selectSelectedUnit, selectUnitLoading} from 'src/app/core/store/course/selectors/unit.selector';
+import {SkeletonModule} from 'primeng/skeleton';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {ButtonModule} from 'primeng/button';
+import {FormsModule} from '@angular/forms';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {Unit} from 'src/app/core/models/course/unit';
 import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
-import { selectAllLevels } from 'src/app/core/store/course/selectors/level.selector';
-import { Level } from 'src/app/core/models/course/level';
+import {selectAllLevels} from 'src/app/core/store/course/selectors/level.selector';
+import {Level} from 'src/app/core/models/course/level';
 
 @Component({
     selector: 'app-unit-detail',
@@ -63,7 +63,7 @@ export class DetailComponent implements OnInit {
 
         this.unit$.subscribe(unit => {
             this.unit = unit;
-            this.editableUnit = unit ? { ...unit } : null;
+            this.editableUnit = unit ? {...unit} : null;
             this.setUnitLevel();
         });
 
@@ -73,7 +73,7 @@ export class DetailComponent implements OnInit {
     }
 
     loadUnit(): void {
-        this.store.dispatch(UnitActions.loadUnit({ id: this.unitId }));
+        this.store.dispatch(UnitActions.loadUnit({id: this.unitId}));
     }
 
     editUnit(): void {
@@ -86,7 +86,7 @@ export class DetailComponent implements OnInit {
 
             };
 
-            this.store.dispatch(UnitActions.updateUnit({ id: this.unitId, unit: updatedUnit }));
+            this.store.dispatch(UnitActions.updateUnit({id: this.unitId, unit: updatedUnit}));
         }
     }
 
@@ -98,7 +98,7 @@ export class DetailComponent implements OnInit {
                     ...this.unit,
                     level: matchedLevel
                 };
-                this.editableUnit = { ...this.unit };
+                this.editableUnit = {...this.unit};
             }
         }
     }
