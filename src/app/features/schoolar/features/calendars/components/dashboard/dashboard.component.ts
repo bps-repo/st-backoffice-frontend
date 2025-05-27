@@ -35,13 +35,19 @@ export class CalendarsDashboardComponent implements OnInit {
     heatmapData: any;
     heatmapOptions: any;
 
+    monthlyLessonsData: any;
+    monthlyLessonsOptions: any;
+
+    attendanceBarData: any;
+    attendanceBarOptions: any;
+
     dateRange: Date[] | undefined;
 
     kpis = [
         { label: 'Total Schedules', current: 245, diff: 12 },
         { label: 'Utilization Rate', current: '78%', diff: 5 },
+        { label: 'Avg. Attendance', current: '85%', diff: 7 },
         { label: 'Cancellation Rate', current: '4%', diff: -2 },
-        { label: 'Rescheduled', current: 18, diff: -8 },
     ];
 
     upcomingSchedules = [
@@ -63,6 +69,131 @@ export class CalendarsDashboardComponent implements OnInit {
         const textColor = documentStyle.getPropertyValue('--text-color');
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+        // Monthly scheduled lessons chart
+        this.monthlyLessonsData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Scheduled Lessons',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    data: [65, 59, 80, 81, 56, 55, 40, 55, 72, 78, 95, 120]
+                },
+                {
+                    type: 'line',
+                    label: 'Attendance Rate',
+                    fill: false,
+                    borderColor: documentStyle.getPropertyValue('--green-500'),
+                    tension: 0.4,
+                    data: [85, 82, 88, 87, 80, 82, 78, 84, 86, 88, 90, 92],
+                    yAxisID: 'y1'
+                }
+            ]
+        };
+
+        this.monthlyLessonsOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Monthly Scheduled Lessons with Attendance Rate',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    },
+                    title: {
+                        display: true,
+                        text: 'Number of Lessons'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    ticks: {
+                        color: textColorSecondary,
+                        min: 50,
+                        max: 100,
+                        callback: function(value: string) {
+                            return value + '%';
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Attendance Rate'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        };
+
+        // Lessons by attendance bar chart
+        this.attendanceBarData = {
+            labels: ['Advanced English', 'Business English', 'Spanish Conversation', 'French Basics', 'German Grammar', 'Italian Pronunciation', 'English for Travel', 'TOEFL Preparation', 'IELTS Preparation', 'Japanese Basics'],
+            datasets: [
+                {
+                    label: 'Average Attendance',
+                    backgroundColor: documentStyle.getPropertyValue('--blue-500'),
+                    data: [95, 92, 90, 88, 85, 82, 80, 78, 75, 70]
+                }
+            ]
+        };
+
+        this.attendanceBarOptions = {
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Lessons by Attendance Rate (%)',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    },
+                    min: 0,
+                    max: 100
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
 
         // Schedule type distribution pie chart
         this.pieDataScheduleType = {

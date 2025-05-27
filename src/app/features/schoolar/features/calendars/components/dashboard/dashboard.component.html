@@ -31,6 +31,30 @@
         </div>
     </div>
 
+    <!-- Monthly Scheduled Lessons Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="monthlyLessonsData"
+                [options]="monthlyLessonsOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Lessons by Attendance Rate Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="attendanceBarData"
+                [options]="attendanceBarOptions"
+                height="400px"
+            ></p-chart>
+        </div>
+    </div>
+
     <!-- Schedule Trends Line Chart -->
     <div class="col-12">
         <div class="card h-full">

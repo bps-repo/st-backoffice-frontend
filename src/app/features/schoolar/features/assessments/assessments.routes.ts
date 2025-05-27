@@ -4,11 +4,16 @@ import { ListComponent } from './pages/list/list.component';
 import { CreateComponent } from './pages/create/create.component';
 import { EditComponent } from './pages/edit/edit.component';
 import { DetailComponent } from './pages/detail/detail.component';
+import { AssessmentsDashboardComponent } from './pages/dashboard/dashboard.component';
 
 const routes: Routes = [
     {
         path: '',
         component: ListComponent,
+    },
+    {
+        path: 'dashboard',
+        component: AssessmentsDashboardComponent,
     },
     {
         path: 'create',
