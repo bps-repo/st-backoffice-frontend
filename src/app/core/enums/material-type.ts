@@ -1,0 +1,3 @@
+export enum MaterialType {
+    PDF, VIDEO, AUDIO, PRESENTATION, WORKSHEET, DOCX, EXCEL
+}
