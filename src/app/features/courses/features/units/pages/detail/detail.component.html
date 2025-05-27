@@ -57,4 +57,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Dashboard Charts Section -->
+    <div class="col-12">
+        <div class="card">
+            <h5>Dashboard da Unidade</h5>
+
+            <!-- Progress and Assessment Charts Row -->
+            <div class="grid">
+                <!-- Student Progress Chart -->
+                <div class="col-12 md:col-6">
+                    <div class="card mb-0">
+                        <p-chart
+                            type="doughnut"
+                            [data]="progressChartData"
+                            [options]="progressChartOptions"
+                            height="300px">
+                        </p-chart>
+                    </div>
+                </div>
+
+                <!-- Assessment Performance Chart -->
+                <div class="col-12 md:col-6">
+                    <div class="card mb-0">
+                        <p-chart
+                            type="bar"
+                            [data]="assessmentChartData"
+                            [options]="assessmentChartOptions"
+                            height="300px">
+                        </p-chart>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson Distribution Chart Row -->
+            <div class="grid mt-3">
+                <div class="col-12">
+                    <div class="card mb-0">
+                        <p-chart
+                            type="pie"
+                            [data]="lessonDistributionData"
+                            [options]="lessonDistributionOptions"
+                            height="300px">
+                        </p-chart>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

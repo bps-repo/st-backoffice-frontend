@@ -17,6 +17,7 @@ import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
 import {selectAllLevels} from 'src/app/core/store/course/selectors/level.selector';
 import {Level} from 'src/app/core/models/course/level';
 import {RippleModule} from "primeng/ripple";
+import {ChartModule} from 'primeng/chart';
 
 @Component({
     selector: 'app-unit-detail',
@@ -30,7 +31,8 @@ import {RippleModule} from "primeng/ripple";
         ButtonModule,
         FormsModule,
         ProgressSpinnerModule,
-        RippleModule
+        RippleModule,
+        ChartModule
     ]
 })
 export class DetailComponent implements OnInit {
@@ -42,6 +44,14 @@ export class DetailComponent implements OnInit {
     loading$: Observable<boolean>;
     loading: boolean = true;
     levels: Level[] = [];
+
+    // Chart properties
+    progressChartData: any;
+    progressChartOptions: any;
+    assessmentChartData: any;
+    assessmentChartOptions: any;
+    lessonDistributionData: any;
+    lessonDistributionOptions: any;
 
 
     constructor(private route: ActivatedRoute, private store: Store) {
@@ -67,11 +77,157 @@ export class DetailComponent implements OnInit {
             this.unit = unit;
             this.editableUnit = unit ? {...unit} : null;
             this.setUnitLevel();
+
+            // Initialize charts when unit data is available
+            if (unit) {
+                this.initProgressChart();
+                this.initAssessmentChart();
+                this.initLessonDistributionChart();
+            }
         });
 
         this.loading$.subscribe(loading => {
             this.loading = loading;
         });
+    }
+
+    initProgressChart(): void {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const textColor = documentStyle.getPropertyValue('--text-color');
+
+        // Sample data - in a real app, this would come from the unit data
+        this.progressChartData = {
+            labels: ['Completed', 'In Progress', 'Not Started'],
+            datasets: [
+                {
+                    data: [65, 25, 10],
+                    backgroundColor: [
+                        documentStyle.getPropertyValue('--green-500'),
+                        documentStyle.getPropertyValue('--blue-500'),
+                        documentStyle.getPropertyValue('--gray-300'),
+                    ],
+                    hoverBackgroundColor: [
+                        documentStyle.getPropertyValue('--green-400'),
+                        documentStyle.getPropertyValue('--blue-400'),
+                        documentStyle.getPropertyValue('--gray-200'),
+                    ]
+                }
+            ]
+        };
+
+        this.progressChartOptions = {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor,
+                        usePointStyle: true,
+                        font: { weight: 700 },
+                        padding: 20,
+                    },
+                    position: 'bottom',
+                },
+                title: {
+                    display: true,
+                    text: 'Student Progress',
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            cutout: '60%'
+        };
+    }
+
+    initAssessmentChart(): void {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const textColor = documentStyle.getPropertyValue('--text-color');
+
+        // Sample data - in a real app, this would come from the unit's assessment data
+        this.assessmentChartData = {
+            labels: ['Excellent', 'Good', 'Average', 'Poor'],
+            datasets: [
+                {
+                    label: 'Assessment Results',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    data: [40, 30, 20, 10]
+                }
+            ]
+        };
+
+        this.assessmentChartOptions = {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Assessment Performance',
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: textColor },
+                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                }
+            }
+        };
+    }
+
+    initLessonDistributionChart(): void {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const textColor = documentStyle.getPropertyValue('--text-color');
+
+        // Sample data - in a real app, this would come from the unit's lessons
+        this.lessonDistributionData = {
+            labels: ['Theory', 'Practice', 'Assessment', 'Review'],
+            datasets: [
+                {
+                    data: [30, 40, 15, 15],
+                    backgroundColor: [
+                        documentStyle.getPropertyValue('--primary-800'),
+                        documentStyle.getPropertyValue('--primary-600'),
+                        documentStyle.getPropertyValue('--primary-400'),
+                        documentStyle.getPropertyValue('--primary-200'),
+                    ],
+                    hoverBackgroundColor: [
+                        documentStyle.getPropertyValue('--primary-700'),
+                        documentStyle.getPropertyValue('--primary-500'),
+                        documentStyle.getPropertyValue('--primary-300'),
+                        documentStyle.getPropertyValue('--primary-100'),
+                    ]
+                }
+            ]
+        };
+
+        this.lessonDistributionOptions = {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor,
+                        usePointStyle: true,
+                        font: { weight: 700 },
+                        padding: 20,
+                    },
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: 'Lesson Type Distribution',
+                    font: {
+                        size: 16
+                    }
+                }
+            }
+        };
     }
 
     loadUnit(): void {
