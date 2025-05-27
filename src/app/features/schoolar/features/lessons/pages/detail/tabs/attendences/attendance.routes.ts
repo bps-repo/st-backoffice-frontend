@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {AttendenceCreateComponent} from "./create/attendence-create.component";
 import {EditAttendenceComponent} from "./edit/edit-attendence.component";
-import {AttendenceDetailComponent} from "../../attendence-detail.component";
+import {LessonDetailComponent} from "../../lesson-detail.component";
 
 const routes: Routes = [
     {
@@ -15,7 +15,7 @@ const routes: Routes = [
     },
     {
         path: ':id',
-        component: AttendenceDetailComponent,
+        component: LessonDetailComponent,
     },
 ];
 

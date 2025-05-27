@@ -1,0 +1,47 @@
+<div class="grid">
+    <app-global-table
+        tableLabel="Aulas"
+        [data]="lessons"
+        [entity]="'lessons'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        class="w-full"
+        (createEntity)="navigateToCreateLesson()"
+    ></app-global-table>
+
+    <p-dialog
+        [(visible)]="deleteClasstDialog"
+        header="Confirm"
+        [modal]="true"
+        [style]="{ width: '450px' }"
+    >
+        <div class="flex align-items-center justify-content-center">
+            <i
+                class="pi pi-exclamation-triangle mr-3"
+                style="font-size: 2rem"
+            ></i>
+            <span *ngIf="lessons[0]"
+                >Are you sure you want to delete <b>{{ lessons[0].id }}</b
+                >?</span
+            >
+        </div>
+        <ng-template pTemplate="footer">
+            <button
+                pButton
+                pRipple
+                icon="pi pi-times"
+                class="p-button-text"
+                label="No"
+                (click)="deleteClasstDialog = false"
+            ></button>
+            <button
+                pButton
+                pRipple
+                icon="pi pi-check"
+                class="p-button-text"
+                label="Yes"
+                (click)="confirmDelete()"
+            ></button>
+        </ng-template>
+    </p-dialog>
+</div>

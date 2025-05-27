@@ -56,11 +56,7 @@ export class TableHeaderComponent implements OnInit {
     constructor(private router: Router, private classService: ClassesService) {}
 
     navigateToCreateEntity() {
-        if (this.entity == 'lessons') {
-            this.classService.setCreateClassDialogState(true);
-        } else {
-            this.router.navigate([`/schoolar/${this.entity}/create`]);
-        }
+        this.router.navigate([`/schoolar/${this.entity}/create`]);
     }
 
     ngOnInit(): void {

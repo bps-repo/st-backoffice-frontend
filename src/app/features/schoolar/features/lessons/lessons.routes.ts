@@ -1,21 +1,21 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {CreateLessonDialogComponent} from './dialogs/create-lesson-dialog/create-lesson-dialog.component';
-import {AttendenceDetailComponent} from './pages/detail/attendence-detail.component';
-import {LessonComponent} from "./pages/list/lesson.component";
+import {CreateLessonComponent} from './dialogs/create-lesson-dialog/create-lesson.component';
+import {LessonDetailComponent} from './pages/detail/lesson-detail.component';
+import {LessonsListComponent} from "./pages/list/lessons-list.component";
 
 const routes: Routes = [
     {
         path: '',
-        component: LessonComponent,
+        component: LessonsListComponent,
     },
     {
         path: 'create',
-        component: CreateLessonDialogComponent,
+        component: CreateLessonComponent,
     },
     {
         path: ':id',
-        component: AttendenceDetailComponent,
+        component: LessonDetailComponent,
     },
 ];
 

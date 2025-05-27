@@ -18,5 +18,14 @@ export interface LessonEvent {
     title: string;
     start: string;
     end: string;
-    backgroundColor: string
+    backgroundColor: string;
+    extendedProps?: {
+        teacher?: string;
+        center?: string;
+        classEntity?: string;
+        description?: string;
+        isOnline?: boolean;
+        status?: string;
+        time?: string;
+    }
 }

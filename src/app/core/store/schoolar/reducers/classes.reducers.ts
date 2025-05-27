@@ -49,7 +49,7 @@ export const classesFeature = createFeature({
         on(lessonsActions.loadLessonSuccess, (state, {lesson}) =>
             lessonsAdapter.upsertOne(lesson, {
                 ...state,
-                selectedClassId: lesson.id!,
+                selectedLessonId: lesson.id!,
                 loading: false,
             })
         ),
@@ -107,7 +107,7 @@ export const classesFeature = createFeature({
         on(lessonsActions.deleteLessonSuccess, (state, {id}) =>
             lessonsAdapter.removeOne(id, {
                 ...state,
-                selectedClassId: state.selectedLessonId === id ? null : state.selectedLessonId,
+                selectedLessonId: state.selectedLessonId === id ? null : state.selectedLessonId,
                 loading: false,
             })
         ),
@@ -124,4 +124,3 @@ export const classesFeature = createFeature({
         }))
     ),
 });
-

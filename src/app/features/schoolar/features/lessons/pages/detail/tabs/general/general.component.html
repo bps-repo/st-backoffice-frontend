@@ -15,6 +15,53 @@
                             <div class="text-lg">{{ lessonItem.id }}</div>
                         </div>
                     </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Status</label>
+                            <div class="text-lg">
+                                <span class="p-badge"
+                                      [ngClass]="{
+                                        'p-badge-success': lessonItem.status === LessonStatus.BOOKED,
+                                        'p-badge-warning': lessonItem.status === LessonStatus.COMPLETED,
+                                        'p-badge-danger': lessonItem.status === LessonStatus.CANCELLED
+                                      }">
+                                    {{ lessonItem.status }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Title</label>
+                            <div class="text-lg">{{ lessonItem.title }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Description</label>
+                            <div class="text-lg">{{ lessonItem.description || 'No description provided' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Start Date/Time</label>
+                            <div class="text-lg">{{ lessonItem.startDatetime | date:'medium' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">End Date/Time</label>
+                            <div class="text-lg">{{ lessonItem.endDatetime | date:'medium' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Duration</label>
+                            <div class="text-lg">
+                                {{ getDuration(lessonItem.startDatetime, lessonItem.endDatetime) }} minutes
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </p-card>
         </div>
@@ -30,14 +77,14 @@
                 <div class="grid">
                     <div class="col-12 md:col-6">
                         <div class="field">
-                            <label class="block text-sm font-medium text-500 mb-2">Level</label>
-                            <div class="text-lg">{{ lessonItem.level }}</div>
+                            <label class="block text-sm font-medium text-500 mb-2">Teacher</label>
+                            <div class="text-lg">{{ lessonItem.teacher }}</div>
                         </div>
                     </div>
                     <div class="col-12 md:col-6">
                         <div class="field">
-                            <label class="block text-sm font-medium text-500 mb-2">Teacher</label>
-                            <div class="text-lg">{{ lessonItem.teacher }}</div>
+                            <label class="block text-sm font-medium text-500 mb-2">Level</label>
+                            <div class="text-lg">{{ lessonItem.level }}</div>
                         </div>
                     </div>
                     <div class="col-12 md:col-6">
@@ -49,16 +96,37 @@
                     <div class="col-12 md:col-6">
                         <div class="field">
                             <label class="block text-sm font-medium text-500 mb-2">Unit</label>
-                            <div class="text-lg">{{ lessonItem.unit }}</div>
+                            <div class="text-lg">{{ lessonItem.unit || 'Not assigned' }}</div>
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Online</label>
+                            <div class="text-lg">
+                                <i class="pi"
+                                   [ngClass]="lessonItem.online ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500'"></i>
+                                {{ lessonItem.online ? 'Yes' : 'No' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6" *ngIf="lessonItem.online && lessonItem.onlineLink">
+                        <div class="field">
+                            <label class="block text-sm font-medium text-500 mb-2">Online Link</label>
+                            <div class="text-lg">
+                                <a [href]="lessonItem.onlineLink" target="_blank" class="text-primary">
+                                    {{ lessonItem.onlineLink }}
+                                    <i class="pi pi-external-link ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
                         <div class="field">
                             <label class="block text-sm font-medium text-500 mb-2">Created At</label>
                             <div class="text-lg">{{ lessonItem.createdAt | date:'medium' }}</div>
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12 md:col-6">
                         <div class="field">
                             <label class="block text-sm font-medium text-500 mb-2">Updated At</label>
                             <div class="text-lg">{{ lessonItem.updatedAt | date:'medium' }}</div>

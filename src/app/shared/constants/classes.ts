@@ -7,9 +7,12 @@ import {Tab} from '../@types/tab';
 
 import {Observable, of} from 'rxjs';
 
-import {LessonsComponent} from "../../features/schoolar/features/lessons/pages/detail/tabs/lessons/lessons.component";
+import {MaterialsComponent} from "../../features/schoolar/features/lessons/pages/detail/tabs/materials/materials.component";
+import {
+    AttendanceComponent
+} from "../../features/schoolar/features/lessons/pages/detail/tabs/attendences/list/attendance.component";
 
-export const CLASSES_TABS: Observable<Tab[]> = of([
+export const LESSONS_TABS: Observable<Tab[]> = of([
     {
         header: 'Geral',
         icon: 'pi pi-info-circle',
@@ -29,6 +32,13 @@ export const CLASSES_TABS: Observable<Tab[]> = of([
         icon: 'pi pi-check',
         title: 'Class Attendance',
         description: 'Manage attendance records for this class',
-        template: LessonsComponent,
+        template: AttendanceComponent,
+    },
+    {
+        header: 'Materiais',
+        icon: 'pi pi-book',
+        title: 'Lesson Materials',
+        description: 'Manage materials for this lesson',
+        template: MaterialsComponent,
     }
 ]);

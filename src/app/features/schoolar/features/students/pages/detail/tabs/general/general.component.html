@@ -1,117 +1,149 @@
-<section class="mt-5">
-    <!-- Key Metrics Cards -->
+<section class="mt-3">
+    <!-- Student Overview -->
     <div class="grid">
-        <div class="col-12 md:col-6 xl:col-4">
+        <!-- Student Profile & Academic Info -->
+        <div class="col-12 md:col-4">
             <p-card styleClass="h-full">
-                <ng-template pTemplate="header">
-                    <div class="flex align-items-center justify-content-between px-3 pt-3">
-                        <span class="font-semibold text-lg">Tempo na aplicação</span>
-                        <i class="pi pi-clock text-primary text-xl"></i>
-                    </div>
-                </ng-template>
-                <div class="flex flex-column align-items-center justify-content-center">
-                    <span class="text-5xl font-bold text-900">30</span>
-                    <span class="text-lg font-medium text-600">min/dia</span>
-                    <p-tag severity="success" value="+5% que semana passada" class="mt-2"></p-tag>
+                <div class="flex flex-column align-items-center">
+                    <p-avatar [image]="studentInfo.photo" size="xlarge" shape="circle"
+                        [style]="{'box-shadow': '0 3px 6px rgba(0, 0, 0, 0.16)'}">
+                    </p-avatar>
+                    <h2 class="text-2xl font-bold mt-3 mb-1">{{ studentInfo.name }}</h2>
+                    <p class="text-600 m-0">{{ studentInfo.email }}</p>
+                    <p-tag [severity]="studentInfo.status === 'Active' ? 'success' : 'warning'"
+                        [value]="studentInfo.status" class="mt-2"></p-tag>
                 </div>
-            </p-card>
-        </div>
-        <div class="col-12 md:col-6 xl:col-4">
-            <p-card styleClass="h-full">
-                <ng-template pTemplate="header">
-                    <div class="flex align-items-center justify-content-between px-3 pt-3">
-                        <span class="font-semibold text-lg">Assiduidade</span>
-                        <i class="pi pi-calendar-check text-primary text-xl"></i>
-                    </div>
-                </ng-template>
-                <div class="flex flex-column align-items-center justify-content-center">
-                    <span class="text-5xl font-bold text-900">45%</span>
-                    <span class="text-lg font-medium text-600">presença</span>
-                    <p-tag severity="success" value="+2% que mês passado" class="mt-2"></p-tag>
-                </div>
-            </p-card>
-        </div>
-        <div class="col-12 md:col-6 xl:col-4">
-            <p-card styleClass="h-full">
-                <ng-template pTemplate="header">
-                    <div class="flex align-items-center justify-content-between px-3 pt-3">
-                        <span class="font-semibold text-lg">Avaliações</span>
-                        <i class="pi pi-chart-bar text-primary text-xl"></i>
-                    </div>
-                </ng-template>
-                <div class="flex flex-column align-items-center justify-content-center">
-                    <span class="text-5xl font-bold text-900">30%</span>
-                    <span class="text-lg font-medium text-600">completadas</span>
-                    <p-tag severity="warning" value="-5% que média da turma" class="mt-2"></p-tag>
-                </div>
-            </p-card>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="grid mt-3">
-        <!-- Student Profile Card -->
-        <div class="col-12 lg:col-4">
-            <p-card styleClass="h-full">
-                <ng-template pTemplate="header">
-                    <div class="flex flex-column align-items-center pt-3">
-                        <p-avatar image="https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg"
-                                 size="xlarge" shape="circle"
-                                 [style]="{'box-shadow': '0 3px 6px rgba(0, 0, 0, 0.16)'}">
-                        </p-avatar>
-                        <span class="font-bold text-2xl mt-3">Manuel Ikuma</span>
-                        <span class="text-600">user273&#64;gmail.com</span>
-                        <p-tag severity="info" value="Pre-Intermediate 2" class="mt-2"></p-tag>
-                    </div>
-                </ng-template>
 
                 <p-divider>
-                    <span class="font-medium">Informações Pessoais</span>
+                    <span class="font-medium">Academic Information</span>
                 </p-divider>
 
                 <div class="grid">
-                    <div *ngFor="let user of user_personal_info" class="col-12 mb-2">
+                    <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">{{ user.title }}</span>
-                            <span class="font-medium text-900">{{ user.value }}</span>
+                            <span class="font-medium text-600">Center</span>
+                            <span class="font-medium text-900">{{ studentInfo.center }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-2">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="font-medium text-600">Course</span>
+                            <span class="font-medium text-900">{{ studentInfo.course }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-2">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="font-medium text-600">Level</span>
+                            <span class="font-medium text-900">{{ studentInfo.level }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-2">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="font-medium text-600">Current Unit</span>
+                            <span class="font-medium text-900">{{ studentInfo.unit }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-2">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="font-medium text-600">Enrollment Date</span>
+                            <span class="font-medium text-900">{{ formatDate(studentInfo.enrollmentDate) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p-divider>
+                    <span class="font-medium">Personal Information</span>
+                </p-divider>
+
+                <div class="grid">
+                    <div *ngFor="let info of personalInfo" class="col-12 mb-2">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="font-medium text-600">{{ info.title }}</span>
+                            <span class="font-medium text-900">{{ info.value }}</span>
                         </div>
                     </div>
                 </div>
             </p-card>
         </div>
 
-        <!-- Academic Progress and Notifications -->
-        <div class="col-12 lg:col-8">
+        <!-- Progress & Upcoming Lessons -->
+        <div class="col-12 md:col-8">
             <div class="grid">
-                <!-- Academic Progress Chart -->
-                <div class="col-12 lg:col-6">
-                    <p-card styleClass="h-full" header="Progresso Acadêmico">
-                        <app-pie-chart
-                            pieChartType="doughnut"
-                        ></app-pie-chart>
+                <!-- Progress Cards -->
+                <div class="col-12 md:col-6">
+                    <p-card styleClass="h-full" header="Unit Progress">
+                        <div class="flex flex-column">
+                            <div class="flex justify-content-between align-items-center mb-2">
+                                <span class="font-medium">{{ studentInfo.unit }}</span>
+                                <span class="font-bold">{{ unitProgress }}%</span>
+                            </div>
+                            <p-progressBar [value]="unitProgress" [showValue]="false" styleClass="mb-3"
+                                [style]="{'height': '10px'}"></p-progressBar>
+                            <div class="text-sm text-600 mb-4">
+                                Unit {{ studentInfo.unitOrder }} of {{ studentInfo.totalUnits }} in {{ studentInfo.level }}
+                            </div>
+
+                            <div class="flex justify-content-between align-items-center mb-2 mt-4">
+                                <span class="font-medium">Level Progress</span>
+                                <span class="font-bold">{{ levelProgress }}%</span>
+                            </div>
+                            <p-progressBar [value]="levelProgress" [showValue]="false" styleClass="mb-3"
+                                [style]="{'height': '10px'}"></p-progressBar>
+                            <div class="text-sm text-600">
+                                Completed {{ Math.floor(levelProgress / 100 * studentInfo.totalUnits) }} of {{ studentInfo.totalUnits }} units
+                            </div>
+                        </div>
                     </p-card>
                 </div>
 
                 <!-- Notifications -->
-                <div class="col-12 lg:col-6">
-                    <p-card styleClass="h-full" header="Notificações Recentes">
+                <div class="col-12 md:col-6">
+                    <p-card styleClass="h-full" header="Recent Activity">
                         <ul class="list-none m-0 p-0">
                             <li *ngFor="let notification of notifications" class="mb-3">
-                                <div class="flex align-items-center p-3 border-round surface-hover cursor-pointer">
-                                    <span class="flex align-items-center justify-content-center border-circle bg-primary-100" style="width: 3rem; height: 3rem">
-                                        <i [ngClass]="notification.icon" class="text-xl text-primary-700"></i>
+                                <div class="flex align-items-start p-2 border-round surface-hover">
+                                    <span class="flex align-items-center justify-content-center border-circle bg-primary-100 mr-3" style="width: 2.5rem; height: 2.5rem">
+                                        <i [ngClass]="notification.icon" class="text-lg text-primary-700"></i>
                                     </span>
-                                    <div class="ml-3">
+                                    <div>
                                         <span class="font-medium block mb-1">{{ notification.title }}</span>
-                                        <span class="text-600 block">{{ notification.message }}</span>
-                                        <small class="text-500">5 min ago</small>
+                                        <span class="text-600 block text-sm">{{ notification.message }}</span>
+                                        <small class="text-500">{{ notification.time }}</small>
                                     </div>
                                 </div>
                             </li>
                         </ul>
-                        <div class="flex justify-content-center mt-3">
-                            <button pButton pRipple label="Ver todas" icon="pi pi-arrow-right" class="p-button-text"></button>
-                        </div>
+                    </p-card>
+                </div>
+
+                <!-- Upcoming Lessons -->
+                <div class="col-12">
+                    <p-card header="Scheduled Lessons">
+                        <p-table [value]="upcomingLessons" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Lesson</th>
+                                    <th>Teacher</th>
+                                    <th>Location</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-lesson>
+                                <tr>
+                                    <td>{{ formatDate(lesson.date) }}</td>
+                                    <td>{{ lesson.time }}</td>
+                                    <td>{{ lesson.title }}</td>
+                                    <td>{{ lesson.teacher }}</td>
+                                    <td>{{ lesson.location }}</td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="5" class="text-center p-4">No upcoming lessons scheduled.</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
                     </p-card>
                 </div>
             </div>

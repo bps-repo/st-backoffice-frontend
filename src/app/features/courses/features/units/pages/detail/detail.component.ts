@@ -16,6 +16,7 @@ import {Unit} from 'src/app/core/models/course/unit';
 import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
 import {selectAllLevels} from 'src/app/core/store/course/selectors/level.selector';
 import {Level} from 'src/app/core/models/course/level';
+import {RippleModule} from "primeng/ripple";
 
 @Component({
     selector: 'app-unit-detail',
@@ -28,7 +29,8 @@ import {Level} from 'src/app/core/models/course/level';
         InputTextareaModule,
         ButtonModule,
         FormsModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        RippleModule
     ]
 })
 export class DetailComponent implements OnInit {
