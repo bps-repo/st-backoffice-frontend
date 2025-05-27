@@ -1,91 +1,103 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DropdownModule } from 'primeng/dropdown';
+import { CardModule } from 'primeng/card';
+import { RippleModule } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
-interface Setting {
-  id: string;
-  name: string;
-  value: string;
-  description: string;
-  category: string;
+interface NotificationType {
+    name: string;
+    code: string;
 }
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    InputSwitchModule,
+    InputTextModule,
+    InputNumberModule,
+    DropdownModule,
+    CardModule,
+    RippleModule,
+    ToastModule
+  ],
+  providers: [MessageService]
 })
 export class ListComponent implements OnInit {
-  settings: Setting[] = [
-    {
-      id: '1',
-      name: 'school_name',
-      value: 'My School',
-      description: 'The name of the school',
-      category: 'General'
-    },
-    {
-      id: '2',
-      name: 'school_email',
-      value: 'contact@myschool.com',
-      description: 'The email address of the school',
-      category: 'Contact'
-    },
-    {
-      id: '3',
-      name: 'school_phone',
-      value: '+1234567890',
-      description: 'The phone number of the school',
-      category: 'Contact'
-    },
-    {
-      id: '4',
-      name: 'default_language',
-      value: 'Portuguese',
-      description: 'The default language for the school',
-      category: 'Localization'
-    },
-    {
-      id: '5',
-      name: 'timezone',
-      value: 'UTC+0',
-      description: 'The timezone for the school',
-      category: 'Localization'
-    }
+  // General Settings
+  schoolName: string = 'My School';
+  schoolEmail: string = 'contact@myschool.com';
+  schoolPhone: string = '+1234567890';
+  enableDashboard: boolean = true;
+  enableReports: boolean = true;
+  defaultPageSize: number = 10;
+
+  // Notification Settings
+  enableNotifications: boolean = true;
+  notificationTypes: NotificationType[] = [
+    { name: 'Email', code: 'email' },
+    { name: 'In-App', code: 'in-app' },
+    { name: 'Both', code: 'both' }
   ];
+  selectedNotificationType: NotificationType = this.notificationTypes[2]; // Both by default
 
-  categories: string[] = [];
-  filteredSettings: Setting[] = [];
-  selectedCategory: string = 'All';
-  loading = false;
+  // Academic Settings
+  maxStudentsPerClass: number = 30;
+  maxClassesPerTeacher: number = 5;
+  enableAutoEnrollment: boolean = true;
 
-  constructor() {}
+  // Localization Settings
+  defaultLanguage: string = 'Portuguese';
+  timezone: string = 'UTC+0';
+  dateFormat: string = 'dd/mm/yyyy';
+
+  constructor(private messageService: MessageService) { }
 
   ngOnInit(): void {
-    // Extract unique categories
-    this.categories = ['All', ...new Set(this.settings.map(setting => setting.category))];
-    this.filterSettings();
-  }
-
-  filterSettings(): void {
-    if (this.selectedCategory === 'All') {
-      this.filteredSettings = [...this.settings];
-    } else {
-      this.filteredSettings = this.settings.filter(setting => setting.category === this.selectedCategory);
-    }
-  }
-
-  onCategoryChange(): void {
-    this.filterSettings();
+    // In a real application, these settings would be loaded from a service
   }
 
   saveSettings(): void {
-    this.loading = true;
-    // Simulate API call
-    setTimeout(() => {
-      this.loading = false;
-      alert('Settings saved successfully');
-    }, 500);
+    // In a real application, this would save the settings to a backend service
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Sucesso',
+      detail: 'Configurações salvas com sucesso!'
+    });
+  }
+
+  resetSettings(): void {
+    // Reset to default values
+    this.schoolName = 'My School';
+    this.schoolEmail = 'contact@myschool.com';
+    this.schoolPhone = '+1234567890';
+    this.enableDashboard = true;
+    this.enableReports = true;
+    this.defaultPageSize = 10;
+    this.enableNotifications = true;
+    this.selectedNotificationType = this.notificationTypes[2];
+    this.maxStudentsPerClass = 30;
+    this.maxClassesPerTeacher = 5;
+    this.enableAutoEnrollment = true;
+    this.defaultLanguage = 'Portuguese';
+    this.timezone = 'UTC+0';
+    this.dateFormat = 'dd/mm/yyyy';
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Redefinir',
+      detail: 'Configurações redefinidas para os valores padrão.'
+    });
   }
 }

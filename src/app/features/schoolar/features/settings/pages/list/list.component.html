@@ -1,33 +1,146 @@
 <div class="grid">
-    <div class="col-12">
-        <div class="card">
-            <h5>Configurações do Sistema</h5>
+  <div class="col-12">
+    <div class="card">
+      <h5>Configurações do Sistema Acadêmico</h5>
 
-            <div class="p-field mb-4">
-                <label for="category">Categoria</label>
-                <select id="category" class="p-inputtext w-full" [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
-                    <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
-                </select>
-            </div>
-
-            <div class="p-fluid">
-                <div *ngFor="let setting of filteredSettings" class="p-field mb-4">
-                    <div class="flex align-items-center justify-content-between">
-                        <label [for]="setting.id">{{ setting.name }}</label>
-                        <small class="text-color-secondary">{{ setting.category }}</small>
-                    </div>
-                    <input [id]="setting.id" type="text" class="p-inputtext w-full" [(ngModel)]="setting.value">
-                    <small class="text-color-secondary">{{ setting.description }}</small>
-                </div>
-            </div>
-
-            <div class="flex justify-content-end mt-4">
-                <button class="p-button p-button-primary" (click)="saveSettings()" [disabled]="loading">
-                    <i class="pi pi-save mr-2"></i>
-                    <span *ngIf="!loading">Salvar Configurações</span>
-                    <span *ngIf="loading">Salvando...</span>
-                </button>
-            </div>
+      <!-- General Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações Gerais</h6>
         </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-4">
+              <label for="schoolName">Nome da Escola</label>
+              <input id="schoolName" type="text" pInputText [(ngModel)]="schoolName">
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="schoolEmail">Email da Escola</label>
+              <input id="schoolEmail" type="text" pInputText [(ngModel)]="schoolEmail">
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="schoolPhone">Telefone da Escola</label>
+              <input id="schoolPhone" type="text" pInputText [(ngModel)]="schoolPhone">
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="enableDashboard" class="block mb-2">Habilitar Dashboard</label>
+              <p-inputSwitch id="enableDashboard" [(ngModel)]="enableDashboard"></p-inputSwitch>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="enableReports" class="block mb-2">Habilitar Relatórios</label>
+              <p-inputSwitch id="enableReports" [(ngModel)]="enableReports"></p-inputSwitch>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="defaultPageSize">Tamanho Padrão da Página</label>
+              <p-inputNumber id="defaultPageSize" [(ngModel)]="defaultPageSize" [min]="5" [max]="100" [showButtons]="true"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações de Notificação</h6>
+        </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-4">
+              <label for="enableNotifications" class="block mb-2">Habilitar Notificações</label>
+              <p-inputSwitch id="enableNotifications" [(ngModel)]="enableNotifications"></p-inputSwitch>
+            </div>
+
+            <div class="field col-12 md:col-8">
+              <label for="notificationType">Tipo de Notificação</label>
+              <p-dropdown
+                id="notificationType"
+                [options]="notificationTypes"
+                [(ngModel)]="selectedNotificationType"
+                optionLabel="name"
+                [disabled]="!enableNotifications">
+              </p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Academic Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações Acadêmicas</h6>
+        </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-4">
+              <label for="maxStudentsPerClass">Máximo de Alunos por Turma</label>
+              <p-inputNumber id="maxStudentsPerClass" [(ngModel)]="maxStudentsPerClass" [min]="1" [max]="100" [showButtons]="true"></p-inputNumber>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="maxClassesPerTeacher">Máximo de Turmas por Professor</label>
+              <p-inputNumber id="maxClassesPerTeacher" [(ngModel)]="maxClassesPerTeacher" [min]="1" [max]="20" [showButtons]="true"></p-inputNumber>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="enableAutoEnrollment" class="block mb-2">Matrícula Automática</label>
+              <p-inputSwitch id="enableAutoEnrollment" [(ngModel)]="enableAutoEnrollment"></p-inputSwitch>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Localization Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações de Localização</h6>
+        </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-4">
+              <label for="defaultLanguage">Idioma Padrão</label>
+              <input id="defaultLanguage" type="text" pInputText [(ngModel)]="defaultLanguage">
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="timezone">Fuso Horário</label>
+              <input id="timezone" type="text" pInputText [(ngModel)]="timezone">
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="dateFormat">Formato de Data</label>
+              <input id="dateFormat" type="text" pInputText [(ngModel)]="dateFormat">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-content-end gap-2 mt-4">
+        <button
+          pButton
+          pRipple
+          label="Redefinir"
+          icon="pi pi-refresh"
+          class="p-button-secondary"
+          (click)="resetSettings()">
+        </button>
+        <button
+          pButton
+          pRipple
+          label="Salvar"
+          icon="pi pi-save"
+          class="p-button-primary"
+          (click)="saveSettings()">
+        </button>
+      </div>
     </div>
+  </div>
+
+  <!-- Toast for notifications -->
+  <p-toast></p-toast>
 </div>
