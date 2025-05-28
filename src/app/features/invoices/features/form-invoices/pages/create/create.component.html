@@ -1,97 +1,148 @@
 <div class="card">
-    <span class="text-900 text-xl font-bold mb-4 block"
-        >Criação de Faturas</span
-    >
-    <div class="grid">
-        <!-- DADOS PESSOAIS -->
+    <div class="flex justify-content-between align-items-center mb-5">
+        <span class="text-900 text-xl font-bold block">Criação de Faturas</span>
+        <div class="flex gap-2">
+            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-danger" (click)="confirmCancel()"></button>
+            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-success" [loading]="loading" (click)="saveInvoice()"></button>
+        </div>
+    </div>
+
+    <form [formGroup]="invoiceForm" class="grid">
         <div class="col-12 lg:col-12">
             <div class="grid formgrid p-fluid">
+                <!-- Cliente -->
                 <div class="field mb-4 col-12 md:col-6">
-                    <label for="nickname" class="font-medium text-900"
-                        >Cliente</label
-                    >
+                    <label for="clientId" class="font-medium text-900">Cliente <span class="text-red-500">*</span></label>
                     <p-dropdown
+                        id="clientId"
+                        formControlName="clientId"
                         [options]="estudantes"
-                        placeholder="Selecione um utente"
-                        [(ngModel)]="id[1]"
+                        placeholder="Selecione um cliente"
                         [showClear]="true"
+                        [class.ng-invalid]="invoiceForm.get('clientId')?.invalid && invoiceForm.get('clientId')?.touched"
                     ></p-dropdown>
-                </div>
-                <div class="field mb-4 col-12 md:col-6">
-                    <label for="nickname" class="font-medium text-900"
-                        >Método de pagamento</label
-                    >
-                    <p-dropdown
-                        [options]="payment_ways"
-                        placeholder="Condição de pagamento"
-                        [(ngModel)]="id[3]"
-                        [showClear]="true"
-                    ></p-dropdown>
-                </div>
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="nickname" class="font-medium text-900"
-                        >Nº da Factura</label
-                    >
-                    <p-inputGroup>
-                        <p-inputGroupAddon> FPF-2025 </p-inputGroupAddon>
-                        <input pInputText type="text" placeholder="0002" />
-                    </p-inputGroup>
+                    <small class="p-error" *ngIf="invoiceForm.get('clientId')?.invalid && invoiceForm.get('clientId')?.touched">
+                        Cliente é obrigatório
+                    </small>
                 </div>
 
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="nickname" class="font-medium text-900"
-                        >Série</label
-                    >
+                <!-- Método de pagamento -->
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="paymentMethod" class="font-medium text-900">Método de pagamento <span class="text-red-500">*</span></label>
                     <p-dropdown
+                        id="paymentMethod"
+                        formControlName="paymentMethod"
+                        [options]="payment_ways"
+                        placeholder="Condição de pagamento"
+                        [showClear]="true"
+                        [class.ng-invalid]="invoiceForm.get('paymentMethod')?.invalid && invoiceForm.get('paymentMethod')?.touched"
+                    ></p-dropdown>
+                    <small class="p-error" *ngIf="invoiceForm.get('paymentMethod')?.invalid && invoiceForm.get('paymentMethod')?.touched">
+                        Método de pagamento é obrigatório
+                    </small>
+                </div>
+
+                <!-- Nº da Factura -->
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="invoiceNumber" class="font-medium text-900">Nº da Factura <span class="text-red-500">*</span></label>
+                    <p-inputGroup>
+                        <p-inputGroupAddon>FPF-2025</p-inputGroupAddon>
+                        <input
+                            id="invoiceNumber"
+                            formControlName="invoiceNumber"
+                            pInputText
+                            type="text"
+                            placeholder="0002"
+                            [class.ng-invalid]="invoiceForm.get('invoiceNumber')?.invalid && invoiceForm.get('invoiceNumber')?.touched"
+                        />
+                    </p-inputGroup>
+                    <small class="p-error" *ngIf="invoiceForm.get('invoiceNumber')?.invalid && invoiceForm.get('invoiceNumber')?.touched">
+                        Número da fatura é obrigatório
+                    </small>
+                </div>
+
+                <!-- Série -->
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="series" class="font-medium text-900">Série</label>
+                    <p-dropdown
+                        id="series"
+                        formControlName="series"
                         [options]="instalations"
                         placeholder="2025"
-                        [(ngModel)]="id[2]"
                         [showClear]="true"
                         [disabled]="true"
-                    >
-                        ></p-dropdown
-                    >
+                    ></p-dropdown>
                 </div>
+
+                <!-- Tipo de desconto -->
                 <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Tipo de desconto</label
-                    >
+                    <label for="discountType" class="font-medium text-900">Tipo de desconto</label>
                     <p-dropdown
+                        id="discountType"
+                        formControlName="discountType"
                         [options]="discounts"
-                        [(ngModel)]="id[3]"
                         [showClear]="true"
                     ></p-dropdown>
                 </div>
+
+                <!-- Data de Emissão -->
                 <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Data de Emissão</label
-                    >
-                    <input id="date" type="date" pInputText />
+                    <label for="emissionDate" class="font-medium text-900">Data de Emissão <span class="text-red-500">*</span></label>
+                    <input
+                        id="emissionDate"
+                        formControlName="emissionDate"
+                        type="date"
+                        pInputText
+                        [class.ng-invalid]="invoiceForm.get('emissionDate')?.invalid && invoiceForm.get('emissionDate')?.touched"
+                    />
+                    <small class="p-error" *ngIf="invoiceForm.get('emissionDate')?.invalid && invoiceForm.get('emissionDate')?.touched">
+                        Data de emissão é obrigatória
+                    </small>
                 </div>
+
+                <!-- Data de Vencimento -->
                 <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Data de Vencimento</label
-                    >
-                    <input id="date" type="date" pInputText />
+                    <label for="dueDate" class="font-medium text-900">Data de Vencimento <span class="text-red-500">*</span></label>
+                    <input
+                        id="dueDate"
+                        formControlName="dueDate"
+                        type="date"
+                        pInputText
+                        [class.ng-invalid]="invoiceForm.get('dueDate')?.invalid && invoiceForm.get('dueDate')?.touched"
+                    />
+                    <small class="p-error" *ngIf="invoiceForm.get('dueDate')?.invalid && invoiceForm.get('dueDate')?.touched">
+                        Data de vencimento é obrigatória
+                    </small>
                 </div>
+
+                <!-- Retenção -->
                 <div class="field mb-4 col-12 md:col-4 relative">
-                    <label for="nickname" class="font-medium text-900"
-                        >Retenção</label
-                    >
-                    <input id="nickname" type="number" pInputText />
+                    <label for="retention" class="font-medium text-900">Retenção (%)</label>
+                    <input id="retention" formControlName="retention" type="number" pInputText />
                 </div>
+
+                <!-- Observações -->
                 <div class="field mb-4 col-12 md:col-8 relative">
-                    <label for="nickname" class="font-medium text-900"
-                        >Observações</label
-                    >
-                    <textarea pInputTextarea rows="5" cols="30"> </textarea>
+                    <label for="notes" class="font-medium text-900">Observações</label>
+                    <textarea id="notes" formControlName="notes" pInputTextarea rows="5" cols="30"></textarea>
                 </div>
+
+                <!-- Tabela de itens -->
                 <div class="field col-12 md:col-12 z-5 relative">
+                    <h3 class="font-medium text-900 mb-3">Itens da Fatura <span class="text-red-500">*</span></h3>
                     <app-table-create-invoice
                         class="w-full"
+                        [items]="invoiceItems"
+                        (itemsChange)="onItemsUpdated($event)"
                     ></app-table-create-invoice>
+                    <small class="p-error" *ngIf="invoiceItems.length === 0">
+                        Adicione pelo menos um item à fatura
+                    </small>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

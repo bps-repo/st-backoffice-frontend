@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SelectItem, MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -23,15 +23,15 @@ import {
     INSTALATIONS,
     LEVELS,
 } from 'src/app/shared/constants/app';
-import { InvoiceItem } from 'src/app/core/models/invoice/invoice.model';
+import { Invoice } from 'src/app/core/models/invoice/invoice.model';
 import { InvoiceService } from 'src/app/core/services/invoice.service';
 
 @Component({
+    selector: 'app-edit',
     standalone: true,
     imports: [
         CommonModule,
         FormsModule,
-        ReactiveFormsModule,
         ButtonModule,
         RippleModule,
         InputTextModule,
@@ -47,96 +47,125 @@ import { InvoiceService } from 'src/app/core/services/invoice.service';
         ConfirmDialogModule
     ],
     providers: [MessageService, ConfirmationService],
-    templateUrl: './create.component.html'
+    templateUrl: './edit.component.html'
 })
-export class CreateComponent implements OnInit {
-    invoiceForm!: FormGroup;
-    loading = false;
-    invoiceItems: InvoiceItem[] = [];
+export class EditComponent implements OnInit {
+    invoice: Invoice | null = null;
+    loading = true;
 
-    // Dropdown options
     countries: any[] = COUNTRIES;
     levels: any[] = LEVELS;
-    estudantes: SelectItem[] = [];
+    students: SelectItem[] = [];
+    id: string[] = [];
+    reviews1: SelectItem[] = [];
     payment_ways: any[] = ['Multicaixa', 'Transferência Bancária', 'Dinheiro'];
     reference_monthly_sent: any[] = ['Enviar por E-mail', 'Enviar por SMS'];
     entities: SelectItem[] = ENTITIES;
     discounts: SelectItem[] = DISCOUNTS;
     instalations: any[] = INSTALATIONS;
+    valRadio: string = '';
+    valCheck: string[] = [];
+
+    // Form fields
+    invoiceNumber: string = '';
+    clientId: any;
+    paymentMethod: any;
+    series: any;
+    discountType: any;
+    emissionDate: Date | null = null;
+    dueDate: Date | null = null;
+    retention: number = 0;
+    notes: string = '';
 
     constructor(
-        private fb: FormBuilder,
         private invoiceService: InvoiceService,
+        private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
 
     ngOnInit() {
-        this.initForm();
-        this.loadDropdownOptions();
-    }
-
-    initForm() {
-        this.invoiceForm = this.fb.group({
-            clientId: [null, Validators.required],
-            paymentMethod: [null, Validators.required],
-            invoiceNumber: ['', Validators.required],
-            series: [{ value: '2025', disabled: true }],
-            discountType: [null],
-            emissionDate: [new Date(), Validators.required],
-            dueDate: [new Date(new Date().setDate(new Date().getDate() + 30)), Validators.required],
-            retention: [0],
-            notes: ['']
-        });
-    }
-
-    loadDropdownOptions() {
-        this.estudantes = [
+        this.students = [
             { label: 'João Mateus Diogo', value: 234234 },
             { label: 'Guilherme Francisco Mario', value: 234234 },
             { label: 'Antonio Mendes Pereira', value: 93234 },
             { label: 'Ana Sampaio', value: 13123 },
         ];
-    }
 
-    onItemsUpdated(items: InvoiceItem[]) {
-        this.invoiceItems = items;
-    }
+        this.reviews1 = [
+            { label: 'Mau', value: 12 },
+            { label: 'Mediano', value: 30 },
+            { label: 'Bom', value: 50 },
+            { label: 'Melhor', value: 10 },
+        ];
 
-    saveInvoice() {
-        if (this.invoiceForm.invalid) {
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
+            this.loadInvoice(+id);
+        } else {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Erro',
-                detail: 'Por favor, preencha todos os campos obrigatórios'
+                detail: 'ID da fatura não encontrado'
             });
-            return;
+            this.loading = false;
         }
+    }
 
-        if (this.invoiceItems.length === 0) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erro',
-                detail: 'Adicione pelo menos um item à fatura'
-            });
-            return;
-        }
-
+    loadInvoice(id: number): void {
         this.loading = true;
-        const invoiceData = {
-            ...this.invoiceForm.getRawValue(),
-            items: this.invoiceItems
-        };
+        this.invoiceService.getInvoice(id).subscribe({
+            next: (data) => {
+                this.invoice = data;
+                this.populateFormFields();
+                this.loading = false;
+            },
+            error: (error) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Erro ao carregar a fatura: ' + error.message
+                });
+                this.loading = false;
+            }
+        });
+    }
 
-        this.invoiceService.createInvoice(invoiceData).subscribe({
-            next: (response) => {
+    populateFormFields(): void {
+        if (this.invoice) {
+            this.invoiceNumber = this.invoice.invoice_number || '';
+            this.paymentMethod = this.invoice.payment_method;
+            this.emissionDate = this.invoice.emission_date ? new Date(this.invoice.emission_date) : null;
+            this.dueDate = this.invoice.due_date ? new Date(this.invoice.due_date) : null;
+            this.retention = this.invoice.retention || 0;
+            this.notes = this.invoice.notes || '';
+
+            // Set the form values for dropdown selections
+            this.id[1] = this.clientId;
+            this.id[2] = this.series;
+            this.id[3] = this.paymentMethod;
+        }
+    }
+
+    saveInvoice(): void {
+        if (!this.invoice) return;
+
+        // Update invoice with form values
+        this.invoice.invoice_number = this.invoiceNumber;
+        this.invoice.payment_method = this.paymentMethod;
+        this.invoice.emission_date = this.emissionDate!;
+        this.invoice.due_date = this.dueDate!;
+        this.invoice.retention = this.retention;
+        this.invoice.notes = this.notes;
+
+        this.invoiceService.updateInvoice(this.invoice).subscribe({
+            next: () => {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Sucesso',
-                    detail: 'Fatura criada com sucesso'
+                    detail: 'Fatura atualizada com sucesso'
                 });
-                this.loading = false;
                 setTimeout(() => {
                     this.router.navigate(['/modules/invoices/invoices']);
                 }, 1500);
@@ -145,16 +174,15 @@ export class CreateComponent implements OnInit {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Erro',
-                    detail: 'Erro ao criar fatura: ' + error.message
+                    detail: 'Erro ao atualizar a fatura: ' + error.message
                 });
-                this.loading = false;
             }
         });
     }
 
-    confirmCancel() {
+    confirmCancel(): void {
         this.confirmationService.confirm({
-            message: 'Tem certeza que deseja cancelar? Todas as alterações serão perdidas.',
+            message: 'Tem certeza que deseja cancelar a edição? Todas as alterações serão perdidas.',
             header: 'Confirmação',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {

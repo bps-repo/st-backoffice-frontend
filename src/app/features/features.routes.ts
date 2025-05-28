@@ -27,6 +27,11 @@ export const FeaturesRoutes: Routes = [
             import('./invoices/invoices.routes').then((m) => m.InvoicesRoutes),
     },
     {
+        path: 'payments',
+        loadChildren: () =>
+            import('./payments/payments.routes').then((m) => m.PaymentsRoutes),
+    },
+    {
         path: 'admin',
         loadChildren: () =>
             import('./admin/admin.routes').then((m) => m.AdminRoutes),

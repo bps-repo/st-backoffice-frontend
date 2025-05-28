@@ -1,0 +1,121 @@
+<div class="container mt-4">
+  <h1>Payments Dashboard</h1>
+
+  <!-- Payment Statistics -->
+  <div class="row mt-4">
+    <div class="col-md-4">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <h5 class="card-title">Total Paid</h5>
+          <h2 class="card-text">${{ paymentStats.totalPaid.toFixed(2) }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-warning text-white">
+        <div class="card-body">
+          <h5 class="card-title">Pending Amount</h5>
+          <h2 class="card-text">${{ paymentStats.pendingAmount.toFixed(2) }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-danger text-white">
+        <div class="card-body">
+          <h5 class="card-title">Overdue Amount</h5>
+          <h2 class="card-text">${{ paymentStats.overdueAmount.toFixed(2) }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Payments -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Recent Payments</h5>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Method</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let payment of recentPayments">
+                <td>{{ payment.invoice_id }}</td>
+                <td>${{ payment.amount.toFixed(2) }}</td>
+                <td>{{ payment.payment_date | date:'shortDate' }}</td>
+                <td>{{ payment.payment_method }}</td>
+                <td>
+                  <span class="badge bg-success" *ngIf="payment.status === 'completed'">Completed</span>
+                  <span class="badge bg-warning" *ngIf="payment.status === 'pending'">Pending</span>
+                  <span class="badge bg-danger" *ngIf="payment.status === 'failed'">Failed</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <a routerLink="/payments/installments" class="btn btn-primary">View All Payments</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Installments -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Upcoming Installments</h5>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Installment</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let installment of upcomingInstallments">
+                <td>${{ installment.amount.toFixed(2) }}</td>
+                <td>{{ installment.due_date | date:'shortDate' }}</td>
+                <td>{{ installment.number }}/{{ installment.total_installments }}</td>
+                <td>
+                  <span class="badge bg-warning" *ngIf="installment.status === 'pending'">Pending</span>
+                  <span class="badge bg-success" *ngIf="installment.status === 'paid'">Paid</span>
+                  <span class="badge bg-danger" *ngIf="installment.status === 'overdue'">Overdue</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <a routerLink="/payments/installments" class="btn btn-primary">Manage Installments</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-around">
+            <a routerLink="/payments/reports" class="btn btn-info">Generate Reports</a>
+            <a routerLink="/payments/settings" class="btn btn-secondary">Payment Settings</a>
+            <a routerLink="/invoices/form-invoices/create" class="btn btn-success">Create New Invoice</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
