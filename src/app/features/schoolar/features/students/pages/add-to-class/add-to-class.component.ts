@@ -13,8 +13,6 @@ import {Class} from 'src/app/core/models/academic/class';
 import {StudentsService} from 'src/app/core/services/students.service';
 import {selectAllStudents} from 'src/app/core/store/schoolar/reducers/students.reducers';
 import {studentsActions} from 'src/app/core/store/schoolar/actions/students.actions';
-import {StudentClass} from 'src/app/core/models/academic/student-class';
-import {StudentClassStatus} from "../../../../../../core/enums/student-class-status";
 
 @Component({
     selector: 'app-add-to-class',
@@ -34,7 +32,7 @@ import {StudentClassStatus} from "../../../../../../core/enums/student-class-sta
 })
 export class AddToClassComponent implements OnInit {
     students: Student[] = [];
-    classes: Class[] = [];
+    classes: Partial<Class>[] = [];
     selectedStudents: Student[] = [];
     selectedClass: Class | null = null;
     form: FormGroup;
@@ -43,7 +41,6 @@ export class AddToClassComponent implements OnInit {
     constructor(
         private store: Store,
         private fb: FormBuilder,
-        private studentsService: StudentsService,
         private messageService: MessageService
     ) {
         this.form = this.fb.group({
@@ -64,9 +61,11 @@ export class AddToClassComponent implements OnInit {
     }
 
     loadClasses(): void {
-        // In a real application, this would fetch classes from a service
-        // For now, we'll use mock data
-        this.classes = [];
+        this.classes = [
+            {id: '1', name: 'Class 1'},
+            {id: '2', name: 'Class 2'},
+            {id: '3', name: 'Class 3'}
+        ];
     }
 
     onSubmit(): void {
