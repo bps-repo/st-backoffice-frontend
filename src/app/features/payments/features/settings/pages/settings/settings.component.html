@@ -1,0 +1,158 @@
+<div class="container mt-4">
+  <h1>Payment Settings</h1>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading settings...</p>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = null" aria-label="Close"></button>
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="saveSuccess" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+    Settings saved successfully!
+    <button type="button" class="btn-close" (click)="saveSuccess = false" aria-label="Close"></button>
+  </div>
+
+  <!-- Settings Form -->
+  <div *ngIf="!loading" class="card mt-4">
+    <div class="card-header">
+      <h5>Payment Configuration</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
+
+        <!-- Installments Settings -->
+        <div class="mb-4">
+          <h6 class="border-bottom pb-2">Installment Settings</h6>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="max_installments" class="form-label">Maximum Installments</label>
+              <input
+                type="number"
+                id="max_installments"
+                formControlName="max_installments"
+                class="form-control"
+                [class.is-invalid]="settingsForm.get('max_installments')?.invalid && settingsForm.get('max_installments')?.touched"
+                min="1"
+                max="24"
+              >
+              <div class="invalid-feedback" *ngIf="settingsForm.get('max_installments')?.invalid && settingsForm.get('max_installments')?.touched">
+                Please enter a number between 1 and 24.
+              </div>
+              <small class="form-text text-muted">Maximum number of installments allowed for payment plans.</small>
+            </div>
+
+            <div class="col-md-6">
+              <label for="grace_period_days" class="form-label">Grace Period (Days)</label>
+              <input
+                type="number"
+                id="grace_period_days"
+                formControlName="grace_period_days"
+                class="form-control"
+                [class.is-invalid]="settingsForm.get('grace_period_days')?.invalid && settingsForm.get('grace_period_days')?.touched"
+                min="0"
+                max="30"
+              >
+              <div class="invalid-feedback" *ngIf="settingsForm.get('grace_period_days')?.invalid && settingsForm.get('grace_period_days')?.touched">
+                Please enter a number between 0 and 30.
+              </div>
+              <small class="form-text text-muted">Days before an installment is marked as overdue.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Methods Settings -->
+        <div class="mb-4">
+          <h6 class="border-bottom pb-2">Payment Methods</h6>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="default_payment_method" class="form-label">Default Payment Method</label>
+              <select
+                id="default_payment_method"
+                formControlName="default_payment_method"
+                class="form-select"
+                [class.is-invalid]="settingsForm.get('default_payment_method')?.invalid && settingsForm.get('default_payment_method')?.touched"
+              >
+                <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="settingsForm.get('default_payment_method')?.invalid && settingsForm.get('default_payment_method')?.touched">
+                Please select a default payment method.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Allowed Payment Methods</label>
+            <div class="payment-methods-container">
+              <div class="form-check form-check-inline" *ngFor="let method of paymentMethods">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [id]="'method_' + method"
+                  [checked]="isPaymentMethodSelected(method)"
+                  (change)="togglePaymentMethod(method)"
+                >
+                <label class="form-check-label" [for]="'method_' + method">{{ method }}</label>
+              </div>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="settingsForm.get('allowed_payment_methods')?.invalid && settingsForm.get('allowed_payment_methods')?.touched">
+              Please select at least one payment method.
+            </div>
+          </div>
+        </div>
+
+        <!-- Reminder Settings -->
+        <div class="mb-4">
+          <h6 class="border-bottom pb-2">Reminder Settings</h6>
+
+          <div class="form-check form-switch mb-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="auto_reminder"
+              formControlName="auto_reminder"
+            >
+            <label class="form-check-label" for="auto_reminder">Enable Automatic Reminders</label>
+          </div>
+
+          <div class="row mb-3" *ngIf="settingsForm.get('auto_reminder')?.value">
+            <div class="col-md-6">
+              <label for="reminder_days_before" class="form-label">Days Before Due Date</label>
+              <input
+                type="number"
+                id="reminder_days_before"
+                formControlName="reminder_days_before"
+                class="form-control"
+                [class.is-invalid]="settingsForm.get('reminder_days_before')?.invalid && settingsForm.get('reminder_days_before')?.touched"
+                min="1"
+                max="14"
+              >
+              <div class="invalid-feedback" *ngIf="settingsForm.get('reminder_days_before')?.invalid && settingsForm.get('reminder_days_before')?.touched">
+                Please enter a number between 1 and 14.
+              </div>
+              <small class="form-text text-muted">Number of days before due date to send reminders.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary" [disabled]="settingsForm.invalid || saving">
+            <span *ngIf="saving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            {{ saving ? 'Saving...' : 'Save Settings' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

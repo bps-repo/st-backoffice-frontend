@@ -20,6 +20,8 @@ export class DetailComponent implements OnInit {
   paidInstallmentsCount: number = 0;
   totalInstallmentsCount: number = 0;
   progressPercentage: number = 0;
+  paidAmount: number = 0;
+  pendingAmount: number = 0;
 
   constructor(private route: ActivatedRoute) { }
 
@@ -44,10 +46,21 @@ export class DetailComponent implements OnInit {
       this.totalInstallmentsCount = this.payment.installments.length;
       this.paidInstallmentsCount = this.payment.installments.filter(i => i.status === PaymentInstallmentStatus.PAID).length;
       this.progressPercentage = (this.paidInstallmentsCount / this.totalInstallmentsCount) * 100;
+
+      // Calculate paid and pending amounts
+      this.paidAmount = this.payment.installments
+        .filter(i => i.status === PaymentInstallmentStatus.PAID)
+        .reduce((sum, i) => sum + i.amount, 0);
+
+      this.pendingAmount = this.payment.installments
+        .filter(i => i.status !== PaymentInstallmentStatus.PAID)
+        .reduce((sum, i) => sum + i.amount, 0);
     } else {
       this.totalInstallmentsCount = 0;
       this.paidInstallmentsCount = 0;
       this.progressPercentage = 0;
+      this.paidAmount = 0;
+      this.pendingAmount = 0;
     }
   }
 
