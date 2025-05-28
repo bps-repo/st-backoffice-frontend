@@ -26,4 +26,9 @@ export const FeaturesRoutes: Routes = [
         loadChildren: () =>
             import('./invoices/invoices.routes').then((m) => m.InvoicesRoutes),
     },
+    {
+        path: 'admin',
+        loadChildren: () =>
+            import('./admin/admin.routes').then((m) => m.AdminRoutes),
+    },
 ];

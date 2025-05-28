@@ -226,6 +226,17 @@ export class AppMenuComponent implements OnInit {
                     },
                 ],
             },
+            {
+                label: 'Administração',
+                icon: 'pi pi-fw pi-shield',
+                items: [
+                    {
+                        label: 'Gestão de Utilizadores',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/admin/user-management'],
+                    },
+                ],
+            },
         ];
     }
 }

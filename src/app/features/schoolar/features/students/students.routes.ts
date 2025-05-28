@@ -43,6 +43,11 @@ const routes: Routes = [
       import('./pages/bulk-actions/bulk-actions.component').then(c => c.BulkActionsComponent)
   },
   {
+    path: ':id/permissions',
+    loadComponent: () =>
+      import('./pages/student-permissions/student-permissions.component').then(c => c.StudentPermissionsComponent)
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('./pages/detail/detail.component').then(c => c.DetailComponent),

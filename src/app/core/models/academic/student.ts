@@ -1,5 +1,6 @@
 import {Unit} from "../course/unit";
 import {Class} from "./class";
+import {Permission} from "../auth/permission";
 
 export interface Student {
     id?: number;
@@ -12,6 +13,7 @@ export interface Student {
     birthdate: string;
     unit?: Unit,
     classEntity?: Class
+    permissions?: Permission[]; // Student-specific permissions
     createdAt?: string;
     updatedAt?: string;
 }
