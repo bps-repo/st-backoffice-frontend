@@ -84,25 +84,16 @@ export class AddToClassComponent implements OnInit {
         // Process each selected student
         const promises = this.selectedStudents.map(student => {
             // Create a StudentClass object
-            const studentClass: StudentClass = {
-                id: {
-                    classId: this.selectedClass!.id.toString(),
-                    studentId: student.id!.toString()
-                },
-                student: student,
-                status: StudentClassStatus.ACTIVE,
-                enrollmentDate: new Date().toISOString(),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            // In a real application, this would call a service method to add the student to the class
+            this.selectedClass!.id.toString();
+            student.id!.toString();
+            new Date().toISOString();
+            new Date().toISOString();
             // For now, we'll simulate a successful operation
             return new Promise<void>((resolve) => {
                 setTimeout(() => {
                     // Update the student's classEntity field
                     const updatedStudent = {...student, classEntity: this.selectedClass};
-                    this.studentsService.updateStudent(updatedStudent);
+                    //this.studentsService.updateStudent(updatedStudent);
                     resolve();
                 }, 500);
             });

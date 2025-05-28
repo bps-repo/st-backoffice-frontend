@@ -1,5 +1,4 @@
 export interface Center {
-    data: Center;
     id: string;
     name: string;
     address: string;

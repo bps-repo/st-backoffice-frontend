@@ -122,8 +122,6 @@
                         <p-inputTextarea
                             id="terms"
                             formControlName="terms"
-                            [rows]="5"
-                            [autoResize]="true"
                             placeholder="Enter contract terms and conditions">
                         </p-inputTextarea>
                         <small *ngIf="contractForm.get('terms')?.invalid && contractForm.get('terms')?.touched" class="p-error">

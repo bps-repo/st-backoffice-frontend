@@ -72,11 +72,7 @@ export class UnitProgressTabComponent implements OnInit {
   private generateMockUnitProgress(studentId: number): UnitProgress[] {
     // Generate mock unit progress data
     const mockUnits: Unit[] = [
-      { id: 1, name: 'Introduction to English', description: 'Basic English concepts', level: 'A1', course: 'English' },
-      { id: 2, name: 'English Grammar Basics', description: 'Fundamental grammar rules', level: 'A1', course: 'English' },
-      { id: 3, name: 'Conversational English', description: 'Practice speaking skills', level: 'A2', course: 'English' },
-      { id: 4, name: 'Advanced Grammar', description: 'Complex grammar structures', level: 'B1', course: 'English' },
-      { id: 5, name: 'Business English', description: 'Professional communication', level: 'B2', course: 'English' }
+
     ];
 
     return mockUnits.map((unit, index) => {
