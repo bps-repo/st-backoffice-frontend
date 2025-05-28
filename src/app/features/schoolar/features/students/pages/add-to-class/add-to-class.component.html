@@ -1,0 +1,102 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Add Students to Class</h5>
+            <p>Select students and assign them to a class</p>
+
+            <p-toast></p-toast>
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                <div class="grid formgrid p-fluid mb-4">
+                    <div class="field col-12 md:col-6">
+                        <label for="class">Class</label>
+                        <p-dropdown
+                            id="class"
+                            formControlName="class"
+                            [options]="classes"
+                            optionLabel="name"
+                            placeholder="Select a class"
+                            [(ngModel)]="selectedClass"
+                            [showClear]="true">
+                            <ng-template pTemplate="item" let-class>
+                                <div>
+                                    <div>{{class.name}}</div>
+                                    <div class="text-sm text-500">{{class.schedule}} - {{class.center.name}}</div>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h5>Select Students</h5>
+                    <p-table
+                        #table
+                        [value]="students"
+                        [(selection)]="selectedStudents"
+                        [paginator]="true"
+                        [rows]="10"
+                        [globalFilterFields]="['name', 'email', 'center']"
+                        styleClass="p-datatable-gridlines">
+                        <ng-template pTemplate="caption">
+                            <div class="flex justify-content-between flex-column sm:flex-row">
+                                <div class="p-input-icon-left mb-2">
+                                    <i class="pi pi-search"></i>
+                                    <input
+                                        pInputText
+                                        type="text"
+                                        #filter
+                                        (input)="table.filterGlobal(filter.value, 'contains')"
+                                        placeholder="Search"
+                                        class="w-full" />
+                                </div>
+                                <div>
+                                    <span *ngIf="selectedStudents.length > 0">
+                                        {{selectedStudents.length}} students selected
+                                    </span>
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 3rem">
+                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                </th>
+                                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                                <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                                <th pSortableColumn="center">Center <p-sortIcon field="center"></p-sortIcon></th>
+                                <th pSortableColumn="classEntity">Current Class <p-sortIcon field="classEntity"></p-sortIcon></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-student>
+                            <tr>
+                                <td>
+                                    <p-tableCheckbox [value]="student"></p-tableCheckbox>
+                                </td>
+                                <td>{{student.name}}</td>
+                                <td>{{student.email}}</td>
+                                <td>{{student.center}}</td>
+                                <td>{{student.classEntity?.name || 'None'}}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="5">No students found.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <div class="flex justify-content-end mt-4">
+                    <p-button
+                        type="submit"
+                        label="Assign to Class"
+                        icon="pi pi-check"
+                        [loading]="loading"
+                        [disabled]="form.invalid || selectedStudents.length === 0">
+                    </p-button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

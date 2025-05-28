@@ -1,0 +1,79 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="flex justify-content-between align-items-center mb-4">
+            <h5 class="m-0">Unit Progress</h5>
+            <p-button
+                label="Export Progress"
+                icon="pi pi-download"
+                [disabled]="unitProgressList.length === 0"
+                (onClick)="exportProgress()">
+            </p-button>
+        </div>
+
+        <p-toast></p-toast>
+
+        <div *ngIf="loading" class="flex justify-content-center">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <div *ngIf="!loading && unitProgressList.length > 0">
+            <p-table
+                [value]="unitProgressList"
+                [paginator]="true"
+                [rows]="10"
+                styleClass="p-datatable-gridlines">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Unit Name</th>
+                        <th>Level</th>
+                        <th>Course</th>
+                        <th>Progress</th>
+                        <th>Lessons Completed</th>
+                        <th>Assessments</th>
+                        <th>Status</th>
+                        <th>Completion Date</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-progress>
+                    <tr>
+                        <td>{{progress.unit.name}}</td>
+                        <td>{{progress.unit.level}}</td>
+                        <td>{{progress.unit.course}}</td>
+                        <td>
+                            <div class="flex align-items-center">
+                                <p-progressBar
+                                    [value]="progress.completionPercentage"
+                                    [showValue]="false"
+                                    [styleClass]="getProgressColorClass(progress.completionPercentage)"
+                                    [style]="{'height': '12px', 'width': '80%'}">
+                                </p-progressBar>
+                                <span class="ml-2">{{progress.completionPercentage}}%</span>
+                            </div>
+                        </td>
+                        <td>{{progress.lessonProgress}}</td>
+                        <td>
+                            <span class="text-green-500 font-medium">{{progress.assessmentsPassed}} passed</span>
+                            <span *ngIf="progress.assessmentsFailed" class="text-red-500 font-medium ml-2">{{progress.assessmentsFailed}} failed</span>
+                        </td>
+                        <td>
+                            <span [class]="progress.completed ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'"
+                                  class="px-2 py-1 text-xs rounded-md">
+                                {{progress.completed ? 'Completed' : 'In Progress'}}
+                            </span>
+                        </td>
+                        <td>{{progress.completionDate ? (progress.completionDate | date:'mediumDate') : 'N/A'}}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8" class="text-center">No progress data available</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div *ngIf="!loading && unitProgressList.length === 0" class="p-4 text-center">
+            <p>No unit progress data available for this student.</p>
+        </div>
+    </div>
+</div>

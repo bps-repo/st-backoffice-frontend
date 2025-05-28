@@ -18,6 +18,31 @@ const routes: Routes = [
       import('./pages/create/create.component').then(c => c.CreateComponent)
   },
   {
+    path: 'add-to-center',
+    loadComponent: () =>
+      import('./pages/add-to-center/add-to-center.component').then(c => c.AddToCenterComponent)
+  },
+  {
+    path: 'add-to-class',
+    loadComponent: () =>
+      import('./pages/add-to-class/add-to-class.component').then(c => c.AddToClassComponent)
+  },
+  {
+    path: 'create-contract',
+    loadComponent: () =>
+      import('./pages/create-contract/create-contract.component').then(c => c.CreateContractComponent)
+  },
+  {
+    path: 'unit-progress',
+    loadComponent: () =>
+      import('./pages/unit-progress/unit-progress.component').then(c => c.UnitProgressComponent)
+  },
+  {
+    path: 'bulk-actions',
+    loadComponent: () =>
+      import('./pages/bulk-actions/bulk-actions.component').then(c => c.BulkActionsComponent)
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('./pages/detail/detail.component').then(c => c.DetailComponent),
@@ -36,6 +61,11 @@ const routes: Routes = [
         path: 'invoices',
         loadComponent: () =>
           import('./pages/detail/tabs/invoices/invoices.component').then(c => c.InvoicesComponent)
+      },
+      {
+        path: 'unit-progress',
+        loadComponent: () =>
+          import('./pages/detail/tabs/unit-progress/unit-progress.component').then(c => c.UnitProgressTabComponent)
       }
     ]
   }
