@@ -1,27 +1,25 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Payment Reports</h1>
-    <a routerLink="/payments/reports/create" class="btn btn-primary">Create New Report</a>
+<div class="p-4">
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h1 class="text-3xl font-bold">Payment Reports</h1>
+    <a routerLink="/payments/reports/create" class="p-button p-button-primary">Create New Report</a>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
+    <i class="pi pi-spin pi-spinner text-5xl text-primary"></i>
     <p class="mt-2">Loading reports...</p>
   </div>
 
   <!-- Filter Form -->
-  <div *ngIf="!loading" class="card mb-4">
-    <div class="card-header">
-      <h5>Filter Reports</h5>
+  <div *ngIf="!loading" class="p-card shadow-2 mb-4 transform transition-all hover:scale-105">
+    <div class="p-card-header bg-gray-100 p-3">
+      <h5 class="text-xl font-medium m-0">Filter Reports</h5>
     </div>
-    <div class="card-body">
-      <form [formGroup]="filterForm" class="row g-3">
-        <div class="col-md-6">
-          <label for="reportType" class="form-label">Report Type</label>
-          <select id="reportType" formControlName="reportType" class="form-select">
+    <div class="p-card-body">
+      <form [formGroup]="filterForm" class="grid">
+        <div class="col-12 md:col-6 p-2">
+          <label for="reportType" class="block font-medium mb-2">Report Type</label>
+          <select id="reportType" formControlName="reportType" class="p-inputtext w-full">
             <option value="all">All Types</option>
             <option value="payments_summary">Payments Summary</option>
             <option value="installments_status">Installments Status</option>
@@ -30,9 +28,9 @@
             <option value="custom">Custom Reports</option>
           </select>
         </div>
-        <div class="col-md-6">
-          <label for="dateRange" class="form-label">Date Range</label>
-          <select id="dateRange" formControlName="dateRange" class="form-select">
+        <div class="col-12 md:col-6 p-2">
+          <label for="dateRange" class="block font-medium mb-2">Date Range</label>
+          <select id="dateRange" formControlName="dateRange" class="p-inputtext w-full">
             <option value="all">All Time</option>
             <option value="today">Today</option>
             <option value="this_week">This Week</option>
@@ -46,39 +44,46 @@
   </div>
 
   <!-- Reports List -->
-  <div *ngIf="!loading && reports.length > 0" class="card">
-    <div class="card-header">
-      <h5>Available Reports</h5>
+  <div *ngIf="!loading && reports.length > 0" class="p-card shadow-2 mb-4 transform transition-all hover:scale-105">
+    <div class="p-card-header bg-gray-100 p-3">
+      <h5 class="text-xl font-medium m-0">Available Reports</h5>
     </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped">
+    <div class="p-card-body">
+      <div class="overflow-x-auto">
+        <table class="w-full">
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Created</th>
-              <th>Last Run</th>
-              <th>Schedule</th>
-              <th>Actions</th>
+            <tr class="border-b border-gray-300">
+              <th class="text-left p-2 font-semibold">Name</th>
+              <th class="text-left p-2 font-semibold">Type</th>
+              <th class="text-left p-2 font-semibold">Created</th>
+              <th class="text-left p-2 font-semibold">Last Run</th>
+              <th class="text-left p-2 font-semibold">Schedule</th>
+              <th class="text-left p-2 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let report of reports">
-              <td>
-                <a [routerLink]="['/payments/reports/detail', report.id]">
+            <tr *ngFor="let report of reports" class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="p-2">
+                <a [routerLink]="['/payments/reports/detail', report.id]" class="text-primary hover:underline">
                   {{ report.name }}
                 </a>
               </td>
-              <td>
-                <span class="badge" [ngClass]="getReportTypeClass(report.type)">
+              <td class="p-2">
+                <span class="text-xs py-1 px-2 rounded-full text-white"
+                  [ngClass]="{
+                    'bg-blue-500': report.type === 'payments_summary',
+                    'bg-cyan-500': report.type === 'installments_status',
+                    'bg-red-500': report.type === 'overdue_payments',
+                    'bg-green-500': report.type === 'payment_methods',
+                    'bg-gray-500': report.type === 'custom'
+                  }">
                   {{ getReportTypeLabel(report.type) }}
                 </span>
               </td>
-              <td>{{ report.created_at | date:'shortDate' }}</td>
-              <td>{{ report.last_run ? (report.last_run | date:'shortDate') : 'Never' }}</td>
-              <td>
-                <span *ngIf="report.schedule">
+              <td class="p-2">{{ report.created_at | date:'shortDate' }}</td>
+              <td class="p-2">{{ report.last_run ? (report.last_run | date:'shortDate') : 'Never' }}</td>
+              <td class="p-2">
+                <span *ngIf="report.schedule" class="text-sm">
                   {{ report.schedule.frequency | titlecase }}
                   <span *ngIf="report.schedule.frequency === 'weekly'">
                     ({{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][report.schedule.day_of_week || 0] }})
@@ -88,18 +93,18 @@
                   </span>
                   at {{ report.schedule.time }}
                 </span>
-                <span *ngIf="!report.schedule">On-demand</span>
+                <span *ngIf="!report.schedule" class="text-sm text-gray-500">On-demand</span>
               </td>
-              <td>
-                <div class="btn-group">
-                  <button class="btn btn-sm btn-success me-1" (click)="runReport(report)">
-                    <i class="bi bi-play-fill"></i> Run
+              <td class="p-2">
+                <div class="flex">
+                  <button class="p-button p-button-success p-button-sm mr-2" (click)="runReport(report)">
+                    <i class="pi pi-play mr-1"></i> Run
                   </button>
-                  <button class="btn btn-sm btn-info me-1" *ngIf="report.last_run" (click)="downloadReport(report)">
-                    <i class="bi bi-download"></i> Download
+                  <button class="p-button p-button-info p-button-sm mr-2" *ngIf="report.last_run" (click)="downloadReport(report)">
+                    <i class="pi pi-download mr-1"></i> Download
                   </button>
-                  <a [routerLink]="['/payments/reports/edit', report.id]" class="btn btn-sm btn-secondary">
-                    <i class="bi bi-pencil"></i> Edit
+                  <a [routerLink]="['/payments/reports/edit', report.id]" class="p-button p-button-secondary p-button-sm">
+                    <i class="pi pi-pencil mr-1"></i> Edit
                   </a>
                 </div>
               </td>
@@ -111,42 +116,48 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && reports.length === 0" class="card">
-    <div class="card-body text-center py-5">
-      <i class="bi bi-file-earmark-bar-graph display-1 text-muted"></i>
-      <h3 class="mt-3">No Reports Found</h3>
-      <p class="text-muted">Create your first payment report to get started.</p>
-      <a routerLink="/payments/reports/create" class="btn btn-primary mt-3">Create New Report</a>
+  <div *ngIf="!loading && reports.length === 0" class="p-card shadow-2 mb-4 transform transition-all hover:scale-105">
+    <div class="p-card-body text-center py-5">
+      <i class="pi pi-file-excel text-8xl text-gray-400"></i>
+      <h3 class="text-2xl font-bold mt-3">No Reports Found</h3>
+      <p class="text-gray-600">Create your first payment report to get started.</p>
+      <a routerLink="/payments/reports/create" class="p-button p-button-primary mt-3">Create New Report</a>
     </div>
   </div>
 
   <!-- Report Types Info -->
-  <div *ngIf="!loading" class="card mt-4">
-    <div class="card-header">
-      <h5>Report Types</h5>
+  <div *ngIf="!loading" class="p-card shadow-2 mb-4 transform transition-all hover:scale-105">
+    <div class="p-card-header bg-gray-100 p-3">
+      <h5 class="text-xl font-medium m-0">Report Types</h5>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <div class="card h-100 border-primary">
-            <div class="card-header bg-primary text-white">Payments Summary</div>
-            <div class="card-body">
+    <div class="p-card-body">
+      <div class="grid">
+        <div class="col-12 md:col-4 p-2">
+          <div class="p-card h-full border-blue-500 border-1 shadow-1 transform transition-all hover:scale-105">
+            <div class="p-card-header bg-blue-500 text-white p-3">
+              <h6 class="m-0 font-medium">Payments Summary</h6>
+            </div>
+            <div class="p-card-body">
               <p>Overview of all payments within a specified period, including totals by payment method and status.</p>
             </div>
           </div>
         </div>
-        <div class="col-md-4 mb-3">
-          <div class="card h-100 border-info">
-            <div class="card-header bg-info text-white">Installments Status</div>
-            <div class="card-body">
+        <div class="col-12 md:col-4 p-2">
+          <div class="p-card h-full border-cyan-500 border-1 shadow-1 transform transition-all hover:scale-105">
+            <div class="p-card-header bg-cyan-500 text-white p-3">
+              <h6 class="m-0 font-medium">Installments Status</h6>
+            </div>
+            <div class="p-card-body">
               <p>Detailed breakdown of installment plans, showing paid, pending, and overdue installments.</p>
             </div>
           </div>
         </div>
-        <div class="col-md-4 mb-3">
-          <div class="card h-100 border-danger">
-            <div class="card-header bg-danger text-white">Overdue Payments</div>
-            <div class="card-body">
+        <div class="col-12 md:col-4 p-2">
+          <div class="p-card h-full border-red-500 border-1 shadow-1 transform transition-all hover:scale-105">
+            <div class="p-card-header bg-red-500 text-white p-3">
+              <h6 class="m-0 font-medium">Overdue Payments</h6>
+            </div>
+            <div class="p-card-body">
               <p>List of all overdue payments and installments, sorted by due date to prioritize collection efforts.</p>
             </div>
           </div>

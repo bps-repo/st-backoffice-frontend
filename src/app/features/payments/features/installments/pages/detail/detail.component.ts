@@ -6,7 +6,6 @@ import { Payment, PaymentInstallment, PaymentStatus, PaymentInstallmentStatus } 
 @Component({
   selector: 'app-detail',
   templateUrl: './detail.component.html',
-  styleUrls: ['./detail.component.scss'],
   standalone: true,
   imports: [CommonModule, RouterModule]
 })

@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {RouterLink} from "@angular/router";
+import { RouterLink } from "@angular/router";
+import { ChartModule } from 'primeng/chart';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-    imports: [CommonModule, RouterLink]
+  imports: [CommonModule, RouterLink, ChartModule]
 })
 export class DashboardComponent implements OnInit {
   recentPayments: any[] = [];
@@ -18,11 +18,21 @@ export class DashboardComponent implements OnInit {
     overdueAmount: 0
   };
 
+  // Chart properties
+  paymentDistributionData: any;
+  paymentDistributionOptions: any;
+  paymentTrendsData: any;
+  paymentTrendsOptions: any;
+
   constructor() { }
 
   ngOnInit(): void {
     // In a real application, these would be fetched from a service
     this.loadMockData();
+
+    // Initialize charts
+    this.initPaymentDistributionChart();
+    this.initPaymentTrendsChart();
   }
 
   loadMockData(): void {
@@ -43,6 +53,112 @@ export class DashboardComponent implements OnInit {
       totalPaid: 2450,
       pendingAmount: 950,
       overdueAmount: 150
+    };
+  }
+
+  initPaymentDistributionChart(): void {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+
+    // Create chart data from payment stats
+    this.paymentDistributionData = {
+      labels: ['Paid', 'Pending', 'Overdue'],
+      datasets: [
+        {
+          data: [
+            this.paymentStats.totalPaid,
+            this.paymentStats.pendingAmount,
+            this.paymentStats.overdueAmount
+          ],
+          backgroundColor: [
+            documentStyle.getPropertyValue('--green-500'),
+            documentStyle.getPropertyValue('--yellow-500'),
+            documentStyle.getPropertyValue('--red-500')
+          ],
+          hoverBackgroundColor: [
+            documentStyle.getPropertyValue('--green-400'),
+            documentStyle.getPropertyValue('--yellow-400'),
+            documentStyle.getPropertyValue('--red-400')
+          ]
+        }
+      ]
+    };
+
+    this.paymentDistributionOptions = {
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+            usePointStyle: true,
+            font: { weight: 700 },
+            padding: 20
+          },
+          position: 'bottom'
+        },
+        title: {
+          display: true,
+          text: 'Payment Distribution',
+          font: {
+            size: 16
+          }
+        }
+      },
+      cutout: '60%'
+    };
+  }
+
+  initPaymentTrendsChart(): void {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+
+    // Mock monthly payment data
+    this.paymentTrendsData = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [
+        {
+          label: 'Payments',
+          data: [1200, 1900, 1500, 2800, 2450, 0],
+          backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+          borderColor: documentStyle.getPropertyValue('--primary-500')
+        },
+        {
+          label: 'Installments',
+          data: [800, 1100, 900, 1600, 950, 0],
+          backgroundColor: documentStyle.getPropertyValue('--primary-300'),
+          borderColor: documentStyle.getPropertyValue('--primary-300')
+        }
+      ]
+    };
+
+    this.paymentTrendsOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+            font: { weight: 500 }
+          }
+        },
+        title: {
+          display: true,
+          text: 'Monthly Payment Trends',
+          font: {
+            size: 16
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: textColor },
+          grid: { color: documentStyle.getPropertyValue('--surface-border') }
+        },
+        y: {
+          ticks: { color: textColor },
+          grid: { color: documentStyle.getPropertyValue('--surface-border') },
+          beginAtZero: true
+        }
+      }
     };
   }
 }

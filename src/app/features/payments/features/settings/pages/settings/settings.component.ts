@@ -6,7 +6,6 @@ import { PaymentSettings } from '../../../../../../core/models/payment/payment.m
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule]
 })
