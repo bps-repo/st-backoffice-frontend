@@ -30,6 +30,11 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-users',
                         items: [
                             {
+                                label: 'Dashboard',
+                                icon: 'pi pi-fw pi-list',
+                                routerLink: ['/schoolar/students/dashboard'],
+                            },
+                            {
                                 label: 'Lista de Alunos',
                                 icon: 'pi pi-fw pi-list',
                                 routerLink: ['/schoolar/students'],

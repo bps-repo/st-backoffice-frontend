@@ -7,6 +7,10 @@ const routes: Routes = [
         loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DashboardRoutes),
     },
     {
+        path: 'dashboard',
+        loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DashboardRoutes),
+    },
+    {
         path: 'installments',
         loadChildren: () => import('./features/installments/installments.routes').then(m => m.InstallmentsRoutes),
     },

@@ -1,9 +1,15 @@
 import {Routes} from '@angular/router';
 import {AppLayoutComponent} from './layout/app.layout.component';
 import {DashboardComponent} from './features/schoolar/features/dashboard/components/dashboard/dashboard.component';
-import { AuthGuard } from './core/guards/auth.guard';
+import {AuthGuard} from './core/guards/auth.guard';
 
 export const AppRoutes: Routes = [
+    {
+        path: '',
+        redirectTo: '/dashboard',
+        pathMatch: 'full',
+
+    },
     {
         path: 'auth',
         loadChildren: () =>
