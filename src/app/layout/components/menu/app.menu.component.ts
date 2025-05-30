@@ -30,11 +30,6 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-users',
                         items: [
                             {
-                                label: 'Dashboard',
-                                icon: 'pi pi-fw pi-list',
-                                routerLink: ['/schoolar/students/students-materials-dashboard'],
-                            },
-                            {
                                 label: 'Lista de Alunos',
                                 icon: 'pi pi-fw pi-list',
                                 routerLink: ['/schoolar/students'],
@@ -84,18 +79,17 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Avaliações',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/schoolar/reviews'],
+                        routerLink: ['/schoolar/assessments'],
                     },
                     {
                         label: 'Certificados',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/certificates'],
                     },
-
                     {
                         label: 'Materiais',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/schoolar/materials-dashboard'],
+                        routerLink: ['/schoolar/materials'],
                     },
                     {
                         label: 'Relatórios',

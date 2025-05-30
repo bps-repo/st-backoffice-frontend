@@ -17,8 +17,8 @@
             </p-selectButton>
         </div>
     </div>
-    <ng-container *ngIf="selectedView.value.component">
-        <ng-container *ngComponentOutlet="selectedView.value.component"></ng-container>
+    <ng-container *ngIf="getSelectedComponent">
+        <ng-container *ngComponentOutlet="getSelectedComponent"></ng-container>
     </ng-container>
     <ng-container *ngIf="!selectedView.value.component">
         <p class="text-center">No component available for this view.</p>

@@ -8,25 +8,32 @@ import {SelectButtonModule} from "primeng/selectbutton";
 import {StudentsDashboardComponent} from "../students-dashboard/student-dashboard.component";
 import {MaterialsDashboardComponent} from "../../../materials/pages/materials-dashboard/materials-dashboard.component";
 import {LessonsDashboardComponent} from "../lessons-dashboard/lessons-dashboard.component";
+import {ClassesDashboardComponent} from "../classes-dashboard/classes-dashboard.component";
+import {AssessmentsDashboardComponent} from "../assessments-dashboard/assessment-dashboard.component";
+
+type ViewOption = { label: string; value: { key: string; component: any } };
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, GeneralDashboardComponent, SelectButtonModule],
+    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SelectButtonModule],
     templateUrl: './dashboard.component.html',
 })
 export class Dashboard implements OnInit {
 
-    viewOptions: { label: string; value: { key: string; component: any } }[] = [
+    viewOptions: ViewOption[] = [
         {label: 'Geral', value: {key: 'general', component: GeneralDashboardComponent}},
         {label: 'Alunos', value: {key: 'students', component: StudentsDashboardComponent}},
         {label: 'Aulas', value: {key: 'lessons', component: LessonsDashboardComponent}},
-        {label: 'Turmas', value: {key: 'classes', component: null}},
+        {label: 'Turmas', value: {key: 'classes', component: ClassesDashboardComponent}},
         {label: 'Materiais', value: {key: 'materials', component: MaterialsDashboardComponent}},
-        {label: 'Calendário', value: {key: 'calendar', component: null}}
+        {
+            label: 'Avaliações',
+            value: {key: 'assessments', component: AssessmentsDashboardComponent}
+        }
     ];
 
-    selectedView!: { label: string; value: { key: string; component: any } };
+    selectedView!: ViewOption;
 
     ngOnInit() {
         const savedViewKey = localStorage.getItem('selectedViewKey');
@@ -34,7 +41,10 @@ export class Dashboard implements OnInit {
     }
 
     changeView() {
-        console.log('Selected view:', this.selectedView);
         localStorage.setItem('selectedViewKey', this.selectedView.value.key);
+    }
+
+    get getSelectedComponent() {
+        return this.selectedView.value.component;
     }
 }

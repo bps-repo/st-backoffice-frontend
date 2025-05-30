@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'app-classes-students-materials-dashboard',
+    selector: 'app-assessments-dashboard',
     standalone: true,
     imports: [
         ChartModule,
@@ -19,15 +19,12 @@ import { TableModule } from 'primeng/table';
         ButtonModule,
         TableModule
     ],
-    templateUrl: './dashboard.component.html',
+    templateUrl: './assessment-dashboard.component.html',
 })
-export class ClassesDashboardComponent implements OnInit {
+export class AssessmentsDashboardComponent implements OnInit {
 
-    pieDataClassSize: any;
-    pieClassSizeOptions: any;
-
-    doughnutDataSubjects: any;
-    doughnutSubjectsOptions: any;
+    pieDataAssessmentType: any;
+    pieAssessmentTypeOptions: any;
 
     lineChartData: any;
     lineChartOptions: any;
@@ -38,18 +35,18 @@ export class ClassesDashboardComponent implements OnInit {
     dateRange: Date[] | undefined;
 
     kpis = [
-        { label: 'Total Classes', current: 48, diff: 10 },
-        { label: 'Average Students', current: 18, diff: 5 },
-        { label: 'Completion Rate', current: '92%', diff: 3 },
-        { label: 'Utilization', current: '85%', diff: 7 },
+        { label: 'Total Assessments', current: 1250, diff: 15 },
+        { label: 'Avg. Score', current: '78%', diff: 3 },
+        { label: 'Completion Rate', current: '92%', diff: 5 },
+        { label: 'Pass Rate', current: '85%', diff: 2 },
     ];
 
-    topClasses = [
-        { name: 'Advanced English', teacher: 'John Smith', students: 22, satisfaction: '95%' },
-        { name: 'Intermediate Spanish', teacher: 'Maria Garcia', students: 18, satisfaction: '92%' },
-        { name: 'Beginner French', teacher: 'David Lee', students: 15, satisfaction: '90%' },
-        { name: 'Business English', teacher: 'Sarah Johnson', students: 12, satisfaction: '88%' },
-        { name: 'Conversation Practice', teacher: 'Michael Brown', students: 10, satisfaction: '85%' },
+    topAssessments = [
+        { title: 'Advanced English Grammar Test', students: 120, avgScore: '82%', passRate: '90%' },
+        { title: 'Spanish Vocabulary Quiz', students: 95, avgScore: '79%', passRate: '88%' },
+        { title: 'French Pronunciation Assessment', students: 85, avgScore: '76%', passRate: '85%' },
+        { title: 'Business English Exam', students: 75, avgScore: '81%', passRate: '92%' },
+        { title: 'German Basics Test', students: 65, avgScore: '74%', passRate: '82%' },
     ];
 
     constructor() {}
@@ -64,76 +61,33 @@ export class ClassesDashboardComponent implements OnInit {
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
-        // Class size distribution pie chart
-        this.pieDataClassSize = {
-            labels: ['Small (1-10)', 'Medium (11-20)', 'Large (21-30)', 'Extra Large (30+)'],
+        // Assessment type distribution pie chart
+        this.pieDataAssessmentType = {
+            labels: ['Quiz', 'Test', 'Exam', 'Project', 'Presentation', 'Other'],
             datasets: [
                 {
-                    data: [15, 20, 10, 3],
+                    data: [35, 25, 20, 10, 5, 5],
                     backgroundColor: [
                         documentStyle.getPropertyValue('--blue-500'),
                         documentStyle.getPropertyValue('--green-500'),
                         documentStyle.getPropertyValue('--yellow-500'),
                         documentStyle.getPropertyValue('--orange-500'),
+                        documentStyle.getPropertyValue('--purple-500'),
+                        documentStyle.getPropertyValue('--pink-500'),
                     ],
                     hoverBackgroundColor: [
                         documentStyle.getPropertyValue('--blue-400'),
                         documentStyle.getPropertyValue('--green-400'),
                         documentStyle.getPropertyValue('--yellow-400'),
                         documentStyle.getPropertyValue('--orange-400'),
-                    ],
-                },
-            ],
-        };
-
-        this.pieClassSizeOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor,
-                        usePointStyle: true,
-                        font: { weight: 500 },
-                        padding: 20,
-                    },
-                    position: 'bottom',
-                },
-                title: {
-                    display: true,
-                    text: 'Class Size Distribution',
-                    font: { size: 16, weight: 'bold' },
-                    color: textColor
-                }
-            },
-        };
-
-        // Subject distribution doughnut chart
-        this.doughnutDataSubjects = {
-            labels: ['English', 'Spanish', 'French', 'German', 'Italian', 'Other'],
-            datasets: [
-                {
-                    data: [25, 15, 10, 8, 5, 5],
-                    backgroundColor: [
-                        documentStyle.getPropertyValue('--indigo-500'),
-                        documentStyle.getPropertyValue('--purple-500'),
-                        documentStyle.getPropertyValue('--teal-500'),
-                        documentStyle.getPropertyValue('--cyan-500'),
-                        documentStyle.getPropertyValue('--pink-500'),
-                        documentStyle.getPropertyValue('--gray-500'),
-                    ],
-                    hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--indigo-400'),
                         documentStyle.getPropertyValue('--purple-400'),
-                        documentStyle.getPropertyValue('--teal-400'),
-                        documentStyle.getPropertyValue('--cyan-400'),
                         documentStyle.getPropertyValue('--pink-400'),
-                        documentStyle.getPropertyValue('--gray-400'),
                     ],
                 },
             ],
         };
 
-        this.doughnutSubjectsOptions = {
-            cutout: '60%',
+        this.pieAssessmentTypeOptions = {
             plugins: {
                 legend: {
                     labels: {
@@ -146,28 +100,28 @@ export class ClassesDashboardComponent implements OnInit {
                 },
                 title: {
                     display: true,
-                    text: 'Classes by Subject',
+                    text: 'Assessment Type Distribution',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
             },
         };
 
-        // Class satisfaction trend line chart
+        // Assessment scores trend line chart
         this.lineChartData = {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [
                 {
-                    label: 'Student Satisfaction',
-                    data: [85, 86, 84, 87, 88, 90, 91, 92, 93, 92, 94, 95],
+                    label: 'Average Score',
+                    data: [75, 76, 74, 77, 78, 80, 79, 81, 82, 83, 84, 85],
                     fill: false,
                     borderColor: documentStyle.getPropertyValue('--blue-500'),
                     tension: 0.4,
                     pointBackgroundColor: documentStyle.getPropertyValue('--blue-500')
                 },
                 {
-                    label: 'Class Attendance',
-                    data: [80, 82, 81, 83, 84, 86, 87, 88, 90, 89, 91, 92],
+                    label: 'Pass Rate',
+                    data: [82, 83, 81, 84, 85, 87, 86, 88, 89, 90, 91, 92],
                     fill: false,
                     borderColor: documentStyle.getPropertyValue('--green-500'),
                     tension: 0.4,
@@ -183,7 +137,7 @@ export class ClassesDashboardComponent implements OnInit {
                 },
                 title: {
                     display: true,
-                    text: 'Class Performance Trends',
+                    text: 'Assessment Performance Trends',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
@@ -210,14 +164,14 @@ export class ClassesDashboardComponent implements OnInit {
             }
         };
 
-        // Classes by time slot bar chart
+        // Assessment score distribution bar chart
         this.barChartData = {
-            labels: ['Morning', 'Afternoon', 'Evening', 'Weekend'],
+            labels: ['0-50%', '51-60%', '61-70%', '71-80%', '81-90%', '91-100%'],
             datasets: [
                 {
-                    label: 'Number of Classes',
+                    label: 'Number of Students',
                     backgroundColor: documentStyle.getPropertyValue('--primary-500'),
-                    data: [18, 15, 10, 5]
+                    data: [50, 100, 250, 400, 300, 150]
                 }
             ]
         };
@@ -229,7 +183,7 @@ export class ClassesDashboardComponent implements OnInit {
                 },
                 title: {
                     display: true,
-                    text: 'Classes by Time Slot',
+                    text: 'Assessment Score Distribution',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
