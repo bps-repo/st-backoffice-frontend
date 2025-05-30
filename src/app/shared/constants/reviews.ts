@@ -1,10 +1,12 @@
-import { GeneralComponent } from 'src/app/features/schoolar/features/reviews/pages/detail/tabs/general/general.component';
-import { StudentsComponent } from 'src/app/features/schoolar/features/reviews/pages/detail/tabs/students/students.component';
-import { ScoresComponent } from 'src/app/features/schoolar/features/reviews/pages/detail/tabs/scores/scores.component';
-import { Tab } from '../@types/tab';
-import { Observable, of } from 'rxjs';
+import {Tab} from '../@types/tab';
+import {Observable, of} from 'rxjs';
+import {GeneralComponent} from "../../features/schoolar/features/lessons/pages/detail/tabs/general/general.component";
+import {
+    StudentsComponent
+} from "../../features/schoolar/features/lessons/pages/detail/tabs/students/students.component";
+import {ScoresComponent} from "../../features/schoolar/features/assessments/pages/detail/tabs/scores/scores.component";
 
-export const REVIEWS_TABS: Observable<Tab[]> = of([
+export const ASSESSMENTS_TABS: Observable<Tab[]> = of([
     {
         header: 'General Information',
         icon: 'pi pi-info-circle',

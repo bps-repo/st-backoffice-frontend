@@ -40,11 +40,6 @@ export const SchoolarRoutes: Routes = [
                     import('./features/calendars/calendar.routes').then((m) => m.CalendarRoutes),
             },
             {
-                path: 'reviews',
-                loadChildren: () =>
-                    import('./features/reviews/reviews.routes').then((m) => m.ReviewsRoutes),
-            },
-            {
                 path: 'assessments',
                 loadChildren: () =>
                     import('./features/assessments/assessments.routes').then((m) => m.AssessmentsRoutes),
