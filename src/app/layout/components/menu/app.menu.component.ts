@@ -28,38 +28,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Alunos',
                         icon: 'pi pi-fw pi-users',
-                        items: [
-                            {
-                                label: 'Lista de Alunos',
-                                icon: 'pi pi-fw pi-list',
-                                routerLink: ['/schoolar/students'],
-                            },
-                            {
-                                label: 'Adicionar ao Centro',
-                                icon: 'pi pi-fw pi-plus',
-                                routerLink: ['/schoolar/students/add-to-center'],
-                            },
-                            {
-                                label: 'Adicionar à Turma',
-                                icon: 'pi pi-fw pi-plus',
-                                routerLink: ['/schoolar/students/add-to-class'],
-                            },
-                            {
-                                label: 'Criar Contrato',
-                                icon: 'pi pi-fw pi-file',
-                                routerLink: ['/schoolar/students/create-contract'],
-                            },
-                            {
-                                label: 'Progresso de Unidades',
-                                icon: 'pi pi-fw pi-chart-bar',
-                                routerLink: ['/schoolar/students/unit-progress'],
-                            },
-                            {
-                                label: 'Ações em Massa',
-                                icon: 'pi pi-fw pi-cog',
-                                routerLink: ['/schoolar/students/bulk-actions'],
-                            },
-                        ],
+                        routerLink: ['/schoolar/students'],
                     },
                     {
                         label: 'Aulas',
