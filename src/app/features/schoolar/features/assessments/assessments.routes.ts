@@ -12,7 +12,7 @@ const routes: Routes = [
         component: ListComponent,
     },
     {
-        path: 'dashboard',
+        path: 'students-materials-dashboard',
         component: AssessmentsDashboardComponent,
     },
     {

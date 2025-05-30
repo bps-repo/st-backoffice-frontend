@@ -19,7 +19,7 @@ import { TableModule } from 'primeng/table';
         ButtonModule,
         TableModule
     ],
-    templateUrl: './dashboard.component.html',
+    templateUrl: './student-dashboard.component.html',
 })
 export class StudentsDashboardComponent implements OnInit {
 

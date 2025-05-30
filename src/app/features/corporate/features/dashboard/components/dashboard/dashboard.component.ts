@@ -10,7 +10,7 @@ interface Alert {
 }
 
 @Component({
-    selector: 'app-dashboard-empresa',
+    selector: 'app-students-materials-dashboard-empresa',
     standalone: true,
     imports: [CommonModule, FormsModule, ChartModule, CalendarModule],
     templateUrl: './dashboard.component.html',

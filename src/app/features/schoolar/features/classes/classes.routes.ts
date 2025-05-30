@@ -12,7 +12,7 @@ const routes: Routes = [
         component: ClassComponent,
     },
     {
-        path: 'dashboard',
+        path: 'students-materials-dashboard',
         component: ClassesDashboardComponent,
     },
     {

@@ -23,7 +23,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/schoolar/dashboard'],
+                        routerLink: ['/schoolar/students-materials-dashboard'],
                     },
                     {
                         label: 'Alunos',
@@ -32,7 +32,7 @@ export class AppMenuComponent implements OnInit {
                             {
                                 label: 'Dashboard',
                                 icon: 'pi pi-fw pi-list',
-                                routerLink: ['/schoolar/students/dashboard'],
+                                routerLink: ['/schoolar/students/students-materials-dashboard'],
                             },
                             {
                                 label: 'Lista de Alunos',
@@ -95,7 +95,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Materiais',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/schoolar/materials'],
+                        routerLink: ['/schoolar/materials-dashboard'],
                     },
                     {
                         label: 'Relatórios',
@@ -116,7 +116,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/courses/dashboard'],
+                        routerLink: ['/courses/students-materials-dashboard'],
                     },
                     {
                         label: 'Niveis',
@@ -147,7 +147,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/invoices/dashboard'],
+                        routerLink: ['/invoices/students-materials-dashboard'],
                     },
                     {
                         label: 'Facturas pró-forma',
@@ -161,7 +161,7 @@ export class AppMenuComponent implements OnInit {
                             {
                                 label: 'Dashboard',
                                 icon: 'pi pi-fw pi-th-large',
-                                routerLink: ['/payments/dashboard'],
+                                routerLink: ['/payments/students-materials-dashboard'],
                             },
                             {
                                 label: 'Lista de Pagamentos',
@@ -192,7 +192,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/corporate/dashboard'],
+                        routerLink: ['/corporate/students-materials-dashboard'],
                     },
                     {
                         label: 'Cursos',

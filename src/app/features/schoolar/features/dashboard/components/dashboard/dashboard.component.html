@@ -1,85 +1,26 @@
-<div class="grid">
-    <!-- Indicadores -->
-    <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis">
-        <div class="card h-full">
-            <span class="font-semibold text-lg">{{ kpi.label }}</span>
-            <div class="flex justify-content-between align-items-start mt-3">
-                <div class="w-6">
-                    <span class="text-4xl font-bold text-900">{{ kpi.current }}</span>
-                    <div [ngClass]="kpi.diff > 0 ? 'text-green-500' : 'text-red-500'">
-                        <i class="pi" [ngClass]="kpi.diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'"></i>
-                        {{ kpi.diff }}%
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filtro por período -->
-    <div class="col-12 xl:col-12">
-        <div class="card">
-            <div class="flex gap-3 align-items-center">
-                <p-calendar
-                    [(ngModel)]="dateRange"
-                    selectionMode="range"
-                    dateFormat="mm/yy"
-                    view="month"
-                    placeholder="Filtrar por período"
-                ></p-calendar>
-                <button pButton type="button" label="Filtrar" (click)="filtrarDados()"></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gráfico de evolução -->
-    <div class="col-12 xl:col-12">
-        <div class="card h-full">
-            <div class="text-xl font-semibold mb-5">
-                Evolução mensal (Últimos 6 meses)
-            </div>
-            <p-chart
-                type="bar"
-                [data]="barChartData"
-                [options]="barChartOptions"
-                height="300px"
-            ></p-chart>
-        </div>
-    </div>
-
-    <!-- Gráfico de pizza -->
-    <div class="col-12 xl:col-6">
-        <div class="card h-full">
-            <div class="text-xl font-semibold mb-6">
-                Alunos ativos por níveis
-            </div>
-            <p-chart
-                type="pie"
-                [data]="pieDataLevels"
-                [options]="pieLevelOptions"
-                height="300px"
-            ></p-chart>
-        </div>
-    </div>
-
-    <!-- Últimas notificações -->
-    <div class="col-12 xl:col-6">
-        <div class="card h-full">
-            <div class="text-xl font-semibold mb-5">
-                Últimas notificações
-            </div>
-            <div
-                *ngFor="let alert of alerts"
-                class="flex flex-column justify-content-start align-content-start mb-4 gap-1"
+<div>
+    <div class="flex justify-content-between align-items-center mb-4">
+        <h2 class="font-bold">{{ selectedView.label }} Dashboard</h2>
+        <div class="flex gap-2">
+            <p-button label="Exportar" icon="pi pi-file-export" class="p-button-outlined"></p-button>
+            <p-selectButton
+                [options]="viewOptions"
+                [(ngModel)]="selectedView"
+                optionLabel="label"
+                class="p-button-outlined"
+                (onChange)="changeView()"
             >
-                <div class="flex align-items-center gap-1">
-                    <i class="pi pi-bell font-bold"></i>
-                    <div class="flex flex-column ml-3">
-                        <span class="font-bold text-lg mb-1">{{ alert.label }}</span>
-                    </div>
-                </div>
-                <div class="text-xl p-text-secondary ml-5">{{ alert.description }}</div>
-                <div class="ml-5">12/12/2024 12:04</div>
-            </div>
+                <ng-template let-option pTemplate="item">
+                    <i [class]="option.icon"></i>
+                    {{ option.label }}
+                </ng-template>
+            </p-selectButton>
         </div>
     </div>
+    <ng-container *ngIf="selectedView.value.component">
+        <ng-container *ngComponentOutlet="selectedView.value.component"></ng-container>
+    </ng-container>
+    <ng-container *ngIf="!selectedView.value.component">
+        <p class="text-center">No component available for this view.</p>
+    </ng-container>
 </div>

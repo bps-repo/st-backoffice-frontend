@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'app-assessments-dashboard',
+    selector: 'app-assessments-students-materials-dashboard',
     standalone: true,
     imports: [
         ChartModule,

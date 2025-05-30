@@ -4,7 +4,7 @@ import { RouterLink } from "@angular/router";
 import { ChartModule } from 'primeng/chart';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-students-materials-dashboard',
   templateUrl: './dashboard.component.html',
   standalone: true,
   imports: [CommonModule, RouterLink, ChartModule]

@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'app-lessons-dashboard',
+    selector: 'app-material-dashboard',
     standalone: true,
     imports: [
         ChartModule,
@@ -19,15 +19,12 @@ import { TableModule } from 'primeng/table';
         ButtonModule,
         TableModule
     ],
-    templateUrl: './dashboard.component.html',
+    templateUrl: './materials-dashboard.component.html',
 })
-export class LessonsDashboardComponent implements OnInit {
+export class MaterialsDashboardComponent implements OnInit {
 
-    pieDataLessonType: any;
-    pieLessonTypeOptions: any;
-
-    doughnutDataSubjects: any;
-    doughnutSubjectsOptions: any;
+    pieDataMaterialType: any;
+    pieMaterialTypeOptions: any;
 
     lineChartData: any;
     lineChartOptions: any;
@@ -38,18 +35,18 @@ export class LessonsDashboardComponent implements OnInit {
     dateRange: Date[] | undefined;
 
     kpis = [
-        { label: 'Total Lessons', current: 1250, diff: 15 },
-        { label: 'Completion Rate', current: '94%', diff: 3 },
-        { label: 'Avg. Attendance', current: '88%', diff: 2 },
-        { label: 'Avg. Duration', current: '75 min', diff: 5 },
+        { label: 'Total Materials', current: 950, diff: 10 },
+        { label: 'Downloads', current: 3250, diff: 15 },
+        { label: 'Avg. Rating', current: '4.2/5', diff: 3 },
+        { label: 'New Uploads', current: 45, diff: 8 },
     ];
 
-    topLessons = [
-        { title: 'Advanced English Grammar', teacher: 'John Smith', students: 22, rating: '4.9/5' },
-        { title: 'Spanish Conversation', teacher: 'Maria Garcia', students: 18, rating: '4.8/5' },
-        { title: 'French Pronunciation', teacher: 'David Lee', students: 15, rating: '4.7/5' },
-        { title: 'Business English Vocabulary', teacher: 'Sarah Johnson', students: 12, rating: '4.6/5' },
-        { title: 'German Basics', teacher: 'Michael Brown', students: 10, rating: '4.5/5' },
+    topMaterials = [
+        { title: 'Advanced English Grammar Guide', type: 'PDF', downloads: 520, rating: '4.8/5' },
+        { title: 'Spanish Vocabulary Flashcards', type: 'Interactive', downloads: 480, rating: '4.7/5' },
+        { title: 'French Pronunciation Audio Files', type: 'Audio', downloads: 420, rating: '4.6/5' },
+        { title: 'Business English Presentation Templates', type: 'Slides', downloads: 380, rating: '4.5/5' },
+        { title: 'German Basics Workbook', type: 'PDF', downloads: 350, rating: '4.4/5' },
     ];
 
     constructor() {}
@@ -64,12 +61,12 @@ export class LessonsDashboardComponent implements OnInit {
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
-        // Lesson type distribution pie chart
-        this.pieDataLessonType = {
-            labels: ['Grammar', 'Vocabulary', 'Conversation', 'Reading', 'Writing', 'Listening'],
+        // Material type distribution pie chart
+        this.pieDataMaterialType = {
+            labels: ['PDF', 'Video', 'Audio', 'Interactive', 'Slides', 'Other'],
             datasets: [
                 {
-                    data: [25, 20, 30, 10, 10, 5],
+                    data: [40, 20, 15, 10, 10, 5],
                     backgroundColor: [
                         documentStyle.getPropertyValue('--blue-500'),
                         documentStyle.getPropertyValue('--green-500'),
@@ -90,7 +87,7 @@ export class LessonsDashboardComponent implements OnInit {
             ],
         };
 
-        this.pieLessonTypeOptions = {
+        this.pieMaterialTypeOptions = {
             plugins: {
                 legend: {
                     labels: {
@@ -103,87 +100,32 @@ export class LessonsDashboardComponent implements OnInit {
                 },
                 title: {
                     display: true,
-                    text: 'Lesson Type Distribution',
+                    text: 'Material Type Distribution',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
             },
         };
 
-        // Subject distribution doughnut chart
-        this.doughnutDataSubjects = {
-            labels: ['English', 'Spanish', 'French', 'German', 'Italian', 'Other'],
-            datasets: [
-                {
-                    data: [40, 25, 15, 10, 5, 5],
-                    backgroundColor: [
-                        documentStyle.getPropertyValue('--indigo-500'),
-                        documentStyle.getPropertyValue('--purple-500'),
-                        documentStyle.getPropertyValue('--teal-500'),
-                        documentStyle.getPropertyValue('--cyan-500'),
-                        documentStyle.getPropertyValue('--pink-500'),
-                        documentStyle.getPropertyValue('--gray-500'),
-                    ],
-                    hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--indigo-400'),
-                        documentStyle.getPropertyValue('--purple-400'),
-                        documentStyle.getPropertyValue('--teal-400'),
-                        documentStyle.getPropertyValue('--cyan-400'),
-                        documentStyle.getPropertyValue('--pink-400'),
-                        documentStyle.getPropertyValue('--gray-400'),
-                    ],
-                },
-            ],
-        };
-
-        this.doughnutSubjectsOptions = {
-            cutout: '60%',
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor,
-                        usePointStyle: true,
-                        font: { weight: 500 },
-                        padding: 20,
-                    },
-                    position: 'bottom',
-                },
-                title: {
-                    display: true,
-                    text: 'Lessons by Subject',
-                    font: { size: 16, weight: 'bold' },
-                    color: textColor
-                }
-            },
-        };
-
-        // Lesson completion trend line chart
+        // Material downloads trend line chart
         this.lineChartData = {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [
                 {
-                    label: 'Lessons Scheduled',
-                    data: [95, 100, 110, 105, 95, 90, 85, 100, 120, 130, 140, 150],
+                    label: 'Downloads',
+                    data: [250, 280, 300, 320, 340, 360, 380, 400, 420, 450, 480, 520],
                     fill: false,
                     borderColor: documentStyle.getPropertyValue('--blue-500'),
                     tension: 0.4,
                     pointBackgroundColor: documentStyle.getPropertyValue('--blue-500')
                 },
                 {
-                    label: 'Lessons Completed',
-                    data: [90, 95, 105, 100, 90, 85, 80, 95, 115, 125, 135, 145],
+                    label: 'Uploads',
+                    data: [30, 35, 32, 38, 40, 42, 39, 45, 48, 50, 55, 60],
                     fill: false,
                     borderColor: documentStyle.getPropertyValue('--green-500'),
                     tension: 0.4,
                     pointBackgroundColor: documentStyle.getPropertyValue('--green-500')
-                },
-                {
-                    label: 'Student Attendance',
-                    data: [85, 90, 95, 92, 85, 80, 75, 90, 105, 115, 125, 135],
-                    fill: false,
-                    borderColor: documentStyle.getPropertyValue('--orange-500'),
-                    tension: 0.4,
-                    pointBackgroundColor: documentStyle.getPropertyValue('--orange-500')
                 }
             ]
         };
@@ -195,7 +137,7 @@ export class LessonsDashboardComponent implements OnInit {
                 },
                 title: {
                     display: true,
-                    text: 'Lesson Trends',
+                    text: 'Material Usage Trends',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
@@ -220,14 +162,14 @@ export class LessonsDashboardComponent implements OnInit {
             }
         };
 
-        // Lesson ratings bar chart
+        // Material ratings bar chart
         this.barChartData = {
             labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
             datasets: [
                 {
-                    label: 'Number of Lessons',
+                    label: 'Number of Materials',
                     backgroundColor: documentStyle.getPropertyValue('--primary-500'),
-                    data: [5, 15, 100, 450, 680]
+                    data: [10, 30, 120, 450, 340]
                 }
             ]
         };
@@ -239,7 +181,7 @@ export class LessonsDashboardComponent implements OnInit {
                 },
                 title: {
                     display: true,
-                    text: 'Lesson Ratings Distribution',
+                    text: 'Material Ratings Distribution',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
