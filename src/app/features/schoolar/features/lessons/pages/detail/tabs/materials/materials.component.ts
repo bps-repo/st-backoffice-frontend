@@ -18,7 +18,7 @@ import { Lesson } from "../../../../../../../../core/models/academic/lesson";
 import { Material } from "../../../../../../../../core/models/academic/material";
 
 @Component({
-    selector: 'app-materials',
+    selector: 'app-materials-dashboard',
     standalone: true,
     imports: [
         CommonModule,

@@ -23,7 +23,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/schoolar/dashboard'],
+                        routerLink: ['/schoolar/students-materials-dashboard'],
                     },
                     {
                         label: 'Alunos',
@@ -48,14 +48,13 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Avaliações',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/schoolar/reviews'],
+                        routerLink: ['/schoolar/assessments'],
                     },
                     {
                         label: 'Certificados',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/certificates'],
                     },
-
                     {
                         label: 'Materiais',
                         icon: 'pi pi-fw pi-wallet',
@@ -80,12 +79,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/courses/dashboard'],
-                    },
-                    {
-                        label: 'Cursos',
-                        icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/courses/courses'],
+                        routerLink: ['/courses/students-materials-dashboard'],
                     },
                     {
                         label: 'Niveis',
@@ -110,13 +104,13 @@ export class AppMenuComponent implements OnInit {
                 ],
             },
             {
-                label: 'Facturação',
+                label: 'Financeiro',
                 icon: 'pi pi-fw pi-file-pdf',
                 items: [
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/invoices/dashboard'],
+                        routerLink: ['/invoices/students-materials-dashboard'],
                     },
                     {
                         label: 'Facturas pró-forma',
@@ -124,8 +118,25 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/invoices/invoices'],
                     },
                     {
-                        label: 'Recibos',
+                        label: 'Pagamentos',
                         icon: 'pi pi-fw pi-file',
+                        items: [
+                            {
+                                label: 'Dashboard',
+                                icon: 'pi pi-fw pi-th-large',
+                                routerLink: ['/payments/students-materials-dashboard'],
+                            },
+                            {
+                                label: 'Lista de Pagamentos',
+                                icon: 'pi pi-fw pi-file',
+                                routerLink: ['/payments'],
+                            },
+                            {
+                                label: 'Relatórios',
+                                icon: 'pi pi-fw pi-file',
+                                routerLink: ['/payments/reports'],
+                            },
+                        ],
                     },
                     {
                         label: 'Relatórios',
@@ -144,7 +155,12 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/corporate/dashboard'],
+                        routerLink: ['/corporate/students-materials-dashboard'],
+                    },
+                    {
+                        label: 'Cursos',
+                        icon: 'pi pi-fw pi-sitemap',
+                        routerLink: ['/courses/courses'],
                     },
                     {
                         label: 'Centros',
@@ -192,6 +208,18 @@ export class AppMenuComponent implements OnInit {
                         label: 'Suporte',
                         icon: 'pi pi-fw pi-question-circle',
                         routerLink: ['/settings/support'],
+                    },
+                ],
+            },
+            {
+                label: 'Administração',
+                icon: 'pi pi-fw pi-shield',
+                items: [
+
+                    {
+                        label: 'Gestão de Utilizadores',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/admin/user-management'],
                     },
                 ],
             },

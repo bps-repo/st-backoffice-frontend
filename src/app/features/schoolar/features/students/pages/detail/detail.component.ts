@@ -8,6 +8,7 @@ import { STUDENTS_TABS } from 'src/app/shared/constants/students';
 import { Observable } from 'rxjs';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-detail',
@@ -23,8 +24,17 @@ import { MenuItem } from 'primeng/api';
 export class DetailComponent implements OnInit {
     tabs!: Observable<Tab[]>;
     items!: MenuItem[];
+    studentId!: string;
+
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute
+    ) {}
 
     ngOnInit() {
+        this.route.params.subscribe(params => {
+            this.studentId = params['id'];
+        });
         this.tabs = STUDENTS_TABS;
         this.items = [
             { label: 'Imprimir cartão', icon: 'pi pi-file-pdf' },
@@ -39,6 +49,13 @@ export class DetailComponent implements OnInit {
             },
             { label: 'Inscrição turma', icon: 'pi pi-user-edit' },
             { label: 'Enviar mensagem', icon: 'pi pi-comments' },
+            {
+                label: 'Gerir permissões',
+                icon: 'pi pi-key',
+                command: () => {
+                    this.router.navigate(['/schoolar/students', this.studentId, 'permissions']);
+                }
+            },
             { separator: true },
             { label: 'Actualizar', icon: 'pi pi-user-edit' },
             {

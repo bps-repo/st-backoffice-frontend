@@ -1,0 +1,135 @@
+<div class="container">
+  <h1>User Management System</h1>
+
+  <div class="row">
+    <!-- Users Section -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h3>Users</h3>
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li *ngFor="let user of users"
+                class="list-group-item"
+                [class.active]="selectedUser && selectedUser.id === user.id"
+                (click)="selectUser(user)">
+              {{ user.name }} ({{ user.email }})
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div *ngIf="selectedUser" class="card mt-3">
+        <div class="card-header">
+          <h3>User Details: {{ selectedUser.name }}</h3>
+        </div>
+        <div class="card-body">
+          <h4>Roles</h4>
+          <ul class="list-group">
+            <li *ngFor="let role of userRoles" class="list-group-item d-flex justify-content-between align-items-center">
+              {{ role.name }}
+              <button class="btn btn-sm btn-danger" (click)="removeRoleFromUser(role.id)">Remove</button>
+            </li>
+          </ul>
+
+          <div class="mt-3">
+            <select class="form-control" [(ngModel)]="selectedRole">
+              <option [ngValue]="null">Select a role to add</option>
+              <option *ngFor="let role of roles" [ngValue]="role">{{ role.name }}</option>
+            </select>
+            <button class="btn btn-primary mt-2" [disabled]="!selectedRole" (click)="addRoleToUser()">Add Role</button>
+          </div>
+
+          <h4 class="mt-4">User-specific Permissions</h4>
+          <ul class="list-group">
+            <li *ngFor="let permission of userPermissions" class="list-group-item d-flex justify-content-between align-items-center">
+              {{ permission.name }}
+              <button class="btn btn-sm btn-danger" (click)="removePermissionFromUser(permission.id)">Remove</button>
+            </li>
+          </ul>
+
+          <div class="mt-3">
+            <select class="form-control" [(ngModel)]="selectedPermission">
+              <option [ngValue]="null">Select a permission to add</option>
+              <option *ngFor="let permission of permissions" [ngValue]="permission">{{ permission.name }}</option>
+            </select>
+            <button class="btn btn-primary mt-2" [disabled]="!selectedPermission" (click)="addPermissionToUser()">Add Permission</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roles Section -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h3>Roles</h3>
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li *ngFor="let role of roles"
+                class="list-group-item d-flex justify-content-between align-items-center"
+                [class.active]="selectedRole && selectedRole.id === role.id"
+                (click)="selectRole(role)">
+              {{ role.name }}
+              <button class="btn btn-sm btn-danger" (click)="$event.stopPropagation(); deleteRole(role.id)">Delete</button>
+            </li>
+          </ul>
+
+          <div class="mt-3">
+            <h4>Create New Role</h4>
+            <input #roleName type="text" class="form-control" placeholder="Role Name">
+            <textarea #roleDescription class="form-control mt-2" placeholder="Role Description"></textarea>
+            <button class="btn btn-success mt-2" (click)="createRole(roleName.value, roleDescription.value); roleName.value = ''; roleDescription.value = ''">Create Role</button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedRole" class="card mt-3">
+        <div class="card-header">
+          <h3>Role Details: {{ selectedRole.name }}</h3>
+        </div>
+        <div class="card-body">
+          <p>{{ selectedRole.description }}</p>
+
+          <h4>Permissions</h4>
+          <ul class="list-group">
+            <li *ngFor="let permission of rolePermissions" class="list-group-item d-flex justify-content-between align-items-center">
+              {{ permission.name }}
+              <button class="btn btn-sm btn-danger" (click)="removePermissionFromRole(permission.id)">Remove</button>
+            </li>
+          </ul>
+
+          <div class="mt-3">
+            <select class="form-control" [(ngModel)]="selectedPermission">
+              <option [ngValue]="null">Select a permission to add</option>
+              <option *ngFor="let permission of permissions" [ngValue]="permission">{{ permission.name }}</option>
+            </select>
+            <button class="btn btn-primary mt-2" [disabled]="!selectedPermission" (click)="addPermissionToRole()">Add Permission</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Permissions Section -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h3>Permissions</h3>
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li *ngFor="let permission of permissions"
+                class="list-group-item"
+                [class.active]="selectedPermission && selectedPermission.id === permission.id"
+                (click)="selectPermission(permission)">
+              {{ permission.name }}
+              <p class="text-muted mb-0">{{ permission.description }}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

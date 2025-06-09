@@ -4,6 +4,9 @@ import {LessonStatus} from "../../core/enums/lesson-status";
 
 export const LESSONS: Lesson[] = [
     {
+        id: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         teacher: 'Mr. John Doe',
         level: 'Intermediate',
         description: 'Learn the basics of math for business',

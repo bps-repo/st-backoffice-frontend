@@ -1,67 +1,57 @@
 <div class="grid">
-    <div class="col-12">
-        <p-card>
-            <ng-template pTemplate="title">
-                <div class="flex justify-content-between align-items-center">
-                    <h2>{{ assessment.title }}</h2>
-                    <div>
-                        <button pButton label="Edit" icon="pi pi-pencil" class="p-button-primary mr-2"></button>
-                        <button pButton label="Delete" icon="pi pi-trash" class="p-button-danger"></button>
+    <div class="card w-full">
+        <div *ngIf="exam" class="flex justify-content-between gap-5">
+            <div>
+                <h1 class="text-3xl text-dark">{{ exam.name }}</h1>
+                <div class="flex align-items-center gap-2 mt-2">
+                    <span class="p-badge p-badge-info">{{ exam.level }}</span>
+                    <span class="p-badge"
+                          [ngClass]="{
+                            'p-badge-success': exam.status === 'Concluído',
+                            'p-badge-warning': exam.status === 'Pendente',
+                            'p-badge-danger': exam.status === 'Cancelado'
+                          }">
+                        {{ exam.status }}
+                    </span>
+                    <span class="text-500">Teacher: {{ exam.teacher }}</span>
+                    <span class="text-500">Class: {{ exam.class }}</span>
+                    <span class="text-500">Date: {{ exam.date }}</span>
+                </div>
+                <div class="flex align-items-center gap-2 mt-2">
+                    <span class="text-500 font-medium">Average Score:</span>
+                    <div class="flex align-items-center">
+                        <div class="w-8rem mr-2">
+                            <div class="surface-300 border-round" style="height: 0.5rem">
+                                <div class="h-full border-round"
+                                     [ngClass]="{
+                                        'bg-green-500': exam.average! >= 70,
+                                        'bg-yellow-500': exam.average! >= 50 && exam.average! < 70,
+                                        'bg-red-500': exam.average! < 50
+                                     }"
+                                     [ngStyle]="{'width': exam.average + '%', 'transition': 'width 1s'}">
+                                </div>
+                            </div>
+                        </div>
+                        <span class="font-medium"
+                              [ngClass]="{
+                                'text-green-500': exam.average! >= 70,
+                                'text-yellow-500': exam.average! >= 50 && exam.average! < 70,
+                                'text-red-500': exam.average! < 50
+                              }">
+                            {{ exam.average }}%
+                        </span>
                     </div>
                 </div>
-            </ng-template>
-            <ng-template pTemplate="content">
-                <div class="grid">
-                    <div class="col-12 md:col-6">
-                        <h3>Assessment Details</h3>
-                        <div class="field">
-                            <label class="font-bold">ID:</label>
-                            <div>{{ assessment.id }}</div>
-                        </div>
-                        <div class="field">
-                            <label class="font-bold">Type:</label>
-                            <div>{{ assessment.type }}</div>
-                        </div>
-                        <div class="field">
-                            <label class="font-bold">Date:</label>
-                            <div>{{ assessment.date }}</div>
-                        </div>
-                        <div class="field">
-                            <label class="font-bold">Status:</label>
-                            <div>{{ assessment.status }}</div>
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-6">
-                        <h3>Scoring Information</h3>
-                        <div class="field">
-                            <label class="font-bold">Total Points:</label>
-                            <div>{{ assessment.totalPoints }}</div>
-                        </div>
-                        <div class="field">
-                            <label class="font-bold">Passing Score:</label>
-                            <div>{{ assessment.passingScore }}</div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <h3>Description</h3>
-                        <div>{{ assessment.description }}</div>
-                    </div>
-                </div>
-            </ng-template>
-        </p-card>
+            </div>
+            <div class="action-buttons">
+                <p-splitButton
+                    label="Actions"
+                    icon="pi pi-sliders-h"
+                    [model]="items"
+                    styleClass="p-button-info text-5xl"
+                ></p-splitButton>
+            </div>
+        </div>
     </div>
-
-    <div class="col-12 mt-4">
-        <p-tabView>
-            <p-tabPanel header="Students">
-                <p>List of students who took this assessment would appear here.</p>
-            </p-tabPanel>
-            <p-tabPanel header="Results">
-                <p>Assessment results would appear here.</p>
-            </p-tabPanel>
-            <p-tabPanel header="Questions">
-                <p>Assessment questions would appear here.</p>
-            </p-tabPanel>
-        </p-tabView>
-    </div>
+    <app-tab-view [tabs]="tabs" class="w-full"></app-tab-view>
 </div>

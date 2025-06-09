@@ -39,7 +39,7 @@ export class CenterEffects {
             ofType(CenterActions.loadCenter),
             mergeMap(({ id }) =>
                 this.centerService.getCenterById(id).pipe(
-                    map((response) => CenterActions.loadCenterSuccess({ center: response.data })),
+                    map((response) => CenterActions.loadCenterSuccess({ center: response })),
                     catchError((error) => of(CenterActions.loadCenterFailure({ error })))
                 )
             )

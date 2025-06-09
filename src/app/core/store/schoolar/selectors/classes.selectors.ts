@@ -8,7 +8,6 @@ export const {
     selectSelectedLessonId,
 } = classesFeature;
 
-// Additional selectors
 const {selectIds, selectEntities, selectAll, selectTotal} = lessonsAdapter.getSelectors(selectLessonsState);
 
 export const selectAllClasses = selectAll;

@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { ListComponent } from './pages/list/list.component';
 import { MaterialsCreateComponent } from './pages/create/materials-create.component';
 import { DetailComponent } from './pages/detail/detail.component';
-import { MaterialsDashboardComponent } from './pages/dashboard/dashboard.component';
+import { MaterialsDashboardComponent } from './pages/materials-dashboard/materials-dashboard.component';
 
 @NgModule({
     imports: [RouterModule.forChild([
@@ -12,7 +12,7 @@ import { MaterialsDashboardComponent } from './pages/dashboard/dashboard.compone
             component: ListComponent,
         },
         {
-            path: 'dashboard',
+            path: 'students-materials-dashboard',
             component: MaterialsDashboardComponent,
         },
         {

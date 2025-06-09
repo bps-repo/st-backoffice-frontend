@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {
     booleanAttribute,
     Component,
@@ -11,16 +11,16 @@ import {
     TemplateRef,
     ViewChild
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { TableModule, Table } from 'primeng/table';
-import { DropdownModule } from 'primeng/dropdown';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { SliderModule } from 'primeng/slider';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { TableHeaderComponent } from './table-header.component';
-import { ClassesService } from 'src/app/core/services/classes.service';
+import {FormsModule} from '@angular/forms';
+import {Router, RouterModule} from '@angular/router';
+import {TableModule, Table} from 'primeng/table';
+import {DropdownModule} from 'primeng/dropdown';
+import {MultiSelectModule} from 'primeng/multiselect';
+import {SliderModule} from 'primeng/slider';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
+import {TableHeaderAction, TableHeaderComponent} from './table-header.component';
+import {ClassesService} from 'src/app/core/services/classes.service';
 
 export interface TableColumn {
     field: string;
@@ -49,33 +49,49 @@ export interface TableColumn {
     templateUrl: './global-table.component.html',
 })
 export class GlobalTable<T> implements OnInit {
-    @Input() columns: TableColumn[] = [];
-    @Input() columnTemplates: Record<string, TemplateRef<any>> = {};
+    @Input()
+    headerActions: TableHeaderAction[] = []
 
-    private _data: T[] = [];
+    @Input()
+    columns: TableColumn[] = [];
+
+    @Input()
+    columnTemplates: Record<string, TemplateRef<any>> = {};
 
     @Input()
     set data(value: T[] | null) {
         this._data = value || [];
     }
 
+    @Input()
+    entity: string = 'students';
+
+    @Input()
+    globalFilterFields: string[] = [];
+
+    @Input({transform: booleanAttribute})
+    loading: boolean = false;
+
+    @Input()
+    tableLabel = '';
+
+    @Output()
+    createEntity = new EventEmitter<void>();
+
+    @ViewChild('filter')
+    filter!: ElementRef;
+
+    @ContentChild('actions', {static: false})
+    actionsTemplate!: TemplateRef<any>;
+
+    private _data: T[] = [];
+
     get data(): T[] {
         return this._data;
     }
 
-    @Input() entity: string = 'students';
-    @Input() globalFilterFields: string[] = [];
-    @Input({ transform: booleanAttribute }) loading: boolean = false;
-    @Input() tableLabel = '';
-
-    @Output() createEntity = new EventEmitter<void>();
-
-    @ViewChild('filter') filter!: ElementRef;
-    @ContentChild('actions', { static: false }) actionsTemplate!: TemplateRef<any>;
-
-    constructor(private router: Router, private classService: ClassesService) {}
-
-    ngOnInit(): void {}
+    ngOnInit(): void {
+    }
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');

@@ -1,18 +1,18 @@
 import {Routes} from '@angular/router';
-import {DashboardComponent} from './features/dashboard/components/dashboard/dashboard.component';
+import {Dashboard} from './features/dashboard/components/dashboard/dashboard.component';
 
 export const SchoolarRoutes: Routes = [
     {
         path: '',
         children: [
             {
-                path: 'dashboard',
-                redirectTo: 'dashboard',
+                path: 'students-materials-dashboard',
+                redirectTo: 'dashboards',
                 pathMatch: 'full',
             },
             {
-                path: 'dashboard',
-                component: DashboardComponent,
+                path: 'dashboards',
+                component: Dashboard,
             },
             {
                 path: 'students',
@@ -40,9 +40,9 @@ export const SchoolarRoutes: Routes = [
                     import('./features/calendars/calendar.routes').then((m) => m.CalendarRoutes),
             },
             {
-                path: 'reviews',
+                path: 'assessments',
                 loadChildren: () =>
-                    import('./features/reviews/reviews.routes').then((m) => m.ReviewsRoutes),
+                    import('./features/assessments/assessments.routes').then((m) => m.AssessmentsRoutes),
             },
             {
                 path: 'materials',

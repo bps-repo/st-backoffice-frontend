@@ -1,0 +1,158 @@
+<div class="card">
+    <!-- Toolbar -->
+    <p-toolbar>
+        <div class="p-toolbar-group-start">
+            <button pButton pRipple label="Adicionar Item" icon="pi pi-plus" class="p-button-success mr-2"
+                    (click)="openNew()"></button>
+        </div>
+    </p-toolbar>
+
+    <!-- Table -->
+    <p-table #dt [value]="items" [rows]="10" [paginator]="true"
+             [globalFilterFields]="['description','product_id']" responsiveLayout="scroll"
+             [rowHover]="true" dataKey="id"
+             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} itens"
+             [showCurrentPageReport]="true">
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="product_id">Produto
+                    <p-sortIcon field="product_id"></p-sortIcon>
+                </th>
+                <th pSortableColumn="description">Descrição
+                    <p-sortIcon field="description"></p-sortIcon>
+                </th>
+                <th pSortableColumn="quantity">Quantidade
+                    <p-sortIcon field="quantity"></p-sortIcon>
+                </th>
+                <th pSortableColumn="unit_price">Preço Unitário
+                    <p-sortIcon field="unit_price"></p-sortIcon>
+                </th>
+                <th pSortableColumn="discount">Desconto (%)
+                    <p-sortIcon field="discount"></p-sortIcon>
+                </th>
+                <th pSortableColumn="tax_rate">IVA (%)
+                    <p-sortIcon field="tax_rate"></p-sortIcon>
+                </th>
+                <th pSortableColumn="total">Total
+                    <p-sortIcon field="total"></p-sortIcon>
+                </th>
+                <th>Ações</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td>{{ getProductName(item.product_id) }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item?.quantity }}</td>
+                <td>{{ item?.unit_price | currency:'AOA' }}</td>
+                <td>{{ item?.discount }}%</td>
+                <td>{{ item?.tax_rate }}%</td>
+                <td>{{ item?.total | currency:'AOA' }}</td>
+                <td>
+                    <div class="flex">
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                                (click)="editItem(item)"></button>
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                                (click)="deleteItem(item)"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">
+                Total de Itens: {{ items ? items.length : 0 }}
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center p-4">
+                    Nenhum item adicionado. Clique em "Adicionar Item" para começar.
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Item Dialog -->
+<p-dialog [(visible)]="showItemDialog" [style]="{width: '450px'}" header="{{ isEditing ? 'Editar Item' : 'Novo Item' }}"
+          [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="product">Produto</label>
+            <p-dropdown
+                [options]="products"
+                placeholder="Selecione um produto"
+                (onChange)="onProductChange($event, isEditing ? editingItem! : newItem)"
+                [showClear]="true"
+                [class.ng-invalid]="submitted && (!isEditing ? !newItem!.product_id : !editingItem!.product_id)"
+                [class.ng-dirty]="submitted && (!isEditing ? !newItem!.product_id : !editingItem!.product_id)">
+            </p-dropdown>
+            <small class="p-error" *ngIf="submitted">Produto
+                é obrigatório.</small>
+        </div>
+
+        <div class="field">
+            <label for="description">Descrição</label>
+            <input type="text" pInputText
+                   required autofocus
+                   [class.ng-invalid]="submitted && (!isEditing ? !newItem.description : !editingItem!.description)"
+                   [class.ng-dirty]="submitted && (!isEditing ? !newItem.description : !editingItem!.description)"/>
+            <small class="p-error" *ngIf="submitted">Descrição
+                é obrigatória.</small>
+        </div>
+
+        <div class="field">
+            <label for="quantity">Quantidade</label>
+            <p-inputNumber [(ngModel)]="isEditing" [showButtons]="true"
+                           buttonLayout="horizontal"
+                           spinnerMode="horizontal" [min]="1" [step]="1" decrementButtonClass="p-button-danger"
+                           incrementButtonClass="p-button-success"
+                           incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
+                           [class.ng-invalid]="submitted && (!isEditing ? newItem.quantity <= 0 : editingItem!.quantity <= 0)"
+                           [class.ng-dirty]="submitted && (!isEditing ? newItem.quantity <= 0 : editingItem!.quantity <= 0)">
+            </p-inputNumber>
+            <small class="p-error"
+                   *ngIf="submitted && (!isEditing ? newItem.quantity <= 0 : editingItem!.quantity <= 0)">Quantidade
+                deve
+                ser maior que zero.</small>
+        </div>
+
+        <div class="field">
+            <label for="unit_price">Preço Unitário</label>
+            <p-inputNumber [(ngModel)]="isEditing" mode="currency"
+                           currency="AOA" locale="pt-AO"
+                           [class.ng-invalid]="submitted && (!isEditing ? newItem.unit_price <= 0 : editingItem!.unit_price <= 0)"
+                           [class.ng-dirty]="submitted && (!isEditing ? newItem.unit_price <= 0 : editingItem!.unit_price <= 0)">
+            </p-inputNumber>
+            <small class="p-error"
+                   *ngIf="submitted">Preço
+                unitário deve ser maior que zero.</small>
+        </div>
+
+        <div class="field">
+            <label for="discount">Desconto (%)</label>
+            <p-inputNumber [min]="0" [max]="100"
+                           suffix="%"></p-inputNumber>
+        </div>
+
+        <div class="field">
+            <label for="tax_rate">Taxa de IVA</label>
+            <p-dropdown
+                [options]="taxRates"
+                placeholder="Selecione a taxa de IVA">
+            </p-dropdown>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
+                (click)="hideDialog()"></button>
+        <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-text" (click)="saveItem()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

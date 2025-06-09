@@ -6,7 +6,7 @@ import { CalendarsDashboardComponent } from './components/dashboard/dashboard.co
 @NgModule({
     imports: [RouterModule.forChild([
         { path: '', component: CalendarAppComponent },
-        { path: 'dashboard', component: CalendarsDashboardComponent }
+        { path: 'students-materials-dashboard', component: CalendarsDashboardComponent }
     ])],
     exports: [RouterModule]
 })

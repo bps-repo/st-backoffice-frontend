@@ -8,6 +8,7 @@ import {TagModule} from 'primeng/tag';
 import {selectSelectedClass} from 'src/app/core/store/schoolar/selectors/classes.selectors';
 import {Lesson} from "../../../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../../../core/enums/lesson-status";
+import {LESSONS} from "../../../../../../../../shared/constants/lessons";
 
 @Component({
     selector: 'app-general',
@@ -30,7 +31,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
         this.store.select(selectSelectedClass)
             .pipe(takeUntil(this.destroy$))
             .subscribe(classItem => {
-                this.lessonItem = classItem!;
+                this.lessonItem = LESSONS[0];
             });
     }
 

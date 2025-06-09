@@ -1,23 +1,23 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
 import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { Student } from 'src/app/core/models/academic/student';
-import { TableService } from 'src/app/shared/services/table.service';
-import { Store } from '@ngrx/store';
+import {Student} from 'src/app/core/models/academic/student';
+import {TableService} from 'src/app/shared/services/table.service';
+import {Store} from '@ngrx/store';
 import {
     studentsActions,
     selectAllStudents,
     selectExamLoading
 } from 'src/app/core/store/schoolar';
-import { Observable, Subject, takeUntil, map } from 'rxjs';
-import { ChartModule } from 'primeng/chart';
-import { ButtonModule } from 'primeng/button';
-
-type studentKeys = keyof Student;
+import {Observable, Subject, takeUntil, map} from 'rxjs';
+import {ChartModule} from 'primeng/chart';
+import {ButtonModule} from 'primeng/button';
+import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
+import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 
 @Component({
     selector: 'app-list',
@@ -33,9 +33,10 @@ type studentKeys = keyof Student;
 export class ListComponent implements OnInit, OnDestroy {
     students$: Observable<Student[]>;
     loading$: Observable<boolean>;
+    columns: TableColumn[] = COLUMNS;
+    globalFilterFields: string[] = GLOBAL_FILTERS;
 
-    columns: TableColumn[] = [];
-    globalFilterFields: string[] = ['id', 'name', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'unitProgress'];
+    headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
     // Chart data
     centerChartData: any;
@@ -50,7 +51,8 @@ export class ListComponent implements OnInit, OnDestroy {
 
     constructor(
         private tableService: TableService<Student>,
-        private store: Store
+        private store: Store,
+        private router: Router
     ) {
         // Use the entity selectors
         this.students$ = this.store.select(selectAllStudents);
@@ -77,85 +79,23 @@ export class ListComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // Dispatch action to load students
         this.store.dispatch(studentsActions.loadStudents());
-
-        // Define custom column templates for different filter types
-        this.columns = [
+        this.headerActions.push(
             {
-                field: 'id',
-                header: 'Nº',
-                filterType: 'text',
+                label: "Adicionar ao Centro",
+                icon: "pi pi-plus",
+                command: () => this.router.navigate(['/schoolar/students/add-to-center']),
             },
             {
-                field: 'name',
-                header: 'Nome',
-                filterType: 'text',
+                label: 'Adicionar à turma',
+                icon: 'pi pi-plus',
+                command: () => this.router.navigate(['/schoolar/students/add-to-class']).then(r => null)
             },
             {
-                field: 'email',
-                header: 'Email',
-                filterType: 'text',
+                label: "Criar contracto",
+                icon: "pi pi-file",
+                command: () => this.router.navigate(['/schoolar/students/create-contract']),
             },
-            {
-                field: 'center',
-                header: 'Centro',
-                filterType: 'text',
-            },
-            {
-                field: 'course',
-                header: 'Curso',
-                filterType: 'text',
-            },
-            {
-                field: 'level',
-                header: 'Nível',
-                filterType: 'text',
-            },
-            {
-                field: 'unit',
-                header: 'Unidade',
-                filterType: 'text',
-            },
-            {
-                field: 'classEntity',
-                header: 'Turma',
-                filterType: 'text',
-            },
-            {
-                field: 'status',
-                header: 'Status',
-                filterType: 'text',
-                // Mock data for status since it's not in the Student model
-                filterOptions: [
-                    { label: 'Active', value: 'Active' },
-                    { label: 'Inactive', value: 'Inactive' },
-                    { label: 'Graduated', value: 'Graduated' },
-                    { label: 'On Leave', value: 'On Leave' }
-                ]
-            },
-            {
-                field: 'unitProgress',
-                header: 'Progresso',
-                filterType: 'text',
-                // Mock data for unitProgress since it's not in the Student model
-                filterOptions: [
-                    { label: 'Not Started', value: 'Not Started' },
-                    { label: '0-25%', value: '0-25%' },
-                    { label: '26-50%', value: '26-50%' },
-                    { label: '51-75%', value: '51-75%' },
-                    { label: '76-100%', value: '76-100%' }
-                ]
-            },
-            {
-                field: 'phone',
-                header: 'Telefone',
-                filterType: 'text',
-            },
-            {
-                field: 'birthdate',
-                header: 'Data de Nascimento',
-                filterType: 'date',
-            },
-        ];
+        )
     }
 
     /**
@@ -305,7 +245,6 @@ export class ListComponent implements OnInit, OnDestroy {
                 counts[value] = (counts[value] || 0) + 1;
             }
         });
-
         return counts;
     }
 

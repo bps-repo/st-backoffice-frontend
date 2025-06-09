@@ -1,138 +1,50 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
-import { FormsModule } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {ChartModule} from 'primeng/chart';
+import {FormsModule} from '@angular/forms';
+import {CalendarModule} from 'primeng/calendar';
+import {GeneralDashboardComponent} from "../general-dashboard/general-dashboard.component";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {StudentsDashboardComponent} from "../students-dashboard/student-dashboard.component";
+import {MaterialsDashboardComponent} from "../../../materials/pages/materials-dashboard/materials-dashboard.component";
+import {LessonsDashboardComponent} from "../lessons-dashboard/lessons-dashboard.component";
+import {ClassesDashboardComponent} from "../classes-dashboard/classes-dashboard.component";
+import {AssessmentsDashboardComponent} from "../assessments-dashboard/assessment-dashboard.component";
 
-interface Alert {
-    label: string;
-    description: string;
-}
+type ViewOption = { label: string; value: { key: string; component: any } };
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule],
+    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SelectButtonModule],
     templateUrl: './dashboard.component.html',
 })
-export class DashboardComponent implements OnInit {
+export class Dashboard implements OnInit {
 
-    pieDataLevels: any;
-    pieLevelOptions: any;
-    barChartData: any;
-    barChartOptions: any;
-    dateRange: Date[] | undefined;
-
-    alerts: Alert[] = [
-        { label: 'Inscrição', description: 'Username foi inscrito no curso de Beginning' },
-        { label: 'Agendamento de aulas', description: 'Usernamer8374 acabou de agendar uma aula para as 12h' },
-        { label: 'Matrícula', description: '15 novos estudantes matriculados pela user2' },
+    viewOptions: ViewOption[] = [
+        {label: 'Geral', value: {key: 'general', component: GeneralDashboardComponent}},
+        {label: 'Alunos', value: {key: 'students', component: StudentsDashboardComponent}},
+        {label: 'Aulas', value: {key: 'lessons', component: LessonsDashboardComponent}},
+        {label: 'Turmas', value: {key: 'classes', component: ClassesDashboardComponent}},
+        {label: 'Materiais', value: {key: 'materials', component: MaterialsDashboardComponent}},
+        {
+            label: 'Avaliações',
+            value: {key: 'assessments', component: AssessmentsDashboardComponent}
+        }
     ];
 
-    kpis = [
-        { label: 'Inscrições (mês)', current: 250, diff: 12 },
-        { label: 'Aulas marcadas', current: 360, diff: 4 },
-        { label: 'Desistências', current: 45, diff: -5 },
-        { label: 'Novos professores', current: 6, diff: 20 },
-    ];
+    selectedView!: ViewOption;
 
-    constructor() {}
-
-    ngOnInit(): void {
-        this.initCharts();
-        this.initBarChart();
+    ngOnInit() {
+        const savedViewKey = localStorage.getItem('selectedViewKey');
+        this.selectedView = this.viewOptions.find(view => view.value.key === savedViewKey) || this.viewOptions[0];
     }
 
-    initCharts() {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
-
-        this.pieDataLevels = {
-            labels: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
-            datasets: [
-                {
-                    data: [400, 100, 150, 100],
-                    backgroundColor: [
-                        documentStyle.getPropertyValue('--primary-800'),
-                        documentStyle.getPropertyValue('--primary-600'),
-                        documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-100'),
-                    ],
-                    hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--primary-600'),
-                        documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-200'),
-                    ],
-                },
-            ],
-        };
-
-        this.pieLevelOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor,
-                        usePointStyle: true,
-                        font: { weight: 700 },
-                        padding: 28,
-                    },
-                    position: 'bottom',
-                },
-            },
-        };
+    changeView() {
+        localStorage.setItem('selectedViewKey', this.selectedView.value.key);
     }
 
-    initBarChart() {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
-
-        this.barChartData = {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-            datasets: [
-                {
-                    label: 'Inscrições',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-800'),
-                    data: [150, 200, 180, 220, 240, 250],
-                },
-                {
-                    label: 'Aulas Marcadas',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-400'),
-                    data: [300, 320, 310, 330, 350, 360],
-                },
-                {
-                    label: 'Desistências',
-                    backgroundColor: documentStyle.getPropertyValue('--red-400'),
-                    data: [50, 12, 20, 10, 40, 13],
-                },
-            ],
-        };
-
-        this.barChartOptions = {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor,
-                    },
-                },
-            },
-            scales: {
-                x: {
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') },
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') },
-                },
-            },
-        };
-    }
-
-    filtrarDados() {
-        // Simule ou faça uma chamada para API aqui com base na data
-        console.log('Filtrar por:', this.dateRange);
+    get getSelectedComponent() {
+        return this.selectedView.value.component;
     }
 }

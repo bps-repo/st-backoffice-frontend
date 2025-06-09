@@ -1,0 +1,157 @@
+<div class="p-4">
+  <h1 class="text-3xl font-bold mb-4">Payments Dashboard</h1>
+
+  <!-- Payment Statistics -->
+  <div class="grid mt-4">
+    <div class="col-12 md:col-4">
+      <div class="p-card shadow-2 bg-green-500 text-white mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-body p-3">
+          <h5 class="text-xl font-medium mb-2">Total Paid</h5>
+          <h2 class="text-4xl font-bold">${{ paymentStats.totalPaid.toFixed(2) }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-4">
+      <div class="p-card shadow-2 bg-yellow-500 text-white mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-body p-3">
+          <h5 class="text-xl font-medium mb-2">Pending Amount</h5>
+          <h2 class="text-4xl font-bold">${{ paymentStats.pendingAmount.toFixed(2) }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-4">
+      <div class="p-card shadow-2 bg-red-500 text-white mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-body p-3">
+          <h5 class="text-xl font-medium mb-2">Overdue Amount</h5>
+          <h2 class="text-4xl font-bold">${{ paymentStats.overdueAmount.toFixed(2) }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid mt-4">
+    <div class="col-12 md:col-6">
+      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-body">
+          <p-chart type="doughnut" [data]="paymentDistributionData" [options]="paymentDistributionOptions" height="300px"></p-chart>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-6">
+      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-body">
+          <p-chart type="bar" [data]="paymentTrendsData" [options]="paymentTrendsOptions" height="300px"></p-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Payments -->
+  <div class="grid mt-4">
+    <div class="col-12 md:col-6">
+      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-header bg-gray-100 p-3">
+          <h5 class="text-xl font-medium m-0">Recent Payments</h5>
+        </div>
+        <div class="p-card-body">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-300">
+                  <th class="text-left p-2 font-semibold">Invoice #</th>
+                  <th class="text-left p-2 font-semibold">Amount</th>
+                  <th class="text-left p-2 font-semibold">Date</th>
+                  <th class="text-left p-2 font-semibold">Method</th>
+                  <th class="text-left p-2 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let payment of recentPayments" class="border-b border-gray-200 hover:bg-gray-50">
+                  <td class="p-2">{{ payment.invoice_id }}</td>
+                  <td class="p-2">${{ payment.amount.toFixed(2) }}</td>
+                  <td class="p-2">{{ payment.payment_date | date:'shortDate' }}</td>
+                  <td class="p-2">{{ payment.payment_method }}</td>
+                  <td class="p-2">
+                    <span class="text-xs py-1 px-2 rounded-full text-white"
+                      [ngClass]="{
+                        'bg-green-500': payment.status === 'completed',
+                        'bg-yellow-500': payment.status === 'pending',
+                        'bg-red-500': payment.status === 'failed'
+                      }">
+                      {{ payment.status | titlecase }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3">
+            <a routerLink="/payments/installments" class="p-button p-button-primary text-center">View All Payments</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Installments -->
+    <div class="col-12 md:col-6">
+      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-header bg-gray-100 p-3">
+          <h5 class="text-xl font-medium m-0">Upcoming Installments</h5>
+        </div>
+        <div class="p-card-body">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-300">
+                  <th class="text-left p-2 font-semibold">Amount</th>
+                  <th class="text-left p-2 font-semibold">Due Date</th>
+                  <th class="text-left p-2 font-semibold">Installment</th>
+                  <th class="text-left p-2 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let installment of upcomingInstallments" class="border-b border-gray-200 hover:bg-gray-50">
+                  <td class="p-2">${{ installment.amount.toFixed(2) }}</td>
+                  <td class="p-2">{{ installment.due_date | date:'shortDate' }}</td>
+                  <td class="p-2">{{ installment.number }}/{{ installment.total_installments }}</td>
+                  <td class="p-2">
+                    <span class="text-xs py-1 px-2 rounded-full text-white"
+                      [ngClass]="{
+                        'bg-yellow-500': installment.status === 'pending',
+                        'bg-green-500': installment.status === 'paid',
+                        'bg-red-500': installment.status === 'overdue'
+                      }">
+                      {{ installment.status | titlecase }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3">
+            <a routerLink="/payments/installments" class="p-button p-button-primary text-center">Manage Installments</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="grid mt-4">
+    <div class="col-12">
+      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
+        <div class="p-card-header bg-gray-100 p-3">
+          <h5 class="text-xl font-medium m-0">Quick Actions</h5>
+        </div>
+        <div class="p-card-body">
+          <div class="flex justify-content-around flex-wrap">
+            <a routerLink="/payments/reports" class="p-button p-button-info m-2">Generate Reports</a>
+            <a routerLink="/payments/settings" class="p-button p-button-secondary m-2">Payment Settings</a>
+            <a routerLink="/invoices/form-invoices/create" class="p-button p-button-success m-2">Create New Invoice</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

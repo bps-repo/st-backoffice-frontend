@@ -38,7 +38,7 @@ export const LESSONS_TABS: Observable<Tab[]> = of([
         header: 'Materiais',
         icon: 'pi pi-book',
         title: 'Lesson Materials',
-        description: 'Manage materials for this lesson',
+        description: 'Manage materials-dashboard for this lesson',
         template: MaterialsComponent,
     }
 ]);
