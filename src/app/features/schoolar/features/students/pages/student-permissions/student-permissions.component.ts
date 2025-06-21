@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import { Student } from 'src/app/core/models/academic/student';
 import { Permission } from 'src/app/core/models/auth/permission';
-import { StudentsService } from 'src/app/core/services/students.service';
+import { StudentService } from 'src/app/core/services/student.service';
 import { PermissionService } from 'src/app/core/services/permission.service';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {NgForOf, NgIf} from "@angular/common";
@@ -27,7 +27,7 @@ export class StudentPermissionsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private studentsService: StudentsService,
+    private studentsService: StudentService,
     private permissionService: PermissionService
   ) { }
 

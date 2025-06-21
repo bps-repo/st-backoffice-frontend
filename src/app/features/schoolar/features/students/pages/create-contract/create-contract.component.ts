@@ -14,7 +14,7 @@ import { MessageService } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import { Student } from 'src/app/core/models/academic/student';
 import { Contract } from 'src/app/core/models/corporate/contract';
-import { StudentsService } from 'src/app/core/services/students.service';
+import { StudentService } from 'src/app/core/services/student.service';
 import { selectAllStudents } from 'src/app/core/store/schoolar/reducers/students.reducers';
 import { studentsActions } from 'src/app/core/store/schoolar/actions/students.actions';
 
@@ -68,7 +68,7 @@ export class CreateContractComponent implements OnInit {
   constructor(
     private store: Store,
     private fb: FormBuilder,
-    private studentsService: StudentsService,
+    private studentsService: StudentService,
     private messageService: MessageService
   ) {
     this.contractForm = this.fb.group({
