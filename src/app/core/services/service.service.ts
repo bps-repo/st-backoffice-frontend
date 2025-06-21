@@ -35,5 +35,4 @@ export class ServiceService {
     deleteService(id: string): Observable<ApiResponse<null>> {
         return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/${id}`);
       }
-
 }

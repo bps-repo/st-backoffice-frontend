@@ -1,18 +1,13 @@
 <div class="grid">
     <!-- Student Table -->
-    <div class="col-12">
-        <div class="card">
-            <h2>Alunos</h2>
-            <app-global-table
-                tableLabel="Alunos"
-                [headerActions]="headerActions"
-                [data]="(students$ | async)!"
-                [entity]="'students'"
-                [columns]="columns"
-                [globalFilterFields]="globalFilterFields"
-                [loading]="loading$ | async"
-                class="w-full"
-            ></app-global-table>
-        </div>
-    </div>
+    <app-global-table
+        tableLabel="Alunos"
+        [headerActions]="headerActions"
+        [data]="(students$ | async)!"
+        [entity]="'students'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        [loading]="loading$ | async"
+        class="w-full"
+    ></app-global-table>
 </div>

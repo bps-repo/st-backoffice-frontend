@@ -14,7 +14,7 @@ import {Student} from 'src/app/core/models/academic/student';
 import {Center} from 'src/app/core/models/corporate/center';
 import {Class} from 'src/app/core/models/academic/class';
 import {CenterService} from 'src/app/core/services/center.service';
-import {StudentsService} from 'src/app/core/services/students.service';
+import {StudentService} from 'src/app/core/services/student.service';
 import {selectAllStudents} from 'src/app/core/store/schoolar/reducers/students.reducers';
 import {studentsActions} from 'src/app/core/store/schoolar/actions/students.actions';
 
@@ -55,7 +55,7 @@ export class BulkActionsComponent implements OnInit {
         private store: Store,
         private fb: FormBuilder,
         private centerService: CenterService,
-        private studentsService: StudentsService,
+        private studentsService: StudentService,
         private messageService: MessageService
     ) {
         this.form = this.fb.group({

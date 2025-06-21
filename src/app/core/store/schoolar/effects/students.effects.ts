@@ -2,13 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, exhaustMap, map } from 'rxjs/operators';
-import { StudentsService } from '../../../services/students.service';
+import { StudentService } from '../../../services/student.service';
 import { studentsActions } from '../actions/students.actions';
 
 @Injectable()
 export class StudentsEffects {
   private actions$ = inject(Actions);
-  private studentsService = inject(StudentsService);
+  private studentsService = inject(StudentService);
 
   loadStudents$ = createEffect(() =>
     this.actions$.pipe(

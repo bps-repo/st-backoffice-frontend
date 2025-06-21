@@ -13,7 +13,7 @@ export interface Student {
     birthdate: string;
     unit?: Unit,
     classEntity?: Class
-    permissions?: Permission[]; // Student-specific permissions
+    permissions?: Permission[];
     createdAt?: string;
     updatedAt?: string;
 }

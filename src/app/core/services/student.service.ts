@@ -8,7 +8,7 @@ import { Permission } from '../models/auth/permission';
 @Injectable({
   providedIn: 'root',
 })
-export class StudentsService {
+export class StudentService {
   private apiUrl = `${environment.apiUrl}/students`;
 
   constructor(private http: HttpClient) {}
