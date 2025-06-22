@@ -8,6 +8,25 @@
         [columns]="columns"
         [globalFilterFields]="globalFilterFields"
         [loading]="loading$ | async"
+        [columnTemplates]="customTemplates"
         class="w-full"
     ></app-global-table>
 </div>
+
+<!-- Name template field -->
+<ng-template #nameTemplate let-rowData>
+    <span>{{ rowData.user.firstname + " " + rowData.user.lastname }}   </span>
+</ng-template>
+
+<ng-template #phoneTemplate let-rowData>
+    <span>922775959</span>
+</ng-template>
+
+<ng-template #emailTemplate let-rowData>
+    <span>{{ rowData.user.email }}</span>
+</ng-template>
+
+
+<ng-template #dateOfBirthTemplate let-rowData>
+    <span>{{ rowData.user.dateOfBirth }}</span>
+</ng-template>

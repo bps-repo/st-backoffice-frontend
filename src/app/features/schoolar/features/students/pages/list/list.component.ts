@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, TemplateRef, ContentChild, ViewChild, AfterViewInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -30,11 +30,31 @@ import {StudentsActions} from "../../../../../../core/store/schoolar/students/st
     ],
     templateUrl: './list.component.html'
 })
-export class ListComponent implements OnInit, OnDestroy {
+export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
+
+    // Custom Templates for the table
+    @ViewChild('nameTemplate', {static: true})
+    nameTemplate!: TemplateRef<any>;
+
+    @ViewChild('dateOfBirthTemplate', {static: true})
+    dateOfBirthTemplate!: TemplateRef<any>;
+
+    @ViewChild('emailTemplate', {static: true})
+    emailTemplate!: TemplateRef<any>;
+
+    @ViewChild('phoneTemplate', {static: true})
+    phoneTemplate!: TemplateRef<any>;
+
+
     students$: Observable<Student[]>;
+
     loading$: Observable<boolean>;
+
     columns: TableColumn[] = COLUMNS;
+
     globalFilterFields: string[] = GLOBAL_FILTERS;
+
+    customTemplates: Record<string, TemplateRef<any>> = {};
 
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
@@ -87,8 +107,17 @@ export class ListComponent implements OnInit, OnDestroy {
         )
     }
 
+    ngAfterViewInit() {
+        this.customTemplates = {
+            name: this.nameTemplate,
+            dateOfBirth: this.dateOfBirthTemplate,
+            email: this.emailTemplate
+        };
+    }
+
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
+
 }
