@@ -50,7 +50,7 @@ const routes: Routes = [
             {
                 path: 'courses',
                 loadComponent: () =>
-                    import('./pages/detail/tabs/courses/courses.component').then(c => c.CoursesComponent)
+                    import('./pages/detail/tabs/levels/levels.component').then(c => c.LevelsComponent)
             },
             {
                 path: 'invoices',

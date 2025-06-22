@@ -10,8 +10,8 @@ import {
     InvoicesComponent
 } from 'src/app/features/schoolar/features/students/pages/detail/tabs/invoices/invoices.component';
 import {
-    CoursesComponent
-} from 'src/app/features/schoolar/features/students/pages/detail/tabs/courses/courses.component';
+    LevelsComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/levels/levels.component';
 import {TurmasComponent} from 'src/app/features/schoolar/features/students/pages/detail/tabs/turmas/turmas.component';
 import {
     AvaliacoesComponent
@@ -54,7 +54,7 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         icon: 'pi pi-book',
         title: 'Seus Cursos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: CoursesComponent,
+        template: LevelsComponent,
     },
     {
         header: 'Avaliações',
