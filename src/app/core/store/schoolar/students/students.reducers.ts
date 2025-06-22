@@ -1,12 +1,12 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
-import {STUDENT_FEATURE_KEY, StudentsActions} from "./studentsActions";
-import {initialState, studentsAdapter} from "./students.state";
+import {STUDENT_FEATURE_KEY, StudentsActions} from "./students.actions";
+import {initialStudentsState, studentsAdapter} from "./students.state";
 
 // Create feature
 export const studentsFeature = createFeature({
     name: STUDENT_FEATURE_KEY,
     reducer: createReducer(
-        initialState,
+        initialStudentsState,
         // Load students
         on(StudentsActions.loadStudents, (state) => ({
             ...state,
@@ -14,18 +14,17 @@ export const studentsFeature = createFeature({
             error: null,
         })),
 
-        on(StudentsActions.loadStudentsSuccess, (state, {students}) => ({
+        on(StudentsActions.loadStudentsSuccess, (state, {students}) => studentsAdapter.setAll(students, {
             ...state,
-            students,
             loading: false,
             error: null,
+            lastFetch: Date.now(),
         })),
         on(StudentsActions.loadStudentsFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error,
         })),
-
         // Load student
         on(StudentsActions.loadStudent, (state) => ({
             ...state,

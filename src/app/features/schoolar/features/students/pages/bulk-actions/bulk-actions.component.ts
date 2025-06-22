@@ -15,8 +15,9 @@ import {Center} from 'src/app/core/models/corporate/center';
 import {Class} from 'src/app/core/models/academic/class';
 import {CenterService} from 'src/app/core/services/center.service';
 import {StudentService} from 'src/app/core/services/student.service';
-import {StudentsActions} from "../../../../../../core/store/schoolar/students/studentsActions";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
+import {StudentsState} from "../../../../../../core/store/schoolar/students/students.state";
 
 @Component({
     selector: 'app-bulk-actions',
@@ -52,7 +53,7 @@ export class BulkActionsComponent implements OnInit {
     selectedActionType: string = 'ADD_TO_CENTER';
 
     constructor(
-        private store: Store,
+        private store: Store<StudentsState>,
         private fb: FormBuilder,
         private centerService: CenterService,
         private studentsService: StudentService,

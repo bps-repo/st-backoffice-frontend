@@ -3,7 +3,7 @@ import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
 import {StudentService} from '../../../services/student.service';
-import {StudentsActions} from "./studentsActions";
+import {StudentsActions} from "./students.actions";
 
 @Injectable()
 export class StudentsEffects {

@@ -15,7 +15,7 @@ import {Store} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {Contract} from 'src/app/core/models/corporate/contract';
 import {StudentService} from 'src/app/core/services/student.service';
-import {StudentsActions} from "../../../../../../core/store/schoolar/students/studentsActions";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
 
 @Component({
@@ -89,9 +89,6 @@ export class CreateContractComponent implements OnInit {
 
     loadStudents(): void {
         this.store.dispatch(StudentsActions.loadStudents());
-        this.store.select(selectAllStudents).subscribe(students => {
-            this.students = students;
-        });
     }
 
     onSubmit(): void {

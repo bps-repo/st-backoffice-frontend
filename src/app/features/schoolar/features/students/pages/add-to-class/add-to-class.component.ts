@@ -10,8 +10,9 @@ import {MessageService} from 'primeng/api';
 import {Store} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {Class} from 'src/app/core/models/academic/class';
-import {StudentsActions} from "../../../../../../core/store/schoolar/students/studentsActions";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
+import {StudentsState} from "../../../../../../core/store/schoolar/students/students.state";
 
 @Component({
     selector: 'app-add-to-class',
@@ -38,7 +39,7 @@ export class AddToClassComponent implements OnInit {
     loading = false;
 
     constructor(
-        private store: Store,
+        private store: Store<StudentsState>,
         private fb: FormBuilder,
         private messageService: MessageService
     ) {

@@ -17,7 +17,8 @@ import {
     selectAllStudents,
     selectStudentsLoading
 } from "../../../../../../core/store/schoolar/students/students.selectors";
-import {StudentsActions} from "../../../../../../core/store/schoolar/students/studentsActions";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
+import {StudentsState} from "../../../../../../core/store/schoolar/students/students.state";
 
 @Component({
     selector: 'app-list',
@@ -63,7 +64,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private destroy$ = new Subject<void>();
 
     constructor(
-        private store: Store,
+        private store: Store<StudentsState>,
         private router: Router
     ) {
         // Use the entity selectors

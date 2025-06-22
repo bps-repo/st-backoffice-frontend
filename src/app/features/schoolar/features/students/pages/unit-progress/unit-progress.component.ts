@@ -13,7 +13,7 @@ import {Student} from 'src/app/core/models/academic/student';
 import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
 import {Unit} from 'src/app/core/models/course/unit';
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
-import {StudentsActions} from "../../../../../../core/store/schoolar/students/studentsActions";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 
 @Component({
     selector: 'app-unit-progress',
@@ -49,9 +49,6 @@ export class UnitProgressComponent implements OnInit {
 
     loadStudents(): void {
         this.store.dispatch(StudentsActions.loadStudents());
-        this.store.select(selectAllStudents).subscribe(students => {
-            this.students = students;
-        });
     }
 
     onStudentChange(): void {
@@ -64,8 +61,6 @@ export class UnitProgressComponent implements OnInit {
     }
 
     loadUnitProgress(studentId: string): void {
-        // In a real application, this would call a service method to get the unit progress
-        // For now, we'll simulate with mock data
         setTimeout(() => {
             this.unitProgressList = this.generateMockUnitProgress(studentId);
             this.loading = false;

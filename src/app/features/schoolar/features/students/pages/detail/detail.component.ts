@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {TabMenuModule} from 'primeng/tabmenu';
 import {TabViewModule} from 'primeng/tabview';
 import {Tab} from 'src/app/shared/@types/tab';
@@ -10,8 +10,7 @@ import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from "@ngrx/store";
-import {StudentsActions} from "../../../../../../core/store/schoolar/students/studentsActions";
-import {selectSelectedStudent} from "../../../../../../core/store/schoolar/students/students.selectors";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 
 @Component({
     selector: 'app-detail',
@@ -34,11 +33,6 @@ export class DetailComponent implements OnInit {
         private route: ActivatedRoute,
         private store$: Store
     ) {
-        this.store$.select(selectSelectedStudent).subscribe(student => {
-            if (student) {
-                this.studentId = student
-            }
-        });
     }
 
     ngOnInit() {
