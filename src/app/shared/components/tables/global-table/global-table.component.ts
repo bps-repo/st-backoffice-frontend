@@ -12,7 +12,7 @@ import {
     ViewChild
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
+import {RouterModule} from '@angular/router';
 import {TableModule, Table} from 'primeng/table';
 import {DropdownModule} from 'primeng/dropdown';
 import {MultiSelectModule} from 'primeng/multiselect';
@@ -20,7 +20,6 @@ import {SliderModule} from 'primeng/slider';
 import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
 import {TableHeaderAction, TableHeaderComponent} from './table-header.component';
-import {ClassesService} from 'src/app/core/services/classes.service';
 
 export interface TableColumn {
     field: string;
@@ -78,6 +77,10 @@ export class GlobalTable<T> implements OnInit {
     @Output()
     createEntity = new EventEmitter<void>();
 
+
+    @Output()
+    rowSelect = new EventEmitter<T>();
+
     @ViewChild('filter')
     filter!: ElementRef;
 
@@ -100,5 +103,9 @@ export class GlobalTable<T> implements OnInit {
     clear(table: Table) {
         table.clear();
         this.filter.nativeElement.value = '';
+    }
+
+    selectRow(rowData: any) {
+        this.rowSelect.emit(rowData);
     }
 }

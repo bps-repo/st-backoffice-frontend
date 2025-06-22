@@ -9,6 +9,7 @@
         [globalFilterFields]="globalFilterFields"
         [loading]="loading$ | async"
         [columnTemplates]="customTemplates"
+        (rowSelect)="onRowSelect($event)"
         class="w-full"
     ></app-global-table>
 </div>

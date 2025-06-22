@@ -120,4 +120,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.destroy$.complete();
     }
 
+    onRowSelect($event: Student) {
+        this.router.navigate(['/schoolar/students', $event.id]);
+    }
 }
