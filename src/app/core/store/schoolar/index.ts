@@ -1,59 +1,32 @@
-import { StudentsEffects } from './effects/students.effects';
-import { LessonsEffects } from './effects/lessons.effects';
-import { CertificatesEffects } from './effects/certificates.effects';
-import {
-  studentsFeature,
-  selectAllStudents,
-  selectStudentEntities,
-  selectSelectedStudent
-} from './reducers/students.reducers';
-import {
-  classesFeature,
-} from './reducers/classes.reducers';
-import {
-  examsFeature,
-  selectSelectedExam as selectExam
-} from './reducers/exams.feature';
-import {
-  certificatesFeature,
-  selectSelectedCertificate
-} from './reducers/certificates.feature';
+import {AuthEffects} from "../auth/effects/auth.effects";
+import {CenterEffects} from "../corporate/effects/center.effects";
+import {ServiceEffects} from "../course/effects/service.effects";
+import {StudentsEffects} from "./students/students.effects";
+import {UnitEffects} from "../course/effects/unit.effects";
+import {LevelEffects} from "../course/effects/level.effects";
+import {studentsFeature} from "./students/students.reducers";
+import {levelFeature} from "../course/reducers/level.reducer";
+import {unitFeature} from "../course/reducers/unit.reducer";
+import {centerFeature} from "../corporate/reducers/center.reducer";
+import {serviceFeature} from "../course/reducers/service.reducer";
+import {authFeature} from "../auth/reducers/auth.reducers";
 
-/**
- * All effects for the schoolar feature
- */
-export const scholarEffects = [
-  StudentsEffects,
-  LessonsEffects,
-  CertificatesEffects,
-];
-
-/**
- * @deprecated Use provideState() with feature objects instead
- */
-export const scholarReducers = {
-  [studentsFeature.name]: studentsFeature.reducer,
-  [classesFeature.name]: classesFeature.reducer,
-  [examsFeature.name]: examsFeature.reducer,
-  [certificatesFeature.name]: certificatesFeature.reducer,
-};
-
-// Re-export all the actions, reducers, and state
-export * from './actions/students.actions';
-export * from './actions/lessons.actions';
-export * from './actions/exams.actions';
-export * from './actions/certificates.actions';
-export * from './reducers/students.reducers';
-export * from './reducers/classes.reducers';
-export * from './reducers/exams.feature';
-export * from './reducers/certificates.feature';
-export * from './schoolar.state';
+export const AppEffects = [
+    AuthEffects,
+    CenterEffects,
+    ServiceEffects,
+    StudentsEffects,
+    UnitEffects,
+    ServiceEffects,
+    LevelEffects
+]
 
 
-// Export entity selectors
-export {
-  selectAllStudents,
-  selectStudentEntities,
-  selectSelectedStudent,
-  selectSelectedCertificate,
-};
+export const AppFeatures = [
+    studentsFeature,
+    levelFeature,
+    unitFeature,
+    centerFeature,
+    serviceFeature,
+    authFeature,
+]

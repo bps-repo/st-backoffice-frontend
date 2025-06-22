@@ -23,18 +23,8 @@ export const COLUMNS: TableColumn[] = [
         filterType: 'text',
     },
     {
-        field: 'course',
-        header: 'Curso',
-        filterType: 'text',
-    },
-    {
         field: 'level',
         header: 'Nível',
-        filterType: 'text',
-    },
-    {
-        field: 'unit',
-        header: 'Unidade',
         filterType: 'text',
     },
     {
@@ -52,19 +42,6 @@ export const COLUMNS: TableColumn[] = [
             {label: 'Inactive', value: 'Inactive'},
             {label: 'Graduated', value: 'Graduated'},
             {label: 'On Leave', value: 'On Leave'}
-        ]
-    },
-    {
-        field: 'unitProgress',
-        header: 'Progresso',
-        filterType: 'text',
-        // Mock data for unitProgress since it's not in the Student model
-        filterOptions: [
-            {label: 'Not Started', value: 'Not Started'},
-            {label: '0-25%', value: '0-25%'},
-            {label: '26-50%', value: '26-50%'},
-            {label: '51-75%', value: '51-75%'},
-            {label: '76-100%', value: '76-100%'}
         ]
     },
     {

@@ -1,5 +1,5 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
-import {ClassesState} from '../schoolar.state';
+import {ClassesState} from '../app.state';
 import {lessonsActions} from '../actions/lessons.actions';
 import {createEntityAdapter, EntityAdapter} from '@ngrx/entity';
 import {Class} from 'src/app/core/models/academic/class';

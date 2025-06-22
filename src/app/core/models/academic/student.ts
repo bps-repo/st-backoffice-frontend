@@ -3,7 +3,7 @@ import {Class} from "./class";
 import {Permission} from "../auth/permission";
 
 export interface Student {
-    id?: number;
+    id?: string;
     name: string;
     center: string;
     course: string;

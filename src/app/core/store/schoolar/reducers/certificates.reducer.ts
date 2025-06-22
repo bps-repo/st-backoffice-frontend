@@ -1,7 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import { EntityAdapter, EntityState, createEntityAdapter } from '@ngrx/entity';
 import * as CertificatesActions from '../actions/certificates.actions';
-import { CertificatesState } from '../schoolar.state';
+import { CertificatesState } from '../app.state';
 
 export const certificatesAdapter: EntityAdapter<any> = createEntityAdapter<any>({
   selectId: (certificate: any) => certificate.id,

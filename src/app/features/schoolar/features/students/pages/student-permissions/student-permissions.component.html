@@ -1,91 +1,88 @@
 <div class="container" *ngIf="student">
-  <div class="row">
-    <div class="col-12">
-      <h1>Permissions for {{ student.name }}</h1>
-      <p>Manage additional permissions for this student.</p>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h3>Current Permissions</h3>
+    <div class="row">
+        <div class="col-12">
+            <h1>Permissions for {{ student.name }}</h1>
+            <p>Manage additional permissions for this student.</p>
         </div>
-        <div class="card-body">
-          <ul class="list-group">
-            <li *ngFor="let permission of studentPermissions" class="list-group-item d-flex justify-content-between align-items-center">
-              {{ permission.name }}
-              <div>
-                <span class="badge bg-info me-2">{{ permission.description }}</span>
-                <button class="btn btn-sm btn-danger" (click)="removePermissionFromStudent(permission.id)">Remove</button>
-              </div>
-            </li>
-            <li *ngIf="studentPermissions.length === 0" class="list-group-item text-muted">
-              No additional permissions assigned to this student.
-            </li>
-          </ul>
-        </div>
-      </div>
     </div>
 
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h3>Add Permission</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Current Permissions</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li *ngFor="let permission of studentPermissions"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ permission.name }}
+                            <div>
+                                <span class="badge bg-info me-2">{{ permission.description }}</span>
+                            </div>
+                        </li>
+                        <li *ngIf="studentPermissions.length === 0" class="list-group-item text-muted">
+                            No additional permissions assigned to this student.
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label for="permissionSelect" class="form-label">Select Permission</label>
-            <select id="permissionSelect" class="form-select" [(ngModel)]="selectedPermission">
-              <option [ngValue]="null">-- Select a permission --</option>
-              <option *ngFor="let permission of permissions" [ngValue]="permission">
-                {{ permission.name }} - {{ permission.description }}
-              </option>
-            </select>
-          </div>
-          <button class="btn btn-primary" [disabled]="!selectedPermission" (click)="addPermissionToStudent()">
-            Add Permission
-          </button>
-        </div>
-      </div>
 
-      <div class="card mt-3">
-        <div class="card-header">
-          <h3>Available Permissions</h3>
-        </div>
-        <div class="card-body">
-          <ul class="list-group">
-            <li *ngFor="let permission of permissions"
-                class="list-group-item"
-                [class.active]="selectedPermission && selectedPermission.id === permission.id"
-                (click)="selectPermission(permission)">
-              {{ permission.name }}
-              <p class="text-muted mb-0">{{ permission.description }}</p>
-            </li>
-            <li *ngIf="permissions.length === 0" class="list-group-item text-muted">
-              No permissions available.
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Add Permission</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="permissionSelect" class="form-label">Select Permission</label>
+                        <select id="permissionSelect" class="form-select" [(ngModel)]="selectedPermission">
+                            <option [ngValue]="null">-- Select a permission --</option>
+                            <option *ngFor="let permission of permissions" [ngValue]="permission">
+                                {{ permission.name }} - {{ permission.description }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-  <div class="row mt-3">
-    <div class="col-12">
-      <button class="btn btn-secondary" routerLink="/schoolar/students/{{ studentId }}">Back to Student</button>
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h3>Available Permissions</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li *ngFor="let permission of permissions"
+                            class="list-group-item"
+                            [class.active]="selectedPermission && selectedPermission.id === permission.id"
+                            (click)="selectPermission(permission)">
+                            {{ permission.name }}
+                            <p class="text-muted mb-0">{{ permission.description }}</p>
+                        </li>
+                        <li *ngIf="permissions.length === 0" class="list-group-item text-muted">
+                            No permissions available.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <button class="btn btn-secondary" routerLink="/schoolar/students/{{ studentId }}">Back to Student</button>
+        </div>
+    </div>
 </div>
 
 <div class="container" *ngIf="!student">
-  <div class="row">
-    <div class="col-12 text-center">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p>Loading student information...</p>
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Loading student information...</p>
+        </div>
     </div>
-  </div>
 </div>

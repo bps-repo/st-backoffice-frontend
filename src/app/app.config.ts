@@ -1,28 +1,15 @@
-import {ApplicationConfig, importProvidersFrom, isDevMode} from '@angular/core';
+import {ApplicationConfig, isDevMode} from '@angular/core';
 import {provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import {provideRouter, withComponentInputBinding} from '@angular/router';
 import {provideAnimations} from '@angular/platform-browser/animations';
-
 import {AppRoutes} from './app.routes';
-
-
-import {provideState, provideStore} from '@ngrx/store';
+import {FeatureSlice, provideState, provideStore} from '@ngrx/store';
 import {provideEffects} from '@ngrx/effects';
 import {provideStoreDevtools} from '@ngrx/store-devtools';
 import {provideRouterStore, routerReducer} from '@ngrx/router-store';
 import {tokenInterceptor} from './core/interceptors/token.interceptor';
-import {authFeature} from './core/store/auth/reducers/auth.reducers';
-import {AuthEffects} from './core/store/auth/effects/auth.effects';
 import {CustomSerializer} from './core/router/custom-serializer';
-import {classesFeature, scholarEffects, studentsFeature} from "./core/store/schoolar";
-import { centerFeature } from './core/store/corporate/reducers/center.reducer';
-import { CenterEffects } from './core/store/corporate/effects/center.effects';
-import { serviceFeature } from './core/store/course/reducers/service.reducer';
-import { ServiceEffects } from './core/store/course/effects/service.effects';
-import { LevelEffects } from './core/store/course/effects/level.effects';
-import { levelFeature } from './core/store/course/reducers/level.reducer';
-import { UnitEffects } from './core/store/course/effects/unit.effects';
-import { unitFeature } from './core/store/course/reducers/unit.reducer';
+import {AppEffects, AppFeatures} from "./core/store/schoolar";
 
 export const AppConfig: ApplicationConfig = {
     providers: [
@@ -37,24 +24,14 @@ export const AppConfig: ApplicationConfig = {
             AppRoutes,
             withComponentInputBinding()
         ),
-
         // NgRx Store
         provideStore({
             router: routerReducer
         }),
-        provideState(authFeature),
-        //provideState(studentsFeature),
-        provideState(classesFeature),
-        provideState(centerFeature),
-        provideState(serviceFeature),
-        provideState(levelFeature),
-        provideState(unitFeature),
-        provideEffects(scholarEffects),
-        provideEffects([AuthEffects]),
-        provideEffects([CenterEffects]),
-        provideEffects([ServiceEffects]),
-        provideEffects([LevelEffects]),
-        provideEffects([UnitEffects]),
+        ...AppFeatures.map(
+            (feature) => provideState(feature as FeatureSlice<any>)
+        ),
+        provideEffects(AppEffects),
         provideStoreDevtools({
             maxAge: 25,
             logOnly: !isDevMode(),

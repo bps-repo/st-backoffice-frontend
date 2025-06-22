@@ -1,17 +1,18 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Center } from 'src/app/core/models/corporate/center';
-import { environment } from '../../../environments/environment';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {Center} from 'src/app/core/models/corporate/center';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CenterService {
 
-     private apiUrl = `${environment.apiUrl}/centers`;
+    private apiUrl = `${environment.apiUrl}/centers`;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {
+    }
 
     createCenter(center: Partial<Center>): Observable<any> {
         return this.http.post<any>(this.apiUrl, center);
@@ -27,7 +28,7 @@ export class CenterService {
 
     getPagedCenters(size: number): Observable<any> {
         return this.http.get<any>(`${this.apiUrl}/paged`, {
-            params: { size: size.toString() } // Adiciona o parâmetro size na URL
+            params: {size: size.toString()} // Adiciona o parâmetro size na URL
         });
     }
 

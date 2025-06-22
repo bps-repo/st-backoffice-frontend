@@ -12,8 +12,8 @@ import {Store} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
 import {Unit} from 'src/app/core/models/course/unit';
-import {selectAllStudents} from 'src/app/core/store/schoolar/reducers/students.reducers';
-import {studentsActions} from 'src/app/core/store/schoolar/actions/students.actions';
+import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/studentsActions";
 
 @Component({
     selector: 'app-unit-progress',
@@ -48,7 +48,7 @@ export class UnitProgressComponent implements OnInit {
     }
 
     loadStudents(): void {
-        this.store.dispatch(studentsActions.loadStudents());
+        this.store.dispatch(StudentsActions.loadStudents());
         this.store.select(selectAllStudents).subscribe(students => {
             this.students = students;
         });
@@ -63,7 +63,7 @@ export class UnitProgressComponent implements OnInit {
         }
     }
 
-    loadUnitProgress(studentId: number): void {
+    loadUnitProgress(studentId: string): void {
         // In a real application, this would call a service method to get the unit progress
         // For now, we'll simulate with mock data
         setTimeout(() => {
@@ -72,7 +72,7 @@ export class UnitProgressComponent implements OnInit {
         }, 1000);
     }
 
-    private generateMockUnitProgress(studentId: number): UnitProgress[] {
+    private generateMockUnitProgress(studentId: string): UnitProgress[] {
         // Generate mock unit progress data
         const mockUnits: Unit[] = [];
 

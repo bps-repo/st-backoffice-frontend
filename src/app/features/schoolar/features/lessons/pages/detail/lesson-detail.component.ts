@@ -10,12 +10,10 @@ import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {lessonsActions} from 'src/app/core/store/schoolar';
 import {selectSelectedClass} from 'src/app/core/store/schoolar/selectors/classes.selectors';
-import {Class} from 'src/app/core/models/academic/class';
 import {Lesson} from "../../../../../../core/models/academic/lesson";
-import {ClassStatus} from "../../../../../../core/enums/class-status";
 import {LessonStatus} from "../../../../../../core/enums/lesson-status";
+import {lessonsActions} from "../../../../../../core/store/schoolar/actions/lessons.actions";
 
 @Component({
     selector: 'app-detail',
