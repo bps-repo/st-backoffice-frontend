@@ -3,18 +3,19 @@ import {Student} from "../../../models/academic/student";
 import {PaginationState, StudentFilters} from "./@types/students.state.interface";
 
 export interface StudentsState extends EntityState<Student> {
-
     // Loading states
     loading: boolean;
     loadingCreate: boolean;
     loadingUpdate: boolean;
     loadingDelete: boolean;
+    loadingBulk: boolean;
 
     // Error states
     error: string | null;
     createError: string | null;
     updateError: string | null;
     deleteError: string | null;
+    bulkError: string | null;
 
     // Selection state
     selectedStudentId: string | null;
@@ -25,18 +26,29 @@ export interface StudentsState extends EntityState<Student> {
 
     // Cache management
     lastFetch: number | null;
+    cacheExpired: boolean;
 
     // Bulk operations
     bulkOperationInProgress: boolean;
     selectedStudentIds: string[];
+
+    // UI state
+    searchDebounceTimer: any;
+    sortBy: string | null;
+    sortDirection: 'asc' | 'desc';
 }
 
 export const studentsAdapter: EntityAdapter<Student> = createEntityAdapter<Student>({
-    // Use non-null assertion operator carefully or provide default
-    selectId: (student: Student) => student.id!,
+    selectId: (student: Student) => student.id || '',
+    sortComparer: (a: Student, b: Student) => {
+        // Default sort by name, then by created date
+        const nameComparison = (a.name || '').localeCompare(b.name || '');
+        if (nameComparison !== 0) return nameComparison;
 
-    // Provide proper sorting for better UX
-    sortComparer: false
+        const dateA = new Date(a.createdAt || 0).getTime();
+        const dateB = new Date(b.createdAt || 0).getTime();
+        return dateB - dateA; // Most recent first
+    }
 });
 
 export const initialStudentsState: StudentsState = studentsAdapter.getInitialState({
@@ -45,12 +57,14 @@ export const initialStudentsState: StudentsState = studentsAdapter.getInitialSta
     loadingCreate: false,
     loadingUpdate: false,
     loadingDelete: false,
+    loadingBulk: false,
 
     // Error states
     error: null,
     createError: null,
     updateError: null,
     deleteError: null,
+    bulkError: null,
 
     // Selection
     selectedStudentId: null,
@@ -78,15 +92,27 @@ export const initialStudentsState: StudentsState = studentsAdapter.getInitialSta
 
     // Cache
     lastFetch: null,
+    cacheExpired: false,
 
     // Bulk operations
     bulkOperationInProgress: false,
-    selectedStudentIds: []
+    selectedStudentIds: [],
+
+    // UI state
+    searchDebounceTimer: null,
+    sortBy: null,
+    sortDirection: 'asc'
 });
 
 export const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+export const SEARCH_DEBOUNCE_TIME = 300;
+
 
 export const isCacheValid = (lastFetch: number | null): boolean => {
     if (!lastFetch) return false;
     return Date.now() - lastFetch < CACHE_DURATION;
+};
+
+export const shouldRefreshCache = (state: StudentsState): boolean => {
+    return !state.lastFetch || state.cacheExpired || !isCacheValid(state.lastFetch);
 };

@@ -13,10 +13,7 @@ import {ChartModule} from 'primeng/chart';
 import {ButtonModule} from 'primeng/button';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
-import {
-    selectAllStudents,
-    selectStudentsLoading
-} from "../../../../../../core/store/schoolar/students/students.selectors";
+import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {StudentsState} from "../../../../../../core/store/schoolar/students/students.state";
 
@@ -47,7 +44,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     phoneTemplate!: TemplateRef<any>;
 
 
-    students$: Observable<Student[]>;
+    students$?: Observable<Student[]>;
 
     loading$: Observable<boolean>;
 
@@ -68,8 +65,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         private router: Router
     ) {
         // Use the entity selectors
-        this.students$ = this.store.select(selectAllStudents);
-        this.loading$ = this.store.select(selectStudentsLoading);
+        this.students$ = this.store.select(StudentSelectors.selectAllStudents)
+
+        this.loading$ = this.store.select(StudentSelectors.selectLoading);
+
+        this.store.select(StudentSelectors.selectIds).subscribe(selectedStudentIds => {
+            console.log(selectedStudentIds)
+        })
 
         // Initialize chart options
         this.chartOptions = {

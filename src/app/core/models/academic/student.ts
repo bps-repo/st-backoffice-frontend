@@ -12,6 +12,7 @@ export interface Student {
         fullName?: string;
         photo?: string;
     },
+    status: any,
     name: string;
     center: string;
     course: string;

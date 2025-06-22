@@ -1,12 +1,13 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 import {STUDENT_FEATURE_KEY, StudentsActions} from "./students.actions";
-import {initialStudentsState, studentsAdapter} from "./students.state";
+import {initialStudentsState, studentsAdapter, StudentsState} from "./students.state";
 
 // Create feature
 export const studentsFeature = createFeature({
     name: STUDENT_FEATURE_KEY,
     reducer: createReducer(
         initialStudentsState,
+
         // Load students
         on(StudentsActions.loadStudents, (state) => ({
             ...state,
@@ -14,30 +15,39 @@ export const studentsFeature = createFeature({
             error: null,
         })),
 
-        on(StudentsActions.loadStudentsSuccess, (state, {students}) => studentsAdapter.setAll(students, {
-            ...state,
-            loading: false,
-            error: null,
-            lastFetch: Date.now(),
-        })),
+        on(StudentsActions.loadStudentsSuccess, (state, {students, pagination}) =>
+            studentsAdapter.setAll(students, {
+                ...state,
+                loading: false,
+                error: null,
+                lastFetch: Date.now(),
+                cacheExpired: false,
+                pagination: pagination || state.pagination,
+            })
+        ),
+
         on(StudentsActions.loadStudentsFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error,
         })),
-        // Load student
+
+        // Load single student
         on(StudentsActions.loadStudent, (state) => ({
             ...state,
             loading: true,
             error: null,
         })),
+
         on(StudentsActions.loadStudentSuccess, (state, {student}) =>
             studentsAdapter.upsertOne(student, {
                 ...state,
-                selectedStudentId: student.id!,
+                selectedStudentId: student.id || null,
                 loading: false,
+                error: null,
             })
         ),
+
         on(StudentsActions.loadStudentFailure, (state, {error}) => ({
             ...state,
             loading: false,
@@ -47,63 +57,200 @@ export const studentsFeature = createFeature({
         // Create student
         on(StudentsActions.createStudent, (state) => ({
             ...state,
-            loading: true,
-            error: null,
+            loadingCreate: true,
+            createError: null,
         })),
+
         on(StudentsActions.createStudentSuccess, (state, {student}) =>
             studentsAdapter.addOne(student, {
                 ...state,
-                loading: false,
+                loadingCreate: false,
+                createError: null,
+                // Update pagination totals
+                pagination: {
+                    ...state.pagination,
+                    totalItems: state.pagination.totalItems + 1,
+                    totalPages: Math.ceil((state.pagination.totalItems + 1) / state.pagination.pageSize)
+                }
             })
         ),
+
         on(StudentsActions.createStudentFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error,
+            loadingCreate: false,
+            createError: error,
         })),
 
         // Update student
         on(StudentsActions.updateStudent, (state) => ({
             ...state,
-            loading: true,
-            error: null,
+            loadingUpdate: true,
+            updateError: null,
         })),
+
         on(StudentsActions.updateStudentSuccess, (state, {student}) =>
             studentsAdapter.updateOne(
                 {id: student.id!, changes: student},
                 {
                     ...state,
-                    loading: false,
+                    loadingUpdate: false,
+                    updateError: null,
                 }
             )
         ),
+
         on(StudentsActions.updateStudentFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error,
+            loadingUpdate: false,
+            updateError: error,
         })),
 
         // Delete student
         on(StudentsActions.deleteStudent, (state) => ({
             ...state,
-            loading: true,
-            error: null,
+            loadingDelete: true,
+            deleteError: null,
         })),
+
         on(StudentsActions.deleteStudentSuccess, (state, {id}) =>
             studentsAdapter.removeOne(id, {
                 ...state,
+                loadingDelete: false,
+                deleteError: null,
+                selectedStudentId: state.selectedStudentId === id ? null : state.selectedStudentId,
+                selectedStudentIds: state.selectedStudentIds.filter(selectedId => selectedId !== id),
+                // Update pagination totals
+                pagination: {
+                    ...state.pagination,
+                    totalItems: Math.max(0, state.pagination.totalItems - 1),
+                    totalPages: Math.ceil(Math.max(0, state.pagination.totalItems - 1) / state.pagination.pageSize)
+                }
             })
         ),
+
         on(StudentsActions.deleteStudentFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error,
+            loadingDelete: false,
+            deleteError: error,
         })),
 
-        // Clear error
-        on(StudentsActions.clearError, (state) => ({
+        // Bulk operations
+        on(StudentsActions.bulkDeleteStudents, (state) => ({
+            ...state,
+            loadingBulk: true,
+            bulkOperationInProgress: true,
+            bulkError: null,
+        })),
+
+        on(StudentsActions.bulkDeleteStudentsSuccess, (state, {ids}) =>
+            studentsAdapter.removeMany(ids, {
+                ...state,
+                loadingBulk: false,
+                bulkOperationInProgress: false,
+                bulkError: null,
+                selectedStudentIds: [],
+                selectedStudentId: ids.includes(state.selectedStudentId || '') ? null : state.selectedStudentId,
+                pagination: {
+                    ...state.pagination,
+                    totalItems: Math.max(0, state.pagination.totalItems - ids.length),
+                    totalPages: Math.ceil(Math.max(0, state.pagination.totalItems - ids.length) / state.pagination.pageSize)
+                }
+            })
+        ),
+
+        on(StudentsActions.bulkDeleteStudentsFailure, (state, {error}) => ({
+            ...state,
+            loadingBulk: false,
+            bulkOperationInProgress: false,
+            bulkError: error,
+        })),
+
+        // Selection management
+        on(StudentsActions.selectStudent, (state, {id}) => ({
+            ...state,
+            selectedStudentId: id,
+        })),
+
+        on(StudentsActions.clearSelection, (state) => ({
+            ...state,
+            selectedStudentId: null,
+            selectedStudentIds: [],
+        })),
+
+        on(StudentsActions.toggleStudentSelection, (state, {id}) => ({
+            ...state,
+            selectedStudentIds: state.selectedStudentIds.includes(id)
+                ? state.selectedStudentIds.filter(selectedId => selectedId !== id)
+                : [...state.selectedStudentIds, id]
+        })),
+
+        on(StudentsActions.selectAllStudents, (state, {ids}) => ({
+            ...state,
+            selectedStudentIds: ids,
+        })),
+
+        // Filter management
+        on(StudentsActions.updateFilters, (state, {filters}) => ({
+            ...state,
+            filters: {...state.filters, ...filters},
+            pagination: {...state.pagination, pageIndex: 0, currentPage: 0}, // Reset to first page
+        })),
+
+        on(StudentsActions.clearFilters, (state) => ({
+            ...state,
+            filters: initialStudentsState.filters,
+            pagination: {...state.pagination, pageIndex: 0, currentPage: 0},
+        })),
+
+        // Pagination
+        on(StudentsActions.updatePagination, (state, {pagination}) => ({
+            ...state,
+            pagination: {...state.pagination, ...pagination},
+        })),
+
+        // Cache management
+        on(StudentsActions.refreshCache, (state) => ({
+            ...state,
+            cacheExpired: true,
+        })),
+
+        on(StudentsActions.clearCache, (state) =>
+            studentsAdapter.removeAll({
+                ...state,
+                lastFetch: null,
+                cacheExpired: false,
+            })
+        ),
+
+        // Error management
+        on(StudentsActions.clearError, (state, {errorType}) => {
+            const updates: Partial<StudentsState> = {};
+
+            if (!errorType || errorType === 'general') updates.error = null;
+            if (!errorType || errorType === 'create') updates.createError = null;
+            if (!errorType || errorType === 'update') updates.updateError = null;
+            if (!errorType || errorType === 'delete') updates.deleteError = null;
+            if (!errorType || errorType === 'bulk') updates.bulkError = null;
+
+            return {...state, ...updates};
+        }),
+
+        on(StudentsActions.clearAllErrors, (state) => ({
             ...state,
             error: null,
+            createError: null,
+            updateError: null,
+            deleteError: null,
+            bulkError: null,
+        })),
+
+        // Sorting
+        on(StudentsActions.updateSort, (state, {sortBy, sortDirection}) => ({
+            ...state,
+            sortBy,
+            sortDirection,
         }))
     ),
 });
+
+export const {name, reducer} = studentsFeature;

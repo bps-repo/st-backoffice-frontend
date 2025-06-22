@@ -15,7 +15,7 @@ export class StudentsEffects {
             ofType(StudentsActions.loadStudents),
             exhaustMap(() =>
                 this.studentsService.getStudents().pipe(
-                    map((students) => StudentsActions.loadStudentsSuccess({students})),
+                    map((students) => StudentsActions.loadStudentsSuccess({students, pagination: null})),
                     catchError((error) =>
                         of(StudentsActions.loadStudentsFailure({error: error.message}))
                     )
