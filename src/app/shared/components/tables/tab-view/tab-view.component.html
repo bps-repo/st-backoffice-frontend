@@ -1,10 +1,11 @@
-<p-tabView class="border-round-top-3xl" [scrollable]="true" [draggable]="true">
+<p-tabView class="border-round-top-3xl" [scrollable]="true" [draggable]="false">
     <p-tabPanel
-        *ngFor="let tab of tabs | async; track: index"
+        *ngFor="let tab of tabs | async"
         [header]="tab.header"
         [leftIcon]="tab.icon"
         [cache]="true"
         [style]="tab.style"
+        draggable="false"
     >
         <ng-container #dynamicComponentContainer>
             <ng-container *ngComponentOutlet="tab.template"></ng-container>

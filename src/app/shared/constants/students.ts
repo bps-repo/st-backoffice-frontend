@@ -1,14 +1,30 @@
-import { GeneralComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/general/general.component';
-import { Tab } from '../@types/tab';
-import { Observable, of } from 'rxjs';
-import { ClassesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/classes/classes.component';
-import { InvoicesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/invoices/invoices.component';
-import { CoursesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/courses/courses.component';
-import { TurmasComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/turmas/turmas.component';
-import { AvaliacoesComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/avaliacoes/avaliacoes.component';
-import { DocumentosComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/documentos/documentos.component';
-import { AcessoPortalComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/acesso-portal/acesso-portal.component';
-import { PagamentosComponent } from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/pagamentos.component';
+import {
+    GeneralComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/general/general.component';
+import {Tab} from '../@types/tab';
+import {Observable, of} from 'rxjs';
+import {
+    ClassesComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/classes/classes.component';
+import {
+    InvoicesComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/invoices/invoices.component';
+import {
+    CoursesComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/courses/courses.component';
+import {TurmasComponent} from 'src/app/features/schoolar/features/students/pages/detail/tabs/turmas/turmas.component';
+import {
+    AvaliacoesComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/avaliacoes/avaliacoes.component';
+import {
+    DocumentosComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/documentos/documentos.component';
+import {
+    AcessoPortalComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/acesso-portal/acesso-portal.component';
+import {
+    PagamentosComponent
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/pagamentos.component';
 import {HistoryComponent} from "../../features/schoolar/features/students/pages/detail/tabs/history/history.component";
 
 export const STUDENTS_TABS: Observable<Tab[]> = of([
@@ -18,13 +34,6 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         title: 'Overview ',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: GeneralComponent,
-    },
-    {
-        header: 'Histórico',
-        icon: 'pi pi-history',
-        title: 'Histórico do Aluno',
-        description: 'Histórico acadêmico e atividades do aluno',
-        template: HistoryComponent,
     },
     {
         header: 'Aulas',
@@ -41,7 +50,7 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         template: TurmasComponent,
     },
     {
-        header: 'Cursos',
+        header: 'Níveis',
         icon: 'pi pi-book',
         title: 'Seus Cursos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
@@ -62,6 +71,13 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         template: InvoicesComponent,
     },
     {
+        header: 'Pagamentos',
+        icon: 'pi pi-money-bill',
+        title: 'Seus Pagamentos',
+        description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
+        template: PagamentosComponent,
+    },
+    {
         header: 'Documentos',
         icon: 'pi pi-file-pdf',
         title: 'Seus Documentos',
@@ -76,10 +92,10 @@ export const STUDENTS_TABS: Observable<Tab[]> = of([
         template: AcessoPortalComponent,
     },
     {
-        header: 'Pagamentos',
-        icon: 'pi pi-money-bill',
-        title: 'Seus Pagamentos',
-        description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
-        template: PagamentosComponent,
+        header: 'Histórico',
+        icon: 'pi pi-history',
+        title: 'Histórico do Aluno',
+        description: 'Histórico acadêmico e atividades do aluno',
+        template: HistoryComponent,
     },
 ]);

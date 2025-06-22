@@ -53,13 +53,6 @@ export class DetailComponent implements OnInit {
             },
             {label: 'Inscrição turma', icon: 'pi pi-user-edit'},
             {label: 'Enviar mensagem', icon: 'pi pi-comments'},
-            {
-                label: 'Gerir permissões',
-                icon: 'pi pi-key',
-                command: () => {
-                    this.router.navigate(['/schoolar/students', this.studentId, 'permissions']);
-                }
-            },
             {separator: true},
             {label: 'Actualizar', icon: 'pi pi-user-edit'},
             {
