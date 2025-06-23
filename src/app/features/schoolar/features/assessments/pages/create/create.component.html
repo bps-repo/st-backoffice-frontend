@@ -33,6 +33,12 @@
                     </div>
 
                     <div class="col-12 field">
+                        <label for="skillEvaluations" class="font-bold">Skill Evaluations</label>
+                        <p-multiSelect id="skillEvaluations" [options]="skillCategories" [(ngModel)]="assessment.skillEvaluations"
+                            optionLabel="label" placeholder="Select skill evaluations" [showClear]="true" display="chip"></p-multiSelect>
+                    </div>
+
+                    <div class="col-12 field">
                         <label for="description" class="font-bold">Description</label>
                         <textarea id="description" pInputTextarea [(ngModel)]="assessment.description" rows="5"></textarea>
                     </div>
