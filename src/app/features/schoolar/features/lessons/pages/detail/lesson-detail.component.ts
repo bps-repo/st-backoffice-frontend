@@ -8,7 +8,7 @@ import {LESSONS_TABS} from 'src/app/shared/constants/classes';
 import {Observable, Subject, takeUntil} from 'rxjs';
 import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {selectSelectedClass} from 'src/app/core/store/schoolar/selectors/classes.selectors';
 import {Lesson, mockLesson} from "../../../../../../core/models/academic/lesson";
@@ -35,6 +35,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private store: Store
     ) {
     }
@@ -64,7 +65,15 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             {label: 'Edit Lesson', icon: 'pi pi-pencil'},
             {label: 'Mark Attendance', icon: 'pi pi-check-square'},
             {separator: true},
-            {label: 'Add Material', icon: 'pi pi-plus-circle'},
+            {
+                label: 'Add Material',
+                icon: 'pi pi-plus-circle',
+                command: () => {
+                    if (this.lesson?.id) {
+                        this.router.navigate(['/schoolar/lessons/materials/add', this.lesson.id]);
+                    }
+                }
+            },
             {label: 'Upload Materials', icon: 'pi pi-upload'},
             {label: 'Manage Materials', icon: 'pi pi-book'},
             {separator: true},

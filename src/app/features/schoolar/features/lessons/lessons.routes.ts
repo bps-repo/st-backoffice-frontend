@@ -4,6 +4,7 @@ import {CreateLessonComponent} from './dialogs/create-lesson-dialog/create-lesso
 import {LessonDetailComponent} from './pages/detail/lesson-detail.component';
 import {BookLessonComponent} from "./components/book-lesson/book-lesson.component";
 import {LessonsListComponent} from "./components/list/lessons-list.component";
+import {AddMaterialComponent} from "./components/add-material/add-material.component";
 
 const routes: Routes = [
     {
@@ -21,6 +22,10 @@ const routes: Routes = [
     {
         path: 'books/:lessonId/:studentId',
         component: BookLessonComponent,
+    },
+    {
+        path: 'materials/add/:lessonId',
+        component: AddMaterialComponent,
     },
 ];
 

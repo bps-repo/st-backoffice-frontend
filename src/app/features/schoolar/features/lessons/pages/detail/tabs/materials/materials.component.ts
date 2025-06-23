@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
 import { CardModule } from 'primeng/card';
@@ -13,9 +13,13 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { CalendarModule } from 'primeng/calendar';
+import { FileUploadModule } from 'primeng/fileupload';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { selectSelectedClass } from 'src/app/core/store/schoolar/selectors/classes.selectors';
 import { Lesson } from "../../../../../../../../core/models/academic/lesson";
 import { Material } from "../../../../../../../../core/models/academic/material";
+import { LessonApiService } from "../../../../../../../../core/services/lesson-api.service";
 
 @Component({
     selector: 'app-materials-dashboard',
@@ -31,8 +35,11 @@ import { Material } from "../../../../../../../../core/models/academic/material"
         DialogModule,
         InputTextModule,
         InputTextareaModule,
-        CalendarModule
+        CalendarModule,
+        FileUploadModule,
+        ToastModule
     ],
+    providers: [MessageService],
     templateUrl: './materials.component.html'
 })
 export class MaterialsComponent implements OnInit, OnDestroy {
@@ -45,7 +52,10 @@ export class MaterialsComponent implements OnInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
-        private store: Store
+        private router: Router,
+        private store: Store,
+        private lessonApiService: LessonApiService,
+        private messageService: MessageService
     ) {}
 
     ngOnInit(): void {
@@ -117,11 +127,71 @@ export class MaterialsComponent implements OnInit, OnDestroy {
         });
     }
 
-    // This would be implemented with actual API calls in a real application
     addMaterial(): void {
-        // Mock implementation - in a real app, this would call a service
-        console.log('Adding material:', this.newMaterial);
-        this.hideAddMaterialDialog();
+        if (!this.newMaterial.title || !this.newMaterial.type || !this.newMaterial.fileUrl) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please fill in all required fields'
+            });
+            return;
+        }
+
+        if (!this.lessonItem) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No lesson selected'
+            });
+            return;
+        }
+
+        // Create a new material object
+        const material: Material = {
+            id: Date.now().toString(), // Generate a temporary ID
+            title: this.newMaterial.title!,
+            description: this.newMaterial.description || '',
+            type: this.newMaterial.type!,
+            fileUrl: this.newMaterial.fileUrl!,
+            uploadDate: new Date().toISOString(),
+            uploader: { id: '1', name: 'Current User' }, // In a real app, this would be the current user
+            active: true,
+            availabilityStartDate: this.newMaterial.availabilityStartDate || '',
+            availabilityEndDate: this.newMaterial.availabilityEndDate || '',
+            units: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        // Add the material to the lesson's materials array
+        const updatedLesson: Lesson = {
+            ...this.lessonItem,
+            materials: [...(this.lessonItem.materials || []), material]
+        };
+
+        // Update the lesson
+        this.lessonApiService.updateLesson(updatedLesson)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (lesson) => {
+                    this.lessonItem = lesson;
+                    this.materials = lesson.materials || [];
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Material added successfully'
+                    });
+                    this.hideAddMaterialDialog();
+                },
+                error: (error) => {
+                    console.error('Error adding material:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to add material'
+                    });
+                }
+            });
     }
 
     // This would be implemented with actual API calls in a real application
@@ -129,5 +199,42 @@ export class MaterialsComponent implements OnInit, OnDestroy {
         // Mock implementation - in a real app, this would call a service
         console.log('Downloading material:', material);
         window.open(material.fileUrl, '_blank');
+    }
+
+    onFileSelect(event: any): void {
+        const file = event.files[0];
+        if (file) {
+            // In a real app, this would upload the file to a server and get a URL back
+            // For now, we'll just set a mock URL and extract the file type
+            const fileType = file.name.split('.').pop().toLowerCase();
+            this.newMaterial.fileUrl = `https://example.com/uploads/${file.name}`;
+            this.newMaterial.type = fileType;
+
+            this.messageService.add({
+                severity: 'info',
+                summary: 'File Selected',
+                detail: `${file.name} selected (mock upload)`
+            });
+        }
+    }
+
+    onFileUploadError(event: any): void {
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Upload Failed',
+            detail: event.error ? event.error.message : 'File upload failed'
+        });
+    }
+
+    navigateToAddMaterial(): void {
+        if (this.lessonItem?.id) {
+            this.router.navigate(['/schoolar/lessons/materials/add', this.lessonItem.id]);
+        } else {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No lesson selected'
+            });
+        }
     }
 }
