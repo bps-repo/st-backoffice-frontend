@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { TableService } from 'src/app/shared/services/table.service';
+import {TableService} from 'src/app/shared/services/table.service';
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'app-list',
@@ -17,7 +18,8 @@ export class ListComponent implements OnInit {
     globalFilterFields: string[] = [];
     loading = false;
 
-    constructor(private tableService: TableService<any>) {}
+    constructor(private tableService: TableService<any>, private router: Router) {
+    }
 
     ngOnInit(): void {
         // Define custom column templates for different filter types
@@ -51,5 +53,9 @@ export class ListComponent implements OnInit {
 
         // Populate globalFilterFields
         this.globalFilterFields = this.columns.map(col => col.field);
+    }
+
+    createAssessment() {
+        this.router.navigate(['/schoolar/assessments/create']);
     }
 }

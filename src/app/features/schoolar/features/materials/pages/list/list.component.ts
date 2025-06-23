@@ -1,12 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { SelectItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { GlobalTable, TableColumn } from 'src/app/shared/components/tables/global-table/global-table.component';
+import {Component, ElementRef, OnInit, ViewChild, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {SelectItem} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {DropdownModule} from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import {GlobalTable, TableColumn} from 'src/app/shared/components/tables/global-table/global-table.component';
 import {Material} from "../../../../../../core/models/academic/material";
 
 
@@ -34,11 +34,12 @@ export class ListComponent implements OnInit {
     options: SelectItem[] = [];
 
     selectedOption = signal('table_material');
-    selectedDrop: SelectItem = { value: '' };
+    selectedDrop: SelectItem = {value: ''};
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private router: Router) {}
+    constructor(private router: Router) {
+    }
 
     ngOnInit(): void {
         this.materiais = [
@@ -59,31 +60,31 @@ export class ListComponent implements OnInit {
         ];
 
         this.tiposDeMateriais = [
-            { label: 'PDF', value: 'PDF' },
-            { label: 'Vídeo', value: 'Vídeo' },
-            { label: 'Documento Word', value: 'Word' },
+            {label: 'PDF', value: 'PDF'},
+            {label: 'Vídeo', value: 'Vídeo'},
+            {label: 'Documento Word', value: 'Word'},
         ];
 
         this.options = [
-            { label: 'Materiais Didáticos', value: 'table_materials' },
-            { label: 'Relatórios de Presença', value: 'table_presences' },
+            {label: 'Materiais Didáticos', value: 'table_materials'},
+            {label: 'Relatórios de Presença', value: 'table_presences'},
         ];
 
         this.instalations = [
             {
                 label: 'Cidade',
-                value: { id: 1, name: 'New York', code: 'NY' },
+                value: {id: 1, name: 'New York', code: 'NY'},
             },
-            { label: 'Centro', value: { id: 2, name: 'Rome', code: 'RM' } },
+            {label: 'Centro', value: {id: 2, name: 'Rome', code: 'RM'}},
             {
                 label: 'Maculusso',
-                value: { id: 3, name: 'London', code: 'LDN' },
+                value: {id: 3, name: 'London', code: 'LDN'},
             },
             {
                 label: 'Nova Vida',
-                value: { id: 4, name: 'Istanbul', code: 'IST' },
+                value: {id: 4, name: 'Istanbul', code: 'IST'},
             },
-            { label: 'Patriota', value: { id: 5, name: 'Paris', code: 'PRS' } },
+            {label: 'Patriota', value: {id: 5, name: 'Paris', code: 'PRS'}},
         ];
 
         // Define columns for the table
