@@ -1,18 +1,18 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { TabViewModule } from 'primeng/tabview';
-import { Tab } from 'src/app/shared/@types/tab';
-import { TabViewComponent } from 'src/app/shared/components/tables/tab-view/tab-view.component';
-import { ASSESSMENTS_TABS } from 'src/app/shared/constants/reviews';
-import { Observable, Subject, takeUntil } from 'rxjs';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { MenuItem } from 'primeng/api';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { examsActions } from 'src/app/core/store/schoolar';
-import { selectSelectedExam } from 'src/app/core/store/schoolar/selectors/exams.selectors';
-import { Exam } from 'src/app/core/models/academic/exam';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {TabMenuModule} from 'primeng/tabmenu';
+import {TabViewModule} from 'primeng/tabview';
+import {Tab} from 'src/app/shared/@types/tab';
+import {TabViewComponent} from 'src/app/shared/components/tables/tab-view/tab-view.component';
+import {ASSESSMENTS_TABS} from 'src/app/shared/constants/reviews';
+import {Observable, Subject, takeUntil} from 'rxjs';
+import {SplitButtonModule} from 'primeng/splitbutton';
+import {MenuItem} from 'primeng/api';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {selectSelectedExam} from 'src/app/core/store/schoolar/selectors/exams.selectors';
+import {Exam} from 'src/app/core/models/academic/exam';
+import {examsActions} from "../../../../../../core/store/schoolar/actions/exams.actions";
 
 @Component({
     selector: 'app-detail',
@@ -34,8 +34,10 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private store: Store
-    ) {}
+    ) {
+    }
 
     ngOnInit() {
         this.tabs = ASSESSMENTS_TABS;
@@ -47,7 +49,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                 const id = params['id'];
                 if (id) {
                     // Dispatch action to load the exam
-                    this.store.dispatch(examsActions.loadExam({ id }));
+                    this.store.dispatch(examsActions.loadExam({id}));
                 }
             });
 
@@ -59,12 +61,24 @@ export class DetailComponent implements OnInit, OnDestroy {
             });
 
         this.items = [
-            { label: 'Edit Evaluation', icon: 'pi pi-pencil' },
-            { label: 'Add Student', icon: 'pi pi-user-plus' },
-            { separator: true },
-            { label: 'Print Evaluation Report', icon: 'pi pi-file-pdf' },
-            { label: 'Export Results', icon: 'pi pi-file-excel' },
-            { separator: true },
+            {
+                label: 'Edit Evaluation',
+                icon: 'pi pi-pencil',
+                command: () => {
+                    this.router.navigate(['/schoolar/assessments/edit', "12434"]);
+                }
+            },
+            {
+                label: 'Record Student Attempt',
+                icon: 'pi pi-user-plus',
+                command: () => {
+                    this.router.navigate(['/schoolar/assessments/attempt', "1232"]);
+                }
+            },
+            {separator: true},
+            {label: 'Print Evaluation Report', icon: 'pi pi-file-pdf'},
+            {label: 'Export Results', icon: 'pi pi-file-excel'},
+            {separator: true},
             {
                 label: 'Cancel Evaluation',
                 icon: 'pi pi-times',

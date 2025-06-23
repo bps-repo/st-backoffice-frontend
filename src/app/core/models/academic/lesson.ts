@@ -26,3 +26,33 @@ export interface Lesson {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export const mockLesson: Lesson = {
+    id: 'a1b2c3d4-e5f6-7890-abcd-1234567890ef',
+    teacher: 'John Doe',
+    level: 'Intermediate',
+    unit: 'Unit 5',
+    description: 'This lesson will cover grammar essentials for intermediate students.',
+    students: [
+        {id: 's1', name: 'Alice'},
+        {id: 's2', name: 'Bob'}
+    ],
+    title: 'Grammar Essentials',
+    online: true,
+    onlineLink: 'https://zoom.us/j/123456789',
+    startDatetime: new Date('2025-07-01T10:00:00Z'),
+    endDatetime: new Date('2025-07-01T11:30:00Z'),
+    center: {
+        id: 'c1',
+        name: 'Main Campus',
+        address: '123 Main St',
+        city: 'Metropolis',
+        phone: '123-456-7890',
+        active: true,
+        createdAt: new Date('2025-01-01T00:00:00Z').toString(),
+        updatedAt: new Date('2025-01-02T00:00:00Z').toString()
+    },
+    status: LessonStatus.SCHEDULED,
+    createdAt: new Date('2025-06-22T14:00:00Z'),
+    updatedAt: new Date('2025-06-23T09:30:00Z')
+};

@@ -14,13 +14,12 @@ import {ButtonModule} from 'primeng/button';
 import {ClassesService} from '../../../../../../core/services/classes.service';
 import {GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
 import {Store} from '@ngrx/store';
-import {lessonsActions} from 'src/app/core/store/schoolar';
 import {Subject, takeUntil} from 'rxjs';
 import {selectAllClasses, selectLoadingClass} from "../../../../../../core/store/schoolar/selectors/classes.selectors";
 import {Router, RouterModule} from '@angular/router';
 import {ChartModule} from 'primeng/chart';
 import {CardModule} from 'primeng/card';
-import {LessonStatus} from "../../../../../../core/enums/lesson-status";
+import {lessonsActions} from "../../../../../../core/store/schoolar/actions/lessons.actions";
 
 @Component({
     selector: 'app-lessons',

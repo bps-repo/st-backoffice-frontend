@@ -47,7 +47,8 @@
         <div class="card h-full">
             <span class="font-semibold text-lg">Ações Rápidas</span>
             <div class="flex flex-column gap-2 mt-3">
-                <button pButton icon="pi pi-plus" label="Nova Turma" class="p-button-success" [routerLink]="['/schoolar/classes/create']"></button>
+                <button pButton icon="pi pi-plus" label="Nova Turma" class="p-button-success"
+                        [routerLink]="['/schoolar/classes/create']"></button>
                 <button pButton icon="pi pi-file-export" label="Exportar Lista" class="p-button-info"></button>
                 <button pButton icon="pi pi-calendar" label="Ver Calendário" class="p-button-secondary"></button>
             </div>
@@ -103,17 +104,15 @@
 
     <!-- Class Table -->
     <div class="col-12">
-        <div class="card">
-            <h2>Lista de Turmas</h2>
-            <app-global-table
-                tableLabel="Turmas"
-                [data]="classes"
-                [entity]="'classes'"
-                [columns]="columns"
-                [globalFilterFields]="globalFilterFields"
-                [loading]="loading"
-                class="w-full"
-            ></app-global-table>
-        </div>
+        <app-global-table
+            tableLabel="Turmas"
+            [data]="classes"
+            [entity]="'classes'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilterFields"
+            [loading]="loading"
+            (createEntity)="createEntity()"
+            class="w-full"
+        ></app-global-table>
     </div>
 </div>

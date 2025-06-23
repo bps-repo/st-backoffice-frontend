@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import {
     TableColumn,
     GlobalTable,
@@ -41,7 +41,7 @@ export class ClassComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    constructor(private tableService: TableService<any>, private store: Store) {
+    constructor(private tableService: TableService<any>, private store: Store, private router: Router) {
         // Initialize chart options
         this.chartOptions = {
             plugins: {
@@ -291,5 +291,9 @@ export class ClassComponent implements OnInit, OnDestroy {
             counts[value] = (counts[value] || 0) + 1;
             return counts;
         }, {});
+    }
+
+    createEntity() {
+        this.router.navigate(['/schoolar/classes/create']);
     }
 }

@@ -79,27 +79,27 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/courses/students-materials-dashboard'],
+                        routerLink: ['/levels/students-materials-dashboard'],
                     },
                     {
                         label: 'Niveis',
                         icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/courses/levels'],
+                        routerLink: ['/levels/levels'],
                     },
                     {
                         label: 'Unidades',
                         icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/courses/units'],
+                        routerLink: ['/levels/units'],
                     },
                     {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/courses/reports'],
+                        routerLink: ['/levels/reports'],
                     },
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
-                        routerLink: ['/courses/settings'],
+                        routerLink: ['/levels/settings'],
                     },
                 ],
             },
@@ -160,7 +160,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Cursos',
                         icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/courses/courses'],
+                        routerLink: ['/levels/levels'],
                     },
                     {
                         label: 'Centros',

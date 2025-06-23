@@ -1,0 +1,73 @@
+<p-toast></p-toast>
+
+<div class="card">
+    <p-card>
+        <ng-template pTemplate="title">
+            <div class="flex align-items-center justify-content-between">
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-calendar-plus text-primary"></i>
+                    <span class="font-bold">Marcar aula</span>
+                </div>
+            </div>
+        </ng-template>
+
+        <div *ngIf="loading" class="flex justify-content-center">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <div *ngIf="!loading">
+            <div *ngIf="lesson" class="mb-4">
+                <h3>{{ lesson.title }}</h3>
+                <p>{{ lesson.description }}</p>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <p><strong>Professor:</strong> {{ lesson.teacher }}</p>
+                        <p><strong>Nível:</strong> {{ lesson.level }}</p>
+                        <p *ngIf="lesson.unit"><strong>Unidade:</strong> {{ lesson.unit }}</p>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <p><strong>Início:</strong> {{ lesson.startDatetime | date:'medium' }}</p>
+                        <p><strong>Fim:</strong> {{ lesson.endDatetime | date:'medium' }}</p>
+                        <p><strong>Centro:</strong> {{ lesson.online ? 'Online' : lesson.center }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <form [formGroup]="bookingForm" (ngSubmit)="bookLesson()">
+                <div class="field">
+                    <label for="students">Selecione estudante(s)</label>
+                    <p-multiSelect
+                        id="students"
+                        [options]="students"
+                        formControlName="selectedStudents"
+                        optionLabel="user.firstName"
+                        optionValue="id"
+                        [filter]="true"
+                        filterBy="user.firstName,user.lastName,user.email"
+                        placeholder="Select students to book for this lesson"
+                        [style]="{'width':'100%'}"
+                        display="chip"
+                    >
+                        <ng-template let-student pTemplate="item">
+                            <div class="flex align-items-center gap-2">
+                                <span>{{ student.user.firstName }} {{ student.user.lastName }}</span>
+                                <span class="text-sm text-500">({{ student.user.email }})</span>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                    <small *ngIf="bookingForm.get('selectedStudents') && bookingForm.get('selectedStudents')?.touched"
+                           class="p-error">
+                        Please select at least one student
+                    </small>
+                </div>
+
+                <div class="flex justify-content-end gap-2 mt-4">
+                    <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined"
+                            (click)="cancel()"></button>
+                    <button pButton type="submit" label="Book Lesson" icon="pi pi-check"
+                            [disabled]="bookingForm.invalid"></button>
+                </div>
+            </form>
+        </div>
+    </p-card>
+</div>

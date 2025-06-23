@@ -6,6 +6,7 @@ import {Lesson} from "./lesson";
 import {Student} from "./student";
 import {UnitProgress} from "./unit-progress";
 import {ClassStatus} from "../../enums/class-status";
+import {LessonStatus} from "../../enums/lesson-status";
 
 export interface Class {
     id: string;
@@ -19,7 +20,8 @@ export interface Class {
     maxCapacity: number;
     lessons: Lesson[];
     unitProgresses: UnitProgress[];
-    students: Student[];
+    students: Partial<Student>[];
     createdAt: string;
     updatedAt: string;
 }
+

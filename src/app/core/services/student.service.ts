@@ -1,48 +1,39 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { Student } from 'src/app/core/models/academic/student';
-import { Permission } from '../models/auth/permission';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {Student} from 'src/app/core/models/academic/student';
+import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
+import {map} from "rxjs/operators";
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class StudentService {
-  private apiUrl = `${environment.apiUrl}/students`;
+    private apiUrl = `${environment.apiUrl}/students`;
 
-  constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {
+    }
 
-  getStudents(): Observable<Student[]> {
-    return this.http.get<Student[]>(this.apiUrl);
-  }
+    getStudents(): Observable<Student[]> {
+        return this.http.get<ApiResponse<PageableResponse<Student[]>>>(this.apiUrl).pipe(
+            map((response) => response.data.content as Student[])
+        );
+    }
 
-  getStudent(id: number): Observable<Student> {
-    return this.http.get<Student>(`${this.apiUrl}/${id}`);
-  }
+    getStudent(id: string): Observable<Student> {
+        return this.http.get<Student>(`${this.apiUrl}/${id}`);
+    }
 
-  createStudent(student: Student): Observable<Student> {
-    return this.http.post<Student>(this.apiUrl, student);
-  }
+    createStudent(student: Student): Observable<Student> {
+        return this.http.post<Student>(this.apiUrl, student);
+    }
 
-  updateStudent(student: Student): Observable<Student> {
-    return this.http.put<Student>(`${this.apiUrl}/${student.id}`, student);
-  }
+    updateStudent(student: Student): Observable<Student> {
+        return this.http.put<Student>(`${this.apiUrl}/${student.id}`, student);
+    }
 
-  deleteStudent(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  // Student permissions management
-  getStudentPermissions(studentId: number): Observable<Permission[]> {
-    return this.http.get<Permission[]>(`${this.apiUrl}/${studentId}/permissions`);
-  }
-
-  addPermissionToStudent(studentId: number, permissionId: number): Observable<Student> {
-    return this.http.post<Student>(`${this.apiUrl}/${studentId}/permissions`, { permissionId });
-  }
-
-  removePermissionFromStudent(studentId: number, permissionId: number): Observable<Student> {
-    return this.http.delete<Student>(`${this.apiUrl}/${studentId}/permissions/${permissionId}`);
-  }
+    deleteStudent(id: string): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
 }

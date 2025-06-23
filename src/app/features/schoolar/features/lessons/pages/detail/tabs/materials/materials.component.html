@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="card">
     <div *ngIf="lessonItem" class="grid">
         <div class="col-12">
@@ -8,7 +10,10 @@
                             <i class="pi pi-book text-primary"></i>
                             <span class="font-bold">Lesson Materials</span>
                         </div>
-                        <button pButton pRipple label="Add Material" icon="pi pi-plus" class="p-button-sm" (click)="showAddMaterialDialog()"></button>
+                        <div class="flex gap-2">
+                            <button pButton pRipple label="Add Material" icon="pi pi-plus" class="p-button-sm" (click)="showAddMaterialDialog()"></button>
+                            <button pButton pRipple label="Advanced Add" icon="pi pi-plus-circle" class="p-button-sm p-button-outlined" (click)="navigateToAddMaterial()"></button>
+                        </div>
                     </div>
                 </ng-template>
 
@@ -56,7 +61,10 @@
                                     <i class="pi pi-folder-open text-500" style="font-size: 3rem"></i>
                                     <span class="text-700 my-2">No materials found</span>
                                     <span class="text-500 text-sm mb-3">Add materials to this lesson to make them available to students</span>
-                                    <button pButton pRipple label="Add Material" icon="pi pi-plus" class="p-button-sm" (click)="showAddMaterialDialog()"></button>
+                                    <div class="flex gap-2 justify-content-center">
+                                        <button pButton pRipple label="Quick Add" icon="pi pi-plus" class="p-button-sm" (click)="showAddMaterialDialog()"></button>
+                                        <button pButton pRipple label="Advanced Add" icon="pi pi-plus-circle" class="p-button-sm p-button-outlined" (click)="navigateToAddMaterial()"></button>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -83,8 +91,19 @@
         <small class="text-500">e.g., pdf, doc, ppt, mp4, etc.</small>
     </div>
     <div class="field">
+        <label for="fileUpload">Upload File</label>
+        <p-fileUpload id="fileUpload" mode="basic" chooseLabel="Choose File" [auto]="true"
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.mp4,.mp3"
+            [maxFileSize]="10000000"
+            (onSelect)="onFileSelect($event)"
+            (onError)="onFileUploadError($event)">
+        </p-fileUpload>
+        <small class="text-500">Max file size: 10MB</small>
+    </div>
+    <div class="field">
         <label for="fileUrl">File URL</label>
         <input type="text" pInputText id="fileUrl" [(ngModel)]="newMaterial.fileUrl" required />
+        <small class="text-500">Enter a URL or upload a file above</small>
     </div>
     <div class="grid">
         <div class="col-6">

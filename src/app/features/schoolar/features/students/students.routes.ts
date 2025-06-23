@@ -38,11 +38,6 @@ const routes: Routes = [
             import('./pages/bulk-actions/bulk-actions.component').then(c => c.BulkActionsComponent)
     },
     {
-        path: ':id/permissions',
-        loadComponent: () =>
-            import('./pages/student-permissions/student-permissions.component').then(c => c.StudentPermissionsComponent)
-    },
-    {
         path: ':id',
         loadComponent: () =>
             import('./pages/detail/detail.component').then(c => c.DetailComponent),
@@ -55,7 +50,7 @@ const routes: Routes = [
             {
                 path: 'courses',
                 loadComponent: () =>
-                    import('./pages/detail/tabs/courses/courses.component').then(c => c.CoursesComponent)
+                    import('./pages/detail/tabs/levels/levels.component').then(c => c.LevelsComponent)
             },
             {
                 path: 'invoices',

@@ -39,7 +39,7 @@ export class DetailComponent implements OnInit {
             generatedDate: '2023-01-15',
             generatedBy: 'Admin User',
             status: 'Generated',
-            description: 'This report shows the performance of students across different courses.',
+            description: 'This report shows the performance of students across different levels.',
             parameters: [
                 { name: 'Start Date', value: '2023-01-01' },
                 { name: 'End Date', value: '2023-01-15' },

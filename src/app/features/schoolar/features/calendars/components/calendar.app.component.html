@@ -9,7 +9,7 @@
                     <input
                         type="text"
                         pInputText
-                        placeholder="Search events..."
+                        placeholder="Procurar aulas..."
                         [(ngModel)]="searchTerm"
                         (input)="applyFilters()"
                     />
@@ -30,7 +30,7 @@
                         pButton
                         type="button"
                         icon="pi pi-filter"
-                        label="Filters"
+                        label="Filtros"
                         (click)="showFilterDialog = true"
                         [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
                         [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
@@ -39,7 +39,7 @@
                         pButton
                         type="button"
                         icon="pi pi-plus"
-                        label="New Event"
+                        label="Nova aula"
                         (click)="createNewEvent()"
                     ></button>
                 </div>
@@ -55,14 +55,6 @@
                         [class.p-button-outlined]="selectedView !== option.value"
                         [class.p-button-info]="selectedView === option.value"
                         (click)="changeView(option.value)"
-                    ></button>
-                    <button
-                        pButton
-                        type="button"
-                        [icon]="darkMode ? 'pi pi-sun' : 'pi pi-moon'"
-                        pTooltip="Toggle Dark Mode"
-                        tooltipPosition="bottom"
-                        (click)="toggleDarkMode()"
                     ></button>
                 </div>
             </div>

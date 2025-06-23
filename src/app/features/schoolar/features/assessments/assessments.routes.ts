@@ -4,6 +4,7 @@ import {ListComponent} from './pages/list/list.component';
 import {CreateComponent} from './pages/create/create.component';
 import {EditComponent} from './pages/edit/edit.component';
 import {DetailComponent} from './pages/detail/detail.component';
+import {AttemptComponent} from './pages/attempt/attempt.component';
 
 const routes: Routes = [
     {
@@ -17,6 +18,10 @@ const routes: Routes = [
     {
         path: 'edit/:id',
         component: EditComponent,
+    },
+    {
+        path: 'attempt/:id',
+        component: AttemptComponent,
     },
     {
         path: ':id',

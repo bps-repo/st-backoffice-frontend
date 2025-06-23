@@ -1,21 +1,18 @@
 import {TableColumn} from "../../../../shared/components/tables/global-table/global-table.component";
 
-export const GLOBAL_FILTERS = ['id', 'name', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'unitProgress']
+export const GLOBAL_FILTERS = ['id', 'name', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'dateOfBirth'];
 export const COLUMNS: TableColumn[] = [
-    {
-        field: 'id',
-        header: 'Nº',
-        filterType: 'text',
-    },
     {
         field: 'name',
         header: 'Nome',
         filterType: 'text',
+        customTemplate: true,
     },
     {
         field: 'email',
         header: 'Email',
         filterType: 'text',
+        customTemplate: true,
     },
     {
         field: 'center',
@@ -23,18 +20,8 @@ export const COLUMNS: TableColumn[] = [
         filterType: 'text',
     },
     {
-        field: 'course',
-        header: 'Curso',
-        filterType: 'text',
-    },
-    {
         field: 'level',
         header: 'Nível',
-        filterType: 'text',
-    },
-    {
-        field: 'unit',
-        header: 'Unidade',
         filterType: 'text',
     },
     {
@@ -54,28 +41,17 @@ export const COLUMNS: TableColumn[] = [
             {label: 'On Leave', value: 'On Leave'}
         ]
     },
+    // {
+    //     field: 'phone',
+    //     header: 'Telefone',
+    //     filterType: 'numeric',
+    //     customTemplate: true,
+    // },
     {
-        field: 'unitProgress',
-        header: 'Progresso',
-        filterType: 'text',
-        // Mock data for unitProgress since it's not in the Student model
-        filterOptions: [
-            {label: 'Not Started', value: 'Not Started'},
-            {label: '0-25%', value: '0-25%'},
-            {label: '26-50%', value: '26-50%'},
-            {label: '51-75%', value: '51-75%'},
-            {label: '76-100%', value: '76-100%'}
-        ]
-    },
-    {
-        field: 'phone',
-        header: 'Telefone',
-        filterType: 'text',
-    },
-    {
-        field: 'birthdate',
+        field: 'dateOfBirth',
         header: 'Data de Nascimento',
         filterType: 'date',
+        customTemplate: true,
     },
 ];
 

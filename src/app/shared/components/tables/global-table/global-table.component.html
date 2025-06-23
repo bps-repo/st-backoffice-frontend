@@ -15,6 +15,7 @@
             [paginator]="true"
             [globalFilterFields]="globalFilterFields"
             [scrollable]="true"
+            draggable="false"
             scrollHeight="400px"
             responsiveLayout="scroll"
         >
@@ -60,7 +61,7 @@
 
             <!-- Body -->
             <ng-template pTemplate="body" let-rowData>
-                <tr>
+                <tr (click)="selectRow(rowData)" class="cursor-pointer">
                     <td *ngFor="let col of columns">
                         <ng-container *ngIf="!col.customTemplate">
                             {{ rowData[col.field] }}

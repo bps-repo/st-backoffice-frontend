@@ -13,8 +13,8 @@ import {Student} from 'src/app/core/models/academic/student';
 import {Center} from 'src/app/core/models/corporate/center';
 import {CenterService} from 'src/app/core/services/center.service';
 import {StudentService} from 'src/app/core/services/student.service';
-import {selectAllStudents} from 'src/app/core/store/schoolar/reducers/students.reducers';
-import {studentsActions} from 'src/app/core/store/schoolar/actions/students.actions';
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
+import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
 
 @Component({
     selector: 'app-add-to-center',
@@ -38,7 +38,7 @@ export class AddToCenterComponent implements OnInit {
     selectedStudents: Student[] = [];
     selectedCenter: Center | null = null;
     form: FormGroup;
-    loading = false ;
+    loading = false;
 
     constructor(
         private store: Store,
@@ -58,10 +58,7 @@ export class AddToCenterComponent implements OnInit {
     }
 
     loadStudents(): void {
-        this.store.dispatch(studentsActions.loadStudents());
-        this.store.select(selectAllStudents).subscribe(students => {
-            this.students = students;
-        });
+        this.store.dispatch(StudentsActions.loadStudents());
     }
 
     loadCenters(): void {

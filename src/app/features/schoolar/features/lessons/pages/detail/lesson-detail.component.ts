@@ -8,14 +8,12 @@ import {LESSONS_TABS} from 'src/app/shared/constants/classes';
 import {Observable, Subject, takeUntil} from 'rxjs';
 import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {lessonsActions} from 'src/app/core/store/schoolar';
 import {selectSelectedClass} from 'src/app/core/store/schoolar/selectors/classes.selectors';
-import {Class} from 'src/app/core/models/academic/class';
-import {Lesson} from "../../../../../../core/models/academic/lesson";
-import {ClassStatus} from "../../../../../../core/enums/class-status";
+import {Lesson, mockLesson} from "../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../core/enums/lesson-status";
+import {lessonsActions} from "../../../../../../core/store/schoolar/actions/lessons.actions";
 
 @Component({
     selector: 'app-detail',
@@ -32,11 +30,12 @@ import {LessonStatus} from "../../../../../../core/enums/lesson-status";
 export class LessonDetailComponent implements OnInit, OnDestroy {
     tabs!: Observable<Tab[]>;
     items!: MenuItem[];
-    classItem: Lesson | null = null;
+    lesson: Lesson | null = mockLesson
     private destroy$ = new Subject<void>();
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private store: Store
     ) {
     }
@@ -59,14 +58,22 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.store.select(selectSelectedClass)
             .pipe(takeUntil(this.destroy$))
             .subscribe(classItem => {
-                this.classItem = classItem!;
+                //this.classItem = classItem!;
             });
 
         this.items = [
             {label: 'Edit Lesson', icon: 'pi pi-pencil'},
             {label: 'Mark Attendance', icon: 'pi pi-check-square'},
             {separator: true},
-            {label: 'Add Material', icon: 'pi pi-plus-circle'},
+            {
+                label: 'Add Material',
+                icon: 'pi pi-plus-circle',
+                command: () => {
+                    if (this.lesson?.id) {
+                        this.router.navigate(['/schoolar/lessons/materials/add', this.lesson.id]);
+                    }
+                }
+            },
             {label: 'Upload Materials', icon: 'pi pi-upload'},
             {label: 'Manage Materials', icon: 'pi pi-book'},
             {separator: true},

@@ -6,53 +6,47 @@
             <p-card styleClass="h-full">
                 <div class="flex flex-column align-items-center">
                     <p-avatar [image]="studentInfo.photo" size="xlarge" shape="circle"
-                        [style]="{'box-shadow': '0 3px 6px rgba(0, 0, 0, 0.16)'}">
+                              [style]="{'box-shadow': '0 3px 6px rgba(0, 0, 0, 0.16)'}">
                     </p-avatar>
                     <h2 class="text-2xl font-bold mt-3 mb-1">{{ studentInfo.name }}</h2>
                     <p class="text-600 m-0">{{ studentInfo.email }}</p>
                     <p-tag [severity]="studentInfo.status === 'Active' ? 'success' : 'warning'"
-                        [value]="studentInfo.status" class="mt-2"></p-tag>
+                           [value]="studentInfo.status" class="mt-2"></p-tag>
                 </div>
 
                 <p-divider>
-                    <span class="font-medium">Academic Information</span>
+                    <span class="font-medium">Informação académica</span>
                 </p-divider>
 
                 <div class="grid">
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Center</span>
+                            <span class="font-medium text-600">Centro</span>
                             <span class="font-medium text-900">{{ studentInfo.center }}</span>
                         </div>
                     </div>
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Course</span>
-                            <span class="font-medium text-900">{{ studentInfo.course }}</span>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-2">
-                        <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Level</span>
+                            <span class="font-medium text-600">Nível</span>
                             <span class="font-medium text-900">{{ studentInfo.level }}</span>
                         </div>
                     </div>
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Current Unit</span>
+                            <span class="font-medium text-600">Unidade actual</span>
                             <span class="font-medium text-900">{{ studentInfo.unit }}</span>
                         </div>
                     </div>
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Enrollment Date</span>
+                            <span class="font-medium text-600">Data de Inscrição</span>
                             <span class="font-medium text-900">{{ formatDate(studentInfo.enrollmentDate) }}</span>
                         </div>
                     </div>
                 </div>
 
                 <p-divider>
-                    <span class="font-medium">Personal Information</span>
+                    <span class="font-medium">Informações pessoais</span>
                 </p-divider>
 
                 <div class="grid">
@@ -78,9 +72,10 @@
                                 <span class="font-bold">{{ unitProgress }}%</span>
                             </div>
                             <p-progressBar [value]="unitProgress" [showValue]="false" styleClass="mb-3"
-                                [style]="{'height': '10px'}"></p-progressBar>
+                                           [style]="{'height': '10px'}"></p-progressBar>
                             <div class="text-sm text-600 mb-4">
-                                Unit {{ studentInfo.unitOrder }} of {{ studentInfo.totalUnits }} in {{ studentInfo.level }}
+                                Unit {{ studentInfo.unitOrder }} of {{ studentInfo.totalUnits }}
+                                in {{ studentInfo.level }}
                             </div>
 
                             <div class="flex justify-content-between align-items-center mb-2 mt-4">
@@ -88,9 +83,10 @@
                                 <span class="font-bold">{{ levelProgress }}%</span>
                             </div>
                             <p-progressBar [value]="levelProgress" [showValue]="false" styleClass="mb-3"
-                                [style]="{'height': '10px'}"></p-progressBar>
+                                           [style]="{'height': '10px'}"></p-progressBar>
                             <div class="text-sm text-600">
-                                Completed {{ Math.floor(levelProgress / 100 * studentInfo.totalUnits) }} of {{ studentInfo.totalUnits }} units
+                                Completed {{ Math.floor(levelProgress / 100 * studentInfo.totalUnits) }}
+                                of {{ studentInfo.totalUnits }} units
                             </div>
                         </div>
                     </p-card>
@@ -98,11 +94,13 @@
 
                 <!-- Notifications -->
                 <div class="col-12 md:col-6">
-                    <p-card styleClass="h-full" header="Recent Activity">
+                    <p-card styleClass="h-full" header="Actividades recentes">
                         <ul class="list-none m-0 p-0">
                             <li *ngFor="let notification of notifications" class="mb-3">
                                 <div class="flex align-items-start p-2 border-round surface-hover">
-                                    <span class="flex align-items-center justify-content-center border-circle bg-primary-100 mr-3" style="width: 2.5rem; height: 2.5rem">
+                                    <span
+                                        class="flex align-items-center justify-content-center border-circle bg-primary-100 mr-3"
+                                        style="width: 2.5rem; height: 2.5rem">
                                         <i [ngClass]="notification.icon" class="text-lg text-primary-700"></i>
                                     </span>
                                     <div>
@@ -118,8 +116,9 @@
 
                 <!-- Upcoming Lessons -->
                 <div class="col-12">
-                    <p-card header="Scheduled Lessons">
-                        <p-table [value]="upcomingLessons" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+                    <p-card header="Aulas agendadas">
+                        <p-table [value]="upcomingLessons" styleClass="p-datatable-sm"
+                                 [tableStyle]="{'min-width': '50rem'}">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th>Date</th>

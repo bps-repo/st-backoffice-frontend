@@ -12,8 +12,7 @@ import {Store} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
 import {Unit} from 'src/app/core/models/course/unit';
-import {selectAllStudents} from 'src/app/core/store/schoolar/reducers/students.reducers';
-import {studentsActions} from 'src/app/core/store/schoolar/actions/students.actions';
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 
 @Component({
     selector: 'app-unit-progress',
@@ -48,10 +47,7 @@ export class UnitProgressComponent implements OnInit {
     }
 
     loadStudents(): void {
-        this.store.dispatch(studentsActions.loadStudents());
-        this.store.select(selectAllStudents).subscribe(students => {
-            this.students = students;
-        });
+        this.store.dispatch(StudentsActions.loadStudents());
     }
 
     onStudentChange(): void {
@@ -63,16 +59,14 @@ export class UnitProgressComponent implements OnInit {
         }
     }
 
-    loadUnitProgress(studentId: number): void {
-        // In a real application, this would call a service method to get the unit progress
-        // For now, we'll simulate with mock data
+    loadUnitProgress(studentId: string): void {
         setTimeout(() => {
             this.unitProgressList = this.generateMockUnitProgress(studentId);
             this.loading = false;
         }, 1000);
     }
 
-    private generateMockUnitProgress(studentId: number): UnitProgress[] {
+    private generateMockUnitProgress(studentId: string): UnitProgress[] {
         // Generate mock unit progress data
         const mockUnits: Unit[] = [];
 
@@ -118,7 +112,7 @@ export class UnitProgressComponent implements OnInit {
         this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `Progress report for ${this.selectedStudent.name} exported`
+            detail: `Progress report for ${this.selectedStudent.user.firstName} exported`
         });
     }
 }

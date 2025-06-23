@@ -1,19 +1,29 @@
 import {Unit} from "../course/unit";
-import {Class} from "./class";
-import {Permission} from "../auth/permission";
+import {User} from "../user.model";
 
 export interface Student {
-    id?: number;
-    name: string;
-    center: string;
-    course: string;
-    level: string;
-    phone: number;
-    email: string;
-    birthdate: string;
-    unit?: Unit,
-    classEntity?: Class
-    permissions?: Permission[];
+    id?: string;
+    user: User;
+    status: StudentStatus;
+    levelProgressPercentage: number;
+    studentClass?: any;
+    centerId: string;
+    levelId: string;
+    currentUnit?: Unit;
+    enrollmentDate: string;
+    certificates?: any[];
+    attendances?: any[];
+    unitProgresses?: any[];
     createdAt?: string;
     updatedAt?: string;
+}
+
+export enum StudentStatus {
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+    GRADUATED = 'GRADUATED',
+    DROPPED_OUT = 'DROPPED_OUT',
+    SUSPENDED = 'SUSPENDED',
+    QUIT = 'QUIT',
+    PENDING_PAYMENT = 'PENDING_PAYMENT',
 }

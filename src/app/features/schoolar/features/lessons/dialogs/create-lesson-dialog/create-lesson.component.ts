@@ -9,15 +9,15 @@ import {InputTextareaModule} from 'primeng/inputtextarea';
 import {CalendarModule} from 'primeng/calendar';
 import {LEVELS, INSTALATIONS} from 'src/app/shared/constants/app';
 import {Store} from '@ngrx/store';
-import {lessonsActions} from 'src/app/core/store/schoolar';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
 import {Router} from '@angular/router';
-import {Subject, takeUntil} from 'rxjs';
+import {Subject} from 'rxjs';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {CheckboxModule} from "primeng/checkbox";
 import {CardModule} from 'primeng/card';
+import {lessonsActions} from "../../../../../../core/store/schoolar/actions/lessons.actions";
 
 @Component({
     selector: 'app-create-lesson',
@@ -67,7 +67,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         private store: Store,
         private router: Router,
         private messageService: MessageService
-    ) {}
+    ) {
+    }
 
     ngOnInit() {
         // Initialize dropdown options
@@ -110,7 +111,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         };
 
         // Dispatch the create lesson action
-        this.store.dispatch(lessonsActions.createLesson({ lesson: lessonToSave }));
+        this.store.dispatch(lessonsActions.createLesson({lesson: lessonToSave}));
 
         // Show success message and navigate to the lessons list
         this.messageService.add({

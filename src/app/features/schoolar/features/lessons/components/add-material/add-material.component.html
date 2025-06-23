@@ -1,0 +1,90 @@
+<p-toast></p-toast>
+
+<p-card>
+    <ng-template pTemplate="title">
+        <div class="flex align-items-center justify-content-between">
+            <div class="flex align-items-center gap-2">
+                <i class="pi pi-plus-circle text-primary"></i>
+                <span class="font-bold">Add Material to Lesson</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <div *ngIf="loading" class="flex justify-content-center">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    </div>
+
+    <div *ngIf="!loading">
+        <div *ngIf="lesson" class="mb-4">
+            <h3>{{ lesson.title }}</h3>
+            <p>{{ lesson.description }}</p>
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <p><strong>Teacher:</strong> {{ lesson.teacher }}</p>
+                    <p><strong>Level:</strong> {{ lesson.level }}</p>
+                    <p *ngIf="lesson.unit"><strong>Unit:</strong> {{ lesson.unit }}</p>
+                </div>
+                <div class="col-12 md:col-6">
+                    <p><strong>Start:</strong> {{ lesson.startDatetime | date:'medium' }}</p>
+                    <p><strong>End:</strong> {{ lesson.endDatetime | date:'medium' }}</p>
+                    <p><strong>Center:</strong> {{ lesson.online ? 'Online' : lesson.center }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-fluid">
+            <div class="field">
+                <label for="title">Title</label>
+                <input type="text" pInputText id="title" [(ngModel)]="newMaterial.title" required autofocus/>
+            </div>
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea pInputTextarea id="description" [(ngModel)]="newMaterial.description" rows="3"></textarea>
+            </div>
+            <div class="field">
+                <label for="type">Type</label>
+                <input type="text" pInputText id="type" [(ngModel)]="newMaterial.type" required/>
+                <small class="text-500">e.g., pdf, doc, ppt, mp4, etc.</small>
+            </div>
+            <div class="field">
+                <label for="fileUpload">Upload File</label>
+                <p-fileUpload id="fileUpload" mode="basic" chooseLabel="Choose File" [auto]="true"
+                              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.mp4,.mp3"
+                              [maxFileSize]="10000000"
+                              (onSelect)="onFileSelect($event)"
+                              (onError)="onFileUploadError($event)">
+                </p-fileUpload>
+                <small class="text-500">Max file size: 10MB</small>
+            </div>
+            <div class="field">
+                <label for="fileUrl">File URL</label>
+                <input type="text" pInputText id="fileUrl" [(ngModel)]="newMaterial.fileUrl" required/>
+                <small class="text-500">Enter a URL or upload a file above</small>
+            </div>
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field">
+                        <label for="startDate">Available From</label>
+                        <p-calendar id="startDate" [(ngModel)]="newMaterial.availabilityStartDate" [showIcon]="true"
+                                    dateFormat="dd/mm/yy"></p-calendar>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="field">
+                        <label for="endDate">Available Until</label>
+                        <p-calendar id="endDate" [(ngModel)]="newMaterial.availabilityEndDate" [showIcon]="true"
+                                    dateFormat="dd/mm/yy"></p-calendar>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined"
+                        (click)="cancel()" [disabled]="loading"></button>
+                <button pButton type="button" label="Add Material" icon="pi pi-check"
+                        (click)="addMaterial()"
+                        [disabled]="!newMaterial.title || !newMaterial.type || !newMaterial.fileUrl || loading"></button>
+            </div>
+        </div>
+    </div>
+</p-card>
