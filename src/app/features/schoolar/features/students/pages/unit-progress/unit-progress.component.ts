@@ -12,7 +12,6 @@ import {Store} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
 import {Unit} from 'src/app/core/models/course/unit';
-import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 
 @Component({
@@ -113,7 +112,7 @@ export class UnitProgressComponent implements OnInit {
         this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `Progress report for ${this.selectedStudent.name} exported`
+            detail: `Progress report for ${this.selectedStudent.user.firstName} exported`
         });
     }
 }

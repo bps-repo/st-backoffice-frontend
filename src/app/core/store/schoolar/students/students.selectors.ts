@@ -97,8 +97,8 @@ export const selectFilteredStudents = createSelector(
             if (filters.searchTerm) {
                 const searchLower = filters.searchTerm.toLowerCase();
                 const matchesSearch =
-                    student.name?.toLowerCase().includes(searchLower) ||
-                    student.email?.toLowerCase().includes(searchLower) ||
+                    student.user.firstName?.toLowerCase().includes(searchLower) ||
+                    student.user.email?.toLowerCase().includes(searchLower) ||
                     student.id?.toLowerCase().includes(searchLower);
 
                 if (!matchesSearch) return false;

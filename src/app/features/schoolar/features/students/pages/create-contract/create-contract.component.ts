@@ -123,7 +123,7 @@ export class CreateContractComponent implements OnInit {
             this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
-                detail: `Contract created for ${this.selectedStudent!.name}`
+                detail: `Contract created for ${this.selectedStudent!.user.firstName}`
             });
             this.contractForm.reset({
                 status: 'ACTIVE'
