@@ -11,7 +11,7 @@ import {MenuItem} from 'primeng/api';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {selectSelectedClass} from 'src/app/core/store/schoolar/selectors/classes.selectors';
-import {Lesson} from "../../../../../../core/models/academic/lesson";
+import {Lesson, mockLesson} from "../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../core/enums/lesson-status";
 import {lessonsActions} from "../../../../../../core/store/schoolar/actions/lessons.actions";
 
@@ -30,7 +30,7 @@ import {lessonsActions} from "../../../../../../core/store/schoolar/actions/less
 export class LessonDetailComponent implements OnInit, OnDestroy {
     tabs!: Observable<Tab[]>;
     items!: MenuItem[];
-    classItem: Lesson | null = null;
+    lesson: Lesson | null = mockLesson
     private destroy$ = new Subject<void>();
 
     constructor(
@@ -57,7 +57,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.store.select(selectSelectedClass)
             .pipe(takeUntil(this.destroy$))
             .subscribe(classItem => {
-                this.classItem = classItem!;
+                //this.classItem = classItem!;
             });
 
         this.items = [

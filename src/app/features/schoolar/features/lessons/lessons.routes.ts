@@ -2,7 +2,8 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {CreateLessonComponent} from './dialogs/create-lesson-dialog/create-lesson.component';
 import {LessonDetailComponent} from './pages/detail/lesson-detail.component';
-import {LessonsListComponent} from "./pages/list/lessons-list.component";
+import {BookLessonComponent} from "./components/book-lesson/book-lesson.component";
+import {LessonsListComponent} from "./components/list/lessons-list.component";
 
 const routes: Routes = [
     {
@@ -16,6 +17,10 @@ const routes: Routes = [
     {
         path: ':id',
         component: LessonDetailComponent,
+    },
+    {
+        path: 'books/:lessonId/:studentId',
+        component: BookLessonComponent,
     },
 ];
 

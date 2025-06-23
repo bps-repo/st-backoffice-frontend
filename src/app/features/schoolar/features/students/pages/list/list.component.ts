@@ -126,4 +126,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     onRowSelect($event: Student) {
         this.router.navigate(['/schoolar/students', $event.id]);
     }
+
+    navigateToCreateStudent() {
+        this.router.navigate(['/schoolar/students/create']);
+    }
 }
