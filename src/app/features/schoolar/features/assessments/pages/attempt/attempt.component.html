@@ -1,0 +1,57 @@
+<div class="grid">
+    <div class="col-12">
+        <p-card>
+            <ng-template pTemplate="title">
+                <h2>Record Assessment Attempt</h2>
+            </ng-template>
+            <ng-template pTemplate="subtitle">
+                <div *ngIf="exam" class="text-lg text-primary">
+                    {{ exam.name }}
+                </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+                <div class="grid p-fluid">
+                    <div class="col-12 md:col-6 field">
+                        <label for="student" class="font-bold">Student</label>
+                        <p-dropdown id="student" [options]="students" [(ngModel)]="selectedStudent"
+                            optionLabel="name" placeholder="Select a student" [showClear]="true"
+                            (onChange)="onStudentChange()"></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label for="date" class="font-bold">Date</label>
+                        <input id="date" type="text" pInputText [value]="attempt.date | date:'yyyy-MM-dd'" disabled>
+                    </div>
+
+                    <div class="col-12">
+                        <p-tabView>
+                            <p-tabPanel *ngFor="let category of skillCategories" [header]="category.label">
+                                <div class="grid p-fluid">
+                                    <div class="col-12 md:col-6 field">
+                                        <label [for]="'score-' + category.value" class="font-bold">Score</label>
+                                        <p-inputNumber [id]="'score-' + category.value"
+                                            [(ngModel)]="attempt.skillEvaluations[category.value].score"
+                                            [min]="0" [max]="100" [showButtons]="true"></p-inputNumber>
+                                    </div>
+
+                                    <div class="col-12 field">
+                                        <label [for]="'feedback-' + category.value" class="font-bold">Feedback</label>
+                                        <textarea [id]="'feedback-' + category.value" pInputTextarea
+                                            [(ngModel)]="attempt.skillEvaluations[category.value].feedback"
+                                            rows="5" placeholder="Enter feedback for this skill"></textarea>
+                                    </div>
+                                </div>
+                            </p-tabPanel>
+                        </p-tabView>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="flex justify-content-end">
+                    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2" (click)="cancel()"></button>
+                    <button pButton label="Save" icon="pi pi-check" (click)="saveAttempt()" [disabled]="!selectedStudent"></button>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+</div>

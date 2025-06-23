@@ -8,7 +8,7 @@ import {ASSESSMENTS_TABS} from 'src/app/shared/constants/reviews';
 import {Observable, Subject, takeUntil} from 'rxjs';
 import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {selectSelectedExam} from 'src/app/core/store/schoolar/selectors/exams.selectors';
 import {Exam} from 'src/app/core/models/academic/exam';
@@ -34,6 +34,7 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private store: Store
     ) {
     }
@@ -60,8 +61,20 @@ export class DetailComponent implements OnInit, OnDestroy {
             });
 
         this.items = [
-            {label: 'Edit Evaluation', icon: 'pi pi-pencil'},
-            {label: 'Add Student', icon: 'pi pi-user-plus'},
+            {
+                label: 'Edit Evaluation',
+                icon: 'pi pi-pencil',
+                command: () => {
+                    this.router.navigate(['/schoolar/assessments/edit', "12434"]);
+                }
+            },
+            {
+                label: 'Record Student Attempt',
+                icon: 'pi pi-user-plus',
+                command: () => {
+                    this.router.navigate(['/schoolar/assessments/attempt', "1232"]);
+                }
+            },
             {separator: true},
             {label: 'Print Evaluation Report', icon: 'pi pi-file-pdf'},
             {label: 'Export Results', icon: 'pi pi-file-excel'},
