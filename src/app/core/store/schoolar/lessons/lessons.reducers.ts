@@ -1,25 +1,10 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
-import {ClassesState} from '../app.state';
-import {lessonsActions} from '../actions/lessons.actions';
-import {createEntityAdapter, EntityAdapter} from '@ngrx/entity';
-import {Class} from 'src/app/core/models/academic/class';
-import {Lesson} from "../../../models/academic/lesson";
-
-// Create entity adapter
-export const lessonsAdapter: EntityAdapter<Lesson> = createEntityAdapter<Lesson>({
-    selectId: (classItem: Lesson) => classItem.id!,
-});
-
-// Initial state
-export const lessonsInitialState: ClassesState = lessonsAdapter.getInitialState({
-    selectedLessonId: null,
-    loading: false,
-    error: null,
-});
+import {LESSONS_FEATURE_KEY, lessonsActions} from './lessons.actions';
+import {lessonsAdapter, lessonsInitialState} from "./lessons.state";
 
 // Create feature
-export const classesFeature = createFeature({
-    name: 'lessons',
+export const lessonsFeature = createFeature({
+    name: LESSONS_FEATURE_KEY,
     reducer: createReducer(
         lessonsInitialState,
         // Load lessons

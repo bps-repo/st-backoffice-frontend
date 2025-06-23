@@ -1,6 +1,7 @@
 import {EntityState} from '@ngrx/entity';
 import {Lesson} from "../../models/academic/lesson";
 import {StudentsState} from "./students/students.state";
+import {LessonsState} from "./lessons/lessons.state";
 
 export interface AppState {
     students: StudentsState;
@@ -12,6 +13,7 @@ export interface AppState {
     certificates: CertificatesState;
     reports: ReportsState;
     settings: SettingsState;
+    lessons: LessonsState;
 }
 
 export interface ClassesState extends EntityState<Lesson> {

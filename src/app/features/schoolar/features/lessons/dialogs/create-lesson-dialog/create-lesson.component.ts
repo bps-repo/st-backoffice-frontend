@@ -17,7 +17,7 @@ import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {CheckboxModule} from "primeng/checkbox";
 import {CardModule} from 'primeng/card';
-import {lessonsActions} from "../../../../../../core/store/schoolar/actions/lessons.actions";
+import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 
 @Component({
     selector: 'app-create-lesson',

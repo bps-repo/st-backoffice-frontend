@@ -1,7 +1,12 @@
 import {TableColumn} from "../../../../shared/components/tables/global-table/global-table.component";
 
-export const GLOBAL_FILTERS = ['id', 'name', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'dateOfBirth'];
+export const GLOBAL_FILTERS = ['id', 'code', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'dateOfBirth'];
 export const COLUMNS: TableColumn[] = [
+    {
+        field: 'code',
+        header: 'ID',
+        filterType: 'numeric',
+    },
     {
         field: 'name',
         header: 'Nome',
@@ -15,17 +20,17 @@ export const COLUMNS: TableColumn[] = [
         customTemplate: true,
     },
     {
-        field: 'center',
+        field: 'centerId',
         header: 'Centro',
         filterType: 'text',
     },
     {
-        field: 'level',
+        field: 'levelId',
         header: 'Nível',
         filterType: 'text',
     },
     {
-        field: 'classEntity',
+        field: 'classEntityId',
         header: 'Turma',
         filterType: 'text',
     },
@@ -41,12 +46,6 @@ export const COLUMNS: TableColumn[] = [
             {label: 'On Leave', value: 'On Leave'}
         ]
     },
-    // {
-    //     field: 'phone',
-    //     header: 'Telefone',
-    //     filterType: 'numeric',
-    //     customTemplate: true,
-    // },
     {
         field: 'dateOfBirth',
         header: 'Data de Nascimento',

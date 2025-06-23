@@ -10,6 +10,8 @@ import {unitFeature} from "../course/reducers/unit.reducer";
 import {centerFeature} from "../corporate/reducers/center.reducer";
 import {serviceFeature} from "../course/reducers/service.reducer";
 import {authFeature} from "../auth/reducers/auth.reducers";
+import {LessonsEffects} from "./lessons/lessons.effects";
+import {lessonsFeature} from "./lessons/lessons.reducers";
 
 export const AppEffects = [
     AuthEffects,
@@ -18,9 +20,9 @@ export const AppEffects = [
     StudentsEffects,
     UnitEffects,
     ServiceEffects,
-    LevelEffects
+    LevelEffects,
+    LessonsEffects
 ]
-
 
 export const AppFeatures = [
     studentsFeature,
@@ -29,4 +31,5 @@ export const AppFeatures = [
     centerFeature,
     serviceFeature,
     authFeature,
+    lessonsFeature
 ]

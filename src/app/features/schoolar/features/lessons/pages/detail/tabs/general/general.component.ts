@@ -2,13 +2,11 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {Subject, takeUntil} from 'rxjs';
+import {Subject} from 'rxjs';
 import {CardModule} from 'primeng/card';
 import {TagModule} from 'primeng/tag';
-import {selectSelectedClass} from 'src/app/core/store/schoolar/selectors/classes.selectors';
 import {Lesson} from "../../../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../../../core/enums/lesson-status";
-import {LESSONS} from "../../../../../../../../shared/constants/lessons";
 
 @Component({
     selector: 'app-general',
@@ -27,12 +25,6 @@ export class GeneralComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        // Subscribe to the selected class
-        this.store.select(selectSelectedClass)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(classItem => {
-                this.lessonItem = LESSONS[0];
-            });
     }
 
     ngOnDestroy(): void {
