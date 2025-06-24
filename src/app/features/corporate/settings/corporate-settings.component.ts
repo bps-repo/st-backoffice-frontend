@@ -8,7 +8,8 @@ import {CenterSettingsComponent} from "./centers/center-settings.component";
     selector: 'app-reports-dashboard',
     standalone: true,
     imports: [CommonModule, ViewTabComponent],
-    templateUrl: './corporate-settings.component.html',
+    template: `
+        <app-view-tab [title]="'Definições'" [viewOptions]="viewOptions"/>`,
 })
 export class CorporateSettingsComponent {
     viewOptions = [

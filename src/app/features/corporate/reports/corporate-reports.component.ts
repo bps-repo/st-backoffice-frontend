@@ -7,7 +7,8 @@ import {CenterReports} from "./centers/center-reports.component";
     selector: 'app-corporate-reports',
     standalone: true,
     imports: [CommonModule, ViewTabComponent],
-    templateUrl: './corporate-reports.component.html',
+    template: `
+        <app-view-tab [title]="'Relatórios'" [viewOptions]="viewOptions"/>`,
 })
 export class CorporateReportsComponent {
     viewOptions = [

@@ -8,7 +8,9 @@ import {PaymentSettingsComponent} from "./payment/payment-settings.component";
     selector: 'app-reports-dashboard',
     standalone: true,
     imports: [CommonModule, ViewTabComponent],
-    templateUrl: './finance-settings.component.html',
+    template: `
+        <app-view-tab [title]="'Definições'" [viewOptions]="viewOptions"/>
+    `,
 })
 export class FinanceSettingsComponent {
     viewOptions = [

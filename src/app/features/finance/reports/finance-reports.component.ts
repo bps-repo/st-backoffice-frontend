@@ -6,7 +6,8 @@ import {ViewTabComponent} from "../../../shared/components/view-tab/view-tab.com
     selector: 'app-reports-dashboard',
     standalone: true,
     imports: [CommonModule, ViewTabComponent],
-    templateUrl: './finance-reports.component.html',
+    template: `
+        <app-view-tab [title]="'Relatórios'" [viewOptions]="viewOptions"/>`,
 })
 export class FinanceReportsComponent {
     viewOptions = [
