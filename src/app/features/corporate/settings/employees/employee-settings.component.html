@@ -1,0 +1,64 @@
+<div class="card">
+    <div class="card-header">
+        <h3>Definições de Trabalhadores</h3>
+    </div>
+    <div class="card-body">
+        <p>Configure as definições padrão para os trabalhadores da empresa.</p>
+
+        <form [formGroup]="employeeSettingsForm" (ngSubmit)="saveSettings()" class="mt-4">
+            <div class="grid">
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="defaultWorkHours" class="block mb-1">Horas de Trabalho Diárias</label>
+                    <input id="defaultWorkHours" type="number" pInputText formControlName="defaultWorkHours" class="w-full" />
+                    <small *ngIf="employeeSettingsForm.get('defaultWorkHours')?.invalid && employeeSettingsForm.get('defaultWorkHours')?.touched" class="p-error">
+                        Horas de trabalho devem estar entre 1 e 24
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="defaultVacationDays" class="block mb-1">Dias de Férias Anuais</label>
+                    <input id="defaultVacationDays" type="number" pInputText formControlName="defaultVacationDays" class="w-full" />
+                    <small *ngIf="employeeSettingsForm.get('defaultVacationDays')?.invalid && employeeSettingsForm.get('defaultVacationDays')?.touched" class="p-error">
+                        Dias de férias devem estar entre 0 e 30
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="defaultSickDays" class="block mb-1">Dias de Baixa Médica Anuais</label>
+                    <input id="defaultSickDays" type="number" pInputText formControlName="defaultSickDays" class="w-full" />
+                    <small *ngIf="employeeSettingsForm.get('defaultSickDays')?.invalid && employeeSettingsForm.get('defaultSickDays')?.touched" class="p-error">
+                        Dias de baixa médica devem ser pelo menos 0
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="overtimeMultiplier" class="block mb-1">Multiplicador de Horas Extras</label>
+                    <input id="overtimeMultiplier" type="number" step="0.1" pInputText formControlName="overtimeMultiplier" class="w-full" />
+                    <small *ngIf="employeeSettingsForm.get('overtimeMultiplier')?.invalid && employeeSettingsForm.get('overtimeMultiplier')?.touched" class="p-error">
+                        Multiplicador deve ser pelo menos 1
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="weekendMultiplier" class="block mb-1">Multiplicador de Fim de Semana</label>
+                    <input id="weekendMultiplier" type="number" step="0.1" pInputText formControlName="weekendMultiplier" class="w-full" />
+                    <small *ngIf="employeeSettingsForm.get('weekendMultiplier')?.invalid && employeeSettingsForm.get('weekendMultiplier')?.touched" class="p-error">
+                        Multiplicador deve ser pelo menos 1
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="holidayMultiplier" class="block mb-1">Multiplicador de Feriados</label>
+                    <input id="holidayMultiplier" type="number" step="0.1" pInputText formControlName="holidayMultiplier" class="w-full" />
+                    <small *ngIf="employeeSettingsForm.get('holidayMultiplier')?.invalid && employeeSettingsForm.get('holidayMultiplier')?.touched" class="p-error">
+                        Multiplicador deve ser pelo menos 1
+                    </small>
+                </div>
+
+                <div class="col-12 flex justify-content-end">
+                    <button pButton type="submit" label="Salvar Definições" [disabled]="employeeSettingsForm.invalid"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

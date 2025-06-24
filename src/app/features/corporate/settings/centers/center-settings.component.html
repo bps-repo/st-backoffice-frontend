@@ -1,0 +1,64 @@
+<div class="card">
+    <div class="card-header">
+        <h3>Definições de Centros</h3>
+    </div>
+    <div class="card-body">
+        <p>Configure as definições dos centros da empresa.</p>
+
+        <form [formGroup]="centerForm" (ngSubmit)="saveCenter()" class="mt-4">
+            <div class="grid">
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="centerName" class="block mb-1">Nome do Centro</label>
+                    <input id="centerName" type="text" pInputText formControlName="centerName" class="w-full" />
+                    <small *ngIf="centerForm.get('centerName')?.invalid && centerForm.get('centerName')?.touched" class="p-error">
+                        Nome do centro é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="location" class="block mb-1">Localização</label>
+                    <input id="location" type="text" pInputText formControlName="location" class="w-full" />
+                    <small *ngIf="centerForm.get('location')?.invalid && centerForm.get('location')?.touched" class="p-error">
+                        Localização é obrigatória
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="manager" class="block mb-1">Gestor</label>
+                    <input id="manager" type="text" pInputText formControlName="manager" class="w-full" />
+                    <small *ngIf="centerForm.get('manager')?.invalid && centerForm.get('manager')?.touched" class="p-error">
+                        Gestor é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="contactPhone" class="block mb-1">Telefone de Contato</label>
+                    <input id="contactPhone" type="text" pInputText formControlName="contactPhone" class="w-full" />
+                    <small *ngIf="centerForm.get('contactPhone')?.invalid && centerForm.get('contactPhone')?.touched" class="p-error">
+                        Telefone de contato é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="contactEmail" class="block mb-1">Email de Contato</label>
+                    <input id="contactEmail" type="email" pInputText formControlName="contactEmail" class="w-full" />
+                    <small *ngIf="centerForm.get('contactEmail')?.invalid && centerForm.get('contactEmail')?.touched" class="p-error">
+                        Email de contato válido é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="isActive" class="block mb-1">Status</label>
+                    <div class="flex align-items-center">
+                        <p-inputSwitch formControlName="isActive"></p-inputSwitch>
+                        <span class="ml-2">{{ centerForm.get('isActive')?.value ? 'Ativo' : 'Inativo' }}</span>
+                    </div>
+                </div>
+
+                <div class="col-12 flex justify-content-end">
+                    <button pButton type="submit" label="Salvar Definições" [disabled]="centerForm.invalid"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

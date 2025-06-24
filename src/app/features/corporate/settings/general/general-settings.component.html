@@ -1,0 +1,56 @@
+<div class="card">
+    <div class="card-header">
+        <h3>Definições Gerais</h3>
+    </div>
+    <div class="card-body">
+        <p>Configure as definições gerais da empresa.</p>
+
+        <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="mt-4">
+            <div class="grid">
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="companyName" class="block mb-1">Nome da Empresa</label>
+                    <input id="companyName" type="text" pInputText formControlName="companyName" class="w-full" />
+                    <small *ngIf="settingsForm.get('companyName')?.invalid && settingsForm.get('companyName')?.touched" class="p-error">
+                        Nome da empresa é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="email" class="block mb-1">Email</label>
+                    <input id="email" type="email" pInputText formControlName="email" class="w-full" />
+                    <small *ngIf="settingsForm.get('email')?.invalid && settingsForm.get('email')?.touched" class="p-error">
+                        Email válido é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="phone" class="block mb-1">Telefone</label>
+                    <input id="phone" type="text" pInputText formControlName="phone" class="w-full" />
+                    <small *ngIf="settingsForm.get('phone')?.invalid && settingsForm.get('phone')?.touched" class="p-error">
+                        Telefone é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="taxId" class="block mb-1">NIF</label>
+                    <input id="taxId" type="text" pInputText formControlName="taxId" class="w-full" />
+                    <small *ngIf="settingsForm.get('taxId')?.invalid && settingsForm.get('taxId')?.touched" class="p-error">
+                        NIF é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label for="address" class="block mb-1">Endereço</label>
+                    <textarea id="address" pInputTextarea formControlName="address" class="w-full" rows="3"></textarea>
+                    <small *ngIf="settingsForm.get('address')?.invalid && settingsForm.get('address')?.touched" class="p-error">
+                        Endereço é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 flex justify-content-end">
+                    <button pButton type="submit" label="Salvar Definições" [disabled]="settingsForm.invalid"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

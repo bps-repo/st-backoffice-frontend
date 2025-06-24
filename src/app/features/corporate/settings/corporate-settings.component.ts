@@ -1,11 +1,12 @@
 import {Component} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ViewTabComponent} from "../../../shared/components/view-tab/view-tab.component";
-import {PaymentComponent} from "../../../shared/components/uikit/menus/payment.component";
 import {CenterSettingsComponent} from "./centers/center-settings.component";
+import {GeneralSettingsComponent} from "./general/general-settings.component";
+import {EmployeeSettingsComponent} from "./employees/employee-settings.component";
 
 @Component({
-    selector: 'app-reports-dashboard',
+    selector: 'app-corporate-settings',
     standalone: true,
     imports: [CommonModule, ViewTabComponent],
     template: `
@@ -13,7 +14,8 @@ import {CenterSettingsComponent} from "./centers/center-settings.component";
 })
 export class CorporateSettingsComponent {
     viewOptions = [
-        {label: 'Geral', value: {key: 'general', component: null}},
+        {label: 'Geral', value: {key: 'general', component: GeneralSettingsComponent}},
         {label: 'Centros', value: {key: 'centers', component: CenterSettingsComponent}},
+        {label: 'Trabalhadores', value: {key: 'employees', component: EmployeeSettingsComponent}},
     ];
 }

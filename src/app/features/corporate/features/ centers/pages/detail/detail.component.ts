@@ -1,19 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { SelectItem } from 'primeng/api';
-import { Observable } from 'rxjs';
-import { DropdownModule } from 'primeng/dropdown';
-import * as CenterActions from 'src/app/core/store/corporate/actions/center.actions';
-import { selectSelectedCenter, selectCenterLoading } from 'src/app/core/store/corporate/selectors/center.selector';
-import { SkeletonModule } from 'primeng/skeleton';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { Center } from 'src/app/core/models/corporate/center';
-import { FormsModule } from '@angular/forms';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {SelectItem} from 'primeng/api';
+import {Observable, of} from 'rxjs';
+import {DropdownModule} from 'primeng/dropdown';
+import {SkeletonModule} from 'primeng/skeleton';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {ButtonModule} from 'primeng/button';
+import {Center} from 'src/app/core/models/corporate/center';
+import {FormsModule} from '@angular/forms';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import * as CenterSelectors from "../../../../../../core/store/corporate/center/centers.selector";
+import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 
 @Component({
     selector: 'app-center-student',
@@ -32,19 +32,16 @@ export class DetailComponent implements OnInit {
 
     centerId: string = '';
     editableCenter: Center | null = null;
-    center$: Observable<Center | null>;
+    center$: Observable<Center | null> = of();
     center: Center | null = null;
-    loading$: Observable<boolean>;
     loading: boolean = true;
 
     activeOptions: SelectItem[] = [
-        { label: 'Yes', value: true },
-        { label: 'No', value: false }
+        {label: 'Yes', value: true},
+        {label: 'No', value: false}
     ];
 
     constructor(private route: ActivatedRoute, private store: Store) {
-        this.center$ = this.store.select(selectSelectedCenter);
-        this.loading$ = this.store.select(selectCenterLoading);
     }
 
     ngOnInit(): void {
@@ -57,16 +54,12 @@ export class DetailComponent implements OnInit {
         this.center$.subscribe(center => {
             this.center = center;
             // Criar uma cópia mutável do objeto center
-            this.editableCenter = center ? { ...center } : null;
-        });
-
-        this.loading$.subscribe(loading => {
-            this.loading = loading;
+            this.editableCenter = center ? {...center} : null;
         });
     }
 
     loadCenter(): void {
-        this.store.dispatch(CenterActions.loadCenter({ id: this.centerId }));
+        this.store.dispatch(CenterActions.loadCenter({id: this.centerId}));
     }
 
     editCenter(): void {
@@ -78,8 +71,6 @@ export class DetailComponent implements OnInit {
                 phone: this.editableCenter.phone,
                 active: this.editableCenter.active
             };
-
-            this.store.dispatch(CenterActions.updateCenter({ id: this.centerId, center: updatedCenter }));
         }
     }
 

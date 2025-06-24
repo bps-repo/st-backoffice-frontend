@@ -1,0 +1,63 @@
+import {CenterFeature} from "./centers.reducer";
+import {centersAdapter} from "./centerState";
+import {createSelector} from "@ngrx/store";
+
+
+const {
+    selectError,
+    selectErrorCreate,
+    selectErrorDelete,
+    selectErrorUpdate,
+    selectLoading,
+    selectSelectedCenter,
+    selectLoadingUpdate,
+    selectLoadingCreate,
+    selectLoadingDelete
+} = CenterFeature
+
+
+const {
+    selectEntities,
+    selectAll,
+    selectTotal,
+    selectIds
+} = centersAdapter.getSelectors(CenterFeature.selectCenterState);
+
+
+export const selectAllCenters = createSelector(
+    selectAll,
+    (centers) => centers
+)
+
+export const selectCenterEntities = createSelector(
+    selectEntities,
+    (entities) => entities
+);
+
+
+export const selectCenterIds = selectIds;
+
+export const selectTotalCenters = selectTotal;
+
+// Error selectors
+export const selectCenterAnyError = createSelector(
+    selectError,
+    selectErrorCreate,
+    selectErrorUpdate,
+    selectErrorDelete,
+    (error, createError, updateError, deleteError) =>
+        error || createError || updateError || deleteError
+);
+
+export const selectLoadingCenters = selectLoading;
+
+export const selectLoadingCreateCenter = selectLoadingCreate;
+
+export const selectLoadingUpdateCenter = selectLoadingUpdate;
+
+export const selectLoadingDeleteCenter = selectLoadingDelete;
+
+export const selectSelectedCenterId = createSelector(
+    selectSelectedCenter,
+    (selectedCenter) => selectedCenter?.id
+);
