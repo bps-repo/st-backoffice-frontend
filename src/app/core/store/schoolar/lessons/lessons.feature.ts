@@ -1,6 +1,6 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 import {LESSONS_FEATURE_KEY, lessonsActions} from './lessons.actions';
-import {lessonsAdapter, lessonsInitialState} from "./lessons.state";
+import {lessonsAdapter, lessonsInitialState} from "./lessonState";
 
 // Create feature
 export const lessonsFeature = createFeature({

@@ -1,7 +1,7 @@
 import {createEntityAdapter, EntityAdapter, EntityState} from "@ngrx/entity";
 import {Lesson} from "../../../models/academic/lesson";
 
-export interface LessonsState extends EntityState<Lesson> {
+export interface LessonState extends EntityState<Lesson> {
     // Loading states
     loading: boolean;
     loadingCreate: boolean;
@@ -10,6 +10,10 @@ export interface LessonsState extends EntityState<Lesson> {
 
     // Error states
     error: string | null;
+    createError: string | null;
+    updateError: string | null;
+    deleteError: string | null;
+    bulkError: string | null;
 
     // Selection state
     selectedLessonId: string | null;
@@ -27,16 +31,18 @@ export const lessonsAdapter: EntityAdapter<Lesson> = createEntityAdapter<Lesson>
     sortComparer: false
 });
 
-export const lessonsInitialState: LessonsState = {
-    ids: [],
-    entities: {},
+export const lessonsInitialState: LessonState = lessonsAdapter.getInitialState({
     loading: false,
     loadingCreate: false,
     loadingUpdate: false,
     loadingDelete: false,
     error: null,
+    createError: null,
+    updateError: null,
+    deleteError: null,
+    bulkError: null,
     selectedLessonId: null,
     lastFetch: null,
     cacheExpired: false,
     searchDebounceTimer: null
-};
+});

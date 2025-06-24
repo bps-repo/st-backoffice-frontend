@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { Exam } from 'src/app/core/models/academic/exam';
-import { selectSelectedExam } from 'src/app/core/store/schoolar/selectors/exams.selectors';
+import { selectSelectedExam } from 'src/app/core/store/schoolar/assessments/exams.selectors';
 import { TableModule } from 'primeng/table';
 
 @Component({

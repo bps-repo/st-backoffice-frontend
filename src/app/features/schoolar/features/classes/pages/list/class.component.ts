@@ -5,13 +5,16 @@ import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import {TableService} from 'src/app/shared/services/table.service';
-import {Class} from 'src/app/core/models/academic/class';
 import {Store} from '@ngrx/store';
 import {Observable, Subject} from 'rxjs';
 import {ChartModule} from 'primeng/chart';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
+import {CLASSES_COLUMNS, GLOBAL_CLASSES_FILTERS} from "../../classes.constants";
+import {ClassState} from "../../../../../../core/store/schoolar/classes/classState";
+import {classesActions} from "../../../../../../core/store/schoolar/classes/classes.actions";
+import {Class} from "../../../../../../core/models/academic/class";
+import * as ClassSelectors from "../../../../../../core/store/schoolar/classes/classes.selectors";
 
 @Component({
     selector: 'app-list',
@@ -26,22 +29,32 @@ import {CardModule} from 'primeng/card';
     templateUrl: './class.component.html'
 })
 export class ClassComponent implements OnInit, OnDestroy {
-    classes: any[] = []; // This would be populated from a service
-    columns: TableColumn[] = [];
-    globalFilterFields: string[] = [];
-    loading = false;
+    classes$: Observable<Class[]>;
+
+    classes: Class[] = [];
+
+    columns: TableColumn[] = CLASSES_COLUMNS;
+
+    globalFilterFields: string[] = GLOBAL_CLASSES_FILTERS;
+
+    loading$: Observable<boolean>;
 
     // Chart data
     centerChartData: any;
+
     levelChartData: any;
+
     teacherChartData: any;
+
     statusChartData: any;
+
     enrollmentChartData: any;
+
     chartOptions: any;
 
     private destroy$ = new Subject<void>();
 
-    constructor(private tableService: TableService<any>, private store: Store, private router: Router) {
+    constructor(private store$: Store<ClassState>, private router: Router) {
         // Initialize chart options
         this.chartOptions = {
             plugins: {
@@ -56,123 +69,18 @@ export class ClassComponent implements OnInit, OnDestroy {
             maintainAspectRatio: false
         };
 
-        // Generate chart data
-        this.generateChartData();
+        this.classes$ = this.store$.select(ClassSelectors.selectAllClasses)
+
+        this.loading$ = this.store$.select(ClassSelectors.selectClassesLoading);
+
+        this.classes$.subscribe(classes => {
+            this.classes = classes;
+            this.generateChartData();
+        })
     }
 
     ngOnInit(): void {
-        // In a real app, we would dispatch an action to load classes
-        // this.store.dispatch(classesActions.loadClasses());
-
-        // Mock data for classes
-        this.classes = [
-            {
-                id: 1,
-                name: 'English Beginner',
-                code: 'ENG101',
-                level: 'Beginner',
-                teacher: 'John Smith',
-                startDate: '2023-01-15',
-                endDate: '2023-06-30',
-                schedule: 'Mon, Wed 18:00-19:30',
-                capacity: 15,
-                enrolled: 12,
-                status: 'Active'
-            },
-            {
-                id: 2,
-                name: 'English Intermediate',
-                code: 'ENG201',
-                level: 'Intermediate',
-                teacher: 'Jane Doe',
-                startDate: '2023-01-15',
-                endDate: '2023-06-30',
-                schedule: 'Tue, Thu 18:00-19:30',
-                capacity: 15,
-                enrolled: 10,
-                status: 'Active'
-            },
-            {
-                id: 3,
-                name: 'Spanish Beginner',
-                code: 'SPA101',
-                level: 'Beginner',
-                teacher: 'Maria Rodriguez',
-                startDate: '2023-02-01',
-                endDate: '2023-07-15',
-                schedule: 'Mon, Wed 17:00-18:30',
-                capacity: 12,
-                enrolled: 8,
-                status: 'Active'
-            },
-            {
-                id: 4,
-                name: 'French Beginner',
-                code: 'FRE101',
-                level: 'Beginner',
-                teacher: 'Pierre Dupont',
-                startDate: '2023-02-15',
-                endDate: '2023-07-30',
-                schedule: 'Tue, Thu 17:00-18:30',
-                capacity: 12,
-                enrolled: 6,
-                status: 'Active'
-            }
-        ];
-
-        // Define custom column templates for different filter types
-        this.columns = [
-            {
-                field: 'id',
-                header: 'ID',
-                filterType: 'text',
-            },
-            {
-                field: 'name',
-                header: 'Name',
-                filterType: 'text',
-            },
-            {
-                field: 'code',
-                header: 'Code',
-                filterType: 'text',
-            },
-            {
-                field: 'level',
-                header: 'Level',
-                filterType: 'text',
-            },
-            {
-                field: 'teacher',
-                header: 'Teacher',
-                filterType: 'text',
-            },
-            {
-                field: 'schedule',
-                header: 'Schedule',
-                filterType: 'text',
-            },
-            {
-                field: 'enrolled',
-                header: 'Enrolled',
-                filterType: 'numeric',
-            },
-            {
-                field: 'capacity',
-                header: 'Capacity',
-                filterType: 'numeric',
-            },
-            {
-                field: 'status',
-                header: 'Status',
-                filterType: 'text',
-            }
-        ];
-
-        // Populate globalFilterFields
-        this.globalFilterFields = this.columns.map(col => col.field);
-
-        // Regenerate chart data when classes change
+        this.store$.dispatch(classesActions.loadClasses())
         this.generateChartData();
     }
 
@@ -261,8 +169,8 @@ export class ClassComponent implements OnInit, OnDestroy {
         };
 
         // Create enrollment data (enrolled vs capacity)
-        const totalEnrolled = this.classes.reduce((sum, cls) => sum + cls.enrolled, 0);
-        const totalCapacity = this.classes.reduce((sum, cls) => sum + cls.capacity, 0);
+        const totalEnrolled = this.classes.reduce((sum, cls) => sum + 1, 0);
+        const totalCapacity = this.classes.reduce((sum, cls) => sum + cls.maxCapacity, 0);
         const availableSpots = totalCapacity - totalEnrolled;
 
         this.enrollmentChartData = {

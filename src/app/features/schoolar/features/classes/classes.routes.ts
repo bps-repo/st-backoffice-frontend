@@ -5,7 +5,7 @@ import {ClassCreateComponent} from './pages/create/class-create.component';
 import {ClassEditComponent} from './pages/edit/class-edit.component';
 import {ClassDetailComponent} from './pages/detail/class-detail.component';
 
-const routes: Routes = [
+export const ClassesRoutes: Routes = [
     {
         path: '',
         component: ClassComponent,
@@ -24,9 +24,3 @@ const routes: Routes = [
     },
 ];
 
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
-})
-export class ClassesRoutes {
-}

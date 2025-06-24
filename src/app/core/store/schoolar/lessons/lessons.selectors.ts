@@ -1,5 +1,5 @@
-import {lessonsFeature} from "./lessons.reducers";
-import {lessonsAdapter} from "./lessons.state";
+import {lessonsFeature} from "./lessons.feature";
+import {lessonsAdapter} from "./lessonState";
 import {createSelector} from "@ngrx/store";
 
 

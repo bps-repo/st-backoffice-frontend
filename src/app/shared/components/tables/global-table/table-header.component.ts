@@ -6,8 +6,8 @@ import {Router} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {SelectItem} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
-import {ClassesService} from 'src/app/core/services/classes.service';
 import {RippleModule} from "primeng/ripple";
+import {ClassService} from "../../../../core/services/class.service";
 
 export interface TableHeaderAction {
     label: string;
@@ -64,7 +64,7 @@ export class TableHeaderComponent implements OnInit {
 
     @Output() createEntity = new EventEmitter<void>();
 
-    constructor(private router: Router, private classService: ClassesService) {
+    constructor(private router: Router, private classService: ClassService) {
     }
 
     navigateToCreateEntity() {

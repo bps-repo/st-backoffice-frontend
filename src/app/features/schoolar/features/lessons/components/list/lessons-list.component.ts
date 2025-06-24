@@ -20,6 +20,8 @@ import {RippleModule} from "primeng/ripple";
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 import * as LessonsActions from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
 import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
+import {ClassState} from "../../../../../../core/store/schoolar/classes/classState";
+import {LessonState} from "../../../../../../core/store/schoolar/lessons/lessonState";
 
 @Component({
     selector: 'app-lessons',
@@ -73,7 +75,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     private destroy$ = new Subject<void>();
 
     constructor(
-        private store: Store,
+        private store: Store<LessonState>,
         private router: Router
     ) {
         this.lessons$ = store.select(LessonsActions.selectAllLessons)

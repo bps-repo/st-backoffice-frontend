@@ -2,7 +2,7 @@ import {createEntityAdapter, EntityAdapter, EntityState} from "@ngrx/entity";
 import {Student} from "../../../models/academic/student";
 import {PaginationState, StudentFilters} from "./@types/students.state.interface";
 
-export interface StudentsState extends EntityState<Student> {
+export interface StudentState extends EntityState<Student> {
     // Loading states
     loading: boolean;
     loadingCreate: boolean;
@@ -51,7 +51,7 @@ export const studentsAdapter: EntityAdapter<Student> = createEntityAdapter<Stude
     }
 });
 
-export const initialStudentsState: StudentsState = studentsAdapter.getInitialState({
+export const initialStudentsState: StudentState = studentsAdapter.getInitialState({
     // Loading states
     loading: false,
     loadingCreate: false,
@@ -113,6 +113,6 @@ export const isCacheValid = (lastFetch: number | null): boolean => {
     return Date.now() - lastFetch < CACHE_DURATION;
 };
 
-export const shouldRefreshCache = (state: StudentsState): boolean => {
+export const shouldRefreshCache = (state: StudentState): boolean => {
     return !state.lastFetch || state.cacheExpired || !isCacheValid(state.lastFetch);
 };

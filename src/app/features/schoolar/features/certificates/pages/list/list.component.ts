@@ -7,8 +7,8 @@ import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import * as CertificatesActions from 'src/app/core/store/schoolar/actions/certificates.actions';
-import { selectAllCertificates, selectCertificatesLoading } from 'src/app/core/store/schoolar/selectors/certificates.selectors';
+import * as CertificatesActions from 'src/app/core/store/schoolar/certificates/certificates.actions';
+import { selectAllCertificates, selectCertificatesLoading } from 'src/app/core/store/schoolar/certificates/certificates.selectors';
 
 interface Certificate {
     id: string;

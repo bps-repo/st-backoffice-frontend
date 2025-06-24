@@ -1,26 +1,4 @@
 import {EntityState} from '@ngrx/entity';
-import {Lesson} from "../../models/academic/lesson";
-import {StudentsState} from "./students/students.state";
-import {LessonsState} from "./lessons/lessons.state";
-
-export interface AppState {
-    students: StudentsState;
-    classes: ClassesState;
-    calendars: CalendarsState;
-    entities: EntitiesState;
-    reviews: ReviewsState;
-    materials: MaterialsState;
-    certificates: CertificatesState;
-    reports: ReportsState;
-    settings: SettingsState;
-    lessons: LessonsState;
-}
-
-export interface ClassesState extends EntityState<Lesson> {
-    selectedLessonId: string | null;
-    loading: boolean;
-    error: string | null;
-}
 
 export interface CalendarsState extends EntityState<any> {
     selectedCalendarId: string | null;

@@ -1,6 +1,6 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 import {STUDENT_FEATURE_KEY, StudentsActions} from "./students.actions";
-import {initialStudentsState, studentsAdapter, StudentsState} from "./students.state";
+import {initialStudentsState, studentsAdapter, StudentState} from "./student.state";
 
 // Create feature
 export const studentsFeature = createFeature({
@@ -224,7 +224,7 @@ export const studentsFeature = createFeature({
 
         // Error management
         on(StudentsActions.clearError, (state, {errorType}) => {
-            const updates: Partial<StudentsState> = {};
+            const updates: Partial<StudentState> = {};
 
             if (!errorType || errorType === 'general') updates.error = null;
             if (!errorType || errorType === 'create') updates.createError = null;

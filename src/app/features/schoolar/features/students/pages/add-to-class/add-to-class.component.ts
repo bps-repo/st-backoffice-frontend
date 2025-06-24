@@ -12,7 +12,7 @@ import {Student} from 'src/app/core/models/academic/student';
 import {Class} from 'src/app/core/models/academic/class';
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
-import {StudentsState} from "../../../../../../core/store/schoolar/students/students.state";
+import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
 
 @Component({
     selector: 'app-add-to-class',
@@ -39,7 +39,7 @@ export class AddToClassComponent implements OnInit {
     loading = false;
 
     constructor(
-        private store: Store<StudentsState>,
+        private store: Store<StudentState>,
         private fb: FormBuilder,
         private messageService: MessageService
     ) {
