@@ -22,20 +22,20 @@ export class EmployeeService {
     }
 
     getEmployee(id: string): Observable<Employee> {
-        return this.http.get<Employee>(`${this.apiUrl}/${id}`).pipe(
-            map((r) => r as Employee)
+        return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/${id}`).pipe(
+            map((r) => r.data as Employee)
         );
     }
 
     createEmployee(employee: Employee): Observable<Employee> {
-        return this.http.post<Employee>(this.apiUrl, employee).pipe(
-            map((r) => r as Employee)
+        return this.http.post<ApiResponse<Employee>>(this.apiUrl, employee).pipe(
+            map((r) => r.data as Employee)
         );
     }
 
     updateEmployee(employee: Employee): Observable<Employee> {
-        return this.http.put<Employee>(`${this.apiUrl}/${employee.id}`, employee).pipe(
-            map((r) => r as Employee)
+        return this.http.put<ApiResponse<Employee>>(`${this.apiUrl}/${employee.id}`, employee).pipe(
+            map((r) => r.data as Employee)
         );
     }
 
@@ -43,15 +43,15 @@ export class EmployeeService {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
-    assignRoleToEmployee(employeeId: string, roleId: number): Observable<Employee> {
-        return this.http.post<Employee>(`${this.apiUrl}/${employeeId}/roles`, {roleId}).pipe(
-            map((r) => r as Employee)
+    assignRoleToEmployee(employeeId: string, roleId: string): Observable<Employee> {
+        return this.http.post<ApiResponse<Employee>>(`${this.apiUrl}/${employeeId}/roles`, {roleId}).pipe(
+            map((r) => r.data as Employee)
         );
     }
 
-    removeRoleFromEmployee(employeeId: string, roleId: number): Observable<Employee> {
-        return this.http.delete<Employee>(`${this.apiUrl}/${employeeId}/roles/${roleId}`).pipe(
-            map((r) => r as Employee)
+    removeRoleFromEmployee(employeeId: string, roleId: string): Observable<Employee> {
+        return this.http.delete<ApiResponse<Employee>>(`${this.apiUrl}/${employeeId}/roles/${roleId}`).pipe(
+            map((r) => r.data as Employee)
         );
     }
 }

@@ -46,7 +46,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     constructor(
         private roleService: RoleService,
         private router: Router
-    ) {}
+    ) {
+    }
 
     ngOnInit(): void {
         this.loadRoles();

@@ -51,7 +51,7 @@ export class CreateComponent implements OnInit {
     const formValue = this.roleForm.value;
 
     const role: Role = {
-      id: 0, // Will be assigned by the server
+      id: "", // Will be assigned by the server
       name: formValue.name,
       description: formValue.description,
       permissions: []

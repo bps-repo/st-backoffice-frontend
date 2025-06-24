@@ -7,10 +7,10 @@
             <!-- Current Permissions -->
             <div class="mb-5">
                 <h6>Permissões Atuais</h6>
-                <p-table [value]="role?.permissions || []" [loading]="loading" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+                <p-table [value]="role?.permissions || []" [loading]="loading" styleClass="p-datatable-sm"
+                         [tableStyle]="{'min-width': '50rem'}">
                     <ng-template pTemplate="header">
                         <tr>
-                            <th>ID</th>
                             <th>Nome</th>
                             <th>Descrição</th>
                             <th>Ações</th>
@@ -18,13 +18,13 @@
                     </ng-template>
                     <ng-template pTemplate="body" let-permission>
                         <tr>
-                            <td>{{ permission.id }}</td>
                             <td>{{ permission.name }}</td>
                             <td>{{ permission.description }}</td>
                             <td>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"
-                                    (click)="removePermission(permission)"
-                                    [disabled]="removing"></button>
+                                <button pButton pRipple icon="pi pi-trash"
+                                        class="p-button-rounded p-button-danger p-button-text"
+                                        (click)="removePermission(permission)"
+                                        [disabled]="removing"></button>
                             </td>
                         </tr>
                     </ng-template>
@@ -45,12 +45,14 @@
                 <h6>Adicionar Permissão</h6>
                 <div class="grid">
                     <div class="col-12 md:col-6">
-                        <p-dropdown [options]="availablePermissions" [(ngModel)]="selectedPermission" optionLabel="name" placeholder="Selecione uma permissão" [showClear]="true" styleClass="w-full"></p-dropdown>
+                        <p-dropdown [options]="availablePermissions" [(ngModel)]="selectedPermission" optionLabel="name"
+                                    placeholder="Selecione uma permissão" [showClear]="true"
+                                    styleClass="w-full"></p-dropdown>
                     </div>
                     <div class="col-12 md:col-6">
                         <button pButton pRipple label="Adicionar Permissão" icon="pi pi-plus"
-                            (click)="addPermission()"
-                            [disabled]="!selectedPermission || adding"></button>
+                                (click)="addPermission()"
+                                [disabled]="!selectedPermission || adding"></button>
                     </div>
                 </div>
             </div>

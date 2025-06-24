@@ -19,9 +19,9 @@
 <ng-template #permissionsTemplate let-rowData>
     <div class="flex flex-wrap">
         <p-tag *ngFor="let permission of rowData.permissions"
-            [value]="permission.name"
-            severity="info"
-            class="mr-1 mb-1">
+               [value]="permission.name"
+               severity="info"
+               class="mr-1 mb-1">
         </p-tag>
         <span *ngIf="rowData.permissions.length === 0">Nenhuma permissão</span>
     </div>
