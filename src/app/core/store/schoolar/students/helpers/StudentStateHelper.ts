@@ -1,13 +1,13 @@
 import {createEntityAdapter, EntityAdapter} from "@ngrx/entity";
 import {Student} from "../../../../models/academic/student";
-import {StudentsState} from "../students.state";
+import {StudentState} from "../student.state";
 
 export class StudentEntityOperations {
     constructor(private adapter: EntityAdapter<Student>) {
     }
 
     // Safe entity operations with proper typing
-    addStudent(state: StudentsState, student: Student): StudentsState {
+    addStudent(state: StudentState, student: Student): StudentState {
         return this.adapter.addOne(student, {
             ...state,
             loading: false,
@@ -15,7 +15,7 @@ export class StudentEntityOperations {
         });
     }
 
-    updateStudent(state: StudentsState, update: { id: string; changes: Partial<Student> }): StudentsState {
+    updateStudent(state: StudentState, update: { id: string; changes: Partial<Student> }): StudentState {
         return this.adapter.updateOne(update, {
             ...state,
             loadingUpdate: false,
@@ -23,7 +23,7 @@ export class StudentEntityOperations {
         });
     }
 
-    removeStudent(state: StudentsState, id: string): StudentsState {
+    removeStudent(state: StudentState, id: string): StudentState {
         return this.adapter.removeOne(id, {
             ...state,
             loadingDelete: false,
@@ -32,7 +32,7 @@ export class StudentEntityOperations {
         });
     }
 
-    loadStudents(state: StudentsState, students: Student[]): StudentsState {
+    loadStudents(state: StudentState, students: Student[]): StudentState {
         return this.adapter.setAll(students, {
             ...state,
             loading: false,
@@ -42,7 +42,7 @@ export class StudentEntityOperations {
     }
 
     // Bulk operations
-    addMultipleStudents(state: StudentsState, students: Student[]): StudentsState {
+    addMultipleStudents(state: StudentState, students: Student[]): StudentState {
         return this.adapter.addMany(students, {
             ...state,
             bulkOperationInProgress: false,
@@ -50,7 +50,7 @@ export class StudentEntityOperations {
         });
     }
 
-    updateMultipleStudents(state: StudentsState, updates: { id: string; changes: Partial<Student> }[]): StudentsState {
+    updateMultipleStudents(state: StudentState, updates: { id: string; changes: Partial<Student> }[]): StudentState {
         return this.adapter.updateMany(updates, {
             ...state,
             bulkOperationInProgress: false,
@@ -58,7 +58,7 @@ export class StudentEntityOperations {
         });
     }
 
-    removeMultipleStudents(state: StudentsState, ids: string[]): StudentsState {
+    removeMultipleStudents(state: StudentState, ids: string[]): StudentState {
         return this.adapter.removeMany(ids, {
             ...state,
             bulkOperationInProgress: false,

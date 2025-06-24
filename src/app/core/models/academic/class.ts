@@ -11,16 +11,10 @@ import {LessonStatus} from "../../enums/lesson-status";
 export interface Class {
     id: string;
     name: string;
-    startDate: string;
-    endDate: string;
-    level: Level;
-    teacher: Employee;
-    center: Center;
-    status: ClassStatus;
+    levelId: Level;
+    centerId: string;
     maxCapacity: number;
-    lessons: Lesson[];
-    unitProgresses: UnitProgress[];
-    students: Partial<Student>[];
+    status: ClassStatus;
     createdAt: string;
     updatedAt: string;
 }

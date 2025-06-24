@@ -3,6 +3,7 @@ import {User} from "../user.model";
 
 export interface Student {
     id?: string;
+    code: number;
     user: User;
     status: StudentStatus;
     levelProgressPercentage: number;

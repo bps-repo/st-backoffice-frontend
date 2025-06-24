@@ -1,4 +1,4 @@
-import {isCacheValid, studentsAdapter} from "./students.state";
+import {isCacheValid, studentsAdapter} from "./student.state";
 import {studentsFeature} from "./students.reducers";
 import {createSelector} from "@ngrx/store";
 

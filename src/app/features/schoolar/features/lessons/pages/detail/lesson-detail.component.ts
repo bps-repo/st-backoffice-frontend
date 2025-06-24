@@ -10,10 +10,9 @@ import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {selectSelectedClass} from 'src/app/core/store/schoolar/selectors/classes.selectors';
 import {Lesson, mockLesson} from "../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../core/enums/lesson-status";
-import {lessonsActions} from "../../../../../../core/store/schoolar/actions/lessons.actions";
+import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 
 @Component({
     selector: 'app-detail',
@@ -53,14 +52,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                     this.store.dispatch(lessonsActions.loadLesson({id}));
                 }
             });
-
-        // Subscribe to the selected class
-        this.store.select(selectSelectedClass)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(classItem => {
-                //this.classItem = classItem!;
-            });
-
         this.items = [
             {label: 'Edit Lesson', icon: 'pi pi-pencil'},
             {label: 'Mark Attendance', icon: 'pi pi-check-square'},

@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { Exam } from 'src/app/core/models/academic/exam';
-import { loadExam, loadExamSuccess, loadExamFailure } from '../actions/exams.actions';
+import { loadExam, loadExamSuccess, loadExamFailure } from './exams.actions';
 
 export interface ExamsState {
     selectedExam: Exam | null;

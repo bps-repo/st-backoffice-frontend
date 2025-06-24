@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import { CertificatesApiService } from '../../../services/certificates-api.service';
-import * as CertificatesActions from '../actions/certificates.actions';
+import * as CertificatesActions from './certificates.actions';
 
 @Injectable()
 export class CertificatesEffects {

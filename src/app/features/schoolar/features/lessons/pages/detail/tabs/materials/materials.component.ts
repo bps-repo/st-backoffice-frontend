@@ -16,7 +16,6 @@ import { CalendarModule } from 'primeng/calendar';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { selectSelectedClass } from 'src/app/core/store/schoolar/selectors/classes.selectors';
 import { Lesson } from "../../../../../../../../core/models/academic/lesson";
 import { Material } from "../../../../../../../../core/models/academic/material";
 import { LessonApiService } from "../../../../../../../../core/services/lesson-api.service";
@@ -59,15 +58,6 @@ export class MaterialsComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-        // Subscribe to the selected lesson
-        this.store.select(selectSelectedClass)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(classItem => {
-                this.lessonItem = classItem!;
-                if (this.lessonItem && this.lessonItem.materials) {
-                    this.materials = this.lessonItem.materials;
-                }
-            });
     }
 
     ngOnDestroy(): void {

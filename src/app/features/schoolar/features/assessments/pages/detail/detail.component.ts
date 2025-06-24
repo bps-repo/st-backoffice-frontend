@@ -10,9 +10,9 @@ import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {selectSelectedExam} from 'src/app/core/store/schoolar/selectors/exams.selectors';
+import {selectSelectedExam} from 'src/app/core/store/schoolar/assessments/exams.selectors';
 import {Exam} from 'src/app/core/models/academic/exam';
-import {examsActions} from "../../../../../../core/store/schoolar/actions/exams.actions";
+import {examsActions} from "../../../../../../core/store/schoolar/assessments/exams.actions";
 
 @Component({
     selector: 'app-detail',

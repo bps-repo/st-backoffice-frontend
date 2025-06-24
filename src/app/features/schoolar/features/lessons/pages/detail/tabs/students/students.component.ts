@@ -8,7 +8,6 @@ import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
 import {Lesson, mockLesson} from "../../../../../../../../core/models/academic/lesson";
 import {ActivatedRoute, Router} from "@angular/router";
-import {selectSelectedClass} from "../../../../../../../../core/store/schoolar/selectors/classes.selectors";
 
 @Component({
     selector: 'app-students',
@@ -25,24 +24,13 @@ export class StudentsComponent implements OnInit, OnDestroy {
         private store: Store,
         private router: Router,
         private route: ActivatedRoute
-    ) {
-    }
+    ) {}
 
     ngOnInit(): void {
-        // Get the lesson ID from the parent route
         this.route.parent?.params
             .pipe(takeUntil(this.destroy$))
             .subscribe(params => {
                 this.lessonId = params['id'];
-            });
-
-        // Subscribe to the selected class/lesson
-        this.store.select(selectSelectedClass)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(classItem => {
-                if (classItem) {
-                    this.lessonItem = classItem;
-                }
             });
     }
 

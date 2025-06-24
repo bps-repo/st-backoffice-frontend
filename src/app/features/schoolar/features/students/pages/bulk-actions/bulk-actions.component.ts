@@ -17,7 +17,8 @@ import {CenterService} from 'src/app/core/services/center.service';
 import {StudentService} from 'src/app/core/services/student.service';
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
-import {StudentsState} from "../../../../../../core/store/schoolar/students/students.state";
+import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
+import {classesActions} from "../../../../../../core/store/schoolar/classes/classes.actions";
 
 @Component({
     selector: 'app-bulk-actions',
@@ -53,7 +54,7 @@ export class BulkActionsComponent implements OnInit {
     selectedActionType: string = 'ADD_TO_CENTER';
 
     constructor(
-        private store: Store<StudentsState>,
+        private store$: Store<StudentState>,
         private fb: FormBuilder,
         private centerService: CenterService,
         private studentsService: StudentService,
@@ -106,8 +107,8 @@ export class BulkActionsComponent implements OnInit {
     }
 
     loadStudents(): void {
-        this.store.dispatch(StudentsActions.loadStudents());
-        this.store.select(selectAllStudents).subscribe(students => {
+        this.store$.dispatch(StudentsActions.loadStudents());
+        this.store$.select(selectAllStudents).subscribe(students => {
             this.students = students;
         });
     }
@@ -119,21 +120,7 @@ export class BulkActionsComponent implements OnInit {
     }
 
     loadClasses(): void {
-        // In a real application, this would fetch classes from a service
-        // For now, we'll use mock data
-        this.classes = [
-            {
-                id: "1", name: 'English A1', center: {
-                    id: '1', name: 'Downtown Center',
-                    address: '',
-                    city: '',
-                    phone: '',
-                    active: false,
-                    createdAt: '',
-                    updatedAt: ''
-                }, students: []
-            },
-        ];
+        this.store$.dispatch(classesActions.loadClasses());
     }
 
     onSubmit(): void {

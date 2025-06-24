@@ -15,7 +15,7 @@ import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
-import {StudentsState} from "../../../../../../core/store/schoolar/students/students.state";
+import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
 
 @Component({
     selector: 'app-list',
@@ -61,7 +61,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private destroy$ = new Subject<void>();
 
     constructor(
-        private store: Store<StudentsState>,
+        private store: Store<StudentState>,
         private router: Router
     ) {
         // Use the entity selectors
