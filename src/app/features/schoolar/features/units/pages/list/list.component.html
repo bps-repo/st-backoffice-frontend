@@ -1,0 +1,38 @@
+<div class="grid">
+    <app-global-table
+        tableLabel="Unidades"
+        [data]="units"
+        [entity]="'units'"
+        [columns]="columns"
+        [loading]="loading$ | async"
+        class="w-full"
+        [columnTemplates]="{ actions: actionsTemplate }"
+        (createEntity)="createUnit()"
+    ></app-global-table>
+
+    <ng-template #actionsTemplate let-unit>
+        <div class="flex gap-2 justify-content-center">
+            <button
+                pButton pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-text"
+                (click)="viewDetails(unit)"
+                pTooltip="Ver Detalhes"
+                tooltipPosition="top"
+            ></button>
+
+            <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                (click)="deleteUnit(unit)"
+                pTooltip="Excluir"
+                tooltipPosition="top"
+            ></button>
+        </div>
+    </ng-template>
+
+    <app-create-unit-dialog></app-create-unit-dialog>
+    <p-confirmDialog></p-confirmDialog>
+</div>

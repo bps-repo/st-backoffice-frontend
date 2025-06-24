@@ -1,0 +1,95 @@
+<div class="card" *ngIf="!loading">
+    <div class="flex justify-content-between align-items-center mb-5">
+        <span class="text-900 text-xl font-bold block">Editar Fatura</span>
+        <div class="flex gap-2">
+            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-danger"
+                    (click)="confirmCancel()"></button>
+            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-success"
+                    (click)="saveInvoice()"></button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- DADOS DA FATURA -->
+        <div class="col-12 lg:col-12">
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="nickname" class="font-medium text-900">Cliente</label>
+                    <p-dropdown
+                        [options]="students"
+                        placeholder="Selecione um cliente"
+                        [(ngModel)]="id[1]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-6">
+                    <label for="nickname" class="font-medium text-900">Método de pagamento</label>
+                    <p-dropdown
+                        [options]="payment_ways"
+                        placeholder="Condição de pagamento"
+                        [(ngModel)]="id[3]"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="nickname" class="font-medium text-900">Nº da Factura</label>
+                    <p-inputGroup>
+                        <p-inputGroupAddon> FPF-2025</p-inputGroupAddon>
+                        <input pInputText type="text" placeholder="0002" [(ngModel)]="invoiceNumber"/>
+                    </p-inputGroup>
+                </div>
+
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="nickname" class="font-medium text-900">Série</label>
+                    <p-dropdown
+                        [options]="instalations"
+                        placeholder="2025"
+                        [(ngModel)]="id[2]"
+                        [showClear]="true"
+                        [disabled]="true"
+                    >
+                    </p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900">Tipo de desconto</label>
+                    <p-dropdown
+                        [options]="discounts"
+                        [(ngModel)]="discountType"
+                        [showClear]="true"
+                    ></p-dropdown>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900">Data de Emissão</label>
+                    <input id="emissionDate" type="date" pInputText [(ngModel)]="emissionDate"/>
+                </div>
+                <div class="field mb-4 col-12 md:col-4">
+                    <label for="email" class="font-medium text-900">Data de Vencimento</label>
+                    <input id="dueDate" type="date" pInputText [(ngModel)]="dueDate"/>
+                </div>
+                <div class="field mb-4 col-12 md:col-4 relative">
+                    <label for="nickname" class="font-medium text-900">Retenção</label>
+                    <input id="retention" type="number" pInputText [(ngModel)]="retention"/>
+                </div>
+                <div class="field mb-4 col-12 md:col-8 relative">
+                    <label for="nickname" class="font-medium text-900">Observações</label>
+                    <textarea pInputTextarea rows="5" cols="30" [(ngModel)]="notes"></textarea>
+                </div>
+                <div class="field col-12 md:col-12 z-5 relative">
+                    <app-table-create-invoice
+                        class="w-full"
+                        [items]="invoice!.items"
+                    ></app-table-create-invoice>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card" *ngIf="loading">
+    <div class="flex justify-content-center">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    </div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

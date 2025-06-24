@@ -1,0 +1,126 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card">
+      <h5>Configurações do Módulo de Cursos</h5>
+
+      <!-- General Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações Gerais</h6>
+        </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-4">
+              <label for="enableDashboard" class="block mb-2">Habilitar Dashboard</label>
+              <p-inputSwitch id="enableDashboard" [(ngModel)]="enableDashboard"></p-inputSwitch>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="enableReports" class="block mb-2">Habilitar Relatórios</label>
+              <p-inputSwitch id="enableReports" [(ngModel)]="enableReports"></p-inputSwitch>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="defaultPageSize">Tamanho Padrão da Página</label>
+              <p-inputNumber id="defaultPageSize" [(ngModel)]="defaultPageSize" [min]="5" [max]="100" [showButtons]="true"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações de Notificação</h6>
+        </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-4">
+              <label for="enableNotifications" class="block mb-2">Habilitar Notificações</label>
+              <p-inputSwitch id="enableNotifications" [(ngModel)]="enableNotifications"></p-inputSwitch>
+            </div>
+
+            <div class="field col-12 md:col-8">
+              <label for="notificationType">Tipo de Notificação</label>
+              <p-dropdown
+                id="notificationType"
+                [options]="notificationTypes"
+                [(ngModel)]="selectedNotificationType"
+                optionLabel="name"
+                [disabled]="!enableNotifications">
+              </p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Module Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações do Módulo de Curso</h6>
+        </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-4">
+              <label for="maxUnitsPerLevel">Máximo de Unidades por Nível</label>
+              <p-inputNumber id="maxUnitsPerLevel" [(ngModel)]="maxUnitsPerLevel" [min]="1" [max]="50" [showButtons]="true"></p-inputNumber>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="maxLessonsPerUnit">Máximo de Aulas por Unidade</label>
+              <p-inputNumber id="maxLessonsPerUnit" [(ngModel)]="maxLessonsPerUnit" [min]="1" [max]="100" [showButtons]="true"></p-inputNumber>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="enableAutoProgress" class="block mb-2">Progresso Automático</label>
+              <p-inputSwitch id="enableAutoProgress" [(ngModel)]="enableAutoProgress"></p-inputSwitch>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Settings -->
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <h6 class="font-bold mb-3">Configurações de Gráficos</h6>
+        </div>
+        <div class="p-card-body">
+          <div class="p-fluid grid">
+            <div class="field col-12 md:col-6">
+              <label for="enableCharts" class="block mb-2">Habilitar Gráficos</label>
+              <p-inputSwitch id="enableCharts" [(ngModel)]="enableCharts"></p-inputSwitch>
+            </div>
+
+            <div class="field col-12 md:col-6">
+              <label for="chartHeight">Altura do Gráfico (px)</label>
+              <p-inputNumber id="chartHeight" [(ngModel)]="chartHeight" [min]="100" [max]="800" [showButtons]="true" [disabled]="!enableCharts"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-content-end gap-2 mt-4">
+        <button
+          pButton
+          pRipple
+          label="Redefinir"
+          icon="pi pi-refresh"
+          class="p-button-secondary"
+          (click)="resetSettings()">
+        </button>
+        <button
+          pButton
+          pRipple
+          label="Salvar"
+          icon="pi pi-save"
+          class="p-button-primary"
+          (click)="saveSettings()">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast for notifications -->
+  <p-toast></p-toast>
+</div>
