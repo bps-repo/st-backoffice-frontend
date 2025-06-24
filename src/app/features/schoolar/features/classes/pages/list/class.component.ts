@@ -169,12 +169,12 @@ export class ClassComponent implements OnInit, OnDestroy {
         };
 
         // Create enrollment data (enrolled vs capacity)
-        const totalEnrolled = this.classes.reduce((sum, cls) => sum + 1, 0);
+        const totalEnrolled = this.classes.reduce((sum, cls) => sum, 0);
         const totalCapacity = this.classes.reduce((sum, cls) => sum + cls.maxCapacity, 0);
         const availableSpots = totalCapacity - totalEnrolled;
 
         this.enrollmentChartData = {
-            labels: ['Enrolled', 'Available'],
+            labels: ['Inscritos', 'Disponíveis'],
             datasets: [
                 {
                     data: [totalEnrolled, availableSpots],

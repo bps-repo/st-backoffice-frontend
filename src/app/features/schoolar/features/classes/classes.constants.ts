@@ -2,8 +2,8 @@ import {TableColumn} from "../../../../shared/components/tables/global-table/glo
 
 export const CLASSES_COLUMNS: TableColumn[] = [
     {
-        field: 'id',
-        header: 'ID',
+        field: 'code',
+        header: 'Code',
         filterType: 'text',
     },
     {
@@ -12,33 +12,18 @@ export const CLASSES_COLUMNS: TableColumn[] = [
         filterType: 'text',
     },
     {
-        field: 'code',
-        header: 'Code',
+        field: 'levelId',
+        header: 'Nível',
         filterType: 'text',
     },
     {
-        field: 'level',
-        header: 'Level',
+        field: 'centerId',
+        header: 'Centro',
         filterType: 'text',
     },
     {
-        field: 'teacher',
-        header: 'Teacher',
-        filterType: 'text',
-    },
-    {
-        field: 'schedule',
-        header: 'Schedule',
-        filterType: 'text',
-    },
-    {
-        field: 'enrolled',
-        header: 'Enrolled',
-        filterType: 'numeric',
-    },
-    {
-        field: 'capacity',
-        header: 'Capacity',
+        field: 'maxCapacity',
+        header: 'Capacidade',
         filterType: 'numeric',
     },
     {

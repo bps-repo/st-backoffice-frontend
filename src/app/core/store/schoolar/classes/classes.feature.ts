@@ -1,6 +1,6 @@
 import {createFeature, createReducer, on} from "@ngrx/store";
 import {CLASS_FEATURE_KEY, classesActions} from "./classes.actions";
-import {classesInitialState} from "./classState";
+import {classAdapter, classesInitialState} from "./classState";
 
 export const classesFeature = createFeature(
     {
@@ -12,11 +12,15 @@ export const classesFeature = createFeature(
                 loading: true,
                 error: null
             })),
-            on(classesActions.loadClassesSuccess, (state, {classes}) => ({
-                ...state,
-                classes,
-                loading: false
-            })),
+            on(classesActions.loadClassesSuccess, (state, {classes}) =>
+                classAdapter.setAll(classes, {
+                    ...state,
+                    loading: false,
+                    error: null,
+                    lastFetch: Date.now(),
+                    cacheExpired: false,
+                })
+            ),
             on(classesActions.loadClassesFailure, (state, {error}) => ({
                 ...state,
                 loading: false,
