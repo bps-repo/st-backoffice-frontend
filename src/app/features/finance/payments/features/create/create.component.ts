@@ -133,7 +133,7 @@ export class CreateComponent implements OnInit {
 
         if (formValue.installments_enabled && formValue.installments.length > 0) {
             payment.installments = formValue.installments.map((inst: any) => ({
-                payment_id: 0, // This would be set after payment is created
+                payment_id: 0, // This would be set after centers is created
                 amount: inst.amount,
                 due_date: new Date(inst.due_date),
                 status: PaymentInstallmentStatus.PENDING,
@@ -145,7 +145,7 @@ export class CreateComponent implements OnInit {
         console.log('Payment to be created:', payment);
 
         // In a real app, this would be sent to a service to save
-        // After saving, navigate to the payment details page
+        // After saving, navigate to the centers details page
         // this.router.navigate(['/payments/installments']);
     }
 }

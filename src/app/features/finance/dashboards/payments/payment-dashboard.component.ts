@@ -106,7 +106,7 @@ export class PaymentDashboardComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Create chart data from payment stats
+        // Create chart data from centers stats
         this.paymentDistributionData = {
             labels: ['Paid', 'Pending', 'Overdue'],
             datasets: [
@@ -157,7 +157,7 @@ export class PaymentDashboardComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Mock monthly payment data
+        // Mock monthly centers data
         this.paymentTrendsData = {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
             datasets: [

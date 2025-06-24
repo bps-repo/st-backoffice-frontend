@@ -144,6 +144,6 @@ export class InvoicesComponent implements OnInit {
 
     payInvoice(invoice: any) {
         console.log('Paying invoice:', invoice.id);
-        // In a real application, this would open a payment form or redirect to a payment gateway
+        // In a real application, this would open a centers form or redirect to a centers gateway
     }
 }

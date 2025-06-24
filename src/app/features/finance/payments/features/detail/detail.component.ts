@@ -79,7 +79,7 @@ export class DetailComponent implements OnInit {
             payment_method: 'Credit Card',
             status: PaymentStatus.PARTIAL,
             reference: 'REF-123456',
-            notes: 'Initial payment with installment plan',
+            notes: 'Initial centers with installment plan',
             installments: [
                 {
                     id: 1,

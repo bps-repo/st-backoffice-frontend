@@ -1,6 +1,7 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {DashboardComponent} from './features/dashboard/components/dashboard/dashboard.component';
+import {Routes} from '@angular/router';
+import {CorporateSettingsComponent} from "./settings/corporate-settings.component";
+import {CorporateReportsComponent} from "./reports/corporate-reports.component";
+import {CorporateDashboard} from "./dashboard/dashboard.component";
 
 export const CORPORATE_ROUTES: Routes = [
     {
@@ -8,17 +9,25 @@ export const CORPORATE_ROUTES: Routes = [
         children: [
             {
                 path: '',
-                redirectTo: 'students-materials-dashboard',
+                redirectTo: 'dashboards',
                 pathMatch: 'full',
             },
             {
-                path: 'students-materials-dashboard',
-                component: DashboardComponent,
+                path: 'dashboards',
+                component: CorporateDashboard,
             },
             {
                 path: 'centers',
                 loadChildren: () =>
                     import('./features/ centers/centers.routes').then((m) => m.CentersRoutes),
+            },
+            {
+                path: 'settings',
+                component: CorporateSettingsComponent,
+            },
+            {
+                path: 'reports',
+                component: CorporateReportsComponent,
             },
         ]
     }

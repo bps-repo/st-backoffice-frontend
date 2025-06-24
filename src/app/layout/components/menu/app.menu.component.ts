@@ -125,7 +125,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/corporate/students-materials-dashboard'],
+                        routerLink: ['/corporate/dashboards'],
                     },
                     {
                         label: 'Centros',
@@ -140,10 +140,12 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Relatório',
                         icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/corporate/reports'],
                     },
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/corporate/settings'],
                     },
                 ],
             },
@@ -151,11 +153,6 @@ export class AppMenuComponent implements OnInit {
                 label: 'Configurações',
                 icon: 'pi pi-fw pi-cog',
                 items: [
-                    {
-                        label: 'Utilizadores',
-                        icon: 'pi pi-fw pi-users',
-                        routerLink: ['/settings/users-management'],
-                    },
                     {
                         label: 'Alertas',
                         icon: 'pi pi-fw pi-bell',
