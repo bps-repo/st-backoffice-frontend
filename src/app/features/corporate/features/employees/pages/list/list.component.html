@@ -1,0 +1,29 @@
+<div class="grid">
+    <!-- Employee Table -->
+    <app-global-table
+        tableLabel="Funcionários"
+        [headerActions]="headerActions"
+        [data]="(employees$ | async)!"
+        [entity]="'employees'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        [loading]="loading$ | async"
+        [columnTemplates]="customTemplates"
+        (rowSelect)="onRowSelect($event)"
+        (createEntity)="navigateToCreateEmployee()"
+        class="w-full"
+    ></app-global-table>
+</div>
+
+<!-- Name template field -->
+<ng-template #nameTemplate let-rowData>
+    <span>{{ rowData.user.firstname + " " + rowData.user.lastname }}</span>
+</ng-template>
+
+<ng-template #emailTemplate let-rowData>
+    <span>{{ rowData.user.email }}</span>
+</ng-template>
+
+<ng-template #hireDateTemplate let-rowData>
+    <span>{{ rowData.hireDate | date:'dd/MM/yyyy' }}</span>
+</ng-template>

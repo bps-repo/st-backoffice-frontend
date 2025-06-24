@@ -1,0 +1,28 @@
+<div class="grid">
+    <!-- Roles Table -->
+    <app-global-table
+        tableLabel="Funções"
+        [headerActions]="headerActions"
+        [data]="(roles$ | async)!"
+        [entity]="'roles'"
+        [columns]="columns"
+        [globalFilterFields]="globalFilterFields"
+        [loading]="loading$ | async"
+        [columnTemplates]="customTemplates"
+        (rowSelect)="onRowSelect($event)"
+        (createEntity)="navigateToCreateRole()"
+        class="w-full"
+    ></app-global-table>
+</div>
+
+<!-- Permissions template field -->
+<ng-template #permissionsTemplate let-rowData>
+    <div class="flex flex-wrap">
+        <p-tag *ngFor="let permission of rowData.permissions"
+            [value]="permission.name"
+            severity="info"
+            class="mr-1 mb-1">
+        </p-tag>
+        <span *ngIf="rowData.permissions.length === 0">Nenhuma permissão</span>
+    </div>
+</ng-template>

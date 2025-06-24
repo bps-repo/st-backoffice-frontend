@@ -22,6 +22,21 @@ export const CORPORATE_ROUTES: Routes = [
                     import('./features/ centers/centers.routes').then((m) => m.CentersRoutes),
             },
             {
+                path: 'employees',
+                loadChildren: () =>
+                    import('./features/employees/employees.routes').then((m) => m.EmployeesRoutes),
+            },
+            {
+                path: 'roles',
+                loadChildren: () =>
+                    import('./features/roles/roles.routes').then((m) => m.RolesRoutes),
+            },
+            {
+                path: 'permissions',
+                loadChildren: () =>
+                    import('./features/permissions/permissions.routes').then((m) => m.PermissionsRoutes),
+            },
+            {
                 path: 'settings',
                 component: CorporateSettingsComponent,
             },
@@ -32,4 +47,3 @@ export const CORPORATE_ROUTES: Routes = [
         ]
     }
 ];
-

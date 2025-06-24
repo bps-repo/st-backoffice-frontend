@@ -132,16 +132,33 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/corporate/centers'],
                     },
-
-                    {
-                        label: 'Funcionários',
-                        icon: 'pi pi-fw pi-users',
-                    },
                     {
                         label: 'Relatório',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/corporate/reports'],
                     },
+                    {
+                        label: 'Administração',
+                        icon: 'pi pi-fw pi-cog',
+                        items: [
+                            {
+                                label: 'Usuários',
+                                icon: 'pi pi-fw pi-users',
+                                routerLink: ['/corporate/employees'],
+                            },
+                            {
+                                label: 'Funções',
+                                icon: 'pi pi-fw pi-id-card',
+                                routerLink: ['/corporate/roles'],
+                            },
+                            {
+                                label: 'Permissões',
+                                icon: 'pi pi-fw pi-lock',
+                                routerLink: ['/corporate/permissions'],
+                            },
+                        ]
+                    },
+
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
