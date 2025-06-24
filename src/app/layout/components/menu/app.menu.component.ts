@@ -61,45 +61,32 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/schoolar/materials'],
                     },
                     {
-                        label: 'Relatórios',
-                        icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/schoolar/reports'],
-                    },
-                    {
-                        label: 'Configurações',
-                        icon: 'pi pi-fw pi-cog',
-                        routerLink: ['/schoolar/settings'],
-                    },
-                ],
-            },
-            {
-                label: 'Cursos',
-                icon: 'pi pi-sitemap',
-                items: [
-                    {
-                        label: 'Dashboard',
-                        icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/levels/students-materials-dashboard'],
-                    },
-                    {
                         label: 'Niveis',
                         icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/levels/levels'],
+                        routerLink: ['/schoolar/levels'],
                     },
                     {
                         label: 'Unidades',
                         icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/levels/units'],
+                        routerLink: ['/schoolar/units'],
                     },
                     {
-                        label: 'Relatórios',
+                        label: 'Relatórios escolar',
                         icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/levels/reports'],
+                        routerLink: ['/schoolar/reports'],
                     },
                     {
-                        label: 'Configurações',
+                        label: 'Relatórios cursos',
+                        icon: 'pi pi-fw pi-file-pdf',
+                    },
+                    {
+                        label: 'Configurações escolar',
                         icon: 'pi pi-fw pi-cog',
-                        routerLink: ['/levels/settings'],
+                        routerLink: ['/schoolar/settings'],
+                    },
+                    {
+                        label: 'Configurações cursos',
+                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
@@ -110,33 +97,16 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/invoices/students-materials-dashboard'],
                     },
                     {
                         label: 'Facturas pró-forma',
                         icon: 'pi pi-fw pi-file',
-                        routerLink: ['/invoices/invoices'],
+                        routerLink: ['/finances/invoices'],
                     },
                     {
                         label: 'Pagamentos',
                         icon: 'pi pi-fw pi-file',
-                        items: [
-                            {
-                                label: 'Dashboard',
-                                icon: 'pi pi-fw pi-th-large',
-                                routerLink: ['/payments/students-materials-dashboard'],
-                            },
-                            {
-                                label: 'Lista de Pagamentos',
-                                icon: 'pi pi-fw pi-file',
-                                routerLink: ['/payments'],
-                            },
-                            {
-                                label: 'Relatórios',
-                                icon: 'pi pi-fw pi-file',
-                                routerLink: ['/payments/reports'],
-                            },
-                        ],
+                        routerLink: ['/finances/payments'],
                     },
                     {
                         label: 'Relatórios',
@@ -208,18 +178,6 @@ export class AppMenuComponent implements OnInit {
                         label: 'Suporte',
                         icon: 'pi pi-fw pi-question-circle',
                         routerLink: ['/settings/support'],
-                    },
-                ],
-            },
-            {
-                label: 'Administração',
-                icon: 'pi pi-fw pi-shield',
-                items: [
-
-                    {
-                        label: 'Gestão de Utilizadores',
-                        icon: 'pi pi-fw pi-users',
-                        routerLink: ['/admin/user-management'],
                     },
                 ],
             },

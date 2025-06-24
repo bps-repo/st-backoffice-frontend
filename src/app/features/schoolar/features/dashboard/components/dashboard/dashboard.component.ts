@@ -10,6 +10,7 @@ import {MaterialsDashboardComponent} from "../../../materials/pages/materials-da
 import {LessonsDashboardComponent} from "../lessons-dashboard/lessons-dashboard.component";
 import {ClassesDashboardComponent} from "../classes-dashboard/classes-dashboard.component";
 import {AssessmentsDashboardComponent} from "../assessments-dashboard/assessment-dashboard.component";
+import {LevelDashboardComponent} from "../../../level-dashboard/components/dashboard/level-dashboard.component";
 
 type ViewOption = { label: string; value: { key: string; component: any } };
 
@@ -30,7 +31,8 @@ export class Dashboard implements OnInit {
         {
             label: 'Avaliações',
             value: {key: 'assessments', component: AssessmentsDashboardComponent}
-        }
+        },
+        {label: 'Níveis', value: {key: 'levels', component: LevelDashboardComponent}},
     ];
 
     selectedView!: ViewOption;

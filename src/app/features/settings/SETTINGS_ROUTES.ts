@@ -1,6 +1,6 @@
 import {Routes} from '@angular/router';
 
-export const SettingsRoutes: Routes = [
+export const SETTINGS_ROUTES: Routes = [
 
         {
             path: 'users-management',

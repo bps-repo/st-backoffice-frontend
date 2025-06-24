@@ -1,7 +1,7 @@
 import {Routes} from '@angular/router';
 import {Dashboard} from './features/dashboard/components/dashboard/dashboard.component';
 
-export const SchoolarRoutes: Routes = [
+export const SCHOOLAR_ROUTES: Routes = [
     {
         path: '',
         children: [
@@ -48,6 +48,35 @@ export const SchoolarRoutes: Routes = [
                 path: 'materials',
                 loadChildren: () =>
                     import('./features/materials/materials.routes').then((m) => m.MaterialsRoutes)
+            }, {
+                path: '',
+                redirectTo: 'students-materials-dashboard',
+                pathMatch: 'full',
+            },
+            {
+                path: 'courses',
+                loadChildren: () =>
+                    import('./features/courses/courses.routes').then((m) => m.CourseRoutes),
+            },
+            {
+                path: 'levels',
+                loadChildren: () =>
+                    import('./features/levels/levels.routes').then((m) => m.LevelsRoutes),
+            },
+            {
+                path: 'units',
+                loadChildren: () =>
+                    import('./features/units/units.routes').then((m) => m.UnitsRoutes),
+            },
+            {
+                path: 'reports',
+                loadChildren: () =>
+                    import('./features/level-reports/reports.routes').then((m) => m.REPORTS_ROUTES),
+            },
+            {
+                path: 'settings',
+                loadChildren: () =>
+                    import('./features/level-settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
             },
             {
                 path: 'reports',
