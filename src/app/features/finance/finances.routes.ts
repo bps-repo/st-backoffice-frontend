@@ -1,14 +1,29 @@
 import {Routes} from "@angular/router";
-import {InvoicesComponent} from "../schoolar/features/students/pages/detail/tabs/invoices/invoices.component";
-import {PaymentComponent} from "../../shared/components/uikit/menus/payment.component";
+import {FinanceDashboard} from "./dashboards/dashboard/dashboard.component";
 
 export const FINANCES_ROUTES: Routes = [
     {
-        path: 'invoices',
-        component: InvoicesComponent
-    },
-    {
-        path: 'payments',
-        component: PaymentComponent
+        path: '',
+        children: [
+            {
+                path: '',
+                redirectTo: 'dashboards',
+                pathMatch: 'full',
+            },
+            {
+                path: 'dashboards',
+                component: FinanceDashboard,
+            },
+            {
+                path: 'invoices',
+                loadChildren: () =>
+                    import('./invoices/invoices.routes').then(m => m.InvoicesRoutes),
+            },
+            {
+                path: 'payments',
+                loadChildren: () =>
+                    import('./payments/payments.routes').then(m => m.PaymentsRoutes),
+            }
+        ]
     }
 ]

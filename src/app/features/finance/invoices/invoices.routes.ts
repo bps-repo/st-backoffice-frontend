@@ -1,31 +1,24 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { DashboardComponent } from './features/dashboard/components/dashboard/dashboard.component';
+import {Routes} from '@angular/router';
+import {CreateComponent} from "./features/create/create.component";
+import {ListComponent} from "./features/list/list.component";
+import {DetailComponent} from "./features/detail/detail.component";
+import {EditComponent} from "./features/edit/edit.component";
 
-const routes: Routes = [
+export const InvoicesRoutes: Routes = [
     {
-            path: '',
-                    children: [
-                        {
-                            path: '',
-                            redirectTo: 'students-materials-dashboard',
-                            pathMatch: 'full',
-                        },
-                        {
-                            path: 'students-materials-dashboard',
-                            component: DashboardComponent,
-                        },
-                        {
-                        path: 'invoices',
-                            loadChildren: () =>
-                            import('../invoices/features/form-invoices/form-invoices.routes').then((m) => m.FormInvoicesRoutes),
-                 },
-        ]
-    }
+        path: '',
+        component: ListComponent
+    },
+    {
+        path: 'create',
+        component: CreateComponent
+    },
+    {
+        path: 'edit/:id',
+        component: EditComponent
+    },
+    {
+        path: 'details/:id',
+        component: DetailComponent
+    },
 ];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
-})
-export class InvoicesRoutes { }

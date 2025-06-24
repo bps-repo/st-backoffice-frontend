@@ -23,7 +23,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/schoolar/students-materials-dashboard'],
+                        routerLink: ['/schoolar/dashboards'],
                     },
                     {
                         label: 'Alunos',
@@ -97,6 +97,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
+                        routerLink: ['/finances/dashboards'],
                     },
                     {
                         label: 'Facturas pró-forma',

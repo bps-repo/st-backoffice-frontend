@@ -1,32 +1,20 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
+import {ListComponent} from "./features/list/list.component";
+import {CreateComponent} from "./features/create/create.component";
+import {DetailComponent} from "./features/detail/detail.component";
 
-const routes: Routes = [
+
+export const PaymentsRoutes: Routes = [
     {
         path: '',
-        loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DashboardRoutes),
+        component: ListComponent
     },
     {
-        path: 'students-materials-dashboard',
-        loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DashboardRoutes),
+        path: 'create',
+        component: CreateComponent
     },
     {
-        path: 'installments',
-        loadChildren: () => import('./features/installments/installments.routes').then(m => m.InstallmentsRoutes),
+        path: 'details/:id',
+        component: DetailComponent
     },
-    {
-        path: 'reports',
-        loadChildren: () => import('./features/reports/reports.routes').then(m => m.ReportsRoutes),
-    },
-    {
-        path: 'settings',
-        loadChildren: () => import('./features/settings/settings.routes').then(m => m.SettingsRoutes),
-    }
 ];
-
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
-})
-export class PaymentsRoutes {
-}

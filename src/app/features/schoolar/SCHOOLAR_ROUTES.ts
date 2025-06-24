@@ -1,18 +1,18 @@
 import {Routes} from '@angular/router';
-import {Dashboard} from './features/dashboard/components/dashboard/dashboard.component';
+import {SchoolarDashboard} from "./features/dashboard/dashboard/dashboard.component";
 
 export const SCHOOLAR_ROUTES: Routes = [
     {
         path: '',
         children: [
             {
-                path: 'students-materials-dashboard',
+                path: '',
                 redirectTo: 'dashboards',
                 pathMatch: 'full',
             },
             {
                 path: 'dashboards',
-                component: Dashboard,
+                component: SchoolarDashboard,
             },
             {
                 path: 'students',
