@@ -2,7 +2,7 @@
     <div class="col-12">
         <div class="card">
             <div class="flex justify-content-between align-items-center mb-5">
-                <h5>Detalhes do Funcionário: {{ employee.user.firstname }} {{ employee.user.lastname }}</h5>
+                <h5>Detalhes do Funcionário: Santiago</h5>
                 <div>
                     <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-outlined mr-2"
                             (click)="editEmployee()"></button>
@@ -24,19 +24,19 @@
                                 </div>
                                 <div class="field">
                                     <label>Nome Completo</label>
-                                    <div>{{ employee.user.firstname }} {{ employee.user.lastname }}</div>
+                                    <div>name</div>
                                 </div>
                                 <div class="field">
                                     <label>Email</label>
-                                    <div>{{ employee.user.email }}</div>
+                                    <div>email</div>
                                 </div>
                                 <div class="field">
                                     <label>Telefone</label>
-                                    <div>{{ employee.user.phone || 'Não informado' }}</div>
+                                    <div>993838382</div>
                                 </div>
                                 <div class="field">
                                     <label>Data de Nascimento</label>
-                                    <div>{{ (employee.user.dateOfBirth | date:'short') || 'Não informado' }}</div>
+                                    <div>12 - 04 - 2023</div>
                                 </div>
                             </div>
                         </div>

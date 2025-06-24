@@ -51,6 +51,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         private employeeService: EmployeeService,
         private router: Router
     ) {
+        this.employees$.subscribe(employees => {
+            console.log('Employees loaded:', employees);
+        })
     }
 
     ngOnInit(): void {

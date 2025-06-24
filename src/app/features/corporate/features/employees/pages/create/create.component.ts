@@ -68,14 +68,6 @@ export class CreateComponent implements OnInit {
 
         const employee: Employee = {
             id: '',
-            user: {
-                id: '',
-                firstname: formValue.firstname,
-                lastname: formValue.lastname,
-                email: formValue.email,
-                dateOfBirth: formValue.dateOfBirth ? formValue.dateOfBirth.toISOString() : '',
-                phone: formValue.phone
-            },
             hireDate: formValue.hireDate ? formValue.hireDate.toISOString() : '',
             resignationDate: formValue.hireDate ? formValue.hireDate.toISOString() : '',
             userId: "",
