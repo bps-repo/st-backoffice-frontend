@@ -6,13 +6,15 @@ import {CalendarModule} from 'primeng/calendar';
 import {SelectButtonModule} from "primeng/selectbutton";
 import {InvoicesDashboardComponent} from "../invoices/invoices-dashboard.component";
 import {PaymentDashboardComponent} from "../payments/payment-dashboard.component";
+import {TabViewComponent} from "../../../../shared/components/tables/tab-view/tab-view.component";
+import {ViewTabComponent} from "../../../../shared/components/view-tab/view-tab.component";
 
 type ViewOption = { label: string; value: { key: string; component: any } };
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SelectButtonModule],
+    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SelectButtonModule, TabViewComponent, ViewTabComponent],
     templateUrl: './dashboard.component.html',
 })
 export class FinanceDashboard implements OnInit {
@@ -23,18 +25,6 @@ export class FinanceDashboard implements OnInit {
         {label: 'Pagamentos', value: {key: 'lessons', component: PaymentDashboardComponent}},
     ];
 
-    selectedView!: ViewOption;
-
     ngOnInit() {
-        const savedViewKey = localStorage.getItem('selectedViewKey');
-        this.selectedView = this.viewOptions.find(view => view.value.key === savedViewKey) || this.viewOptions[0];
-    }
-
-    changeView() {
-        localStorage.setItem('selectedViewKey', this.selectedView.value.key);
-    }
-
-    get getSelectedComponent() {
-        return this.selectedView.value.component;
     }
 }

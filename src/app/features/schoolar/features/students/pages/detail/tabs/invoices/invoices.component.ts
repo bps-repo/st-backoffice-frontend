@@ -139,7 +139,7 @@ export class InvoicesComponent implements OnInit {
 
     viewInvoice(invoice: any) {
         console.log('Viewing invoice:', invoice.id);
-        // In a real application, this would open a modal or navigate to a detail view
+        // In a real application, this would open a modal or navigate to a student view
     }
 
     payInvoice(invoice: any) {

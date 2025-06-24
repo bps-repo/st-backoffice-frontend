@@ -1,4 +1,4 @@
-// detail.component.ts
+// student.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -16,7 +16,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
-    selector: 'app-service-detail',
+    selector: 'app-service-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [CommonModule,

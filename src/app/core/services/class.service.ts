@@ -15,7 +15,7 @@ export class ClassService {
     constructor(private readonly http: HttpClient) {}
 
     /**
-     * Fetches a list of classes from the API.
+     * Fetches a general of classes from the API.
      * @returns An observable containing an array of Class objects.
      */
     getClasses(): Observable<Class[]> {

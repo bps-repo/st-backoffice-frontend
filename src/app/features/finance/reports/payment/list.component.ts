@@ -5,7 +5,7 @@ import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {PaymentReport, PaymentReportFrequency, PaymentReportType} from "../../../../core/models/payment/payment.model";
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     templateUrl: './list.component.html',
     standalone: true,
     imports: [CommonModule, RouterModule, ReactiveFormsModule]

@@ -15,7 +15,7 @@ import {Exam} from 'src/app/core/models/academic/exam';
 import {examsActions} from "../../../../../../core/store/schoolar/assessments/exams.actions";
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     standalone: true,
     imports: [
         TabMenuModule,

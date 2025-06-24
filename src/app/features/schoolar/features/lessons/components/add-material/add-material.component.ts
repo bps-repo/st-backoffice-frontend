@@ -170,7 +170,7 @@ export class AddMaterialComponent implements OnInit, OnDestroy {
                     });
                     this.loading = false;
 
-                    // Navigate back to the lesson detail page after a short delay
+                    // Navigate back to the lesson student page after a short delay
                     setTimeout(() => {
                         this.router.navigate(['/schoolar/lessons', this.lessonId]);
                     }, 1500);

@@ -1,4 +1,4 @@
-// detail.component.ts
+// student.component.ts
 import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
@@ -20,7 +20,7 @@ import {RippleModule} from "primeng/ripple";
 import {ChartModule} from 'primeng/chart';
 
 @Component({
-    selector: 'app-unit-detail',
+    selector: 'app-unit-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [
@@ -95,7 +95,7 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Sample data - in a real app, this would come from the unit data
+        // general data - in a real app, this would come from the unit data
         this.progressChartData = {
             labels: ['Completed', 'In Progress', 'Not Started'],
             datasets: [
@@ -142,7 +142,7 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Sample data - in a real app, this would come from the unit's assessment data
+        // general data - in a real app, this would come from the unit's assessment data
         this.assessmentChartData = {
             labels: ['Excellent', 'Good', 'Average', 'Poor'],
             datasets: [
@@ -186,7 +186,7 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Sample data - in a real app, this would come from the unit's lessons
+        // general data - in a real app, this would come from the unit's lessons
         this.lessonDistributionData = {
             labels: ['Theory', 'Practice', 'Assessment', 'Review'],
             datasets: [

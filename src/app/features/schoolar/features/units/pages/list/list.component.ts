@@ -16,7 +16,7 @@ import { Unit } from 'src/app/core/models/course/unit';
 import { Level } from 'src/app/core/models/course/level';
 
 @Component({
-    selector: 'app-unit-list',
+    selector: 'app-unit-general',
     imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateUnitDialogComponent],
     templateUrl: './list.component.html',
     standalone: true,

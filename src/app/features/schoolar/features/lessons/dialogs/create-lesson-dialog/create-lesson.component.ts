@@ -113,7 +113,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         // Dispatch the create lesson action
         this.store.dispatch(lessonsActions.createLesson({lesson: lessonToSave}));
 
-        // Show success message and navigate to the lessons list
+        // Show success message and navigate to the lessons general
         this.messageService.add({
             severity: 'success',
             summary: 'Success',

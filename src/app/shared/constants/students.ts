@@ -29,7 +29,7 @@ import {HistoryComponent} from "../../features/schoolar/features/students/pages/
 
 export const STUDENTS_TABS: Observable<Tab[]> = of([
     {
-        header: 'Visualização geral do Aluno',
+        header: 'Visualização general do Aluno',
         icon: 'pi pi-th-large',
         title: 'Overview ',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',

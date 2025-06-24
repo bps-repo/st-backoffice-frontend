@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
-    selector: 'app-center-detail',
+    selector: 'app-center-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [CommonModule,

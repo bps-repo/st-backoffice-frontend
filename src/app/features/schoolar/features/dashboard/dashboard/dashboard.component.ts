@@ -10,7 +10,9 @@ import {LessonsDashboardComponent} from "../lessons/lessons-dashboard.component"
 import {ClassesDashboardComponent} from "../classes/classes-dashboard.component";
 import {AssessmentsDashboardComponent} from "../assessments/assessment-dashboard.component";
 import {MaterialsDashboardComponent} from "../../materials/pages/materials-dashboard/materials-dashboard.component";
-import {LevelDashboardComponent} from "../../level-dashboard/components/dashboard/level-dashboard.component";
+import {SettingsDashboardComponent} from "../settings/settings-dashboard.component";
+import {ReportsDashboardComponent} from "../reports/reports-dashboard.component";
+import {LevelDashboardComponent} from "../level/level-dashboard.component";
 
 type ViewOption = { label: string; value: { key: string; component: any } };
 
@@ -28,10 +30,7 @@ export class SchoolarDashboard implements OnInit {
         {label: 'Aulas', value: {key: 'lessons', component: LessonsDashboardComponent}},
         {label: 'Turmas', value: {key: 'classes', component: ClassesDashboardComponent}},
         {label: 'Materiais', value: {key: 'materials', component: MaterialsDashboardComponent}},
-        {
-            label: 'Avaliações',
-            value: {key: 'assessments', component: AssessmentsDashboardComponent}
-        },
+        {label: 'Avaliações', value: {key: 'assessments', component: AssessmentsDashboardComponent}},
         {label: 'Níveis', value: {key: 'levels', component: LevelDashboardComponent}},
     ];
 

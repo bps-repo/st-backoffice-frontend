@@ -58,6 +58,6 @@ export class CreateComponent {
     saveAssessment() {
         // In a real application, you would save the assessment data using a service
         console.log('Assessment saved:', this.assessment);
-        // Navigate back to the list page
+        // Navigate back to the general page
     }
 }

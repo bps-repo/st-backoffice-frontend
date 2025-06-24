@@ -15,7 +15,7 @@ import {LessonStatus} from "../../../../../../core/enums/lesson-status";
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     standalone: true,
     imports: [
         TabMenuModule,

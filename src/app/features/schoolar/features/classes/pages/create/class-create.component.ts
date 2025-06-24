@@ -60,6 +60,6 @@ export class ClassCreateComponent {
     saveClass() {
         // In a real application, you would save the class data using a service
         console.log('Class saved:', this.class);
-        // Navigate back to the list page
+        // Navigate back to the general page
     }
 }

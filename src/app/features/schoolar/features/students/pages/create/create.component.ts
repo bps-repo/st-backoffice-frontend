@@ -121,6 +121,6 @@ export class CreateComponent implements OnInit {
     saveStudent() {
         // In a real application, you would save the student data using a service
         console.log('Student saved:', this.student);
-        // Navigate back to the list page or show success message
+        // Navigate back to the general page or show success message
     }
 }

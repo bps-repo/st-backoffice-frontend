@@ -13,7 +13,7 @@ import {Store} from "@ngrx/store";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     imports: [
         TabMenuModule,
         TabViewModule,

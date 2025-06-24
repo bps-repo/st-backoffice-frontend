@@ -18,7 +18,7 @@ import {StudentsActions} from "../../../../../../core/store/schoolar/students/st
 import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [
         CommonModule,
         RouterModule,

@@ -1,5 +1,7 @@
 import {Routes} from '@angular/router';
 import {SchoolarDashboard} from "./features/dashboard/dashboard/dashboard.component";
+import {ScholarSettings} from "./features/settings/scholar-settings.component";
+import {ScholarReports} from "./features/reports/scholar-reports.component";
 
 export const SCHOOLAR_ROUTES: Routes = [
     {
@@ -69,29 +71,17 @@ export const SCHOOLAR_ROUTES: Routes = [
                     import('./features/units/units.routes').then((m) => m.UnitsRoutes),
             },
             {
-                path: 'reports',
-                loadChildren: () =>
-                    import('./features/level-reports/reports.routes').then((m) => m.REPORTS_ROUTES),
-            },
-            {
-                path: 'settings',
-                loadChildren: () =>
-                    import('./features/level-settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
-            },
-            {
-                path: 'reports',
-                loadChildren: () =>
-                    import('./features/reports/reports.routes').then((m) => m.ReportsRoutes),
-            },
-            {
                 path: 'certificates',
                 loadChildren: () =>
                     import('./features/certificates/certificates.routes').then((m) => m.CertificatesRoutes),
             },
             {
+                path: 'reports',
+                component: ScholarReports
+            },
+            {
                 path: 'settings',
-                loadChildren: () =>
-                    import('../schoolar/features/settings/settings.routes').then((m) => m.SettingsRoutes),
+                component: ScholarSettings
             },
         ]
     }

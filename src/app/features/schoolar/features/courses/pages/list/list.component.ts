@@ -16,7 +16,7 @@ import { Service } from 'src/app/core/models/course/service';
 import { CreateServiceDialogComponent } from '../../dialogs/create-service-dialog/create-service-dialog.component';
 
 @Component({
-    selector: 'app-service-list',
+    selector: 'app-service-general',
     imports: [CommonModule, GlobalTable, CreateServiceDialogComponent, ConfirmDialogModule, ButtonModule],
     templateUrl: './list.component.html',
     standalone: true,

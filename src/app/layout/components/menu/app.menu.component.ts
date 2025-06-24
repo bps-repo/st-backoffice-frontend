@@ -71,22 +71,14 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/schoolar/units'],
                     },
                     {
-                        label: 'Relatórios escolar',
+                        label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/schoolar/reports'],
                     },
                     {
-                        label: 'Relatórios cursos',
-                        icon: 'pi pi-fw pi-file-pdf',
-                    },
-                    {
-                        label: 'Configurações escolar',
+                        label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
                         routerLink: ['/schoolar/settings'],
-                    },
-                    {
-                        label: 'Configurações cursos',
-                        icon: 'pi pi-fw pi-cog',
                     },
                 ],
             },
@@ -110,12 +102,19 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/finances/payments'],
                     },
                     {
+                        label: 'Contratos',
+                        icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/finances/contracts'],
+                    },
+                    {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/finances/reports'],
                     },
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/finances/settings'],
                     },
                 ],
             },
@@ -129,19 +128,11 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/corporate/students-materials-dashboard'],
                     },
                     {
-                        label: 'Cursos',
-                        icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/levels/levels'],
-                    },
-                    {
                         label: 'Centros',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/corporate/centers'],
                     },
-                    {
-                        label: 'Contratos',
-                        icon: 'pi pi-fw pi-wallet',
-                    },
+
                     {
                         label: 'Funcionários',
                         icon: 'pi pi-fw pi-users',

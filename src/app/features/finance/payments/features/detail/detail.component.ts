@@ -9,7 +9,7 @@ import {
 } from "../../../../../core/models/payment/payment.model";
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [CommonModule, RouterModule]

@@ -8,7 +8,7 @@ import {TableService} from 'src/app/shared/services/table.service';
 import {Router} from "@angular/router";
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [GlobalTable, CommonModule],
     templateUrl: './list.component.html'
 })

@@ -56,7 +56,7 @@
                 <tr *ngFor="let installment of filteredInstallments">
                     <td>{{ installment.id }}</td>
                     <td>
-                        <a [routerLink]="['/payments/installments/detail', installment.payment_id]">
+                        <a [routerLink]="['/payments/installments/student', installment.payment_id]">
                             {{ installment.payment_id }}
                         </a>
                     </td>
@@ -81,7 +81,7 @@
                             Mark as Paid
                         </button>
                         <a
-                            [routerLink]="['/payments/installments/detail', installment.payment_id]"
+                            [routerLink]="['/payments/installments/student', installment.payment_id]"
                             class="btn btn-sm btn-info">
                             View Details
                         </a>

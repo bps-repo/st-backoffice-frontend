@@ -8,7 +8,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     imports: [
         CommonModule,
         TabViewModule,

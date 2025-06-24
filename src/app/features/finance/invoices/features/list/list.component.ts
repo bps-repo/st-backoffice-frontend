@@ -14,7 +14,7 @@ import {GlobalTable, TableColumn} from 'src/app/shared/components/tables/global-
 import {GLOBAL_FILTERS, INVOICE_COLUMNS} from "../invoice.contants";
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [
         CommonModule,
         GlobalTable,

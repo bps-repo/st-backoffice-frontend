@@ -13,7 +13,7 @@ import {InvoiceService} from 'src/app/core/services/invoice.service';
 import {mockInvoice} from "../invoice.contants";
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     standalone: true,
     imports: [
         CommonModule,

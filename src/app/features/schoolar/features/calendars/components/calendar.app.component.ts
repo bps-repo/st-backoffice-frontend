@@ -448,7 +448,7 @@ export class CalendarAppComponent implements OnInit {
         // Get the event ID
         const eventId = e.event.id;
 
-        // Redirect to lesson detail page
+        // Redirect to lesson student page
         if (eventId) {
             this.router.navigate(['/schoolar/lessons', eventId]);
             return;
@@ -554,7 +554,7 @@ export class CalendarAppComponent implements OnInit {
                         : i
                 );
 
-                // Redirect to lesson detail page
+                // Redirect to lesson student page
                 this.router.navigate(['/schoolar/lessons/detail', eventId]);
             } else {
                 // Create new event
@@ -567,7 +567,7 @@ export class CalendarAppComponent implements OnInit {
                     },
                 ];
 
-                // Redirect to lesson detail page for the new event
+                // Redirect to lesson student page for the new event
                 this.router.navigate(['/schoolar/lessons/detail', eventId]);
             }
 

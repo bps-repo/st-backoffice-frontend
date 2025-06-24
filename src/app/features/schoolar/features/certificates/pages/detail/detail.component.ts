@@ -23,7 +23,7 @@ interface Certificate {
 }
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule]

@@ -17,7 +17,7 @@ import {Class} from "../../../../../../core/models/academic/class";
 import * as ClassSelectors from "../../../../../../core/store/schoolar/classes/classes.selectors";
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [
         GlobalTable,
         CommonModule,

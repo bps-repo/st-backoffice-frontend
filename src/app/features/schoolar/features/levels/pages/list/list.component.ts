@@ -13,7 +13,7 @@ import { selectAllLevels, selectLevelLoading } from 'src/app/core/store/course/s
 import { Level } from 'src/app/core/models/course/level';
 
 @Component({
-    selector: 'app-level-list',
+    selector: 'app-level-general',
     imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateLevelDialogComponent],
     templateUrl: './list.component.html',
     standalone: true,

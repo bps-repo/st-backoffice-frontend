@@ -1,4 +1,4 @@
-// detail.component.ts
+// student.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -17,7 +17,7 @@ import { ChartModule } from 'primeng/chart';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-    selector: 'app-level-detail',
+    selector: 'app-level-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [
@@ -81,7 +81,7 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Sample data - in a real app, this would come from the level's units
+        // general data - in a real app, this would come from the level's units
         this.unitsChartData = {
             labels: ['Grammar', 'Vocabulary', 'Reading', 'Writing', 'Listening', 'Speaking'],
             datasets: [
@@ -133,7 +133,7 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Sample data - in a real app, this would come from enrollment data
+        // general data - in a real app, this would come from enrollment data
         this.enrollmentChartData = {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
             datasets: [
@@ -184,7 +184,7 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // Sample data - in a real app, this would come from completion data
+        // general data - in a real app, this would come from completion data
         this.completionRateChartData = {
             labels: ['Completed', 'In Progress', 'Not Started'],
             datasets: [

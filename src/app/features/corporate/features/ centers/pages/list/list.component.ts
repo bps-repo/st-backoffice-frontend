@@ -14,7 +14,7 @@ import * as CenterActions from 'src/app/core/store/corporate/actions/center.acti
 import { selectAllCenters, selectCenterLoading } from 'src/app/core/store/corporate/selectors/center.selector';
 
 @Component({
-    selector: 'app-center-list',
+    selector: 'app-center-general',
     imports: [CommonModule, GlobalTable, CreateCenterDialogComponent, ButtonModule, ConfirmDialogModule],
     templateUrl: './list.component.html',
     standalone: true,

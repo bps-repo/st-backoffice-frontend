@@ -7,7 +7,7 @@ import { COMPANIES } from 'src/app/shared/constants/companies';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [CommonModule, GlobalTable, ButtonModule],
     templateUrl: './list.component.html',
     standalone: true

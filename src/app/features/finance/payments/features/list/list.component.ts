@@ -4,7 +4,7 @@ import {RouterModule} from '@angular/router';
 import {PaymentInstallment, PaymentInstallmentStatus} from "../../../../../core/models/payment/payment.model";
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     templateUrl: './list.component.html',
     styleUrls: ['./list.component.scss'],
     standalone: true,

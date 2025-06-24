@@ -5,7 +5,7 @@ import { Task } from 'src/app/demo/api/task';
 import { TaskService } from '../service/task.service';
 
 @Component({
-    selector: 'app-task-list',
+    selector: 'app-task-general',
     templateUrl: './task-list.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })

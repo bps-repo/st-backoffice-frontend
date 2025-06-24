@@ -58,6 +58,6 @@ export class EditComponent implements OnInit {
     saveAssessment() {
         // In a real application, you would save the assessment data using a service
         console.log('Assessment updated:', this.assessment);
-        // Navigate back to the detail page
+        // Navigate back to the student page
     }
 }
