@@ -74,7 +74,7 @@ export class RolesComponent implements OnInit, OnDestroy {
         this.loading = true;
 
         forkJoin({
-            employee: this.employeeService.getEmployee(this.employeeId),
+            employee: this.employeeService.getEmployeeById(this.employeeId),
             roles: this.roleService.getRoles()
         }).pipe(
             takeUntil(this.destroy$),
@@ -84,7 +84,7 @@ export class RolesComponent implements OnInit, OnDestroy {
                 this.employee = employee;
 
                 // Filter out roles that the employee already has
-                const employeeRoleIds = new Set(employee.roles.map(r => r.id));
+                const employeeRoleIds = new Set(employee.roles.map((r: { id: any; }) => r.id));
                 this.availableRoles = roles.filter(role => !employeeRoleIds.has(role.id));
             },
             error: (error) => {

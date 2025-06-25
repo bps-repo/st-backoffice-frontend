@@ -25,19 +25,19 @@ export const classAdapter: EntityAdapter<Class> = createEntityAdapter<Class>({
 });
 
 export const classesInitialState: ClassState = classAdapter.getInitialState({
-
+    // Loading states
     loading: false,
     loadingCreate: false,
     loadingUpdate: false,
     loadingDelete: false,
 
-    classes: [],
-
+    // Error states
     errors: null,
     createError: null,
     updateError: null,
     deleteError: null,
     bulkError: null,
 
+    // Selection state
     selectedClassId: null
 });

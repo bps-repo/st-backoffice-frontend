@@ -43,21 +43,21 @@ export class LevelEffects {
     )
   );
 
-  loadPagedLevels$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(LevelActions.loadPagedLevels),
-      mergeMap(({ size }) =>
-        this.levelService.getPagedLevels(size).pipe(
-          map((response: ApiResponse<{ content: Level[] }>) =>
-            LevelActions.loadPagedLevelsSuccess({ levels: response.data.content })
-          ),
-          catchError(error =>
-            of(LevelActions.loadPagedLevelsFailure({ error }))
-          )
-        )
-      )
-    )
-  );
+  // loadPagedLevels$ = createEffect(() =>
+  //   this.actions$.pipe(
+  //     ofType(LevelActions.loadPagedLevels),
+  //     mergeMap(({ size }) =>
+  //       this.levelService.getLevels().pipe(
+  //         map((response: ApiResponse<{ content: Level[] }>) =>
+  //           LevelActions.loadLevels({ levels: response.data.content })
+  //         ),
+  //         catchError(error =>
+  //           of(LevelActions.loadPagedLevelsFailure({ error }))
+  //         )
+  //       )
+  //     )
+  //   )
+  // );
 
   deleteLevel$ = createEffect(() =>
     this.actions$.pipe(

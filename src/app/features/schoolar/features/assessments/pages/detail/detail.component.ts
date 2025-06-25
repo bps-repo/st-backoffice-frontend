@@ -65,14 +65,22 @@ export class DetailComponent implements OnInit, OnDestroy {
                 label: 'Edit Evaluation',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.router.navigate(['/schoolar/assessments/edit', "12434"]);
+                    if (this.exam && this.exam.id) {
+                        this.router.navigate(['/schoolar/assessments/edit', this.exam.id]);
+                    } else {
+                        console.error('No exam selected or exam ID is missing');
+                    }
                 }
             },
             {
                 label: 'Record Student Attempt',
                 icon: 'pi pi-user-plus',
                 command: () => {
-                    this.router.navigate(['/schoolar/assessments/attempt', "1232"]);
+                    if (this.exam && this.exam.id) {
+                        this.router.navigate(['/schoolar/assessments/attempt', this.exam.id]);
+                    } else {
+                        console.error('No exam selected or exam ID is missing');
+                    }
                 }
             },
             {separator: true},

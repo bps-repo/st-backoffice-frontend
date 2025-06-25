@@ -6,6 +6,7 @@ import {
 } from 'src/app/shared/components/tables/global-table/global-table.component';
 import {TableService} from 'src/app/shared/services/table.service';
 import {Router} from "@angular/router";
+import {AssessmentService} from 'src/app/core/services/assessment.service';
 
 @Component({
     selector: 'app-general',
@@ -18,10 +19,26 @@ export class ListComponent implements OnInit {
     globalFilterFields: string[] = [];
     loading = false;
 
-    constructor(private tableService: TableService<any>, private router: Router) {
-    }
+    constructor(
+        private tableService: TableService<any>,
+        private router: Router,
+        private assessmentService: AssessmentService
+    ) {}
 
     ngOnInit(): void {
+        // Load assessments from service
+        this.loading = true;
+        this.assessmentService.getAssessments().subscribe({
+            next: (data) => {
+                this.assessments = data;
+                this.loading = false;
+            },
+            error: (error) => {
+                console.error('Error fetching assessments:', error);
+                this.loading = false;
+            }
+        });
+
         // Define custom column templates for different filter types
         this.columns = [
             {

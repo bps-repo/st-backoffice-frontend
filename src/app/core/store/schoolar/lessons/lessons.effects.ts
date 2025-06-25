@@ -10,6 +10,7 @@ export class LessonsEffects {
     private actions$ = inject(Actions);
     private lessonApiService = inject(LessonApiService);
 
+    // Basic CRUD operations
     loadLessons$ = createEffect(() =>
         this.actions$.pipe(
             ofType(lessonsActions.loadLessons),
@@ -24,12 +25,12 @@ export class LessonsEffects {
         )
     );
 
-    loadClass$ = createEffect(() =>
+    loadLesson$ = createEffect(() =>
         this.actions$.pipe(
             ofType(lessonsActions.loadLesson),
             exhaustMap(({id}) =>
                 this.lessonApiService.getLesson(id).pipe(
-                    map((classItem) => lessonsActions.loadLessonSuccess({lesson: classItem})),
+                    map((lesson) => lessonsActions.loadLessonSuccess({lesson})),
                     catchError((error) =>
                         of(lessonsActions.loadLessonFailure({error: error.message}))
                     )
@@ -38,12 +39,12 @@ export class LessonsEffects {
         )
     );
 
-    createClass$ = createEffect(() =>
+    createLesson$ = createEffect(() =>
         this.actions$.pipe(
             ofType(lessonsActions.createLesson),
-            exhaustMap(({lesson: classData}) =>
-                this.lessonApiService.createLesson(classData).pipe(
-                    map((classItem) => lessonsActions.createLessonSuccess({lesson: classItem})),
+            exhaustMap(({lesson}) =>
+                this.lessonApiService.createLesson(lesson).pipe(
+                    map((createdLesson) => lessonsActions.createLessonSuccess({lesson: createdLesson})),
                     catchError((error) =>
                         of(lessonsActions.createLessonFailure({error: error.message}))
                     )
@@ -52,12 +53,12 @@ export class LessonsEffects {
         )
     );
 
-    updateClass$ = createEffect(() =>
+    updateLesson$ = createEffect(() =>
         this.actions$.pipe(
             ofType(lessonsActions.updateLesson),
-            exhaustMap(({lesson: classData}) =>
-                this.lessonApiService.updateLesson(classData).pipe(
-                    map((classItem) => lessonsActions.updateLessonSuccess({lesson: classItem})),
+            exhaustMap(({lesson}) =>
+                this.lessonApiService.updateLesson(lesson).pipe(
+                    map((updatedLesson) => lessonsActions.updateLessonSuccess({lesson: updatedLesson})),
                     catchError((error) =>
                         of(lessonsActions.updateLessonFailure({error: error.message}))
                     )
@@ -66,7 +67,7 @@ export class LessonsEffects {
         )
     );
 
-    deleteClass$ = createEffect(() =>
+    deleteLesson$ = createEffect(() =>
         this.actions$.pipe(
             ofType(lessonsActions.deleteLesson),
             exhaustMap(({id}) =>
@@ -74,6 +75,178 @@ export class LessonsEffects {
                     map(() => lessonsActions.deleteLessonSuccess({id})),
                     catchError((error) =>
                         of(lessonsActions.deleteLessonFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    // Filter endpoints
+    loadLessonsByClass$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadLessonsByClass),
+            exhaustMap(({classId}) =>
+                this.lessonApiService.getLessonsByClass(classId).pipe(
+                    map((lessons) => lessonsActions.loadLessonsByClassSuccess({lessons})),
+                    catchError((error) =>
+                        of(lessonsActions.loadLessonsByClassFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    loadAvailableLessonsByClass$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadAvailableLessonsByClass),
+            exhaustMap(({classId}) =>
+                this.lessonApiService.getAvailableLessonsByClass(classId).pipe(
+                    map((lessons) => lessonsActions.loadAvailableLessonsByClassSuccess({lessons})),
+                    catchError((error) =>
+                        of(lessonsActions.loadAvailableLessonsByClassFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    loadLessonsByCenter$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadLessonsByCenter),
+            exhaustMap(({centerId}) =>
+                this.lessonApiService.getLessonsByCenter(centerId).pipe(
+                    map((lessons) => lessonsActions.loadLessonsByCenterSuccess({lessons})),
+                    catchError((error) =>
+                        of(lessonsActions.loadLessonsByCenterFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    loadLessonsByDateRange$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadLessonsByDateRange),
+            exhaustMap(({startDate, endDate}) =>
+                this.lessonApiService.getLessonsByDateRange(startDate, endDate).pipe(
+                    map((lessons) => lessonsActions.loadLessonsByDateRangeSuccess({lessons})),
+                    catchError((error) =>
+                        of(lessonsActions.loadLessonsByDateRangeFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    // Student bookings endpoints
+    loadStudentBookings$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadStudentBookings),
+            exhaustMap(({studentId}) =>
+                this.lessonApiService.getStudentBookings(studentId).pipe(
+                    map((bookings) => lessonsActions.loadStudentBookingsSuccess({bookings})),
+                    catchError((error) =>
+                        of(lessonsActions.loadStudentBookingsFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    loadStudentBookingsToday$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadStudentBookingsToday),
+            exhaustMap(({studentId}) =>
+                this.lessonApiService.getStudentBookingsToday(studentId).pipe(
+                    map((bookings) => lessonsActions.loadStudentBookingsTodaySuccess({bookings})),
+                    catchError((error) =>
+                        of(lessonsActions.loadStudentBookingsTodayFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    // Lesson bookings endpoints
+    loadLessonBookings$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadLessonBookings),
+            exhaustMap(({lessonId}) =>
+                this.lessonApiService.getLessonBookings(lessonId).pipe(
+                    map((bookings) => lessonsActions.loadLessonBookingsSuccess({bookings})),
+                    catchError((error) =>
+                        of(lessonsActions.loadLessonBookingsFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    createLessonBooking$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.createLessonBooking),
+            exhaustMap(({lessonId, bookingData}) =>
+                this.lessonApiService.createLessonBooking(lessonId, bookingData).pipe(
+                    map((booking) => lessonsActions.createLessonBookingSuccess({booking})),
+                    catchError((error) =>
+                        of(lessonsActions.createLessonBookingFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    deleteLessonBooking$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.deleteLessonBooking),
+            exhaustMap(({lessonId, bookingId}) =>
+                this.lessonApiService.deleteLessonBooking(lessonId, bookingId).pipe(
+                    map(() => lessonsActions.deleteLessonBookingSuccess({lessonId, bookingId})),
+                    catchError((error) =>
+                        of(lessonsActions.deleteLessonBookingFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    // Lesson management endpoints
+    updateLessonSchedule$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.updateLessonSchedule),
+            exhaustMap(({lessonId, scheduleData}) =>
+                this.lessonApiService.updateLessonSchedule(lessonId, scheduleData).pipe(
+                    map((lesson) => lessonsActions.updateLessonScheduleSuccess({lesson})),
+                    catchError((error) =>
+                        of(lessonsActions.updateLessonScheduleFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    updateLessonOnlineStatus$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.updateLessonOnlineStatus),
+            exhaustMap(({lessonId, onlineStatus}) =>
+                this.lessonApiService.updateLessonOnlineStatus(lessonId, onlineStatus).pipe(
+                    map((lesson) => lessonsActions.updateLessonOnlineStatusSuccess({lesson})),
+                    catchError((error) =>
+                        of(lessonsActions.updateLessonOnlineStatusFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    markLessonsOverdue$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.markLessonsOverdue),
+            exhaustMap(() =>
+                this.lessonApiService.markLessonsOverdue().pipe(
+                    map((response) => lessonsActions.markLessonsOverdueSuccess({response})),
+                    catchError((error) =>
+                        of(lessonsActions.markLessonsOverdueFailure({error: error.message}))
                     )
                 )
             )

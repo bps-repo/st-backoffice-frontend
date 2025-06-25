@@ -7,6 +7,7 @@ export interface Unit {
     id: string;
     name: string;
     description: string;
+    order: number;
     level: Level | null;
     levelId: string;
     orderUnit: number;

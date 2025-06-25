@@ -47,7 +47,7 @@ export const AppEffects = [
     UnitEffects,
     LevelEffects,
     LessonsEffects,
-    ClassEffects,
+    ClassEffects
 ]
 
 export const AppFeatures = [

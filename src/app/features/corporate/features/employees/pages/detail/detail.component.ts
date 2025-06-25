@@ -55,14 +55,14 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     loadEmployee(id: string): void {
         this.loading = true;
-        this.employeeService.getEmployee(id).pipe(
+        this.employeeService.getEmployeeById(id).pipe(
             takeUntil(this.destroy$),
             finalize(() => this.loading = false)
         ).subscribe({
             next: (employee) => {
                 this.employee = employee;
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading employee', error);
                 this.employee = null;
             }

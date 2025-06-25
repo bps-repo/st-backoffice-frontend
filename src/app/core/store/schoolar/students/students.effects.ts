@@ -79,4 +79,74 @@ export class StudentsEffects {
             )
         )
     );
+
+    createStudentPhoto$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.createStudentPhoto),
+            exhaustMap(({studentId, photoData}) =>
+                this.studentsService.createStudentPhoto(photoData).pipe(
+                    map((response) => StudentsActions.createStudentPhotoSuccess({response})),
+                    catchError((error) =>
+                        of(StudentsActions.createStudentPhotoFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    addStudentToClass$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.addStudentToClass),
+            exhaustMap(({studentId, classId}) =>
+                this.studentsService.addStudentToClass(studentId, classId).pipe(
+                    map((response) => StudentsActions.addStudentToClassSuccess({response})),
+                    catchError((error) =>
+                        of(StudentsActions.addStudentToClassFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    removeStudentFromClass$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.removeStudentFromClass),
+            exhaustMap(({studentId, classId}) =>
+                this.studentsService.removeStudentFromClass(studentId, classId).pipe(
+                    map((response) => StudentsActions.removeStudentFromClassSuccess({response})),
+                    catchError((error) =>
+                        of(StudentsActions.removeStudentFromClassFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    addStudentToCenter$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.addStudentToCenter),
+            exhaustMap(({studentId, centerId}) =>
+                this.studentsService.addStudentToCenter(studentId, centerId).pipe(
+                    map((response) => StudentsActions.addStudentToCenterSuccess({response})),
+                    catchError((error) =>
+                        of(StudentsActions.addStudentToCenterFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    removeStudentFromCenter$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.removeStudentFromCenter),
+            exhaustMap(({studentId, centerId}) =>
+                this.studentsService.removeStudentFromCenter(studentId, centerId).pipe(
+                    map((response) => StudentsActions.removeStudentFromCenterSuccess({response})),
+                    catchError((error) =>
+                        of(StudentsActions.removeStudentFromCenterFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
 }

@@ -43,21 +43,21 @@ export class ServiceEffects {
         )
     );
 
-    loadPagedServices$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(ServiceActions.loadPagedServices),
-            mergeMap(({ size }) =>
-                this.serviceService.getPagedServices(size).pipe(
-                    map((response: ApiResponse<{ content: Service[] }>) =>
-                        ServiceActions.loadPagedServicesSuccess({ services: response.data.content })
-                    ),
-                    catchError(error =>
-                        of(ServiceActions.loadPagedServicesFailure({ error }))
-                    )
-                )
-            )
-        )
-    );
+    // loadPagedServices$ = createEffect(() =>
+    //     this.actions$.pipe(
+    //         ofType(ServiceActions.loadPagedServices),
+    //         mergeMap(({ size }) =>
+    //             this.serviceService.getPagedServices(size).pipe(
+    //                 map((response: ApiResponse<{ content: Service[] }>) =>
+    //                     ServiceActions.loadPagedServicesSuccess({ services: response.data.content })
+    //                 ),
+    //                 catchError(error =>
+    //                     of(ServiceActions.loadPagedServicesFailure({ error }))
+    //                 )
+    //             )
+    //         )
+    //     )
+    // );
 
     deleteService$ = createEffect(() =>
         this.actions$.pipe(

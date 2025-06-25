@@ -1,39 +1,137 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Level } from '../models/course/level';
+import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ApiResponse } from './interfaces/ApiResponseService';
+import { ApiResponse, PageableResponse } from './interfaces/ApiResponseService';
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 export class LevelService {
+  private apiUrl = `${environment.apiUrl}/levels`;
 
-    private apiUrl = `${environment.apiUrl}/levels`;
+  constructor(private http: HttpClient) {}
 
-        constructor(private http: HttpClient) {}
+  /**
+   * Gets all levels.
+   * @returns An observable containing an array of Level objects.
+   */
+  getLevels(): Observable<any[]> {
+    return this.http.get<ApiResponse<PageableResponse<any[]>>>(this.apiUrl).pipe(
+      map((response) => response.data.content as any[])
+    );
+  }
 
-        createLevel(level: Partial<Level>): Observable<ApiResponse<Level>> {
-            return this.http.post<ApiResponse<Level>>(this.apiUrl, level);
-        }
+  /**
+   * Creates a new level.
+   * @param levelData The level data to create.
+   * @returns An observable containing the created Level object.
+   */
+  createLevel(levelData: any): Observable<any> {
+    return this.http.post<ApiResponse<any>>(this.apiUrl, levelData).pipe(
+      map((response) => response.data)
+    );
+  }
 
-        updateLevel(id: string, level: Partial<Level>): Observable<ApiResponse<Level>> {
-            return this.http.patch<ApiResponse<Level>>(`${this.apiUrl}/${id}`, level);
-        }
+  /**
+   * Gets levels enrolled by a student.
+   * @param studentId The ID of the student.
+   * @returns An observable containing an array of Level objects.
+   */
+  getEnrolledLevels(studentId: string): Observable<any[]> {
+    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/enrolled/${studentId}`).pipe(
+      map((response) => response.data.content as any[])
+    );
+  }
 
-        getLevelById(id: string): Observable<ApiResponse<Level>> {
-            return this.http.get<ApiResponse<Level>>(`${this.apiUrl}/${id}`);
-        }
+  /**
+   * Gets levels completed by a student.
+   * @param studentId The ID of the student.
+   * @returns An observable containing an array of Level objects.
+   */
+  getCompletedLevels(studentId: string): Observable<any[]> {
+    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/completed/${studentId}`).pipe(
+      map((response) => response.data.content as any[])
+    );
+  }
 
-        getPagedLevels(size: number): Observable<ApiResponse<{ content: Level[] }>> {
-            return this.http.get<ApiResponse<{ content: Level[] }>>(`${this.apiUrl}/paged`, {
-                params: { size: size.toString() }
-            });
-        }
+  /**
+   * Gets levels by name.
+   * @param name The name to filter by.
+   * @returns An observable containing an array of Level objects.
+   */
+  getLevelsByName(name: string): Observable<any[]> {
+    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/by-name/${name}`).pipe(
+      map((response) => response.data.content as any[])
+    );
+  }
 
-        deleteLevel(id: string): Observable<ApiResponse<null>> {
-            return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/${id}`);
-          }
+  /**
+   * Gets levels by course.
+   * @param courseId The ID of the course.
+   * @returns An observable containing an array of Level objects.
+   */
+  getLevelsByCourse(courseId: string): Observable<any[]> {
+    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/by-course/${courseId}`).pipe(
+      map((response) => response.data.content as any[])
+    );
+  }
 
+  /**
+   * Gets levels by difficulty.
+   * @param difficulty The difficulty level to filter by.
+   * @returns An observable containing an array of Level objects.
+   */
+  getLevelsByDifficulty(difficulty: string): Observable<any[]> {
+    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/by-difficulty/${difficulty}`).pipe(
+      map((response) => response.data.content as any[])
+    );
+  }
+
+  /**
+   * Gets a level by ID.
+   * @param id The ID of the level.
+   * @returns An observable containing the Level object.
+   */
+  getLevelById(id: string): Observable<any> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => response.data)
+    );
+  }
+
+  /**
+   * Updates a level.
+   * @param id The ID of the level.
+   * @param levelData The updated level data.
+   * @returns An observable containing the updated Level object.
+   */
+  updateLevel(id: string, levelData: any): Observable<any> {
+    return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/${id}`, levelData).pipe(
+      map((response) => response.data)
+    );
+  }
+
+  /**
+   * Updates a level's status.
+   * @param id The ID of the level.
+   * @param status The new status.
+   * @returns An observable containing the updated Level object.
+   */
+  updateLevelStatus(id: string, status: any): Observable<any> {
+    return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/${id}/status`, status).pipe(
+      map((response) => response.data)
+    );
+  }
+
+  /**
+   * Deletes a level.
+   * @param id The ID of the level to delete.
+   * @returns An observable containing the response.
+   */
+  deleteLevel(id: string): Observable<any> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => response.data)
+    );
+  }
 }

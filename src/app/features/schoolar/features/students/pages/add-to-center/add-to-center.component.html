@@ -30,7 +30,7 @@
                         [(selection)]="selectedStudents"
                         [paginator]="true"
                         [rows]="10"
-                        [globalFilterFields]="['name', 'email', 'center']"
+                        [globalFilterFields]="['user.name', 'user.email', 'centerId']"
                         styleClass="p-datatable-gridlines">
                         <ng-template pTemplate="caption">
                             <div class="flex justify-content-between flex-column sm:flex-row">
@@ -56,9 +56,9 @@
                                 <th style="width: 3rem">
                                     <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                                 </th>
-                                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                                <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-                                <th pSortableColumn="center">Current Center <p-sortIcon field="center"></p-sortIcon></th>
+                                <th pSortableColumn="user.name">Name <p-sortIcon field="user.name"></p-sortIcon></th>
+                                <th pSortableColumn="user.email">Email <p-sortIcon field="user.email"></p-sortIcon></th>
+                                <th pSortableColumn="centerId">Current Center <p-sortIcon field="centerId"></p-sortIcon></th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-student>
@@ -66,9 +66,9 @@
                                 <td>
                                     <p-tableCheckbox [value]="student"></p-tableCheckbox>
                                 </td>
-                                <td>{{student.name}}</td>
-                                <td>{{student.email}}</td>
-                                <td>{{student.center}}</td>
+                                <td>{{student.user?.name || 'N/A'}}</td>
+                                <td>{{student.user?.email || 'N/A'}}</td>
+                                <td>{{student.centerId || 'None'}}</td>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="emptymessage">

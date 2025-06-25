@@ -34,6 +34,16 @@ export class CenterService {
         );
     }
 
+    /**
+     * Gets centers by active status.
+     * @param active The active status to filter by.
+     * @returns An observable containing an array of Center objects.
+     */
+    getCentersByActive(active: boolean): Observable<Center[]> {
+        return this.http.get<ApiResponse<PageableResponse<Center[]>>>(`${this.apiUrl}/by-active/${active}`).pipe(
+            map(response => response.data.content)
+        );
+    }
 
     deleteCenter(id: string): Observable<void> {
         return this.http.delete<any>(`${this.apiUrl}/${id}`);
