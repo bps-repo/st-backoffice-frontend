@@ -81,6 +81,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
                     this.subscriptions.add(
                         this.student$.subscribe(student => {
                             this.student = student;
+                            console.log('Student 1 data:', this.student);
                             if (student) {
                                 this.updateStudentInfo(student);
                             }

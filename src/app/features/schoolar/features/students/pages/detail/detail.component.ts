@@ -55,6 +55,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                     this.subscriptions.add(
                         this.student$.subscribe(student => {
                             this.student = student;
+                            console.log('Student data:', this.student);
                         })
                     );
                 }
