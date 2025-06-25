@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {SelectItem} from 'primeng/api';
-import {Observable, of} from 'rxjs';
+import {combineLatest, Observable, of} from 'rxjs';
 import {DropdownModule} from 'primeng/dropdown';
 import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
@@ -14,6 +14,8 @@ import {FormsModule} from '@angular/forms';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import * as CenterSelectors from "../../../../../../core/store/corporate/center/centers.selector";
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
+import {map} from "rxjs/operators";
+import {ToastModule} from "primeng/toast";
 
 @Component({
     selector: 'app-center-student',
@@ -26,7 +28,7 @@ import {CenterActions} from "../../../../../../core/store/corporate/center/cente
         FormsModule,
         InputTextareaModule,
         ButtonModule,
-        ProgressSpinnerModule]
+        ProgressSpinnerModule, ToastModule]
 })
 export class DetailComponent implements OnInit {
 
@@ -34,7 +36,8 @@ export class DetailComponent implements OnInit {
     editableCenter: Center | null = null;
     center$: Observable<Center | null> = of();
     center: Center | null = null;
-    loading: boolean = true;
+    loading$: Observable<boolean> = of(false);
+    error$: Observable<any> = of(null);
 
     activeOptions: SelectItem[] = [
         {label: 'Yes', value: true},
@@ -42,6 +45,16 @@ export class DetailComponent implements OnInit {
     ];
 
     constructor(private route: ActivatedRoute, private store: Store) {
+        this.center$ = this.store.select(CenterSelectors.selectSelectedCenterId);
+
+        this.error$ = this.store.select(CenterSelectors.selectErrorUpdateCenter);
+
+        this.loading$ = combineLatest([
+            this.store.select(CenterSelectors.selectLoadingCenters),
+            this.store.select(CenterSelectors.selectLoadingUpdateCenter),
+        ]).pipe(
+            map(([loading, loadingCreate]) => loading || loadingCreate)
+        );
     }
 
     ngOnInit(): void {
@@ -50,10 +63,8 @@ export class DetailComponent implements OnInit {
             this.loadCenter();
         });
 
-        // Subscribe to center and loading observables
         this.center$.subscribe(center => {
             this.center = center;
-            // Criar uma cópia mutável do objeto center
             this.editableCenter = center ? {...center} : null;
         });
     }
@@ -66,11 +77,14 @@ export class DetailComponent implements OnInit {
         if (this.editableCenter) {
             const updatedCenter: Partial<Center> = {
                 name: this.editableCenter.name,
+                email: this.editableCenter.email,
                 address: this.editableCenter.address,
                 city: this.editableCenter.city,
                 phone: this.editableCenter.phone,
                 active: this.editableCenter.active
             };
+
+            this.store.dispatch(CenterActions.updateCenter({id: this.centerId, center: updatedCenter}));
         }
     }
 

@@ -45,6 +45,7 @@ export const mockLesson: Lesson = {
     center: {
         id: 'c1',
         name: 'Main Campus',
+        email: '<EMAIL>',
         address: '123 Main St',
         city: 'Metropolis',
         phone: '123-456-7890',

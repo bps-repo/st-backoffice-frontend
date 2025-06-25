@@ -1,5 +1,5 @@
 import {CenterFeature} from "./centers.reducer";
-import {centersAdapter} from "./centerState";
+import {centersAdapter} from "./center.state";
 import {createSelector} from "@ngrx/store";
 
 
@@ -49,6 +49,15 @@ export const selectCenterAnyError = createSelector(
         error || createError || updateError || deleteError
 );
 
+
+export const selectErrorCreateCenter = selectErrorCreate;
+
+export const selectErrorUpdateCenter = selectErrorUpdate;
+
+export const selectErrorDeleteCenter = selectErrorDelete;
+
+export const selectErrorCenter = selectError;
+
 export const selectLoadingCenters = selectLoading;
 
 export const selectLoadingCreateCenter = selectLoadingCreate;
@@ -59,5 +68,5 @@ export const selectLoadingDeleteCenter = selectLoadingDelete;
 
 export const selectSelectedCenterId = createSelector(
     selectSelectedCenter,
-    (selectedCenter) => selectedCenter?.id
+    (selectedCenter) => selectedCenter
 );

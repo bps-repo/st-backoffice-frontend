@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -12,22 +12,30 @@ import {CreateCenterDialogComponent} from '../../dialogs/create-center-dialog/cr
 import * as CenterSelectors from "../../../../../../core/store/corporate/center/centers.selector";
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 import {RippleModule} from "primeng/ripple";
+import {CENTER_COLUMNS} from "../../center.const";
+import {DockModule} from "primeng/dock";
+import {BadgeModule} from "primeng/badge";
 
 @Component({
     selector: 'app-center-general',
-    imports: [CommonModule, GlobalTable, CreateCenterDialogComponent, ButtonModule, ConfirmDialogModule, RippleModule],
+    imports: [CommonModule, GlobalTable, CreateCenterDialogComponent, ButtonModule, ConfirmDialogModule, RippleModule, DockModule, BadgeModule],
     templateUrl: './list.component.html',
     standalone: true,
     providers: [ConfirmationService]
 })
-export class ListComponent implements OnInit {
-    @ViewChild(CreateCenterDialogComponent) createCenterDialog!: CreateCenterDialogComponent;
+export class ListComponent implements OnInit, AfterViewInit {
+    @ViewChild(CreateCenterDialogComponent) createCenterDialog!:
+        CreateCenterDialogComponent;
+
+    columnTemplates?: { [key: string]: TemplateRef<any> }
 
     centers$: Observable<Center[]>;
+
     loading$: Observable<boolean>;
 
-    columns: TableColumn[] = [];
-    size = 10; // Tamanho da página
+    columns: TableColumn[] = CENTER_COLUMNS;
+
+    size = 15;
 
     constructor(
         private router: Router,
@@ -38,37 +46,11 @@ export class ListComponent implements OnInit {
         this.loading$ = this.store.select(CenterSelectors.selectLoadingCenters);
     }
 
+    ngAfterViewInit() {
+    }
+
     ngOnInit(): void {
         this.loadCenters();
-
-        // Define as colunas da tabela
-        this.columns = [
-            {
-                field: 'id',
-                header: 'ID',
-                filterType: 'text',
-            },
-            {
-                field: 'name',
-                header: 'Nome',
-                filterType: 'text',
-            },
-            {
-                field: 'address',
-                header: 'Endereço',
-                filterType: 'text',
-            },
-            {
-                field: 'phone',
-                header: 'Telefone',
-                filterType: 'text',
-            },
-            {
-                field: 'actions',
-                header: 'Ações',
-                customTemplate: true,
-            },
-        ];
     }
 
     loadCenters(): void {

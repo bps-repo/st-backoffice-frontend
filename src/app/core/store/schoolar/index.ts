@@ -24,7 +24,7 @@ import {ClassEffects} from "./classes/classes.effects";
 import {classesFeature} from "./classes/classes.feature";
 import {CentersEffects} from "../corporate/center/centers.effects";
 import {CenterFeature} from "../corporate/center/centers.reducer";
-import {CenterState} from "../corporate/center/centerState";
+import {CenterState} from "../corporate/center/center.state";
 
 export interface AppState {
     students: StudentState;

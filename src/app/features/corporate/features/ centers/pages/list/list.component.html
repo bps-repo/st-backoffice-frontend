@@ -5,11 +5,19 @@
         [data]="(centers$ | async) ?? []"
         [entity]="'centers'"
         [columns]="columns"
-        [columnTemplates]="{ actions: actionsTemplate }"
+        [columnTemplates]="{ actions: actionsTemplate, active: activeTemplate }"
         [loading]="loading$ | async"
         class="w-full"
         (createEntity)="createCenter()"
     ></app-global-table>
+
+    <!-- Template para as colunas -->
+    <ng-template #activeTemplate let-center>
+        <p-badge
+            [value]="center.active ? 'Ativo' : 'Inativo'"
+            [severity]="center.active ? 'success' : 'danger'"
+        ></p-badge>
+    </ng-template>
 
     <!-- Template para a coluna de ações -->
     <ng-template #actionsTemplate let-center>

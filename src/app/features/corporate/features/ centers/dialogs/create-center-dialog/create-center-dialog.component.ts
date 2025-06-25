@@ -8,9 +8,9 @@ import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {Store} from '@ngrx/store';
-import {Center} from 'src/app/core/models/corporate/center';
+import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
 import {Observable} from 'rxjs';
-import {CenterState} from "../../../../../../core/store/corporate/center/centerState";
+import {CenterState} from "../../../../../../core/store/corporate/center/center.state";
 import * as CenterSeletors from "../../../../../../core/store/corporate/center/centers.selector";
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 
@@ -34,6 +34,7 @@ export class CreateCenterDialogComponent implements OnInit {
 
     center: Partial<Center> = {
         name: '',
+        email: '',
         address: '',
         city: '',
         phone: '',
@@ -42,24 +43,23 @@ export class CreateCenterDialogComponent implements OnInit {
 
     // Dropdown options
     activeOptions: SelectItem[] = [
-
         {label: 'Yes', value: true},
         {label: 'No', value: false}
     ];
 
     loading$: Observable<boolean>;
+
     error$: Observable<any>;
 
     constructor(private store: Store<CenterState>) {
         this.loading$ = this.store.select(CenterSeletors.selectLoadingCreateCenter);
-        this.error$ = this.store.select(CenterSeletors.selectCenterAnyError);
+        this.error$ = this.store.select(CenterSeletors.selectErrorCreateCenter);
     }
 
     ngOnInit() {
-        // Monitorar erros ou sucesso
         this.error$.subscribe((error) => {
             if (error) {
-                console.error('Erro ao criar o Center:', error);
+                console.error('Error creating center:', error);
             }
         });
     }
@@ -75,13 +75,14 @@ export class CreateCenterDialogComponent implements OnInit {
     saveCenter() {
         const payload = {
             name: this.center.name,
+            email: this.center.email,
             address: this.center.address,
             city: this.center.city,
             phone: this.center.phone,
             active: this.center.active
-        };
+        } as CreateCenter;
 
-        console.log(payload)
+        this.store.dispatch(CenterActions.createCenter({center: payload}));
 
         // Monitorar o estado de carregamento e sucesso
         this.loading$.subscribe((loading) => {

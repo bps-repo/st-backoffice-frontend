@@ -1,7 +1,7 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 
 import {CENTER_FEATURE_KEY, CenterActions} from "./centers.actions";
-import {centerInitialState, centersAdapter} from "./centerState";
+import {centerInitialState, centersAdapter} from "./center.state";
 
 export const CenterFeature = createFeature({
     name: CENTER_FEATURE_KEY,
@@ -11,18 +11,18 @@ export const CenterFeature = createFeature({
         // Create center
         on(CenterActions.createCenter, (state) => ({
             ...state,
-            loading: true,
-            error: null
+            loadingCreate: true,
+            errorCreate: null
         })),
-        on(CenterActions.createCenterSuccess, (state, {center}) => ({
+        on(CenterActions.createCenterSuccess, (state, {center}) => centersAdapter.addOne(center, {
             ...state,
-            loading: false,
-            error: null
+            loadingCreate: false,
+            errorCreate: null
         })),
         on(CenterActions.createCenterFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingCreate: false,
+            errorCreate: error
         })),
 
         // Load all centers
@@ -42,15 +42,15 @@ export const CenterFeature = createFeature({
             error
         })),
 
-
         // Load center
         on(CenterActions.loadCenter, (state) => ({
             ...state,
             loading: true,
             error: null
         })),
-        on(CenterActions.loadCenterSuccess, (state, {center}) => centersAdapter.setOne(center, {
+        on(CenterActions.loadCenterSuccess, (state, {center}) => ({
             ...state,
+            selectedCenter: center,
             loading: false,
             error: null
         })),
@@ -61,41 +61,46 @@ export const CenterFeature = createFeature({
             error
         })),
 
-
         // Delete center
         on(CenterActions.deleteCenter, (state) => ({
             ...state,
-            loading: true,
-            error: null
+            loadingDelete: true,
+            errorDelete: null
         })),
-        on(CenterActions.deleteCenterSuccess, (state, {id}) => ({
-            ...state,
-            loading: false,
-            error: null
-        })),
+
+        on(CenterActions.deleteCenterSuccess, (state, {id}) =>
+            centersAdapter.removeOne(id, {
+                ...state,
+                loadingDelete: false,
+                errorDelete: null
+            })
+        ),
+
         on(CenterActions.deleteCenterFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingDelete: false,
+            errorDelete: error
         })),
 
 
         // Update center
         on(CenterActions.updateCenter, (state) => ({
             ...state,
-            loading: true,
-            error: null
+            loadingUpdate: true,
+            errorUpdate: null
         })),
-        on(CenterActions.updateCenterSuccess, (state, {center}) => ({
+        on(CenterActions.updateCenterSuccess, (state, {center}) => centersAdapter.updateOne({
+            id: center.id,
+            changes: center
+        }, {
             ...state,
-            center,
-            loading: false,
-            error: null
+            loadingUpdate: false,
+            errorUpdate: null
         })),
         on(CenterActions.updateCenterFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingUpdate: false,
+            errorUpdate: error
         })),
 
         // Clear centers
@@ -106,7 +111,10 @@ export const CenterFeature = createFeature({
         // Clear centers errors
         on(CenterActions.clearCentersErrors, (state) => ({
             ...state,
-            error: null
+            error: null,
+            errorCreate: null,
+            errorUpdate: null,
+            errorDelete: null
         })),
     )
 });

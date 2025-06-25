@@ -1,26 +1,35 @@
-<div *ngIf="loading" class="spinner-container">
-    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE" ></p-progressSpinner>
- </div>
-<div class="grid" *ngIf="!loading && editableCenter">
+<div *ngIf="(loading$ | async)" class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
+</div>
+
+<div *ngIf="(error$ | async) !== null">
+    {{ (error$ | async) | json }}
+</div>
+
+<div class="grid" *ngIf="!(loading$ | async) && editableCenter">
     <div class="col-12">
         <div class="card">
             <h5>Detalhes do Center</h5>
             <div class="p-fluid grid">
                 <div class="field col-12 md:col-6">
                     <label for="name">Nome</label>
-                    <input id="name" type="text" pInputText [(ngModel)]="editableCenter.name" />
+                    <input id="name" type="text" pInputText [(ngModel)]="editableCenter.name"/>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="email">Email</label>
+                    <input id="email" type="text" pInputText [(ngModel)]="editableCenter.email"/>
                 </div>
                 <div class="field col-12 md:col-6">
                     <label for="address">Endereço</label>
-                    <input id="address" type="text" pInputText [(ngModel)]="editableCenter.address" />
+                    <input id="address" type="text" pInputText [(ngModel)]="editableCenter.address"/>
                 </div>
                 <div class="field col-12 md:col-6">
                     <label for="phoneNumber">Telefone</label>
-                    <input id="phoneNumber" type="text" pInputText [(ngModel)]="editableCenter.phone" />
+                    <input id="phoneNumber" type="text" pInputText [(ngModel)]="editableCenter.phone"/>
                 </div>
                 <div class="field col-12 md:col-6">
                     <label for="city">City</label>
-                    <input id="city" type="text" pInputText [(ngModel)]="editableCenter.city" />
+                    <input id="city" type="text" pInputText [(ngModel)]="editableCenter.city"/>
                 </div>
                 <div class="field col-12 md:col-6">
                     <label for="active">Ativo</label>
@@ -36,9 +45,12 @@
                 </div>
             </div>
             <div class="flex justify-content-end gap-2 mt-4">
-                <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-primary" (click)="editCenter()"></button>
-                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-secondary" (click)="downloadCenterDetails()"></button>
-                <button pButton pRipple label="Enviar" icon="pi pi-send" class="p-button-secondary" (click)="sendCenterDetails()"></button>
+                <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-primary"
+                        (click)="editCenter()"></button>
+                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-secondary"
+                        (click)="downloadCenterDetails()"></button>
+                <button pButton pRipple label="Enviar" icon="pi pi-send" class="p-button-secondary"
+                        (click)="sendCenterDetails()"></button>
             </div>
         </div>
     </div>
