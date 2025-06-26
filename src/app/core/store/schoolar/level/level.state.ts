@@ -1,7 +1,7 @@
 import {Level} from "../../../models/course/level";
 import {createEntityAdapter, EntityState} from "@ngrx/entity";
 
-export interface LevelState extends EntityState<Level>{
+export interface LevelState extends EntityState<Level> {
     loading: boolean;
     loadingCreate: boolean;
     loadingUpdate: boolean;
@@ -20,8 +20,6 @@ export const levelsAdapter = createEntityAdapter<Level>({
 });
 
 export const levelInitialState: LevelState = levelsAdapter.getInitialState({
-    ids: [],
-    entities: {},
     loading: false,
     loadingCreate: false,
     loadingUpdate: false,

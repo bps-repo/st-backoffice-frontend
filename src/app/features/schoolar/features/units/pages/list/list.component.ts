@@ -11,7 +11,7 @@ import {TableColumn, GlobalTable} from 'src/app/shared/components/tables/global-
 import {Unit} from 'src/app/core/models/course/unit';
 import {Level} from 'src/app/core/models/course/level';
 import {selectAllUnits} from "../../../../../../core/store/schoolar/units/unit.selectors";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/levelActions";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 
 @Component({

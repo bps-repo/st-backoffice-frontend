@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {environment} from 'src/environments/environment';
 import {Lesson} from "../models/academic/lesson";
 import {Observable, of} from 'rxjs';
-import {ApiResponse} from "./interfaces/ApiResponseService";
+import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
 import {map} from "rxjs/operators";
 
 @Injectable({
@@ -16,8 +16,8 @@ export class LessonApiService {
     }
 
     getLessons(): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}`).pipe(
-            map((response) => response.data as Lesson[])
+        return this.http.get<ApiResponse<PageableResponse<Lesson[]>>>(`${this.apiUrl}`).pipe(
+            map((response) => response.data.content as Lesson[])
         )
     }
 

@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {Actions, ofType, createEffect} from '@ngrx/effects';
 import {of} from 'rxjs';
-import {catchError, map, mergeMap} from 'rxjs/operators';
+import {catchError, exhaustMap, map, mergeMap} from 'rxjs/operators';
 import {LevelService} from 'src/app/core/services/level.service';
 import {ApiResponse} from 'src/app/core/services/interfaces/ApiResponseService';
 import {Level} from 'src/app/core/models/course/level';
-import {LevelActions} from "./levelActions";
+import {LevelActions} from "./level.actions";
 
 @Injectable()
 export class LevelEffects {
@@ -43,6 +43,21 @@ export class LevelEffects {
             )
         )
     );
+
+    loadLevels$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(LevelActions.loadLevels),
+            exhaustMap(() =>
+                this.levelService.getLevels().pipe(
+                    map((levels) =>
+                        LevelActions.loadLevelsSuccess({levels})
+                    ),
+                    catchError(error =>
+                        of(LevelActions.loadLevelsFailure({error}))
+                    )
+                )
+            )
+        ))
 
     deleteLevel$ = createEffect(() =>
         this.actions$.pipe(

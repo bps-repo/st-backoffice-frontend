@@ -11,7 +11,7 @@ import {Level} from 'src/app/core/models/course/level';
 import {Store} from '@ngrx/store';
 import {Observable} from 'rxjs';
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/levelActions";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 
 @Component({
     selector: 'app-create-level-dialog',

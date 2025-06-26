@@ -1,11 +1,12 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 import {levelInitialState, levelsAdapter} from "./level.state";
-import {LevelActions} from "./levelActions";
+import {LevelActions} from "./level.actions";
 
 export const levelsFeature = createFeature({
     name: 'level',
     reducer: createReducer(
         levelInitialState,
+
         on(LevelActions.createLevel, state => ({
             ...state,
             loading: true,
@@ -24,17 +25,21 @@ export const levelsFeature = createFeature({
             loading: false,
             error
         })),
+
+
         on(LevelActions.loadLevels, (state) => ({
             ...state,
             loading: true,
             error: null,
         })),
-        on(LevelActions.loadLevelsSuccess, (state, {levels}) => ({
-            ...state,
+        on(LevelActions.loadLevelsSuccess, (state, {levels}) => levelsAdapter.setAll(
             levels,
-            loading: false,
-            error: null,
-        })),
+            {
+                ...state,
+                loading: false,
+                error: null
+            }
+        )),
         on(LevelActions.loadLevelsFailure, (state, {error}) => ({
             ...state,
             loading: false,

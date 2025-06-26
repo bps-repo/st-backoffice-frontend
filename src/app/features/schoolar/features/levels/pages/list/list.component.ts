@@ -13,7 +13,7 @@ import {RippleModule} from "primeng/ripple";
 import {DockModule} from "primeng/dock";
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 import {LEVEL_COLUMNS} from "../../level.const";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/levelActions";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 
 @Component({
     selector: 'app-level-general',
@@ -43,13 +43,8 @@ export class ListComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.loadLevels();
-    }
-
-    loadLevels(): void {
         this.store.dispatch(LevelActions.loadLevels());
     }
-
 
     viewDetails(level: Level): void {
         this.router.navigate(['/courses/levels', level.id]).then();
