@@ -12,6 +12,38 @@
     ></app-global-table>
 </div>
 
+
+<ng-template #teacherTemplate let-row>
+    <span>
+        {{ row.startDatetime | date: 'short' }}
+    </span>
+</ng-template>
+
+
+<ng-template #centerTemplate let-row>
+    <span>
+        {{ row.startDatetime | date: 'short' }}
+    </span>
+</ng-template>
+
+<ng-template #unitTemplate let-row>
+    <span>
+        {{ row.startDatetime | date: 'short' }}
+    </span>
+</ng-template>
+
+<ng-template #statusTemplate let-row>
+    <span>
+        {{ row.startDatetime | date: 'short' }}
+    </span>
+</ng-template>
+
+<ng-template #actionsTemplate let-row>
+    <span>
+        {{ row.startDatetime | date: 'short' }}
+    </span>
+</ng-template>
+
 <ng-template #startDatetime let-row>
     <span>
         {{ row.startDatetime | date: 'short' }}

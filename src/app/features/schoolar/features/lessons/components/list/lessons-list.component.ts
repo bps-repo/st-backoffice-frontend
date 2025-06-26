@@ -89,7 +89,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.columnTemplates = {
             startDatetime: this.startDatetimeTemplate!,
             endDatetime: this.endDatetimeTemplate!,
-            actions: this.actionsTemplate!
+            actions: this.actionsTemplate!,
         }
     }
 
@@ -99,7 +99,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     navigateToCreateLesson() {
-        this.router.navigate(['/schoolar/lessons/create']);
+        this.router.navigate(['/schoolar/lessons/create']).then();
     }
 
     /**
