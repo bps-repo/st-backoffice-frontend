@@ -9,6 +9,9 @@ export interface ClassState extends EntityState<Class> {
     loadingUpdate: boolean;
     loadingDelete: boolean;
 
+    // Success states
+    createClassSuccess: boolean;
+
     // Error states
     errors: any;
     createError: any;
@@ -30,6 +33,9 @@ export const classesInitialState: ClassState = classAdapter.getInitialState({
     loadingCreate: false,
     loadingUpdate: false,
     loadingDelete: false,
+
+    // Success states
+    createClassSuccess: false,
 
     // Error states
     errors: null,

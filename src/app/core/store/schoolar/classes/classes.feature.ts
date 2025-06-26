@@ -47,7 +47,8 @@ export const classesFeature = createFeature(
             on(classesActions.createClass, (state) => ({
                 ...state,
                 loadingCreate: true,
-                createError: null
+                createError: null,
+                createClassSuccess: false
             })),
             on(classesActions.createClassSuccess, (state, {classData}) =>
                 classAdapter.addOne(classData, {
@@ -55,13 +56,15 @@ export const classesFeature = createFeature(
                     loading: false,
                     loadingCreate: false,
                     error: null,
-                    createError: null
+                    createError: null,
+                    createClassSuccess: true,
                 })
             ),
             on(classesActions.createClassFailure, (state, {error}) => ({
                 ...state,
                 loadingCreate: false,
-                createError: error
+                createError: error,
+                createClassSuccess: false
             })),
             on(classesActions.updateClass, (state) => ({
                 ...state,
@@ -70,7 +73,7 @@ export const classesFeature = createFeature(
             })),
             on(classesActions.updateClassSuccess, (state, {classData}) =>
                 classAdapter.updateOne(
-                    { id: classData.id, changes: classData },
+                    {id: classData.id, changes: classData},
                     {
                         ...state,
                         loading: false,
