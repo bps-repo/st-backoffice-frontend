@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MessageService, SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -14,22 +14,16 @@ import {InputTextareaModule} from 'primeng/inputtextarea';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import {RippleModule} from 'primeng/ripple';
 import {CalendarModule} from 'primeng/calendar';
-import {
-    COUNTRIES,
-    DISCOUNTS,
-    ENTITIES,
-    INSTALATIONS,
-    LEVELS,
-} from 'src/app/shared/constants/app';
 import {Store} from "@ngrx/store";
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
-import {selectAllCenters, selectCenterById} from "../../../../../../core/store/corporate/center/centers.selector";
+import {selectAllCenters} from "../../../../../../core/store/corporate/center/centers.selector";
 import {selectAllLevels} from "../../../../../../core/store/schoolar/level/level.selector";
-import {Observable} from "rxjs";
+import {distinctUntilChanged, filter, Observable, Subject, takeUntil} from "rxjs";
 import {
     selectStudentAnyError,
-    selectStudentAnyLoading
+    selectStudentAnyLoading,
+    selectCreateStudentSuccess
 } from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {ToastModule} from "primeng/toast";
@@ -56,18 +50,20 @@ import {ToastModule} from "primeng/toast";
     templateUrl: './create.component.html',
     providers: [MessageService]
 })
-export class CreateComponent implements OnInit {
+export class CreateComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
 
-    loading$: Observable<boolean>
+    loading$!: Observable<boolean>
 
-    errors$: Observable<any>;
+    errors$!: Observable<any>;
 
     studentForm!: FormGroup;
 
-    idTypes: SelectItem[] = [];
-    levels: any[] = LEVELS;
+    createSuccess$!: Observable<boolean>;
+
+    levels: any[] = [];
+
     centers: SelectItem[] = [];
-    entities: SelectItem[] = ENTITIES;
 
     genderOptions: SelectItem[] = [
         {label: 'Masculino', value: 'MALE'},
@@ -79,27 +75,29 @@ export class CreateComponent implements OnInit {
         {label: 'Inactivo', value: 'INACTIVE'}
     ];
 
-    constructor(private fb: FormBuilder, private store: Store) {
+    constructor(private fb: FormBuilder, private store: Store, private messageService: MessageService) {
         this.createForm();
+        this.initializeObservables();
+        this.subscribeToStateChanges();
+    }
 
-        console.log("form ", this.studentForm);
 
-        this.errors$ = this.store.select(selectStudentAnyError)
-        this.loading$ = this.store.select(selectStudentAnyLoading);
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 
-        this.store.select(selectAllCenters).subscribe(centers => {
-            this.centers = centers.map(center => ({
-                label: center.name,
-                value: center.id
-            }));
-        })
+    ngOnInit() {
+        this.store.dispatch(LevelActions.loadLevels())
+        this.store.dispatch(CenterActions.loadCenters())
+    }
 
-        this.store.select(selectAllLevels).subscribe(levels => {
-            this.levels = levels.map(level => ({
-                label: level.name,
-                value: level.id
-            }));
-        })
+
+    onPhotoSelect(event: any) {
+        const file = event.files[0];
+        if (file) {
+            this.studentForm.get('personalData.photo')?.setValue(file);
+        }
     }
 
     createForm() {
@@ -125,19 +123,6 @@ export class CreateComponent implements OnInit {
         });
     }
 
-    ngOnInit() {
-        this.store.dispatch(LevelActions.loadLevels())
-        this.store.dispatch(CenterActions.loadCenters())
-    }
-
-
-    onPhotoSelect(event: any) {
-        const file = event.files[0];
-        if (file) {
-            this.studentForm.get('personalData.photo')?.setValue(file);
-        }
-    }
-
     saveStudent() {
         if (this.studentForm.valid) {
             const formData = this.studentForm.value;
@@ -147,9 +132,65 @@ export class CreateComponent implements OnInit {
         } else {
             // Mark all fields as touched to trigger validation messages
             this.markFormGroupTouched(this.studentForm);
-            console.log('Form is invalid. Errors:', this.getFormValidationErrors());
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Formulário Inválido',
+                detail: 'Por favor, corrija os erros no formulário antes de continuar.',
+                life: 5000
+            });
         }
     }
+
+    private initializeObservables() {
+        this.errors$ = this.store.select(selectStudentAnyError);
+        this.loading$ = this.store.select(selectStudentAnyLoading);
+        this.createSuccess$ = this.store.select(selectCreateStudentSuccess);
+    }
+
+    private subscribeToStateChanges() {
+        // Subscribe to centers data
+        this.store.select(selectAllCenters)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(centers => {
+                this.centers = centers.map(center => ({
+                    label: center.name,
+                    value: center.id
+                }));
+            });
+
+        // Subscribe to levels data
+        this.store.select(selectAllLevels)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(levels => {
+                this.levels = levels.map(level => ({
+                    label: level.name,
+                    value: level.id
+                }));
+            });
+
+        // Subscribe to create success state
+        this.createSuccess$
+            .pipe(
+                takeUntil(this.destroy$),
+                filter(success => success === true),
+                distinctUntilChanged()
+            )
+            .subscribe(() => {
+                this.showSuccessToast();
+                this.resetForm();
+            });
+
+        // Subscribe to errors
+        this.errors$
+            .pipe(
+                takeUntil(this.destroy$),
+                filter(error => !!error)
+            )
+            .subscribe(error => {
+                this.showErrorToast(error);
+            });
+    }
+
 
     // Helper method to mark all controls in a form group as touched
     private markFormGroupTouched(formGroup: FormGroup) {
@@ -161,6 +202,7 @@ export class CreateComponent implements OnInit {
             }
         });
     }
+
 
     // Helper method to get all form validation errors (for debugging)
     private getFormValidationErrors() {
@@ -221,5 +263,40 @@ export class CreateComponent implements OnInit {
         }
 
         return '';
+    }
+
+    private showSuccessToast() {
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso!',
+            detail: 'Estudante criado com sucesso.',
+            life: 4000
+        });
+    }
+
+    private showErrorToast(error: any) {
+        const errorMessage = error || 'Erro ao criar estudante. Tente novamente.';
+
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Erro!',
+            detail: errorMessage,
+            life: 6000
+        });
+    }
+
+    private resetForm() {
+        this.studentForm.reset();
+        // Reset to default values
+        this.studentForm.patchValue({
+            personalData: {
+                password: 'Root.dev@180404'
+            },
+            enrollmentData: {
+                status: 'ACTIVE'
+            }
+        });
+        this.studentForm.markAsUntouched();
+        this.studentForm.markAsPristine();
     }
 }
