@@ -2,7 +2,8 @@
     <div class="card w-full">
         <div class="flex justify-content-between gap-5">
             <div>
-                <h1 class="text-3xl text-dark">Manuel Ikuma - 1000</h1>
+                <h1 class="text-3xl text-dark" *ngIf="student">{{ student.user?.firstName || 'N/A' }} - {{ student.code || 'N/A' }}</h1>
+                <h1 class="text-3xl text-dark" *ngIf="!student">Loading student details...</h1>
             </div>
             <div class="action-buttons">
                 <p-splitButton

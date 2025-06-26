@@ -1,7 +1,23 @@
-<div class="grid">
+<div *ngIf="(loading$ | async)" class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
+</div>
+
+<div *ngIf="(error$ | async) !== null">
+    {{ (error$ | async) | json }}
+</div>
+
+<div class="grid" *ngIf="!(loading$ | async)">
     <app-global-table
         tableLabel="Aulas"
-        [columnTemplates]="columnTemplates"
+        [columnTemplates]="{
+            teacherId: teacherTemplate,
+            centerId: centerTemplate,
+            unitId: unitTemplate,
+            startDatetime: startDatetime,
+            endDatetime: endDatetime,
+            status: statusTemplate,
+            actions: actionsTemplate,
+        }"
         [data]="lessons$ | async"
         [loading]="loading$ | async"
         [entity]="'lessons'"
@@ -11,6 +27,36 @@
         (createEntity)="navigateToCreateLesson()"
     ></app-global-table>
 </div>
+
+
+<ng-template #teacherTemplate let-row>
+    <span>
+        {{ getTeacherName(row.teacherId) ?? 'N/A' }}
+    </span>
+</ng-template>
+
+
+<ng-template #centerTemplate let-row>
+    <span>
+        {{ getCenterName(row.centerId) ?? 'N/A' }}
+    </span>
+</ng-template>
+
+<ng-template #unitTemplate let-row>
+    <span>
+        {{ getUnitName(row.unitId) ?? 'N/A' }}
+    </span>
+</ng-template>
+
+<ng-template #statusTemplate let-row>
+    <span>
+        <p-badge
+            [value]="getLessonStatusLabel(row.status)"
+            [severity]="getLessonStatusSeverity(row.status)"
+            class="w-20">
+        </p-badge>
+    </span>
+</ng-template>
 
 <ng-template #startDatetime let-row>
     <span>

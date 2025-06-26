@@ -35,7 +35,7 @@ export const classesActions = createActionGroup(
             'Delete class Failure': props<{ error: string }>(),
 
             // Clear error
-            'Clear error': props<{ error: string }>(),
+            'Clear error': emptyProps(),
         },
     }
 )

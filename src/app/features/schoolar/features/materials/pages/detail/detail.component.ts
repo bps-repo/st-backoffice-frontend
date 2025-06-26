@@ -19,7 +19,7 @@ interface Material {
 }
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule]
@@ -29,7 +29,7 @@ export class DetailComponent implements OnInit {
     material: Material | null = null;
     loading: boolean = true;
 
-    // Sample data - in a real app, this would come from a service
+    // general data - in a real app, this would come from a service
     materials: Material[] = [
         {
             id: '1',

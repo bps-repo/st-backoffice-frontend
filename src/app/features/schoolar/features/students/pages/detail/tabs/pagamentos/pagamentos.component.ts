@@ -176,6 +176,6 @@ export class PagamentosComponent implements OnInit {
 
     makePayment() {
         console.log('Payment initiated');
-        // In a real application, this would open a payment form or redirect to a payment gateway
+        // In a real application, this would open a centers form or redirect to a centers gateway
     }
 }

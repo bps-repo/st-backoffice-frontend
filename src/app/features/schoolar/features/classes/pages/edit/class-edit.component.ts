@@ -73,6 +73,6 @@ export class ClassEditComponent implements OnInit {
     saveClass() {
         // In a real application, you would save the class data using a service
         console.log('Class updated:', this.class);
-        // Navigate back to the detail page
+        // Navigate back to the student page
     }
 }

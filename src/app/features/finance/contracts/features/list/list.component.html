@@ -1,0 +1,14 @@
+<div class="grid">
+    <div class="col-12">
+        <app-global-table
+            tableLabel="Contratos"
+            [data]="contracts"
+            [entity]="'contracts'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilters"
+            [loading]="loading"
+            (createEntity)="navigateToCreateContract()"
+            class="w-full"
+        ></app-global-table>
+    </div>
+</div>

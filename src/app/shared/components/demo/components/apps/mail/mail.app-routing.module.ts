@@ -17,7 +17,7 @@ import { MailTrashComponent } from './mail-trash/mail-trash.component';
             path: '', component: MailAppComponent, children: [
                 { path: '', redirectTo: 'inbox', pathMatch: 'full' },
                 { path: 'inbox', data: { breadcrumb: 'Inbox' }, component: MailInboxComponent },
-                { path: 'detail/:id', data: { breadcrumb: 'Detail' }, component: MailDetailComponent },
+                { path: 'student/:id', data: { breadcrumb: 'Detail' }, component: MailDetailComponent },
                 { path: 'compose', data: { breadcrumb: 'Compose' }, component: MailComposeComponent },
                 { path: 'archived', data: { breadcrumb: 'Archived' }, component: MailArchiveComponent },
                 { path: 'important', data: { breadcrumb: 'Important' }, component: MailImportantComponent },

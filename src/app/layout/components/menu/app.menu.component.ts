@@ -23,7 +23,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/schoolar/students-materials-dashboard'],
+                        routerLink: ['/schoolar/dashboards'],
                     },
                     {
                         label: 'Alunos',
@@ -61,6 +61,11 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/schoolar/materials'],
                     },
                     {
+                        label: 'Niveis',
+                        icon: 'pi pi-fw pi-sitemap',
+                        routerLink: ['/schoolar/levels'],
+                    },
+                    {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/schoolar/reports'],
@@ -73,78 +78,38 @@ export class AppMenuComponent implements OnInit {
                 ],
             },
             {
-                label: 'Cursos',
-                icon: 'pi pi-sitemap',
-                items: [
-                    {
-                        label: 'Dashboard',
-                        icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/levels/students-materials-dashboard'],
-                    },
-                    {
-                        label: 'Niveis',
-                        icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/levels/levels'],
-                    },
-                    {
-                        label: 'Unidades',
-                        icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/levels/units'],
-                    },
-                    {
-                        label: 'Relatórios',
-                        icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/levels/reports'],
-                    },
-                    {
-                        label: 'Configurações',
-                        icon: 'pi pi-fw pi-cog',
-                        routerLink: ['/levels/settings'],
-                    },
-                ],
-            },
-            {
                 label: 'Financeiro',
                 icon: 'pi pi-fw pi-file-pdf',
                 items: [
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/invoices/students-materials-dashboard'],
+                        routerLink: ['/finances/dashboards'],
                     },
                     {
                         label: 'Facturas pró-forma',
                         icon: 'pi pi-fw pi-file',
-                        routerLink: ['/invoices/invoices'],
+                        routerLink: ['/finances/invoices'],
                     },
                     {
                         label: 'Pagamentos',
                         icon: 'pi pi-fw pi-file',
-                        items: [
-                            {
-                                label: 'Dashboard',
-                                icon: 'pi pi-fw pi-th-large',
-                                routerLink: ['/payments/students-materials-dashboard'],
-                            },
-                            {
-                                label: 'Lista de Pagamentos',
-                                icon: 'pi pi-fw pi-file',
-                                routerLink: ['/payments'],
-                            },
-                            {
-                                label: 'Relatórios',
-                                icon: 'pi pi-fw pi-file',
-                                routerLink: ['/payments/reports'],
-                            },
-                        ],
+                        routerLink: ['/finances/payments'],
+                    },
+                    {
+                        label: 'Contratos',
+                        icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/finances/contracts'],
                     },
                     {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/finances/reports'],
                     },
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/finances/settings'],
                     },
                 ],
             },
@@ -155,12 +120,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
-                        routerLink: ['/corporate/students-materials-dashboard'],
-                    },
-                    {
-                        label: 'Cursos',
-                        icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/levels/levels'],
+                        routerLink: ['/corporate/dashboards'],
                     },
                     {
                         label: 'Centros',
@@ -168,20 +128,36 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/corporate/centers'],
                     },
                     {
-                        label: 'Contratos',
-                        icon: 'pi pi-fw pi-wallet',
-                    },
-                    {
-                        label: 'Funcionários',
-                        icon: 'pi pi-fw pi-users',
-                    },
-                    {
                         label: 'Relatório',
                         icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/corporate/reports'],
                     },
+                    {
+                        label: 'Administração',
+                        icon: 'pi pi-fw pi-cog',
+                        items: [
+                            {
+                                label: 'Usuários',
+                                icon: 'pi pi-fw pi-users',
+                                routerLink: ['/corporate/employees'],
+                            },
+                            {
+                                label: 'Funções',
+                                icon: 'pi pi-fw pi-id-card',
+                                routerLink: ['/corporate/roles'],
+                            },
+                            {
+                                label: 'Permissões',
+                                icon: 'pi pi-fw pi-lock',
+                                routerLink: ['/corporate/permissions'],
+                            },
+                        ]
+                    },
+
                     {
                         label: 'Configurações',
                         icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/corporate/settings'],
                     },
                 ],
             },
@@ -189,11 +165,6 @@ export class AppMenuComponent implements OnInit {
                 label: 'Configurações',
                 icon: 'pi pi-fw pi-cog',
                 items: [
-                    {
-                        label: 'Utilizadores',
-                        icon: 'pi pi-fw pi-users',
-                        routerLink: ['/settings/users-management'],
-                    },
                     {
                         label: 'Alertas',
                         icon: 'pi pi-fw pi-bell',
@@ -208,18 +179,6 @@ export class AppMenuComponent implements OnInit {
                         label: 'Suporte',
                         icon: 'pi pi-fw pi-question-circle',
                         routerLink: ['/settings/support'],
-                    },
-                ],
-            },
-            {
-                label: 'Administração',
-                icon: 'pi pi-fw pi-shield',
-                items: [
-
-                    {
-                        label: 'Gestão de Utilizadores',
-                        icon: 'pi pi-fw pi-users',
-                        routerLink: ['/admin/user-management'],
                     },
                 ],
             },

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -13,6 +13,8 @@ import {Class} from 'src/app/core/models/academic/class';
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
+import {Observable, Subscription} from 'rxjs';
+import {ClassService} from "../../../../../../core/services/class.service";
 
 @Component({
     selector: 'app-add-to-class',
@@ -30,42 +32,52 @@ import {StudentState} from "../../../../../../core/store/schoolar/students/stude
     ],
     providers: [MessageService]
 })
-export class AddToClassComponent implements OnInit {
+export class AddToClassComponent implements OnInit, OnDestroy {
+    students$: Observable<Student[]>;
     students: Student[] = [];
-    classes: Partial<Class>[] = [];
+    classes: Class[] = [];
     selectedStudents: Student[] = [];
     selectedClass: Class | null = null;
     form: FormGroup;
     loading = false;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         private store: Store<StudentState>,
         private fb: FormBuilder,
+        private classService: ClassService,
         private messageService: MessageService
     ) {
         this.form = this.fb.group({
             class: [null, Validators.required]
         });
+        this.students$ = this.store.select(selectAllStudents);
     }
 
     ngOnInit(): void {
         this.loadStudents();
         this.loadClasses();
+
+        // Subscribe to students
+        this.subscriptions.add(
+            this.students$.subscribe(students => {
+                this.students = students;
+            })
+        );
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 
     loadStudents(): void {
         this.store.dispatch(StudentsActions.loadStudents());
-        this.store.select(selectAllStudents).subscribe(students => {
-            this.students = students;
-        });
     }
 
     loadClasses(): void {
-        this.classes = [
-            {id: '1', name: 'Class 1'},
-            {id: '2', name: 'Class 2'},
-            {id: '3', name: 'Class 3'}
-        ];
+        this.classService.getClasses().subscribe(classes => {
+            this.classes = classes;
+        });
     }
 
     onSubmit(): void {
@@ -81,43 +93,22 @@ export class AddToClassComponent implements OnInit {
         this.loading = true;
 
         // Process each selected student
-        const promises = this.selectedStudents.map(student => {
-            // Create a StudentClass object
-            this.selectedClass!.id.toString();
-            student.id!.toString();
-            new Date().toISOString();
-            new Date().toISOString();
-            // For now, we'll simulate a successful operation
-            return new Promise<void>((resolve) => {
-                setTimeout(() => {
-                    // Update the student's classEntity field
-                    const updatedStudent = {...student, classEntity: this.selectedClass};
-                    //this.studentsService.updateStudent(updatedStudent);
-                    resolve();
-                }, 500);
-            });
+        this.selectedStudents.forEach(student => {
+            this.store.dispatch(StudentsActions.addStudentToClass({
+                studentId: student.id!,
+                classId: this.selectedClass!.id
+            }));
         });
 
-        Promise.all(promises)
-            .then(() => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: `${this.selectedStudents.length} students added to ${this.selectedClass!.name}`
-                });
-                this.selectedStudents = [];
-                this.loadStudents(); // Refresh the list
-            })
-            .catch(error => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to add students to class'
-                });
-                console.error('Error adding students to class:', error);
-            })
-            .finally(() => {
-                this.loading = false;
-            });
+        // Show success message
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `${this.selectedStudents.length} students being added to ${this.selectedClass.name}`
+        });
+
+        // Reset selection and loading state
+        this.selectedStudents = [];
+        this.loading = false;
     }
 }

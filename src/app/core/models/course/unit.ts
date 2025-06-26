@@ -7,9 +7,11 @@ export interface Unit {
     id: string;
     name: string;
     description: string;
+    order: number;
     level: Level | null;
     levelId: string;
     orderUnit: number;
+    status: 'active' | 'inactive' | 'archived';
     maximumAssessmentAttempt: number;
     createdAt?: string;
     updatedAt?: string;

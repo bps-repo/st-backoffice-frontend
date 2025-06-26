@@ -20,8 +20,15 @@ import {RippleModule} from "primeng/ripple";
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 import * as LessonsActions from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
 import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
-import {ClassState} from "../../../../../../core/store/schoolar/classes/classState";
-import {LessonState} from "../../../../../../core/store/schoolar/lessons/lessonState";
+import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
+import {LessonStatus} from "../../../../../../core/enums/lesson-status";
+import {BadgeModule} from "primeng/badge";
+import {selectUnitById} from "../../../../../../core/store/schoolar/units/unit.selectors";
+import {take} from "rxjs/operators";
+import {selectCenterById} from "../../../../../../core/store/corporate/center/centers.selector";
+import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
+import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @Component({
     selector: 'app-lessons',
@@ -38,7 +45,9 @@ import {LessonState} from "../../../../../../core/store/schoolar/lessons/lessonS
         RouterModule,
         ChartModule,
         CardModule,
-        RippleModule
+        RippleModule,
+        BadgeModule,
+        ProgressSpinnerModule
     ],
     templateUrl: './lessons-list.component.html'
 })
@@ -51,6 +60,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     loading$: Observable<boolean>;
 
+    error$: Observable<string | null> = this.store.select(LessonsActions.selectError);
+
+
     selected: SelectItem[] = [];
 
     types: any[] = ['VIP', 'Online', 'In Center'];
@@ -60,17 +72,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     columns: any[] = LESSON_COLUMNS;
 
     globalFilterFields: string[] = LESSONS_GLOBAL_FILTER_FIELDS;
-
-    @ViewChild("startDatetime", {static: true})
-    startDatetimeTemplate?: TemplateRef<any>;
-
-    @ViewChild("endDatetime", {static: true})
-    endDatetimeTemplate?: TemplateRef<any>;
-
-    @ViewChild("actionsTemplate", {static: true})
-    actionsTemplate?: TemplateRef<any>;
-
-    columnTemplates: Record<string, TemplateRef<any>> = {}
 
     private destroy$ = new Subject<void>();
 
@@ -83,15 +84,12 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnInit(): void {
+        this.store.dispatch(CenterActions.loadCenters())
+        this.store.dispatch(UnitActions.loadUnits())
         this.store.dispatch(lessonsActions.loadLessons());
     }
 
     ngAfterViewInit() {
-        this.columnTemplates = {
-            startDatetime: this.startDatetimeTemplate!,
-            endDatetime: this.endDatetimeTemplate!,
-            actions: this.actionsTemplate!
-        }
     }
 
     ngOnDestroy(): void {
@@ -100,7 +98,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     navigateToCreateLesson() {
-        this.router.navigate(['/schoolar/lessons/create']);
+        this.router.navigate(['/schoolar/lessons/create']).then();
     }
 
     /**
@@ -113,5 +111,62 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             month: 'short',
             day: 'numeric'
         });
+    }
+
+    protected LessonStatus = LessonStatus
+
+
+    getLessonStatusLabel(status: LessonStatus): string {
+        switch (this.lesson.status) {
+            case LessonStatus.AVAILABLE:
+                return 'Disponível';
+            case LessonStatus.OVERDUE:
+                return 'Passado';
+            case LessonStatus.COMPLETED:
+                return 'Concluída';
+            case LessonStatus.BOOKED:
+                return 'Agendada';
+            default:
+                return 'Desconhecida';
+        }
+    }
+
+    getLessonStatusSeverity(status: LessonStatus) {
+        switch (status) {
+            case LessonStatus.AVAILABLE:
+                return 'info';
+            case LessonStatus.OVERDUE:
+                return 'danger';
+            case LessonStatus.COMPLETED:
+                return 'success';
+            case LessonStatus.BOOKED:
+                return 'warning';
+            default:
+                return null;
+        }
+    }
+
+    getCenterName(centerId: any) {
+        let centerName = '';
+        this.store.select(selectCenterById(centerId)).pipe(
+            take(1)
+        ).subscribe(center => {
+            centerName = center?.name ?? 'Centro não encontrado';
+        });
+        return centerName;
+    }
+
+    getUnitName(unitId: any) {
+        let unitName = '';
+        this.store.select(selectUnitById(unitId)).pipe(
+            take(1)
+        ).subscribe(unit => {
+            unitName = unit?.name ?? 'Unidade não encontrada';
+        });
+        return unitName;
+    }
+
+    getTeacherName(teacherId: any) {
+        return "";
     }
 }

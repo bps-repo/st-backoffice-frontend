@@ -4,36 +4,21 @@ export const FeaturesRoutes: Routes = [
     {
         path: 'schoolar',
         loadChildren: () =>
-            import('./schoolar/schoolar.routes').then((m) => m.SchoolarRoutes),
-    },
-    {
-        path: 'courses',
-        loadChildren: () =>
-            import('./courses/courses.routes').then((m) => m.CoursesRoutes),
+            import('./schoolar/SCHOOLAR_ROUTES').then((m) => m.SCHOOLAR_ROUTES),
     },
     {
         path: 'settings',
         loadChildren: () =>
-            import('./settings/settings.routes').then((m) => m.SettingsRoutes),
+            import('./settings/SETTINGS_ROUTES').then((m) => m.SETTINGS_ROUTES),
     },
     {
         path: 'corporate',
         loadChildren: () =>
-            import('./corporate/corporate.routes').then((m) => m.CorporateRoutes),
+            import('./corporate/CORPORATE_ROUTES').then((m) => m.CORPORATE_ROUTES),
     },
     {
-        path: 'invoices',
+        path: 'finances',
         loadChildren: () =>
-            import('./invoices/invoices.routes').then((m) => m.InvoicesRoutes),
-    },
-    {
-        path: 'payments',
-        loadChildren: () =>
-            import('./payments/payments.routes').then((m) => m.PaymentsRoutes),
-    },
-    {
-        path: 'admin',
-        loadChildren: () =>
-            import('./admin/admin.routes').then((m) => m.AdminRoutes),
+            import('./finance/finances.routes').then((m) => m.FINANCES_ROUTES),
     },
 ];

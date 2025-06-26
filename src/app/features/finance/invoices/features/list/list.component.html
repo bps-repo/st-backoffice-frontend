@@ -1,0 +1,14 @@
+<div class="grid">
+    <div class="col-12">
+        <app-global-table
+            tableLabel="Faturas pró-forma"
+            [data]="customers"
+            [entity]="'invoices'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilterFields"
+            [loading]="loading"
+            (createEntity)="navigateToCreateInvoices()"
+            class="w-full"
+        ></app-global-table>
+    </div>
+</div>

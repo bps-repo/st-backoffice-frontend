@@ -1,4 +1,12 @@
-<div class="grid">
+<div *ngIf="(loading$ | async)" class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
+</div>
+
+<div *ngIf="(error$ | async) !== null">
+    {{ (error$ | async) | json }}
+</div>
+
+<div class="grid" *ngIf="!(loading$ | async)">
     <!-- Class Statistics Cards - Row 1 -->
     <div class="col-12 md:col-6 xl:col-3">
         <div class="card h-full">
@@ -112,7 +120,35 @@
             [globalFilterFields]="globalFilterFields"
             [loading]="loading$ | async"
             (createEntity)="createEntity()"
+            [columnTemplates]="{
+                centerId: centerTemplate,
+                levelId: levelTemplate,
+                status: statusTemplate
+            }"
             class="w-full"
         ></app-global-table>
     </div>
 </div>
+
+
+<ng-template #statusTemplate let-row>
+    <span>
+        <p-badge
+            [value]="row.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
+            [severity]="row.status === 'ACTIVE' ? 'success' : 'danger'"
+            class="w-20"
+        ></p-badge>
+    </span>
+</ng-template>
+
+<ng-template #centerTemplate let-row>
+    <span>
+        {{ getCenterName(row.centerId) ?? 'N/A' }}
+    </span>
+</ng-template>
+
+<ng-template #levelTemplate let-row>
+    <span>
+        {{ getLevelName(row.levelId) ?? 'N/A' }}
+    </span>
+</ng-template>

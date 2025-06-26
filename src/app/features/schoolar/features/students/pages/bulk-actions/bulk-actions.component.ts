@@ -166,7 +166,7 @@ export class BulkActionsComponent implements OnInit {
                     detail: `${this.selectedStudents.length} students added to ${centerName}`
                 });
                 this.selectedStudents = [];
-                this.loadStudents(); // Refresh the list
+                this.loadStudents(); // Refresh the general
             })
             .catch(error => {
                 this.messageService.add({
@@ -206,7 +206,7 @@ export class BulkActionsComponent implements OnInit {
                     detail: `${this.selectedStudents.length} students added to ${className}`
                 });
                 this.selectedStudents = [];
-                this.loadStudents(); // Refresh the list
+                this.loadStudents(); // Refresh the general
             })
             .catch(error => {
                 this.messageService.add({

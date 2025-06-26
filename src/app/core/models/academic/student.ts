@@ -1,5 +1,6 @@
 import {Unit} from "../course/unit";
 import {User} from "../user.model";
+import {Class} from "./class";
 
 export interface Student {
     id?: string;
@@ -7,7 +8,7 @@ export interface Student {
     user: User;
     status: StudentStatus;
     levelProgressPercentage: number;
-    studentClass?: any;
+    studentClass?: Class;
     centerId: string;
     levelId: string;
     currentUnit?: Unit;

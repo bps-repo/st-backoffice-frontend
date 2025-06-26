@@ -11,7 +11,7 @@ import {Material} from "../../../../../../core/models/academic/material";
 
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [
         CommonModule,
         GlobalTable,

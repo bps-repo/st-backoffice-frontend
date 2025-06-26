@@ -1,0 +1,56 @@
+<div class="card">
+    <div class="card-header">
+        <h3>Relatórios de Centros</h3>
+    </div>
+    <div class="card-body">
+        <p>Gere relatórios relacionados aos centros da empresa.</p>
+
+        <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="mt-4">
+            <div class="grid">
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="centerName" class="block mb-1">Nome do Centro</label>
+                    <input id="centerName" type="text" pInputText formControlName="centerName" class="w-full" />
+                    <small *ngIf="reportForm.get('centerName')?.invalid && reportForm.get('centerName')?.touched" class="p-error">
+                        Nome do centro é obrigatório
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="reportType" class="block mb-1">Tipo de Relatório</label>
+                    <select id="reportType" formControlName="reportType" class="w-full">
+                        <option value="financial">Financeiro</option>
+                        <option value="performance">Desempenho</option>
+                        <option value="activity">Atividade</option>
+                    </select>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="startDate" class="block mb-1">Data de Início</label>
+                    <input id="startDate" type="date" pInputText formControlName="startDate" class="w-full" />
+                    <small *ngIf="reportForm.get('startDate')?.invalid && reportForm.get('startDate')?.touched" class="p-error">
+                        Data de início é obrigatória
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="endDate" class="block mb-1">Data de Fim</label>
+                    <input id="endDate" type="date" pInputText formControlName="endDate" class="w-full" />
+                    <small *ngIf="reportForm.get('endDate')?.invalid && reportForm.get('endDate')?.touched" class="p-error">
+                        Data de fim é obrigatória
+                    </small>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <div class="flex align-items-center">
+                        <p-checkbox formControlName="includeInactive" [binary]="true" inputId="includeInactive"></p-checkbox>
+                        <label for="includeInactive" class="ml-2">Incluir centros inativos</label>
+                    </div>
+                </div>
+
+                <div class="col-12 flex justify-content-end">
+                    <button pButton type="submit" label="Gerar Relatório" [disabled]="reportForm.invalid"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

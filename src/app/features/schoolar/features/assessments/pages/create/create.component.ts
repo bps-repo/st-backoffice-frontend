@@ -11,6 +11,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ChipModule } from 'primeng/chip';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SkillCategory } from 'src/app/core/enums/skill-category';
+import { AssessmentService } from 'src/app/core/services/assessment.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-create',
@@ -40,6 +42,14 @@ export class CreateComponent {
         skillEvaluations: []
     };
 
+    loading = false;
+    unitId = '1'; // This would typically come from a route parameter or selection
+
+    constructor(
+        private assessmentService: AssessmentService,
+        private router: Router
+    ) {}
+
     assessmentTypes = [
         { label: 'Exam', value: 'Exam' },
         { label: 'Quiz', value: 'Quiz' },
@@ -56,8 +66,19 @@ export class CreateComponent {
         }));
 
     saveAssessment() {
-        // In a real application, you would save the assessment data using a service
-        console.log('Assessment saved:', this.assessment);
-        // Navigate back to the list page
+        this.loading = true;
+        this.assessmentService.createAssessment(this.unitId, this.assessment).subscribe({
+            next: (createdAssessment) => {
+                console.log('Assessment created successfully:', createdAssessment);
+                this.loading = false;
+                // Navigate back to the assessments list
+                this.router.navigate(['/schoolar/assessments']);
+            },
+            error: (error) => {
+                console.error('Error creating assessment:', error);
+                this.loading = false;
+                // In a real application, you would show an error message to the user
+            }
+        });
     }
 }

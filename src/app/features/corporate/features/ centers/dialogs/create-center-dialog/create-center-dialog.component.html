@@ -10,6 +10,7 @@
     (onHide)="resetForm()">
 
     <div class="grid p-fluid">
+        <div *ngIf="(error$ | async)">{{ (error$ | async) | json }}</div>
         <div class="col-12 field">
             <label for="name" class="font-bold">Nome</label>
             <input
@@ -18,6 +19,17 @@
                 pInputText
                 [(ngModel)]="center.name"
                 placeholder="Digite o nome do centro"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="email" class="font-bold">Email</label>
+            <input
+                id="email"
+                type="text"
+                pInputText
+                [(ngModel)]="center.email"
+                placeholder="Digite o email do centro"
                 required>
         </div>
 
@@ -79,7 +91,7 @@
             </button>
             <button
                 pButton
-                label="Salvar"
+                label="{{(loading$ | async) ? 'Salvando...' : 'Salvar'}}"
                 icon="pi pi-check"
                 (click)="saveCenter()">
             </button>

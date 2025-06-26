@@ -1,0 +1,18 @@
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+
+@Component({
+    selector: 'app-employee-reports',
+    templateUrl: './employee-reports.component.html',
+    standalone: true,
+    imports: [CommonModule, RouterModule, ReactiveFormsModule]
+})
+export class EmployeeReportsComponent implements OnInit {
+    constructor() {}
+
+    ngOnInit() {
+        // Initialize component
+    }
+}

@@ -1,80 +1,60 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
-import { Observable } from 'rxjs';
-import { ButtonModule } from 'primeng/button';
-import { map, startWith } from 'rxjs/operators';
-import { TableColumn, GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { Center } from 'src/app/core/models/corporate/center';
-import { CreateCenterDialogComponent } from '../../dialogs/create-center-dialog/create-center-dialog.component';
-import * as CenterActions from 'src/app/core/store/corporate/actions/center.actions';
-import { selectAllCenters, selectCenterLoading } from 'src/app/core/store/corporate/selectors/center.selector';
+import {AfterViewInit, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
+import {Observable} from 'rxjs';
+import {ButtonModule} from 'primeng/button';
+import {TableColumn, GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
+import {Center} from 'src/app/core/models/corporate/center';
+import {CreateCenterDialogComponent} from '../../dialogs/create-center-dialog/create-center-dialog.component';
+import * as CenterSelectors from "../../../../../../core/store/corporate/center/centers.selector";
+import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
+import {RippleModule} from "primeng/ripple";
+import {CENTER_COLUMNS} from "../../center.const";
+import {DockModule} from "primeng/dock";
+import {BadgeModule} from "primeng/badge";
 
 @Component({
-    selector: 'app-center-list',
-    imports: [CommonModule, GlobalTable, CreateCenterDialogComponent, ButtonModule, ConfirmDialogModule],
+    selector: 'app-center-general',
+    imports: [CommonModule, GlobalTable, CreateCenterDialogComponent, ButtonModule, ConfirmDialogModule, RippleModule, DockModule, BadgeModule],
     templateUrl: './list.component.html',
     standalone: true,
     providers: [ConfirmationService]
 })
-export class ListComponent implements OnInit {
-    @ViewChild(CreateCenterDialogComponent) createCenterDialog!: CreateCenterDialogComponent;
+export class ListComponent implements OnInit, AfterViewInit {
+    @ViewChild(CreateCenterDialogComponent) createCenterDialog!:
+        CreateCenterDialogComponent;
+
+    columnTemplates?: { [key: string]: TemplateRef<any> }
 
     centers$: Observable<Center[]>;
+
     loading$: Observable<boolean>;
 
-    columns: TableColumn[] = [];
-    size = 10; // Tamanho da página
+    columns: TableColumn[] = CENTER_COLUMNS;
+
+    size = 15;
 
     constructor(
         private router: Router,
         private store: Store,
         private confirmationService: ConfirmationService
     ) {
-        this.centers$ = this.store.select(selectAllCenters).pipe(
-            startWith([]) // Garante que o Observable sempre tenha um valor inicial
-        );
-        this.loading$ = this.store.select(selectCenterLoading);
+        this.centers$ = this.store.select(CenterSelectors.selectAllCenters)
+        this.loading$ = this.store.select(CenterSelectors.selectLoadingCenters);
+    }
+
+    ngAfterViewInit() {
     }
 
     ngOnInit(): void {
         this.loadCenters();
-
-        // Define as colunas da tabela
-        this.columns = [
-            {
-                field: 'id',
-                header: 'ID',
-                filterType: 'text',
-            },
-            {
-                field: 'name',
-                header: 'Nome',
-                filterType: 'text',
-            },
-            {
-                field: 'address',
-                header: 'Endereço',
-                filterType: 'text',
-            },
-            {
-                field: 'phone',
-                header: 'Telefone',
-                filterType: 'text',
-            },
-            {
-                field: 'actions',
-                header: 'Ações',
-                customTemplate: true,
-            },
-        ];
     }
 
     loadCenters(): void {
-        this.store.dispatch(CenterActions.loadPagedCenters({ size: this.size }));
+        this.store.dispatch(CenterActions.loadCenters());
     }
 
     viewDetails(center: Center): void {
@@ -95,7 +75,7 @@ export class ListComponent implements OnInit {
             acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => {
-                this.store.dispatch(CenterActions.deleteCenter({ id: center.id }));
+                this.store.dispatch(CenterActions.deleteCenter({id: center.id}));
             },
             reject: () => {
                 console.log('Ação de exclusão cancelada.');

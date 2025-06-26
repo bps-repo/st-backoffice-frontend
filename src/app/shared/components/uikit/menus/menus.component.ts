@@ -66,7 +66,7 @@ export class MenusComponent implements OnInit {
                 items: [
                     {
                         label: 'View',
-                        icon: 'pi pi-fw pi-list'
+                        icon: 'pi pi-fw pi-general'
                     },
                     {
                         label: 'Search',
@@ -135,7 +135,7 @@ export class MenusComponent implements OnInit {
                 items: [
                     {
                         label: 'View',
-                        icon: 'pi pi-fw pi-list'
+                        icon: 'pi pi-fw pi-general'
                     },
                     {
                         label: 'Search',
@@ -204,7 +204,7 @@ export class MenusComponent implements OnInit {
                 items: [
                     {
                         label: 'View',
-                        icon: 'pi pi-fw pi-list'
+                        icon: 'pi pi-fw pi-general'
                     },
                     {
                         label: 'Search',
@@ -268,7 +268,7 @@ export class MenusComponent implements OnInit {
                 items: [
                     {
                         label: 'View',
-                        icon: 'pi pi-fw pi-list'
+                        icon: 'pi pi-fw pi-general'
                     },
                     {
                         label: 'Search',
@@ -429,7 +429,7 @@ export class MenusComponent implements OnInit {
                 items: [
                     {
                         label: 'View',
-                        icon: 'pi pi-fw pi-list'
+                        icon: 'pi pi-fw pi-general'
                     },
                     {
                         label: 'Search',

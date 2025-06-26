@@ -31,12 +31,14 @@ export const classesFeature = createFeature(
                 loading: true,
                 error: null
             })),
-            on(classesActions.loadClassSuccess, (state, {classData}) => ({
-                ...state,
-                selectedClassId: classData.id,
-                classData: classData,
-                loading: false
-            })),
+            on(classesActions.loadClassSuccess, (state, {classData}) =>
+                classAdapter.upsertOne(classData, {
+                    ...state,
+                    selectedClassId: classData.id,
+                    loading: false,
+                    error: null
+                })
+            ),
             on(classesActions.loadClassFailure, (state, {error}) => ({
                 ...state,
                 loading: false,
@@ -44,52 +46,73 @@ export const classesFeature = createFeature(
             })),
             on(classesActions.createClass, (state) => ({
                 ...state,
-                loading: true,
-                error: null
+                loadingCreate: true,
+                createError: null
             })),
-            on(classesActions.createClassSuccess, (state, {classData}) => ({
-                ...state,
-                //classes: [...state.classes, classData],
-                loading: false
-            })),
+            on(classesActions.createClassSuccess, (state, {classData}) =>
+                classAdapter.addOne(classData, {
+                    ...state,
+                    loading: false,
+                    loadingCreate: false,
+                    error: null,
+                    createError: null
+                })
+            ),
             on(classesActions.createClassFailure, (state, {error}) => ({
                 ...state,
-                loading: false,
-                error: error
+                loadingCreate: false,
+                createError: error
             })),
             on(classesActions.updateClass, (state) => ({
                 ...state,
-                loading: true,
-                error: null
+                loadingUpdate: true,
+                updateError: null
             })),
-            on(classesActions.updateClassSuccess, (state, {classData}) => ({
-                ...state,
-                // classes: state.classes.map(c => c.id === classData.id ? classData : c),
-                loading: false
-            })),
+            on(classesActions.updateClassSuccess, (state, {classData}) =>
+                classAdapter.updateOne(
+                    { id: classData.id, changes: classData },
+                    {
+                        ...state,
+                        loading: false,
+                        loadingUpdate: false,
+                        error: null,
+                        updateError: null
+                    }
+                )
+            ),
             on(classesActions.updateClassFailure, (state, {error}) => ({
                 ...state,
-                loading: false,
-                error: error
+                loadingUpdate: false,
+                updateError: error
             })),
             on(classesActions.deleteClass, (state) => ({
                 ...state,
-                loading: true,
-                error: null
+                loadingDelete: true,
+                deleteError: null
             })),
-            on(classesActions.deleteClassSuccess, (state, {id}) => ({
-                ...state,
-                // classes: state.classes.filter(c => c.id !== id),
-                loading: false
-            })),
+            on(classesActions.deleteClassSuccess, (state, {id}) =>
+                classAdapter.removeOne(id, {
+                    ...state,
+                    loading: false,
+                    loadingDelete: false,
+                    error: null,
+                    deleteError: null,
+                    selectedClassId: state.selectedClassId === id ? null : state.selectedClassId
+                })
+            ),
             on(classesActions.deleteClassFailure, (state, {error}) => ({
                 ...state,
-                loading: false,
-                error: error
+                loadingDelete: false,
+                deleteError: error
             })),
-            on(classesActions.clearError, (state, {error}) => ({
+            on(classesActions.clearError, (state) => ({
                 ...state,
-                error: null
+                errors: null,
+                error: null,
+                createError: null,
+                updateError: null,
+                deleteError: null,
+                bulkError: null
             }))
         )
     }

@@ -1,0 +1,89 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Criar Novo Funcionário</h5>
+            <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+                <div class="p-fluid p-formgrid grid">
+                    <!-- Personal Information -->
+                    <div class="col-12 md:col-6">
+                        <div class="card">
+                            <h5>Informações Pessoais</h5>
+                            <div class="field">
+                                <label for="firstname">Nome</label>
+                                <input id="firstname" type="text" pInputText formControlName="firstname" />
+                                <small *ngIf="employeeForm.get('firstname')?.invalid && employeeForm.get('firstname')?.touched" class="p-error">
+                                    Nome é obrigatório
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label for="lastname">Sobrenome</label>
+                                <input id="lastname" type="text" pInputText formControlName="lastname" />
+                                <small *ngIf="employeeForm.get('lastname')?.invalid && employeeForm.get('lastname')?.touched" class="p-error">
+                                    Sobrenome é obrigatório
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label for="email">Email</label>
+                                <input id="email" type="email" pInputText formControlName="email" />
+                                <small *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched" class="p-error">
+                                    Email válido é obrigatório
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label for="phone">Telefone</label>
+                                <input id="phone" type="text" pInputText formControlName="phone" />
+                            </div>
+                            <div class="field">
+                                <label for="dateOfBirth">Data de Nascimento</label>
+                                <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employment Information -->
+                    <div class="col-12 md:col-6">
+                        <div class="card">
+                            <h5>Informações Profissionais</h5>
+                            <div class="field">
+                                <label for="department">Departamento</label>
+                                <input id="department" type="text" pInputText formControlName="department" />
+                                <small *ngIf="employeeForm.get('department')?.invalid && employeeForm.get('department')?.touched" class="p-error">
+                                    Departamento é obrigatório
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label for="position">Cargo</label>
+                                <input id="position" type="text" pInputText formControlName="position" />
+                                <small *ngIf="employeeForm.get('position')?.invalid && employeeForm.get('position')?.touched" class="p-error">
+                                    Cargo é obrigatório
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label for="hireDate">Data de Contratação</label>
+                                <p-calendar id="hireDate" formControlName="hireDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <small *ngIf="employeeForm.get('hireDate')?.invalid && employeeForm.get('hireDate')?.touched" class="p-error">
+                                    Data de contratação é obrigatória
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label for="status">Status</label>
+                                <p-dropdown id="status" [options]="statusOptions" formControlName="status" placeholder="Selecione um status" optionLabel="label" optionValue="value"></p-dropdown>
+                                <small *ngIf="employeeForm.get('status')?.invalid && employeeForm.get('status')?.touched" class="p-error">
+                                    Status é obrigatório
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-12">
+                        <div class="flex justify-content-end">
+                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
+                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || loading"></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Center} from 'src/app/core/models/corporate/center';
+import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
 import {environment} from '../../../environments/environment';
+import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
+import {map} from "rxjs/operators";
 
 @Injectable({
     providedIn: 'root'
@@ -14,30 +16,42 @@ export class CenterService {
     constructor(private http: HttpClient) {
     }
 
-    createCenter(center: Partial<Center>): Observable<any> {
-        return this.http.post<any>(this.apiUrl, center);
+    createCenter(center: CreateCenter): Observable<Center> {
+        return this.http.post<ApiResponse<Center>>(this.apiUrl, center).pipe(
+            map(response => response.data as Center)
+        );
     }
 
     getCenterById(id: string): Observable<Center> {
-        return this.http.get<Center>(`${this.apiUrl}/${id}`);
+        return this.http.get<ApiResponse<Center>>(`${this.apiUrl}/${id}`).pipe(
+            map(response => response.data as Center)
+        );
     }
 
     getAllCenters(): Observable<Center[]> {
-        return this.http.get<Center[]>(`${this.apiUrl}`);
+        return this.http.get<ApiResponse<PageableResponse<Center[]>>>(`${this.apiUrl}`).pipe(
+            map(response => response.data.content)
+        );
     }
 
-    getPagedCenters(size: number): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/paged`, {
-            params: {size: size.toString()} // Adiciona o parâmetro size na URL
-        });
+    /**
+     * Gets centers by active status.
+     * @param active The active status to filter by.
+     * @returns An observable containing an array of Center objects.
+     */
+    getCentersByActive(active: boolean): Observable<Center[]> {
+        return this.http.get<ApiResponse<PageableResponse<Center[]>>>(`${this.apiUrl}/by-active/${active}`).pipe(
+            map(response => response.data.content)
+        );
     }
 
-    deleteCenter(id: string): Observable<any> {
+    deleteCenter(id: string): Observable<void> {
         return this.http.delete<any>(`${this.apiUrl}/${id}`);
     }
 
-    updateCenter(id: string, center: Partial<Center>): Observable<any> {
-        return this.http.put<any>(`${this.apiUrl}/${id}`, center);
+    updateCenter(id: string, center: Partial<Center>): Observable<Center> {
+        return this.http.patch<ApiResponse<Center>>(`${this.apiUrl}/${id}`, center).pipe(
+            map(response => response.data as Center)
+        );
     }
-
 }

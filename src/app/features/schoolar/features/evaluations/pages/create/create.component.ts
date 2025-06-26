@@ -62,6 +62,6 @@ export class CreateComponent {
     saveEvaluation() {
         // In a real application, you would save the evaluation data using a service
         console.log('Evaluation saved:', this.evaluation);
-        // Navigate back to the list page
+        // Navigate back to the general page
     }
 }

@@ -22,18 +22,44 @@ export class StudentService {
     }
 
     getStudent(id: string): Observable<Student> {
-        return this.http.get<Student>(`${this.apiUrl}/${id}`);
+        return this.http.get<ApiResponse<Student>>(`${this.apiUrl}/${id}`).pipe(
+            map((response) => response.data as Student)
+        );
     }
 
     createStudent(student: Student): Observable<Student> {
-        return this.http.post<Student>(this.apiUrl, student);
+        return this.http.post<ApiResponse<Student>>(this.apiUrl, student).pipe(
+            map((response) => response.data as Student)
+        );
     }
 
     updateStudent(student: Student): Observable<Student> {
-        return this.http.put<Student>(`${this.apiUrl}/${student.id}`, student);
+        return this.http.put<ApiResponse<Student>>(`${this.apiUrl}/${student.id}`, student).pipe(
+            map((response) => response.data as Student)
+        );
     }
 
     deleteStudent(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    createStudentPhoto(photoData: FormData): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/photo/create`, photoData);
+    }
+
+    addStudentToClass(studentId: string, classId: string): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/add-to-class/${classId}`, {studentId});
+    }
+
+    removeStudentFromClass(studentId: string, classId: string): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/remove-from-class/${classId}`, {studentId});
+    }
+
+    addStudentToCenter(studentId: string, centerId: string): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/add-to-center/${centerId}`, {studentId});
+    }
+
+    removeStudentFromCenter(studentId: string, centerId: string): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/remove-from-center/${centerId}`, {studentId});
     }
 }

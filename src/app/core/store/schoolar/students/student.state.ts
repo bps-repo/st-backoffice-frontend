@@ -9,6 +9,9 @@ export interface StudentState extends EntityState<Student> {
     loadingUpdate: boolean;
     loadingDelete: boolean;
     loadingBulk: boolean;
+    loadingPhoto: boolean;
+    loadingAddToClass: boolean;
+    loadingRemoveFromClass: boolean;
 
     // Error states
     error: string | null;
@@ -16,6 +19,9 @@ export interface StudentState extends EntityState<Student> {
     updateError: string | null;
     deleteError: string | null;
     bulkError: string | null;
+    photoError: string | null;
+    addToClassError: string | null;
+    removeFromClassError: string | null;
 
     // Selection state
     selectedStudentId: string | null;
@@ -58,6 +64,9 @@ export const initialStudentsState: StudentState = studentsAdapter.getInitialStat
     loadingUpdate: false,
     loadingDelete: false,
     loadingBulk: false,
+    loadingPhoto: false,
+    loadingAddToClass: false,
+    loadingRemoveFromClass: false,
 
     // Error states
     error: null,
@@ -65,6 +74,9 @@ export const initialStudentsState: StudentState = studentsAdapter.getInitialStat
     updateError: null,
     deleteError: null,
     bulkError: null,
+    photoError: null,
+    addToClassError: null,
+    removeFromClassError: null,
 
     // Selection
     selectedStudentId: null,

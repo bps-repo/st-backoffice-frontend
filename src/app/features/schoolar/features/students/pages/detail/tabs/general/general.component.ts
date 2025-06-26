@@ -1,18 +1,23 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
-import { InputTextModule } from 'primeng/inputtext';
-import { PieChartComponent } from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
-import { CardModule } from 'primeng/card';
-import { AvatarModule } from 'primeng/avatar';
-import { BadgeModule } from 'primeng/badge';
-import { DividerModule } from 'primeng/divider';
-import { TagModule } from 'primeng/tag';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { TimelineModule } from 'primeng/timeline';
-import { TableModule } from 'primeng/table';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {ChartModule} from 'primeng/chart';
+import {InputTextModule} from 'primeng/inputtext';
+import {PieChartComponent} from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
+import {CardModule} from 'primeng/card';
+import {AvatarModule} from 'primeng/avatar';
+import {BadgeModule} from 'primeng/badge';
+import {DividerModule} from 'primeng/divider';
+import {TagModule} from 'primeng/tag';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {ProgressBarModule} from 'primeng/progressbar';
+import {TimelineModule} from 'primeng/timeline';
+import {TableModule} from 'primeng/table';
+import {Store} from '@ngrx/store';
+import {Observable, Subscription} from 'rxjs';
+import {Student} from 'src/app/core/models/academic/student';
+import {ActivatedRoute} from '@angular/router';
+import {selectStudentById} from 'src/app/core/store/schoolar/students/students.selectors';
 
 @Component({
     selector: 'app-general',
@@ -33,12 +38,16 @@ import { TableModule } from 'primeng/table';
     ],
     templateUrl: './general.component.html'
 })
-export class GeneralComponent implements OnInit {
+export class GeneralComponent implements OnInit, OnDestroy {
     // Make Math available in the template
     Math = Math;
 
     // Student information
-    studentInfo: any;
+    studentInfo: any = {};
+    student$!: Observable<Student | null>;
+    student: Student | null = null;
+    studentId: string | null = null;
+    private subscriptions = new Subscription();
 
     // Academic progress
     unitProgress: number = 75;
@@ -53,25 +62,36 @@ export class GeneralComponent implements OnInit {
     // Notifications
     notifications: any[] = [];
 
-    ngOnInit(): void {
-        // Mock student data - in a real app, this would come from a service
-        this.studentInfo = {
-            id: '1000',
-            name: 'Manuel Ikuma',
-            email: 'user273@gmail.com',
-            center: 'Centro de Línguas - Talatona',
-            course: 'English Language',
-            level: 'Intermediate 2',
-            unit: 'Unit 3: Business Communication',
-            unitOrder: 3,
-            totalUnits: 4,
-            phone: '933449392',
-            status: 'Active',
-            enrollmentDate: '2023-01-15',
-            photo: 'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg'
-        };
+    constructor(
+        private store: Store,
+        private route: ActivatedRoute
+    ) {
+    }
 
-        // Mock upcoming lessons
+    ngOnInit(): void {
+        // Get the student ID from the route
+        this.subscriptions.add(
+            this.route.parent?.params.subscribe(params => {
+                this.studentId = params['id'];
+                if (this.studentId) {
+                    // Set up selector for this student
+                    this.student$ = this.store.select(selectStudentById(this.studentId));
+
+                    // Subscribe to student data
+                    this.subscriptions.add(
+                        this.student$.subscribe(student => {
+                            this.student = student;
+                            console.log('Student 1 data:', this.student);
+                            if (student) {
+                                this.updateStudentInfo(student);
+                            }
+                        })
+                    );
+                }
+            })
+        );
+
+        // Mock upcoming lessons (this could be replaced with real data from an API)
         this.upcomingLessons = [
             {
                 id: 'L1001',
@@ -99,39 +119,7 @@ export class GeneralComponent implements OnInit {
             }
         ];
 
-        // Personal information
-        this.personalInfo = [
-            {
-                title: 'Nº Utente',
-                value: '1000',
-            },
-            {
-                title: 'Tipo de Inscrição',
-                value: '4 Adults - Intermediate 1',
-            },
-            {
-                title: 'Nº de Identificação',
-                value: '0097529349LA083',
-            },
-            {
-                title: 'Data de Nascimento',
-                value: '12-04-2015',
-            },
-            {
-                title: 'Telefone',
-                value: '933449392',
-            },
-            {
-                title: 'Nacionalidade',
-                value: 'Angolana',
-            },
-            {
-                title: 'Género',
-                value: 'Masculino',
-            },
-        ];
-
-        // Recent notifications
+        // Recent notifications (this could be replaced with real data from an API)
         this.notifications = [
             {
                 title: 'Quiz Completed',
@@ -152,6 +140,60 @@ export class GeneralComponent implements OnInit {
                 time: '2 days ago'
             }
         ];
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
+    }
+
+    updateStudentInfo(student: Student): void {
+        this.studentInfo = {
+            id: student.id,
+            name: student.user?.firstName || 'N/A',
+            email: student.user?.email || 'N/A',
+            center: student.centerId || 'N/A',
+            course: 'English Language', // This could be derived from student.levelId
+            level: student.levelId || 'N/A',
+            unit: student.currentUnit?.name || 'N/A',
+            unitOrder: student.currentUnit?.order || 1,
+            totalUnits: 4, // This could be derived from the level
+            phone: student.user?.phone || 'N/A',
+            status: student.status || 'N/A',
+            enrollmentDate: student.enrollmentDate || new Date().toISOString(),
+            photo: student.user?.photo || 'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg'
+        };
+
+        // Update personal information
+        this.personalInfo = [
+            {
+                title: 'Nº Utente',
+                value: student.code || 'N/A',
+            },
+            {
+                title: 'Tipo de Inscrição',
+                value: student.levelId ? `${student.levelId}` : 'N/A',
+            },
+            {
+                title: 'Nº de Identificação',
+                value: student.user?.identificationNumber || 'N/A',
+            },
+            {
+                title: 'Data de Nascimento',
+                value: student.user?.dateOfBirth || 'N/A',
+            },
+            {
+                title: 'Telefone',
+                value: student.user?.phone || 'N/A',
+            },
+            {
+                title: 'Género',
+                value: student.user?.gender || 'N/A',
+            },
+        ];
+
+        // Update progress based on student data
+        this.unitProgress = student.levelProgressPercentage || 0;
+        this.levelProgress = student.levelProgressPercentage || 0;
     }
 
     // Helper method to format dates

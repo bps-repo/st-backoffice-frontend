@@ -6,7 +6,7 @@ import { KanbanService } from '../service/kanban.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
-    selector: 'app-kanban-list',
+    selector: 'app-kanban-general',
     templateUrl: './kanban-list.component.html',
     styleUrls: ['./kanban-list.component.scss']
 })
@@ -37,8 +37,8 @@ export class KanbanListComponent implements OnInit {
             {
                 label: 'List actions', items: [
                     { separator: true },
-                    { label: 'Copy list', command: () => this.onCopy(this.list) },
-                    { label: 'Remove list', command: () =>  {
+                    { label: 'Copy general', command: () => this.onCopy(this.list) },
+                    { label: 'Remove general', command: () =>  {
                         if (this.list.listId) {
                             this.onDelete(this.list.listId)
                         }

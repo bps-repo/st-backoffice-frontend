@@ -75,6 +75,6 @@ export class EditComponent implements OnInit {
     saveEvaluation() {
         // In a real application, you would save the evaluation data using a service
         console.log('Evaluation updated:', this.evaluation);
-        // Navigate back to the detail page
+        // Navigate back to the student page
     }
 }

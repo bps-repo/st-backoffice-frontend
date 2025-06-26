@@ -5,10 +5,10 @@ import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Student} from 'src/app/core/models/academic/student';
+import {Student, StudentStatus} from 'src/app/core/models/academic/student';
 import {Store} from '@ngrx/store';
 
-import {Observable, Subject} from 'rxjs';
+import {Observable, Subject, take} from 'rxjs';
 import {ChartModule} from 'primeng/chart';
 import {ButtonModule} from 'primeng/button';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
@@ -16,15 +16,27 @@ import {TableHeaderAction} from "../../../../../../shared/components/tables/glob
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
+import {RippleModule} from "primeng/ripple";
+import {TooltipModule} from "primeng/tooltip";
+import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
+import * as CenterSelectors from "../../../../../../core/store/corporate/center/centers.selector";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
+import {BadgeModule} from "primeng/badge";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [
         CommonModule,
         RouterModule,
         GlobalTable,
         ChartModule,
-        ButtonModule
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        BadgeModule,
+        ProgressSpinnerModule
     ],
     templateUrl: './list.component.html'
 })
@@ -43,6 +55,20 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('phoneTemplate', {static: true})
     phoneTemplate!: TemplateRef<any>;
 
+    @ViewChild('actionsTemplate', {static: true})
+    actionsTemplate!: TemplateRef<any>;
+
+    @ViewChild('centerTemplate', {static: true})
+    centerTemplate!: TemplateRef<any>;
+
+    @ViewChild('levelTemplate', {static: true})
+    levelTemplate!: TemplateRef<any>;
+
+    @ViewChild('classTemplate', {static: true})
+    classTemplate!: TemplateRef<any>;
+
+    @ViewChild('statusTemplate', {static: true})
+    statusTemplate!: TemplateRef<any>;
 
     students$?: Observable<Student[]>;
 
@@ -57,6 +83,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
     chartOptions: any;
+
+    error$: Observable<string | null> = this.store.select(StudentSelectors.selectError);
+
 
     private destroy$ = new Subject<void>();
 
@@ -90,6 +119,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit(): void {
         // Dispatch action to load students
+        this.store.dispatch(LevelActions.loadLevels())
+        this.store.dispatch(CenterActions.loadCenters());
         this.store.dispatch(StudentsActions.loadStudents());
         this.headerActions.push(
             {
@@ -114,7 +145,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.customTemplates = {
             name: this.nameTemplate,
             dateOfBirth: this.dateOfBirthTemplate,
-            email: this.emailTemplate
+            email: this.emailTemplate,
+            phone: this.phoneTemplate,
+            actions: this.actionsTemplate,
+            centerId: this.centerTemplate,
+            levelId: this.levelTemplate,
+            studentClass: this.classTemplate,
+            status: this.statusTemplate
         };
     }
 
@@ -124,10 +161,40 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     onRowSelect($event: Student) {
-        this.router.navigate(['/schoolar/students', $event.id]);
+        this.router.navigate(['/schoolar/students', $event.id]).then();
     }
 
     navigateToCreateStudent() {
         this.router.navigate(['/schoolar/students/create']);
     }
+
+    navigateToEditStudent(id: string) {
+
+    }
+
+    getStudentLevel(levelId: string): string {
+        if (!levelId) return 'Sem nível';
+
+        let levelName = '';
+        this.store.select(LevelSelectors.selectLevelById(levelId))
+            .pipe(take(1))
+            .subscribe(level => {
+                levelName = level?.name ?? 'Nível não encontrado';
+            });
+        return levelName;
+    }
+
+    getStudentCenter(centerId: string): string {
+        if (!centerId) return 'Sem centro';
+
+        let centerName = '';
+        this.store.select(CenterSelectors.selectCenterById(centerId))
+            .pipe(take(1))
+            .subscribe(center => {
+                centerName = center?.name ?? 'Centro não encontrado';
+            });
+        return centerName;
+    }
+
+    protected StudentStatus = StudentStatus
 }

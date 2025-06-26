@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Blog } from 'src/app/demo/api/blog';
 
 @Component({
-    selector: 'app-blog-list-card',
+    selector: 'app-blog-general-card',
     templateUrl: './blog-list-card.component.html',
 })
 export class BlogListCardComponent {

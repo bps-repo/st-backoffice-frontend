@@ -15,7 +15,7 @@ export class ClassService {
     constructor(private readonly http: HttpClient) {}
 
     /**
-     * Fetches a list of classes from the API.
+     * Fetches a general of classes from the API.
      * @returns An observable containing an array of Class objects.
      */
     getClasses(): Observable<Class[]> {
@@ -26,11 +26,27 @@ export class ClassService {
     }
 
 
+    /**
+     * Creates a new class.
+     * @param classData The data for the new class.
+     * @returns An observable containing the created Class object.
+     */
     createClass(classData: any): Observable<Class> {
-        return of()
+        return this.http.post<ApiResponse<Class>>(this.apiUrl, classData)
+            .pipe(
+                map(response => response.data as Class)
+            );
     }
 
-    getClassById(id: any): Observable<Class> {
-        return of()
+    /**
+     * Fetches a class by its ID.
+     * @param id The ID of the class to fetch.
+     * @returns An observable containing the Class object.
+     */
+    getClassById(id: string): Observable<Class> {
+        return this.http.get<ApiResponse<Class>>(`${this.apiUrl}/${id}`)
+            .pipe(
+                map(response => response.data as Class)
+            );
     }
 }

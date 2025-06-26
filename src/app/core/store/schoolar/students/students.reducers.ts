@@ -134,6 +134,63 @@ export const studentsFeature = createFeature({
             deleteError: error,
         })),
 
+        // Create student photo
+        on(StudentsActions.createStudentPhoto, (state) => ({
+            ...state,
+            loadingPhoto: true,
+            photoError: null,
+        })),
+
+        on(StudentsActions.createStudentPhotoSuccess, (state, {response}) => ({
+            ...state,
+            loadingPhoto: false,
+            photoError: null,
+        })),
+
+        on(StudentsActions.createStudentPhotoFailure, (state, {error}) => ({
+            ...state,
+            loadingPhoto: false,
+            photoError: error,
+        })),
+
+        // Add student to class
+        on(StudentsActions.addStudentToClass, (state) => ({
+            ...state,
+            loadingAddToClass: true,
+            addToClassError: null,
+        })),
+
+        on(StudentsActions.addStudentToClassSuccess, (state, {response}) => ({
+            ...state,
+            loadingAddToClass: false,
+            addToClassError: null,
+        })),
+
+        on(StudentsActions.addStudentToClassFailure, (state, {error}) => ({
+            ...state,
+            loadingAddToClass: false,
+            addToClassError: error,
+        })),
+
+        // Remove student from class
+        on(StudentsActions.removeStudentFromClass, (state) => ({
+            ...state,
+            loadingRemoveFromClass: true,
+            removeFromClassError: null,
+        })),
+
+        on(StudentsActions.removeStudentFromClassSuccess, (state, {response}) => ({
+            ...state,
+            loadingRemoveFromClass: false,
+            removeFromClassError: null,
+        })),
+
+        on(StudentsActions.removeStudentFromClassFailure, (state, {error}) => ({
+            ...state,
+            loadingRemoveFromClass: false,
+            removeFromClassError: error,
+        })),
+
         // Bulk operations
         on(StudentsActions.bulkDeleteStudents, (state) => ({
             ...state,
@@ -231,6 +288,9 @@ export const studentsFeature = createFeature({
             if (!errorType || errorType === 'update') updates.updateError = null;
             if (!errorType || errorType === 'delete') updates.deleteError = null;
             if (!errorType || errorType === 'bulk') updates.bulkError = null;
+            if (!errorType || errorType === 'photo') updates.photoError = null;
+            if (!errorType || errorType === 'addToClass') updates.addToClassError = null;
+            if (!errorType || errorType === 'removeFromClass') updates.removeFromClassError = null;
 
             return {...state, ...updates};
         }),
@@ -242,6 +302,9 @@ export const studentsFeature = createFeature({
             updateError: null,
             deleteError: null,
             bulkError: null,
+            photoError: null,
+            addToClassError: null,
+            removeFromClassError: null,
         })),
 
         // Sorting

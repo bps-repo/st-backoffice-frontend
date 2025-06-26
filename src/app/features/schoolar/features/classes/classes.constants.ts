@@ -15,11 +15,13 @@ export const CLASSES_COLUMNS: TableColumn[] = [
         field: 'levelId',
         header: 'Nível',
         filterType: 'text',
+        customTemplate: true
     },
     {
         field: 'centerId',
         header: 'Centro',
         filterType: 'text',
+        customTemplate: true
     },
     {
         field: 'maxCapacity',
@@ -30,6 +32,7 @@ export const CLASSES_COLUMNS: TableColumn[] = [
         field: 'status',
         header: 'Status',
         filterType: 'text',
+        customTemplate: true
     }
 ];
 

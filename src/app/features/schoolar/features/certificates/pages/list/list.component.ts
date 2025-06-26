@@ -20,7 +20,7 @@ interface Certificate {
 }
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [CommonModule, GlobalTable],
     templateUrl: './list.component.html',
     standalone: true

@@ -7,7 +7,7 @@ import {
 import { TableService } from 'src/app/shared/services/table.service';
 
 @Component({
-    selector: 'app-list',
+    selector: 'app-general',
     imports: [GlobalTable, CommonModule],
     templateUrl: './list.component.html'
 })

@@ -1,19 +1,21 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TabMenuModule} from 'primeng/tabmenu';
 import {TabViewModule} from 'primeng/tabview';
 import {Tab} from 'src/app/shared/@types/tab';
 import {TabViewComponent} from 'src/app/shared/components/tables/tab-view/tab-view.component';
 import {STUDENTS_TABS} from 'src/app/shared/constants/students';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from "@ngrx/store";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
+import {selectStudentById} from "../../../../../../core/store/schoolar/students/students.selectors";
+import {Student} from "../../../../../../core/models/academic/student";
 
 @Component({
-    selector: 'app-detail',
+    selector: 'app-student',
     imports: [
         TabMenuModule,
         TabViewModule,
@@ -23,10 +25,13 @@ import {StudentsActions} from "../../../../../../core/store/schoolar/students/st
     ],
     templateUrl: './detail.component.html'
 })
-export class DetailComponent implements OnInit {
+export class DetailComponent implements OnInit, OnDestroy {
     tabs!: Observable<Tab[]>;
     items!: MenuItem[];
     studentId!: string;
+    student$!: Observable<Student | null>;
+    student: Student | null = null;
+    private subscriptions = new Subscription();
 
     constructor(
         private router: Router,
@@ -36,9 +41,27 @@ export class DetailComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.route.params.subscribe(params => {
-            this.studentId = params['id'];
-        });
+        this.subscriptions.add(
+            this.route.params.subscribe(params => {
+                this.studentId = params['id'];
+                if (this.studentId) {
+                    // Dispatch action to load student
+                    this.store$.dispatch(StudentsActions.loadStudent({id: this.studentId}));
+
+                    // Set up selector for this student
+                    this.student$ = this.store$.select(selectStudentById(this.studentId));
+
+                    // Subscribe to student data
+                    this.subscriptions.add(
+                        this.student$.subscribe(student => {
+                            this.student = student;
+                            console.log('Student data:', this.student);
+                        })
+                    );
+                }
+            })
+        );
+
         this.tabs = STUDENTS_TABS;
         this.items = [
             {label: 'Imprimir cartão', icon: 'pi pi-file-pdf'},
@@ -62,7 +85,9 @@ export class DetailComponent implements OnInit {
                 tooltip: 'Desactivar o aluno',
             },
         ];
+    }
 
-        this.store$.dispatch(StudentsActions.loadStudent({id: this.studentId}));
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
     }
 }

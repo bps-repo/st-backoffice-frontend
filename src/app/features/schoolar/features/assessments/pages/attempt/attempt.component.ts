@@ -14,6 +14,7 @@ import {TabViewModule} from 'primeng/tabview';
 import {Exam} from 'src/app/core/models/academic/exam';
 import {selectSelectedExam} from 'src/app/core/store/schoolar/assessments/exams.selectors';
 import {SkillCategory} from 'src/app/core/enums/skill-category';
+import {AssessmentService} from 'src/app/core/services/assessment.service';
 
 interface SkillEvaluation {
     score: number;
@@ -70,7 +71,8 @@ export class AttemptComponent implements OnInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private store: Store
+        private store: Store,
+        private assessmentService: AssessmentService
     ) {
     }
 
@@ -120,11 +122,32 @@ export class AttemptComponent implements OnInit, OnDestroy {
         }
     }
 
+    loading = false;
+
     saveAttempt(): void {
-        // In a real application, you would save the attempt data using a service
-        console.log('Attempt saved:', this.attempt);
-        // Navigate back to the assessment details page
-        this.router.navigate(['/schoolar/assessments', this.attempt.assessmentId]);
+        if (!this.attempt.studentId) {
+            console.error('No student selected');
+            return;
+        }
+
+        this.loading = true;
+        this.assessmentService.submitAssessmentResult(
+            this.attempt.assessmentId,
+            this.attempt.studentId,
+            this.attempt
+        ).subscribe({
+            next: (result) => {
+                console.log('Attempt saved successfully:', result);
+                this.loading = false;
+                // Navigate back to the assessment details page
+                this.router.navigate(['/schoolar/assessments', this.attempt.assessmentId]);
+            },
+            error: (error) => {
+                console.error('Error saving attempt:', error);
+                this.loading = false;
+                // In a real application, you would show an error message to the user
+            }
+        });
     }
 
     cancel(): void {

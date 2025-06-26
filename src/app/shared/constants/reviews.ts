@@ -8,7 +8,7 @@ import {ScoresComponent} from "../../features/schoolar/features/assessments/page
 
 export const ASSESSMENTS_TABS: Observable<Tab[]> = of([
     {
-        header: 'General Information',
+        header: 'student Information',
         icon: 'pi pi-info-circle',
         title: 'Evaluation Overview',
         description: 'View general information about the evaluation',

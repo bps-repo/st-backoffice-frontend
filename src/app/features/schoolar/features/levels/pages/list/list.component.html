@@ -1,0 +1,49 @@
+<div *ngIf="(loading$ | async)" class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
+</div>
+
+<div *ngIf="(error$ | async) !== null">
+    {{ (error$ | async) | json }}
+</div>
+
+<div class="grid" *ngIf="!(loading$ | async)">
+    <app-global-table
+        tableLabel="Níveis"
+        [data]="(levels$ | async) ?? []"
+        [entity]="'levels'"
+        [columns]="columns"
+        [loading]="loading$ | async"
+        class="w-full"
+        [columnTemplates]="{ actions: actionsTemplate }"
+        (createEntity)="createLevel()"
+    ></app-global-table>
+
+    <!-- Template para ações -->
+    <ng-template #actionsTemplate let-level>
+        <div class="flex gap-2 justify-content-center">
+            <button
+                pButton pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-text"
+                (click)="viewDetails(level)"
+                pTooltip="Ver Detalhes"
+                tooltipPosition="top"
+            ></button>
+
+            <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                (click)="deleteLevel(level)"
+                pTooltip="Excluir"
+                tooltipPosition="top"
+            ></button>
+        </div>
+    </ng-template>
+
+    <!-- Diálogo de criação -->
+    <app-create-level-dialog></app-create-level-dialog>
+    <!-- Diálogo de confirmação -->
+    <p-confirmDialog></p-confirmDialog>
+</div>

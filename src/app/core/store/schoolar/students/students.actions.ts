@@ -32,6 +32,31 @@ export const StudentsActions = createActionGroup({
         'Delete Student Success': props<{ id: string }>(),
         'Delete Student Failure': props<{ error: string }>(),
 
+        // Create student photo
+        'Create Student Photo': props<{ studentId: string, photoData: FormData }>(),
+        'Create Student Photo Success': props<{ response: any }>(),
+        'Create Student Photo Failure': props<{ error: string }>(),
+
+        // Add student to class
+        'Add Student To Class': props<{ studentId: string, classId: string }>(),
+        'Add Student To Class Success': props<{ response: any }>(),
+        'Add Student To Class Failure': props<{ error: string }>(),
+
+        // Remove student from class
+        'Remove Student From Class': props<{ studentId: string, classId: string }>(),
+        'Remove Student From Class Success': props<{ response: any }>(),
+        'Remove Student From Class Failure': props<{ error: string }>(),
+
+        // Add student to center
+        'Add Student To Center': props<{ studentId: string, centerId: string }>(),
+        'Add Student To Center Success': props<{ response: any }>(),
+        'Add Student To Center Failure': props<{ error: string }>(),
+
+        // Remove student from center
+        'Remove Student From Center': props<{ studentId: string, centerId: string }>(),
+        'Remove Student From Center Success': props<{ response: any }>(),
+        'Remove Student From Center Failure': props<{ error: string }>(),
+
         // Bulk operations
         'Bulk Create Students': props<{ students: Student[] }>(),
         'Bulk Create Students Success': props<{ students: Student[] }>(),

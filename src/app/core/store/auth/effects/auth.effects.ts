@@ -47,4 +47,76 @@ export class AuthEffects {
             ),
         { dispatch: false }
     );
+
+    logout$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.logout),
+            exhaustMap(() =>
+                this.authService.logout().pipe(
+                    map(() => authActions.logoutSuccess()),
+                    catchError((error) =>
+                        of(
+                            authActions.logoutFailure({
+                                error: error.status,
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
+
+    logoutSuccess$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(authActions.logoutSuccess),
+                tap(() => {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    this.router.navigate(['/auth/login']);
+                })
+            ),
+        { dispatch: false }
+    );
+
+    refreshToken$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.refreshToken),
+            exhaustMap(({ refreshToken }) =>
+                this.authService.refreshToken(refreshToken).pipe(
+                    map((response) =>
+                        authActions.refreshTokenSuccess({
+                            token: response.data.accessToken,
+                            refreshToken: response.data.refreshToken,
+                        })
+                    ),
+                    catchError((error) =>
+                        of(
+                            authActions.refreshTokenFailure({
+                                error: error.status,
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
+
+    verify$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.verify),
+            exhaustMap(() =>
+                this.authService.verify().pipe(
+                    map((response) => authActions.verifySuccess({ user: response.data })),
+                    catchError((error) =>
+                        of(
+                            authActions.verifyFailure({
+                                error: error.status,
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
 }
