@@ -23,6 +23,7 @@ import * as CenterSelectors from "../../../../../../core/store/corporate/center/
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 import {BadgeModule} from "primeng/badge";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @Component({
     selector: 'app-general',
@@ -34,7 +35,8 @@ import {BadgeModule} from "primeng/badge";
         ButtonModule,
         RippleModule,
         TooltipModule,
-        BadgeModule
+        BadgeModule,
+        ProgressSpinnerModule
     ],
     templateUrl: './list.component.html'
 })
@@ -81,6 +83,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
     chartOptions: any;
+
+    error$: Observable<string | null> = this.store.select(StudentSelectors.selectError);
+
 
     private destroy$ = new Subject<void>();
 

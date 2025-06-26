@@ -1,4 +1,12 @@
-<div class="grid">
+<div *ngIf="(loading$ | async)" class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
+</div>
+
+<div *ngIf="(error$ | async) !== null">
+    {{ (error$ | async) | json }}
+</div>
+
+<div class="grid" *ngIf="!(loading$ | async)">
     <!-- Student Table -->
     <app-global-table
         tableLabel="Alunos"

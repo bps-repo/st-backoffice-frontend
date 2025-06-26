@@ -14,10 +14,11 @@ import {DockModule} from "primeng/dock";
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 import {LEVEL_COLUMNS} from "../../level.const";
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @Component({
     selector: 'app-level-general',
-    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateLevelDialogComponent, RippleModule, DockModule],
+    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateLevelDialogComponent, RippleModule, DockModule, ProgressSpinnerModule],
     templateUrl: './list.component.html',
     standalone: true,
     providers: [ConfirmationService]
@@ -33,6 +34,7 @@ export class ListComponent implements OnInit {
 
     columns: TableColumn[] = LEVEL_COLUMNS;
     size = 10;
+    error$: Observable<any> = this.store.select(LevelSelectors.selectError);
 
     constructor(private router: Router,
                 private store: Store,

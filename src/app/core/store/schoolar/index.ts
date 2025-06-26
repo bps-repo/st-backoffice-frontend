@@ -25,6 +25,7 @@ import {LevelEffects} from "./level/level.effects";
 import {serviceFeature} from "../corporate/services/service.reducer";
 import {unitFeature} from "./units/unit.feature";
 import {levelsFeature} from "./level/level.reducer";
+import {UnitState} from "./units/unit.state";
 
 export interface AppState {
     students: StudentState;
@@ -38,6 +39,7 @@ export interface AppState {
     settings: SettingsState;
     lessons: LessonState;
     centers: CenterState;
+    units: UnitState
 }
 
 export const AppEffects = [

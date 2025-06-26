@@ -15,6 +15,15 @@ import {ClassState} from "../../../../../../core/store/schoolar/classes/classSta
 import {classesActions} from "../../../../../../core/store/schoolar/classes/classes.actions";
 import {Class} from "../../../../../../core/models/academic/class";
 import * as ClassSelectors from "../../../../../../core/store/schoolar/classes/classes.selectors";
+import {selectCenterById} from "../../../../../../core/store/corporate/center/centers.selector";
+import {take} from "rxjs/operators";
+import {selectUnitById} from "../../../../../../core/store/schoolar/units/unit.selectors";
+import {selectLevelById} from "../../../../../../core/store/schoolar/level/level.selector";
+import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
+import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {BadgeModule} from "primeng/badge";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @Component({
     selector: 'app-general',
@@ -24,7 +33,9 @@ import * as ClassSelectors from "../../../../../../core/store/schoolar/classes/c
         RouterModule,
         ChartModule,
         ButtonModule,
-        CardModule
+        CardModule,
+        BadgeModule,
+        ProgressSpinnerModule
     ],
     templateUrl: './class.component.html'
 })
@@ -37,7 +48,7 @@ export class ClassComponent implements OnInit, OnDestroy {
 
     globalFilterFields: string[] = GLOBAL_CLASSES_FILTERS;
 
-    loading$: Observable<boolean>;
+    loading$: Observable<boolean> = this.store$.select(ClassSelectors.selectClassesLoading);
 
     // Chart data
     centerChartData: any;
@@ -54,7 +65,9 @@ export class ClassComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    constructor(private store$: Store<ClassState>, private router: Router) {
+    error$: Observable<string | null> = this.store$.select(ClassSelectors.selectClassesError);
+
+    constructor(private store$: Store, private router: Router) {
         // Initialize chart options
         this.chartOptions = {
             plugins: {
@@ -80,6 +93,8 @@ export class ClassComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.store$.dispatch(CenterActions.loadCenters())
+        this.store$.dispatch(LevelActions.loadLevels())
         this.store$.dispatch(classesActions.loadClasses())
         this.generateChartData();
     }
@@ -203,5 +218,25 @@ export class ClassComponent implements OnInit, OnDestroy {
 
     createEntity() {
         this.router.navigate(['/schoolar/classes/create']);
+    }
+
+    getCenterName(centerId: any) {
+        let centerName = '';
+        this.store$.select(selectCenterById(centerId)).pipe(
+            take(1)
+        ).subscribe(center => {
+            centerName = center?.name ?? 'Centro não encontrado';
+        });
+        return centerName;
+    }
+
+    getLevelName(levelId: any) {
+        let levelName = '';
+        this.store$.select(selectLevelById(levelId)).pipe(
+            take(1)
+        ).subscribe(level => {
+            levelName = level?.name ?? 'Nível não encontrada';
+        });
+        return levelName;
     }
 }

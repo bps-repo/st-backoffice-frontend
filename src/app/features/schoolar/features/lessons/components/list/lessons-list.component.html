@@ -1,7 +1,23 @@
-<div class="grid">
+<div *ngIf="(loading$ | async)" class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
+</div>
+
+<div *ngIf="(error$ | async) !== null">
+    {{ (error$ | async) | json }}
+</div>
+
+<div class="grid" *ngIf="!(loading$ | async)">
     <app-global-table
         tableLabel="Aulas"
-        [columnTemplates]="columnTemplates"
+        [columnTemplates]="{
+            teacherId: teacherTemplate,
+            centerId: centerTemplate,
+            unitId: unitTemplate,
+            startDatetime: startDatetime,
+            endDatetime: endDatetime,
+            status: statusTemplate,
+            actions: actionsTemplate,
+        }"
         [data]="lessons$ | async"
         [loading]="loading$ | async"
         [entity]="'lessons'"
@@ -15,32 +31,30 @@
 
 <ng-template #teacherTemplate let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
+        {{ getTeacherName(row.teacherId) ?? 'N/A' }}
     </span>
 </ng-template>
 
 
 <ng-template #centerTemplate let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
+        {{ getCenterName(row.centerId) ?? 'N/A' }}
     </span>
 </ng-template>
 
 <ng-template #unitTemplate let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
+        {{ getUnitName(row.unitId) ?? 'N/A' }}
     </span>
 </ng-template>
 
 <ng-template #statusTemplate let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
-    </span>
-</ng-template>
-
-<ng-template #actionsTemplate let-row>
-    <span>
-        {{ row.startDatetime | date: 'short' }}
+        <p-badge
+            [value]="getLessonStatusLabel(row.status)"
+            [severity]="getLessonStatusSeverity(row.status)"
+            class="w-20">
+        </p-badge>
     </span>
 </ng-template>
 

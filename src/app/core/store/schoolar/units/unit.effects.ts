@@ -10,6 +10,20 @@ export class UnitEffects {
     constructor(private actions$: Actions, private unitService: UnitService) {
     }
 
+    // Basic CRUD operations
+
+    loadUnits$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(UnitActions.loadUnits),
+            mergeMap(() =>
+                this.unitService.loadUnits().pipe(
+                    map((units) => UnitActions.loadUnitsSuccess({units: units})),
+                    catchError((error) => of(UnitActions.loadUnitsFailure({error: error.message})))
+                )
+            )
+        )
+    );
+
     createUnit$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UnitActions.createUnit),

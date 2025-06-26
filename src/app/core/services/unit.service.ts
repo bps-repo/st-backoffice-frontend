@@ -5,6 +5,8 @@ import {Unit} from '../models/course/unit';
 import {environment} from 'src/environments/environment';
 import {ApiResponse} from './interfaces/ApiResponseService';
 import {Class} from '../models/academic/class';
+import {Center} from "../models/corporate/center";
+import {map} from "rxjs/operators";
 
 @Injectable({
     providedIn: 'root',
@@ -28,10 +30,10 @@ export class UnitService {
         return this.http.get<ApiResponse<Unit>>(`${this.apiUrl}/${id}`);
     }
 
-    loadPagedUnits(size: number): Observable<ApiResponse<{ content: Unit[] }>> {
-        return this.http.get<ApiResponse<{ content: Unit[] }>>(`${this.apiUrl}/paged`, {
-            params: {size: size.toString()}
-        });
+    loadUnits(): Observable<Unit[]> {
+        return this.http.get<ApiResponse<{ content: Unit[] }>>(`${this.apiUrl}`).pipe(
+            map(response => response.data.content),
+        );
     }
 
     deleteUnit(id: string): Observable<ApiResponse<null>> {
