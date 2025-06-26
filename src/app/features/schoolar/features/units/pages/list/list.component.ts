@@ -1,19 +1,18 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable, startWith } from 'rxjs';
-import { CreateUnitDialogComponent } from '../../dialogs/create-unit-dialog/create-unit-dialog.component';
-import { ButtonModule } from 'primeng/button';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { TableColumn, GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
-import * as UnitActions from 'src/app/core/store/course/actions/unit.actions';
-import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
-import { selectAllUnits, selectUnitLoading } from 'src/app/core/store/course/selectors/unit.selector';
-import { selectAllLevels } from 'src/app/core/store/course/selectors/level.selector';
-import { Unit } from 'src/app/core/models/course/unit';
-import { Level } from 'src/app/core/models/course/level';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable, of} from 'rxjs';
+import {CreateUnitDialogComponent} from '../../dialogs/create-unit-dialog/create-unit-dialog.component';
+import {ButtonModule} from 'primeng/button';
+import {ConfirmationService} from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {TableColumn, GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
+import {Unit} from 'src/app/core/models/course/unit';
+import {Level} from 'src/app/core/models/course/level';
+import {selectAllUnits} from "../../../../../../core/store/schoolar/units/unit.selectors";
+import {levelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 
 @Component({
     selector: 'app-unit-general',
@@ -27,7 +26,7 @@ export class ListComponent implements OnInit {
     @ViewChild(CreateUnitDialogComponent) createUnitDialog!: CreateUnitDialogComponent;
 
     units$: Observable<Unit[]>;
-    loading$: Observable<boolean>;
+    loading$: Observable<boolean> = of();
     units: Unit[] = [];
     levels: Level[] = [];
 
@@ -39,19 +38,19 @@ export class ListComponent implements OnInit {
         private store: Store,
         private confirmationService: ConfirmationService
     ) {
-        this.units$ = this.store.select(selectAllUnits).pipe(startWith([]));
-        this.loading$ = this.store.select(selectUnitLoading);
+        this.units$ = this.store.select(selectAllUnits);
+        //this.loading$ = this.store.select(selectUnitLoading);
     }
 
     ngOnInit(): void {
         this.loadUnits();
-        this.store.dispatch(LevelActions.loadLevels()); // Carrega os níveis
+        this.store.dispatch(levelActions.loadLevels());
 
         // Carrega níveis e unidades em memória e cruza os dados
-        this.store.select(selectAllLevels).subscribe(levels => {
-            this.levels = levels;
-            this.mapLevelNames();
-        });
+        // this.store.select(sel).subscribe(levels => {
+        //     this.levels = levels;
+        //     this.mapLevelNames();
+        // });
 
         this.units$.subscribe(units => {
             this.units = units;
@@ -59,17 +58,16 @@ export class ListComponent implements OnInit {
         });
 
         this.columns = [
-            { field: 'id', header: 'ID', filterType: 'text' },
-            { field: 'name', header: 'Nome', filterType: 'text' },
-            { field: 'description', header: 'Descrição', filterType: 'text' },
-            { field: 'orderUnit', header: 'Unidade de pedido', filterType: 'numeric' },
-            { field: 'levelName', header: 'Nível', filterType: 'text' },
-            { field: 'actions', header: 'Ações', customTemplate: true },
+            {field: 'id', header: 'ID', filterType: 'text'},
+            {field: 'name', header: 'Nome', filterType: 'text'},
+            {field: 'description', header: 'Descrição', filterType: 'text'},
+            {field: 'orderUnit', header: 'Unidade de pedido', filterType: 'numeric'},
+            {field: 'levelName', header: 'Nível', filterType: 'text'},
+            {field: 'actions', header: 'Ações', customTemplate: true},
         ];
     }
 
     loadUnits(): void {
-        this.store.dispatch(UnitActions.loadPagedUnits({ size: this.size }));
     }
 
     mapLevelNames(): void {
@@ -103,7 +101,7 @@ export class ListComponent implements OnInit {
             acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => {
-                this.store.dispatch(UnitActions.deleteUnit({ id: unit.id }));
+                this.store.dispatch(UnitActions.deleteUnit({id: unit.id}));
             },
             reject: () => {
                 console.log('Ação de exclusão cancelada.');

@@ -12,7 +12,7 @@ import {map} from "rxjs/operators";
 export class LessonApiService {
     private apiUrl = `${environment.apiUrl}/lessons`;
 
-    constructor(private http: HttpClient) {
+    constructor(private readonly http: HttpClient) {
     }
 
     getLessons(): Observable<Lesson[]> {
@@ -67,7 +67,7 @@ export class LessonApiService {
             .set('startDate', startDate)
             .set('endDate', endDate);
 
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/filter/date-range`, { params }).pipe(
+        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/filter/date-range`, {params}).pipe(
             map((response) => response.data as Lesson[])
         );
     }
@@ -100,7 +100,7 @@ export class LessonApiService {
 
     deleteLessonBooking(lessonId: string, bookingId: string): Observable<void> {
         let params = new HttpParams().set('bookingId', bookingId);
-        return this.http.delete<void>(`${this.apiUrl}/${lessonId}/bookings`, { params });
+        return this.http.delete<void>(`${this.apiUrl}/${lessonId}/bookings`, {params});
     }
 
     // Lesson management endpoints
@@ -111,7 +111,7 @@ export class LessonApiService {
     }
 
     updateLessonOnlineStatus(lessonId: string, onlineStatus: boolean): Observable<Lesson> {
-        return this.http.put<ApiResponse<Lesson>>(`${this.apiUrl}/${lessonId}/online-status`, { online: onlineStatus }).pipe(
+        return this.http.put<ApiResponse<Lesson>>(`${this.apiUrl}/${lessonId}/online-status`, {online: onlineStatus}).pipe(
             map((response) => response.data as Lesson)
         );
     }

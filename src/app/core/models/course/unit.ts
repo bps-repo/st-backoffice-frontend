@@ -11,6 +11,7 @@ export interface Unit {
     level: Level | null;
     levelId: string;
     orderUnit: number;
+    status: 'active' | 'inactive' | 'archived';
     maximumAssessmentAttempt: number;
     createdAt?: string;
     updatedAt?: string;

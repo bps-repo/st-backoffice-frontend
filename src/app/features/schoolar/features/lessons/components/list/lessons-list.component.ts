@@ -20,8 +20,7 @@ import {RippleModule} from "primeng/ripple";
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 import * as LessonsActions from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
 import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
-import {ClassState} from "../../../../../../core/store/schoolar/classes/classState";
-import {LessonState} from "../../../../../../core/store/schoolar/lessons/lessonState";
+import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
 
 @Component({
     selector: 'app-lessons',

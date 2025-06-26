@@ -61,12 +61,7 @@ export interface LessonState extends EntityState<Lesson> {
 
 export const lessonsAdapter: EntityAdapter<Lesson> = createEntityAdapter<Lesson>({
     selectId: (lesson: Lesson) => lesson.id || '',
-    sortComparer: (a: Lesson, b: Lesson) => {
-        // Default sort by start date, most recent first
-        const dateA = new Date(a.startDatetime).getTime();
-        const dateB = new Date(b.startDatetime).getTime();
-        return dateB - dateA;
-    }
+    sortComparer: false
 });
 
 export const lessonsInitialState: LessonState = lessonsAdapter.getInitialState({

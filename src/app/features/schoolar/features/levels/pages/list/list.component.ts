@@ -1,20 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable, startWith } from 'rxjs';
-import { CreateLevelDialogComponent } from '../../dialogs/create-level-dialog/create-level-dialog.component';
-import { ButtonModule } from 'primeng/button';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { TableColumn, GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable, startWith} from 'rxjs';
+import {CreateLevelDialogComponent} from '../../dialogs/create-level-dialog/create-level-dialog.component';
+import {ButtonModule} from 'primeng/button';
+import {ConfirmationService} from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {TableColumn, GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
 import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
-import { selectAllLevels, selectLevelLoading } from 'src/app/core/store/course/selectors/level.selector';
-import { Level } from 'src/app/core/models/course/level';
+import {selectAllLevels, selectLevelLoading} from 'src/app/core/store/course/selectors/level.selector';
+import {Level} from 'src/app/core/models/course/level';
+import {RippleModule} from "primeng/ripple";
+import {DockModule} from "primeng/dock";
 
 @Component({
     selector: 'app-level-general',
-    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateLevelDialogComponent],
+    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateLevelDialogComponent, RippleModule, DockModule],
     templateUrl: './list.component.html',
     standalone: true,
     providers: [ConfirmationService]
@@ -32,13 +34,11 @@ export class ListComponent implements OnInit {
     size = 10;
 
     constructor(private router: Router,
-        private store: Store,
-        private confirmationService: ConfirmationService) {
+                private store: Store,
+                private confirmationService: ConfirmationService) {
 
-        this.levels$ = this.store.select(selectAllLevels).pipe(
-                                startWith([])
-                            );
-                    this.loading$ = this.store.select(selectLevelLoading);
+        this.levels$ = this.store.select(selectAllLevels)
+        this.loading$ = this.store.select(selectLevelLoading);
     }
 
     ngOnInit(): void {
@@ -81,7 +81,7 @@ export class ListComponent implements OnInit {
     }
 
     loadLevels(): void {
-        this.store.dispatch(LevelActions.loadPagedLevels({ size: this.size }));
+        this.store.dispatch(LevelActions.loadPagedLevels({size: this.size}));
     }
 
 
@@ -94,20 +94,20 @@ export class ListComponent implements OnInit {
     }
 
     deleteLevel(level: Level): void {
-            this.confirmationService.confirm({
-                message: `Tem certeza de que deseja excluir o nivel "${level.name}"?`,
-                header: 'Confirmação',
-                icon: 'pi pi-exclamation-triangle text-warning',
-                acceptLabel: 'Sim',
-                rejectLabel: 'Não',
-                acceptButtonStyleClass: 'p-button-danger',
-                rejectButtonStyleClass: 'p-button-secondary',
-                accept: () => {
-                    this.store.dispatch(LevelActions.deleteLevel({ id: level.id }));
-                },
-                reject: () => {
-                    console.log('Ação de exclusão cancelada.');
-                }
-            });
-        }
+        this.confirmationService.confirm({
+            message: `Tem certeza de que deseja excluir o nivel "${level.name}"?`,
+            header: 'Confirmação',
+            icon: 'pi pi-exclamation-triangle text-warning',
+            acceptLabel: 'Sim',
+            rejectLabel: 'Não',
+            acceptButtonStyleClass: 'p-button-danger',
+            rejectButtonStyleClass: 'p-button-secondary',
+            accept: () => {
+                this.store.dispatch(LevelActions.deleteLevel({id: level.id}));
+            },
+            reject: () => {
+                console.log('Ação de exclusão cancelada.');
+            }
+        });
+    }
 }

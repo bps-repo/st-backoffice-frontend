@@ -1,5 +1,5 @@
 import {lessonsFeature} from "./lessons.feature";
-import {lessonsAdapter} from "./lessonState";
+import {lessonsAdapter} from "./lesson.state";
 import {createSelector} from "@ngrx/store";
 import {Lesson} from "../../../models/academic/lesson";
 

@@ -4,6 +4,7 @@ import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
 import {LessonApiService} from '../../../services/lesson-api.service';
 import {lessonsActions} from "./lessons.actions";
+import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
 
 @Injectable()
 export class LessonsEffects {
@@ -17,7 +18,7 @@ export class LessonsEffects {
             exhaustMap(() =>
                 this.lessonApiService.getLessons().pipe(
                     map((lessons) => lessonsActions.loadLessonsSuccess({lessons})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsFailure({error: error.message}))
                     )
                 )
@@ -31,7 +32,7 @@ export class LessonsEffects {
             exhaustMap(({id}) =>
                 this.lessonApiService.getLesson(id).pipe(
                     map((lesson) => lessonsActions.loadLessonSuccess({lesson})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonFailure({error: error.message}))
                     )
                 )
@@ -45,7 +46,7 @@ export class LessonsEffects {
             exhaustMap(({lesson}) =>
                 this.lessonApiService.createLesson(lesson).pipe(
                     map((createdLesson) => lessonsActions.createLessonSuccess({lesson: createdLesson})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.createLessonFailure({error: error.message}))
                     )
                 )
@@ -59,7 +60,7 @@ export class LessonsEffects {
             exhaustMap(({lesson}) =>
                 this.lessonApiService.updateLesson(lesson).pipe(
                     map((updatedLesson) => lessonsActions.updateLessonSuccess({lesson: updatedLesson})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.updateLessonFailure({error: error.message}))
                     )
                 )
@@ -73,7 +74,7 @@ export class LessonsEffects {
             exhaustMap(({id}) =>
                 this.lessonApiService.deleteLesson(id).pipe(
                     map(() => lessonsActions.deleteLessonSuccess({id})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.deleteLessonFailure({error: error.message}))
                     )
                 )
@@ -88,7 +89,7 @@ export class LessonsEffects {
             exhaustMap(({classId}) =>
                 this.lessonApiService.getLessonsByClass(classId).pipe(
                     map((lessons) => lessonsActions.loadLessonsByClassSuccess({lessons})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsByClassFailure({error: error.message}))
                     )
                 )
@@ -102,7 +103,7 @@ export class LessonsEffects {
             exhaustMap(({classId}) =>
                 this.lessonApiService.getAvailableLessonsByClass(classId).pipe(
                     map((lessons) => lessonsActions.loadAvailableLessonsByClassSuccess({lessons})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadAvailableLessonsByClassFailure({error: error.message}))
                     )
                 )
@@ -116,7 +117,7 @@ export class LessonsEffects {
             exhaustMap(({centerId}) =>
                 this.lessonApiService.getLessonsByCenter(centerId).pipe(
                     map((lessons) => lessonsActions.loadLessonsByCenterSuccess({lessons})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsByCenterFailure({error: error.message}))
                     )
                 )
@@ -130,7 +131,7 @@ export class LessonsEffects {
             exhaustMap(({startDate, endDate}) =>
                 this.lessonApiService.getLessonsByDateRange(startDate, endDate).pipe(
                     map((lessons) => lessonsActions.loadLessonsByDateRangeSuccess({lessons})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsByDateRangeFailure({error: error.message}))
                     )
                 )
@@ -145,7 +146,7 @@ export class LessonsEffects {
             exhaustMap(({studentId}) =>
                 this.lessonApiService.getStudentBookings(studentId).pipe(
                     map((bookings) => lessonsActions.loadStudentBookingsSuccess({bookings})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadStudentBookingsFailure({error: error.message}))
                     )
                 )
@@ -159,7 +160,7 @@ export class LessonsEffects {
             exhaustMap(({studentId}) =>
                 this.lessonApiService.getStudentBookingsToday(studentId).pipe(
                     map((bookings) => lessonsActions.loadStudentBookingsTodaySuccess({bookings})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadStudentBookingsTodayFailure({error: error.message}))
                     )
                 )
@@ -174,7 +175,7 @@ export class LessonsEffects {
             exhaustMap(({lessonId}) =>
                 this.lessonApiService.getLessonBookings(lessonId).pipe(
                     map((bookings) => lessonsActions.loadLessonBookingsSuccess({bookings})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonBookingsFailure({error: error.message}))
                     )
                 )
@@ -188,7 +189,7 @@ export class LessonsEffects {
             exhaustMap(({lessonId, bookingData}) =>
                 this.lessonApiService.createLessonBooking(lessonId, bookingData).pipe(
                     map((booking) => lessonsActions.createLessonBookingSuccess({booking})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.createLessonBookingFailure({error: error.message}))
                     )
                 )
@@ -202,7 +203,7 @@ export class LessonsEffects {
             exhaustMap(({lessonId, bookingId}) =>
                 this.lessonApiService.deleteLessonBooking(lessonId, bookingId).pipe(
                     map(() => lessonsActions.deleteLessonBookingSuccess({lessonId, bookingId})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.deleteLessonBookingFailure({error: error.message}))
                     )
                 )
@@ -217,7 +218,7 @@ export class LessonsEffects {
             exhaustMap(({lessonId, scheduleData}) =>
                 this.lessonApiService.updateLessonSchedule(lessonId, scheduleData).pipe(
                     map((lesson) => lessonsActions.updateLessonScheduleSuccess({lesson})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.updateLessonScheduleFailure({error: error.message}))
                     )
                 )
@@ -231,7 +232,7 @@ export class LessonsEffects {
             exhaustMap(({lessonId, onlineStatus}) =>
                 this.lessonApiService.updateLessonOnlineStatus(lessonId, onlineStatus).pipe(
                     map((lesson) => lessonsActions.updateLessonOnlineStatusSuccess({lesson})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.updateLessonOnlineStatusFailure({error: error.message}))
                     )
                 )
@@ -245,7 +246,7 @@ export class LessonsEffects {
             exhaustMap(() =>
                 this.lessonApiService.markLessonsOverdue().pipe(
                     map((response) => lessonsActions.markLessonsOverdueSuccess({response})),
-                    catchError((error) =>
+                    catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.markLessonsOverdueFailure({error: error.message}))
                     )
                 )

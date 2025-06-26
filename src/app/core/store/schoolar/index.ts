@@ -11,7 +11,7 @@ import {LessonsEffects} from "./lessons/lessons.effects";
 import {lessonsFeature} from "./lessons/lessons.feature";
 import {StudentState} from "./students/student.state";
 import {ClassState} from "./classes/classState";
-import {LessonState} from "./lessons/lessonState";
+import {LessonState} from "./lessons/lesson.state";
 import {
     CalendarsState,
     CertificatesState,
