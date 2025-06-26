@@ -1,5 +1,5 @@
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { ServiceState } from '../reducers/service.reducer';
+import {createFeatureSelector, createSelector} from '@ngrx/store';
+import {ServiceState} from "./service.reducer";
 
 export const selectServiceState = createFeatureSelector<ServiceState>('service');
 

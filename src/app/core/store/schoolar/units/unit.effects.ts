@@ -34,13 +34,13 @@ export class UnitEffects {
         )
     );
 
-    getUnit$ = createEffect(() =>
+    loadUnit$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(UnitActions.getUnit),
+            ofType(UnitActions.loadUnit),
             mergeMap(({id}) =>
-                this.unitService.getUnitById(id).pipe(
-                    map((response) => UnitActions.getUnitSuccess({unit: response.data})),
-                    catchError((error) => of(UnitActions.getUnitFailure({error: error.message})))
+                this.unitService.loadUnitById(id).pipe(
+                    map((response) => UnitActions.loadUnitSuccess({unit: response.data})),
+                    catchError((error) => of(UnitActions.loadUnitFailure({error: error.message})))
                 )
             )
         )
@@ -59,13 +59,13 @@ export class UnitEffects {
     );
 
     // Specialized endpoints
-    getUnitMaterials$ = createEffect(() =>
+    loadUnitMaterials$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(UnitActions.getUnitMaterials),
+            ofType(UnitActions.loadUnitMaterials),
             mergeMap(({unitId}) =>
-                this.unitService.getUnitMaterials(unitId).pipe(
-                    map((response) => UnitActions.getUnitMaterialsSuccess({unitId, materials: response.data})),
-                    catchError((error) => of(UnitActions.getUnitMaterialsFailure({error: error.message})))
+                this.unitService.loadUnitMaterials(unitId).pipe(
+                    map((response) => UnitActions.loadUnitMaterialsSuccess({unitId, materials: response.data})),
+                    catchError((error) => of(UnitActions.loadUnitMaterialsFailure({error: error.message})))
                 )
             )
         )
@@ -95,25 +95,25 @@ export class UnitEffects {
         )
     );
 
-    getUnitClasses$ = createEffect(() =>
+    loadUnitClasses$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(UnitActions.getUnitClasses),
+            ofType(UnitActions.loadUnitClasses),
             mergeMap(({unitId}) =>
-                this.unitService.getUnitClasses(unitId).pipe(
-                    map((response) => UnitActions.getUnitClassesSuccess({unitId, classes: response.data})),
-                    catchError((error) => of(UnitActions.getUnitClassesFailure({error: error.message})))
+                this.unitService.loadUnitClasses(unitId).pipe(
+                    map((response) => UnitActions.loadUnitClassesSuccess({unitId, classes: response.data})),
+                    catchError((error) => of(UnitActions.loadUnitClassesFailure({error: error.message})))
                 )
             )
         )
     );
 
-    getUnitProgresses$ = createEffect(() =>
+    loadUnitProgresses$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(UnitActions.getUnitProgresses),
+            ofType(UnitActions.loadUnitProgresses),
             mergeMap(({unitId}) =>
-                this.unitService.getUnitProgresses(unitId).pipe(
-                    map((response) => UnitActions.getUnitProgressesSuccess({unitId, progresses: response.data})),
-                    catchError((error) => of(UnitActions.getUnitProgressesFailure({error: error.message})))
+                this.unitService.loadUnitProgresses(unitId).pipe(
+                    map((response) => UnitActions.loadUnitProgressesSuccess({unitId, progresses: response.data})),
+                    catchError((error) => of(UnitActions.loadUnitProgressesFailure({error: error.message})))
                 )
             )
         )

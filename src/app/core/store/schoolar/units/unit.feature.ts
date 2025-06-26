@@ -48,13 +48,13 @@ export const unitFeature = createFeature({
             updateError: error,
         })),
 
-        // Get unit
-        on(UnitActions.getUnit, (state) => ({
+        // load unit
+        on(UnitActions.loadUnit, (state) => ({
             ...state,
             loading: true,
             error: null,
         })),
-        on(UnitActions.getUnitSuccess, (state, {unit}) =>
+        on(UnitActions.loadUnitSuccess, (state, {unit}) =>
             unitsAdapter.upsertOne(unit, {
                 ...state,
                 selectedUnitId: unit.id,
@@ -62,19 +62,19 @@ export const unitFeature = createFeature({
                 error: null,
             })
         ),
-        on(UnitActions.getUnitFailure, (state, {error}) => ({
+        on(UnitActions.loadUnitFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error,
         })),
 
-        // Get paged units
-        on(UnitActions.getPagedUnits, (state) => ({
+        // load paged units
+        on(UnitActions.loadPagedUnits, (state) => ({
             ...state,
             loading: true,
             error: null,
         })),
-        on(UnitActions.getPagedUnitsSuccess, (state, {units, pagination}) =>
+        on(UnitActions.loadPagedUnitsSuccess, (state, {units, pagination}) =>
             unitsAdapter.setAll(units, {
                 ...state,
                 loading: false,
@@ -87,7 +87,7 @@ export const unitFeature = createFeature({
                 totalPages: pagination.totalPages,
             })
         ),
-        on(UnitActions.getPagedUnitsFailure, (state, {error}) => ({
+        on(UnitActions.loadPagedUnitsFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error,
@@ -113,13 +113,13 @@ export const unitFeature = createFeature({
             deleteError: error,
         })),
 
-        // Get unit materials
-        on(UnitActions.getUnitMaterials, (state) => ({
+        // load unit materials
+        on(UnitActions.loadUnitMaterials, (state) => ({
             ...state,
             loadingMaterials: true,
             materialsError: null,
         })),
-        on(UnitActions.getUnitMaterialsSuccess, (state, {unitId, materials}) => ({
+        on(UnitActions.loadUnitMaterialsSuccess, (state, {unitId, materials}) => ({
             ...state,
             unitMaterials: {
                 ...state.unitMaterials,
@@ -128,7 +128,7 @@ export const unitFeature = createFeature({
             loadingMaterials: false,
             materialsError: null,
         })),
-        on(UnitActions.getUnitMaterialsFailure, (state, {error}) => ({
+        on(UnitActions.loadUnitMaterialsFailure, (state, {error}) => ({
             ...state,
             loadingMaterials: false,
             materialsError: error,
@@ -178,13 +178,13 @@ export const unitFeature = createFeature({
             updateOrderError: error,
         })),
 
-        // Get unit classes
-        on(UnitActions.getUnitClasses, (state) => ({
+        // load unit classes
+        on(UnitActions.loadUnitClasses, (state) => ({
             ...state,
             loadingClasses: true,
             classesError: null,
         })),
-        on(UnitActions.getUnitClassesSuccess, (state, {unitId, classes}) => ({
+        on(UnitActions.loadUnitClassesSuccess, (state, {unitId, classes}) => ({
             ...state,
             unitClasses: {
                 ...state.unitClasses,
@@ -193,19 +193,19 @@ export const unitFeature = createFeature({
             loadingClasses: false,
             classesError: null,
         })),
-        on(UnitActions.getUnitClassesFailure, (state, {error}) => ({
+        on(UnitActions.loadUnitClassesFailure, (state, {error}) => ({
             ...state,
             loadingClasses: false,
             classesError: error,
         })),
 
-        // Get unit progresses
-        on(UnitActions.getUnitProgresses, (state) => ({
+        // load unit progresses
+        on(UnitActions.loadUnitProgresses, (state) => ({
             ...state,
             loadingProgresses: true,
             progressesError: null,
         })),
-        on(UnitActions.getUnitProgressesSuccess, (state, {unitId, progresses}) => ({
+        on(UnitActions.loadUnitProgressesSuccess, (state, {unitId, progresses}) => ({
             ...state,
             unitProgresses: {
                 ...state.unitProgresses,
@@ -214,7 +214,7 @@ export const unitFeature = createFeature({
             loadingProgresses: false,
             progressesError: null,
         })),
-        on(UnitActions.getUnitProgressesFailure, (state, {error}) => ({
+        on(UnitActions.loadUnitProgressesFailure, (state, {error}) => ({
             ...state,
             loadingProgresses: false,
             progressesError: error,

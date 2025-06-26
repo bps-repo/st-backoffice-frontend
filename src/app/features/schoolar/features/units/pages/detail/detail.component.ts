@@ -3,7 +3,7 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
@@ -14,6 +14,7 @@ import {Unit} from 'src/app/core/models/course/unit';
 import {Level} from 'src/app/core/models/course/level';
 import {RippleModule} from "primeng/ripple";
 import {ChartModule} from 'primeng/chart';
+import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 
 @Component({
     selector: 'app-unit-student',
@@ -34,10 +35,10 @@ import {ChartModule} from 'primeng/chart';
 export class DetailComponent implements OnInit {
 
     unitId: string = '';
-    unit$: Observable<Unit | null>;
+    unit$: Observable<Unit | null> = of();
     unit: Unit | null = null;
     editableUnit: Unit | null = null;
-    loading$: Observable<boolean>;
+    loading$: Observable<boolean> = of();
     loading: boolean = true;
     levels: Level[] = [];
 
@@ -51,8 +52,8 @@ export class DetailComponent implements OnInit {
 
 
     constructor(private route: ActivatedRoute, private store: Store) {
-        this.unit$ = this.store.select(selectSelectedUnit);
-        this.loading$ = this.store.select(selectUnitLoading);
+        // this.unit$ = this.store.select(selectSelectedUnit);
+        //this.loading$ = this.store.select(selectUnitLoading);
     }
 
     ngOnInit(): void {
@@ -62,12 +63,12 @@ export class DetailComponent implements OnInit {
         });
 
         // Carrega níveis
-        this.store.dispatch(LevelActions.loadLevels());
+        // this.store.dispatch(LevelActions.loadLevels());
 
-        this.store.select(selectAllLevels).subscribe(levels => {
-            this.levels = levels;
-            this.setUnitLevel();
-        });
+        // this.store.select(selectAllLevels).subscribe(levels => {
+        //     this.levels = levels;
+        //     this.setUnitLevel();
+        // });
 
         this.unit$.subscribe(unit => {
             this.unit = unit;
@@ -117,7 +118,7 @@ export class DetailComponent implements OnInit {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 700 },
+                        font: {weight: 700},
                         padding: 20,
                     },
                     position: 'bottom',
@@ -166,13 +167,13 @@ export class DetailComponent implements OnInit {
             },
             scales: {
                 x: {
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                    ticks: {color: textColor},
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                    ticks: {color: textColor},
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
                 }
             }
         };
@@ -210,7 +211,7 @@ export class DetailComponent implements OnInit {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 700 },
+                        font: {weight: 700},
                         padding: 20,
                     },
                     position: 'right',
@@ -240,7 +241,7 @@ export class DetailComponent implements OnInit {
 
             };
 
-            this.store.dispatch(UnitActions.updateUnit({id: this.unitId, unit: updatedUnit}));
+            //this.store.dispatch(UnitActions.updateUnit({id: this.unitId, unit: updatedUnit}));
         }
     }
 

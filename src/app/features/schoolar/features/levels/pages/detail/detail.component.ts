@@ -1,20 +1,20 @@
 // student.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
-import { selectSelectedLevel, selectLevelLoading } from 'src/app/core/store/course/selectors/level.selector';
-import { SkeletonModule } from 'primeng/skeleton';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { FormsModule } from '@angular/forms';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { Level } from 'src/app/core/models/course/level';
-import { ChartModule } from 'primeng/chart';
-import { RippleModule } from 'primeng/ripple';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable} from 'rxjs';
+import {SkeletonModule} from 'primeng/skeleton';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {ButtonModule} from 'primeng/button';
+import {FormsModule} from '@angular/forms';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {Level} from 'src/app/core/models/course/level';
+import {ChartModule} from 'primeng/chart';
+import {RippleModule} from 'primeng/ripple';
+import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/levelActions";
 
 @Component({
     selector: 'app-level-student',
@@ -50,8 +50,8 @@ export class DetailComponent implements OnInit {
     completionRateChartOptions: any;
 
     constructor(private route: ActivatedRoute, private store: Store) {
-        this.level$ = this.store.select(selectSelectedLevel);
-        this.loading$ = this.store.select(selectLevelLoading);
+        this.level$ = this.store.select(LevelSelectors.selectSelectedLevel);
+        this.loading$ = this.store.select(LevelSelectors.selectLoading);
     }
 
     ngOnInit(): void {
@@ -62,7 +62,7 @@ export class DetailComponent implements OnInit {
 
         this.level$.subscribe(level => {
             this.level = level;
-            this.editableLevel = level ? { ...level } : null;
+            this.editableLevel = level ? {...level} : null;
 
             // Initialize charts when level data is available
             if (level) {
@@ -113,7 +113,7 @@ export class DetailComponent implements OnInit {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 700 },
+                        font: {weight: 700},
                         padding: 20,
                     },
                     position: 'right',
@@ -168,13 +168,13 @@ export class DetailComponent implements OnInit {
             },
             scales: {
                 x: {
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                    ticks: {color: textColor},
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                    ticks: {color: textColor},
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
                 }
             }
         };
@@ -210,7 +210,7 @@ export class DetailComponent implements OnInit {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 700 },
+                        font: {weight: 700},
                         padding: 20,
                     },
                     position: 'bottom',
@@ -228,7 +228,7 @@ export class DetailComponent implements OnInit {
     }
 
     loadLevel(): void {
-        this.store.dispatch(LevelActions.loadLevel({ id: this.levelId }));
+        this.store.dispatch(LevelActions.loadLevel({id: this.levelId}));
     }
 
     editLevel(): void {
@@ -240,7 +240,7 @@ export class DetailComponent implements OnInit {
                 maximumUnits: this.editableLevel.maximumUnits
             };
 
-            this.store.dispatch(LevelActions.updateLevel({ id: this.levelId, level: updatedLevel }));
+            this.store.dispatch(LevelActions.updateLevel({id: this.levelId, level: updatedLevel}));
         }
     }
 

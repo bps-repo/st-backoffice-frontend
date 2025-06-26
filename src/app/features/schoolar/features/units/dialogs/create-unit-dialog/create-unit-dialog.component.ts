@@ -1,20 +1,17 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { SelectItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { Unit } from 'src/app/core/models/course/unit';
-import { Level } from 'src/app/core/models/course/level';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import * as UnitActions from 'src/app/core/store/course/actions/unit.actions';
-import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
-import { selectUnitError, selectUnitLoading } from 'src/app/core/store/course/selectors/unit.selector';
-import { selectAllLevels } from 'src/app/core/store/course/selectors/level.selector';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {DialogModule} from 'primeng/dialog';
+import {DropdownModule} from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {Unit} from 'src/app/core/models/course/unit';
+import {Level} from 'src/app/core/models/course/level';
+import {Store} from '@ngrx/store';
+import {Observable, of} from 'rxjs';
+import * as UnitSelectors from "../../../../../../core/store/schoolar/units/unit.selectors";
+import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 
 @Component({
     selector: 'app-create-unit-dialog',
@@ -40,7 +37,7 @@ export class CreateUnitDialogComponent implements OnInit {
         orderUnit: 0,
         maximumAssessmentAttempt: 0,
         level: undefined
-      };
+    };
 
 
     loading$: Observable<boolean>;
@@ -48,9 +45,9 @@ export class CreateUnitDialogComponent implements OnInit {
     levelOptions$: Observable<Level[]>;
 
     constructor(private store: Store) {
-        this.loading$ = this.store.select(selectUnitLoading);
-        this.error$ = this.store.select(selectUnitError);
-        this.levelOptions$ = this.store.select(selectAllLevels);
+        this.loading$ = this.store.select(UnitSelectors.selectLoading);
+        this.error$ = this.store.select(UnitSelectors.selectError);
+        this.levelOptions$ = of();
     }
 
     ngOnInit() {
@@ -59,8 +56,6 @@ export class CreateUnitDialogComponent implements OnInit {
                 console.error('Erro ao criar o Unit:', error);
             }
         });
-
-       this.store.dispatch(LevelActions.loadPagedLevels({ size: 10 }));
     }
 
     show() {
@@ -87,14 +82,14 @@ export class CreateUnitDialogComponent implements OnInit {
         };
         console.log('Payload:', payload);
 
-        this.store.dispatch(UnitActions.createUnit({ unit: payload }));
+        this.store.dispatch(UnitActions.createUnit({unit: payload}));
 
-        this.store.select(selectUnitError).subscribe(error => {
-            if (!error) {
-                this.hide();
-                this.resetForm();
-            }
-        });
+        // this.store.select(selectUnitError).subscribe(error => {
+        //     if (!error) {
+        //         this.hide();
+        //         this.resetForm();
+        //     }
+        // });
     }
 
     resetForm() {

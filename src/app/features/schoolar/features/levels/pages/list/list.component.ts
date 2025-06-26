@@ -8,11 +8,12 @@ import {ButtonModule} from 'primeng/button';
 import {ConfirmationService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {TableColumn, GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
-import * as LevelActions from 'src/app/core/store/course/actions/level.actions';
-import {selectAllLevels, selectLevelLoading} from 'src/app/core/store/course/selectors/level.selector';
 import {Level} from 'src/app/core/models/course/level';
 import {RippleModule} from "primeng/ripple";
 import {DockModule} from "primeng/dock";
+import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
+import {LEVEL_COLUMNS} from "../../level.const";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/levelActions";
 
 @Component({
     selector: 'app-level-general',
@@ -30,63 +31,28 @@ export class ListComponent implements OnInit {
     loading$: Observable<boolean>;
     loading = false;
 
-    columns: TableColumn[] = [];
+    columns: TableColumn[] = LEVEL_COLUMNS;
     size = 10;
 
     constructor(private router: Router,
                 private store: Store,
                 private confirmationService: ConfirmationService) {
 
-        this.levels$ = this.store.select(selectAllLevels)
-        this.loading$ = this.store.select(selectLevelLoading);
+        this.levels$ = this.store.select(LevelSelectors.selectAllLevels)
+        this.loading$ = this.store.select(LevelSelectors.selectLevelsLoading);
     }
 
     ngOnInit(): void {
-
         this.loadLevels();
-
-        // Define columns for the table
-        this.columns = [
-            {
-                field: 'id',
-                header: 'ID',
-                filterType: 'text',
-            },
-            {
-                field: 'name',
-                header: 'Nome',
-                filterType: 'text',
-            },
-            {
-                field: 'description',
-                header: 'Descrição',
-                filterType: 'text',
-            },
-            {
-                field: 'duration',
-                header: 'Duração',
-                filterType: 'numeric',
-            },
-            {
-                field: 'maximumUnits',
-                header: 'Unidades Máximas',
-                filterType: 'numeric',
-            },
-            {
-                field: 'actions',
-                header: 'Ações',
-                customTemplate: true,
-            },
-        ];
     }
 
     loadLevels(): void {
-        this.store.dispatch(LevelActions.loadPagedLevels({size: this.size}));
+        this.store.dispatch(LevelActions.loadLevels());
     }
 
 
     viewDetails(level: Level): void {
-        this.router.navigate(['/courses/levels', level.id]);
+        this.router.navigate(['/courses/levels', level.id]).then();
     }
 
     createLevel(): void {

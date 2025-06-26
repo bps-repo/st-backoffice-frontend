@@ -11,7 +11,7 @@ import {TableColumn, GlobalTable} from 'src/app/shared/components/tables/global-
 import {Unit} from 'src/app/core/models/course/unit';
 import {Level} from 'src/app/core/models/course/level';
 import {selectAllUnits} from "../../../../../../core/store/schoolar/units/unit.selectors";
-import {levelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/levelActions";
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 
 @Component({
@@ -44,7 +44,7 @@ export class ListComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadUnits();
-        this.store.dispatch(levelActions.loadLevels());
+        this.store.dispatch(LevelActions.loadLevels());
 
         // Carrega níveis e unidades em memória e cruza os dados
         // this.store.select(sel).subscribe(levels => {

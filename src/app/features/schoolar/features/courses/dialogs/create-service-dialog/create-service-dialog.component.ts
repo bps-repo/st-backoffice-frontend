@@ -1,18 +1,18 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { SelectItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { Service } from 'src/app/core/models/course/service';
-import { Store } from '@ngrx/store';
-import * as ServiceActions from 'src/app/core/store/course/actions/service.actions';
-import { ServiceState } from 'src/app/core/store/course/reducers/service.reducer';
-import { Observable } from 'rxjs';
-import { selectServiceError, selectServiceLoading } from 'src/app/core/store/course/selectors/service.selector';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {SelectItem} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {DialogModule} from 'primeng/dialog';
+import {DropdownModule} from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {Service} from 'src/app/core/models/course/service';
+import {Store} from '@ngrx/store';
+import * as ServiceActions from 'src/app/core/store/corporate/services/service.actions';
+import {Observable} from 'rxjs';
+import {selectServiceError, selectServiceLoading} from 'src/app/core/store/corporate/services/service.selector';
+import {ServiceState} from "../../../../../../core/store/corporate/services/service.reducer";
 
 
 @Component({
@@ -42,16 +42,16 @@ export class CreateServiceDialogComponent implements OnInit {
     };
 
     typeOptions: SelectItem[] = [
-        { label: 'Curso Regular', value: 'REGULAR_COURSE' },
-        { label: 'Curso Intensivo', value: 'INTENSIVE_COURSE' },
-        { label: 'Aulas Particulares', value: 'PRIVATE_LESSONS' },
-        { label: 'Workshop', value: 'WORKSHOP' },
-        { label: 'Preparação para exames', value: 'EXAM_PREPARATION' }
+        {label: 'Curso Regular', value: 'REGULAR_COURSE'},
+        {label: 'Curso Intensivo', value: 'INTENSIVE_COURSE'},
+        {label: 'Aulas Particulares', value: 'PRIVATE_LESSONS'},
+        {label: 'Workshop', value: 'WORKSHOP'},
+        {label: 'Preparação para exames', value: 'EXAM_PREPARATION'}
     ];
 
     activeOptions: SelectItem[] = [
-        { label: 'Yes', value: true },
-        { label: 'No', value: false }
+        {label: 'Yes', value: true},
+        {label: 'No', value: false}
     ];
 
     loading$: Observable<boolean>;
@@ -59,18 +59,17 @@ export class CreateServiceDialogComponent implements OnInit {
 
 
     constructor(private store: Store<ServiceState>) {
-            this.loading$ = this.store.select(selectServiceLoading);
-            this.error$ = this.store.select(selectServiceError);
-        }
+        this.loading$ = this.store.select(selectServiceLoading);
+        this.error$ = this.store.select(selectServiceError);
+    }
 
     ngOnInit() {
-       // Monitorar erros ou sucesso
-       this.error$.subscribe((error) => {
-        if (error) {
-            console.error('Erro ao criar o Center:', error);
-        }
-    });
-
+        // Monitorar erros ou sucesso
+        this.error$.subscribe((error) => {
+            if (error) {
+                console.error('Erro ao criar o Center:', error);
+            }
+        });
     }
 
     show() {
@@ -93,12 +92,12 @@ export class CreateServiceDialogComponent implements OnInit {
 
         console.log(payload)
 
-        this.store.dispatch(ServiceActions.createService({ service: payload}));
+        this.store.dispatch(ServiceActions.createService({service: payload}));
         // Monitorar o estado de carregamento e sucesso
         this.store.select(selectServiceError).subscribe(error => {
             if (!error) {
-              this.hide();
-              this.resetForm();
+                this.hide();
+                this.resetForm();
             }
         });
     }

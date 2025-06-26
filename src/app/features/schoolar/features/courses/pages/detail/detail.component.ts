@@ -1,26 +1,26 @@
 // student.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import * as ServiceActions from 'src/app/core/store/course/actions/service.actions';
-import { selectSelectedService, selectServiceLoading } from 'src/app/core/store/course/selectors/service.selector';
-import { SkeletonModule } from 'primeng/skeleton';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { FormsModule } from '@angular/forms';
-import { Service } from 'src/app/core/models/course/service';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { DropdownModule } from 'primeng/dropdown';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable} from 'rxjs';
+import * as ServiceActions from 'src/app/core/store/corporate/services/service.actions';
+import {selectSelectedService, selectServiceLoading} from 'src/app/core/store/corporate/services/service.selector';
+import {SkeletonModule} from 'primeng/skeleton';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {ButtonModule} from 'primeng/button';
+import {FormsModule} from '@angular/forms';
+import {Service} from 'src/app/core/models/course/service';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {DropdownModule} from 'primeng/dropdown';
 
 @Component({
     selector: 'app-service-student',
     templateUrl: './detail.component.html',
     standalone: true,
     imports: [CommonModule,
-        DropdownModule ,
+        DropdownModule,
         SkeletonModule,
         InputTextModule,
         InputTextareaModule,
@@ -50,7 +50,7 @@ export class DetailComponent implements OnInit {
 
         this.service$.subscribe(service => {
             this.service = service;
-            this.editableService = service ? { ...service } : null;
+            this.editableService = service ? {...service} : null;
         });
 
         this.loading$.subscribe(loading => {
@@ -59,7 +59,7 @@ export class DetailComponent implements OnInit {
     }
 
     loadService(): void {
-        this.store.dispatch(ServiceActions.loadService({ id: this.serviceId }));
+        this.store.dispatch(ServiceActions.loadService({id: this.serviceId}));
     }
 
     editService(): void {
@@ -72,7 +72,7 @@ export class DetailComponent implements OnInit {
                 active: this.editableService.active
             };
 
-            this.store.dispatch(ServiceActions.updateService({ id: this.serviceId, service: updatedService }));
+            this.store.dispatch(ServiceActions.updateService({id: this.serviceId, service: updatedService}));
         }
     }
 

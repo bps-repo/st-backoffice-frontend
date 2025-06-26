@@ -3,7 +3,7 @@ import {Level} from "../../../models/course/level";
 
 export const LEVEL_FEATURE_KEY = "levels";
 
-export const levelActions = createActionGroup(
+export const LevelActions = createActionGroup(
     {
         source: LEVEL_FEATURE_KEY,
         events: {

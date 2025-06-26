@@ -1,19 +1,17 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable, startWith } from 'rxjs';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable, of} from 'rxjs';
+import {ConfirmationService} from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { ButtonModule } from 'primeng/button';
-import * as ServiceActions from 'src/app/core/store/course/actions/service.actions';
-import { selectAllServices, selectServiceLoading } from 'src/app/core/store/course/selectors/service.selector';
-import { Service } from 'src/app/core/models/course/service';
-import { CreateServiceDialogComponent } from '../../dialogs/create-service-dialog/create-service-dialog.component';
+import {ButtonModule} from 'primeng/button';
+import {Service} from 'src/app/core/models/course/service';
+import {CreateServiceDialogComponent} from '../../dialogs/create-service-dialog/create-service-dialog.component';
 
 @Component({
     selector: 'app-service-general',
@@ -27,20 +25,18 @@ export class ListComponent implements OnInit {
 
     @ViewChild(CreateServiceDialogComponent) createServiceDialog!: CreateServiceDialogComponent;
 
-    services$: Observable<Service[]>;
-    loading$: Observable<boolean>;
+    services$: Observable<Service[]> = of();
+    loading$: Observable<boolean> = of();
 
     columns: TableColumn[] = [];
     size = 10;
 
     constructor(private router: Router,
-        private store: Store,
-        private confirmationService: ConfirmationService) {
+                private store: Store,
+                private confirmationService: ConfirmationService) {
 
-            this.services$ = this.store.select(selectAllServices).pipe(
-                        startWith([])
-                    );
-            this.loading$ = this.store.select(selectServiceLoading);
+        // this.services$ = this.store.select(selectAllServices)
+        //this.loading$ = this.store.select(selectServiceLoading);
     }
 
     ngOnInit(): void {
@@ -87,8 +83,8 @@ export class ListComponent implements OnInit {
     }
 
     loadServices(): void {
-            this.store.dispatch(ServiceActions.loadPagedServices({ size: this.size }));
-        }
+        //this.store.dispatch(ServiceActions.loadPagedServices({size: this.size}));
+    }
 
     viewDetails(service: Service): void {
         this.router.navigate(['/courses/courses', service.id]);
@@ -108,7 +104,7 @@ export class ListComponent implements OnInit {
             acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => {
-                this.store.dispatch(ServiceActions.deleteService({ id: service.id }));
+                //this.store.dispatch(ServiceActions.deleteService({id: service.id}));
             },
             reject: () => {
                 console.log('Ação de exclusão cancelada.');
