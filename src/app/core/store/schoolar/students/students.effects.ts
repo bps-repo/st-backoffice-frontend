@@ -4,6 +4,7 @@ import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
 import {StudentService} from '../../../services/student.service';
 import {StudentsActions} from "./students.actions";
+import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
 
 @Injectable()
 export class StudentsEffects {
@@ -16,8 +17,8 @@ export class StudentsEffects {
             exhaustMap(() =>
                 this.studentsService.getStudents().pipe(
                     map((students) => StudentsActions.loadStudentsSuccess({students, pagination: null})),
-                    catchError((error) =>
-                        of(StudentsActions.loadStudentsFailure({error: error.message}))
+                    catchError((error: HttpErrorResponse) =>
+                        of(StudentsActions.loadStudentsFailure({error: error.error.message}))
                     )
                 )
             )
@@ -30,8 +31,8 @@ export class StudentsEffects {
             exhaustMap(({id}) =>
                 this.studentsService.getStudent(id).pipe(
                     map((student) => StudentsActions.loadStudentSuccess({student})),
-                    catchError((error) =>
-                        of(StudentsActions.loadStudentFailure({error: error.message}))
+                    catchError((error: HttpErrorResponse) =>
+                        of(StudentsActions.loadStudentFailure({error: error.error.message}))
                     )
                 )
             )
@@ -44,8 +45,8 @@ export class StudentsEffects {
             exhaustMap(({student}) =>
                 this.studentsService.createStudent(student).pipe(
                     map((student) => StudentsActions.createStudentSuccess({student})),
-                    catchError((error) =>
-                        of(StudentsActions.createStudentFailure({error: error.message}))
+                    catchError((error: HttpErrorResponse) =>
+                        of(StudentsActions.createStudentFailure({error: error.error.message}))
                     )
                 )
             )

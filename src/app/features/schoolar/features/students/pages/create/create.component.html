@@ -1,272 +1,195 @@
 <div class="grid">
+    <p-toast></p-toast>
+    <div *ngIf="errors$ | async as errors" class="col-12">
+        {{ errors | json }}
+    </div>
+
     <div class="col-12">
         <p-card>
             <ng-template pTemplate="title">
                 <h2>Adicionar Estudante</h2>
             </ng-template>
             <ng-template pTemplate="content">
-                <!-- DADOS PESSOAIS -->
-                <div class="mb-4">
-                    <h3 class="text-900 font-medium text-xl mb-3">Dados Pessoais</h3>
-                    <div class="grid p-fluid">
-                        <div class="col-12 md:col-4 field">
-                            <label for="photo" class="font-bold">Foto</label>
-                            <p-fileUpload
-                                mode="basic"
-                                name="photo"
-                                url="./upload.php"
-                                accept="image/*"
-                                [maxFileSize]="1000000"
-                                styleClass="p-button-outlined p-button-plain"
-                                chooseLabel="Carregue uma imagem"
-                                [(ngModel)]="student.personalData.photo"
-                            ></p-fileUpload>
-                        </div>
-                        <div class="col-12 md:col-8 field">
-                            <label for="fullName" class="font-bold">Nome Completo</label>
-                            <input id="fullName" type="text" pInputText [(ngModel)]="student.personalData.fullName" required />
-                        </div>
+                <form [formGroup]="studentForm" (ngSubmit)="saveStudent()">
+                    <!-- DADOS PESSOAIS -->
+                    <div class="mb-4" formGroupName="personalData">
+                        <h3 class="text-900 font-medium text-xl mb-3">Dados Pessoais</h3>
+                        <div class="grid p-fluid">
+                            <div class="col-12 md:col-4 field">
+                                <label for="photo" class="font-bold">Foto</label>
+                                <p-fileUpload
+                                    mode="basic"
+                                    name="photo"
+                                    url="./upload.php"
+                                    accept="image/*"
+                                    [maxFileSize]="1000000"
+                                    styleClass="p-button-outlined p-button-plain"
+                                    chooseLabel="Carregue uma imagem"
+                                    (onSelect)="onPhotoSelect($event)"
+                                ></p-fileUpload>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="firstname" class="font-bold">Primeiro nome *</label>
+                                <input
+                                    id="firstname"
+                                    type="text"
+                                    pInputText
+                                    formControlName="firstname"
+                                    [class.ng-invalid]="studentForm.get('personalData.firstname')?.invalid && studentForm.get('personalData.firstname')?.touched"
+                                />
+                                <small class="p-error"
+                                       *ngIf="studentForm.get('personalData.firstname')?.invalid && studentForm.get('personalData.firstname')?.touched">
+                                    {{ getFieldError('personalData.firstname') }}
+                                </small>
+                            </div>
 
-                        <div class="col-12 md:col-4 field">
-                            <label for="idType" class="font-bold">Tipo de Identificação</label>
-                            <p-dropdown
-                                id="idType"
-                                [options]="idTypes"
-                                [(ngModel)]="student.personalData.idType"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-                        <div class="col-12 md:col-4 field">
-                            <label for="idNumber" class="font-bold">Nº de Identificação</label>
-                            <input id="idNumber" type="text" pInputText [(ngModel)]="student.personalData.idNumber" />
-                        </div>
-                        <div class="col-12 md:col-4 field">
-                            <label for="country" class="font-bold">País</label>
-                            <p-dropdown
-                                id="country"
-                                [options]="countries"
-                                [(ngModel)]="student.personalData.country"
-                                optionLabel="name"
-                                [filter]="true"
-                                filterBy="name"
-                                [showClear]="true"
-                                placeholder="Selecione um país"
-                            >
-                                <ng-template let-country pTemplate="item">
-                                    <div class="flex align-items-center">
-                                        <img
-                                            src="assets/demo/images/flag/flag_placeholder.png"
-                                            [class]="'mr-2 flag flag-' + country.code.toLowerCase()"
-                                            style="width: 18px"
-                                        />
-                                        <div>{{ country.name }}</div>
-                                    </div>
-                                </ng-template>
-                            </p-dropdown>
-                        </div>
-                        <div class="col-12 md:col-4 field">
-                            <label for="gender" class="font-bold">Género</label>
-                            <p-dropdown
-                                id="gender"
-                                [options]="genderOptions"
-                                [(ngModel)]="student.personalData.gender"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-                        <div class="col-12 md:col-4 field">
-                            <label for="birthDate" class="font-bold">Data de Nascimento</label>
-                            <p-calendar
-                                id="birthDate"
-                                [(ngModel)]="student.personalData.birthDate"
-                                [showIcon]="true"
-                                dateFormat="dd/mm/yy"
-                            ></p-calendar>
-                        </div>
-                        <div class="col-12 md:col-4 field">
-                            <label for="address" class="font-bold">Morada</label>
-                            <input id="address" type="text" pInputText [(ngModel)]="student.personalData.address" />
-                        </div>
-                        <div class="col-12 md:col-8 field">
-                            <label for="email" class="font-bold">E-mail</label>
-                            <input
-                                id="email"
-                                type="email"
-                                pInputText
-                                [(ngModel)]="student.personalData.email"
-                                placeholder="ex. user@gmail.com"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DADOS DA MATRICULA -->
-                <div>
-                    <h3 class="text-900 font-medium text-xl mb-3">Dados da Matrícula</h3>
-                    <div class="grid p-fluid">
-                        <div class="col-12 md:col-4 field">
-                            <label for="installation" class="font-bold">Instalação</label>
-                            <p-dropdown
-                                id="installation"
-                                [options]="installations"
-                                [(ngModel)]="student.enrollmentData.installation"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-
-                        <div class="col-12 md:col-4 field">
-                            <label for="registrationType" class="font-bold">Tipo de Inscrição</label>
-                            <p-dropdown
-                                id="registrationType"
-                                [options]="levels"
-                                [(ngModel)]="student.enrollmentData.registrationType"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-
-                        <div class="col-12 md:col-4 field">
-                            <label for="status" class="font-bold">Estado</label>
-                            <p-dropdown
-                                id="status"
-                                [options]="statusOptions"
-                                [(ngModel)]="student.enrollmentData.status"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-
-                        <div class="col-12 md:col-8 field">
-                            <label for="entity" class="font-bold">Entidades</label>
-                            <p-dropdown
-                                id="entity"
-                                [options]="entities"
-                                [(ngModel)]="student.enrollmentData.entity"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-
-                        <div class="col-12 md:col-4 field">
-                            <label for="discount" class="font-bold">Descontos Automáticos</label>
-                            <p-dropdown
-                                id="discount"
-                                [options]="discounts"
-                                [(ngModel)]="student.enrollmentData.automaticDiscount"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-
-                        <div class="col-12 md:col-6 field">
-                            <label for="paymentMethod" class="font-bold">Modalidade de Pagamento</label>
-                            <p-dropdown
-                                id="paymentMethod"
-                                [options]="paymentMethods"
-                                [(ngModel)]="student.enrollmentData.paymentMethod"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-                        <div class="col-12 md:col-6 field">
-                            <label for="monthlyReference" class="font-bold">Mensalidade por Referência Multibanco</label>
-                            <p-dropdown
-                                id="monthlyReference"
-                                [options]="referenceOptions"
-                                [(ngModel)]="student.enrollmentData.monthlyReference"
-                                optionLabel="label"
-                                placeholder="Selecione"
-                                [showClear]="true"
-                            ></p-dropdown>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="grid">
-                                <div class="col-12 md:col-6 field-checkbox mb-3">
-                                    <p-checkbox
-                                        name="responsibility"
-                                        [binary]="true"
-                                        [(ngModel)]="student.enrollmentData.termsAccepted.responsibility"
-                                        id="responsibility"
-                                    ></p-checkbox>
-                                    <label for="responsibility" class="ml-2">Termos de Responsabilidades</label>
-                                </div>
-
-                                <div class="col-12 md:col-6 field-checkbox mb-3">
-                                    <p-checkbox
-                                        name="communication"
-                                        [binary]="true"
-                                        [(ngModel)]="student.enrollmentData.termsAccepted.communication"
-                                        id="communication"
-                                    ></p-checkbox>
-                                    <label for="communication" class="ml-2">
-                                        Aceita receber comunicação sobre o funcionamento e alterações
-                                    </label>
-                                </div>
-
-                                <div class="col-12 md:col-6 field-checkbox mb-3">
-                                    <p-checkbox
-                                        name="emailMarketing"
-                                        [binary]="true"
-                                        [(ngModel)]="student.enrollmentData.termsAccepted.emailMarketing"
-                                        id="emailMarketing"
-                                    ></p-checkbox>
-                                    <label for="emailMarketing" class="ml-2">
-                                        Aceita receber informações por email (Publicidade)
-                                    </label>
-                                </div>
-
-                                <div class="col-12 md:col-6 field-checkbox mb-3">
-                                    <p-checkbox
-                                        name="dataProcessing"
-                                        [binary]="true"
-                                        [(ngModel)]="student.enrollmentData.termsAccepted.dataProcessing"
-                                        id="dataProcessing"
-                                    ></p-checkbox>
-                                    <label for="dataProcessing" class="ml-2">
-                                        Aceita a recolha e tratamento dos dados pessoais
-                                    </label>
-                                </div>
-
-                                <div class="col-12 md:col-6 field-checkbox mb-3">
-                                    <p-checkbox
-                                        name="emailInvoices"
-                                        [binary]="true"
-                                        [(ngModel)]="student.enrollmentData.termsAccepted.emailInvoices"
-                                        id="emailInvoices"
-                                    ></p-checkbox>
-                                    <label for="emailInvoices" class="ml-2">Receber facturas por e-mail</label>
-                                </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="lastname" class="font-bold">último nome*</label>
+                                <input
+                                    id="lastname"
+                                    type="text"
+                                    pInputText
+                                    formControlName="lastname"
+                                    [class.ng-invalid]="studentForm.get('personalData.lastname')?.invalid && studentForm.get('personalData.lastname')?.touched"
+                                />
+                                <small class="p-error"
+                                       *ngIf="studentForm.get('personalData.lastname')?.invalid && studentForm.get('personalData.lastname')?.touched">
+                                    {{ getFieldError('personalData.lastname') }}
+                                </small>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="identificationNumber" class="font-bold">Nº de Identificação</label>
+                                <input id="identificationNumber" type="text" pInputText
+                                       formControlName="identificationNumber"/>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="gender" class="font-bold">Género</label>
+                                <p-dropdown
+                                    id="gender"
+                                    [options]="genderOptions"
+                                    formControlName="gender"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="Selecione"
+                                    [showClear]="true"
+                                ></p-dropdown>
+                                <small class="p-error"
+                                       *ngIf="studentForm.get('personalData.gender')?.invalid && studentForm.get('personalData.gender')?.touched">
+                                    {{ getFieldError('personalData.gender') }}
+                                </small>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="dateOfBirth" class="font-bold">Data de Nascimento</label>
+                                <p-calendar
+                                    id="dateOfBirth"
+                                    formControlName="dateOfBirth"
+                                    [showIcon]="true"
+                                    dateFormat="dd/mm/yy"
+                                ></p-calendar>
+                                <small class="p-error"
+                                       *ngIf="studentForm.get('personalData.dateOfBirth')?.invalid && studentForm.get('personalData.dateOfBirth')?.touched">
+                                    {{ getFieldError('personalData.dateOfBirth') }}
+                                </small>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="address" class="font-bold">Morada</label>
+                                <input id="address" type="text" pInputText formControlName="address"/>
+                                <small class="p-error"
+                                       *ngIf="studentForm.get('personalData.address')?.invalid && studentForm.get('personalData.address')?.touched">
+                                    {{ getFieldError('personalData.address') }}
+                                </small>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="phone" class="font-bold">Telefone</label>
+                                <input id="phone" type="text" pInputText formControlName="phone"/>
+                            </div>
+                            <div class="col-12 md:col-8 field">
+                                <label for="email" class="font-bold">E-mail</label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    pInputText
+                                    formControlName="email"
+                                    placeholder="ex. user@gmail.com"
+                                    [class.ng-invalid]="studentForm.get('personalData.email')?.invalid && studentForm.get('personalData.email')?.touched"
+                                />
+                                <small class="p-error"
+                                       *ngIf="studentForm.get('personalData.email')?.invalid && studentForm.get('personalData.email')?.touched">
+                                    {{ getFieldError('personalData.email') }}
+                                </small>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-12 field">
-                            <label for="observations" class="font-bold">Observações</label>
-                            <textarea
-                                id="observations"
-                                rows="5"
-                                [(ngModel)]="student.enrollmentData.observations"
-                                placeholder="Observações"
-                                pInputTextarea
-                            ></textarea>
+                    <!-- DADOS DA MATRICULA -->
+                    <div formGroupName="enrollmentData">
+                        <h3 class="text-900 font-medium text-xl mb-3">Dados da Matrícula</h3>
+                        <div class="grid p-fluid">
+                            <div class="col-12 md:col-4 field">
+                                <label for="installation" class="font-bold">Centros</label>
+                                <p-dropdown
+                                    id="installation"
+                                    [options]="centers"
+                                    formControlName="centerId"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="Selecione"
+                                    [showClear]="true"
+                                ></p-dropdown>
+                            </div>
+
+                            <div class="col-12 md:col-4 field">
+                                <label for="registrationType" class="font-bold">Nível</label>
+                                <p-dropdown
+                                    id="registrationType"
+                                    [options]="levels"
+                                    formControlName="levelId"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="Selecione"
+                                    [showClear]="true"
+                                ></p-dropdown>
+                            </div>
+
+                            <div class="col-12 md:col-4 field">
+                                <label for="status" class="font-bold">Estado</label>
+                                <p-dropdown
+                                    id="status"
+                                    [options]="statusOptions"
+                                    formControlName="status"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="Selecione"
+                                    [showClear]="true"
+                                ></p-dropdown>
+                            </div>
+
+                            <div class="col-12 field">
+                                <label for="observations" class="font-bold">Observações</label>
+                                <textarea
+                                    id="observations"
+                                    rows="5"
+                                    formControlName="observations"
+                                    placeholder="Observações"
+                                    pInputTextarea
+                                ></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </ng-template>
             <ng-template pTemplate="footer">
                 <div class="flex justify-content-end">
-                    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text mr-2"></button>
-                    <button pButton label="Adicionar Estudante" icon="pi pi-check" (click)="saveStudent()"></button>
+                    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text mr-2"
+                            type="button"></button>
+                    <button
+                        pButton
+                        label="{{(loading$ | async) ? 'Salvando...' : 'Adicionar Estudante'}}"
+                        icon="pi pi-check"
+                        (click)="saveStudent()"
+                        type="button"
+                        [disabled]="studentForm.invalid"
+                    ></button>
                 </div>
             </ng-template>
         </p-card>
