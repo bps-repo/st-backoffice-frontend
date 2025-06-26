@@ -1,6 +1,7 @@
 import {CenterFeature} from "./centers.reducer";
 import {centersAdapter} from "./center.state";
 import {createSelector} from "@ngrx/store";
+import {selectAllLevelEntities} from "../../schoolar/level/level.selector";
 
 
 const {
@@ -32,6 +33,11 @@ export const selectAllCenters = createSelector(
 export const selectCenterEntities = createSelector(
     selectEntities,
     (entities) => entities
+);
+
+export const selectCenterById = (id: string) => createSelector(
+    selectCenterEntities,
+    (entities) => entities[id] || null
 );
 
 

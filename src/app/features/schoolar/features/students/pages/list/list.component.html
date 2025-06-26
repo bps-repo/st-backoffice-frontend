@@ -21,7 +21,7 @@
 </ng-template>
 
 <ng-template #phoneTemplate let-rowData>
-    <span>922775959</span>
+    <span> {{ rowData.user.phone ?? 'N/A' }} </span>
 </ng-template>
 
 <ng-template #emailTemplate let-rowData>
@@ -30,5 +30,39 @@
 
 
 <ng-template #dateOfBirthTemplate let-rowData>
-    <span>{{ rowData.user.dateOfBirth }}</span>
+    <span>{{ rowData.user.dateOfBirth ?? 'N/A' }}</span>
+</ng-template>
+
+<ng-template #centerTemplate let-rowData>
+    <span>{{ getStudentCenter(rowData.centerId) ?? 'N/A' }}</span>
+</ng-template>
+
+<ng-template #levelTemplate let-rowData>
+    <span> {{ getStudentLevel(rowData.levelId) ?? 'N/A' }} </span>
+</ng-template>
+
+<ng-template #classTemplate let-rowData>
+    <span> {{ rowData.studentClass?.name ?? 'N/A' }} </span>
+</ng-template>
+
+<ng-template #statusTemplate let-rowData>
+    <p-badge
+        [value]="rowData.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
+        [severity]="rowData.status === 'ACTIVE' ? 'success' : 'danger'"
+        class="w-full"
+    ></p-badge>
+</ng-template>
+
+<ng-template #actionsTemplate let-center>
+    <div class="flex gap-2 justify-content-center">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-text"
+            (click)="navigateToEditStudent(center)"
+            pTooltip="Ver Detalhes"
+            tooltipPosition="top"
+        ></button>
+    </div>
 </ng-template>

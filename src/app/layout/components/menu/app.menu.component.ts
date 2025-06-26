@@ -66,11 +66,6 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/schoolar/levels'],
                     },
                     {
-                        label: 'Unidades',
-                        icon: 'pi pi-fw pi-sitemap',
-                        routerLink: ['/schoolar/units'],
-                    },
-                    {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/schoolar/reports'],
