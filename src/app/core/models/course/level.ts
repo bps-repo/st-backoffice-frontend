@@ -1,4 +1,3 @@
-import {Service} from "./service";
 
 export interface Level {
     id: string;

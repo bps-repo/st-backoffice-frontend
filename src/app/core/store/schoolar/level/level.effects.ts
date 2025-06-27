@@ -6,6 +6,7 @@ import {LevelService} from 'src/app/core/services/level.service';
 import {ApiResponse} from 'src/app/core/services/interfaces/ApiResponseService';
 import {Level} from 'src/app/core/models/course/level';
 import {LevelActions} from "./level.actions";
+import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
 
 @Injectable()
 export class LevelEffects {
@@ -17,8 +18,8 @@ export class LevelEffects {
             ofType(LevelActions.createLevel),
             mergeMap(({level}) =>
                 this.levelService.createLevel(level).pipe(
-                    map((response: ApiResponse<Level>) =>
-                        LevelActions.createLevelSuccess({level: response.data})
+                    map((response) =>
+                        LevelActions.createLevelSuccess({level: response})
                     ),
                     catchError(error =>
                         of(LevelActions.createLevelFailure({error}))
@@ -33,8 +34,8 @@ export class LevelEffects {
             ofType(LevelActions.loadLevel),
             mergeMap(({id}) =>
                 this.levelService.getLevelById(id).pipe(
-                    map((response: ApiResponse<Level>) =>
-                        LevelActions.loadLevelSuccess({level: response.data})
+                    map((response) =>
+                        LevelActions.loadLevelSuccess({level: response})
                     ),
                     catchError(error =>
                         of(LevelActions.loadLevelFailure({error}))
@@ -65,8 +66,8 @@ export class LevelEffects {
             mergeMap(({id}) =>
                 this.levelService.deleteLevel(id).pipe(
                     map(() => LevelActions.deleteLevelSuccess({id})),
-                    catchError(error =>
-                        of(LevelActions.deleteLevelFailure({error}))
+                    catchError((error: HttpErrorResponse) =>
+                        of(LevelActions.deleteLevelFailure({error: error.message}))
                     )
                 )
             )
@@ -78,8 +79,8 @@ export class LevelEffects {
             ofType(LevelActions.updateLevel),
             mergeMap(({id, level}) =>
                 this.levelService.updateLevel(id, level).pipe(
-                    map((response: ApiResponse<Level>) =>
-                        LevelActions.updateLevelSuccess({level: response.data})
+                    map((response) =>
+                        LevelActions.updateLevelSuccess({level: response})
                     ),
                     catchError(error =>
                         of(LevelActions.updateLevelFailure({error}))

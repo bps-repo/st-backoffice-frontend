@@ -7,6 +7,8 @@ export interface LevelState extends EntityState<Level> {
     loadingUpdate: boolean;
     loadingDelete: boolean;
 
+    createLevelSuccess: boolean;
+
     error: any;
     createError: any;
     updateError: any;
@@ -24,6 +26,8 @@ export const levelInitialState: LevelState = levelsAdapter.getInitialState({
     loadingCreate: false,
     loadingUpdate: false,
     loadingDelete: false,
+
+    createLevelSuccess: false,
 
     error: null,
     createError: null,

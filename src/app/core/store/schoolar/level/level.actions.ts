@@ -17,7 +17,7 @@ export const LevelActions = createActionGroup(
             'Load Level Success': props<{ level: Level }>(),
             'Load Level Failure': props<{ error: any }>(),
             'Delete Level': props<{ id: string }>(),
-            'Delete Level Success': props<{ id: string }>(),
+            'Delete Level Success': props<{ id: any }>(),
             'Delete Level Failure': props<{ error: any }>(),
             'Update Level': props<{ id: string, level: Partial<Level> }>(),
             'Update Level Success': props<{ level: Level }>(),

@@ -1,29 +1,32 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 import {levelInitialState, levelsAdapter} from "./level.state";
-import {LevelActions} from "./level.actions";
+import {LEVEL_FEATURE_KEY, LevelActions} from "./level.actions";
 
 export const levelsFeature = createFeature({
-    name: 'level',
+    name: LEVEL_FEATURE_KEY,
     reducer: createReducer(
         levelInitialState,
 
         on(LevelActions.createLevel, state => ({
             ...state,
-            loading: true,
-            error: null
+            loadingCreate: true,
+            createError: null,
+            createLevelSuccess: false
         })),
         on(LevelActions.createLevelSuccess, (state, {level}) => levelsAdapter.setOne(
             level,
             {
                 ...state,
-                loading: false,
-                error: null
+                loadingCreate: false,
+                createError: null,
+                createLevelSuccess: true
             }
         )),
         on(LevelActions.createLevelFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingCreate: false,
+            createError: error,
+            createLevelSuccess: false
         })),
 
 
@@ -63,37 +66,37 @@ export const levelsFeature = createFeature({
         })),
         on(LevelActions.deleteLevel, state => ({
             ...state,
-            loading: true,
-            error: null
+            loadingDelete: true,
+            deleteError: null
         })),
         on(LevelActions.deleteLevelSuccess, (state, {id}) => levelsAdapter.removeOne(
             id,
             {
                 ...state,
-                loading: false,
-                error: null
+                loadingDelete: false,
+                deleteError: null
             }
         )),
         on(LevelActions.deleteLevelFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingDelete: false,
+            deleteError: error
         })),
         on(LevelActions.updateLevel, state => ({
             ...state,
-            loading: true,
-            error: null
+            loadingUpdate: true,
+            updateError: null
         })),
         on(LevelActions.updateLevelSuccess, (state, {level}) => ({
             ...state,
             level,
-            loading: false,
-            error: null
+            loadingUpdate: false,
+            updateError: null
         })),
         on(LevelActions.updateLevelFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingUpdate: false,
+            updateError: error
         }))
     )
 });
