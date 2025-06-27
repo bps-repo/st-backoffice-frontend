@@ -61,7 +61,7 @@ export class CreateComponent implements OnInit, OnDestroy {
 
     createSuccess$!: Observable<boolean>;
 
-    levels: any[] = [];
+    levels: SelectItem[] = [];
 
     centers: SelectItem[] = [];
 

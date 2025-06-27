@@ -12,7 +12,8 @@ import {map} from "rxjs/operators";
 export class ClassService {
     private readonly apiUrl = `${environment.apiUrl}/classes`;
 
-    constructor(private readonly http: HttpClient) {}
+    constructor(private readonly http: HttpClient) {
+    }
 
     /**
      * Fetches a general of classes from the API.
@@ -25,13 +26,13 @@ export class ClassService {
             );
     }
 
-
     /**
      * Creates a new class.
      * @param classData The data for the new class.
      * @returns An observable containing the created Class object.
      */
-    createClass(classData: any): Observable<Class> {
+    createClass(classData: Class): Observable<Class> {
+        console.log("Classes Data ", classData)
         return this.http.post<ApiResponse<Class>>(this.apiUrl, classData)
             .pipe(
                 map(response => response.data as Class)

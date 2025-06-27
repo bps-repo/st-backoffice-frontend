@@ -3,7 +3,8 @@ import {Actions, ofType, createEffect} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
 import {ClassService} from "../../../services/class.service";
-import {classesActions} from "./classes.actions";
+import {ClassesActions} from "./classesActions";
+import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
 
 @Injectable()
 export class ClassEffects {
@@ -12,12 +13,12 @@ export class ClassEffects {
 
     loadClasses = createEffect(() =>
         this.actions$.pipe(
-            ofType(classesActions.loadClasses),
+            ofType(ClassesActions.loadClasses),
             exhaustMap(() =>
                 this.classService.getClasses().pipe(
-                    map((classes) => classesActions.loadClassesSuccess({classes})),
-                    catchError((error) =>
-                        of(classesActions.loadClassesFailure({error: error.message}))
+                    map((classes) => ClassesActions.loadClassesSuccess({classes})),
+                    catchError((error: HttpErrorResponse) =>
+                        of(ClassesActions.loadClassesFailure({error: error.error.message}))
                     )
                 )
             )
@@ -26,12 +27,12 @@ export class ClassEffects {
 
     loadClass = createEffect(() =>
         this.actions$.pipe(
-            ofType(classesActions.loadClass),
+            ofType(ClassesActions.loadClass),
             exhaustMap(({id}) =>
                 this.classService.getClassById(id).pipe(
-                    map((classData) => classesActions.loadClassSuccess({classData})),
-                    catchError((error) =>
-                        of(classesActions.loadClassFailure({error: error.message}))
+                    map((classData) => ClassesActions.loadClassSuccess({classData})),
+                    catchError((error: HttpErrorResponse) =>
+                        of(ClassesActions.loadClassFailure({error: error.error.message}))
                     )
                 )
             )
@@ -40,12 +41,12 @@ export class ClassEffects {
 
     createClass = createEffect(() =>
         this.actions$.pipe(
-            ofType(classesActions.createClass),
+            ofType(ClassesActions.createClass),
             exhaustMap(({classData}) =>
                 this.classService.createClass(classData).pipe(
-                    map((createdClass) => classesActions.createClassSuccess({classData: createdClass})),
-                    catchError((error) =>
-                        of(classesActions.createClassFailure({error: error.message}))
+                    map((createdClass) => ClassesActions.createClassSuccess({classData: createdClass})),
+                    catchError((error: HttpErrorResponse) =>
+                        of(ClassesActions.createClassFailure({error: error.error.message}))
                     )
                 )
             )

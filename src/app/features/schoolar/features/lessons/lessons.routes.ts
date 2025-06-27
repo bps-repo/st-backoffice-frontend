@@ -1,10 +1,10 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {CreateLessonComponent} from './dialogs/create-lesson-dialog/create-lesson.component';
 import {LessonDetailComponent} from './pages/detail/lesson-detail.component';
 import {BookLessonComponent} from "./components/book-lesson/book-lesson.component";
 import {LessonsListComponent} from "./components/list/lessons-list.component";
 import {AddMaterialComponent} from "./components/add-material/add-material.component";
+import {CreateLessonComponent} from "./components/create/create-lesson.component";
 
 const routes: Routes = [
     {

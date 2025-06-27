@@ -12,7 +12,7 @@ import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {CLASSES_COLUMNS, GLOBAL_CLASSES_FILTERS} from "../../classes.constants";
 import {ClassState} from "../../../../../../core/store/schoolar/classes/classState";
-import {classesActions} from "../../../../../../core/store/schoolar/classes/classes.actions";
+import {ClassesActions} from "../../../../../../core/store/schoolar/classes/classesActions";
 import {Class} from "../../../../../../core/models/academic/class";
 import * as ClassSelectors from "../../../../../../core/store/schoolar/classes/classes.selectors";
 import {selectCenterById} from "../../../../../../core/store/corporate/center/centers.selector";
@@ -95,7 +95,7 @@ export class ClassComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.store$.dispatch(CenterActions.loadCenters())
         this.store$.dispatch(LevelActions.loadLevels())
-        this.store$.dispatch(classesActions.loadClasses())
+        this.store$.dispatch(ClassesActions.loadClasses())
         this.generateChartData();
     }
 

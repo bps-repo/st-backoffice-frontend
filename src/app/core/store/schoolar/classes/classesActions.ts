@@ -3,7 +3,7 @@ import {Class} from 'src/app/core/models/academic/class';
 
 export const CLASS_FEATURE_KEY = 'classes';
 
-export const classesActions = createActionGroup(
+export const ClassesActions = createActionGroup(
     {
         source: CLASS_FEATURE_KEY,
         events: {

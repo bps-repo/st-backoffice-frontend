@@ -14,6 +14,7 @@ export const {
     selectBulkError,
     selectLoading,
     selectLoadingDelete,
+    selectCreateClassSuccess
 } = classesFeature;
 
 const {

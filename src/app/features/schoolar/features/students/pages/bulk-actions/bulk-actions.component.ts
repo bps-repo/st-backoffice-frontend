@@ -18,7 +18,7 @@ import {StudentService} from 'src/app/core/services/student.service';
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
-import {classesActions} from "../../../../../../core/store/schoolar/classes/classes.actions";
+import {ClassesActions} from "../../../../../../core/store/schoolar/classes/classesActions";
 
 @Component({
     selector: 'app-bulk-actions',
@@ -120,7 +120,7 @@ export class BulkActionsComponent implements OnInit {
     }
 
     loadClasses(): void {
-        this.store$.dispatch(classesActions.loadClasses());
+        this.store$.dispatch(ClassesActions.loadClasses());
     }
 
     onSubmit(): void {
