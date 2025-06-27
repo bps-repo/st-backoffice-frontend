@@ -7,12 +7,11 @@ import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {CalendarModule} from 'primeng/calendar';
-import {LEVELS, INSTALATIONS} from 'src/app/shared/constants/app';
 import {Store} from '@ngrx/store';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
 import {Router} from '@angular/router';
-import {distinctUntilChanged, filter, Subject, takeUntil} from 'rxjs';
+import {distinctUntilChanged, Observable, Subject, takeUntil} from 'rxjs';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {CheckboxModule} from "primeng/checkbox";
@@ -26,6 +25,10 @@ import {selectAllUnits} from "../../../../../../core/store/schoolar/units/unit.s
 import {selectAllClasses} from "../../../../../../core/store/schoolar/classes/classes.selectors";
 import {ClassesActions} from "../../../../../../core/store/schoolar/classes/classesActions";
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
+import {EmployeeActions} from "../../../../../../core/store/corporate/employees/employee.actions";
+import * as EmployeeSelectors from "../../../../../../core/store/corporate/employees/employees.selector";
+import {Employee} from "../../../../../../core/models/corporate/employee";
+import * as LessonSelectors from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
 
 @Component({
     selector: 'app-create-lesson',
@@ -46,21 +49,26 @@ import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.acti
     templateUrl: './create-lesson.component.html'
 })
 export class CreateLessonComponent implements OnInit, OnDestroy {
-    loading: boolean = false;
+    loading$!: Observable<boolean>
+    errors$!: Observable<any>
+    createSuccess$!: Observable<boolean>
     lessonForm!: FormGroup;
     private destroy$ = new Subject<void>();
 
     // Dropdown options
-    typeOptions: SelectItem[] = [];
     levelOptions: SelectItem[] = [];
     centerOptions: SelectItem[] = [];
     classOptions: SelectItem[] = [];
     unitOptions: SelectItem[] = [];
+    teacherOptions: SelectItem[] = [];
     statusOptions: SelectItem[] = [
-        {label: 'Booked', value: LessonStatus.BOOKED},
-        {label: 'Cancelled', value: LessonStatus.CANCELLED},
-        {label: 'Completed', value: LessonStatus.COMPLETED}
+        {label: 'Disponivel', value: LessonStatus.AVAILABLE},
+        {label: 'Indisponivel', value: LessonStatus.AVAILABLE}
     ];
+
+    // Store all data for filtering
+    private allClasses: any[] = [];
+    private allTeachers: Employee[] = [];
 
     constructor(
         private fb: FormBuilder,
@@ -68,6 +76,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         private router: Router,
         private messageService: MessageService
     ) {
+        this.loading$ = this.store.select(LessonSelectors.selectLoadingCreate)
+        this.errors$ = this.store.select(LessonSelectors.selectAnyError)
+        this.createSuccess$ = this.store.select(LessonSelectors.selectCreateLessonSuccess)
         this.initializeForm();
     }
 
@@ -76,8 +87,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.store.dispatch(CenterActions.loadCenters());
         this.store.dispatch(ClassesActions.loadClasses())
         this.store.dispatch(UnitActions.loadUnits())
+        this.store.dispatch(EmployeeActions.loadEmployees()) // Load teachers
         this.initializeDropdownOptions();
         this.subscribeToStateChanges();
+        this.setupCenterChangeListener();
     }
 
     ngOnDestroy(): void {
@@ -90,15 +103,56 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             title: ['', [Validators.required]],
             teacherId: ['', [Validators.required]],
             levelId: ['', [Validators.required]],
-            centerId: [''],
-            classId: [''],
-            unitId: [''],
+            centerId: ['', [Validators.required]], // Make center required
+            classId: ['', [Validators.required]],
+            unitId: ['', [Validators.required]],
             startDatetime: [new Date(), [Validators.required]],
             endDatetime: [new Date(), [Validators.required]],
-            online: [false],
-            onlineLink: [''],
-            status: [LessonStatus.BOOKED],
+            online: [false, [Validators.required]],
+            onlineLink: ['https://main.d2s2k4iauh5ooc.amplifyapp.com/'],
+            status: [LessonStatus.AVAILABLE],
             description: ['']
+        });
+    }
+
+    private setupCenterChangeListener(): void {
+        // Listen for center changes and update dependent dropdowns
+        this.lessonForm.get('centerId')?.valueChanges
+            .pipe(
+                takeUntil(this.destroy$),
+                distinctUntilChanged()
+            )
+            .subscribe(centerId => {
+                this.onCenterChange(centerId);
+            });
+    }
+
+    private onCenterChange(centerId: string): void {
+        if (centerId) {
+            // Filter classes by center
+            this.classOptions = this.allClasses
+                .filter(clazz => clazz.centerId === centerId)
+                .map(clazz => ({
+                    label: clazz.name,
+                    value: clazz.id
+                }));
+
+            // Filter teachers by center
+            this.teacherOptions = this.allTeachers
+                .filter(teacher => teacher.centerId === centerId)
+                .map(teacher => ({
+                    label: `${teacher.user.firstname} ${teacher.user.lastname}`,
+                    value: teacher.id
+                }));
+        } else {
+            this.classOptions = [];
+            this.teacherOptions = [];
+        }
+
+        // Reset dependent form controls when center changes
+        this.lessonForm.patchValue({
+            classId: '',
+            teacherId: ''
         });
     }
 
@@ -123,6 +177,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                 }));
             });
 
+        // Subscribe to units data
         this.store.select(selectAllUnits)
             .pipe(takeUntil(this.destroy$))
             .subscribe(units => {
@@ -132,27 +187,67 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                 }));
             });
 
+        // Subscribe to classes data and store all classes
         this.store.select(selectAllClasses)
             .pipe(takeUntil(this.destroy$))
             .subscribe(classes => {
-                this.classOptions = classes.map(clazz => ({
-                    label: clazz.name,
-                    value: clazz.id
-                }));
+                this.allClasses = classes;
+                // If a center is already selected, filter the classes
+                const selectedCenterId = this.lessonForm.get('centerId')?.value;
+                if (selectedCenterId) {
+                    this.onCenterChange(selectedCenterId);
+                }
             });
+
+        this.store.select(EmployeeSelectors.selectAllEmployees)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(teachers => {
+                this.allTeachers = teachers;
+                // If a center is already selected, filter the teachers
+                const selectedCenterId = this.lessonForm.get('centerId')?.value;
+                if (selectedCenterId) {
+                    this.onCenterChange(selectedCenterId);
+                }
+            });
+
+        this.createSuccess$.pipe(takeUntil(this.destroy$))
+            .subscribe((s) => {
+                if (s) {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Lesson created successfully'
+                    });
+                }
+            })
+
+
+        this.errors$.pipe(takeUntil(this.destroy$))
+            .subscribe((s) => {
+                if (s) {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erro',
+                        detail: s
+                    });
+                }
+            })
     }
 
-
     private initializeDropdownOptions(): void {
-        this.typeOptions = [
-            {label: 'VIP', value: 'VIP'},
-            {label: 'Online', value: 'Online'},
-            {label: 'In Center', value: 'In Center'}
-        ];
     }
 
     cancel(): void {
-        this.router.navigate(['/schoolar/lessons']);
+        this.router.navigate(['/schoolar/lessons']).then();
+    }
+
+    private toLocalISOString(date: Date): string {
+        return date.getFullYear() +
+            '-' + String(date.getMonth() + 1).padStart(2, '0') +
+            '-' + String(date.getDate()).padStart(2, '0') + 'T' +
+            String(date.getHours()).padStart(2, '0') + ':' +
+            String(date.getMinutes()).padStart(2, '0') + ':' +
+            String(date.getSeconds()).padStart(2, '0');
     }
 
     saveLesson(): void {
@@ -162,25 +257,20 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this.loading = true;
 
         // Create a complete lesson object from the form data
+        const start = this.lessonForm.get('startDatetime')?.value;
+        const end = this.lessonForm.get('endDatetime')?.value;
+
+
         const lessonToSave: Lesson = {
-            ...this.lessonForm.value
+            ...this.lessonForm.value,
+            startDatetime: this.toLocalISOString(new Date(start)),
+            endDatetime: this.toLocalISOString(new Date(end)),
         };
 
         // Dispatch the create lesson action
         this.store.dispatch(lessonsActions.createLesson({lesson: lessonToSave}));
-
-        // Show success message and navigate to the lessons general
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Lesson created successfully'
-        });
-
-        this.loading = false;
-        this.router.navigate(['/schoolar/lessons']);
     }
 
     private markFormGroupTouched(): void {
@@ -196,11 +286,14 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         if (this.lessonForm.get('title')?.invalid) {
             errors.push('Title is required');
         }
-        if (this.lessonForm.get('teacher')?.invalid) {
+        if (this.lessonForm.get('teacherId')?.invalid) {
             errors.push('Teacher is required');
         }
-        if (this.lessonForm.get('level')?.invalid) {
+        if (this.lessonForm.get('levelId')?.invalid) {
             errors.push('Level is required');
+        }
+        if (this.lessonForm.get('centerId')?.invalid) {
+            errors.push('Center is required');
         }
         if (this.lessonForm.get('startDatetime')?.invalid) {
             errors.push('Start date/time is required');
@@ -221,11 +314,11 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     resetForm(): void {
         this.lessonForm.reset({
             title: '',
-            teacher: '',
-            level: '',
-            center: '',
-            class: '',
-            unit: '',
+            teacherId: '',
+            levelId: '',
+            centerId: '',
+            classId: '',
+            unitId: '',
             startDatetime: new Date(),
             endDatetime: new Date(),
             online: false,

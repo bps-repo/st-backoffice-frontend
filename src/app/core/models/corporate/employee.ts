@@ -1,8 +1,12 @@
 import {Role} from "../auth/role";
+import {Gender} from "../../enums/gender";
+import {Status} from "../../enums/status";
+import {User} from "../user.model";
 
 export interface Employee {
     id: string;
-    userId: string;
+    user: User;
+    centerId: string
     hireDate: string;
     resignationDate: string;
     status: EmployeeStatus;
@@ -10,6 +14,24 @@ export interface Employee {
     roles: Role[];
     createdAt: string;
     updatedAt: string;
+}
+
+
+export interface CreateEmployee {
+    user: {
+        firstname: string,
+        lastname: string,
+        gender: Gender,
+        email: string,
+        password: string,
+        dateOfBirth: string,
+        photo: string
+    },
+    role: string,
+    centerId: string,
+    hiringDate: string,
+    wage: number,
+    status: Status
 }
 
 

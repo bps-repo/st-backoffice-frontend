@@ -6,16 +6,18 @@ import {
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
 import {Employee} from 'src/app/core/models/corporate/employee';
-import {EmployeeService} from 'src/app/core/services/employee.service';
 
 import {Observable, Subject, of} from 'rxjs';
-import {catchError, finalize, takeUntil} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
+import {EmployeeService} from "../../../../../../core/services/corporate/employee.service";
+import {Store} from "@ngrx/store";
+import {EmployeeActions} from "../../../../../../core/store/corporate/employees/employee.actions";
+import * as EmployeeSelectors from "../../../../../../core/store/corporate/employees/employees.selector";
 
 @Component({
-    selector: 'app-employee-list',
+    selector: 'app-employees-list',
     imports: [
         CommonModule,
         RouterModule,
@@ -26,68 +28,32 @@ import {TableHeaderAction} from "../../../../../../shared/components/tables/glob
     standalone: true
 })
 export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
-
-    // Custom Templates for the table
-    @ViewChild('nameTemplate', {static: true})
-    nameTemplate!: TemplateRef<any>;
-
-    @ViewChild('emailTemplate', {static: true})
-    emailTemplate!: TemplateRef<any>;
-
-    @ViewChild('hireDateTemplate', {static: true})
-    hireDateTemplate!: TemplateRef<any>;
-
     employees$: Observable<Employee[]> = of([]);
     loading$: Observable<boolean> = of(false);
     columns: TableColumn[] = COLUMNS;
     globalFilterFields: string[] = GLOBAL_FILTERS;
-    customTemplates: Record<string, TemplateRef<any>> = {};
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
-    private loading = false;
     private destroy$ = new Subject<void>();
 
     constructor(
-        private employeeService: EmployeeService,
-        private router: Router
+        private router: Router,
+        private store: Store
     ) {
-        this.employees$.subscribe(employees => {
-            console.log('Employees loaded:', employees);
-        })
+        this.employees$ = this.store.select(EmployeeSelectors.selectAllEmployees)
+        this.loading$ = this.store.select(EmployeeSelectors.selectLoadingEmployees)
     }
 
     ngOnInit(): void {
-        this.loadEmployees();
+        this.store.dispatch(EmployeeActions.loadEmployees())
     }
 
     ngAfterViewInit() {
-        this.customTemplates = {
-            name: this.nameTemplate,
-            email: this.emailTemplate,
-            hireDate: this.hireDateTemplate
-        };
     }
 
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
-    }
-
-    loadEmployees(): void {
-        this.loading = true;
-        this.loading$ = of(true);
-
-        this.employees$ = this.employeeService.getEmployees().pipe(
-            takeUntil(this.destroy$),
-            catchError(error => {
-                console.error('Error loading employees', error);
-                return of([]);
-            }),
-            finalize(() => {
-                this.loading = false;
-                this.loading$ = of(false);
-            })
-        );
     }
 
     onRowSelect(employee: Employee) {

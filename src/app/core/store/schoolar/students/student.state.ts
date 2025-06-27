@@ -50,7 +50,7 @@ export const studentsAdapter: EntityAdapter<Student> = createEntityAdapter<Stude
     selectId: (student: Student) => student.id || '',
     sortComparer: (a: Student, b: Student) => {
         // Default sort by name, then by created date
-        const nameComparison = (a.user.firstName || '').localeCompare(b.user.firstName || '');
+        const nameComparison = (a.user.firstname || '').localeCompare(b.user.firstname || '');
         if (nameComparison !== 0) return nameComparison;
 
         const dateA = new Date(a.createdAt || 0).getTime();

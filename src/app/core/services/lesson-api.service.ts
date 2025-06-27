@@ -28,6 +28,7 @@ export class LessonApiService {
     }
 
     createLesson(lessonData: Lesson): Observable<Lesson> {
+        console.log("lesson", lessonData)
         return this.http.post<ApiResponse<Lesson>>(`${this.apiUrl}`, lessonData).pipe(
             map((response) => response.data as Lesson)
         );

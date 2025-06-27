@@ -17,7 +17,7 @@ export const {
     selectLoadingDelete,
     selectLastFetch,
     selectCacheExpired,
-    selectSearchDebounceTimer,
+    selectCreateLessonSuccess,
 
     // Filter endpoints loading and error selectors
     selectLoadingByClass,

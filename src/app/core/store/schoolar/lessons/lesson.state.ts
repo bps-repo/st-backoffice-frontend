@@ -20,6 +20,8 @@ export interface LessonState extends EntityState<Lesson> {
     loadingUpdateOnlineStatus: boolean;
     loadingMarkOverdue: boolean;
 
+    createLessonSuccess:boolean
+
     // Error states
     error: string | null;
     createError: string | null;
@@ -82,6 +84,8 @@ export const lessonsInitialState: LessonState = lessonsAdapter.getInitialState({
     loadingUpdateSchedule: false,
     loadingUpdateOnlineStatus: false,
     loadingMarkOverdue: false,
+
+    createLessonSuccess: false,
 
     // Error states
     error: null,

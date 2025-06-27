@@ -2,9 +2,8 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {Employee, EmployeeStatus} from 'src/app/core/models/corporate/employee';
-import {EmployeeService} from 'src/app/core/services/employee.service';
 import {Subject} from 'rxjs';
-import {takeUntil, finalize} from 'rxjs/operators';
+import {takeUntil} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {TabViewModule} from 'primeng/tabview';
 import {TagModule} from 'primeng/tag';
@@ -33,9 +32,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private employeeService: EmployeeService
-    ) {
-    }
+    ) {}
 
     ngOnInit(): void {
         this.route.paramMap.pipe(
@@ -54,19 +51,6 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     loadEmployee(id: string): void {
-        this.loading = true;
-        this.employeeService.getEmployeeById(id).pipe(
-            takeUntil(this.destroy$),
-            finalize(() => this.loading = false)
-        ).subscribe({
-            next: (employee) => {
-                this.employee = employee;
-            },
-            error: (error: any) => {
-                console.error('Error loading employee', error);
-                this.employee = null;
-            }
-        });
     }
 
     getStatusLabel(status: EmployeeStatus): string {
