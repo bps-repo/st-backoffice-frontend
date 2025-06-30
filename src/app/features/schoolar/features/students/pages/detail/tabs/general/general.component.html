@@ -1,17 +1,17 @@
 <section class="mt-3">
     <!-- Student Overview -->
-    <div class="grid" *ngIf="student; else loading">
+    <div class="grid" *ngIf="(student$ | async); else loading">
         <!-- Student Profile & Academic Info -->
         <div class="col-12 md:col-4">
             <p-card styleClass="h-full">
                 <div class="flex flex-column align-items-center">
-                    <p-avatar [image]="studentInfo.photo" size="xlarge" shape="circle"
+                    <p-avatar [image]="((student$ | async)?.user?.photo ?? '')" size="xlarge" shape="circle"
                               [style]="{'box-shadow': '0 3px 6px rgba(0, 0, 0, 0.16)'}">
                     </p-avatar>
-                    <h2 class="text-2xl font-bold mt-3 mb-1">{{ studentInfo.name }}</h2>
-                    <p class="text-600 m-0">{{ studentInfo.email }}</p>
-                    <p-tag [severity]="studentInfo.status === 'ACTIVE' ? 'success' : 'warning'"
-                           [value]="studentInfo.status" class="mt-2"></p-tag>
+                    <h2 class="text-2xl font-bold mt-3 mb-1">{{ (student$ | async)?.user?.firstname }}</h2>
+                    <p class="text-600 m-0">{{ (student$ | async)?.user?.email }}</p>
+                    <p-tag [severity]="(student$ | async)?.status === 'ACTIVE' ? 'success' : 'warning'"
+                           [value]="(student$ | async)?.status" class="mt-2"></p-tag>
                 </div>
 
                 <p-divider>
@@ -22,25 +22,26 @@
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
                             <span class="font-medium text-600">Centro</span>
-                            <span class="font-medium text-900">{{ studentInfo.center }}</span>
+                            <span class="font-medium text-900">{{ (student$ | async)?.centerId }}</span>
                         </div>
                     </div>
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
                             <span class="font-medium text-600">Nível</span>
-                            <span class="font-medium text-900">{{ studentInfo.level }}</span>
+                            <span class="font-medium text-900">{{ (student$ | async)?.levelId }}</span>
                         </div>
                     </div>
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
                             <span class="font-medium text-600">Unidade actual</span>
-                            <span class="font-medium text-900">{{ studentInfo.unit }}</span>
+                            <span class="font-medium text-900">{{ (student$ | async)?.currentUnit?.name }}</span>
                         </div>
                     </div>
                     <div class="col-12 mb-2">
                         <div class="flex justify-content-between align-items-center">
                             <span class="font-medium text-600">Data de Inscrição</span>
-                            <span class="font-medium text-900">{{ formatDate(studentInfo.enrollmentDate) }}</span>
+                            <span
+                                class="font-medium text-900">{{ formatDate((student$ | async)?.createdAt ?? '') }}</span>
                         </div>
                     </div>
                 </div>
@@ -68,14 +69,14 @@
                     <p-card styleClass="h-full" header="Unit Progress">
                         <div class="flex flex-column">
                             <div class="flex justify-content-between align-items-center mb-2">
-                                <span class="font-medium">{{ studentInfo.unit }}</span>
+                                <span class="font-medium">{{ (student$ | async)?.currentUnit }}</span>
                                 <span class="font-bold">{{ unitProgress }}%</span>
                             </div>
                             <p-progressBar [value]="unitProgress" [showValue]="false" styleClass="mb-3"
                                            [style]="{'height': '10px'}"></p-progressBar>
                             <div class="text-sm text-600 mb-4">
-                                Unit {{ studentInfo.unitOrder }} of {{ studentInfo.totalUnits }}
-                                in {{ studentInfo.level }}
+                                Unit {{ (student$ | async)?.currentUnit }} de 4
+                                in {{ (student$ | async)?.levelId }}
                             </div>
 
                             <div class="flex justify-content-between align-items-center mb-2 mt-4">
@@ -85,8 +86,8 @@
                             <p-progressBar [value]="levelProgress" [showValue]="false" styleClass="mb-3"
                                            [style]="{'height': '10px'}"></p-progressBar>
                             <div class="text-sm text-600">
-                                Completed {{ Math.floor(levelProgress / 100 * studentInfo.totalUnits) }}
-                                of {{ studentInfo.totalUnits }} units
+                                Completed {{ Math.floor(levelProgress / 100 * ((student$ | async)?.levelProgressPercentage ?? 1)) }}
+                                of {{ (student$ | async) }} units
                             </div>
                         </div>
                     </p-card>

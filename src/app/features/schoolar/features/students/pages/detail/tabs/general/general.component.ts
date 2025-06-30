@@ -45,7 +45,6 @@ export class GeneralComponent implements OnInit, OnDestroy {
     // Student information
     studentInfo: any = {};
     student$!: Observable<Student | null>;
-    student: Student | null = null;
     studentId: string | null = null;
     private subscriptions = new Subscription();
 
@@ -69,29 +68,13 @@ export class GeneralComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        // Get the student ID from the route
-        this.subscriptions.add(
-            this.route.parent?.params.subscribe(params => {
-                this.studentId = params['id'];
-                if (this.studentId) {
-                    // Set up selector for this student
-                    this.student$ = this.store.select(selectStudentById(this.studentId));
+        this.route.params.subscribe(params => {
+            this.studentId = params['id'];
+            if (this.studentId) {
+                this.student$ = this.store.select(selectStudentById(this.studentId));
+            }
+        })
 
-                    // Subscribe to student data
-                    this.subscriptions.add(
-                        this.student$.subscribe(student => {
-                            this.student = student;
-                            console.log('Student 1 data:', this.student);
-                            if (student) {
-                                this.updateStudentInfo(student);
-                            }
-                        })
-                    );
-                }
-            })
-        );
-
-        // Mock upcoming lessons (this could be replaced with real data from an API)
         this.upcomingLessons = [
             {
                 id: 'L1001',
