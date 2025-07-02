@@ -4,6 +4,7 @@ import { Permission } from './permission';
 
 export interface User {
     id: string;
+    firstname: string
     email: string;
     password: string;
     name: string;

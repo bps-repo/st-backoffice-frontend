@@ -1,7 +1,6 @@
 import {lessonsFeature} from "./lessons.feature";
 import {lessonsAdapter} from "./lesson.state";
 import {createSelector} from "@ngrx/store";
-import {Lesson} from "../../../models/academic/lesson";
 
 // Basic selectors from feature
 export const {
@@ -17,7 +16,7 @@ export const {
     selectLoadingDelete,
     selectLastFetch,
     selectCacheExpired,
-    selectSearchDebounceTimer,
+    selectCreateLessonSuccess,
 
     // Filter endpoints loading and error selectors
     selectLoadingByClass,

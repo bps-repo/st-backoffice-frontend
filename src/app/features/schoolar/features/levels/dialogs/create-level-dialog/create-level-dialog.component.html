@@ -1,3 +1,4 @@
+<p-toast position="top-right" [baseZIndex]="10000"></p-toast>
 <p-dialog
     [(visible)]="visible"
     [style]="{ width: '500px' }"
@@ -7,68 +8,50 @@
     [draggable]="false"
     [resizable]="false"
     [closable]="true"
-    (onHide)="resetForm()">
+    (onHide)="levelForm.reset(); levelForm.patchValue({ duration: 0, maximumUnits: 0 })">
 
-    <div class="grid p-fluid">
+    <form [formGroup]="levelForm" class="grid p-fluid">
         <div class="col-12 field">
-            <label for="name" class="font-bold">Name</label>
+            <label for="name" class="font-bold">Nome</label>
             <input
                 id="name"
                 type="text"
                 pInputText
-                [(ngModel)]="level.name"
-                placeholder="Enter level name"
-                required>
+                formControlName="name"
+                placeholder="Insira o nome do nível">
         </div>
 
         <div class="col-12 field">
-            <label for="description" class="font-bold">Description</label>
+            <label for="description" class="font-bold">Descrição</label>
             <textarea
                 id="description"
                 rows="3"
                 pInputTextarea
-                [(ngModel)]="level.description"
-                placeholder="Enter level description">
+                formControlName="description"
+                placeholder="Insira a descrição do nível">
             </textarea>
         </div>
 
         <div class="col-12 field">
-            <label for="duration" class="font-bold">Duration (hours)</label>
+            <label for="duration" class="font-bold">Duração (meses)</label>
             <input
                 id="duration"
                 type="number"
                 pInputText
-                [(ngModel)]="level.duration"
-                placeholder="Enter level duration"
-                required>
+                formControlName="duration"
+                placeholder="Insira a duração do nível (em meses)">
         </div>
 
         <div class="col-12 field">
-            <label for="maximumUnits" class="font-bold">Maximum Units</label>
+            <label for="maximumUnits" class="font-bold">Unidades Máximas</label>
             <input
                 id="maximumUnits"
                 type="number"
                 pInputText
-                [(ngModel)]="level.maximumUnits"
-                placeholder="Enter maximum units"
-                required>
+                formControlName="maximumUnits"
+                placeholder="Insira o número máximo de unidades">
         </div>
-        <!--
-        <div class="col-12 field">
-            <label for="course" class="font-bold">Course</label>
-
-            <p-dropdown
-                id="course"
-                [options]="(courseOptions$ | async) ?? []"
-                [(ngModel)]="level.course"
-                optionLabel="name"
-                placeholder="Selecione um curso"
-                [showClear]="true"
-                [required]="true">
-            </p-dropdown>
-        </div>
-        -->
-    </div>
+    </form>
 
     <ng-template pTemplate="footer">
         <div class="flex justify-content-end">
@@ -81,9 +64,10 @@
             </button>
             <button
                 pButton
-                label="Save"
+                label="{{ (loading$ | async) ? 'Salvando...' : 'Salvar' }}"
                 icon="pi pi-check"
-                (click)="saveLevel()">
+                (click)="saveLevel()"
+                [disabled]="levelForm.invalid">
             </button>
         </div>
     </ng-template>

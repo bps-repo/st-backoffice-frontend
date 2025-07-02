@@ -3,11 +3,6 @@ import {TableColumn} from "../../../../shared/components/tables/global-table/glo
 export const GLOBAL_FILTERS = ['id', 'code', 'name', 'email', 'department', 'position', 'status', 'hireDate'];
 export const COLUMNS: TableColumn[] = [
     {
-        field: 'id',
-        header: 'ID',
-        filterType: 'numeric',
-    },
-    {
         field: 'name',
         header: 'Nome',
         filterType: 'text',
@@ -20,13 +15,14 @@ export const COLUMNS: TableColumn[] = [
         customTemplate: true,
     },
     {
-        field: 'department',
-        header: 'Departamento',
+        field: 'role',
+        header: 'Cargo',
         filterType: 'text',
+        customTemplate: true
     },
     {
-        field: 'position',
-        header: 'Cargo',
+        field: 'centerId',
+        header: 'Centro',
         filterType: 'text',
     },
     {
@@ -39,12 +35,6 @@ export const COLUMNS: TableColumn[] = [
             {label: 'De Licença', value: 'ON_LEAVE'},
             {label: 'Terminado', value: 'TERMINATED'}
         ]
-    },
-    {
-        field: 'hireDate',
-        header: 'Data de Contratação',
-        filterType: 'date',
-        customTemplate: true,
     },
 ];
 

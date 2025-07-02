@@ -13,6 +13,8 @@ export interface StudentState extends EntityState<Student> {
     loadingAddToClass: boolean;
     loadingRemoveFromClass: boolean;
 
+    createStudentSuccess: boolean;
+
     // Error states
     error: string | null;
     createError: string | null;
@@ -48,7 +50,7 @@ export const studentsAdapter: EntityAdapter<Student> = createEntityAdapter<Stude
     selectId: (student: Student) => student.id || '',
     sortComparer: (a: Student, b: Student) => {
         // Default sort by name, then by created date
-        const nameComparison = (a.user.firstName || '').localeCompare(b.user.firstName || '');
+        const nameComparison = (a.user.firstname || '').localeCompare(b.user.firstname || '');
         if (nameComparison !== 0) return nameComparison;
 
         const dateA = new Date(a.createdAt || 0).getTime();
@@ -80,6 +82,9 @@ export const initialStudentsState: StudentState = studentsAdapter.getInitialStat
 
     // Selection
     selectedStudentId: null,
+
+    // Create student success flag
+    createStudentSuccess: false,
 
     // Filters
     filters: {

@@ -4,7 +4,7 @@ import {RouterModule} from '@angular/router';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 @Component({
-    selector: 'app-employee-reports',
+    selector: 'app-employees-reports',
     templateUrl: './employee-reports.component.html',
     standalone: true,
     imports: [CommonModule, RouterModule, ReactiveFormsModule]

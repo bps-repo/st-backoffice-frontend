@@ -1,5 +1,6 @@
 export enum LessonStatus {
     AVAILABLE = "AVAILABLE",
+    UNAVAILABLE = "UNAVAILABLE",
     BOOKED = "BOOKED",
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED",

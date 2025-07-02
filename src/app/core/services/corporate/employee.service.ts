@@ -3,8 +3,8 @@ import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
-import {ApiResponse, PageableResponse} from './interfaces/ApiResponseService';
-import {Employee} from "../models/corporate/employee";
+import {ApiResponse, PageableResponse} from "../interfaces/ApiResponseService";
+import {Employee} from "../../models/corporate/employee";
 
 @Injectable({
     providedIn: 'root',
@@ -26,8 +26,8 @@ export class EmployeeService {
     }
 
     /**
-     * Creates a new employee.
-     * @param employeeData The employee data to create.
+     * Creates a new employees.
+     * @param employeeData The employees data to create.
      * @returns An observable containing the created Employee object.
      */
     createEmployee(employeeData: any): Observable<any> {
@@ -37,8 +37,8 @@ export class EmployeeService {
     }
 
     /**
-     * Gets an employee by ID.
-     * @param id The ID of the employee.
+     * Gets an employees by ID.
+     * @param id The ID of the employees.
      * @returns An observable containing the Employee object.
      */
     getEmployeeById(id: string): Observable<any> {
@@ -81,9 +81,9 @@ export class EmployeeService {
     }
 
     /**
-     * Updates an employee.
-     * @param id The ID of the employee.
-     * @param employeeData The updated employee data.
+     * Updates an employees.
+     * @param id The ID of the employees.
+     * @param employeeData The updated employees data.
      * @returns An observable containing the updated Employee object.
      */
     updateEmployee(id: string, employeeData: any): Observable<any> {
@@ -93,8 +93,8 @@ export class EmployeeService {
     }
 
     /**
-     * Updates an employee's status.
-     * @param id The ID of the employee.
+     * Updates an employees's status.
+     * @param id The ID of the employees.
      * @param status The new status.
      * @returns An observable containing the updated Employee object.
      */
@@ -105,8 +105,8 @@ export class EmployeeService {
     }
 
     /**
-     * Deletes an employee.
-     * @param id The ID of the employee to delete.
+     * Deletes an employees.
+     * @param id The ID of the employees to delete.
      * @returns An observable containing the response.
      */
     deleteEmployee(id: string): Observable<any> {

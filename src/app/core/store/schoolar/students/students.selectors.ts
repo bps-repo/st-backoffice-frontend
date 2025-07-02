@@ -6,6 +6,7 @@ export const {
     name,
     reducer,
     selectLoading,
+    selectCreateStudentSuccess,
     selectLoadingCreate,
     selectLoadingUpdate,
     selectLoadingDelete,
@@ -73,6 +74,7 @@ export const selectStudentAllErrors = createSelector(
     })
 );
 
+
 // Loading selectors
 export const selectStudentAnyLoading = createSelector(
     selectLoading,
@@ -97,7 +99,7 @@ export const selectFilteredStudents = createSelector(
             if (filters.searchTerm) {
                 const searchLower = filters.searchTerm.toLowerCase();
                 const matchesSearch =
-                    student.user.firstName?.toLowerCase().includes(searchLower) ||
+                    student.user.firstname?.toLowerCase().includes(searchLower) ||
                     student.user.email?.toLowerCase().includes(searchLower) ||
                     student.id?.toLowerCase().includes(searchLower);
 

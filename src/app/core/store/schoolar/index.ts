@@ -26,6 +26,9 @@ import {serviceFeature} from "../corporate/services/service.reducer";
 import {unitFeature} from "./units/unit.feature";
 import {levelsFeature} from "./level/level.reducer";
 import {UnitState} from "./units/unit.state";
+import {EmployeesState} from "../corporate/employees/employees.state";
+import {EmployeesEffects} from "../corporate/employees/employees.effects";
+import {EmployeeFeature} from "../corporate/employees/employees.reducer";
 
 export interface AppState {
     students: StudentState;
@@ -39,7 +42,8 @@ export interface AppState {
     settings: SettingsState;
     lessons: LessonState;
     centers: CenterState;
-    units: UnitState
+    units: UnitState,
+    employees: EmployeesState
 }
 
 export const AppEffects = [
@@ -49,7 +53,8 @@ export const AppEffects = [
     UnitEffects,
     LevelEffects,
     LessonsEffects,
-    ClassEffects
+    ClassEffects,
+    EmployeesEffects
 ]
 
 export const AppFeatures = [
@@ -60,5 +65,6 @@ export const AppFeatures = [
     serviceFeature,
     authFeature,
     lessonsFeature,
-    classesFeature
+    classesFeature,
+    EmployeeFeature
 ]

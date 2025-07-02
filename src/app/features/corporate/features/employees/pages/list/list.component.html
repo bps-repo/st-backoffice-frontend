@@ -8,7 +8,11 @@
         [columns]="columns"
         [globalFilterFields]="globalFilterFields"
         [loading]="loading$ | async"
-        [columnTemplates]="customTemplates"
+        [columnTemplates]="{
+            name:nameTemplate,
+            email: emailTemplate,
+            role: roleTemplate
+        }"
         (rowSelect)="onRowSelect($event)"
         (createEntity)="navigateToCreateEmployee()"
         class="w-full"
@@ -16,12 +20,15 @@
 </div>
 
 <!-- Name template field -->
+<ng-template #roleTemplate let-rowData>
+    <span> {{ rowData.user.roleName }} </span>
+</ng-template>
 <ng-template #nameTemplate let-rowData>
-    <span> name </span>
+    <span> {{ rowData.user.firstname + " " + rowData.user.lastname }} </span>
 </ng-template>
 
 <ng-template #emailTemplate let-rowData>
-    <span>email</span>
+    <span> {{ rowData.user.email }} </span>
 </ng-template>
 
 <ng-template #hireDateTemplate let-rowData>

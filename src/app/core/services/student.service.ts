@@ -28,6 +28,7 @@ export class StudentService {
     }
 
     createStudent(student: Student): Observable<Student> {
+        console.log("Creating student:", student);
         return this.http.post<ApiResponse<Student>>(this.apiUrl, student).pipe(
             map((response) => response.data as Student)
         );

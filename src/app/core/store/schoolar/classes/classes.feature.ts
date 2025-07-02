@@ -1,5 +1,5 @@
 import {createFeature, createReducer, on} from "@ngrx/store";
-import {CLASS_FEATURE_KEY, classesActions} from "./classes.actions";
+import {CLASS_FEATURE_KEY, ClassesActions} from "./classesActions";
 import {classAdapter, classesInitialState} from "./classState";
 
 export const classesFeature = createFeature(
@@ -7,12 +7,12 @@ export const classesFeature = createFeature(
         name: CLASS_FEATURE_KEY,
         reducer: createReducer(
             classesInitialState,
-            on(classesActions.loadClasses, (state) => ({
+            on(ClassesActions.loadClasses, (state) => ({
                 ...state,
                 loading: true,
                 error: null
             })),
-            on(classesActions.loadClassesSuccess, (state, {classes}) =>
+            on(ClassesActions.loadClassesSuccess, (state, {classes}) =>
                 classAdapter.setAll(classes, {
                     ...state,
                     loading: false,
@@ -21,17 +21,17 @@ export const classesFeature = createFeature(
                     cacheExpired: false,
                 })
             ),
-            on(classesActions.loadClassesFailure, (state, {error}) => ({
+            on(ClassesActions.loadClassesFailure, (state, {error}) => ({
                 ...state,
                 loading: false,
                 error: error
             })),
-            on(classesActions.loadClass, (state) => ({
+            on(ClassesActions.loadClass, (state) => ({
                 ...state,
                 loading: true,
                 error: null
             })),
-            on(classesActions.loadClassSuccess, (state, {classData}) =>
+            on(ClassesActions.loadClassSuccess, (state, {classData}) =>
                 classAdapter.upsertOne(classData, {
                     ...state,
                     selectedClassId: classData.id,
@@ -39,38 +39,41 @@ export const classesFeature = createFeature(
                     error: null
                 })
             ),
-            on(classesActions.loadClassFailure, (state, {error}) => ({
+            on(ClassesActions.loadClassFailure, (state, {error}) => ({
                 ...state,
                 loading: false,
                 error: error
             })),
-            on(classesActions.createClass, (state) => ({
+            on(ClassesActions.createClass, (state) => ({
                 ...state,
                 loadingCreate: true,
-                createError: null
+                createError: null,
+                createClassSuccess: false
             })),
-            on(classesActions.createClassSuccess, (state, {classData}) =>
+            on(ClassesActions.createClassSuccess, (state, {classData}) =>
                 classAdapter.addOne(classData, {
                     ...state,
                     loading: false,
                     loadingCreate: false,
                     error: null,
-                    createError: null
+                    createError: null,
+                    createClassSuccess: true,
                 })
             ),
-            on(classesActions.createClassFailure, (state, {error}) => ({
+            on(ClassesActions.createClassFailure, (state, {error}) => ({
                 ...state,
                 loadingCreate: false,
-                createError: error
+                createError: error,
+                createClassSuccess: false
             })),
-            on(classesActions.updateClass, (state) => ({
+            on(ClassesActions.updateClass, (state) => ({
                 ...state,
                 loadingUpdate: true,
                 updateError: null
             })),
-            on(classesActions.updateClassSuccess, (state, {classData}) =>
+            on(ClassesActions.updateClassSuccess, (state, {classData}) =>
                 classAdapter.updateOne(
-                    { id: classData.id, changes: classData },
+                    {id: classData.id, changes: classData},
                     {
                         ...state,
                         loading: false,
@@ -80,17 +83,17 @@ export const classesFeature = createFeature(
                     }
                 )
             ),
-            on(classesActions.updateClassFailure, (state, {error}) => ({
+            on(ClassesActions.updateClassFailure, (state, {error}) => ({
                 ...state,
                 loadingUpdate: false,
                 updateError: error
             })),
-            on(classesActions.deleteClass, (state) => ({
+            on(ClassesActions.deleteClass, (state) => ({
                 ...state,
                 loadingDelete: true,
                 deleteError: null
             })),
-            on(classesActions.deleteClassSuccess, (state, {id}) =>
+            on(ClassesActions.deleteClassSuccess, (state, {id}) =>
                 classAdapter.removeOne(id, {
                     ...state,
                     loading: false,
@@ -100,12 +103,12 @@ export const classesFeature = createFeature(
                     selectedClassId: state.selectedClassId === id ? null : state.selectedClassId
                 })
             ),
-            on(classesActions.deleteClassFailure, (state, {error}) => ({
+            on(ClassesActions.deleteClassFailure, (state, {error}) => ({
                 ...state,
                 loadingDelete: false,
                 deleteError: error
             })),
-            on(classesActions.clearError, (state) => ({
+            on(ClassesActions.clearError, (state) => ({
                 ...state,
                 errors: null,
                 error: null,
