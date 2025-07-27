@@ -18,8 +18,8 @@ export type Kpi = { label: string; value: number, icon: { label: string, color: 
             <div class="flex justify-content-between  align-items-center mt-3">
                 <span class="text-4xl font-bold text-900">{{ kpi.value }}</span>
                 <div [ngClass]="kpi.icon.color ">
-                    <i *ngIf="!kpi.icon.type" class="pi" [ngClass]="kpi.icon.label"></i>
-                    <mat-icon *ngIf="kpi.icon.type">{{kpi.icon.label}}</mat-icon>
+                    <i *ngIf="!kpi.icon.type" class="pi text-5xl" [ngClass]="kpi.icon.label"></i>
+                    <mat-icon [fontIcon]="'10'" class="text-3xl" *ngIf="kpi.icon.type">{{kpi.icon.label}}</mat-icon>
                 </div>
             </div>
         </div>`,

@@ -81,17 +81,17 @@ export const KPI: Kpi[] = [
     {
         label: 'Total de Alunos',
         value: 4,
-        icon: {label: 'users', color: 'text-blue-500', type:'mat'},
+        icon: {label: 'group', color: 'text-blue-500', type:'mat'},
     },
     {
         label: 'Ativos',
         value: 3,
-        icon: {label: 'pi pi-check', color: 'text-green-500'},
+        icon: {label: 'person_check', color: 'text-green-500', type: 'mat'},
     },
     {
         label: 'Inativos',
         value: 1,
-        icon: {label: 'pi pi-times', color: 'text-red-500'},
+        icon: {label: 'person-cancel', color: 'text-red-500', type: 'mat'},
     },
     {
         label: 'Em renovação',
