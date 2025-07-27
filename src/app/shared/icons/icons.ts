@@ -11,7 +11,7 @@ export const ICONS: { name: string, svg: string }[] = [
     {
         name: "users",
         svg: `
-            <svg width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="100" height="100" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21.5602 28V25.3333C21.5602 23.9188 20.9983 22.5623 19.9981 21.5621C18.9979 20.5619 17.6414 20 16.2269 20H8.22689C6.8124 20 5.45585 20.5619 4.45565 21.5621C3.45546 22.5623 2.89355 23.9188 2.89355 25.3333V28" stroke="#3B82F6" stroke-width="2.66667" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M12.2269 14.6667C15.1724 14.6667 17.5602 12.2789 17.5602 9.33333C17.5602 6.38781 15.1724 4 12.2269 4C9.28137 4 6.89355 6.38781 6.89355 9.33333C6.89355 12.2789 9.28137 14.6667 12.2269 14.6667Z" stroke="#3B82F6" stroke-width="2.66667" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M29.5596 28V25.3333C29.5587 24.1516 29.1654 23.0037 28.4414 22.0698C27.7174 21.1358 26.7037 20.4688 25.5596 20.1733" stroke="#3B82F6" stroke-width="2.66667" stroke-linecap="round" stroke-linejoin="round"/>

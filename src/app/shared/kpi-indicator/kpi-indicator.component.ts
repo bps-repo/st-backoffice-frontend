@@ -9,14 +9,13 @@ export type Kpi = { label: string; value: number, icon: { label: string, color: 
     selector: 'app-kpi-indicators',
     imports: [
         NgClass,
-        MatIconModule,
-        NgIf
+        MatIconModule
     ],
     template: `
-        <div class="card h-full">
+        <div class="card h-100 w-30">
             <span class="font-semibold text-lg">{{ kpi.label }}</span>
             <div class="flex justify-content-between  align-items-center mt-3">
-                <span class="text-4xl font-bold text-900">{{ kpi.value }}</span>
+                <span class="text-4xl font-bold text-900 uppercase">{{ kpi.value }}</span>
                 <div [ngClass]="kpi.icon.color " class="text-2xl">
                     <mat-icon class="text-2xl" svgIcon="{{kpi.icon.label}}" aria-hidden="false"
                               aria-label="thumb-nail"></mat-icon>
