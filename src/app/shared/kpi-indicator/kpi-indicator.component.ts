@@ -12,7 +12,7 @@ export type Kpi = { label: string; value: number, icon: { label: string, color: 
         MatIconModule
     ],
     template: `
-        <div class="card h-100 w-30">
+        <div class="card h-10rem w-13rem">
             <span class="font-semibold text-lg">{{ kpi.label }}</span>
             <div class="flex justify-content-between  align-items-center mt-3">
                 <span class="text-4xl font-bold text-900 uppercase">{{ kpi.value }}</span>
