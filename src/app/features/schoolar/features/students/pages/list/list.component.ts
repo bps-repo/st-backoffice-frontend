@@ -23,6 +23,7 @@ import * as CenterSelectors from "../../../../../../core/store/corporate/center/
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 import {BadgeModule} from "primeng/badge";
+import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 
 @Component({
     selector: 'app-general',
@@ -34,7 +35,8 @@ import {BadgeModule} from "primeng/badge";
         ButtonModule,
         RippleModule,
         TooltipModule,
-        BadgeModule
+        BadgeModule,
+        KpiIndicatorsComponent
     ],
     templateUrl: './list.component.html'
 })
@@ -192,4 +194,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     protected StudentStatus = StudentStatus
+    protected readonly kpis = KPI;
+    protected readonly Math = Math;
 }
