@@ -1,6 +1,6 @@
 {
-  "name": "apollo-ng",
-  "version": "17.0.0",
+  "name": "st-andrews-platform",
+  "version": "1.0.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
