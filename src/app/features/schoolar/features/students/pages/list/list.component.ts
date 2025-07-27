@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ContentChild, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -11,7 +11,7 @@ import {Store} from '@ngrx/store';
 import {Observable, Subject, take} from 'rxjs';
 import {ChartModule} from 'primeng/chart';
 import {ButtonModule} from 'primeng/button';
-import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
+import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS, KPI} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";

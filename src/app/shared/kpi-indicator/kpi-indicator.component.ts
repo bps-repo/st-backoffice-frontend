@@ -1,15 +1,16 @@
 import {Component, Input} from '@angular/core';
-import {NgClass} from "@angular/common";
+import {NgClass, NgIf} from "@angular/common";
 import {MatIcon, MatIconModule} from "@angular/material/icon";
 
 
-export type Kpi = { label: string; value: number, icon: { label: string, color: string } };
+export type Kpi = { label: string; value: number, icon: { label: string, color: string, type?: string } };
 
 @Component({
     selector: 'app-kpi-indicators',
     imports: [
         NgClass,
-        MatIconModule
+        MatIconModule,
+        NgIf
     ],
     template: `
         <div class="card h-full">
@@ -17,13 +18,14 @@ export type Kpi = { label: string; value: number, icon: { label: string, color: 
             <div class="flex justify-content-between  align-items-center mt-3">
                 <span class="text-4xl font-bold text-900">{{ kpi.value }}</span>
                 <div [ngClass]="kpi.icon.color ">
-                    <i class="text-4xl" [ngClass]="kpi.icon.label"></i>
-                    <mat-icon></mat-icon>
+                    <i *ngIf="!kpi.icon.type" class="pi" [ngClass]="kpi.icon.label"></i>
+                    <mat-icon *ngIf="kpi.icon.type">{{kpi.icon.label}}</mat-icon>
+
                 </div>
             </div>
         </div>`,
 })
 export class KpiIndicatorsComponent {
     @Input()
-    kpi: Kpi = {label: '', value: 0, icon: {label: '', color: ''}}
+    kpi: Kpi = {label: '', value: 0, icon: {type: '', label: '', color: ''}}
 }

@@ -1,4 +1,5 @@
 import {TableColumn} from "../../../../shared/components/tables/global-table/global-table.component";
+import {Kpi} from "../../../../shared/kpi-indicator/kpi-indicator.component";
 
 export const GLOBAL_FILTERS = ['id', 'name', 'code', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'dateOfBirth'];
 export const COLUMNS: TableColumn[] = [
@@ -76,5 +77,37 @@ export const HEADER_ACTIONS = [
     },
 ];
 
+export const KPI: Kpi[] = [
+    {
+        label: 'Total de Alunos',
+        value: 4,
+        icon: {label: 'users', color: 'text-blue-500', type:'mat'},
+    },
+    {
+        label: 'Ativos',
+        value: 3,
+        icon: {label: 'pi pi-check', color: 'text-green-500'},
+    },
+    {
+        label: 'Inativos',
+        value: 1,
+        icon: {label: 'pi pi-times', color: 'text-red-500'},
+    },
+    {
+        label: 'Em renovação',
+        value: 0,
+        icon: {label: 'pi pi-exclamation-circle', color: 'text-orange-500'},
+    },
+    {
+        label: 'VIP',
+        value: 2,
+        icon: {label: 'pi pi-file', color: 'text-purple-500'},
+    },
+    {
+        label: 'Standard',
+        value: 1,
+        icon: {label: 'pi pi-calendar', color: 'text-secondary'},
+    }
+]
 
 
