@@ -81,32 +81,32 @@ export const KPI: Kpi[] = [
     {
         label: 'Total de Alunos',
         value: 4,
-        icon: {label: 'group', color: 'text-blue-500', type:'mat'},
+        icon: {label: 'users', color: 'text-blue-500', type: 'mat'},
     },
     {
         label: 'Ativos',
         value: 3,
-        icon: {label: 'person_check', color: 'text-green-500', type: 'mat'},
+        icon: {label: 'user-check', color: 'text-green-500', type: 'mat'},
     },
     {
         label: 'Inativos',
         value: 1,
-        icon: {label: 'person-cancel', color: 'text-red-500', type: 'mat'},
+        icon: {label: 'user-cancel', color: 'text-red-500', type: 'mat'},
     },
     {
         label: 'Em renovação',
         value: 0,
-        icon: {label: 'pi pi-exclamation-circle', color: 'text-orange-500'},
+        icon: {label: 'exclamation-circle', color: 'text-orange-500'},
     },
     {
         label: 'VIP',
         value: 2,
-        icon: {label: 'pi pi-file', color: 'text-purple-500'},
+        icon: {label: 'graduation-cap', color: 'text-purple-500'},
     },
     {
         label: 'Standard',
         value: 1,
-        icon: {label: 'pi pi-calendar', color: 'text-secondary'},
+        icon: {label: 'calendar', color: 'text-secondary'},
     }
 ]
 
