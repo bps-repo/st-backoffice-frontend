@@ -20,7 +20,6 @@ export type Kpi = { label: string; value: number, icon: { label: string, color: 
                 <div [ngClass]="kpi.icon.color ">
                     <i *ngIf="!kpi.icon.type" class="pi" [ngClass]="kpi.icon.label"></i>
                     <mat-icon *ngIf="kpi.icon.type">{{kpi.icon.label}}</mat-icon>
-
                 </div>
             </div>
         </div>`,

@@ -24,6 +24,7 @@ import {LevelActions} from "../../../../../../core/store/schoolar/level/level.ac
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 import {BadgeModule} from "primeng/badge";
 import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {MatIcon} from "@angular/material/icon";
 
 @Component({
     selector: 'app-general',
@@ -36,7 +37,8 @@ import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi
         RippleModule,
         TooltipModule,
         BadgeModule,
-        KpiIndicatorsComponent
+        KpiIndicatorsComponent,
+        MatIcon
     ],
     templateUrl: './list.component.html'
 })
