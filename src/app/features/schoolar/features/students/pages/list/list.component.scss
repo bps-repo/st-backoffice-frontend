@@ -1,0 +1,18 @@
+.students-list-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.students-list-header {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.students-list-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
