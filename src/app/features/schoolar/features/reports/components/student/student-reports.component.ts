@@ -5,7 +5,9 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
-import {RippleModule} from "primeng/ripple";
+import { RippleModule } from "primeng/ripple";
+import { ChartModule } from 'primeng/chart';
+import { CardModule } from 'primeng/card';
 
 interface Report {
     id: string;
@@ -23,12 +25,39 @@ interface Report {
     selector: 'app-student-report',
     templateUrl: './student-reports.component.html',
     standalone: true,
-    imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule, RippleModule]
+    imports: [
+        CommonModule,
+        SkeletonModule,
+        InputTextModule,
+        InputTextareaModule,
+        ButtonModule,
+        RippleModule,
+        ChartModule,
+        CardModule
+    ]
 })
 export class StudentReports implements OnInit {
     reportId: string = '';
     report: Report | null = null;
     loading: boolean = true;
+
+    // KPI data
+    studentKpis = [
+        { label: 'Total de Alunos', current: 850, diff: 5 },
+        { label: 'Frequência Média', current: '78%', diff: 3 },
+        { label: 'Novos Alunos', current: 95, diff: 12 },
+        { label: 'Taxa de Retenção', current: '85%', diff: -2 },
+    ];
+
+    // Chart data and options
+    attendanceByMonthData: any;
+    attendanceByMonthOptions: any;
+
+    studentsByStateData: any;
+    studentsByStateOptions: any;
+
+    studentsByLevelData: any;
+    studentsByLevelOptions: any;
 
     // general data - in a real app, this would come from a service
     reports: Report[] = [
@@ -101,6 +130,7 @@ export class StudentReports implements OnInit {
             this.reportId = params['id'];
             this.loadReport();
         });
+        this.initChartData();
     }
 
     loadReport(): void {
@@ -109,6 +139,146 @@ export class StudentReports implements OnInit {
             this.report = this.reports.find(r => r.id === this.reportId) || null;
             this.loading = false;
         }, 500);
+    }
+
+    initChartData(): void {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const textColor = documentStyle.getPropertyValue('--text-color');
+        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+        // Attendance by Month (Column Chart)
+        this.attendanceByMonthData = {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+            datasets: [
+                {
+                    label: 'Frequência (%)',
+                    data: [75, 78, 80, 82, 79, 76, 74, 77, 81, 83, 85, 82],
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    borderColor: documentStyle.getPropertyValue('--primary-500')
+                }
+            ]
+        };
+
+        this.attendanceByMonthOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Frequência por Mês',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
+
+        // Students by State (Pie Chart)
+        this.studentsByStateData = {
+            labels: ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Outros'],
+            datasets: [
+                {
+                    data: [35, 25, 15, 10, 15],
+                    backgroundColor: [
+                        documentStyle.getPropertyValue('--blue-500'),
+                        documentStyle.getPropertyValue('--yellow-500'),
+                        documentStyle.getPropertyValue('--green-500'),
+                        documentStyle.getPropertyValue('--purple-500'),
+                        documentStyle.getPropertyValue('--orange-500')
+                    ],
+                    hoverBackgroundColor: [
+                        documentStyle.getPropertyValue('--blue-400'),
+                        documentStyle.getPropertyValue('--yellow-400'),
+                        documentStyle.getPropertyValue('--green-400'),
+                        documentStyle.getPropertyValue('--purple-400'),
+                        documentStyle.getPropertyValue('--orange-400')
+                    ]
+                }
+            ]
+        };
+
+        this.studentsByStateOptions = {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor,
+                        usePointStyle: true,
+                        font: { weight: 500 },
+                        padding: 20
+                    },
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Alunos por Estados',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            }
+        };
+
+        // Students by Level (Bar Chart)
+        this.studentsByLevelData = {
+            labels: ['Iniciante', 'Básico', 'Intermediário', 'Avançado'],
+            datasets: [
+                {
+                    label: 'Número de Alunos',
+                    data: [220, 280, 190, 160],
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500')
+                }
+            ]
+        };
+
+        this.studentsByLevelOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Alunos por Nível',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
     }
 
     downloadReport(): void {

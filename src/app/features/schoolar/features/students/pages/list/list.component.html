@@ -12,12 +12,36 @@
     ::ng-deep .p-selectbutton .p-button:last-child {
         margin-right: 0;
     }
+
+    .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    /* Animation classes */
+    .animate-fade {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .animate-scale {
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    /* For elements that need to stick to the top */
+    .content-sticky {
+        position: sticky;
+        top: 140px; /* Adjust based on header height */
+        z-index: 90;
+    }
 </style>
 
 
 <section class="grid">
 
-    <div class="col-12 flex justify-content-between items-center mb-4">
+    <div class="col-12 flex justify-content-between items-center mb-4 sticky-header">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de alunos</h2>
             <span class="text-lg">Cadastro e acompanhamento completo dos alunos</span>
@@ -28,23 +52,25 @@
             class="p-button-outlined"
         ></p-button>
     </div>
+
+    <div class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header" style="top: 80px;">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- KPI Cards - only visible in list view with smooth animation -->
     @if (currentView === 'list') {
         @for (k of kpis; track k) {
             <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)"
-                 class="transition-all transitation-duration-300 fadein">
+                 class="animate-fade px-fadein">
                 <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
             </div>
         }
     }
 
-    <div class="col-12 flex justify-content-start gap-2 items-center transition-all transitation-duration-300 fadein">
-        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-                        optionLabel="label" optionValue="value"></p-selectButton>
-    </div>
-
     <!-- List View -->
     @if (currentView === 'list') {
-        <div class="col-12">
+        <div class="col-12 animate-fade px-fadein">
             <div class="card">
                 <div class="flex gap-2 align-items-center">
                     <input
@@ -70,20 +96,20 @@
             [columnTemplates]="customTemplates"
             (rowSelect)="onRowSelect($event)"
             (createEntity)="navigateToCreateStudent()"
-            class="w-full"
+            class="w-full animate-fade px-fadein"
         ></app-global-table>
     }
 
-    <!-- Dashboard View -->
+    <!-- Dashboard View - appears with scale animation and sticks below headers -->
     @if (currentView === 'dashboard') {
-        <div class="col-12">
+        <div class="col-12 animate-scale px-scalein content-sticky">
             <app-students></app-students>
         </div>
     }
 
-    <!-- Reports View -->
+    <!-- Reports View - appears with scale animation and sticks below headers -->
     @if (currentView === 'reports') {
-        <div class="col-12">
+        <div class="col-12 animate-scale px-scalein content-sticky">
             <app-student-report></app-student-report>
         </div>
     }
