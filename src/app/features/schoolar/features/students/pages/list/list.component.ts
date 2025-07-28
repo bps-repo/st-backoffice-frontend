@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ViewEncapsulation, ElementRef, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -82,6 +82,17 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('statusTemplate', {static: true})
     statusTemplate!: TemplateRef<any>;
 
+    // References to sticky header elements
+    @ViewChild('mainHeader', {static: false})
+    mainHeader!: ElementRef;
+
+    @ViewChild('viewSelector', {static: false})
+    viewSelector!: ElementRef;
+
+    // Sticky state tracking
+    isMainHeaderSticky: boolean = false;
+    isViewSelectorSticky: boolean = false;
+
     students$?: Observable<Student[]>;
 
     loading$: Observable<boolean>;
@@ -109,6 +120,27 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     // Method to handle view selection
     onViewChange(event: any) {
         this.currentView = event.value;
+    }
+
+    // Listen for scroll events
+    @HostListener('window:scroll', ['$event'])
+    onWindowScroll() {
+        this.checkStickyState();
+    }
+
+    // Check if headers are in sticky state
+    checkStickyState() {
+        if (this.mainHeader && this.mainHeader.nativeElement) {
+            const mainHeaderRect = this.mainHeader.nativeElement.getBoundingClientRect();
+            // Header is sticky when its top position is 0
+            this.isMainHeaderSticky = mainHeaderRect.top <= 0;
+        }
+
+        if (this.viewSelector && this.viewSelector.nativeElement) {
+            const viewSelectorRect = this.viewSelector.nativeElement.getBoundingClientRect();
+            // View selector is sticky when its top position is at its sticky position (80px)
+            this.isViewSelectorSticky = viewSelectorRect.top <= 80;
+        }
     }
 
     constructor(
@@ -175,6 +207,11 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             studentClass: this.classTemplate,
             status: this.statusTemplate
         };
+
+        // Initialize sticky state check after view is initialized
+        setTimeout(() => {
+            this.checkStickyState();
+        });
     }
 
     ngOnDestroy(): void {

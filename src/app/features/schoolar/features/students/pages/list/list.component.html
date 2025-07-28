@@ -19,6 +19,12 @@
         z-index: 100;
         padding-top: 1rem;
         padding-bottom: 1rem;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sticky-active {
+        background-color: var(--surface-card);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     /* Animation classes */
@@ -41,7 +47,7 @@
 
 <section class="grid">
 
-    <div class="col-12 flex justify-content-between items-center mb-4 sticky-header">
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header" [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de alunos</h2>
             <span class="text-lg">Cadastro e acompanhamento completo dos alunos</span>
@@ -53,7 +59,7 @@
         ></p-button>
     </div>
 
-    <div class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header" style="top: 80px;">
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header" style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
         <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
                         optionLabel="label" optionValue="value"></p-selectButton>
     </div>

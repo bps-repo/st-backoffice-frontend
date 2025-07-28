@@ -194,7 +194,7 @@ export class StudentReports implements OnInit {
 
         // Students by State (Pie Chart)
         this.studentsByStateData = {
-            labels: ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Outros'],
+            labels: ['Activos', 'Inactivos', 'Pagamentos pendentes', 'Pagamentos extendidos', 'Contrato por terminar'],
             datasets: [
                 {
                     data: [35, 25, 15, 10, 15],
@@ -255,7 +255,7 @@ export class StudentReports implements OnInit {
                 },
                 title: {
                     display: true,
-                    text: 'Alunos por Nível',
+                    text: 'Distribuição por Nível',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
