@@ -14,7 +14,7 @@ import {AssessmentsDashboardComponent} from "./components/assessments/assessment
 import {LevelDashboardComponent} from "./components/level/level-dashboard.component";
 
 
-type ViewOption = { label: string; value: { key: string; component: any } };
+type ViewOption = { label: string; value: { key: string; component: any }, icon?: string };
 
 @Component({
     selector: 'app-dashboard',

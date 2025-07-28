@@ -5,7 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {CalendarModule} from 'primeng/calendar';
 import {SelectButtonModule} from "primeng/selectbutton";
 
-type ViewOption = { label: string; value: { key: string; component: any } };
+type ViewOption = { label: string; value: { key: string; component: any }, icon?: string };
 
 @Component({
     selector: 'app-view-tab',
