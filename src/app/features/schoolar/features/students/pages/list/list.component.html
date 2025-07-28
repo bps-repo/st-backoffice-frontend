@@ -1,4 +1,4 @@
-<div class="grid">
+<section class="grid">
 
     <div class="col-12 flex justify-content-between items-center mb-4">
         <div>
@@ -17,6 +17,26 @@
         </div>
     }
 
+    <div class="col-12 flex justify-content-start gap-2 items-center">
+        <button pButton pRipple>Lista de alunos</button>
+        <button pButton pRipple class="p-button-secondary p-button-text">Relatórios</button>
+        <button pButton pRipple class="p-button-secondary p-button-text">Dashboard</button>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="flex gap-2 align-items-center">
+                <input
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="buscar por nome, email, estado"
+                />
+                <button pButton type="button" label="Filtrar"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- Student Table -->
     <app-global-table
         tableLabel="Alunos"
@@ -31,8 +51,7 @@
         (createEntity)="navigateToCreateStudent()"
         class="w-full"
     ></app-global-table>
-</div>
-
+</section>
 
 
 <!-- Name template field -->

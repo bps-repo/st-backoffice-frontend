@@ -25,6 +25,8 @@ import {CenterActions} from "../../../../../../core/store/corporate/center/cente
 import {BadgeModule} from "primeng/badge";
 import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 import {MatIcon} from "@angular/material/icon";
+import {CalendarModule} from "primeng/calendar";
+import {ChipsModule} from "primeng/chips";
 
 @Component({
     selector: 'app-general',
@@ -38,7 +40,9 @@ import {MatIcon} from "@angular/material/icon";
         TooltipModule,
         BadgeModule,
         KpiIndicatorsComponent,
-        MatIcon
+        MatIcon,
+        CalendarModule,
+        ChipsModule
     ],
     templateUrl: './list.component.html'
 })

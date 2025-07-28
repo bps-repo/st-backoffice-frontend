@@ -1,11 +1,14 @@
 <div class="col-12">
     <div class="card">
-        <app-table-header
-            [entity]="entity"
-            [tableLable]="tableLabel"
-            [actions]="headerActions"
-            (createEntity)="createEntity.emit()"
-        ></app-table-header>
+
+        <!--
+            <app-table-header
+                [entity]="entity"
+                [tableLable]="tableLabel"
+                [actions]="headerActions"
+                (createEntity)="createEntity.emit()"
+            ></app-table-header>
+        -->
 
         <p-table
             #dt
@@ -19,7 +22,7 @@
             scrollHeight="400px"
             responsiveLayout="scroll"
         >
-            <!-- Global Filter -->
+            <!-- Global Filter
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between">
                     <button
@@ -39,13 +42,13 @@
                         />
                     </span>
                 </div>
-            </ng-template>
+            </ng-template> -->
 
             <!-- Header -->
             <ng-template pTemplate="header">
                 <tr>
                     <th *ngFor="let col of columns" [style.minWidth]="'5rem'">
-                        <div class="flex justify-content-between">
+                        <div class="flex justify-content-between font-semibold">
                             {{ col.header }}
                             <p-columnFilter
                                 *ngIf="col.filterType && !col.filterTemplate"
