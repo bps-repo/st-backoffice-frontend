@@ -1,3 +1,20 @@
+<style>
+    ::ng-deep .p-selectbutton {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    ::ng-deep .p-selectbutton .p-button {
+        margin-right: 0.5rem;
+        border: none;
+    }
+
+    ::ng-deep .p-selectbutton .p-button:last-child {
+        margin-right: 0;
+    }
+</style>
+
+
 <section class="grid">
 
     <div class="col-12 flex justify-content-between items-center mb-4">
@@ -11,46 +28,65 @@
             class="p-button-outlined"
         ></p-button>
     </div>
-    @for (k of kpis; track k) {
-        <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)">
-            <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
+    @if (currentView === 'list') {
+        @for (k of kpis; track k) {
+            <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)"
+                 class="transition-all transitation-duration-300 fadein">
+                <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
+            </div>
+        }
+    }
+
+    <div class="col-12 flex justify-content-start gap-2 items-center transition-all transitation-duration-300 fadein">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- List View -->
+    @if (currentView === 'list') {
+        <div class="col-12">
+            <div class="card">
+                <div class="flex gap-2 align-items-center">
+                    <input
+                        pInputText
+                        type="text"
+                        class="w-full"
+                        placeholder="Buscar por nome, email, estado"
+                    />
+                    <button pButton type="button" label="Filtrar"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Table -->
+        <app-global-table
+            tableLabel="Alunos"
+            [headerActions]="headerActions"
+            [data]="(students$ | async)!"
+            [entity]="'students'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilterFields"
+            [loading]="loading$ | async"
+            [columnTemplates]="customTemplates"
+            (rowSelect)="onRowSelect($event)"
+            (createEntity)="navigateToCreateStudent()"
+            class="w-full"
+        ></app-global-table>
+    }
+
+    <!-- Dashboard View -->
+    @if (currentView === 'dashboard') {
+        <div class="col-12">
+            <app-students></app-students>
         </div>
     }
 
-    <div class="col-12 flex justify-content-start gap-2 items-center">
-        <button pButton pRipple>Lista de alunos</button>
-        <button pButton pRipple class="p-button-secondary p-button-text">Relatórios</button>
-        <button pButton pRipple class="p-button-secondary p-button-text">Dashboard</button>
-    </div>
-
-    <div class="col-12">
-        <div class="card">
-            <div class="flex gap-2 align-items-center">
-                <input
-                    pInputText
-                    type="text"
-                    class="w-full"
-                    placeholder="buscar por nome, email, estado"
-                />
-                <button pButton type="button" label="Filtrar"></button>
-            </div>
+    <!-- Reports View -->
+    @if (currentView === 'reports') {
+        <div class="col-12">
+            <app-student-report></app-student-report>
         </div>
-    </div>
-
-    <!-- Student Table -->
-    <app-global-table
-        tableLabel="Alunos"
-        [headerActions]="headerActions"
-        [data]="(students$ | async)!"
-        [entity]="'students'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        [loading]="loading$ | async"
-        [columnTemplates]="customTemplates"
-        (rowSelect)="onRowSelect($event)"
-        (createEntity)="navigateToCreateStudent()"
-        class="w-full"
-    ></app-global-table>
+    }
 </section>
 
 

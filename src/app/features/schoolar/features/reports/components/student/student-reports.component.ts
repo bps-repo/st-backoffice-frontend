@@ -20,7 +20,7 @@ interface Report {
 }
 
 @Component({
-    selector: 'app-student',
+    selector: 'app-student-report',
     templateUrl: './student-reports.component.html',
     standalone: true,
     imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule, RippleModule]

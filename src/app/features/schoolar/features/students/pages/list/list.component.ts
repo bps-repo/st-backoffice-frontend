@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ViewEncapsulation} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -24,9 +24,12 @@ import {LevelActions} from "../../../../../../core/store/schoolar/level/level.ac
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 import {BadgeModule} from "primeng/badge";
 import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import {MatIcon} from "@angular/material/icon";
 import {CalendarModule} from "primeng/calendar";
 import {ChipsModule} from "primeng/chips";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {FormsModule} from "@angular/forms";
+import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
+import {StudentReports} from "../../../reports/components/student/student-reports.component";
 
 @Component({
     selector: 'app-general',
@@ -40,11 +43,14 @@ import {ChipsModule} from "primeng/chips";
         TooltipModule,
         BadgeModule,
         KpiIndicatorsComponent,
-        MatIcon,
         CalendarModule,
-        ChipsModule
+        ChipsModule,
+        SelectButtonModule,
+        FormsModule,
+        StudentsDashboardComponent,
+        StudentReports
     ],
-    templateUrl: './list.component.html'
+    templateUrl: './list.component.html',
 })
 export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -90,7 +96,20 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     chartOptions: any;
 
+    // View selection
+    currentView: string = 'list'; // Default view is list
+    viewOptions = [
+        { label: 'Lista de alunos', value: 'list' },
+        { label: 'Dashboard', value: 'dashboard' },
+        { label: 'Relatórios', value: 'reports' }
+    ];
+
     private destroy$ = new Subject<void>();
+
+    // Method to handle view selection
+    onViewChange(event: any) {
+        this.currentView = event.value;
+    }
 
     constructor(
         private store: Store<StudentState>,
