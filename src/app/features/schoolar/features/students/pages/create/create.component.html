@@ -1,18 +1,21 @@
 <div class="grid">
     <div class="col-12">
+        <h2>Novo Aluno</h2>
+        <span>Cadastro completo dos alunos</span>
+    </div>
+    <div class="col-12">
         <p-card>
-            <ng-template pTemplate="title">
-                <h2>Adicionar Estudante</h2>
-            </ng-template>
+
             <ng-template pTemplate="content">
                 <!-- Stepper -->
                 <div class="mb-5">
-                    <p-steps [model]="steps" [activeIndex]="activeIndex" [readonly]="false" (activeIndexChange)="goToStep($event)" styleClass="mt-2"></p-steps>
+                    <p-steps [model]="steps" [activeIndex]="activeIndex" [readonly]="false"
+                             (activeIndexChange)="goToStep($event)" styleClass="mt-2"></p-steps>
                 </div>
 
                 <!-- Progress indicator -->
                 <div class="text-center mb-4">
-                    <span class="text-600">Passo {{activeIndex + 1}} de {{steps.length}}</span>
+                    <span class="text-600">Passo {{ activeIndex + 1 }} de {{ steps.length }}</span>
                 </div>
 
                 <!-- Step 1: DADOS PESSOAIS -->
@@ -34,7 +37,8 @@
                         </div>
                         <div class="col-12 md:col-8 field">
                             <label for="fullName" class="font-bold">Nome Completo</label>
-                            <input id="fullName" type="text" pInputText [(ngModel)]="student.personalData.fullName" required />
+                            <input id="fullName" type="text" pInputText [(ngModel)]="student.personalData.fullName"
+                                   required/>
                         </div>
 
                         <div class="col-12 md:col-4 field">
@@ -50,7 +54,7 @@
                         </div>
                         <div class="col-12 md:col-4 field">
                             <label for="idNumber" class="font-bold">Nº de Identificação</label>
-                            <input id="idNumber" type="text" pInputText [(ngModel)]="student.personalData.idNumber" />
+                            <input id="idNumber" type="text" pInputText [(ngModel)]="student.personalData.idNumber"/>
                         </div>
                         <div class="col-12 md:col-4 field">
                             <label for="country" class="font-bold">País</label>
@@ -98,7 +102,7 @@
                         </div>
                         <div class="col-12 md:col-4 field">
                             <label for="address" class="font-bold">Morada</label>
-                            <input id="address" type="text" pInputText [(ngModel)]="student.personalData.address" />
+                            <input id="address" type="text" pInputText [(ngModel)]="student.personalData.address"/>
                         </div>
                         <div class="col-12 md:col-8 field">
                             <label for="email" class="font-bold">E-mail</label>
@@ -189,7 +193,8 @@
                             ></p-dropdown>
                         </div>
                         <div class="col-12 md:col-6 field">
-                            <label for="monthlyReference" class="font-bold">Mensalidade por Referência Multibanco</label>
+                            <label for="monthlyReference" class="font-bold">Mensalidade por Referência
+                                Multibanco</label>
                             <p-dropdown
                                 id="monthlyReference"
                                 [options]="referenceOptions"
@@ -268,23 +273,28 @@
                     <div class="grid p-fluid">
                         <div class="col-12 md:col-6 field">
                             <label for="emergencyName" class="font-bold">Nome</label>
-                            <input id="emergencyName" type="text" pInputText [(ngModel)]="student.emergencyContact.name" required />
+                            <input id="emergencyName" type="text" pInputText [(ngModel)]="student.emergencyContact.name"
+                                   required/>
                         </div>
                         <div class="col-12 md:col-6 field">
                             <label for="emergencyRelationship" class="font-bold">Relação</label>
-                            <input id="emergencyRelationship" type="text" pInputText [(ngModel)]="student.emergencyContact.relationship" />
+                            <input id="emergencyRelationship" type="text" pInputText
+                                   [(ngModel)]="student.emergencyContact.relationship"/>
                         </div>
                         <div class="col-12 md:col-6 field">
                             <label for="emergencyPhone" class="font-bold">Telefone</label>
-                            <input id="emergencyPhone" type="text" pInputText [(ngModel)]="student.emergencyContact.phone" required />
+                            <input id="emergencyPhone" type="text" pInputText
+                                   [(ngModel)]="student.emergencyContact.phone" required/>
                         </div>
                         <div class="col-12 md:col-6 field">
                             <label for="emergencyEmail" class="font-bold">E-mail</label>
-                            <input id="emergencyEmail" type="email" pInputText [(ngModel)]="student.emergencyContact.email" placeholder="ex. contact@gmail.com" />
+                            <input id="emergencyEmail" type="email" pInputText
+                                   [(ngModel)]="student.emergencyContact.email" placeholder="ex. contact@gmail.com"/>
                         </div>
                         <div class="col-12 field">
                             <label for="emergencyAddress" class="font-bold">Morada</label>
-                            <input id="emergencyAddress" type="text" pInputText [(ngModel)]="student.emergencyContact.address" />
+                            <input id="emergencyAddress" type="text" pInputText
+                                   [(ngModel)]="student.emergencyContact.address"/>
                         </div>
                     </div>
                 </div>
@@ -327,7 +337,7 @@
                     <button
                         *ngIf="activeIndex === 3"
                         pButton
-                        label="Finalizar"
+                        label="Cadastrar aluno"
                         icon="pi pi-check"
                         (click)="saveStudent()"
                     ></button>
