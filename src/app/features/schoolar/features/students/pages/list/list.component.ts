@@ -224,7 +224,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     navigateToCreateStudent() {
-        this.router.navigate(['/schoolar/students/create']);
+        this.router.navigate(['/schoolar/students/create']).then();
     }
 
     navigateToEditStudent(id: string) {
