@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, Inject, Optional} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {InputTextModule} from 'primeng/inputtext';
 import {PieChartComponent} from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
@@ -18,6 +18,7 @@ import {Observable, Subscription} from 'rxjs';
 import {Student} from 'src/app/core/models/academic/student';
 import {ActivatedRoute} from '@angular/router';
 import {selectStudentById} from 'src/app/core/store/schoolar/students/students.selectors';
+import {STUDENT_DATA} from 'src/app/shared/tokens/student.token';
 
 @Component({
     selector: 'app-general',
@@ -44,10 +45,6 @@ export class GeneralComponent implements OnInit, OnDestroy {
     // Student information
     studentInfo: any = {};
 
-    student$!: Observable<Student | null>;
-
-    studentId: string | null = null;
-
     private subscriptions = new Subscription();
 
     // Academic progress
@@ -66,28 +63,15 @@ export class GeneralComponent implements OnInit, OnDestroy {
 
     constructor(
         private store: Store,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        @Optional() @Inject(STUDENT_DATA) private studentData: Student | null
     ) {}
 
     ngOnInit(): void {
-        // Get the student ID from the route
-        this.subscriptions.add(
-            this.route.parent?.params.subscribe(params => {
-                this.studentId = params['id'];
-                if (this.studentId) {
-                    this.student$ = this.store.select(selectStudentById(this.studentId));
-
-                    // Subscribe to student data
-                    this.subscriptions.add(
-                        this.student$.subscribe(student => {
-                            if (student) {
-                                this.updateStudentInfo(student);
-                            }
-                        })
-                    );
-                }
-            })
-        );
+        // Use the injected student data
+        if (this.studentData) {
+            this.updateStudentInfo(this.studentData);
+        }
 
         // Mock upcoming lessons (this could be replaced with real data from an API)
         this.upcomingLessons = [

@@ -1,6 +1,6 @@
 <section class="mt-3">
     <!-- Student Overview -->
-    <div class="grid" *ngIf="(student$ | async); else loading">
+    <div class="grid" *ngIf="studentInfo; else loading">
         <!-- Student Profile & Academic Info -->
         <div class="col-12 md:col-4">
             <p-card styleClass="h-full">

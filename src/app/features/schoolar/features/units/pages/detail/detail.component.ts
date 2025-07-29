@@ -62,14 +62,6 @@ export class DetailComponent implements OnInit {
             this.loadUnit();
         });
 
-        // Carrega níveis
-        // this.store.dispatch(LevelActions.loadLevels());
-
-        // this.store.select(selectAllLevels).subscribe(levels => {
-        //     this.levels = levels;
-        //     this.setUnitLevel();
-        // });
-
         this.unit$.subscribe(unit => {
             this.unit = unit;
             this.editableUnit = unit ? {...unit} : null;

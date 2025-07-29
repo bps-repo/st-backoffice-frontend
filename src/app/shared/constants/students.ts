@@ -27,6 +27,7 @@ import {
 } from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/pagamentos.component';
 import {HistoryComponent} from "../../features/schoolar/features/students/pages/detail/tabs/history/history.component";
 import {Student} from "../../core/models/academic/student";
+import {STUDENT_DATA} from '../tokens/student.token';
 
 export const STUDENTS_TABS: Tab<Student>[] = [
     {
@@ -35,6 +36,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Overview ',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: GeneralComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Aulas',
@@ -42,6 +44,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Suas Aulas',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: ClassesComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Turmas',
@@ -49,6 +52,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Suas Turmas',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: TurmasComponent,
+        data: { token: STUDENT_DATA}
     },
     {
         header: 'Níveis',
@@ -56,6 +60,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Seus Cursos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: LevelsComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Avaliações',
@@ -63,6 +68,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Suas Avaliações',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: AvaliacoesComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Facturas',
@@ -70,6 +76,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Suas Facturas',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: InvoicesComponent,
+        data: { token: STUDENT_DATA,  }
     },
     {
         header: 'Pagamentos',
@@ -77,6 +84,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Seus Pagamentos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: PagamentosComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Documentos',
@@ -84,6 +92,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Seus Documentos',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: DocumentosComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Acesso ao Portal',
@@ -91,6 +100,7 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Acesso ao Portal',
         description: 'Volutpat maecenas volutpat blandit aliquam etiam erat',
         template: AcessoPortalComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Histórico',
@@ -98,5 +108,6 @@ export const STUDENTS_TABS: Tab<Student>[] = [
         title: 'Histórico do Aluno',
         description: 'Histórico acadêmico e atividades do aluno',
         template: HistoryComponent,
+        data: { token: STUDENT_DATA }
     },
 ];

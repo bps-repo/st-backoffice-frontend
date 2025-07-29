@@ -13,6 +13,7 @@ import {
 import {
     AttendanceComponent
 } from "../../features/schoolar/features/lessons/pages/detail/tabs/attendences/list/attendance.component";
+import {STUDENT_DATA} from "../tokens/student.token";
 
 export const LESSONS_TABS: Tab[] = [
     {
@@ -21,6 +22,7 @@ export const LESSONS_TABS: Tab[] = [
         title: 'Class Overview',
         description: 'View general information about the class',
         template: GeneralComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Estudantes',
@@ -28,6 +30,7 @@ export const LESSONS_TABS: Tab[] = [
         title: 'Enrolled Students',
         description: 'Manage students enrolled in this class',
         template: StudentsComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Presenças',
@@ -35,6 +38,7 @@ export const LESSONS_TABS: Tab[] = [
         title: 'Class Attendance',
         description: 'Manage attendance records for this class',
         template: AttendanceComponent,
+        data: { token: STUDENT_DATA }
     },
     {
         header: 'Materiais',
@@ -42,5 +46,6 @@ export const LESSONS_TABS: Tab[] = [
         title: 'Lesson Materials',
         description: 'Manage materials-dashboard for this lesson',
         template: MaterialsComponent,
+        data: { token: STUDENT_DATA }
     }
 ];

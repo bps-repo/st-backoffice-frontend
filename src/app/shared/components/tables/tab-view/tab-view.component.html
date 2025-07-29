@@ -8,7 +8,7 @@
         draggable="false"
     >
         <ng-container #dynamicComponentContainer>
-            <ng-container *ngComponentOutlet="tab.template; injector: getInjector(tab.data.token, tab.data.value)"  ></ng-container>
+            <ng-container *ngComponentOutlet="tab.template; injector: getInjector(tab.data.token , tab.data?.value)"  ></ng-container>
         </ng-container>
     </p-tabPanel>
 </p-tabView>

@@ -3,7 +3,6 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TabMenuModule} from 'primeng/tabmenu';
 import {TabViewModule} from 'primeng/tabview';
 import {Tab} from 'src/app/shared/@types/tab';
-import {TabViewComponent} from 'src/app/shared/components/tables/tab-view/tab-view.component';
 import {STUDENTS_TABS} from 'src/app/shared/constants/students';
 import {Observable, Subscription} from 'rxjs';
 import {SplitButtonModule} from 'primeng/splitbutton';
@@ -13,6 +12,7 @@ import {Store} from "@ngrx/store";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectStudentById} from "../../../../../../core/store/schoolar/students/students.selectors";
 import {Student} from "../../../../../../core/models/academic/student";
+import {TabViewComponent} from "../../../../../../shared/components/tables/tab-view/tab-view.component";
 
 @Component({
     selector: 'app-student',
@@ -20,16 +20,16 @@ import {Student} from "../../../../../../core/models/academic/student";
         TabMenuModule,
         TabViewModule,
         CommonModule,
-        TabViewComponent,
         SplitButtonModule,
+        TabViewComponent,
     ],
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
-    tabs!: Tab<Student>[];
+    tabs: Tab<Student>[] = STUDENTS_TABS;
     items!: MenuItem[];
     studentId!: string;
-    student$!: Observable<Student | null>;
+    student$?: Observable<Student | null>;
     private subscriptions = new Subscription();
 
     constructor(
@@ -50,8 +50,6 @@ export class DetailComponent implements OnInit, OnDestroy {
                 }
             })
         );
-
-        this.tabs = STUDENTS_TABS;
 
         this.items = [
             {label: 'Imprimir cartão', icon: 'pi pi-file-pdf'},

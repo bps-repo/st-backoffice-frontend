@@ -92,8 +92,7 @@ export class GlobalTable<T> implements OnInit {
         return this._data;
     }
 
-    ngOnInit(): void {
-    }
+    ngOnInit(): void {}
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
