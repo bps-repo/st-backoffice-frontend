@@ -15,7 +15,7 @@ export const createValidatedStudentAdapter = () => {
                 console.warn('Student missing user data');
                 return 0;
             }
-            return a.user.lastName.localeCompare(b.user.lastName);
+            return a.user.lastname.localeCompare(b.user.lastname);
         }
     });
 };

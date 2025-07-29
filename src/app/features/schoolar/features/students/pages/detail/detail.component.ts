@@ -8,12 +8,14 @@ import {ActivatedRoute} from '@angular/router';
 import {Store} from "@ngrx/store";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectStudentById} from "../../../../../../core/store/schoolar/students/students.selectors";
-import {Student, StudentStatus} from "../../../../../../core/models/academic/student";
+import {Student} from "../../../../../../core/models/academic/student";
 import {StyleClassModule} from "primeng/styleclass";
 import {CardModule} from 'primeng/card';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {ButtonModule} from 'primeng/button';
 import {DatePipe} from '@angular/common';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {FormsModule} from '@angular/forms';
 
 
 @Component({
@@ -26,7 +28,9 @@ import {DatePipe} from '@angular/common';
         StyleClassModule,
         CardModule,
         ProgressBarModule,
-        ButtonModule
+        ButtonModule,
+        SelectButtonModule,
+        FormsModule
     ],
     providers: [DatePipe],
     templateUrl: './detail.component.html'
@@ -35,6 +39,22 @@ export class DetailComponent implements OnInit, OnDestroy {
     studentId!: string;
     student$?: Observable<Student | null>;
     private subscriptions = new Subscription();
+
+    // Tab view properties
+    currentView: string = 'overview'; // Default view is overview
+    viewOptions = [
+        { label: 'Visão geral', value: 'overview' },
+        { label: 'Historico de aulas', value: 'lessons' },
+        { label: 'Avaliações', value: 'assessments' },
+        { label: 'Frequências', value: 'attendances' },
+        { label: 'Pagamentos', value: 'payments' },
+        { label: 'Historico', value: 'history' }
+    ];
+
+    // Method to handle view selection
+    onViewChange(event: any) {
+        this.currentView = event.value;
+    }
 
     constructor(
         private route: ActivatedRoute,

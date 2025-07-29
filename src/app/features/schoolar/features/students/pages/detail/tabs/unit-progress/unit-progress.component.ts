@@ -109,7 +109,7 @@ export class UnitProgressTabComponent implements OnInit {
         this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `Progress report for ${this.student.user.firstName} exported`
+            detail: `Progress report for ${this.student.user.firstname} exported`
         });
     }
 }

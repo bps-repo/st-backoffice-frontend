@@ -1,9 +1,35 @@
+<style>
+    ::ng-deep .p-selectbutton {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    ::ng-deep .p-selectbutton .p-button {
+        margin-right: 0.5rem;
+        border: none;
+    }
+
+    ::ng-deep .p-selectbutton .p-button:last-child {
+        margin-right: 0;
+    }
+
+    /* Animation classes */
+    .animate-fade {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .animate-scale {
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+</style>
+
 <div class="grid">
     <div class="col-12 flex justify-content-start align-content-center gap-4">
         <button pButton icon="pi pi-arrow-left" class="p-button-secondary p-button-outlined h-3rem mt-2 "
                 label="Voltar"></button>
         <div class="flex flex-column text-sm">
-            <h1 class="text-2xl" *ngIf="student$ | async as student">{{ student.user.firstName }}</h1>
+            <h1 class="text-2xl"
+                *ngIf="student$ | async as student">{{ student.user.firstname + " " + student.user.lastname }}</h1>
             <span *ngIf="student$ | async as student">{{ student.user.email }}</span>
         </div>
     </div>
@@ -20,7 +46,8 @@
                     </div>
                     <div *ngIf="student$ | async as student">
                         <span class="text-3xl font-bold block mb-2">{{ getAttendancePercentage(student) }}%</span>
-                        <p-progressBar [value]="getAttendancePercentage(student)" [showValue]="false" styleClass="mb-2"></p-progressBar>
+                        <p-progressBar [value]="getAttendancePercentage(student)" [showValue]="false"
+                                       styleClass="mb-2"></p-progressBar>
                     </div>
                 </div>
             </div>
@@ -34,7 +61,8 @@
                     </div>
                     <div *ngIf="student$ | async as student">
                         <span class="text-3xl font-bold block mb-2">{{ getLevelName(student) }}</span>
-                        <p-progressBar [value]="student.levelProgressPercentage" [showValue]="false" styleClass="mb-2"></p-progressBar>
+                        <p-progressBar [value]="student.levelProgressPercentage" [showValue]="false"
+                                       styleClass="mb-2"></p-progressBar>
                     </div>
                 </div>
             </div>
@@ -47,7 +75,8 @@
                         <i class="pi pi-check-circle text-primary text-xl"></i>
                     </div>
                     <div *ngIf="student$ | async as student">
-                        <span class="text-3xl font-bold block mb-2">{{ getCompletedLessons(student) }} / {{ getTotalLessons(student) }}</span>
+                        <span class="text-3xl font-bold block mb-2">{{ getCompletedLessons(student) }}
+                            / {{ getTotalLessons(student) }}</span>
                         <span class="text-sm text-500 block">{{ getMissingLessons(student) }} aulas pendentes</span>
                     </div>
                 </div>
@@ -61,11 +90,104 @@
                         <i class="pi pi-user text-primary text-xl"></i>
                     </div>
                     <div *ngIf="student$ | async as student">
-                        <span class="text-3xl font-bold block mb-2" [ngClass]="getStatusColor(student)">{{ student.status }}</span>
+                        <span class="text-3xl font-bold block mb-2"
+                              [ngClass]="getStatusColor(student)">{{ student.status }}</span>
                         <span class="text-sm text-500 block">Desde {{ formatDate(student.enrollmentDate) }}</span>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Tab View -->
+    <div class="col-12 mt-4">
+        <div class="flex justify-content-start gap-2 items-center mb-4">
+            <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+                            optionLabel="label" optionValue="value"></p-selectButton>
+        </div>
+
+        <!-- Visão geral Tab Content -->
+        @if (currentView === 'overview') {
+            <div class="col-12 animate-fade px-fadein">
+                <div class="card">
+                    <h3>Visão geral do aluno</h3>
+                    <p>Informações gerais sobre o aluno, progresso acadêmico e desempenho.</p>
+                    <!-- Placeholder content -->
+                    <div class="mt-4 p-4 surface-100 border-round">
+                        <p>Conteúdo da visão geral será exibido aqui.</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Historico de aulas Tab Content -->
+        @if (currentView === 'lessons') {
+            <div class="col-12 animate-scale px-scalein">
+                <div class="card">
+                    <h3>Aulas</h3>
+                    <p>Registro de todas as aulas, presenças, faltas e avaliações.</p>
+                    <!-- Placeholder content -->
+                    <div class="mt-4 p-4 surface-100 border-round">
+                        <p>Histórico de aulas será exibido aqui.</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Avaliações Tab Content -->
+        @if (currentView === 'assessments') {
+            <div class="col-12 animate-scale px-scalein">
+                <div class="card">
+                    <h3>Avaliações</h3>
+                    <p>Histórico de avaliações, notas e desempenho acadêmico do aluno.</p>
+                    <!-- Placeholder content -->
+                    <div class="mt-4 p-4 surface-100 border-round">
+                        <p>Informações de avaliações serão exibidas aqui.</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Frequências Tab Content -->
+        @if (currentView === 'attendances') {
+            <div class="col-12 animate-scale px-scalein">
+                <div class="card">
+                    <h3>Frequências</h3>
+                    <p>Registro detalhado de presenças e faltas do aluno em todas as aulas.</p>
+                    <!-- Placeholder content -->
+                    <div class="mt-4 p-4 surface-100 border-round">
+                        <p>Registro de frequências será exibido aqui.</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Pagamentos Tab Content -->
+        @if (currentView === 'payments') {
+            <div class="col-12 animate-scale px-scalein">
+                <div class="card">
+                    <h3>Pagamentos</h3>
+                    <p>Histórico de pagamentos, faturas e status financeiro.</p>
+                    <!-- Placeholder content -->
+                    <div class="mt-4 p-4 surface-100 border-round">
+                        <p>Informações de pagamentos serão exibidas aqui.</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Historico Tab Content -->
+        @if (currentView === 'history') {
+            <div class="col-12 animate-scale px-scalein">
+                <div class="card">
+                    <h3>Histórico</h3>
+                    <p>Histórico completo do aluno, incluindo mudanças de status, níveis e eventos importantes.</p>
+                    <!-- Placeholder content -->
+                    <div class="mt-4 p-4 surface-100 border-round">
+                        <p>Histórico completo será exibido aqui.</p>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>

@@ -146,7 +146,7 @@ export class BookLessonComponent implements OnInit, OnDestroy {
             if (existingIndex === -1) {
                 updatedStudents.push({
                     id: student.id,
-                    name: `${student.user.firstName} ${student.user.lastName}`,
+                    name: `${student.user.firstname} ${student.user.lastname}`,
                     email: student.user.email,
                     phone: student.user.identificationNumber || ''
                 });

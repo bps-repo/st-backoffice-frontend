@@ -131,7 +131,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
     updateStudentInfo(student: Student): void {
         this.studentInfo = {
             id: student.id,
-            name: student.user?.firstName || 'N/A',
+            name: student.user?.firstname || 'N/A',
             email: student.user?.email || 'N/A',
             center: student.centerId || 'N/A',
             course: 'English Language', // This could be derived from student.levelId
