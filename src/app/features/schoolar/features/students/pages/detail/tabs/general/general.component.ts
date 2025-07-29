@@ -39,18 +39,20 @@ import {selectStudentById} from 'src/app/core/store/schoolar/students/students.s
     templateUrl: './general.component.html'
 })
 export class GeneralComponent implements OnInit, OnDestroy {
-    // Make Math available in the template
     Math = Math;
 
     // Student information
     studentInfo: any = {};
+
     student$!: Observable<Student | null>;
-    student: Student | null = null;
+
     studentId: string | null = null;
+
     private subscriptions = new Subscription();
 
     // Academic progress
     unitProgress: number = 75;
+
     levelProgress: number = 45;
 
     // Scheduled lessons
@@ -65,8 +67,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
         private route: ActivatedRoute
-    ) {
-    }
+    ) {}
 
     ngOnInit(): void {
         // Get the student ID from the route
@@ -74,14 +75,11 @@ export class GeneralComponent implements OnInit, OnDestroy {
             this.route.parent?.params.subscribe(params => {
                 this.studentId = params['id'];
                 if (this.studentId) {
-                    // Set up selector for this student
                     this.student$ = this.store.select(selectStudentById(this.studentId));
 
                     // Subscribe to student data
                     this.subscriptions.add(
                         this.student$.subscribe(student => {
-                            this.student = student;
-                            console.log('Student 1 data:', this.student);
                             if (student) {
                                 this.updateStudentInfo(student);
                             }

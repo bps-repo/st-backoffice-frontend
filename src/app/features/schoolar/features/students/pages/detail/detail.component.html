@@ -2,8 +2,10 @@
     <div class="card w-full">
         <div class="flex justify-content-between gap-5">
             <div>
-                <h1 class="text-3xl text-dark" *ngIf="student">{{ student.user?.firstName || 'N/A' }} - {{ student.code || 'N/A' }}</h1>
-                <h1 class="text-3xl text-dark" *ngIf="!student">Loading student details...</h1>
+                <h1 class="text-3xl text-dark"
+                    *ngIf="student$ | async">{{ (student$ | async)?.user?.firstName || 'N/A' }}
+                    - {{ (student$ | async)?.code || 'N/A' }}</h1>
+                <h1 class="text-3xl text-dark" *ngIf="!(student$ | async)">Loading student details...</h1>
             </div>
             <div class="action-buttons">
                 <p-splitButton
@@ -15,5 +17,5 @@
             </div>
         </div>
     </div>
-    <app-tab-view [tabs]="tabs" class="w-full"></app-tab-view>
+    <app-tab-view [tabs]="tabs" [data]="student$" class="w-full"></app-tab-view>
 </div>

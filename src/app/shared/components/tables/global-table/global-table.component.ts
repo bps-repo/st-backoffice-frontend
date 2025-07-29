@@ -43,7 +43,6 @@ export interface TableColumn {
         SliderModule,
         ButtonModule,
         RouterModule,
-        TableHeaderComponent,
     ],
     templateUrl: './global-table.component.html',
 })

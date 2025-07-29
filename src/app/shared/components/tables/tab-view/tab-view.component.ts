@@ -16,5 +16,16 @@ export class TabViewComponent {
     @ViewChild('dynamicComponentContainer', {read: ViewContainerRef})
     container!: ViewContainerRef;
 
-    @Input() tabs: Observable<Tab[]> = of([]);
+    @Input()
+    tabs: Tab[] = [];
+
+    @Input()
+    data: Observable<any> = of()
+
+
+    constructor() {
+        this.data.subscribe(data => {
+            console.log(data)
+        })
+    }
 }

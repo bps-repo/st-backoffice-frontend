@@ -27,7 +27,7 @@ import {examsActions} from "../../../../../../core/store/schoolar/assessments/ex
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
-    tabs!: Observable<Tab[]>;
+    tabs!: Tab[];
     items!: MenuItem[];
     exam: Exam | null = null;
     private destroy$ = new Subject<void>();

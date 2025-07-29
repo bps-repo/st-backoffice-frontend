@@ -24,7 +24,7 @@
 
     .sticky-active {
         background-color: var(--surface-card);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     /* Animation classes */
@@ -47,7 +47,8 @@
 
 <section class="grid">
 
-    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header" [ngClass]="{'sticky-active': isMainHeaderSticky}">
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de alunos</h2>
             <span class="text-lg">Cadastro e acompanhamento completo dos alunos</span>
@@ -60,7 +61,8 @@
         ></p-button>
     </div>
 
-    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header" style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
         <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
                         optionLabel="label" optionValue="value"></p-selectButton>
     </div>
@@ -142,11 +144,11 @@
 </ng-template>
 
 <ng-template #centerTemplate let-rowData>
-    <span>{{ getStudentCenter(rowData.centerId) ?? 'N/A' }}</span>
+    <span>{{ getStudentCenter(rowData.centerId) }}</span>
 </ng-template>
 
 <ng-template #levelTemplate let-rowData>
-    <span> {{ getStudentLevel(rowData.levelId) ?? 'N/A' }} </span>
+    <span> {{ getStudentLevel(rowData.levelId) }} </span>
 </ng-template>
 
 <ng-template #classTemplate let-rowData>

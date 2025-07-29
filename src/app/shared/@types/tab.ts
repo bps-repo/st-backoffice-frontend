@@ -5,4 +5,5 @@ export interface Tab {
     description?: string;
     template: any;
     style?: any;
+    data?: any
 }

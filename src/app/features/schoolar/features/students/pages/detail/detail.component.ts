@@ -8,7 +8,7 @@ import {STUDENTS_TABS} from 'src/app/shared/constants/students';
 import {Observable, Subscription} from 'rxjs';
 import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {Store} from "@ngrx/store";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectStudentById} from "../../../../../../core/store/schoolar/students/students.selectors";
@@ -26,19 +26,16 @@ import {Student} from "../../../../../../core/models/academic/student";
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
-    tabs!: Observable<Tab[]>;
+    tabs!: Tab[];
     items!: MenuItem[];
     studentId!: string;
     student$!: Observable<Student | null>;
-    student: Student | null = null;
     private subscriptions = new Subscription();
 
     constructor(
-        private router: Router,
         private route: ActivatedRoute,
         private store$: Store
-    ) {
-    }
+    ) {}
 
     ngOnInit() {
         this.subscriptions.add(
@@ -50,19 +47,12 @@ export class DetailComponent implements OnInit, OnDestroy {
 
                     // Set up selector for this student
                     this.student$ = this.store$.select(selectStudentById(this.studentId));
-
-                    // Subscribe to student data
-                    this.subscriptions.add(
-                        this.student$.subscribe(student => {
-                            this.student = student;
-                            console.log('Student data:', this.student);
-                        })
-                    );
                 }
             })
         );
 
         this.tabs = STUDENTS_TABS;
+
         this.items = [
             {label: 'Imprimir cartão', icon: 'pi pi-file-pdf'},
             {

@@ -6,7 +6,7 @@ import {
 } from "../../features/schoolar/features/lessons/pages/detail/tabs/students/students.component";
 import {ScoresComponent} from "../../features/schoolar/features/assessments/pages/detail/tabs/scores/scores.component";
 
-export const ASSESSMENTS_TABS: Observable<Tab[]> = of([
+export const ASSESSMENTS_TABS: Tab[] = [
     {
         header: 'student Information',
         icon: 'pi pi-info-circle',
@@ -28,4 +28,4 @@ export const ASSESSMENTS_TABS: Observable<Tab[]> = of([
         description: 'View detailed scores and analytics',
         template: ScoresComponent,
     }
-]);
+];

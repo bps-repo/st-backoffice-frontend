@@ -27,7 +27,7 @@ import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/less
     templateUrl: './lesson-detail.component.html'
 })
 export class LessonDetailComponent implements OnInit, OnDestroy {
-    tabs!: Observable<Tab[]>;
+    tabs!: Tab[];
     items!: MenuItem[];
     lesson: Lesson | null = mockLesson
     private destroy$ = new Subject<void>();
