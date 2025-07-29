@@ -1,5 +1,5 @@
 import {
-    Component,
+    Component, inject,
     InjectionToken,
     Injector,
     Input,
@@ -25,6 +25,8 @@ export class TabViewComponent implements OnInit, OnDestroy {
     @ViewChild('dynamicComponentContainer', {read: ViewContainerRef})
     container!: ViewContainerRef;
 
+    injector = inject(Injector)
+
     @Input()
     tabs: Tab[] = [];
 
@@ -32,8 +34,6 @@ export class TabViewComponent implements OnInit, OnDestroy {
     data: any
 
     private subscription = new Subscription();
-
-    constructor(private injector: Injector) {}
 
     ngOnInit(): void {
         // Subscribe to data changes and update tab data values

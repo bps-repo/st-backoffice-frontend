@@ -1,21 +1,71 @@
 <div class="grid">
-    <div class="card w-full">
-        <div class="flex justify-content-between gap-5">
-            <div>
-                <h1 class="text-3xl text-dark"
-                    *ngIf="student$ | async">{{ (student$ | async)?.user?.firstName || 'N/A' }}
-                    - {{ (student$ | async)?.code || 'N/A' }}</h1>
-                <h1 class="text-3xl text-dark" *ngIf="!(student$ | async)">Loading student details...</h1>
+    <div class="col-12 flex justify-content-start align-content-center gap-4">
+        <button pButton icon="pi pi-arrow-left" class="p-button-secondary p-button-outlined h-3rem mt-2 "
+                label="Voltar"></button>
+        <div class="flex flex-column text-sm">
+            <h1 class="text-2xl" *ngIf="student$ | async as student">{{ student.user.firstName }}</h1>
+            <span *ngIf="student$ | async as student">{{ student.user.email }}</span>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="col-12">
+        <div class="grid">
+            <!-- Frequencia KPI Card -->
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="card">
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <span class="font-semibold text-lg">Frequencia</span>
+                        <i class="pi pi-calendar text-primary text-xl"></i>
+                    </div>
+                    <div *ngIf="student$ | async as student">
+                        <span class="text-3xl font-bold block mb-2">{{ getAttendancePercentage(student) }}%</span>
+                        <p-progressBar [value]="getAttendancePercentage(student)" [showValue]="false" styleClass="mb-2"></p-progressBar>
+                    </div>
+                </div>
             </div>
-            <div class="action-buttons">
-                <p-splitButton
-                    label="Acções rápidas"
-                    icon="pi pi-sliders-h"
-                    [model]="items"
-                    styleClass="p-button-info text-5xl"
-                ></p-splitButton>
+
+            <!-- Nivel Actual KPI Card -->
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="card">
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <span class="font-semibold text-lg">Nivel actual</span>
+                        <i class="pi pi-chart-line text-primary text-xl"></i>
+                    </div>
+                    <div *ngIf="student$ | async as student">
+                        <span class="text-3xl font-bold block mb-2">{{ getLevelName(student) }}</span>
+                        <p-progressBar [value]="student.levelProgressPercentage" [showValue]="false" styleClass="mb-2"></p-progressBar>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aulas Concluidas KPI Card -->
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="card">
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <span class="font-semibold text-lg">Aulas concluidas</span>
+                        <i class="pi pi-check-circle text-primary text-xl"></i>
+                    </div>
+                    <div *ngIf="student$ | async as student">
+                        <span class="text-3xl font-bold block mb-2">{{ getCompletedLessons(student) }} / {{ getTotalLessons(student) }}</span>
+                        <span class="text-sm text-500 block">{{ getMissingLessons(student) }} aulas pendentes</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Status KPI Card -->
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="card">
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <span class="font-semibold text-lg">Student status</span>
+                        <i class="pi pi-user text-primary text-xl"></i>
+                    </div>
+                    <div *ngIf="student$ | async as student">
+                        <span class="text-3xl font-bold block mb-2" [ngClass]="getStatusColor(student)">{{ student.status }}</span>
+                        <span class="text-sm text-500 block">Desde {{ formatDate(student.enrollmentDate) }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <app-tab-view [tabs]="tabs" [data]="student$" class="w-full"></app-tab-view>
 </div>
