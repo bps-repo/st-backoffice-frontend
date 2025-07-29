@@ -26,8 +26,9 @@ import {
     PagamentosComponent
 } from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/pagamentos.component';
 import {HistoryComponent} from "../../features/schoolar/features/students/pages/detail/tabs/history/history.component";
+import {Student} from "../../core/models/academic/student";
 
-export const STUDENTS_TABS: Tab[] = [
+export const STUDENTS_TABS: Tab<Student>[] = [
     {
         header: 'Visualização general do Aluno',
         icon: 'pi pi-th-large',

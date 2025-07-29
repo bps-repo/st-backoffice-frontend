@@ -26,7 +26,7 @@ import {Student} from "../../../../../../core/models/academic/student";
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
-    tabs!: Tab[];
+    tabs!: Tab<Student>[];
     items!: MenuItem[];
     studentId!: string;
     student$!: Observable<Student | null>;

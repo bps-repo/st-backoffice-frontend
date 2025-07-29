@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ViewContainerRef} from '@angular/core';
+import {Component, InjectionToken, Injector, Input, ViewChild, ViewContainerRef} from '@angular/core';
 import {TabMenuModule} from 'primeng/tabmenu';
 import {TabViewModule} from 'primeng/tabview';
 import {Tab} from '../../../@types/tab';
@@ -23,9 +23,13 @@ export class TabViewComponent {
     data: Observable<any> = of()
 
 
-    constructor() {
-        this.data.subscribe(data => {
-            console.log(data)
-        })
+    constructor(private injector: Injector) {
+    }
+
+    getInjector<T>(token: InjectionToken<T>, data: T): Injector {
+        return Injector.create({
+            providers: [{provide: token, useValue: data}],
+            parent: this.injector
+        });
     }
 }
