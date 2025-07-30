@@ -13,9 +13,9 @@ interface Alert {
     selector: 'app-general',
     standalone: true,
     imports: [ChartModule, CommonModule, FormsModule, CalendarModule],
-    templateUrl: './general-dashboard.component.html',
+    templateUrl: './general-scholar-dashboard.component.html',
 })
-export class GeneralDashboardComponent implements OnInit {
+export class GeneralScholarDashboardComponent implements OnInit {
 
     pieDataLevels: any;
     pieLevelOptions: any;

@@ -5,7 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {CalendarModule} from 'primeng/calendar';
 import {SelectButtonModule} from "primeng/selectbutton";
 import {ViewTabComponent} from "../../../../shared/components/view-tab/view-tab.component";
-import {GeneralDashboardComponent} from "./components/general/general-dashboard.component";
+import {GeneralScholarDashboardComponent} from "./components/general/general-scholar-dashboard.component";
 import {StudentsDashboardComponent} from "./components/students/student-dashboard.component";
 import {LessonsDashboardComponent} from "./components/lessons/lessons-dashboard.component";
 import {ClassesDashboardComponent} from "./components/classes/classes-dashboard.component";
@@ -26,7 +26,7 @@ type ViewOption = { label: string; value: { key: string; component: any }, icon?
 })
 export class SchoolarDashboard {
     viewOptions: ViewOption[] = [
-        {label: 'Geral', value: {key: 'general', component: GeneralDashboardComponent}},
+        {label: 'Geral', value: {key: 'general', component: GeneralScholarDashboardComponent}},
         {label: 'Alunos', value: {key: 'students', component: StudentsDashboardComponent}},
         {label: 'Aulas', value: {key: 'lessons', component: LessonsDashboardComponent}},
         {label: 'Turmas', value: {key: 'classes', component: ClassesDashboardComponent}},

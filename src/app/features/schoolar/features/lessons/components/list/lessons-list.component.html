@@ -1,15 +1,85 @@
 <div class="grid">
-    <app-global-table
-        tableLabel="Aulas"
-        [columnTemplates]="columnTemplates"
-        [data]="lessons$ | async"
-        [loading]="loading$ | async"
-        [entity]="'lessons'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        class="w-full"
-        (createEntity)="navigateToCreateLesson()"
-    ></app-global-table>
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Gestão de aulas</h2>
+            <span class="text-lg">Sistema completo para criaçãp, gerenciamento e análise de aulas</span>
+        </div>
+        <p-button
+            label="Novo aula"
+            icon="pi pi-plus"
+            class="p-button-outlined"
+            (click)="navigateToCreateLesson()"
+        ></p-button>
+    </div>
+
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- Lista de aulas View -->
+    @if (currentView === 'list') {
+        <div class="col-12 animate-fade">
+            <div class="flex justify-content-between align-items-center mb-3">
+                <div class="flex align-items-center">
+                    <span class="p-input-icon-left mr-2">
+                        <i class="pi pi-search"></i>
+                        <input type="text" pInputText placeholder="Buscar aulas" />
+                    </span>
+                    <p-dropdown [options]="[
+                        {label: 'Status', value: 'status'},
+                        {label: 'Data', value: 'date'},
+                        {label: 'Nível', value: 'level'},
+                        {label: 'Tipo', value: 'type'}
+                    ]" placeholder="Filtrar por" class="mr-2"></p-dropdown>
+                </div>
+                <div class="flex">
+                    <p-button icon="pi pi-table" class="mr-2" pTooltip="Visualização em tabela"></p-button>
+                    <p-button icon="pi pi-th-large" class="mr-2" pTooltip="Visualização em cards"></p-button>
+                    <p-button icon="pi pi-download" label="Exportar" pTooltip="Exportar"></p-button>
+                </div>
+            </div>
+
+            <app-global-table
+                tableLabel="Aulas"
+                [columnTemplates]="columnTemplates"
+                [data]="lessons$ | async"
+                [loading]="loading$ | async"
+                [entity]="'lessons'"
+                [columns]="columns"
+                [globalFilterFields]="globalFilterFields"
+                class="w-full"
+                (createEntity)="navigateToCreateLesson()"
+            ></app-global-table>
+        </div>
+    }
+
+    <!-- Calendario View -->
+    @if (currentView === 'calendario') {
+        <div class="col-12 animate-fade content-sticky">
+            <div class="p-4 text-center">
+                <h3>Visualização de Calendario</h3>
+                <p>Conteúdo do calendário será implementado aqui.</p>
+            </div>
+        </div>
+    }
+
+    <!-- Relatorios View -->
+    @if (currentView === 'relatorios') {
+        <app-lesson-reports></app-lesson-reports>
+    }
+
+    <!-- Estatisticas View -->
+    @if (currentView === 'estatisticas') {
+        <div class="col-12 animate-fade content-sticky">
+            <div class="p-4 text-center">
+                <h3>Estatísticas</h3>
+                <p>Conteúdo das estatísticas será implementado aqui.</p>
+            </div>
+        </div>
+    }
 </div>
 
 
