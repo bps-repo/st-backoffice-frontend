@@ -3,7 +3,7 @@
          [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de aulas</h2>
-            <span class="text-lg">Sistema completo para criaçãp, gerenciamento e análise de aulas</span>
+            <span class="text-lg">Sistema completo para criação, gerenciamento e análise de aulas</span>
         </div>
         <p-button
             label="Novo aula"
@@ -54,11 +54,6 @@
                 (createEntity)="navigateToCreateLesson()"
             ></app-global-table>
         </div>
-    }
-
-    <!-- Calendario View -->
-    @if (currentView === 'calendario') {
-        <app-lesson-calendar class="col-12"></app-lesson-calendar>
     }
 
     <!-- Relatorios View -->

@@ -114,9 +114,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     viewOptions = [
         { label: 'Lista de aulas', value: 'list' },
-        { label: 'Calendario', value: 'calendario' },
-        { label: 'Relatorios', value: 'relatorios' },
-        { label: 'Estatisticas', value: 'estatisticas' }
+        { label: 'Relatórios', value: 'relatorios' },
+        { label: 'Estatísticas', value: 'estatisticas' }
     ];
 
     // References to sticky header elements

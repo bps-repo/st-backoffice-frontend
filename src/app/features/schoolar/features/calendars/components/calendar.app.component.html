@@ -1,116 +1,164 @@
-<!-- Search and Filters Row -->
-<div class="grid mb-3">
-    <div class="col-12 flex justify-content-between align-content-center">
-        <div class="col-8 flex">
-            <span class="p-input-icon-left w-full mr-2">
-                <i class="pi pi-search"></i>
-                <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" pInputText
-                       placeholder="Buscar aulas"/>
-            </span>
-            <button
-                *ngIf="searchTerm"
-                pButton
-                type="button"
-                icon="pi pi-times"
-                class="p-button-outlined p-button-danger"
-                (click)="searchTerm=''; applyFilters()"
-            ></button>
-        </div>
-        <div class="flex gap-2 h-3rem mt-3">
-            <button
-                pButton
-                type="button"
-                icon="pi pi-filter"
-                label="Filtros"
-                (click)="showFilterDialog = true"
-                class="p-button-secondary"
-                [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
-                [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
-            ></button>
-            <button
-                pButton
-                type="button"
-                icon="pi pi-plus"
-                label="Nova aula"
-                (click)="createNewEvent()"
-            ></button>
-        </div>
-    </div>
-</div>
-
-<!-- Navigation and Month/Year Display Row -->
-<div class="grid mb-3">
-    <div class="col-12 flex justify-content-between align-items-center">
+<section class="grid">
+    <!-- Main Header -->
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
-            <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text"
-                    (click)="navigatePrev()"></button>
-            <span class="font-bold text-xl mx-3 mb-10">{{ currentMonthYear }}</span>
-            <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text"
-                    (click)="navigateNext()"></button>
+            <h2 class="font-bold text-2xl mb-4">Gestão de Calendário</h2>
+            <span class="text-lg">Cadastro e acompanhamento completo das aulas</span>
         </div>
+        <p-button
+            (onClick)="createNewEvent()"
+            label="Nova aula"
+            icon="pi pi-plus"
+            class="p-button-outlined"
+        ></p-button>
+    </div>
 
-        <div class="col-12 md:col-6 lg:col-4 mb-2">
-            <div class="p-buttonset float-right">
-                <button
-                    *ngFor="let option of viewOptions"
-                    pButton
-                    type="button"
-                    [label]="option.label"
-                    [class.p-button-outlined]="selectedView !== option.value"
-                    [class.p-button-info]="selectedView === option.value"
-                    (click)="changeView(option.value)"
-                ></button>
-                <button pButton type="button" label="Hoje" class="p-button-outlined"
-                        (click)="navigateToday()"></button>
+    <!-- View Selector -->
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
 
+    <!-- Calendar View -->
+    <ng-container *ngIf="currentView === 'calendar'">
+        <!-- KPI Cards Row with animation -->
+        <div class="col-12 animate-fade px-fadein">
+            <div class="flex gap-7 mb-3">
+                <div *ngFor="let k of kpis">
+                    <app-kpi-indicators class="w-full h-2" [kpi]="k"></app-kpi-indicators>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Active filters display -->
-<div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
-     class="active-filters mb-3">
-    <span class="filter-label mr-2">Active Filters:</span>
+        <!-- Search and Filters Row -->
+        <div class="col-12 grid mb-3 animate-fade px-fadein">
+            <div class="col-12 flex justify-content-between align-content-center">
+                <div class="col-8 flex">
+                    <span class="p-input-icon-left w-full mr-2">
+                        <i class="pi pi-search"></i>
+                        <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" pInputText
+                               placeholder="Buscar aulas"/>
+                    </span>
+                    <button
+                        *ngIf="searchTerm"
+                        pButton
+                        type="button"
+                        icon="pi pi-times"
+                        class="p-button-outlined p-button-danger"
+                        (click)="searchTerm=''; applyFilters()"
+                    ></button>
+                </div>
+                <div class="flex gap-2 h-3rem mt-3">
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-filter"
+                        label="Filtros"
+                        (click)="showFilterDialog = true"
+                        class="p-button-secondary"
+                        [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
+                        [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
+                    ></button>
+                </div>
+            </div>
+        </div>
 
-    <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
-        <span class="tag-color" [style.background-color]="tag.color"></span>
-        <span class="tag-name">{{ tag.name }}</span>
-        <i class="pi pi-times" (click)="removeTag(tag.name)"></i>
-    </span>
+        <!-- Navigation and Month/Year Display Row -->
+        <div class="col-12 grid mb-3 animate-fade px-fadein">
+            <div class="col-12 flex justify-content-between align-items-center">
+                <div>
+                    <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text"
+                            (click)="navigatePrev()"></button>
+                    <span class="font-bold text-xl mx-3 mb-10">{{ currentMonthYear }}</span>
+                    <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text"
+                            (click)="navigateNext()"></button>
+                </div>
 
-    <span *ngFor="let teacher of selectedTeachers" class="filter-tag mr-2 mb-1">
-        <i class="pi pi-user"></i>
-        <span class="tag-name">{{ teacher.label }}</span>
-        <i class="pi pi-times" (click)="removeTeacher(teacher.value)"></i>
-    </span>
+                <div class="col-12 md:col-6 lg:col-4 mb-2">
+                    <div class="p-buttonset float-right">
+                        <button
+                            *ngFor="let option of calendarViewOptions"
+                            pButton
+                            type="button"
+                            [label]="option.label"
+                            [class.p-button-outlined]="selectedCalendarView !== option.value"
+                            [class.p-button-info]="selectedCalendarView === option.value"
+                            (click)="changeView(option.value)"
+                        ></button>
+                        <button pButton type="button" label="Hoje" class="p-button-outlined"
+                                (click)="navigateToday()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <span *ngFor="let center of selectedCenters" class="filter-tag mr-2 mb-1">
-        <i class="pi pi-map-marker"></i>
-        <span class="tag-name">{{ center.label }}</span>
-        <i class="pi pi-times" (click)="removeCenter(center.value)"></i>
-    </span>
+        <!-- Active filters display -->
+        <div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
+             class="active-filters mb-3 animate-fade px-fadein">
+            <span class="filter-label mr-2">Active Filters:</span>
 
-    <span *ngFor="let classEntity of selectedClasses" class="filter-tag mr-2 mb-1">
-        <i class="pi pi-users"></i>
-        <span class="tag-name">{{ classEntity.label }}</span>
-        <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
-    </span>
+            <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
+                <span class="tag-color" [style.background-color]="tag.color"></span>
+                <span class="tag-name">{{ tag.name }}</span>
+                <i class="pi pi-times" (click)="removeTag(tag.name)"></i>
+            </span>
 
-    <button
-        pButton
-        type="button"
-        icon="pi pi-trash"
-        label="Clear All"
-        class="p-button-sm p-button-text p-button-danger ml-2"
-        (click)="clearFilters()"
-    ></button>
-</div>
+            <span *ngFor="let teacher of selectedTeachers" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-user"></i>
+                <span class="tag-name">{{ teacher.label }}</span>
+                <i class="pi pi-times" (click)="removeTeacher(teacher.value)"></i>
+            </span>
 
-<!-- Calendar Card -->
-<div class="card">
-    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
-</div>
+            <span *ngFor="let center of selectedCenters" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-map-marker"></i>
+                <span class="tag-name">{{ center.label }}</span>
+                <i class="pi pi-times" (click)="removeCenter(center.value)"></i>
+            </span>
+
+            <span *ngFor="let classEntity of selectedClasses" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-users"></i>
+                <span class="tag-name">{{ classEntity.label }}</span>
+                <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
+            </span>
+
+            <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                label="Clear All"
+                class="p-button-sm p-button-text p-button-danger ml-2"
+                (click)="clearFilters()"
+            ></button>
+        </div>
+
+        <!-- Calendar Card -->
+        <div class="card col-12 animate-fade px-fadein">
+            <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+        </div>
+    </ng-container>
+
+    <!-- Reports View -->
+    <ng-container *ngIf="currentView === 'reports'">
+        <div class="col-12 animate-scale px-scalein content-sticky">
+            <div class="p-4 text-center">
+                <h3>Relatórios</h3>
+                <p>Conteúdo de relatórios será adicionado aqui.</p>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Settings View -->
+    <ng-container *ngIf="currentView === 'settings'">
+        <div class="col-12 animate-scale px-scalein content-sticky">
+            <div class="p-4 text-center">
+                <h3>Configurações</h3>
+                <p>Conteúdo de configurações será adicionado aqui.</p>
+            </div>
+        </div>
+    </ng-container>
+</section>
 
 <!-- Filter Dialog -->
 <p-dialog

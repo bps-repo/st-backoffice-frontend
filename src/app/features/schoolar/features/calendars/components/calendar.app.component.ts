@@ -4,6 +4,9 @@ import {
     OnInit,
     ViewContainerRef,
     ViewChild,
+    ElementRef,
+    HostListener,
+    AfterViewInit
 } from '@angular/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -26,10 +29,15 @@ import {TooltipModule} from "primeng/tooltip";
 import {InputSwitchModule} from "primeng/inputswitch";
 import {MultiSelectModule} from "primeng/multiselect";
 import {Router} from "@angular/router";
+import {TabViewModule} from "primeng/tabview";
+import {CardModule} from "primeng/card";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {KpiIndicatorsComponent, Kpi} from "src/app/shared/kpi-indicator/kpi-indicator.component";
 
 @Component({
-    selector:"app-lesson-calendar",
+    selector: "app-lesson-calendar",
     templateUrl: './calendar.app.component.html',
+    standalone: true,
     imports: [
         FormsModule,
         ReactiveFormsModule,
@@ -44,12 +52,18 @@ import {Router} from "@angular/router";
         ButtonModule,
         TooltipModule,
         InputSwitchModule,
-        MultiSelectModule
+        MultiSelectModule,
+        TabViewModule,
+        CardModule,
+        SelectButtonModule,
+        KpiIndicatorsComponent
     ],
     styleUrls: ['./calendar.app.component.scss']
 })
-export class CalendarAppComponent implements OnInit {
+export class CalendarAppComponent implements OnInit, AfterViewInit {
     @ViewChild('calendar') calendarComponent?: FullCalendarComponent;
+    @ViewChild('mainHeader', {static: false}) mainHeader!: ElementRef;
+    @ViewChild('viewSelector', {static: false}) viewSelector!: ElementRef;
 
     events: Partial<LessonEvent>[] = LESSONS_EVENTS;
     filteredEvents: Partial<LessonEvent>[] = [];
@@ -84,13 +98,25 @@ export class CalendarAppComponent implements OnInit {
     searchTerm: string = '';
 
     // Calendar view options
-    viewOptions: any[] = [
+    calendarViewOptions: any[] = [
         {label: 'Mês', value: 'dayGridMonth'},
         {label: 'Semana', value: 'timeGridWeek'},
         //{label: 'Day', value: 'timeGridDay'},
         {label: 'Lista', value: 'listWeek'}
     ];
-    selectedView: string = 'dayGridMonth';
+    selectedCalendarView: string = 'dayGridMonth';
+
+    // Tab view options (like students list)
+    currentView: string = 'calendar'; // Default view is calendar
+    viewOptions = [
+        {label: 'Calendário', value: 'calendar'},
+        {label: 'Relatórios', value: 'reports'},
+        {label: 'Configurações', value: 'settings'}
+    ];
+
+    // Sticky header state
+    isMainHeaderSticky: boolean = false;
+    isViewSelectorSticky: boolean = false;
 
     // Current month/year display
     currentMonthYear: string = '';
@@ -112,7 +138,31 @@ export class CalendarAppComponent implements OnInit {
     // Dark mode toggle
     darkMode: boolean = false;
 
+    // KPI metrics as numbers
+    totalLessons: number = 0;
+    activeLessons: number = 0;
+    canceledLessons: number = 0;
+    onlineLessons: number = 0;
+    inPersonLessons: number = 0;
+
+    // KPI metrics as Kpi objects for the KpiIndicatorsComponent
+    kpis: any[] = [];
+
+    // For math calculations in template
+    protected readonly Math = Math;
+
     private tooltipRef: ComponentRef<EventTooltipComponent> | null = null;
+
+    // Listen for scroll events
+    @HostListener('window:scroll', ['$event'])
+    onWindowScroll() {
+        this.checkStickyState();
+    }
+
+    // Method to handle view selection
+    onViewChange(event: any) {
+        this.currentView = event.value;
+    }
 
     constructor(
         private viewContainerRef: ViewContainerRef,
@@ -135,15 +185,24 @@ export class CalendarAppComponent implements OnInit {
         // Extract unique teachers, centers, and classes for filtering
         this.extractFilterOptions();
 
+        // Calculate KPI metrics
+        this.calculateKpiMetrics();
+
+        // Initialize KPI objects for the KpiIndicatorsComponent
+        this.initializeKpis();
+
         // Initialize calendar options
         this.calendarOptions = {
-            initialView: this.selectedView,
+            initialView: this.selectedCalendarView,
             locale: 'pt-br',
             events: this.filteredEvents,
             slotMinTime: '08:00:00',
             slotMaxTime: '23:00:00',
             plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin],
-            height: 720,
+            height: 'auto',
+            aspectRatio: 1.5, // Better ratio for both desktop and mobile
+            handleWindowResize: true,
+            stickyHeaderDates: true,
             hiddenDays: [0],
             initialDate: this.today,
             headerToolbar: false, // Remove default header toolbar
@@ -167,6 +226,117 @@ export class CalendarAppComponent implements OnInit {
             themeSystem: this.darkMode ? 'bootstrap5' : 'standard',
             datesSet: (dateInfo: any) => this.updateCurrentMonthYear(dateInfo),
         };
+    }
+
+    ngAfterViewInit() {
+        // Initialize sticky state check after view is initialized
+        setTimeout(() => {
+            this.checkStickyState();
+        });
+    }
+
+    /**
+     * Initialize KPI objects for the KpiIndicatorsComponent
+     */
+    initializeKpis(): void {
+        this.kpis = [
+            {
+                label: 'Total de aulas',
+                value: this.totalLessons,
+                icon: {label: 'calendar', color: 'text-blue-500'}
+            },
+            {
+                label: 'Activas',
+                value: this.activeLessons,
+                icon: {label: 'user-check', color: 'text-green-500'}
+            },
+            {
+                label: 'Canceladas',
+                value: this.canceledLessons,
+                icon: {label: 'user-cancel', color: 'text-red-500'}
+            },
+            {
+                label: 'Online',
+                value: this.onlineLessons,
+                icon: {label: 'exclamation-circle', color: 'text-cyan-500'}
+            },
+            {
+                label: 'Presencial',
+                value: this.inPersonLessons,
+                icon: {label: 'graduation-cap', color: 'text-purple-500'}
+            }
+        ];
+    }
+
+    /**
+     * Check if headers are in sticky state
+     */
+    checkStickyState() {
+        if (this.mainHeader && this.mainHeader.nativeElement) {
+            const mainHeaderRect = this.mainHeader.nativeElement.getBoundingClientRect();
+            // Header is sticky when its top position is 0
+            this.isMainHeaderSticky = mainHeaderRect.top <= 0;
+        }
+
+        if (this.viewSelector && this.viewSelector.nativeElement) {
+            const viewSelectorRect = this.viewSelector.nativeElement.getBoundingClientRect();
+            // View selector is sticky when its top position is at its sticky position (80px)
+            this.isViewSelectorSticky = viewSelectorRect.top <= 80;
+        }
+    }
+
+    /**
+     * Calculate KPI metrics based on filtered events
+     */
+    calculateKpiMetrics(): void {
+        // Total lessons
+        this.totalLessons = this.filteredEvents.length;
+
+        // Active lessons
+        this.activeLessons = this.filteredEvents.filter(event =>
+            event.extendedProps?.status === 'active' ||
+            !event.extendedProps?.status
+        ).length;
+
+        // Canceled lessons
+        this.canceledLessons = this.filteredEvents.filter(event =>
+            event.extendedProps?.status === 'canceled'
+        ).length;
+
+        // Online lessons
+        this.onlineLessons = this.filteredEvents.filter(event =>
+            event.extendedProps?.isOnline === true
+        ).length;
+
+        // In-person lessons
+        this.inPersonLessons = this.filteredEvents.filter(event =>
+            event.extendedProps?.isOnline === false
+        ).length;
+
+        // Update KPI objects if they've been initialized
+        if (this.kpis.length > 0) {
+            this.updateKpis();
+        }
+    }
+
+    /**
+     * Update KPI objects with current metric values
+     */
+    updateKpis(): void {
+        // Find and update each KPI by label
+        const kpiMap: { [key: string]: number } = {
+            'Total de aulas': this.totalLessons,
+            'Activas': this.activeLessons,
+            'Canceladas': this.canceledLessons,
+            'Online': this.onlineLessons,
+            'Presencial': this.inPersonLessons
+        };
+
+        this.kpis.forEach(kpi => {
+            if (kpiMap[kpi.label] !== undefined) {
+                kpi.value = kpiMap[kpi.label];
+            }
+        });
     }
 
     /**
@@ -209,7 +379,7 @@ export class CalendarAppComponent implements OnInit {
             return event;
         });
 
-        this.applyFilters();
+        this.applyFilters(); // This will also call calculateKpiMetrics
     }
 
     /**
@@ -229,7 +399,7 @@ export class CalendarAppComponent implements OnInit {
             return event;
         });
 
-        this.applyFilters();
+        this.applyFilters(); // This will also call calculateKpiMetrics
     }
 
     handleEventMouseEnter(mouseEnterInfo: any) {
@@ -337,6 +507,9 @@ export class CalendarAppComponent implements OnInit {
 
         this.filteredEvents = filtered;
 
+        // Calculate KPI metrics based on filtered events
+        this.calculateKpiMetrics();
+
         // Update calendar events
         this.calendarOptions = {
             ...this.calendarOptions,
@@ -358,6 +531,9 @@ export class CalendarAppComponent implements OnInit {
         this.filterByClass = false;
 
         this.filteredEvents = [...this.events];
+
+        // Calculate KPI metrics based on filtered events
+        this.calculateKpiMetrics();
 
         // Update calendar events
         this.calendarOptions = {
@@ -431,7 +607,7 @@ export class CalendarAppComponent implements OnInit {
      */
     updateCurrentMonthYear(dateInfo: any): void {
         const date = dateInfo.view.currentStart;
-        const options = { month: 'long', year: 'numeric' };
+        const options = {month: 'long', year: 'numeric'};
         this.currentMonthYear = date.toLocaleDateString('pt-BR', options);
     }
 
@@ -469,7 +645,7 @@ export class CalendarAppComponent implements OnInit {
      * Change calendar view
      */
     changeView(view: string): void {
-        this.selectedView = view;
+        this.selectedCalendarView = view;
 
         // Get calendar API
         const calendarApi = this.calendarComponent?.getApi();
@@ -532,8 +708,8 @@ export class CalendarAppComponent implements OnInit {
      */
     private isSameDate(date1: Date, date2: Date): boolean {
         return date1.getFullYear() === date2.getFullYear() &&
-               date1.getMonth() === date2.getMonth() &&
-               date1.getDate() === date2.getDate();
+            date1.getMonth() === date2.getMonth() &&
+            date1.getDate() === date2.getDate();
     }
 
     /**
