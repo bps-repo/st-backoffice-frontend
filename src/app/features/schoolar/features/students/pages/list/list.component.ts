@@ -91,6 +91,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Sticky state tracking
     isMainHeaderSticky: boolean = false;
+
     isViewSelectorSticky: boolean = false;
 
     students$?: Observable<Student[]>;
@@ -109,6 +110,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // View selection
     currentView: string = 'list'; // Default view is list
+
     viewOptions = [
         { label: 'Lista de alunos', value: 'list' },
         { label: 'Dashboard', value: 'dashboard' },

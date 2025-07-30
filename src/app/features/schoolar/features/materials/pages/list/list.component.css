@@ -1,0 +1,80 @@
+::ng-deep .p-selectbutton {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+::ng-deep .p-selectbutton .p-button {
+    margin-right: 0.5rem;
+    border: none;
+}
+
+::ng-deep .p-selectbutton .p-button:last-child {
+    margin-right: 0;
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sticky-active {
+    background-color: var(--surface-card);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.material-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.material-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.material-card .material-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.material-card .material-header i {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.material-card .material-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.material-card .material-info {
+    margin: 0.5rem 0;
+    color: var(--text-color-secondary);
+}
+
+.material-card .material-levels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.5rem 0;
+}
+
+.material-card .material-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--surface-border);
+}
+
+.paginator-container {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}

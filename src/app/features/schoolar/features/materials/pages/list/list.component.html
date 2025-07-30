@@ -1,46 +1,152 @@
+<style>
+    ::ng-deep .p-selectbutton {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    ::ng-deep .p-selectbutton .p-button {
+        margin-right: 0.5rem;
+        border: none;
+    }
+
+    ::ng-deep .p-selectbutton .p-button:last-child {
+        margin-right: 0;
+    }
+
+    .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sticky-active {
+        background-color: var(--surface-card);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .material-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .material-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
 <div class="grid">
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Gestão de materiais didáticos</h2>
+            <span class="text-lg">Biblioteca digital com controle de acesso</span>
+        </div>
+        <p-button
+            label="Novo material"
+            icon="pi pi-plus"
+            class="p-button-outlined"
+            (onClick)="navigateToCreateMaterial()"
+        ></p-button>
+    </div>
+
+    <!-- Filtering Card -->
+    <div class="col-12 mb-4">
+        <p-card styleClass="shadow-2">
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <span class="p-input-icon-left w-full">
+                        <i class="pi pi-search"></i>
+                        <input
+                            type="text"
+                            pInputText
+                            class="w-full"
+                            placeholder="Buscar por titulo ou professor"
+                            [(ngModel)]="searchText"
+                        />
+                    </span>
+                </div>
+                <div class="col-12 md:col-3">
+                    <p-dropdown
+                        [options]="materialTypes"
+                        [(ngModel)]="selectedType"
+                        placeholder="Filtrar por tipo"
+                        [showClear]="true"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+                <div class="col-12 md:col-3">
+                    <p-dropdown
+                        [options]="installations"
+                        [(ngModel)]="selectedLevel"
+                        placeholder="Filtrar por nível"
+                        [showClear]="true"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Materials Grid -->
     <div class="col-12">
-        <app-global-table
-            tableLabel="Materiais"
-            [data]="materiais"
-            [entity]="'materials-dashboard'"
-            [columns]="columns"
-            [globalFilterFields]="globalFilterFields"
-            [loading]="loading"
-            (createEntity)="navigateToCreateMaterial()"
-            class="w-full"
-        >
-            <!-- Custom template for the disponivel column -->
-            <ng-template pTemplate="disponivel" let-material>
-                <span class="p-badge"
-                      [ngClass]="{
-                        'p-badge-success': material.disponivel,
-                        'p-badge-warning': !material.disponivel
-                      }">
-                    {{ material.disponivel ? 'Disponível' : 'Indisponível' }}
-                </span>
-            </ng-template>
+        <div class="grid">
+            <div *ngFor="let material of materials" class="col-12 md:col-6 lg:col-4 xl:col-3 mb-3">
+                <p-card styleClass="h-full cursor-pointer">
+                    <div
+                        class="flex justify-content-start align-items-center material-header pb-1rem mr-1rem gap-4 no-wrap">
+                        <i class="text-2xl" [ngClass]="getIconForType(material?.type!)"></i>
+                        <div class="flex flex-column">
+                            <span class="font-bold text-lg">{{ material.title }}</span>
+                            <span class="text-gray-500">{{ material.uploader?.name || 'N/A' }}</span>
+                        </div>
+                    </div>
 
-            <!-- Custom template for the actions column -->
-            <ng-template pTemplate="actions" let-material>
-                <div class="flex gap-2 justify-content-center">
-                    <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
-                            (click)="viewDetails(material)"
-                            pTooltip="Ver Detalhes" tooltipPosition="top"></button>
-                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
-                            pTooltip="Editar" tooltipPosition="top"></button>
-                    <button pButton pRipple icon="pi pi-download" class="p-button-rounded p-button-text"
-                            pTooltip="Descarregar" tooltipPosition="top"></button>
-                </div>
-            </ng-template>
+                    <div class="mt-3 flex justify-content-between items-center text-gray-500 m-2">
+                        <span><i class="pi pi-file mr-2"></i>{{ getFileSize(material) || 'N/A' }}</span>
+                        <span><i class="pi pi-download mr-2"></i>{{ getDownloadCount(material) || '0' }}
+                            downloads</span>
+                    </div>
 
-            <!-- Custom template for the table header -->
-            <ng-template pTemplate="header">
-                <div class="flex justify-content-end">
-                    <button pButton pRipple label="Criar Material" icon="pi pi-plus" class="p-button-primary"
-                            (click)="navigateToCreateMaterial()"></button>
-                </div>
-            </ng-template>
-        </app-global-table>
+                    <div class="flex flex-wrap gap-2 m-2">
+                        <p-tag *ngFor="let unit of material.units" [value]="unit.name"></p-tag>
+                        <p-tag *ngIf="!material.units || material.units.length === 0" value="Sem níveis"
+                               severity="danger"></p-tag>
+                    </div>
+
+                    <div class="col-12 flex justify-content-between align-items-center">
+                        <span>Acesso: 30 dias</span>
+                        <span class="bg-gray-200 border-round-sm px-3 py-1 font-semibold">{{ material.type }}</span>
+                    </div>
+
+                    <div class="flex justify-content-between gap-2 mt-3 pt-2rem">
+                        <div class="flex gap-1">
+                            <button pButton icon="pi pi-eye" label="Ver"
+                                    class="p-button-secondary p-button-text bg-gray-100 ml-0"
+                                    (click)="viewDetails(material)" pTooltip="Ver detalhes"></button>
+                            <button pButton icon="pi pi-download" label="Baixar"
+                                    class="p-button-secondary p-button-text bg-gray-100"
+                                    (click)="downloadMaterial(material)" pTooltip="Baixar"></button>
+                        </div>
+                        <div>
+                            <button pButton icon="pi pi-pencil" class="p-button-secondary p-button-text bg-gray-100"
+                                    (click)="editMaterial(material)" pTooltip="Editar"></button>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="paginator-container">
+            <p-paginator
+                [rows]="10"
+                [totalRecords]="100"
+                [rowsPerPageOptions]="[10, 20, 30]"
+                (onPageChange)="onPageChange($event)"
+            ></p-paginator>
+        </div>
     </div>
 </div>

@@ -56,7 +56,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/schoolar/certificates'],
                     },
                     {
-                        label: 'Materiais',
+                        label: 'Materiais didáticos',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/materials'],
                     },
