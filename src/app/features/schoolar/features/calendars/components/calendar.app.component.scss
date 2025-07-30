@@ -106,6 +106,30 @@
             text-decoration: none;
         }
 
+        // Remove all borders from the calendar except for day cells
+        .fc-col-header-cell,
+        .fc-scrollgrid,
+        .fc-theme-standard td,
+        .fc-theme-standard th,
+        .fc-scrollgrid-section,
+        .fc-scrollgrid-section > td,
+        .fc-scrollgrid-section-header,
+        .fc-scrollgrid-section-body,
+        .fc-scrollgrid-section-footer,
+        .fc-timegrid-axis,
+        .fc-timegrid-slot,
+        .fc-timegrid-slots,
+        .fc-timegrid-divider,
+        .fc-list-table,
+        .fc-list-day-cushion {
+            border: none !important;
+        }
+
+        // Keep only day cell borders
+        .fc-daygrid-day {
+            border: 1px solid #ddd !important;
+        }
+
         .fc-day-today {
             background-color: rgba(0, 123, 255, 0.1) !important;
         }
