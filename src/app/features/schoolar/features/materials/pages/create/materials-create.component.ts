@@ -1,18 +1,18 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { SelectItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RippleModule } from 'primeng/ripple';
-import { UploaderComponent } from 'src/app/shared/components/demo/components/apps/file/uploader/uploader.component';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {SelectItem} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {CheckboxModule} from 'primeng/checkbox';
+import {DropdownModule} from 'primeng/dropdown';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import {RippleModule} from 'primeng/ripple';
+import {UploaderComponent} from 'src/app/shared/components/demo/components/apps/file/uploader/uploader.component';
 import {
     COUNTRIES,
     DISCOUNTS,
@@ -44,7 +44,7 @@ export class MaterialsCreateComponent implements OnInit {
 
     levels: any[] = LEVELS;
 
-    estudantes: SelectItem[] = [];
+    students: SelectItem[] = [];
 
     id: string[] = [];
 
@@ -63,18 +63,18 @@ export class MaterialsCreateComponent implements OnInit {
     valCheck: string[] = [];
 
     ngOnInit() {
-        this.estudantes = [
-            { label: 'João Mateus Diogo', value: 234234 },
-            { label: 'Guilherme Francisco Mario', value: 234234 },
-            { label: 'Antonio Mendes Pereira', value: 93234 },
-            { label: 'Ana Sampaio', value: 13123 },
+        this.students = [
+            {label: 'João Mateus Diogo', value: 234234},
+            {label: 'Guilherme Francisco Mario', value: 234234},
+            {label: 'Antonio Mendes Pereira', value: 93234},
+            {label: 'Ana Sampaio', value: 13123},
         ];
 
         this.reviews1 = [
-            { label: 'Mau', value: 12 },
-            { label: 'Mediano', value: 30 },
-            { label: 'Bom', value: 50 },
-            { label: 'Melhor', value: 10 },
+            {label: 'Mau', value: 12},
+            {label: 'Mediano', value: 30},
+            {label: 'Bom', value: 50},
+            {label: 'Melhor', value: 10},
         ];
     }
 

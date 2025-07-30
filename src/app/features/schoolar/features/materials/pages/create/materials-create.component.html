@@ -1,32 +1,46 @@
-<div class="card">
-    <span class="text-900 text-xl font-bold mb-4 block"
-        >Adicionar Materias</span
-    >
+<div class="grid p-5">
+    <div class="col-12 flex-column items-center mb-4">
+        <h2 class="font-bold text-2xl mb-4">Adicionar Materiais</h2>
+        <span class="text-lg">Biblioteca digital com controle de acesso</span>
+    </div>
+
     <div class="grid">
         <!-- DADOS PESSOAIS -->
         <div class="col-12 lg:col-12">
             <div class="grid formgrid p-fluid">
-                <div class="field mb-6 col-12 md:col-12">
+                <div class="field card mb-6 col-12 md:col-12 p-5">
+                    <span>Arquivo</span>
                     <app-file-uploader></app-file-uploader>
+
+                    <div class="flex justify-content-between items-center">
+                        <div class=" mt-4 col-12 md:col-6">
+                            <label for="title" class="font-medium text-900"
+                            >Título do material</label
+                            >
+                            <input id="title" type="text" pInputText/>
+                        </div>
+                        <div class=" mt-4 col-12 md:col-6">
+                            <label for="title" class="font-medium text-900"
+                            >Tipo do material</label
+                            >
+                            <input id="title" type="text" pInputText/>
+                        </div>
+                    </div>
+                    <textarea class="mt-3 px-10" pInputTextarea cols="20" rows="5"></textarea>
+
                 </div>
 
+
                 <div class="field mb-4 col-12 md:col-4">
-                    <label for="title" class="font-medium text-900"
-                        >Título</label
+                    <label for="email" class="font-medium text-900"
+                    >Data de publicação</label
                     >
-                    <input id="title" type="text" pInputText />
+                    <input id="date" type="date" pInputText/>
                 </div>
 
                 <div class="field mb-4 col-12 md:col-4">
                     <label for="email" class="font-medium text-900"
-                        >Data de publicação</label
-                    >
-                    <input id="date" type="date" pInputText />
-                </div>
-
-                <div class="field mb-4 col-12 md:col-4">
-                    <label for="email" class="font-medium text-900"
-                        >Disponibilizar</label
+                    >Disponibilizar</label
                     >
                     <div class="grid formgrid">
                         <div class="col-12 md:col-4">
