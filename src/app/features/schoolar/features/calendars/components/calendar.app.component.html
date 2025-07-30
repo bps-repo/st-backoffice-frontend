@@ -1,381 +1,393 @@
-<div class="card">
-    <div class="calendar-toolbar p-3">
-        <div class="grid">
-            <div class="col-12 md:col-6 lg:col-4 mb-2">
-                <div class="p-inputgroup">
-                    <span class="p-inputgroup-addon">
-                        <i class="pi pi-search"></i>
-                    </span>
-                    <input
-                        type="text"
-                        pInputText
-                        placeholder="Procurar aulas..."
-                        [(ngModel)]="searchTerm"
-                        (input)="applyFilters()"
-                    />
-                    <button
-                        *ngIf="searchTerm"
-                        pButton
-                        type="button"
-                        icon="pi pi-times"
-                        class="p-button-danger"
-                        (click)="searchTerm=''; applyFilters()"
-                    ></button>
-                </div>
-            </div>
-
-            <div class="col-12 md:col-6 lg:col-4 mb-2">
-                <div class="p-buttonset">
-                    <button
-                        pButton
-                        type="button"
-                        icon="pi pi-filter"
-                        label="Filtros"
-                        (click)="showFilterDialog = true"
-                        [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
-                        [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
-                    ></button>
-                    <button
-                        pButton
-                        type="button"
-                        icon="pi pi-plus"
-                        label="Nova aula"
-                        (click)="createNewEvent()"
-                    ></button>
-                </div>
-            </div>
-
-            <div class="col-12 md:col-6 lg:col-4 mb-2">
-                <div class="p-buttonset float-right">
-                    <button
-                        *ngFor="let option of viewOptions"
-                        pButton
-                        type="button"
-                        [label]="option.label"
-                        [class.p-button-outlined]="selectedView !== option.value"
-                        [class.p-button-info]="selectedView === option.value"
-                        (click)="changeView(option.value)"
-                    ></button>
-                </div>
-            </div>
+<!-- Search and Filters Row -->
+<div class="grid mb-3">
+    <div class="col-12 flex justify-content-between align-content-center">
+        <div class="col-8 flex">
+            <span class="p-input-icon-left w-full mr-2">
+                <i class="pi pi-search"></i>
+                <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" pInputText
+                       placeholder="Buscar aulas"/>
+            </span>
+            <button
+                *ngIf="searchTerm"
+                pButton
+                type="button"
+                icon="pi pi-times"
+                class="p-button-outlined p-button-danger"
+                (click)="searchTerm=''; applyFilters()"
+            ></button>
         </div>
-
-        <!-- Active filters display -->
-        <div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length" class="active-filters mt-2">
-            <span class="filter-label mr-2">Active Filters:</span>
-
-            <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
-                <span class="tag-color" [style.background-color]="tag.color"></span>
-                <span class="tag-name">{{tag.name}}</span>
-                <i class="pi pi-times" (click)="removeTag(tag.name)"></i>
-            </span>
-
-            <span *ngFor="let teacher of selectedTeachers" class="filter-tag mr-2 mb-1">
-                <i class="pi pi-user"></i>
-                <span class="tag-name">{{teacher.label}}</span>
-                <i class="pi pi-times" (click)="removeTeacher(teacher.value)"></i>
-            </span>
-
-            <span *ngFor="let center of selectedCenters" class="filter-tag mr-2 mb-1">
-                <i class="pi pi-map-marker"></i>
-                <span class="tag-name">{{center.label}}</span>
-                <i class="pi pi-times" (click)="removeCenter(center.value)"></i>
-            </span>
-
-            <span *ngFor="let classEntity of selectedClasses" class="filter-tag mr-2 mb-1">
-                <i class="pi pi-users"></i>
-                <span class="tag-name">{{classEntity.label}}</span>
-                <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
-            </span>
-
+        <div class="flex gap-2 h-3rem mt-3">
             <button
                 pButton
                 type="button"
-                icon="pi pi-trash"
-                label="Clear All"
-                class="p-button-sm p-button-text p-button-danger ml-2"
-                (click)="clearFilters()"
+                icon="pi pi-filter"
+                label="Filtros"
+                (click)="showFilterDialog = true"
+                class="p-button-secondary"
+                [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
+                [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
+            ></button>
+            <button
+                pButton
+                type="button"
+                icon="pi pi-plus"
+                label="Nova aula"
+                (click)="createNewEvent()"
             ></button>
         </div>
     </div>
+</div>
 
-    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
-
-    <!-- Filter Dialog -->
-    <p-dialog
-        [(visible)]="showFilterDialog"
-        [style]="{width: '450px'}"
-        header="Filter Events"
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false"
-    >
-        <div class="p-fluid">
-            <div class="field">
-                <label for="tags">Filter by Tags</label>
-                <p-multiSelect
-                    id="tags"
-                    [options]="tags"
-                    [(ngModel)]="selectedTags"
-                    optionLabel="name"
-                    placeholder="Select Tags"
-                    [showToggleAll]="true"
-                >
-                    <ng-template let-tag pTemplate="item">
-                        <div class="flex align-items-center">
-                            <span class="color-dot mr-2" [style.background-color]="tag.color"></span>
-                            <span>{{tag.name}}</span>
-                        </div>
-                    </ng-template>
-                </p-multiSelect>
-            </div>
-
-            <div class="field">
-                <div class="flex align-items-center">
-                    <p-inputSwitch [(ngModel)]="filterByTeacher" class="mr-2"></p-inputSwitch>
-                    <label for="teachers">Filter by Teachers</label>
-                </div>
-                <p-multiSelect
-                    id="teachers"
-                    [options]="teachers"
-                    [(ngModel)]="selectedTeachers"
-                    optionLabel="label"
-                    placeholder="Select Teachers"
-                    [disabled]="!filterByTeacher"
-                    [showToggleAll]="true"
-                ></p-multiSelect>
-            </div>
-
-            <div class="field">
-                <div class="flex align-items-center">
-                    <p-inputSwitch [(ngModel)]="filterByCenter" class="mr-2"></p-inputSwitch>
-                    <label for="centers">Filter by Centers</label>
-                </div>
-                <p-multiSelect
-                    id="centers"
-                    [options]="centers"
-                    [(ngModel)]="selectedCenters"
-                    optionLabel="label"
-                    placeholder="Select Centers"
-                    [disabled]="!filterByCenter"
-                    [showToggleAll]="true"
-                ></p-multiSelect>
-            </div>
-
-            <div class="field">
-                <div class="flex align-items-center">
-                    <p-inputSwitch [(ngModel)]="filterByClass" class="mr-2"></p-inputSwitch>
-                    <label for="classes">Filter by Classes</label>
-                </div>
-                <p-multiSelect
-                    id="classes"
-                    [options]="classes"
-                    [(ngModel)]="selectedClasses"
-                    optionLabel="label"
-                    placeholder="Select Classes"
-                    [disabled]="!filterByClass"
-                    [showToggleAll]="true"
-                ></p-multiSelect>
-            </div>
+<!-- Navigation and Month/Year Display Row -->
+<div class="grid mb-3">
+    <div class="col-12 flex justify-content-between align-items-center">
+        <div>
+            <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text"
+                    (click)="navigatePrev()"></button>
+            <span class="font-bold text-xl mx-3 mb-10">{{ currentMonthYear }}</span>
+            <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text"
+                    (click)="navigateNext()"></button>
         </div>
 
-        <ng-template pTemplate="footer">
-            <button pButton type="button" label="Apply" icon="pi pi-check" (click)="applyFilters(); showFilterDialog = false"></button>
-            <button pButton type="button" label="Clear" icon="pi pi-times" class="p-button-outlined" (click)="clearFilters(); showFilterDialog = false"></button>
-        </ng-template>
-    </p-dialog>
+        <div class="col-12 md:col-6 lg:col-4 mb-2">
+            <div class="p-buttonset float-right">
+                <button
+                    *ngFor="let option of viewOptions"
+                    pButton
+                    type="button"
+                    [label]="option.label"
+                    [class.p-button-outlined]="selectedView !== option.value"
+                    [class.p-button-info]="selectedView === option.value"
+                    (click)="changeView(option.value)"
+                ></button>
+                <button pButton type="button" label="Hoje" class="p-button-outlined"
+                        (click)="navigateToday()"></button>
 
-    <!-- Event Dialog -->
-    <p-dialog
-        #dd
-        [(visible)]="showDialog"
-        [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
-        [style]="{ width: '36rem' }"
-        [modal]="true"
-        [closable]="true"
-        (onHide)="view = ''"
-    >
-        <ng-template pTemplate="header">
-            <span class="text-900 font-semibold text-xl">{{
-                    view === "display"
-                        ? changedEvent.title
-                        : view === "new"
-                            ? "New Event"
-                            : "Edit Event"
-                }}</span>
-        </ng-template>
-        <ng-template pTemplate="content">
-            <div *ngIf="view === 'display'">
-                <span class="text-900 font-semibold block mb-2"
-                >Description</span
-                >
-                <span class="block mb-3">{{ changedEvent.description }}</span>
-
-                <div class="grid">
-                    <div class="col-6">
-                        <div class="text-900 font-semibold mb-2">Start</div>
-                        <p class="flex align-items-center m-0">
-                            <i class="pi pi-fw pi-clock text-700 mr-2"></i>
-                            <span>{{
-                                    changedEvent.start.toISOString().slice(0, 10)
-                                }}</span>
-                        </p>
-                    </div>
-                    <div class="col-6">
-                        <div class="text-900 font-semibold mb-2">End</div>
-                        <p class="flex align-items-center m-0">
-                            <i class="pi pi-fw pi-clock text-700 mr-2"></i>
-                            <span>{{
-                                    changedEvent.end.toISOString().slice(0, 10)
-                                }}</span>
-                        </p>
-                    </div>
-                    <div class="col-12">
-                        <div class="text-900 font-semibold mb-2">Location</div>
-                        <p class="flex align-items-center m-0">
-                            <i class="pi pi-fw pi-clock text-700 mr-2"></i>
-                            <span>{{ changedEvent.location }}</span>
-                        </p>
-                    </div>
-                    <div class="col-12">
-                        <div class="text-900 font-semibold mb-2">Color</div>
-                        <p class="flex align-items-center m-0">
-                            <span
-                                class="inline-flex flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                            ></span>
-                            <span>{{ changedEvent.tag.name }}</span>
-                        </p>
-                    </div>
-                </div>
             </div>
-            <div *ngIf="view !== 'display'">
-                <div class="grid p-fluid formgrid">
-                    <div class="col-12 md:col-6 field">
-                        <label for="title" class="text-900 font-semibold"
-                        >Title</label
-                        >
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-pencil"></i>
-                            <input
-                                id="title"
-                                type="text"
-                                pInputText
-                                placeholder="Title"
-                                [(ngModel)]="changedEvent.title"
-                            />
-                        </span>
-                    </div>
-                    <div class="col-12 md:col-6 field">
-                        <label for="location" class="text-900 font-semibold"
-                        >Location</label
-                        >
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-map-marker"></i>
-                            <input
-                                id="location"
-                                type="text"
-                                pInputText
-                                placeholder="Location"
-                                [(ngModel)]="changedEvent.location"
-                            />
-                        </span>
-                    </div>
-                    <div class="col-12 field">
-                        <label for="description" class="text-900 font-semibold"
-                        >Event Description</label
-                        >
-                        <textarea
-                            id="description"
-                            type="text"
-                            pInputTextarea
-                            [rows]="5"
-                            [(ngModel)]="changedEvent.description"
-                            style="resize: none"
-                        ></textarea>
-                    </div>
-
-                    <div class="col-12 md:col-6 field">
-                        <label for="start" class="text-900 font-semibold"
-                        >Start Date</label
-                        >
-                        <p-calendar
-                            [appendTo]="dd"
-                            dateFormat="mm-dd-yy"
-                            [maxDate]="changedEvent.end"
-                            [showTime]="true"
-                            [required]="true"
-                            inputId="start"
-                            [(ngModel)]="changedEvent.start"
-                        ></p-calendar>
-                    </div>
-                    <div class="col-12 md:col-6 field">
-                        <label for="start" class="text-900 font-semibold"
-                        >End Date</label
-                        >
-                        <p-calendar
-                            [appendTo]="dd"
-                            dateFormat="mm-dd-yy"
-                            [minDate]="changedEvent.start"
-                            [showTime]="true"
-                            [required]="true"
-                            inputId="end"
-                            [(ngModel)]="changedEvent.end"
-                        ></p-calendar>
-                    </div>
-                    <div class="col-12 field">
-                        <label
-                            for="company-color"
-                            class="text-900 font-semibold"
-                        >Color</label
-                        >
-                        <p-dropdown
-                            inputId="company-color"
-                            [appendTo]="dd"
-                            [options]="tags"
-                            [(ngModel)]="changedEvent.tag"
-                            optionLabel="name"
-                        >
-                            <ng-template pTemplate="selectedItem">
-                                <div
-                                    *ngIf="changedEvent.tag"
-                                    class="flex align-items-center"
-                                >
-                                    <div
-                                        class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                                    ></div>
-                                    <div>{{ changedEvent.tag.name }}</div>
-                                </div>
-                            </ng-template>
-                            <ng-template let-tag pTemplate="item">
-                                <div class="flex align-items-center">
-                                    <div
-                                        class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                                    ></div>
-                                    <div>{{ tag.name }}</div>
-                                </div>
-                            </ng-template>
-                        </p-dropdown>
-                    </div>
-                </div>
-            </div>
-        </ng-template>
-
-        <ng-template pTemplate="footer">
-            <button
-                pButton
-                *ngIf="view === 'display'"
-                label="Edit"
-                icon="pi pi-pencil"
-                (click)="onEditClick()"
-            ></button>
-            <button
-                pButton
-                *ngIf="view === 'new' || view === 'edit'"
-                label="Save"
-                icon="pi pi-check"
-                (click)="handleSave()"
-                [disabled]="!changedEvent.start || !changedEvent.end"
-            ></button>
-        </ng-template>
-    </p-dialog>
+        </div>
+    </div>
 </div>
+
+<!-- Active filters display -->
+<div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
+     class="active-filters mb-3">
+    <span class="filter-label mr-2">Active Filters:</span>
+
+    <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
+        <span class="tag-color" [style.background-color]="tag.color"></span>
+        <span class="tag-name">{{ tag.name }}</span>
+        <i class="pi pi-times" (click)="removeTag(tag.name)"></i>
+    </span>
+
+    <span *ngFor="let teacher of selectedTeachers" class="filter-tag mr-2 mb-1">
+        <i class="pi pi-user"></i>
+        <span class="tag-name">{{ teacher.label }}</span>
+        <i class="pi pi-times" (click)="removeTeacher(teacher.value)"></i>
+    </span>
+
+    <span *ngFor="let center of selectedCenters" class="filter-tag mr-2 mb-1">
+        <i class="pi pi-map-marker"></i>
+        <span class="tag-name">{{ center.label }}</span>
+        <i class="pi pi-times" (click)="removeCenter(center.value)"></i>
+    </span>
+
+    <span *ngFor="let classEntity of selectedClasses" class="filter-tag mr-2 mb-1">
+        <i class="pi pi-users"></i>
+        <span class="tag-name">{{ classEntity.label }}</span>
+        <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
+    </span>
+
+    <button
+        pButton
+        type="button"
+        icon="pi pi-trash"
+        label="Clear All"
+        class="p-button-sm p-button-text p-button-danger ml-2"
+        (click)="clearFilters()"
+    ></button>
+</div>
+
+<!-- Calendar Card -->
+<div class="card">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+</div>
+
+<!-- Filter Dialog -->
+<p-dialog
+    [(visible)]="showFilterDialog"
+    [style]="{width: '450px'}"
+    header="Filter Events"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+>
+    <div class="p-fluid">
+        <div class="field">
+            <label for="tags">Filter by Tags</label>
+            <p-multiSelect
+                id="tags"
+                [options]="tags"
+                [(ngModel)]="selectedTags"
+                optionLabel="name"
+                placeholder="Select Tags"
+                [showToggleAll]="true"
+            >
+                <ng-template let-tag pTemplate="item">
+                    <div class="flex align-items-center">
+                        <span class="color-dot mr-2" [style.background-color]="tag.color"></span>
+                        <span>{{ tag.name }}</span>
+                    </div>
+                </ng-template>
+            </p-multiSelect>
+        </div>
+
+        <div class="field">
+            <div class="flex align-items-center">
+                <p-inputSwitch [(ngModel)]="filterByTeacher" class="mr-2"></p-inputSwitch>
+                <label for="teachers">Filter by Teachers</label>
+            </div>
+            <p-multiSelect
+                id="teachers"
+                [options]="teachers"
+                [(ngModel)]="selectedTeachers"
+                optionLabel="label"
+                placeholder="Select Teachers"
+                [disabled]="!filterByTeacher"
+                [showToggleAll]="true"
+            ></p-multiSelect>
+        </div>
+
+        <div class="field">
+            <div class="flex align-items-center">
+                <p-inputSwitch [(ngModel)]="filterByCenter" class="mr-2"></p-inputSwitch>
+                <label for="centers">Filter by Centers</label>
+            </div>
+            <p-multiSelect
+                id="centers"
+                [options]="centers"
+                [(ngModel)]="selectedCenters"
+                optionLabel="label"
+                placeholder="Select Centers"
+                [disabled]="!filterByCenter"
+                [showToggleAll]="true"
+            ></p-multiSelect>
+        </div>
+
+        <div class="field">
+            <div class="flex align-items-center">
+                <p-inputSwitch [(ngModel)]="filterByClass" class="mr-2"></p-inputSwitch>
+                <label for="classes">Filter by Classes</label>
+            </div>
+            <p-multiSelect
+                id="classes"
+                [options]="classes"
+                [(ngModel)]="selectedClasses"
+                optionLabel="label"
+                placeholder="Select Classes"
+                [disabled]="!filterByClass"
+                [showToggleAll]="true"
+            ></p-multiSelect>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Apply" icon="pi pi-check"
+                (click)="applyFilters(); showFilterDialog = false"></button>
+        <button pButton type="button" label="Clear" icon="pi pi-times" class="p-button-outlined"
+                (click)="clearFilters(); showFilterDialog = false"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Event Dialog -->
+<p-dialog
+    #dd
+    [(visible)]="showDialog"
+    [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
+    [style]="{ width: '36rem' }"
+    [modal]="true"
+    [closable]="true"
+    (onHide)="view = ''"
+>
+    <ng-template pTemplate="header">
+        <span class="text-900 font-semibold text-xl">{{
+                view === "display"
+                    ? changedEvent.title
+                    : view === "new"
+                        ? "New Event"
+                        : "Edit Event"
+            }}</span>
+    </ng-template>
+    <ng-template pTemplate="content">
+        <div *ngIf="view === 'display'">
+            <span class="text-900 font-semibold block mb-2"
+            >Description</span
+            >
+            <span class="block mb-3">{{ changedEvent.description }}</span>
+
+            <div class="grid">
+                <div class="col-6">
+                    <div class="text-900 font-semibold mb-2">Start</div>
+                    <p class="flex align-items-center m-0">
+                        <i class="pi pi-fw pi-clock text-700 mr-2"></i>
+                        <span>{{
+                                changedEvent.start.toISOString().slice(0, 10)
+                            }}</span>
+                    </p>
+                </div>
+                <div class="col-6">
+                    <div class="text-900 font-semibold mb-2">End</div>
+                    <p class="flex align-items-center m-0">
+                        <i class="pi pi-fw pi-clock text-700 mr-2"></i>
+                        <span>{{
+                                changedEvent.end.toISOString().slice(0, 10)
+                            }}</span>
+                    </p>
+                </div>
+                <div class="col-12">
+                    <div class="text-900 font-semibold mb-2">Location</div>
+                    <p class="flex align-items-center m-0">
+                        <i class="pi pi-fw pi-clock text-700 mr-2"></i>
+                        <span>{{ changedEvent.location }}</span>
+                    </p>
+                </div>
+                <div class="col-12">
+                    <div class="text-900 font-semibold mb-2">Color</div>
+                    <p class="flex align-items-center m-0">
+                        <span
+                            class="inline-flex flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
+                        ></span>
+                        <span>{{ changedEvent.tag.name }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="view !== 'display'">
+            <div class="grid p-fluid formgrid">
+                <div class="col-12 md:col-6 field">
+                    <label for="title" class="text-900 font-semibold"
+                    >Title</label
+                    >
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-pencil"></i>
+                        <input
+                            id="title"
+                            type="text"
+                            pInputText
+                            placeholder="Title"
+                            [(ngModel)]="changedEvent.title"
+                        />
+                    </span>
+                </div>
+                <div class="col-12 md:col-6 field">
+                    <label for="location" class="text-900 font-semibold"
+                    >Location</label
+                    >
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-map-marker"></i>
+                        <input
+                            id="location"
+                            type="text"
+                            pInputText
+                            placeholder="Location"
+                            [(ngModel)]="changedEvent.location"
+                        />
+                    </span>
+                </div>
+                <div class="col-12 field">
+                    <label for="description" class="text-900 font-semibold"
+                    >Event Description</label
+                    >
+                    <textarea
+                        id="description"
+                        type="text"
+                        pInputTextarea
+                        [rows]="5"
+                        [(ngModel)]="changedEvent.description"
+                        style="resize: none"
+                    ></textarea>
+                </div>
+
+                <div class="col-12 md:col-6 field">
+                    <label for="start" class="text-900 font-semibold"
+                    >Start Date</label
+                    >
+                    <p-calendar
+                        [appendTo]="dd"
+                        dateFormat="mm-dd-yy"
+                        [maxDate]="changedEvent.end"
+                        [showTime]="true"
+                        [required]="true"
+                        inputId="start"
+                        [(ngModel)]="changedEvent.start"
+                    ></p-calendar>
+                </div>
+                <div class="col-12 md:col-6 field">
+                    <label for="start" class="text-900 font-semibold"
+                    >End Date</label
+                    >
+                    <p-calendar
+                        [appendTo]="dd"
+                        dateFormat="mm-dd-yy"
+                        [minDate]="changedEvent.start"
+                        [showTime]="true"
+                        [required]="true"
+                        inputId="end"
+                        [(ngModel)]="changedEvent.end"
+                    ></p-calendar>
+                </div>
+                <div class="col-12 field">
+                    <label
+                        for="company-color"
+                        class="text-900 font-semibold"
+                    >Color</label
+                    >
+                    <p-dropdown
+                        inputId="company-color"
+                        [appendTo]="dd"
+                        [options]="tags"
+                        [(ngModel)]="changedEvent.tag"
+                        optionLabel="name"
+                    >
+                        <ng-template pTemplate="selectedItem">
+                            <div
+                                *ngIf="changedEvent.tag"
+                                class="flex align-items-center"
+                            >
+                                <div
+                                    class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
+                                ></div>
+                                <div>{{ changedEvent.tag.name }}</div>
+                            </div>
+                        </ng-template>
+                        <ng-template let-tag pTemplate="item">
+                            <div class="flex align-items-center">
+                                <div
+                                    class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
+                                ></div>
+                                <div>{{ tag.name }}</div>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            *ngIf="view === 'display'"
+            label="Edit"
+            icon="pi pi-pencil"
+            (click)="onEditClick()"
+        ></button>
+        <button
+            pButton
+            *ngIf="view === 'new' || view === 'edit'"
+            label="Save"
+            icon="pi pi-check"
+            (click)="handleSave()"
+            [disabled]="!changedEvent.start || !changedEvent.end"
+        ></button>
+    </ng-template>
+</p-dialog>

@@ -26,7 +26,7 @@
                 <div class="flex align-items-center">
                     <span class="p-input-icon-left mr-2">
                         <i class="pi pi-search"></i>
-                        <input type="text" pInputText placeholder="Buscar aulas" />
+                        <input type="text" pInputText placeholder="Buscar aulas"/>
                     </span>
                     <p-dropdown [options]="[
                         {label: 'Status', value: 'status'},
@@ -58,12 +58,7 @@
 
     <!-- Calendario View -->
     @if (currentView === 'calendario') {
-        <div class="col-12 animate-fade content-sticky">
-            <div class="p-4 text-center">
-                <h3>Visualização de Calendario</h3>
-                <p>Conteúdo do calendário será implementado aqui.</p>
-            </div>
-        </div>
+        <app-lesson-calendar class="col-12"></app-lesson-calendar>
     }
 
     <!-- Relatorios View -->

@@ -28,6 +28,7 @@ import {MultiSelectModule} from "primeng/multiselect";
 import {Router} from "@angular/router";
 
 @Component({
+    selector:"app-lesson-calendar",
     templateUrl: './calendar.app.component.html',
     imports: [
         FormsModule,
@@ -84,12 +85,15 @@ export class CalendarAppComponent implements OnInit {
 
     // Calendar view options
     viewOptions: any[] = [
-        {label: 'Month', value: 'dayGridMonth'},
-        {label: 'Week', value: 'timeGridWeek'},
-        {label: 'Day', value: 'timeGridDay'},
-        {label: 'List', value: 'listWeek'}
+        {label: 'Mês', value: 'dayGridMonth'},
+        {label: 'Semana', value: 'timeGridWeek'},
+        //{label: 'Day', value: 'timeGridDay'},
+        {label: 'Lista', value: 'listWeek'}
     ];
     selectedView: string = 'dayGridMonth';
+
+    // Current month/year display
+    currentMonthYear: string = '';
 
     // Filter options
     filterByTeacher: boolean = false;
@@ -142,11 +146,7 @@ export class CalendarAppComponent implements OnInit {
             height: 720,
             hiddenDays: [0],
             initialDate: this.today,
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                //right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-            },
+            headerToolbar: false, // Remove default header toolbar
             editable: true,
             selectable: true,
             selectMirror: true,
@@ -165,6 +165,7 @@ export class CalendarAppComponent implements OnInit {
             eventDrop: (info: any) => this.handleEventDrop(info),
             eventResize: (info: any) => this.handleEventResize(info),
             themeSystem: this.darkMode ? 'bootstrap5' : 'standard',
+            datesSet: (dateInfo: any) => this.updateCurrentMonthYear(dateInfo),
         };
     }
 
@@ -422,6 +423,45 @@ export class CalendarAppComponent implements OnInit {
             document.body.classList.add('dark-mode');
         } else {
             document.body.classList.remove('dark-mode');
+        }
+    }
+
+    /**
+     * Update current month and year display
+     */
+    updateCurrentMonthYear(dateInfo: any): void {
+        const date = dateInfo.view.currentStart;
+        const options = { month: 'long', year: 'numeric' };
+        this.currentMonthYear = date.toLocaleDateString('pt-BR', options);
+    }
+
+    /**
+     * Navigate to previous period
+     */
+    navigatePrev(): void {
+        const calendarApi = this.calendarComponent?.getApi();
+        if (calendarApi) {
+            calendarApi.prev();
+        }
+    }
+
+    /**
+     * Navigate to next period
+     */
+    navigateNext(): void {
+        const calendarApi = this.calendarComponent?.getApi();
+        if (calendarApi) {
+            calendarApi.next();
+        }
+    }
+
+    /**
+     * Navigate to today
+     */
+    navigateToday(): void {
+        const calendarApi = this.calendarComponent?.getApi();
+        if (calendarApi) {
+            calendarApi.today();
         }
     }
 

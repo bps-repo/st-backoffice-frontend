@@ -24,6 +24,8 @@ import * as LessonsActions from "../../../../../../core/store/schoolar/lessons/l
 import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
 import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
 import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
+import {CalendarsDashboardComponent} from "../../../calendars/components/dashboard/dashboard.component";
+import {CalendarAppComponent} from "../../../calendars/components/calendar.app.component";
 
 @Component({
     selector: 'app-lessons',
@@ -43,7 +45,9 @@ import {LessonReports} from "../../../reports/components/lessons/lesson-reports.
         RippleModule,
         SelectButtonModule,
         TooltipModule,
-        LessonReports
+        LessonReports,
+        CalendarsDashboardComponent,
+        CalendarAppComponent
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`

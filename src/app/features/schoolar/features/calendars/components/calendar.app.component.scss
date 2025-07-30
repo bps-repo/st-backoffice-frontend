@@ -4,59 +4,57 @@
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    margin-bottom: 1.5rem;
 }
 
-// Calendar toolbar styles
-.calendar-toolbar {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+// Float right utility
+.float-right {
+    float: right;
+}
 
-    .float-right {
-        float: right;
+// Active filters styles
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0.5rem 0;
+
+    .filter-label {
+        font-weight: 600;
+        color: #6c757d;
     }
 
-    .active-filters {
-        display: flex;
-        flex-wrap: wrap;
+    .filter-tag {
+        display: inline-flex;
         align-items: center;
+        background-color: #e9ecef;
+        border-radius: 16px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
 
-        .filter-label {
-            font-weight: 600;
-            color: #6c757d;
+        .tag-color, .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
         }
 
-        .filter-tag {
-            display: inline-flex;
-            align-items: center;
-            background-color: #e9ecef;
-            border-radius: 16px;
-            padding: 0.25rem 0.75rem;
+        .tag-name {
+            margin-right: 6px;
+        }
+
+        i.pi-times {
+            cursor: pointer;
+            font-size: 0.75rem;
+
+            &:hover {
+                color: #dc3545;
+            }
+        }
+
+        i.pi-user, i.pi-map-marker, i.pi-users {
+            margin-right: 6px;
             font-size: 0.875rem;
-
-            .tag-color, .color-dot {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                margin-right: 6px;
-            }
-
-            .tag-name {
-                margin-right: 6px;
-            }
-
-            i.pi-times {
-                cursor: pointer;
-                font-size: 0.75rem;
-
-                &:hover {
-                    color: #dc3545;
-                }
-            }
-
-            i.pi-user, i.pi-map-marker, i.pi-users {
-                margin-right: 6px;
-                font-size: 0.875rem;
-            }
         }
     }
 }
