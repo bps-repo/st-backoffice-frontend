@@ -33,6 +33,7 @@ import {TabViewModule} from "primeng/tabview";
 import {CardModule} from "primeng/card";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {KpiIndicatorsComponent, Kpi} from "src/app/shared/kpi-indicator/kpi-indicator.component";
+import {CalendarReportsComponent} from "./reports/calendar-reports.component";
 
 @Component({
     selector: "app-lesson-calendar",
@@ -56,7 +57,8 @@ import {KpiIndicatorsComponent, Kpi} from "src/app/shared/kpi-indicator/kpi-indi
         TabViewModule,
         CardModule,
         SelectButtonModule,
-        KpiIndicatorsComponent
+        KpiIndicatorsComponent,
+        CalendarReportsComponent
     ],
     styleUrls: ['./calendar.app.component.scss']
 })

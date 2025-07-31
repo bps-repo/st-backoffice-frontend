@@ -1,0 +1,97 @@
+<div class="grid">
+    <!-- KPIs -->
+    <div class="col-12">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1 mb-4">
+            <div *ngFor="let kpi of kpis" class="col">
+                <app-kpi-indicators [kpi]="kpi"></app-kpi-indicators>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie Charts Row -->
+    <div class="col-12 md:col-6">
+        <div class="card h-full">
+            <h5 class="text-xl font-semibold mb-4">Distribuição por tipo de aulas</h5>
+            <p-chart
+                type="pie"
+                [data]="lessonTypeData"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <div class="col-12 md:col-6">
+        <div class="card h-full">
+            <h5 class="text-xl font-semibold mb-4">Estado das aulas</h5>
+            <p-chart
+                type="pie"
+                [data]="lessonStatusData"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Day Distribution Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="dayDistributionData"
+                [options]="dayDistributionOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Teacher Lessons Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <p-chart
+                type="bar"
+                [data]="teacherLessonsData"
+                [options]="teacherLessonsOptions"
+                height="400px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <!-- Teacher Progress Cards -->
+    <div class="col-12">
+        <h5 class="text-xl font-semibold mb-4">Progresso de aulas por professor</h5>
+        <div class="grid">
+            <div class="col-12 md:col-6 xl:col-4" *ngFor="let teacher of teachers">
+                <div class="card h-full">
+                    <h6 class="text-lg font-semibold mb-3">{{ teacher.name }}</h6>
+
+                    <div class="mb-3">
+                        <div class="flex justify-content-between mb-1">
+                            <span>Total de aulas: {{ teacher.totalLessons }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="flex justify-content-between mb-1">
+                            <span>Aulas activas</span>
+                            <span>{{ teacher.activeLessons }}/{{ teacher.totalLessons }}</span>
+                        </div>
+                        <div class="surface-300 w-full h-1rem border-round overflow-hidden">
+                            <div class="bg-green-500 h-full"
+                                 [style.width.%]="(teacher.activeLessons / teacher.totalLessons) * 100"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-content-between mb-1">
+                            <span>Aulas canceladas</span>
+                            <span>{{ teacher.canceledLessons }}/{{ teacher.totalLessons }}</span>
+                        </div>
+                        <div class="surface-300 w-full h-1rem border-round overflow-hidden">
+                            <div class="bg-red-500 h-full"
+                                 [style.width.%]="(teacher.canceledLessons / teacher.totalLessons) * 100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

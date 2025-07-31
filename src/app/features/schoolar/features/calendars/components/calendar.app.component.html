@@ -25,8 +25,8 @@
     <ng-container *ngIf="currentView === 'calendar'">
         <!-- KPI Cards Row with animation -->
         <div class="col-12 animate-fade px-fadein">
-            <div class="flex gap-7 mb-3">
-                <div *ngFor="let k of kpis">
+            <div class="grid gap-1 mb-3">
+                <div class="col" *ngFor="let k of kpis">
                     <app-kpi-indicators class="w-full h-2" [kpi]="k"></app-kpi-indicators>
                 </div>
             </div>
@@ -142,10 +142,7 @@
     <!-- Reports View -->
     <ng-container *ngIf="currentView === 'reports'">
         <div class="col-12 animate-scale px-scalein content-sticky">
-            <div class="p-4 text-center">
-                <h3>Relatórios</h3>
-                <p>Conteúdo de relatórios será adicionado aqui.</p>
-            </div>
+            <app-calendar-reports></app-calendar-reports>
         </div>
     </ng-container>
 
