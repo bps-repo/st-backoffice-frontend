@@ -24,7 +24,7 @@ import {
 } from 'src/app/features/schoolar/features/students/pages/detail/tabs/acesso-portal/acesso-portal.component';
 import {
     PagamentosComponent
-} from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/pagamentos.component';
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/payment.component';
 import {HistoryComponent} from "../../features/schoolar/features/students/pages/detail/tabs/history/history.component";
 import {Student} from "../../core/models/academic/student";
 import {STUDENT_DATA} from '../tokens/student.token';

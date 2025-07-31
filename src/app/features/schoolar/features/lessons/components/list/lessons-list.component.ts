@@ -46,8 +46,6 @@ import {CalendarAppComponent} from "../../../calendars/components/calendar.app.c
         SelectButtonModule,
         TooltipModule,
         LessonReports,
-        CalendarsDashboardComponent,
-        CalendarAppComponent
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`

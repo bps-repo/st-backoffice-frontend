@@ -16,6 +16,7 @@ import {ButtonModule} from 'primeng/button';
 import {DatePipe} from '@angular/common';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {FormsModule} from '@angular/forms';
+import {StudentPaymentTabComponent} from "./tabs/pagamentos/payment.component";
 
 
 @Component({
@@ -30,7 +31,8 @@ import {FormsModule} from '@angular/forms';
         ProgressBarModule,
         ButtonModule,
         SelectButtonModule,
-        FormsModule
+        FormsModule,
+        StudentPaymentTabComponent
     ],
     providers: [DatePipe],
     templateUrl: './detail.component.html'
@@ -43,12 +45,12 @@ export class DetailComponent implements OnInit, OnDestroy {
     // Tab view properties
     currentView: string = 'overview'; // Default view is overview
     viewOptions = [
-        { label: 'Visão geral', value: 'overview' },
-        { label: 'Historico de aulas', value: 'lessons' },
-        { label: 'Avaliações', value: 'assessments' },
-        { label: 'Frequências', value: 'attendances' },
-        { label: 'Pagamentos', value: 'payments' },
-        { label: 'Historico', value: 'history' }
+        {label: 'Visão geral', value: 'overview'},
+        {label: 'Historico de aulas', value: 'lessons'},
+        {label: 'Avaliações', value: 'assessments'},
+        {label: 'Frequências', value: 'attendances'},
+        {label: 'Pagamentos', value: 'payments'},
+        {label: 'Historico', value: 'history'}
     ];
 
     // Method to handle view selection

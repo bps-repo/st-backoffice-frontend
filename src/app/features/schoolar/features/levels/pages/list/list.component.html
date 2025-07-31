@@ -1,41 +1,182 @@
-<div class="grid">
-    <app-global-table
-        tableLabel="Níveis"
-        [data]="(levels$ | async) ?? []"
-        [entity]="'levels'"
-        [columns]="columns"
-        [loading]="loading$ | async"
-        class="w-full"
-        [columnTemplates]="{ actions: actionsTemplate }"
-        (createEntity)="createLevel()"
-    ></app-global-table>
-
-    <!-- Template para ações -->
-    <ng-template #actionsTemplate let-level>
-        <div class="flex gap-2 justify-content-center">
-            <button
-                pButton pRipple
-                icon="pi pi-eye"
-                class="p-button-rounded p-button-text"
-                (click)="viewDetails(level)"
-                pTooltip="Ver Detalhes"
-                tooltipPosition="top"
-            ></button>
-
+<section class="grid">
+    <!-- Header with title and create button -->
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between align-items-center mb-4 sticky-header"
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-2">Gestão de níveis e unidades</h2>
+            <span class="text-lg">Cadastro e acompanhamento completo dos níveis</span>
+        </div>
+        <div class="flex gap-2">
             <button
                 pButton
-                pRipple
-                icon="pi pi-trash"
-                class="p-button-rounded p-button-danger"
-                (click)="deleteLevel(level)"
-                pTooltip="Excluir"
-                tooltipPosition="top"
+                (click)="createLevel()"
+                label="Nova unidade"
+                icon="pi pi-plus"
+                class="p-button-outlined p-button-secondary"
             ></button>
+            <p-button
+                (onClick)="createLevel()"
+                label="Novo nível"
+                icon="pi pi-plus"
+            ></p-button>
         </div>
-    </ng-template>
+    </div>
 
-    <!-- Diálogo de criação -->
-    <app-create-level-dialog></app-create-level-dialog>
-    <!-- Diálogo de confirmação -->
-    <p-confirmDialog></p-confirmDialog>
-</div>
+    <!-- KPI Cards -->
+    <div *ngFor="let kpi of kpis" class="col-12 lg:col-3 gap-0 bg-black-alpha-500">
+        <app-kpi-indicators class="w-full h-full bg-red-500" [kpi]="kpi"></app-kpi-indicators>
+    </div>
+
+    <!-- TabView -->
+    <div class="col-12 mt-4">
+        <p-tabView (onChange)="onTabChange($event)">
+            <!-- Hierarchy Tab -->
+            <p-tabPanel header="Hierarquia">
+                <!-- Filter Section -->
+                <div class="grid mt-3 mb-3">
+                    <div class="col-12 md:col-8">
+                        <span class="p-input-icon-left w-full">
+                            <i class="pi pi-search"></i>
+                            <input
+                                type="text"
+                                pInputText
+                                [(ngModel)]="searchTerm"
+                                (input)="onSearch()"
+                                placeholder="Buscar por nome ou descrição"
+                                class="w-full"
+                            />
+                        </span>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <p-dropdown
+                            [options]="levels"
+                            [(ngModel)]="selectedLevelId"
+                            (onChange)="onLevelSelect($event)"
+                            optionLabel="name"
+                            optionValue="id"
+                            placeholder="Filtrar por nível"
+                            [showClear]="true"
+                            class="w-full"
+                        ></p-dropdown>
+                    </div>
+                </div>
+
+                <!-- Levels Grid -->
+                <div class="grid mt-3">
+                    <!-- Level Cards -->
+                    <div *ngFor="let level of levels; let i = index" class="col-12 mb-3">
+                        <div class="card level-card p-3">
+                            <!-- Level Header -->
+                            <div class="flex justify-content-between align-items-center"
+                                 (click)="toggleExpand(level.id)">
+                                <div class="flex align-items-center">
+                                    <span class="level-color-indicator"
+                                          [style.background-color]="getLevelColor(i)"></span>
+                                    <div class="flex flex-column">
+                                        <span class="font-bold text-lg">{{ level.name }}</span>
+                                        <span class="text-sm text-color-secondary">{{ level.description }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex align-items-center gap-3">
+                                    <div class="flex flex-column align-items-center mr-3">
+                                        <span class="font-bold">{{ getUnitsForLevel(level.id).length }}</span>
+                                        <span class="text-xs">Unidades</span>
+                                    </div>
+                                    <div class="flex flex-column align-items-center mr-3">
+                                        <span class="font-bold">0</span>
+                                        <span class="text-xs">Alunos</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button
+                                            pButton pRipple
+                                            icon="pi pi-eye"
+                                            class="p-button-rounded p-button-text"
+                                            (click)="viewDetails(level); $event.stopPropagation()"
+                                            pTooltip="Ver Detalhes"
+                                            tooltipPosition="top"
+                                        ></button>
+                                        <button
+                                            pButton pRipple
+                                            icon="pi pi-pencil"
+                                            class="p-button-rounded p-button-text p-button-warning"
+                                            (click)="viewDetails(level); $event.stopPropagation()"
+                                            pTooltip="Editar"
+                                            tooltipPosition="top"
+                                        ></button>
+                                        <button
+                                            pButton pRipple
+                                            icon="pi pi-trash"
+                                            class="p-button-rounded p-button-text p-button-danger"
+                                            (click)="deleteLevel(level); $event.stopPropagation()"
+                                            pTooltip="Excluir"
+                                            tooltipPosition="top"
+                                        ></button>
+                                        <button
+                                            pButton pRipple
+                                            [icon]="isExpanded(level.id) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                                            class="p-button-rounded p-button-text"
+                                            (click)="toggleExpand(level.id); $event.stopPropagation()"
+                                            pTooltip="Expandir/Recolher"
+                                            tooltipPosition="top"
+                                        ></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Units List (Expandable) -->
+                            <div *ngIf="isExpanded(level.id)" class="unit-list mt-3">
+                                <div *ngFor="let unit of getUnitsForLevel(level.id)" class="unit-item">
+                                    <div class="flex justify-content-between align-items-center">
+                                        <div class="flex flex-column">
+                                            <span class="font-medium">{{ unit.name }}</span>
+                                            <span class="text-sm text-color-secondary">{{ unit.description }}</span>
+                                        </div>
+                                        <p-badge [value]="unit.status"
+                                                 [severity]="unit.status === 'active' ? 'success' : 'warning'"></p-badge>
+                                    </div>
+                                </div>
+                                <div *ngIf="getUnitsForLevel(level.id).length === 0" class="text-center p-3">
+                                    <span class="text-color-secondary">Nenhuma unidade encontrada para este nível</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div *ngIf="levels.length === 0" class="col-12 text-center p-5">
+                        <i class="pi pi-info-circle text-4xl text-color-secondary mb-3"></i>
+                        <h3>Nenhum nível encontrado</h3>
+                        <p>Clique em "Novo nível" para adicionar um nível</p>
+                    </div>
+                </div>
+            </p-tabPanel>
+
+            <!-- Progress Tab -->
+            <p-tabPanel header="Progresso">
+                <div class="grid p-5 justify-content-center">
+                    <div class="col-12 text-center">
+                        <i class="pi pi-chart-bar text-4xl text-color-secondary mb-3"></i>
+                        <h3>Relatórios de Progresso</h3>
+                        <p>Esta funcionalidade estará disponível em breve</p>
+                    </div>
+                </div>
+            </p-tabPanel>
+
+            <!-- Reports Tab -->
+            <p-tabPanel header="Relatórios">
+                <div class="grid p-5 justify-content-center">
+                    <div class="col-12 text-center">
+                        <i class="pi pi-file-pdf text-4xl text-color-secondary mb-3"></i>
+                        <h3>Relatórios</h3>
+                        <p>Esta funcionalidade estará disponível em breve</p>
+                    </div>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</section>
+
+<!-- Diálogo de criação -->
+<app-create-level-dialog></app-create-level-dialog>
+<!-- Diálogo de confirmação -->
+<p-confirmDialog></p-confirmDialog>
