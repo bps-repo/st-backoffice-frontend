@@ -1,0 +1,13 @@
+<p-card header="Histórico de Aulas" styleClass="mb-4">
+    <div *ngFor="let aula of lessons"
+         class="flex justify-content-between border-1 border-round surface-card surface-border p-3 mb-3">
+        <div class="flex flex-column justify-content-between mb-2">
+            <div class="text-md font-medium">{{ aula.titulo }}</div>
+            <span>{{ aula.data }}</span>
+        </div>
+        <div class="flex justify-content-between align-items-center gap-2 text-sm text-color-secondary">
+            <p-tag [value]="aula.status" [severity]="aula.cor" class="text-sm"></p-tag>
+            <span *ngIf="aula.nota !== null">Nota: {{ aula.nota }}</span>
+        </div>
+    </div>
+</p-card>

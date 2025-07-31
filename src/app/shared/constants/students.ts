@@ -12,7 +12,7 @@ import {
 import {
     LevelsComponent
 } from 'src/app/features/schoolar/features/students/pages/detail/tabs/levels/levels.component';
-import {TurmasComponent} from 'src/app/features/schoolar/features/students/pages/detail/tabs/turmas/turmas.component';
+import {TurmasComponent} from 'src/app/features/schoolar/features/students/pages/detail/tabs/lessons/lessons.tab.component';
 import {
     AvaliacoesComponent
 } from 'src/app/features/schoolar/features/students/pages/detail/tabs/avaliacoes/avaliacoes.component';
@@ -24,7 +24,7 @@ import {
 } from 'src/app/features/schoolar/features/students/pages/detail/tabs/acesso-portal/acesso-portal.component';
 import {
     PagamentosComponent
-} from 'src/app/features/schoolar/features/students/pages/detail/tabs/pagamentos/payment.component';
+} from 'src/app/features/schoolar/features/students/pages/detail/tabs/payments/payment.tab.component';
 import {HistoryComponent} from "../../features/schoolar/features/students/pages/detail/tabs/history/history.component";
 import {Student} from "../../core/models/academic/student";
 import {STUDENT_DATA} from '../tokens/student.token';

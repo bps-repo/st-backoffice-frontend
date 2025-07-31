@@ -6,17 +6,17 @@ import {ButtonModule} from 'primeng/button';
 import {DividerModule} from 'primeng/divider';
 
 @Component({
-    selector: 'app-student-payment-tab',
+    selector: 'scholar-student-payment-tab',
     standalone: true,
     imports: [CommonModule, CardModule, TagModule, ButtonModule, DividerModule],
-    templateUrl: './payment.component.html',
+    templateUrl: './payment.tab.component.html',
 })
 export class StudentPaymentTabComponent {
     stats = [
-        { label: 'Total Pago', value: 'Kz 70 000,00', color: 'text-green-500', bg: 'surface-100' },
-        { label: 'Pendente', value: 'Kz 15 000,00', color: 'text-yellow-500', bg: 'surface-100' },
-        { label: 'Vencido', value: 'Kz 5 000,00', color: 'text-red-500', bg: 'surface-100' },
-        { label: 'Total Curso', value: 'Kz 90 000,00', color: 'text-blue-500', bg: 'surface-100' },
+        {label: 'Total Pago', value: 'Kz 70 000,00', color: 'text-green-500', bg: 'surface-100'},
+        {label: 'Pendente', value: 'Kz 15 000,00', color: 'text-yellow-500', bg: 'surface-100'},
+        {label: 'Vencido', value: 'Kz 5 000,00', color: 'text-red-500', bg: 'surface-100'},
+        {label: 'Total Curso', value: 'Kz 90 000,00', color: 'text-blue-500', bg: 'surface-100'},
     ];
 
     payments = [

@@ -48,16 +48,6 @@ const routes: Routes = [
                 pathMatch: 'full'
             },
             {
-                path: 'courses',
-                loadComponent: () =>
-                    import('./pages/detail/tabs/levels/levels.component').then(c => c.LevelsComponent)
-            },
-            {
-                path: 'invoices',
-                loadComponent: () =>
-                    import('./pages/detail/tabs/invoices/invoices.component').then(c => c.InvoicesComponent)
-            },
-            {
                 path: 'unit-progress',
                 loadComponent: () =>
                     import('./pages/detail/tabs/unit-progress/unit-progress.component').then(c => c.UnitProgressTabComponent)

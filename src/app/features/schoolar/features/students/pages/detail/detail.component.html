@@ -122,16 +122,7 @@
 
         <!-- Historico de aulas Tab Content -->
         @if (currentView === 'lessons') {
-            <div class="col-12 animate-scale px-scalein">
-                <div class="card">
-                    <h3>Aulas</h3>
-                    <p>Registro de todas as aulas, presenças, faltas e avaliações.</p>
-                    <!-- Placeholder content -->
-                    <div class="mt-4 p-4 surface-100 border-round">
-                        <p>Histórico de aulas será exibido aqui.</p>
-                    </div>
-                </div>
-            </div>
+            <scholar-student-lessons-tab></scholar-student-lessons-tab>
         }
 
         <!-- Avaliações Tab Content -->
@@ -164,7 +155,7 @@
 
         <!-- Pagamentos Tab Content -->
         @if (currentView === 'payments') {
-            <app-student-payment-tab></app-student-payment-tab>
+            <scholar-student-payment-tab></scholar-student-payment-tab>
         }
 
         <!-- Historico Tab Content -->
