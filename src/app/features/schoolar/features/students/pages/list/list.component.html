@@ -100,7 +100,6 @@
             [entity]="'students'"
             [columns]="columns"
             [globalFilterFields]="globalFilterFields"
-            [loading]="loading$ | async"
             [columnTemplates]="customTemplates"
             (rowSelect)="onRowSelect($event)"
             (createEntity)="navigateToCreateStudent()"
