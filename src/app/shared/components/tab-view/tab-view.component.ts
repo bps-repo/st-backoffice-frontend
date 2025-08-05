@@ -23,7 +23,7 @@ export class TabViewComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     // Se os dados mudarem, atualize os valores dos tokens
-    if (changes['data'] && this.tabs) {
+    if ((changes['data'] || changes['tabs']) && this.tabs) {
       this.updateTabData();
     }
   }
