@@ -3,7 +3,7 @@ import {ScholarSettings} from "./features/settings/scholar-settings.component";
 import {ScholarReports} from "./features/reports/scholar-reports.component";
 import {SchoolarDashboard} from "./features/dashboard/dashboard.component";
 
-export const SCHOOLAR_ROUTES: Routes = [
+export const ScholarRoutes: Routes = [
     {
         path: '',
         children: [
