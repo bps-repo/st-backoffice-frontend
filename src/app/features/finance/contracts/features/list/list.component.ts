@@ -32,6 +32,6 @@ export class ListComponent {
     }
 
     navigateToCreateContract() {
-        this.router.navigate(['/finances/invoices/create']).then();
+        this.router.navigate(['/finances/contracts/create']).then();
     }
 }

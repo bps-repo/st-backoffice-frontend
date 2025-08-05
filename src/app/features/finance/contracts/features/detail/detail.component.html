@@ -1,0 +1,112 @@
+<div class="grid">
+    <div class="col-12">
+        <p-toast></p-toast>
+        <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+        <div class="flex justify-content-between align-items-center mb-3">
+            <div class="flex align-items-center">
+                <button pButton icon="pi pi-arrow-left" class="p-button-text mr-2" (click)="goBack()"></button>
+                <h1 class="m-0">Detalhes do Contrato</h1>
+            </div>
+            <div class="flex gap-2">
+                <button pButton label="Editar" icon="pi pi-pencil" class="p-button-outlined" (click)="editContract()"></button>
+                <button *ngIf="contract?.status === 'Ativo'" pButton label="Renovar" icon="pi pi-refresh" class="p-button-outlined p-button-success" (click)="renewContract()"></button>
+                <button *ngIf="contract?.status === 'Ativo'" pButton label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-danger" (click)="cancelContract()"></button>
+            </div>
+        </div>
+
+        <div *ngIf="loading" class="flex justify-content-center">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <div *ngIf="!loading && contract" class="grid">
+            <!-- Informações básicas do contrato -->
+            <div class="col-12 md:col-4">
+                <p-card styleClass="h-full">
+                    <ng-template pTemplate="header">
+                        <div class="flex justify-content-between align-items-center p-3 border-bottom-1 border-300">
+                            <h3 class="m-0">Informações do Contrato</h3>
+                            <p-tag [value]="contract.status" [severity]="getStatusClass(contract.status)"></p-tag>
+                        </div>
+                    </ng-template>
+                    <div class="grid">
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Código:</span>
+                            <span>{{ contract.code }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Aluno:</span>
+                            <span>{{ contract.student }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Curso:</span>
+                            <span>{{ contract.course }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Período:</span>
+                            <span>{{ contract.period }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Tipo de Contrato:</span>
+                            <span>{{ contract.contractTypeLabel }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Frequência de Pagamento:</span>
+                            <span>{{ contract.paymentFrequencyLabel }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Valor Total:</span>
+                            <span>{{ contract.totalValue }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Parcelas:</span>
+                            <span>{{ contract.installments }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Valor Pendente:</span>
+                            <span class="text-orange-500">{{ contract.pendingValue }}</span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <span class="font-bold block mb-1">Data de Criação:</span>
+                            <span>{{ contract.createdAt }}</span>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+
+            <!-- Termos e pagamentos -->
+            <div class="col-12 md:col-8">
+                <p-tabView>
+                    <p-tabPanel header="Termos e Condições">
+                        <div class="p-3">
+                            <p>{{ contract.terms }}</p>
+                        </div>
+                    </p-tabPanel>
+                    <p-tabPanel header="Pagamentos">
+                        <p-table [value]="payments" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+                                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} pagamentos">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-payment>
+                                <tr>
+                                    <td>{{ payment.id }}</td>
+                                    <td>{{ payment.date }}</td>
+                                    <td>{{ payment.amount }}</td>
+                                    <td>
+                                        <p-tag [value]="payment.status" [severity]="getStatusClass(payment.status)"></p-tag>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </p-tabPanel>
+                </p-tabView>
+            </div>
+        </div>
+    </div>
+</div>

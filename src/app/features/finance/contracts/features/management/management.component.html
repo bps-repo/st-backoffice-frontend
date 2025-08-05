@@ -1,0 +1,101 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="flex justify-content-between align-items-center mb-3">
+            <h1>Gestão de Contratos</h1>
+            <button pButton label="Novo Contrato" icon="pi pi-plus" class="p-button-primary" (click)="createNewContract()"></button>
+        </div>
+
+        <!-- Cards de estatísticas -->
+        <div class="grid mb-4">
+            <div class="col-12 md:col-3">
+                <p-card styleClass="h-full">
+                    <div class="flex flex-column align-items-center justify-content-center">
+                        <span class="text-500 mb-2">Total de Contratos</span>
+                        <span class="text-900 text-4xl font-medium">{{ totalContracts }}</span>
+                    </div>
+                </p-card>
+            </div>
+            <div class="col-12 md:col-3">
+                <p-card styleClass="h-full">
+                    <div class="flex flex-column align-items-center justify-content-center">
+                        <span class="text-500 mb-2">Contratos Ativos</span>
+                        <span class="text-900 text-4xl font-medium">{{ activeContracts }}</span>
+                    </div>
+                </p-card>
+            </div>
+            <div class="col-12 md:col-3">
+                <p-card styleClass="h-full">
+                    <div class="flex flex-column align-items-center justify-content-center">
+                        <span class="text-500 mb-2">Valor Pendente</span>
+                        <span class="text-900 text-4xl font-medium text-orange-500">{{ pendingValue }}</span>
+                    </div>
+                </p-card>
+            </div>
+            <div class="col-12 md:col-3">
+                <p-card styleClass="h-full">
+                    <div class="flex flex-column align-items-center justify-content-center">
+                        <span class="text-500 mb-2">Taxa de Quitação</span>
+                        <span class="text-900 text-4xl font-medium text-blue-500">{{ renewalRate }}</span>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <!-- Tabela de contratos -->
+        <p-table 
+            [value]="contracts" 
+            [paginator]="true" 
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            [tableStyle]="{'min-width': '50rem'}"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} contratos"
+            [rowsPerPageOptions]="[5, 10, 25, 50]">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Código</th>
+                    <th>Aluno</th>
+                    <th>Curso</th>
+                    <th>Período</th>
+                    <th>Valor Total</th>
+                    <th>Parcelas</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-contract>
+                <tr>
+                    <td>{{ contract.code }}</td>
+                    <td>{{ contract.student }}</td>
+                    <td>{{ contract.course }}</td>
+                    <td>{{ contract.period }}</td>
+                    <td>{{ contract.totalValue }}</td>
+                    <td>
+                        <div>{{ contract.installments }}</div>
+                        <div *ngIf="contract.pendingValue" class="text-sm text-orange-500">{{ contract.pendingValue }}</div>
+                    </td>
+                    <td>
+                        <p-tag [value]="contract.status" [severity]="getStatusClass(contract.status)"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text" pTooltip="Visualizar" (click)="viewContract(contract)"></button>
+                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" pTooltip="Editar" (click)="editContract(contract)"></button>
+                            <button *ngIf="contract.status === 'Ativo'" pButton icon="pi pi-refresh" class="p-button-rounded p-button-text" pTooltip="Renovar" (click)="renewContract(contract)"></button>
+                            <button *ngIf="contract.status === 'Ativo'" pButton icon="pi pi-times" class="p-button-rounded p-button-text p-button-danger" pTooltip="Cancelar" (click)="cancelContract(contract)"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="paginatorleft">
+                <button pButton type="button" icon="pi pi-refresh" class="p-button-text"></button>
+            </ng-template>
+            
+            <ng-template pTemplate="paginatorright">
+                <button pButton type="button" icon="pi pi-download" class="p-button-text"></button>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
