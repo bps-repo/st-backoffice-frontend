@@ -1,0 +1,6 @@
+/* Estilos específicos para o componente de tarefas */
+:host ::ng-deep {
+  .card {
+    margin-bottom: 1rem;
+  }
+}

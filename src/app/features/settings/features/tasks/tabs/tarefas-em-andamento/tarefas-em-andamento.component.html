@@ -1,0 +1,52 @@
+<div class="card">
+  <p-table [value]="inProgressTasks" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Título</th>
+        <th>Prioridade</th>
+        <th>Vencimento</th>
+        <th>Responsável</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-task>
+      <tr>
+        <td>
+          <span class="font-bold">{{ task.title }}</span>
+          <div class="text-sm text-gray-500 mt-1">{{ task.description }}</div>
+        </td>
+        <td>
+          <p-tag [value]="task.priority === 'BAIXA' ? 'Baixa' : task.priority === 'MEDIA' ? 'Média' : 'Alta'" 
+                [severity]="getPriorityColor(task.priority)"></p-tag>
+        </td>
+        <td>
+          <span [ngClass]="{'text-red-500 font-bold': isTaskOverdue(task.dueDate)}">
+            {{ task.dueDate | date: 'dd/MM/yyyy' }}
+          </span>
+        </td>
+        <td>{{ task.assignedTo || 'Não atribuído' }}</td>
+        <td>
+          <div class="flex gap-2">
+            <button pButton 
+                    class="p-button-sm p-button-success" 
+                    icon="pi pi-check" 
+                    (click)="atualizarStatus(task, 'CONCLUIDA')"
+                    pTooltip="Concluir"></button>
+            <button pButton 
+                    class="p-button-sm p-button-warning" 
+                    icon="pi pi-times" 
+                    (click)="atualizarStatus(task, 'PENDENTE')"
+                    pTooltip="Voltar para pendente"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center p-4">
+          Nenhuma tarefa em andamento encontrada.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

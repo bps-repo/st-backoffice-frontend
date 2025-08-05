@@ -15,5 +15,10 @@ export const SETTINGS_ROUTES: Routes = [
         path: 'general-info',
         loadChildren: () =>
             import('./features/general-info/general-info.routes').then((m) => m.GeneralInfoRoutes),
+    },
+    {
+        path: 'tasks',
+        loadChildren: () =>
+            import('./features/tasks/tasks.routes').then((m) => m.TasksRoutes),
     }
 ];

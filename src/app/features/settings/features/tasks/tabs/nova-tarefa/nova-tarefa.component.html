@@ -1,0 +1,44 @@
+<div class="card">
+  <form [formGroup]="taskForm" (ngSubmit)="adicionarTarefa()" class="p-fluid">
+    <div class="field">
+      <label for="title" class="font-bold">Título*</label>
+      <input id="title" type="text" pInputText formControlName="title" />
+      <small *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched" class="p-error">Título é obrigatório</small>
+    </div>
+    
+    <div class="field">
+      <label for="description" class="font-bold">Descrição</label>
+      <textarea id="description" rows="5" cols="30" pInputTextarea formControlName="description"></textarea>
+    </div>
+    
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label for="priority" class="font-bold">Prioridade*</label>
+        <p-dropdown id="priority" [options]="priorityOptions" formControlName="priority" placeholder="Selecione a prioridade" optionLabel="label" optionValue="value"></p-dropdown>
+        <small *ngIf="taskForm.get('priority')?.invalid && taskForm.get('priority')?.touched" class="p-error">Prioridade é obrigatória</small>
+      </div>
+      
+      <div class="field col-12 md:col-6">
+        <label for="dueDate" class="font-bold">Data de Vencimento*</label>
+        <p-calendar id="dueDate" formControlName="dueDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+        <small *ngIf="taskForm.get('dueDate')?.invalid && taskForm.get('dueDate')?.touched" class="p-error">Data de vencimento é obrigatória</small>
+      </div>
+    </div>
+    
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label for="assignedTo" class="font-bold">Responsável</label>
+        <input id="assignedTo" type="text" pInputText formControlName="assignedTo" />
+      </div>
+      
+      <div class="field col-12 md:col-6">
+        <label for="category" class="font-bold">Categoria</label>
+        <input id="category" type="text" pInputText formControlName="category" />
+      </div>
+    </div>
+    
+    <div class="flex justify-content-end">
+      <button pButton type="submit" label="Adicionar Tarefa" icon="pi pi-plus" class="p-button-primary"></button>
+    </div>
+  </form>
+</div>

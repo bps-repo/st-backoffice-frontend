@@ -171,6 +171,11 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/settings/general-info'],
                     },
                     {
+                        label: 'Gestão de Tarefas',
+                        icon: 'pi pi-fw pi-check-square',
+                        routerLink: ['/settings/tasks'],
+                    },
+                    {
                         label: 'Suporte',
                         icon: 'pi pi-fw pi-question-circle',
                         routerLink: ['/settings/support'],
