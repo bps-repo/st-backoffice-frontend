@@ -10,6 +10,13 @@ import {ToastModule} from 'primeng/toast';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {Contract} from 'src/app/core/models/corporate/contract';
+import {TooltipModule} from 'primeng/tooltip';
+import {DialogModule} from 'primeng/dialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {DropdownModule} from 'primeng/dropdown';
+import {CalendarModule} from 'primeng/calendar';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {InputNumberModule} from 'primeng/inputnumber';
 
 @Component({
     selector: 'app-contract-detail',
@@ -17,13 +24,21 @@ import {Contract} from 'src/app/core/models/corporate/contract';
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         ButtonModule,
         CardModule,
         TabViewModule,
         TableModule,
         TagModule,
         ToastModule,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        TooltipModule,
+        DialogModule,
+        InputTextModule,
+        DropdownModule,
+        CalendarModule,
+        InputNumberModule
     ],
     providers: [MessageService, ConfirmationService]
 })
@@ -32,6 +47,25 @@ export class DetailComponent implements OnInit {
     contract: any = null;
     loading: boolean = true;
     payments: any[] = [];
+    
+    // Diálogos
+    showPaymentDetailsDialog: boolean = false;
+    showPaymentChargeDialog: boolean = false;
+    
+    // Parcela selecionada
+    selectedPayment: any = null;
+    
+    // Dados para cobrança
+    paymentMethods: any[] = [
+        { name: 'Multicaixa', code: 'MULTICAIXA' },
+        { name: 'Transferência Bancária', code: 'BANK_TRANSFER' },
+        { name: 'Dinheiro', code: 'CASH' },
+        { name: 'Cartão de Crédito', code: 'CREDIT_CARD' }
+    ];
+    selectedPaymentMethod: any = null;
+    paymentDate: Date = new Date();
+    paymentReference: string = '';
+    paymentAmount: number | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -144,5 +178,59 @@ export class DetailComponent implements OnInit {
 
     goBack(): void {
         this.router.navigate(['/finances/contracts']);
+    }
+    
+    // Métodos para detalhes da parcela
+    viewPaymentDetails(payment: any): void {
+        this.selectedPayment = payment;
+        this.showPaymentDetailsDialog = true;
+    }
+    
+    // Métodos para cobrança de parcela
+    chargePayment(payment: any): void {
+        this.selectedPayment = payment;
+        this.paymentAmount = Number(payment.amount.replace('Kz ', ''));
+        this.showPaymentChargeDialog = true;
+    }
+    
+    processPayment(): void {
+        if (!this.selectedPaymentMethod || !this.paymentDate || !this.paymentAmount) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erro',
+                detail: 'Por favor, preencha todos os campos obrigatórios.'
+            });
+            return;
+        }
+        
+        // Simulando processamento de pagamento
+        setTimeout(() => {
+            // Atualizando o status da parcela para 'Pago'
+            const index = this.payments.findIndex(p => p.id === this.selectedPayment.id);
+            if (index !== -1) {
+                this.payments[index].status = 'Pago';
+                this.payments[index].paymentMethod = this.selectedPaymentMethod.name;
+                this.payments[index].paymentDate = this.paymentDate.toLocaleDateString('pt-BR');
+                this.payments[index].paymentReference = this.paymentReference;
+            }
+            
+            // Fechando o diálogo e mostrando mensagem de sucesso
+            this.showPaymentChargeDialog = false;
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: 'Pagamento processado com sucesso!'
+            });
+            
+            // Resetando os campos
+            this.resetPaymentForm();
+        }, 1000);
+    }
+    
+    resetPaymentForm(): void {
+        this.selectedPaymentMethod = null;
+        this.paymentDate = new Date();
+        this.paymentReference = '';
+        this.paymentAmount = null;
     }
 }
