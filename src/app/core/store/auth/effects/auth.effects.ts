@@ -104,6 +104,17 @@ export class AuthEffects {
         )
     );
 
+    refreshTokenSuccess$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(authActions.refreshTokenSuccess),
+                tap(({token}) => {
+                    JwtTokenService.decodeToken(token);
+                })
+            ),
+        {dispatch: false}
+    );
+
     verify$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.verify),
