@@ -1,18 +1,34 @@
 <div class="grid">
-    <!-- Permissions Table -->
-    <app-global-table
-        tableLabel="Permissões"
-        [headerActions]="headerActions"
-        [data]="(permissions$ | async)!"
-        [entity]="'permissions'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        [loading]="loading$ | async"
-        [columnTemplates]="customTemplates"
-        (rowSelect)="onRowSelect($event)"
-        (createEntity)="navigateToCreatePermission()"
-        class="w-full"
-    ></app-global-table>
+    <div class="col-12 mb-3">
+        <div class="flex justify-content-end">
+            <p-selectButton [options]="viewOptions" [(ngModel)]="selectedView" optionLabel="label" optionValue="value"></p-selectButton>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <!-- Permissions Table -->
+        <app-global-table
+            *ngIf="selectedView === 'table'"
+            tableLabel="Permissões"
+            [headerActions]="headerActions"
+            [data]="(permissions$ | async)!"
+            [entity]="'permissions'"
+            [columns]="columns"
+            [globalFilterFields]="globalFilterFields"
+            [loading]="loading$ | async"
+            [columnTemplates]="customTemplates"
+            (rowSelect)="onRowSelect($event)"
+            (createEntity)="navigateToCreatePermission()"
+            class="w-full"
+        ></app-global-table>
+
+        <!-- Permissions Tree View -->
+        <app-permission-tree-view
+            *ngIf="selectedView === 'tree'"
+            [permissions]="(permissions$ | async)!"
+            [loading]="(loading$ | async)!"
+        ></app-permission-tree-view>
+    </div>
 </div>
 
 <!-- Date templates -->

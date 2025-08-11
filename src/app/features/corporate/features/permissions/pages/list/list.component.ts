@@ -11,8 +11,11 @@ import {PermissionService} from 'src/app/core/services/permission.service';
 import {Observable, Subject, of} from 'rxjs';
 import {catchError, finalize, takeUntil} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
+import {SelectButtonModule} from 'primeng/selectbutton';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
+import {PermissionTreeViewComponent} from "../../components/tree-view/tree-view.component";
+import {FormsModule} from "@angular/forms";
 
 @Component({
     selector: 'app-permissions-list',
@@ -20,7 +23,10 @@ import {TableHeaderAction} from "../../../../../../shared/components/tables/glob
         CommonModule,
         RouterModule,
         GlobalTable,
-        ButtonModule
+        ButtonModule,
+        SelectButtonModule,
+        PermissionTreeViewComponent,
+        FormsModule
     ],
     templateUrl: './list.component.html',
     standalone: true
@@ -40,6 +46,12 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     globalFilterFields: string[] = GLOBAL_FILTERS;
     customTemplates: Record<string, TemplateRef<any>> = {};
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
+
+    viewOptions = [
+        { label: 'Tabela', value: 'table' },
+        { label: 'Árvore', value: 'tree' }
+    ];
+    selectedView: string = 'table';
 
     private loading = false;
     private destroy$ = new Subject<void>();
