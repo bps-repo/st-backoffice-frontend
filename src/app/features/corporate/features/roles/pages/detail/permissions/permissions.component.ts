@@ -15,6 +15,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {RippleModule} from "primeng/ripple";
+import {PermissionTreeSelectComponent} from './permission-tree-select/permission-tree-select.component';
 
 @Component({
     selector: 'app-role-permissions',
@@ -28,17 +29,19 @@ import {RippleModule} from "primeng/ripple";
         DropdownModule,
         ProgressSpinnerModule,
         ToastModule,
-        RippleModule
+        RippleModule,
+        PermissionTreeSelectComponent
     ],
     providers: [MessageService]
 })
 export class PermissionsComponent implements OnInit, OnDestroy {
     role: Role | null = null;
     availablePermissions: Permission[] = [];
-    selectedPermission: Permission | null = null;
+    selectedPermissionIds: string[] = [];
     loading = false;
     adding = false;
     removing = false;
+    hasSelectedPermissions = false;
     private destroy$ = new Subject<void>();
     private roleId: string | null = null;
 
@@ -97,34 +100,43 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         });
     }
 
-    addPermission(): void {
-        if (!this.roleId || !this.selectedPermission) return;
+    onPermissionsSelected(permissionIds: string[]): void {
+        this.selectedPermissionIds = permissionIds;
+        this.hasSelectedPermissions = permissionIds.length > 0;
+    }
+
+    addSelectedPermissions(): void {
+        if (!this.roleId || this.selectedPermissionIds.length === 0) return;
 
         this.adding = true;
-        this.roleService.addPermissionToRole(this.roleId, this.selectedPermission.id).pipe(
+
+        // Use the bulk add method instead of individual calls
+        const permissionCount = this.selectedPermissionIds.length;
+        this.roleService.addPermissionsBulkToRole(this.roleId, this.selectedPermissionIds).pipe(
             takeUntil(this.destroy$),
             finalize(() => this.adding = false)
         ).subscribe({
             next: (updatedRole) => {
                 this.role = updatedRole;
-                this.selectedPermission = null;
+                this.selectedPermissionIds = [];
+                this.hasSelectedPermissions = false;
 
                 // Update available permissions
-                const rolePermissionIds = new Set(updatedRole.permissions.map(p => p.id));
+                const rolePermissionIds = new Set(this.role.permissions.map(p => p.id));
                 this.availablePermissions = this.availablePermissions.filter(permission => !rolePermissionIds.has(permission.id));
 
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Sucesso',
-                    detail: 'Permissão adicionada com sucesso'
+                    detail: `${permissionCount} permissão(ões) adicionada(s) com sucesso`
                 });
             },
             error: (error) => {
-                console.error('Error adding permission', error);
+                console.error('Error adding permissions', error);
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Erro',
-                    detail: 'Erro ao adicionar permissão. Por favor, tente novamente.'
+                    detail: 'Erro ao adicionar permissões. Por favor, tente novamente.'
                 });
             }
         });

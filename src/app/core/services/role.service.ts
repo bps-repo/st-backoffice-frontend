@@ -56,4 +56,16 @@ export class RoleService {
             map(response => response.data as Role),
         );
     }
+
+    /**
+     * Adds multiple permissions to a role in bulk.
+     * @param roleId The ID of the role.
+     * @param permissionIds Array of permission IDs to add to the role.
+     * @returns An observable containing the updated Role object.
+     */
+    addPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
+        return this.http.post<ApiResponse<Role>>(`${this.apiUrl}/permissions/add-bulk/${roleId}`, permissionIds).pipe(
+            map(response => response.data as Role),
+        );
+    }
 }

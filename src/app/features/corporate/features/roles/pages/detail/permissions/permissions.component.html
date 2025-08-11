@@ -40,19 +40,22 @@
                 </p-table>
             </div>
 
-            <!-- Add Permission -->
+            <!-- Add Permission with Tree View -->
             <div>
                 <h6>Adicionar Permissão</h6>
                 <div class="grid">
-                    <div class="col-12 md:col-6">
-                        <p-dropdown [options]="availablePermissions" [(ngModel)]="selectedPermission" optionLabel="name"
-                                    placeholder="Selecione uma permissão" [showClear]="true"
-                                    styleClass="w-full"></p-dropdown>
+                    <div class="col-12">
+                        <app-permission-tree-select
+                            [permissions]="availablePermissions"
+                            [loading]="loading"
+                            [selectedPermissionIds]="selectedPermissionIds"
+                            (permissionSelected)="onPermissionsSelected($event)">
+                        </app-permission-tree-select>
                     </div>
-                    <div class="col-12 md:col-6">
-                        <button pButton pRipple label="Adicionar Permissão" icon="pi pi-plus"
-                                (click)="addPermission()"
-                                [disabled]="!selectedPermission || adding"></button>
+                    <div class="col-12 mt-3 flex justify-content-end">
+                        <button pButton pRipple label="Adicionar Permissões Selecionadas" icon="pi pi-plus"
+                                (click)="addSelectedPermissions()"
+                                [disabled]="!hasSelectedPermissions || adding"></button>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,32 @@
+<div class="card">
+    <h6>Selecione as Permissões</h6>
+    <div *ngIf="loading" class="flex justify-content-center">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+    <div *ngIf="!loading">
+        <p-tree [value]="treeNodes"
+                selectionMode="checkbox"
+                [(selection)]="selectedNodes"
+                styleClass="w-full"
+                (onNodeSelect)="onNodeSelect($event)"
+                (onNodeUnselect)="onNodeUnselect($event)">
+            <ng-template pTemplate="default" let-node>
+                <div class="flex align-items-center gap-2">
+                    <span>{{ node.label }}</span>
+                    <span *ngIf="node.data?.description" class="text-sm text-color-secondary">
+                        - {{ node.data.description }}
+                    </span>
+                    <!-- Visual indicators for partial selection -->
+                    <span *ngIf="node.children && node.children.length > 0" class="ml-2">
+                        <span *ngIf="areSomeChildrenSelected(node)" class="text-sm text-primary">
+                            (Seleção parcial)
+                        </span>
+                        <span *ngIf="areAllChildrenSelected(node)" class="text-sm text-success">
+                            (Todos selecionados)
+                        </span>
+                    </span>
+                </div>
+            </ng-template>
+        </p-tree>
+    </div>
+</div>
