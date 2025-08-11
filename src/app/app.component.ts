@@ -5,11 +5,13 @@ import {PrimeNGConfig} from 'primeng/api'
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ICONS} from "./shared/icons/icons";
+import {ToastModule} from "primeng/toast";
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, RouterOutlet],
+    imports: [CommonModule, RouterOutlet, ToastModule],
     template: `
+        <p-toast position="top-right"></p-toast>
         <router-outlet></router-outlet>`,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

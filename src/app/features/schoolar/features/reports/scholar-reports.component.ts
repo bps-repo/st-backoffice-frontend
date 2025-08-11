@@ -6,7 +6,7 @@ import {LevelReports} from "./components/level/level-reports.component";
 import {LessonReports} from "./components/lessons/lesson-reports.component";
 
 @Component({
-    selector: 'app-finance-settings',
+    selector: 'scholar-reports',
     standalone: true,
     template: `
         <app-view-tab [title]="'Relatórios'" [viewOptions]="viewOptions"/>

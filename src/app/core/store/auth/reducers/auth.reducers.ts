@@ -1,6 +1,6 @@
-import { createFeature, createReducer, on } from '@ngrx/store';
-import { authActions } from '../actions/auth.actions';
-import { User } from '../../../models/auth/user';
+import {createFeature, createReducer, on} from '@ngrx/store';
+import {authActions} from '../actions/auth.actions';
+import {User} from '../../../models/auth/user';
 
 export interface AuthState {
     isAuthenticated: boolean;
@@ -31,7 +31,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.loginSuccess, (state, { token, refreshToken }) => {
+        on(authActions.loginSuccess, (state, {token, refreshToken}) => {
             localStorage.setItem('accessToken', token);
             localStorage.setItem('refreshToken', refreshToken);
             return {
@@ -44,7 +44,7 @@ export const authFeature = createFeature({
             };
         }),
 
-        on(authActions.loginFailure, (state, { error }) => ({
+        on(authActions.loginFailure, (state, {error}) => ({
             ...state,
             isAuthenticated: false,
             token: null,
@@ -70,7 +70,7 @@ export const authFeature = createFeature({
             loading: false
         })),
 
-        on(authActions.logoutFailure, (state, { error }) => ({
+        on(authActions.logoutFailure, (state, {error}) => ({
             ...state,
             error,
             loading: false
@@ -83,7 +83,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.refreshTokenSuccess, (state, { token, refreshToken }) => {
+        on(authActions.refreshTokenSuccess, (state, {token, refreshToken}) => {
             localStorage.setItem('accessToken', token);
             localStorage.setItem('refreshToken', refreshToken);
             return {
@@ -96,7 +96,7 @@ export const authFeature = createFeature({
             };
         }),
 
-        on(authActions.refreshTokenFailure, (state, { error }) => ({
+        on(authActions.refreshTokenFailure, (state, {error}) => ({
             ...state,
             isAuthenticated: false,
             token: null,
@@ -112,7 +112,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.verifySuccess, (state, { user }) => ({
+        on(authActions.verifySuccess, (state, {user}) => ({
             ...state,
             isAuthenticated: true,
             user,
@@ -120,7 +120,7 @@ export const authFeature = createFeature({
             loading: false
         })),
 
-        on(authActions.verifyFailure, (state, { error }) => ({
+        on(authActions.verifyFailure, (state, {error}) => ({
             ...state,
             isAuthenticated: false,
             user: null,

@@ -10,12 +10,18 @@ import {provideRouterStore, routerReducer} from '@ngrx/router-store';
 import {tokenInterceptor} from './core/interceptors/token.interceptor';
 import {CustomSerializer} from './core/router/custom-serializer';
 import {AppEffects, AppFeatures} from "./core/store/schoolar";
+import {forbiddenInterceptor} from "./core/interceptors/forbidden.interceptor";
+import {MessageService} from "primeng/api";
+import {tokenExpiredInterceptor} from "./core/interceptors/token-expired.interceptor";
 
 export const AppConfig: ApplicationConfig = {
     providers: [
+        MessageService,
         // HTTP
-        provideHttpClient(withFetch(), withInterceptors([tokenInterceptor])),
-
+        provideHttpClient(
+            withFetch(),
+            withInterceptors([tokenInterceptor, forbiddenInterceptor, tokenExpiredInterceptor])
+        ),
         // Animations
         provideAnimations(),
 

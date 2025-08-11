@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
-import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
-import { AuthService } from '../../../services/auth.service';
-import { authActions } from '../actions/auth.actions';
-import { Router } from '@angular/router';
+import {Injectable} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {of} from 'rxjs';
+import {catchError, exhaustMap, map, tap} from 'rxjs/operators';
+import {AuthService} from '../../../services/auth.service';
+import {authActions} from '../actions/auth.actions';
+import {Router} from '@angular/router';
+import {JwtTokenService} from "../../../services/jwtToken.service";
 
 @Injectable()
 export class AuthEffects {
@@ -12,12 +13,13 @@ export class AuthEffects {
         private actions$: Actions,
         private authService: AuthService,
         private router: Router
-    ) {}
+    ) {
+    }
 
     login$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.login),
-            exhaustMap(({ email, password }) =>
+            exhaustMap(({email, password}) =>
                 this.authService.login(email, password).pipe(
                     map((response) =>
                         authActions.loginSuccess({
@@ -41,11 +43,12 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.loginSuccess),
-                tap(() => {
-                    this.router.navigate(['/schoolar/dashboards']);
+                tap(({token}) => {
+                    JwtTokenService.decodeToken(token)
+                    this.router.navigate(['/schoolar/dashboards']).then();
                 })
             ),
-        { dispatch: false }
+        {dispatch: false}
     );
 
     logout$ = createEffect(() =>
@@ -73,16 +76,15 @@ export class AuthEffects {
                 tap(() => {
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
-                    this.router.navigate(['/auth/login']);
+                    this.router.navigate(['/auth/login']).then();
                 })
             ),
-        { dispatch: false }
     );
 
     refreshToken$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.refreshToken),
-            exhaustMap(({ refreshToken }) =>
+            exhaustMap(({refreshToken}) =>
                 this.authService.refreshToken(refreshToken).pipe(
                     map((response) =>
                         authActions.refreshTokenSuccess({
@@ -107,7 +109,7 @@ export class AuthEffects {
             ofType(authActions.verify),
             exhaustMap(() =>
                 this.authService.verify().pipe(
-                    map((response) => authActions.verifySuccess({ user: response.data })),
+                    map((response) => authActions.verifySuccess({user: response.data})),
                     catchError((error) =>
                         of(
                             authActions.verifyFailure({
