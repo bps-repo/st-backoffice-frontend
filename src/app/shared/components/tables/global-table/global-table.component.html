@@ -10,6 +10,10 @@
             ></app-table-header>
         -->
 
+        <div *ngIf="loading" class="flex justify-content-center p-4">
+            <p-progressSpinner></p-progressSpinner>
+        </div>
+
         <p-table
             #dt
             [value]="data"
@@ -21,6 +25,7 @@
             draggable="false"
             scrollHeight="400px"
             responsiveLayout="scroll"
+            [expandedRowKeys]="expandedRows"
         >
             <!-- Global Filter
             <ng-template pTemplate="caption">
@@ -65,19 +70,39 @@
             <!-- Body -->
             <ng-template pTemplate="body" let-rowData>
                 <tr (click)="selectRow(rowData)" class="cursor-pointer">
-                    <td *ngFor="let col of columns">
-                        <ng-container *ngIf="!col.customTemplate">
-                            {{ rowData[col.field] }}
-                        </ng-container>
-                        <ng-container *ngIf="col.customTemplate && columnTemplates[col.field]">
-                            <ng-container
-                                *ngTemplateOutlet="columnTemplates[col.field]; context: { $implicit: rowData }"
-                            ></ng-container>
-                        </ng-container>
+                    <td *ngFor="let col of columns; let i = index">
+                        <div class="flex align-items-center">
+                            <button *ngIf="i === 0 && expandableRows && hasChildren(rowData)"
+                                    type="button"
+                                    pButton
+                                    pRipple
+                                    [icon]="isRowExpanded(rowData) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                                    class="p-button-rounded p-button-text p-button-sm mr-2"
+                                    (click)="toggleRow(rowData, $event)"></button>
+                            <ng-container *ngIf="!col.customTemplate">
+                                {{ rowData[col.field] }}
+                            </ng-container>
+                            <ng-container *ngIf="col.customTemplate && columnTemplates[col.field]">
+                                <ng-container
+                                    *ngTemplateOutlet="columnTemplates[col.field]; context: { $implicit: rowData }"
+                                ></ng-container>
+                            </ng-container>
+                        </div>
                     </td>
                     <td *ngIf="actionsTemplate">
                         <ng-container
                             *ngTemplateOutlet="actionsTemplate; context: { $implicit: rowData }"
+                        ></ng-container>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Expansion Template -->
+            <ng-template pTemplate="rowexpansion" let-rowData>
+                <tr *ngIf="expandableRows && expansionTemplate">
+                    <td [attr.colspan]="columns.length + (actionsTemplate ? 1 : 0)">
+                        <ng-container
+                            *ngTemplateOutlet="expansionTemplate; context: { $implicit: rowData }"
                         ></ng-container>
                     </td>
                 </tr>
