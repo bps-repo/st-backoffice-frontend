@@ -1,4 +1,16 @@
 <div class="grid">
+    <div id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Gestão de funções</h2>
+            <span class="text-lg">Cadastro e gestão de funções e permissões de acesso</span>
+        </div>
+        <p-button
+            (onClick)="navigateToCreateRole()"
+            label="Nova função"
+            icon="pi pi-plus"
+            class="p-button-outlined"
+        ></p-button>
+    </div>
     <!-- Roles Table -->
     <app-global-table
         tableLabel="Funções"
@@ -11,7 +23,7 @@
         [columnTemplates]="customTemplates"
         (rowSelect)="onRowSelect($event)"
         (createEntity)="navigateToCreateRole()"
-        class="w-full"
+        class="w-full h-full!"
     ></app-global-table>
 </div>
 

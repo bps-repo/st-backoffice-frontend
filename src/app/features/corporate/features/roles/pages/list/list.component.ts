@@ -86,6 +86,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     navigateToCreateRole() {
-        this.router.navigate(['/corporate/roles/create']);
+        this.router.navigate(['/corporate/roles/create']).then();
     }
 }

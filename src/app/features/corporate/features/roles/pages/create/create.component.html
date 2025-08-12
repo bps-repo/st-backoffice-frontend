@@ -22,8 +22,18 @@
                         </div>
                     </div>
 
+                    <!-- Permission Selection -->
+                    <div class="col-12 mt-4">
+                        <app-permission-tree-select
+                            [permissions]="permissions"
+                            [loading]="permissionsLoading"
+                            [selectedPermissionIds]="selectedPermissionIds"
+                            (permissionSelected)="onPermissionSelected($event)">
+                        </app-permission-tree-select>
+                    </div>
+
                     <!-- Buttons -->
-                    <div class="col-12">
+                    <div class="col-12 mt-4">
                         <div class="flex justify-content-end">
                             <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
                             <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="roleForm.invalid || loading"></button>
