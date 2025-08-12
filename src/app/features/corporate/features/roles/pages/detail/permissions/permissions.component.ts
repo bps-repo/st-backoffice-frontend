@@ -6,7 +6,7 @@ import {Role} from 'src/app/core/models/auth/role';
 import {Permission} from 'src/app/core/models/auth/permission';
 import {RoleService} from 'src/app/core/services/role.service';
 import {PermissionService} from 'src/app/core/services/permission.service';
-import {Subject, forkJoin} from 'rxjs';
+import {Subject, forkJoin, Observable, of} from 'rxjs';
 import {takeUntil, finalize} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {TableModule} from 'primeng/table';
@@ -16,6 +16,8 @@ import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {RippleModule} from "primeng/ripple";
 import {PermissionTreeSelectComponent} from './permission-tree-select/permission-tree-select.component';
+import {Store} from "@ngrx/store";
+import {selectPermissionsLoading} from "../../../../../../../core/store/permissions/selectors/permissions.selectors";
 
 @Component({
     selector: 'app-role-permissions',
@@ -38,7 +40,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     role: Role | null = null;
     availablePermissions: Permission[] = [];
     selectedPermissionIds: string[] = [];
-    loading = false;
+    loading$: Observable<boolean> = of(false);
     adding = false;
     removing = false;
     hasSelectedPermissions = false;
@@ -49,8 +51,10 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private roleService: RoleService,
         private permissionService: PermissionService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private readonly store$: Store
     ) {
+        this.loading$ = this.store$.select(selectPermissionsLoading)
     }
 
     ngOnInit(): void {
@@ -73,14 +77,12 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     loadData(): void {
         if (!this.roleId) return;
 
-        this.loading = true;
 
         forkJoin({
             role: this.roleService.getRole(this.roleId),
             permissions: this.permissionService.getPermissions()
         }).pipe(
             takeUntil(this.destroy$),
-            finalize(() => this.loading = false)
         ).subscribe({
             next: ({role, permissions}) => {
                 this.role = role;

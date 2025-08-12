@@ -4,7 +4,7 @@ import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
 import {Role} from 'src/app/core/models/auth/role';
 import {RoleService} from 'src/app/core/services/role.service';
-import {Subject} from 'rxjs';
+import {Observable, of, Subject} from 'rxjs';
 import {takeUntil, finalize} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {TabViewModule} from 'primeng/tabview';
@@ -15,6 +15,9 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
+import {RippleModule} from "primeng/ripple";
+import {Store} from "@ngrx/store";
+import {selectRolesLoading} from "../../../../../../core/store/roles/selectors/roles.selectors";
 
 @Component({
     selector: 'app-role-detail',
@@ -31,13 +34,14 @@ import {ToastModule} from 'primeng/toast';
         InputTextareaModule,
         ProgressSpinnerModule,
         ConfirmDialogModule,
-        ToastModule
+        ToastModule,
+        RippleModule
     ],
     providers: [ConfirmationService, MessageService]
 })
 export class DetailComponent implements OnInit, OnDestroy {
     role: Role | null = null;
-    loading = false;
+    loading$: Observable<boolean> = of(false);
     saving = false;
     editDialogVisible = false;
     roleForm!: FormGroup;
@@ -49,8 +53,10 @@ export class DetailComponent implements OnInit, OnDestroy {
         private roleService: RoleService,
         private fb: FormBuilder,
         private confirmationService: ConfirmationService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private readonly store$: Store
     ) {
+        this.loading$ = this.store$.select(selectRolesLoading);
     }
 
     ngOnInit(): void {
@@ -78,10 +84,8 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     loadRole(id: string): void {
-        this.loading = true;
         this.roleService.getRole(id).pipe(
             takeUntil(this.destroy$),
-            finalize(() => this.loading = false)
         ).subscribe({
             next: (role) => {
                 this.role = role;
@@ -156,10 +160,8 @@ export class DetailComponent implements OnInit, OnDestroy {
             header: 'Confirmar Exclusão',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.loading = true;
                 this.roleService.deleteRole(this.role!.id).pipe(
                     takeUntil(this.destroy$),
-                    finalize(() => this.loading = false)
                 ).subscribe({
                     next: () => {
                         this.messageService.add({
@@ -167,7 +169,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                             summary: 'Sucesso',
                             detail: 'Função excluída com sucesso'
                         });
-                        this.router.navigate(['/corporate/roles']);
+                        this.router.navigate(['/corporate/roles']).then();
                     },
                     error: (error) => {
                         console.error('Error deleting role', error);
@@ -183,6 +185,6 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     goBack(): void {
-        this.router.navigate(['/corporate/roles']);
+        this.router.navigate(['/corporate/roles']).then();
     }
 }
