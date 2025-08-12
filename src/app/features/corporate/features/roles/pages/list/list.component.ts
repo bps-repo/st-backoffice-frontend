@@ -16,6 +16,7 @@ import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import {Store} from "@ngrx/store";
 import {selectRolesLoading} from "../../../../../../core/store/roles/selectors/roles.selectors";
+import {setSelectedRole} from "../../../../../../core/store/roles/actions/roles.actions";
 
 @Component({
     selector: 'app-roles-list',
@@ -53,6 +54,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnInit(): void {
+        // Clear the selected role when navigating to the list view
+        this.store$.dispatch(setSelectedRole({ id: null }));
         this.loadRoles();
     }
 
