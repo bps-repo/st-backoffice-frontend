@@ -6,7 +6,7 @@ import {Role} from 'src/app/core/models/auth/role';
 import {Permission} from 'src/app/core/models/auth/permission';
 import {RoleService} from 'src/app/core/services/role.service';
 import {PermissionService} from 'src/app/core/services/permission.service';
-import {Subject, forkJoin, Observable, of} from 'rxjs';
+import {Subject, combineLatest, Observable, of} from 'rxjs';
 import {takeUntil, finalize} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {TableModule} from 'primeng/table';
@@ -77,8 +77,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     loadData(): void {
         if (!this.roleId) return;
 
-
-        forkJoin({
+        combineLatest({
             role: this.roleService.getRole(this.roleId),
             permissions: this.permissionService.getPermissions()
         }).pipe(
@@ -86,13 +85,18 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         ).subscribe({
             next: ({role, permissions}) => {
                 this.role = role;
+                console.log("")
+
+                console.log("roles:", role)
+                console.log("permissions:", permissions)
+
 
                 // Filter out permissions that the role already has
                 const rolePermissionIds = new Set(role.permissions.map(p => p.id));
                 this.availablePermissions = permissions.filter(permission => !rolePermissionIds.has(permission.id));
             },
             error: (error) => {
-                console.error('Error loading data', error);
+                console.error('Error loading data per', error);
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Erro',

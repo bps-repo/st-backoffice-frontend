@@ -40,13 +40,22 @@ export class RoleService {
     // Original HTTP method for effects to use
     fetchRoles(): Observable<Role[]> {
         return this.http.get<ApiResponse<PageableResponse<Role[]>>>(this.apiUrl).pipe(
-            map(response => response.data.content as Role[]),
+            map(response => {
+                const roles = response.data.content as Role[];
+                // Ensure permissions array is initialized for each role
+                return roles.map(role => {
+                    if (!role.permissions) {
+                        role.permissions = [];
+                    }
+                    return role;
+                });
+            }),
         );
     }
 
     getRole(id: string): Observable<Role> {
         // Dispatch the loadRole action
-        this.store.dispatch(RolesActions.loadRole({ id }));
+        this.store.dispatch(RolesActions.loadRole({id}));
         // Return the role from the store, filtering out undefined values
         return this.store.select(RolesSelectors.selectRoleById(id)).pipe(
             filter((role): role is Role => !!role)
@@ -56,13 +65,20 @@ export class RoleService {
     // Original HTTP method for effects to use
     fetchRole(id: string): Observable<Role> {
         return this.http.get<ApiResponse<Role>>(`${this.apiUrl}/${id}`).pipe(
-            map(response => response.data as Role),
+            map(response => {
+                const role = response.data as Role;
+                // Ensure permissions array is initialized even if it's missing in the API response
+                if (!role.permissions) {
+                    role.permissions = [];
+                }
+                return role;
+            }),
         );
     }
 
     createRole(role: Role): Observable<Role> {
         // Dispatch the createRole action
-        this.store.dispatch(RolesActions.createRole({ role }));
+        this.store.dispatch(RolesActions.createRole({role}));
         // Return the selected role from the store, filtering out null/undefined values
         return this.store.select(RolesSelectors.selectSelectedRole).pipe(
             filter((selectedRole): selectedRole is Role => !!selectedRole)
@@ -72,13 +88,19 @@ export class RoleService {
     // Original HTTP method for effects to use
     postRole(role: Role): Observable<Role> {
         return this.http.post<ApiResponse<Role>>(this.apiUrl, role).pipe(
-            map(response => response.data as Role),
+            map(response => {
+                const createdRole = response.data as Role;
+                if (!createdRole.permissions) {
+                    createdRole.permissions = [];
+                }
+                return createdRole;
+            }),
         );
     }
 
     updateRole(role: Role): Observable<Role> {
         // Dispatch the updateRole action
-        this.store.dispatch(RolesActions.updateRole({ role }));
+        this.store.dispatch(RolesActions.updateRole({role}));
         // Return the selected role from the store, filtering out undefined values
         return this.store.select(RolesSelectors.selectRoleById(role.id)).pipe(
             filter((updatedRole): updatedRole is Role => !!updatedRole)
@@ -88,20 +110,26 @@ export class RoleService {
     // Original HTTP method for effects to use
     putRole(role: Role): Observable<Role> {
         return this.http.put<ApiResponse<Role>>(`${this.apiUrl}/${role.id}`, role).pipe(
-            map(response => response.data as Role),
+            map(response => {
+                const updatedRole = response.data as Role;
+                if (!updatedRole.permissions) {
+                    updatedRole.permissions = [];
+                }
+                return updatedRole;
+            }),
         );
     }
 
     deleteRole(id: string): Observable<void> {
         // Dispatch the deleteRole action
-        this.store.dispatch(RolesActions.deleteRole({ id }));
+        this.store.dispatch(RolesActions.deleteRole({id}));
         // Return the original HTTP observable for compatibility
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
     addPermissionToRole(roleId: string, permissionId: string): Observable<Role> {
         // Dispatch the addPermissionToRole action
-        this.store.dispatch(RolesActions.addPermissionToRole({ roleId, permissionId }));
+        this.store.dispatch(RolesActions.addPermissionToRole({roleId, permissionId}));
         // Return the role from the store, filtering out undefined values
         return this.store.select(RolesSelectors.selectRoleById(roleId)).pipe(
             filter((role): role is Role => !!role)
@@ -111,13 +139,19 @@ export class RoleService {
     // Original HTTP method for effects to use
     postPermissionToRole(roleId: string, permissionId: string): Observable<Role> {
         return this.http.post<ApiResponse<Role>>(`${this.apiUrl}/${roleId}/permissions/${permissionId}`, {}).pipe(
-            map(response => response.data as Role),
+            map(response => {
+                const role = response.data as Role;
+                if (!role.permissions) {
+                    role.permissions = [];
+                }
+                return role;
+            }),
         );
     }
 
     removePermissionFromRole(roleId: string, permissionId: string): Observable<Role> {
         // Dispatch the removePermissionFromRole action
-        this.store.dispatch(RolesActions.removePermissionFromRole({ roleId, permissionId }));
+        this.store.dispatch(RolesActions.removePermissionFromRole({roleId, permissionId}));
         // Return the role from the store, filtering out undefined values
         return this.store.select(RolesSelectors.selectRoleById(roleId)).pipe(
             filter((role): role is Role => !!role)
@@ -127,7 +161,13 @@ export class RoleService {
     // Original HTTP method for effects to use
     deletePermissionFromRole(roleId: string, permissionId: string): Observable<Role> {
         return this.http.delete<ApiResponse<Role>>(`${this.apiUrl}/${roleId}/permissions/${permissionId}`).pipe(
-            map(response => response.data as Role),
+            map(response => {
+                const role = response.data as Role;
+                if (!role.permissions) {
+                    role.permissions = [];
+                }
+                return role;
+            }),
         );
     }
 
@@ -139,7 +179,7 @@ export class RoleService {
      */
     addPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
         // Dispatch the addPermissionsBulkToRole action
-        this.store.dispatch(RolesActions.addPermissionsBulkToRole({ roleId, permissionIds }));
+        this.store.dispatch(RolesActions.addPermissionsBulkToRole({roleId, permissionIds}));
         // Return the role from the store, filtering out undefined values
         return this.store.select(RolesSelectors.selectRoleById(roleId)).pipe(
             filter((role): role is Role => !!role)
@@ -149,7 +189,13 @@ export class RoleService {
     // Original HTTP method for effects to use
     postPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
         return this.http.post<ApiResponse<Role>>(`${this.apiUrl}/permissions/add-bulk/${roleId}`, permissionIds).pipe(
-            map(response => response.data as Role),
+            map(response => {
+                const role = response.data as Role;
+                if (!role.permissions) {
+                    role.permissions = [];
+                }
+                return role;
+            }),
         );
     }
 
@@ -162,7 +208,7 @@ export class RoleService {
      */
     createRoleWithPermissions(name: string, description: string, permissionIds: string[]): Observable<Role> {
         // Dispatch the createRoleWithPermissions action
-        this.store.dispatch(RolesActions.createRoleWithPermissions({ name, description, permissionIds }));
+        this.store.dispatch(RolesActions.createRoleWithPermissions({name, description, permissionIds}));
         // Return the selected role from the store, filtering out null/undefined values
         return this.store.select(RolesSelectors.selectSelectedRole).pipe(
             filter((selectedRole): selectedRole is Role => !!selectedRole)
@@ -177,7 +223,13 @@ export class RoleService {
             permissionIds
         };
         return this.http.post<ApiResponse<Role>>(`${this.apiUrl}`, request).pipe(
-            map(response => response.data as Role),
+            map(response => {
+                const role = response.data as Role;
+                if (!role.permissions) {
+                    role.permissions = [];
+                }
+                return role;
+            }),
         );
     }
 }
