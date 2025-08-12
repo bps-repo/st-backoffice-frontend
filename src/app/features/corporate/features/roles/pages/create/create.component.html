@@ -28,7 +28,7 @@
                     <div class="col-12 mt-4">
                         <app-permission-tree-select
                             [permissions]="permissions"
-                            [loading]="permissionsLoading"
+                            [loading]="(permissionsLoading | async)!"
                             [selectedPermissionIds]="selectedPermissionIds"
                             (permissionSelected)="onPermissionSelected($event)">
                         </app-permission-tree-select>

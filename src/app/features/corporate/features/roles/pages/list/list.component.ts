@@ -14,6 +14,8 @@ import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
+import {Store} from "@ngrx/store";
+import {selectRolesLoading} from "../../../../../../core/store/roles/selectors/roles.selectors";
 
 @Component({
     selector: 'app-roles-list',
@@ -40,13 +42,14 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     customTemplates: Record<string, TemplateRef<any>> = {};
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
-    private loading = false;
     private destroy$ = new Subject<void>();
 
     constructor(
         private roleService: RoleService,
-        private router: Router
+        private router: Router,
+        private store$: Store,
     ) {
+        this.loading$ = this.store$.select(selectRolesLoading)
     }
 
     ngOnInit(): void {
@@ -65,9 +68,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     loadRoles(): void {
-        this.loading = true;
-        this.loading$ = of(true);
-
         this.roles$ = this.roleService.getRoles().pipe(
             takeUntil(this.destroy$),
             catchError(error => {
@@ -75,14 +75,12 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
                 return of([]);
             }),
             finalize(() => {
-                this.loading = false;
-                this.loading$ = of(false);
             })
         );
     }
 
     onRowSelect(role: Role) {
-        this.router.navigate(['/corporate/roles', role.id]);
+        this.router.navigate(['/corporate/roles', role.id]).then();
     }
 
     navigateToCreateRole() {

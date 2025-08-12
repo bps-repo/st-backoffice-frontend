@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -14,6 +14,9 @@ import {
     PermissionTreeSelectComponent
 } from "../detail/permissions/permission-tree-select/permission-tree-select.component";
 import {RippleModule} from "primeng/ripple";
+import {Store} from "@ngrx/store";
+import {selectPermissionsLoading} from "../../../../../../core/store/permissions/selectors/permissions.selectors";
+import {Observable, of} from "rxjs";
 
 @Component({
     selector: 'app-create-role',
@@ -34,15 +37,17 @@ export class CreateComponent implements OnInit {
     loading = false;
 
     permissions: Permission[] = [];
-    permissionsLoading = false;
+    permissionsLoading: Observable<boolean> = of(false)
     selectedPermissionIds: string[] = [];
 
     constructor(
         private fb: FormBuilder,
         private roleService: RoleService,
         private permissionService: PermissionService,
-        private router: Router
+        private router: Router,
+        private readonly store$: Store
     ) {
+        this.permissionsLoading = store$.select(selectPermissionsLoading)
     }
 
     ngOnInit(): void {
@@ -58,9 +63,8 @@ export class CreateComponent implements OnInit {
     }
 
     loadPermissions(): void {
-        this.permissionsLoading = true;
         this.permissionService.getPermissions()
-            .pipe(finalize(() => this.permissionsLoading = false))
+            .pipe()
             .subscribe({
                 next: (permissions) => {
                     this.permissions = permissions;
@@ -89,15 +93,15 @@ export class CreateComponent implements OnInit {
             formValue.description,
             this.selectedPermissionIds
         )
-        .pipe(finalize(() => this.loading = false))
-        .subscribe({
-            next: (createdRole) => {
-                this.router.navigate(['/corporate/roles', createdRole.id]).then();
-            },
-            error: (error) => {
-                console.error('Error creating role with permissions', error);
-            }
-        });
+            .pipe(finalize(() => this.loading = false))
+            .subscribe({
+                next: (createdRole) => {
+                    this.router.navigate(['/corporate/roles', createdRole.id]).then();
+                },
+                error: (error) => {
+                    console.error('Error creating role with permissions', error);
+                }
+            });
     }
 
     cancel(): void {

@@ -16,6 +16,8 @@ import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import {PermissionTreeViewComponent} from "../../components/tree-view/tree-view.component";
 import {FormsModule} from "@angular/forms";
+import {Store} from "@ngrx/store";
+import {selectPermissionsLoading} from "../../../../../../core/store/permissions/selectors/permissions.selectors";
 
 @Component({
     selector: 'app-permissions-list',
@@ -48,8 +50,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
     viewOptions = [
-        { label: 'Tabela', value: 'table' },
-        { label: 'Árvore', value: 'tree' }
+        {label: 'Tabela', value: 'table'},
+        {label: 'Árvore', value: 'tree'}
     ];
     selectedView: string = 'table';
 
@@ -58,8 +60,10 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     constructor(
         private permissionService: PermissionService,
-        private router: Router
+        private router: Router,
+        private readonly store$: Store
     ) {
+        this.loading$ = this.store$.select(selectPermissionsLoading)
     }
 
     ngOnInit(): void {
@@ -79,9 +83,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     loadPermissions(): void {
-        this.loading = true;
-        this.loading$ = of(true);
-
         this.permissions$ = this.permissionService.getPermissions().pipe(
             takeUntil(this.destroy$),
             catchError(error => {
@@ -89,17 +90,15 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
                 return of([]);
             }),
             finalize(() => {
-                this.loading = false;
-                this.loading$ = of(false);
             })
         );
     }
 
     onRowSelect(permission: Permission) {
-        this.router.navigate(['/corporate/permissions', permission.id]);
+        this.router.navigate(['/corporate/permissions', permission.id]).then();
     }
 
     navigateToCreatePermission() {
-        this.router.navigate(['/corporate/permissions/create']);
+        this.router.navigate(['/corporate/permissions/create']).then();
     }
 }
