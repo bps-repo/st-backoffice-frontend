@@ -8,15 +8,17 @@
                     <div class="col-12">
                         <div class="field">
                             <label for="name">Nome</label>
-                            <input id="name" type="text" pInputText formControlName="name" />
-                            <small *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched" class="p-error">
+                            <input id="name" type="text" pInputText formControlName="name"/>
+                            <small *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched"
+                                   class="p-error">
                                 Nome é obrigatório
                             </small>
                         </div>
                         <div class="field">
                             <label for="description">Descrição</label>
                             <textarea id="description" pInputTextarea formControlName="description" rows="3"></textarea>
-                            <small *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched" class="p-error">
+                            <small *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched"
+                                   class="p-error">
                                 Descrição é obrigatória
                             </small>
                         </div>
@@ -35,8 +37,10 @@
                     <!-- Buttons -->
                     <div class="col-12 mt-4">
                         <div class="flex justify-content-end">
-                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
-                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="roleForm.invalid || loading"></button>
+                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
+                                    (click)="cancel()"></button>
+                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-primary"
+                                    type="submit" [disabled]="roleForm.invalid || loading"></button>
                         </div>
                     </div>
                 </div>

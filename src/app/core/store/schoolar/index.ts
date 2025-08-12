@@ -25,6 +25,12 @@ import {LevelEffects} from "./level/level.effects";
 import {serviceFeature} from "../corporate/services/service.reducer";
 import {unitFeature} from "./units/unit.feature";
 import {levelsFeature} from "./level/level.reducer";
+import {RolesEffects} from "../roles/effects/roles.effects";
+import {PermissionsEffects} from "../permissions/effects/permissions.effects";
+import {rolesFeature} from "../roles/roles.feature";
+import {permissionsFeature} from "../permissions/permissions.feature";
+import {RolesState} from "../roles/models/roles.state";
+import {PermissionsState} from "../permissions/models/permissions.state";
 
 export interface AppState {
     students: StudentState;
@@ -38,6 +44,8 @@ export interface AppState {
     settings: SettingsState;
     lessons: LessonState;
     centers: CenterState;
+    roles: RolesState;
+    permissions: PermissionsState;
 }
 
 export const AppEffects = [
@@ -47,7 +55,9 @@ export const AppEffects = [
     UnitEffects,
     LevelEffects,
     LessonsEffects,
-    ClassEffects
+    ClassEffects,
+    RolesEffects,
+    PermissionsEffects
 ]
 
 export const AppFeatures = [
@@ -58,5 +68,7 @@ export const AppFeatures = [
     serviceFeature,
     authFeature,
     lessonsFeature,
-    classesFeature
+    classesFeature,
+    rolesFeature,
+    permissionsFeature
 ]

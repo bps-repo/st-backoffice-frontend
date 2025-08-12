@@ -3,19 +3,34 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Permission} from '../models/auth/permission';
-import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
-import {map} from "rxjs/operators";
+import {ApiResponse} from "./interfaces/ApiResponseService";
+import {filter, map} from "rxjs/operators";
+import {Store} from '@ngrx/store';
+import * as PermissionsActions from '../store/permissions/actions/permissions.actions';
+import * as PermissionsSelectors from '../store/permissions/selectors/permissions.selectors';
+import {AppState} from '../store/schoolar';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PermissionService {
-    private apiUrl = `${environment.apiUrl}/permissions`;
+    public apiUrl = `${environment.apiUrl}/permissions`;
 
-    constructor(private http: HttpClient) {
+    constructor(
+        public http: HttpClient,
+        private store: Store<AppState>
+    ) {
     }
 
     getPermissions(): Observable<Permission[]> {
+        // Dispatch the loadPermissionTree action
+        this.store.dispatch(PermissionsActions.loadPermissionTree());
+        // Return the permission tree from the store
+        return this.store.select(PermissionsSelectors.selectPermissionTree);
+    }
+
+    // Original HTTP method for effects to use
+    fetchPermissionTree(): Observable<Permission[]> {
         return this.http.get<ApiResponse<Permission[]>>(`${this.apiUrl}/tree`).pipe(
             map(response => {
                 const permissions = response.data as Permission[];
@@ -72,24 +87,45 @@ export class PermissionService {
         });
 
         // Root permissions are those that aren't children of any other permission
-        const rootPermissions = permissionsCopy.filter(permission => !childrenIds.has(permission.id));
-
-        return rootPermissions;
+        return permissionsCopy.filter(permission => !childrenIds.has(permission.id));
     }
 
     getPermission(id: number): Observable<Permission> {
-        return this.http.get<Permission>(`${this.apiUrl}/${id}`);
+        // Dispatch the loadPermission action
+        this.store.dispatch(PermissionsActions.loadPermission({ id: id.toString() }));
+        // Return the permission from the store, filtering out undefined values
+        return this.store.select(PermissionsSelectors.selectPermissionById(id.toString())).pipe(
+            filter((permission): permission is Permission => !!permission)
+        );
     }
 
-    createPermission(permission: Permission): Observable<Permission> {
-        return this.http.post<Permission>(this.apiUrl, permission);
+    // Original HTTP method for effects to use
+    fetchPermission(id: number): Observable<Permission> {
+        return this.http.get<ApiResponse<Permission>>(`${this.apiUrl}/${id}`).pipe(
+            map(response => response.data as Permission)
+        );
     }
 
     updatePermission(permission: Permission): Observable<Permission> {
-        return this.http.put<Permission>(`${this.apiUrl}/${permission.id}`, permission);
+        // Dispatch the updatePermission action
+        this.store.dispatch(PermissionsActions.updatePermission({ permission }));
+        // Return the permission from the store, filtering out undefined values
+        return this.store.select(PermissionsSelectors.selectPermissionById(permission.id)).pipe(
+            filter((updatedPermission): updatedPermission is Permission => !!updatedPermission)
+        );
+    }
+
+    // Original HTTP method for effects to use
+    putPermission(permission: Permission): Observable<Permission> {
+        return this.http.put<ApiResponse<Permission>>(`${this.apiUrl}/${permission.id}`, permission).pipe(
+            map(response => response.data as Permission)
+        );
     }
 
     deletePermission(id: number): Observable<void> {
+        // Dispatch the deletePermission action
+        this.store.dispatch(PermissionsActions.deletePermission({ id: id.toString() }));
+        // Return the original HTTP observable for compatibility
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 }
