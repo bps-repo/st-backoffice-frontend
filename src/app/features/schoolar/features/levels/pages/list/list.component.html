@@ -23,8 +23,12 @@
     </div>
 
     <!-- KPI Cards -->
-    <div *ngFor="let kpi of kpis" class="col-12 lg:col-3 gap-0 bg-black-alpha-500">
-        <app-kpi-indicators class="w-full h-full bg-red-500" [kpi]="kpi"></app-kpi-indicators>
+    <div class="col-12 mb-3">
+        <div class="grid">
+            <div *ngFor="let kpi of kpis" class="col-12 md:col-6 lg:col-3">
+                <app-kpi-indicators class="w-full h-full" [kpi]="kpi"></app-kpi-indicators>
+            </div>
+        </div>
     </div>
 
     <!-- TabView -->
@@ -153,22 +157,84 @@
 
             <!-- Progress Tab -->
             <p-tabPanel header="Progresso">
-                <div class="grid p-5 justify-content-center">
-                    <div class="col-12 text-center">
-                        <i class="pi pi-chart-bar text-4xl text-color-secondary mb-3"></i>
-                        <h3>Relatórios de Progresso</h3>
-                        <p>Esta funcionalidade estará disponível em breve</p>
+                <div class="grid">
+                    <!-- Search & Filters -->
+                    <div class="col-12 mb-3">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input type="text" pInputText placeholder="Buscar alunos..." class="w-20rem">
+                            </span>
+                            <div class="flex gap-2">
+                                <p-dropdown [options]="levels" optionLabel="name" placeholder="Todos os Níveis"></p-dropdown>
+                                <p-dropdown [options]="[{label: 'Todos os Status', value: ''}, {label: 'Em Progresso', value: 'progress'}, {label: 'Concluído', value: 'done'}]" placeholder="Todos os Status"></p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Cards (static sample aligned to design) -->
+                    <div class="col-12 md:col-6 lg:col-4" *ngFor="let i of [1,2,3,4,5,6]">
+                        <div class="card">
+                            <div class="flex justify-content-between align-items-start mb-2">
+                                <div class="flex align-items-center gap-2">
+                                    <span class="border-circle w-2rem h-2rem bg-gray-200 flex align-items-center justify-content-center"><i class="pi pi-user text-gray-600"></i></span>
+                                    <div class="flex flex-column">
+                                        <span class="font-bold">{{ i % 2 === 0 ? 'Maria Santos' : 'João Silva' }}</span>
+                                        <small class="text-color-secondary">{{ i % 3 === 0 ? 'Conversação Básica' : 'Apresentações e Cumprimentos' }}</small>
+                                    </div>
+                                </div>
+                                <p-badge [value]="i % 3 === 0 ? 'Concluído' : 'Em Progresso'" [severity]="i % 3 === 0 ? 'success' : 'info'"></p-badge>
+                            </div>
+                            <div class="text-sm mb-2"><span class="level-color-indicator" [style.background]="'#10B981'"></span> Beginner</div>
+                            <div class="mb-2 flex justify-content-between text-sm">
+                                <span>Progresso</span>
+                                <span>{{ i % 3 === 0 ? '100%' : (i % 2 === 0 ? '67%' : '33%') }}</span>
+                            </div>
+                            <p-progressBar [value]="i % 3 === 0 ? 100 : (i % 2 === 0 ? 67 : 33)" [showValue]="false" styleClass="mb-3"></p-progressBar>
+                            <div class="text-xs text-color-secondary mb-2">{{ i % 2 === 0 ? '2 de 3 tópicos concluídos' : '1 de 3 tópicos concluídos' }}</div>
+                            <div class="text-xs text-color-secondary mb-3 flex justify-content-between">
+                                <span>Iniciado: 10/01/2024</span>
+                                <span>Última atividade: 20/01/2024</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <p-chip *ngFor="let tag of (i % 2 === 0 ? ['Greetings', 'Personal Information'] : ['Daily Activities'])" [label]="tag"></p-chip>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paginator placeholder -->
+                <div class="col-12 flex justify-content-center mt-3">
+                    <div class="p-buttonset">
+                        <button pButton type="button" icon="pi pi-angle-left" class="p-button-text"></button>
+                        <button pButton type="button" label="1" class="p-button-text p-button-info"></button>
+                        <button pButton type="button" icon="pi pi-angle-right" class="p-button-text"></button>
                     </div>
                 </div>
             </p-tabPanel>
 
             <!-- Reports Tab -->
             <p-tabPanel header="Relatórios">
-                <div class="grid p-5 justify-content-center">
-                    <div class="col-12 text-center">
-                        <i class="pi pi-file-pdf text-4xl text-color-secondary mb-3"></i>
-                        <h3>Relatórios</h3>
-                        <p>Esta funcionalidade estará disponível em breve</p>
+                <div class="grid">
+                    <div class="col-12">
+                        <div class="card">
+                            <h3 class="text-lg font-bold mb-3">Relatórios de Progresso</h3>
+                            <div class="mb-3" *ngFor="let row of [
+                                {name: 'Beginner', students: 5, progress: 60, color: '#10B981'},
+                                {name: 'Elementary', students: 4, progress: 58, color: '#3B82F6'},
+                                {name: 'Intermediate', students: 3, progress: 78, color: '#F59E0B'},
+                                {name: 'Advanced', students: 3, progress: 67, color: '#8B5CF6'}
+                            ]">
+                                <div class="flex justify-content-between align-items-center mb-1">
+                                    <div class="flex align-items-center gap-2">
+                                        <span class="level-color-indicator" [style.background]="row.color"></span>
+                                        <span class="font-medium">{{ row.name }}</span>
+                                    </div>
+                                    <div class="text-sm text-color-secondary">{{ row.students }} alunos&nbsp; {{ row.progress }}% concluído</div>
+                                </div>
+                                <p-progressBar [value]="row.progress" [showValue]="false" styleClass="mb-3"></p-progressBar>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </p-tabPanel>

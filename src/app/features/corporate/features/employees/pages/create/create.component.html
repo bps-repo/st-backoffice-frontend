@@ -4,38 +4,59 @@
             <h5>Criar Novo Funcionário</h5>
             <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
                 <div class="p-fluid p-formgrid grid">
-                    <!-- Personal Information -->
-                    <div class="col-12 md:col-6">
+                    <!-- User Information -->
+                    <div class="col-12 md:col-6" formGroupName="user">
                         <div class="card">
-                            <h5>Informações Pessoais</h5>
+                            <h5>Informações do Usuário</h5>
                             <div class="field">
                                 <label for="firstname">Nome</label>
                                 <input id="firstname" type="text" pInputText formControlName="firstname" />
-                                <small *ngIf="employeeForm.get('firstname')?.invalid && employeeForm.get('firstname')?.touched" class="p-error">
+                                <small *ngIf="employeeForm.get('user.firstname')?.invalid && employeeForm.get('user.firstname')?.touched" class="p-error">
                                     Nome é obrigatório
                                 </small>
                             </div>
                             <div class="field">
                                 <label for="lastname">Sobrenome</label>
                                 <input id="lastname" type="text" pInputText formControlName="lastname" />
-                                <small *ngIf="employeeForm.get('lastname')?.invalid && employeeForm.get('lastname')?.touched" class="p-error">
+                                <small *ngIf="employeeForm.get('user.lastname')?.invalid && employeeForm.get('user.lastname')?.touched" class="p-error">
                                     Sobrenome é obrigatório
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label>Gênero</label>
+                                <div class="grid">
+                                    <div class="col-4" *ngFor="let gender of genderOptions">
+                                        <div class="field-radiobutton">
+                                            <p-radioButton [inputId]="gender.value" [value]="gender.value" formControlName="gender"></p-radioButton>
+                                            <label [for]="gender.value">{{gender.label}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="dateOfBirth">Data de Nascimento</label>
+                                <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <small *ngIf="employeeForm.get('user.dateOfBirth')?.invalid && employeeForm.get('user.dateOfBirth')?.touched" class="p-error">
+                                    Data de nascimento é obrigatória
                                 </small>
                             </div>
                             <div class="field">
                                 <label for="email">Email</label>
                                 <input id="email" type="email" pInputText formControlName="email" />
-                                <small *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched" class="p-error">
+                                <small *ngIf="employeeForm.get('user.email')?.invalid && employeeForm.get('user.email')?.touched" class="p-error">
                                     Email válido é obrigatório
                                 </small>
                             </div>
                             <div class="field">
-                                <label for="phone">Telefone</label>
-                                <input id="phone" type="text" pInputText formControlName="phone" />
+                                <label for="password">Senha</label>
+                                <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="true"></p-password>
+                                <small *ngIf="employeeForm.get('user.password')?.invalid && employeeForm.get('user.password')?.touched" class="p-error">
+                                    Senha é obrigatória (mínimo 8 caracteres)
+                                </small>
                             </div>
                             <div class="field">
-                                <label for="dateOfBirth">Data de Nascimento</label>
-                                <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <label for="photo">URL da Foto</label>
+                                <input id="photo" type="text" pInputText formControlName="photo" />
                             </div>
                         </div>
                     </div>
@@ -44,25 +65,46 @@
                     <div class="col-12 md:col-6">
                         <div class="card">
                             <h5>Informações Profissionais</h5>
-                            <div class="field">
-                                <label for="department">Departamento</label>
-                                <input id="department" type="text" pInputText formControlName="department" />
-                                <small *ngIf="employeeForm.get('department')?.invalid && employeeForm.get('department')?.touched" class="p-error">
-                                    Departamento é obrigatório
+                            <div class="field" formGroupName="user">
+                                <label for="roleId">Função Principal</label>
+                                <p-dropdown id="roleId" [options]="roles" formControlName="roleId" placeholder="Selecione uma função" optionLabel="name" optionValue="id"></p-dropdown>
+                                <small *ngIf="employeeForm.get('user.roleId')?.invalid && employeeForm.get('user.roleId')?.touched" class="p-error">
+                                    Função é obrigatória
+                                </small>
+                            </div>
+                            <div class="field" formGroupName="user">
+                                <label for="additionalPermissionIds">Permissões</label>
+                                <p-tree
+                                    [value]="permissionTree"
+                                    selectionMode="checkbox"
+                                    [(selection)]="selectedPermissions"
+                                    (onNodeSelect)="onPermissionNodeSelect($event)"
+                                    (onNodeUnselect)="onPermissionNodeUnselect($event)"
+                                    styleClass="w-full">
+                                </p-tree>
+                                <small class="text-xs text-gray-500 mt-1">
+                                    Selecione uma função para carregar suas permissões. Você pode desmarcar ou adicionar permissões conforme necessário.
                                 </small>
                             </div>
                             <div class="field">
-                                <label for="position">Cargo</label>
-                                <input id="position" type="text" pInputText formControlName="position" />
-                                <small *ngIf="employeeForm.get('position')?.invalid && employeeForm.get('position')?.touched" class="p-error">
-                                    Cargo é obrigatório
+                                <label for="centerId">Centro</label>
+                                <input id="centerId" type="text" pInputText formControlName="centerId" />
+                                <small *ngIf="employeeForm.get('centerId')?.invalid && employeeForm.get('centerId')?.touched" class="p-error">
+                                    Centro é obrigatório
                                 </small>
                             </div>
                             <div class="field">
-                                <label for="hireDate">Data de Contratação</label>
-                                <p-calendar id="hireDate" formControlName="hireDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
-                                <small *ngIf="employeeForm.get('hireDate')?.invalid && employeeForm.get('hireDate')?.touched" class="p-error">
+                                <label for="hiringDate">Data de Contratação</label>
+                                <p-calendar id="hiringDate" formControlName="hiringDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <small *ngIf="employeeForm.get('hiringDate')?.invalid && employeeForm.get('hiringDate')?.touched" class="p-error">
                                     Data de contratação é obrigatória
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label for="wage">Salário</label>
+                                <p-inputNumber id="wage" formControlName="wage" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
+                                <small *ngIf="employeeForm.get('wage')?.invalid && employeeForm.get('wage')?.touched" class="p-error">
+                                    Salário é obrigatório
                                 </small>
                             </div>
                             <div class="field">

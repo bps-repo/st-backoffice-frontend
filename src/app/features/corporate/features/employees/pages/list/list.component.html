@@ -1,4 +1,16 @@
 <div class="grid">
+    <div id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Gestão de utilizadores</h2>
+            <span class="text-lg">Gestão de utilizadores do backoffice</span>
+        </div>
+        <p-button
+            (onClick)="navigateToCreateEmployee()"
+            label="Nova função"
+            icon="pi pi-plus"
+            class="p-button-outlined"
+        ></p-button>
+    </div>
     <!-- Employee Table -->
     <app-global-table
         tableLabel="Funcionários"

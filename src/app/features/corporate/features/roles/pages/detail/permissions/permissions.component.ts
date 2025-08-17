@@ -160,7 +160,10 @@ export class PermissionsComponent implements OnInit, OnDestroy {
                 this.role = updatedRole;
 
                 // Update available permissions
-                this.availablePermissions = [...this.availablePermissions, permission];
+                // Check if the permission is already in availablePermissions before adding it
+                if (!this.availablePermissions.some(p => p.id === permission.id)) {
+                    this.availablePermissions = [...this.availablePermissions, permission];
+                }
 
                 this.messageService.add({
                     severity: 'success',

@@ -24,6 +24,8 @@ import * as StudentSelectors from "../../../../../../core/store/schoolar/student
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {ProgressBarModule} from 'primeng/progressbar';
+import {ChipModule} from 'primeng/chip';
 
 @Component({
     selector: 'app-level-general',
@@ -41,7 +43,9 @@ import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicato
         TooltipModule,
         SelectButtonModule,
         FormsModule,
-        KpiIndicatorsComponent
+        KpiIndicatorsComponent,
+        ProgressBarModule,
+        ChipModule
     ],
     templateUrl: './list.component.html',
     standalone: true,

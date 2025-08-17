@@ -50,10 +50,6 @@ export const ScholarRoutes: Routes = [
                 path: 'materials',
                 loadChildren: () =>
                     import('./features/materials/materials.routes').then((m) => m.MaterialsRoutes)
-            }, {
-                path: '',
-                redirectTo: 'students-materials-dashboard',
-                pathMatch: 'full',
             },
             {
                 path: 'courses',

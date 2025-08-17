@@ -1,114 +1,123 @@
 <div *ngIf="loading" class="spinner-container">
     <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
-  </div>
+</div>
 
-  <div class="grid" *ngIf="!loading && editableLevel">
+<div class="grid" *ngIf="!loading && editableLevel">
+    <!-- Header: Level Title and KPIs -->
     <div class="col-12">
-      <div class="card">
-        <h5>Detalhes do Nível</h5>
-        <div class="p-fluid grid">
-          <div class="field col-12 md:col-6">
-            <label for="name">Nome</label>
-            <input id="name" type="text" pInputText [(ngModel)]="editableLevel.name" />
-          </div>
-
-          <div class="field col-12 md:col-6">
-            <label for="description">Descrição</label>
-            <textarea id="description" pInputTextarea [(ngModel)]="editableLevel.description"></textarea>
-          </div>
-
-          <div class="field col-12 md:col-6">
-            <label for="duration">Duração (horas)</label>
-            <input id="duration" type="number" pInputText [(ngModel)]="editableLevel.duration" />
-          </div>
-
-          <div class="field col-12 md:col-6">
-            <label for="maximumUnits">Unidades Máximas</label>
-            <input id="maximumUnits" type="number" pInputText [(ngModel)]="editableLevel.maximumUnits" />
-          </div>
-
-          <!--
-          <div class="field col-12 md:col-6">
-            <label for="course">Curso</label>
-            <input id="course" type="text" pInputText [value]="level.course.name" readonly />
-          </div>
-          -->
+        <div class="mb-2">
+            <h2 class="font-bold text-2xl mb-1">{{ editableLevel.name }}</h2>
+            <span class="text-sm text-color-secondary">{{ editableLevel.description }}</span>
         </div>
-
-        <div class="flex justify-content-end gap-2 mt-4">
-          <button
-            pButton
-            pRipple
-            label="Editar"
-            icon="pi pi-pencil"
-            class="p-button-primary"
-            (click)="editLevel()"
-          ></button>
-          <button
-            pButton
-            pRipple
-            label="Descarregar"
-            icon="pi pi-download"
-            class="p-button-secondary"
-            (click)="downloadLevelDetails()"
-          ></button>
-          <button
-            pButton
-            pRipple
-            label="Enviar"
-            icon="pi pi-send"
-            class="p-button-secondary"
-            (click)="sendLevelDetails()"
-          ></button>
+        <div class="grid">
+            <div class="col-12 md:col-6 lg:col-2" *ngFor="let s of headerStats">
+                <div class="card flex align-items-center gap-3">
+                    <i [class]="s.icon + ' text-xl text-primary'" aria-hidden="true"></i>
+                    <div class="flex flex-column">
+                        <span class="text-sm text-color-secondary">{{ s.label }}</span>
+                        <span class="font-bold">{{ s.value }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Dashboard Charts Section -->
-  <div class="col-12">
-    <div class="card">
-      <h5>Dashboard do Nível</h5>
+    <!-- Tabs -->
+    <div class="col-12">
+        <p-tabView>
+            <p-tabPanel header="Visão Geral">
+                <!-- Overview Cards: Completed/In Progress/Not Started + Units List -->
+                <div class="grid mb-3">
+                    <div class="col-12 md:col-4">
+                        <div class="card flex align-items-center justify-content-between">
+                            <div class="flex align-items-center gap-2"><i class="pi pi-check-circle text-green-500"></i><span>Concluídos</span></div>
+                            <span class="font-bold">1</span>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="card flex align-items-center justify-content-between">
+                            <div class="flex align-items-center gap-2"><i class="pi pi-chart-line text-blue-500"></i><span>Em Progresso</span></div>
+                            <span class="font-bold">4</span>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="card flex align-items-center justify-content-between">
+                            <div class="flex align-items-center gap-2"><i class="pi pi-calendar text-500"></i><span>Não Iniciados</span></div>
+                            <span class="font-bold">0</span>
+                        </div>
+                    </div>
+                </div>
 
-      <!-- Units Distribution and Completion Rate Charts Row -->
-      <div class="grid">
-        <!-- Units Distribution Chart -->
-        <div class="col-12 md:col-6">
-          <div class="card mb-0">
-            <p-chart
-              type="pie"
-              [data]="unitsChartData"
-              [options]="unitsChartOptions"
-              height="300px">
-            </p-chart>
-          </div>
-        </div>
+                <div class="card">
+                    <h3 class="text-lg font-bold mb-3">Unidades do Nível</h3>
+                    <div class="flex flex-column gap-2">
+                        <div class="p-3 border-round surface-border surface-card flex align-items-center justify-content-between" *ngFor="let u of unitsSummary">
+                            <div class="flex align-items-center gap-3">
+                                <div class="border-circle w-2rem h-2rem bg-primary flex align-items-center justify-content-center text-white">{{ u.idx }}</div>
+                                <div class="flex flex-column">
+                                    <span class="font-medium">{{ u.title }}</span>
+                                    <small class="text-color-secondary">{{ u.desc }}</small>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="p-tag p-tag-rounded">{{ u.topics }} tópicos</span>
+                                <span class="p-tag p-tag-rounded">{{ u.hours }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-tabPanel>
 
-        <!-- Completion Rate Chart -->
-        <div class="col-12 md:col-6">
-          <div class="card mb-0">
-            <p-chart
-              type="doughnut"
-              [data]="completionRateChartData"
-              [options]="completionRateChartOptions"
-              height="300px">
-            </p-chart>
-          </div>
-        </div>
-      </div>
+            <p-tabPanel header="Alunos">
+                <div class="card">
+                    <h3 class="text-lg font-bold mb-3">Alunos do Nível {{ editableLevel.name }}</h3>
+                    <div class="flex flex-column gap-3">
+                        <div class="p-3 border-round surface-border surface-card" *ngFor="let s of students">
+                            <div class="flex align-items-center justify-content-between mb-2">
+                                <div class="flex align-items-center gap-2">
+                                    <p-avatar [label]="s.initials" shape="circle" size="normal" styleClass="mr-2"></p-avatar>
+                                    <div class="flex flex-column">
+                                        <span class="font-medium">{{ s.name }}</span>
+                                        <small class="text-color-secondary">{{ s.unitsInfo }}</small>
+                                    </div>
+                                    <p-badge *ngIf="s.completed" value="Nível Concluído" severity="success" styleClass="ml-2"></p-badge>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold">{{ s.progress }}%</div>
+                                    <small class="text-color-secondary">Progresso Geral</small>
+                                </div>
+                            </div>
+                            <p-progressBar [value]="s.progress" [showValue]="false" [style]="{height: '8px'}"></p-progressBar>
+                        </div>
+                    </div>
+                </div>
+            </p-tabPanel>
 
-      <!-- Student Enrollment Chart Row -->
-      <div class="grid mt-3">
-        <div class="col-12">
-          <div class="card mb-0">
-            <p-chart
-              type="bar"
-              [data]="enrollmentChartData"
-              [options]="enrollmentChartOptions"
-              height="300px">
-            </p-chart>
-          </div>
-        </div>
-      </div>
+            <p-tabPanel header="Unidades">
+                <div class="grid">
+                    <div class="col-12 md:col-6" *ngFor="let card of unitsCards">
+                        <div class="card">
+                            <div class="flex justify-content-between align-items-start mb-2">
+                                <div class="flex flex-column">
+                                    <span class="font-bold">{{ card.title }}</span>
+                                    <small class="text-color-secondary">{{ card.desc }}</small>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-bold">{{ card.progress }}%</span>
+                                </div>
+                            </div>
+                            <div class="mb-2 text-sm flex gap-4">
+                                <span>Concluídos: <strong>{{ card.done }}</strong></span>
+                                <span>Em progresso: <strong>{{ card.inProgress }}</strong></span>
+                            </div>
+                            <p-progressBar [value]="card.progress" [showValue]="false" styleClass="mb-3"></p-progressBar>
+                            <div class="flex flex-wrap gap-2">
+                                <p-chip *ngFor="let c of card.chips" [label]="c"></p-chip>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
     </div>
-  </div>
+</div>

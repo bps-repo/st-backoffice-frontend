@@ -13,6 +13,11 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {Level} from 'src/app/core/models/course/level';
 import {ChartModule} from 'primeng/chart';
 import {RippleModule} from 'primeng/ripple';
+import {TabViewModule} from 'primeng/tabview';
+import {BadgeModule} from 'primeng/badge';
+import {ProgressBarModule} from 'primeng/progressbar';
+import {ChipModule} from 'primeng/chip';
+import {AvatarModule} from 'primeng/avatar';
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 
@@ -29,7 +34,12 @@ import {LevelActions} from "../../../../../../core/store/schoolar/level/level.ac
         FormsModule,
         ProgressSpinnerModule,
         ChartModule,
-        RippleModule
+        RippleModule,
+        TabViewModule,
+        BadgeModule,
+        ProgressBarModule,
+        ChipModule,
+        AvatarModule
     ]
 })
 export class DetailComponent implements OnInit {
@@ -40,6 +50,40 @@ export class DetailComponent implements OnInit {
     editableLevel: Level | null = null;
     loading$: Observable<boolean>;
     loading: boolean = true;
+
+    // UI state
+    selectedTab: 'overview' | 'students' | 'units' = 'overview';
+
+    // Header KPI values (mock for UI)
+    headerStats = [
+        { label: 'Total de Alunos', value: 4, icon: 'pi pi-users' },
+        { label: 'Unidades', value: 3, icon: 'pi pi-book' },
+        { label: 'Tópicos', value: 9, icon: 'pi pi-bullseye' },
+        { label: 'Horas Totais', value: '63h', icon: 'pi pi-calendar' },
+        { label: 'Progresso Médio', value: '60%', icon: 'pi pi-chart-line' },
+    ];
+
+    // Students list (mocked)
+    students = [
+        { name: 'João Silva', initials: 'JS', unitsInfo: '1 unidade(s) em progresso', progress: 67, completed: false },
+        { name: 'Maria Santos', initials: 'MS', unitsInfo: '2 unidade(s) em progresso', progress: 67, completed: false },
+        { name: 'Ana Ferreira', initials: 'AF', unitsInfo: '1 unidade(s) em progresso', progress: 67, completed: false },
+        { name: 'Bruno Almeida', initials: 'BA', unitsInfo: '3 unidade(s) em progresso', progress: 100, completed: true },
+        { name: 'Ana Ferreira', initials: 'AF', unitsInfo: '1 unidade(s) em progresso', progress: 67, completed: false },
+    ];
+
+    // Units for overview and units tabs (mocked)
+    unitsSummary = [
+        { idx: 1, title: 'Apresentações e Cumprimentos', desc: 'Introdução básica, apresentações pessoais e cumprimentos', topics: 3, hours: '20h' },
+        { idx: 2, title: 'Conversação Básica', desc: 'Conversas simples do dia a dia', topics: 3, hours: '25h' },
+        { idx: 3, title: 'Números e Alfabeto', desc: 'Números, alfabeto e vocabulário básico', topics: 3, hours: '18h' },
+    ];
+
+    unitsCards = [
+        { title: 'Apresentações e Cumprimentos', desc: 'Introdução básica, apresentações pessoais e cumprimentos', progress: 75, done: 2, inProgress: 2, chips: ['Greetings', 'Personal Information', 'Basic Introductions'] },
+        { title: 'Conversação Básica', desc: 'Conversas simples do dia a dia', progress: 67, done: 1, inProgress: 1, chips: ['Daily Activities', 'Time and Dates', 'Simple Questions'] },
+        { title: 'Números e Alfabeto', desc: 'Números, alfabeto e vocabulário básico', progress: 84, done: 1, inProgress: 1, chips: ['Numbers', 'Alphabet', 'Basic Vocabulary'] },
+    ];
 
     // Chart properties
     unitsChartData: any;

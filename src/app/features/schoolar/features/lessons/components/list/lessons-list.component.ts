@@ -26,6 +26,8 @@ import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.
 import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
 import {CalendarsDashboardComponent} from "../../../calendars/components/dashboard/dashboard.component";
 import {CalendarAppComponent} from "../../../calendars/components/calendar.app.component";
+import {CalendarModule} from 'primeng/calendar';
+import {BadgeModule} from 'primeng/badge';
 
 @Component({
     selector: 'app-lessons',
@@ -46,6 +48,8 @@ import {CalendarAppComponent} from "../../../calendars/components/calendar.app.c
         SelectButtonModule,
         TooltipModule,
         LessonReports,
+        CalendarModule,
+        BadgeModule,
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`
@@ -86,6 +90,101 @@ import {CalendarAppComponent} from "../../../calendars/components/calendar.app.c
             top: 140px;
             z-index: 90;
         }
+
+        /* Calendar Styles */
+        .weekly-calendar .today-card {
+            border: 2px solid var(--primary-color);
+            background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05), rgba(var(--primary-color-rgb), 0.1));
+        }
+
+        .day-header {
+            margin-bottom: 0.5rem;
+        }
+
+        .today-date {
+            color: var(--primary-color);
+            background: rgba(var(--primary-color-rgb), 0.1);
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .today-label {
+            margin-top: 0.25rem;
+        }
+
+        .class-card {
+            background: white;
+            border: 1px solid #e0e4e7;
+            transition: all 0.2s ease;
+        }
+
+        .class-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .class-title {
+            color: #374151;
+        }
+
+        .class-details {
+            line-height: 1.3;
+        }
+
+        .border-success {
+            border-left-color: #10b981 !important;
+        }
+
+        .border-warning {
+            border-left-color: #f59e0b !important;
+        }
+
+        .border-danger {
+            border-left-color: #ef4444 !important;
+        }
+
+        .p-badge-success {
+            background-color: #10b981;
+        }
+
+        .p-badge-warning {
+            background-color: #f59e0b;
+        }
+
+        .p-badge-danger {
+            background-color: #ef4444;
+        }
+
+        /* Monthly Calendar Styles */
+        .monthly-calendar .calendar-header {
+            padding: 1rem 0;
+            background: #f8fafc;
+        }
+
+        .calendar-day {
+            min-height: 6rem;
+            padding: 0.5rem;
+            border-right: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background-color: #f3f4f6;
+        }
+
+        .calendar-day:last-child {
+            border-right: none;
+        }
+
+        .calendar-week:last-child .calendar-day {
+            border-bottom: none;
+        }
     `]
 })
 export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -111,9 +210,11 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     currentView: string = 'list'; // Default view is list
 
     viewOptions = [
-        { label: 'Lista de aulas', value: 'list' },
+        { label: 'Lista de Aulas', value: 'list' },
+        { label: 'Calendário', value: 'calendario' },
         { label: 'Relatórios', value: 'relatorios' },
-        { label: 'Estatísticas', value: 'estatisticas' }
+        { label: 'Estatísticas', value: 'estatisticas' },
+        { label: 'Nova Aula', value: 'nova-aula' }
     ];
 
     // References to sticky header elements
@@ -126,6 +227,16 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     // Sticky state tracking
     isMainHeaderSticky: boolean = false;
     isViewSelectorSticky: boolean = false;
+
+    // Calendar view state
+    calendarView: 'week' | 'month' = 'week';
+    currentDate: Date = new Date();
+    currentWeekStart: Date = new Date();
+    currentWeekEnd: Date = new Date();
+
+    // Sample lesson data for calendar
+    weeklyLessons: any[] = [];
+    monthlyLessons: any[] = [];
 
     @ViewChild("startDatetime", {static: true})
     startDatetimeTemplate?: TemplateRef<any>;
@@ -143,6 +254,220 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     // Method to handle view selection
     onViewChange(event: any) {
         this.currentView = event.value;
+        if (this.currentView === 'calendario') {
+            this.initializeCalendarData();
+        }
+    }
+
+    // Calendar methods
+    initializeCalendarData() {
+        this.setCurrentWeek();
+        this.loadWeeklyLessons();
+        this.loadMonthlyLessons();
+    }
+
+    setCurrentWeek() {
+        const today = new Date();
+        const currentDay = today.getDay();
+        const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days
+
+        this.currentWeekStart = new Date(today);
+        this.currentWeekStart.setDate(today.getDate() + mondayOffset);
+
+        this.currentWeekEnd = new Date(this.currentWeekStart);
+        this.currentWeekEnd.setDate(this.currentWeekStart.getDate() + 6);
+    }
+
+    loadWeeklyLessons() {
+        // Sample data for weekly view - in real app, load from service
+        this.weeklyLessons = [
+            {
+                day: 'Mon 14/07',
+                date: '14/07',
+                classes: [
+                    {
+                        time: '09:00',
+                        title: 'English ...',
+                        teacher: 'Prof. Maria...',
+                        group: 'Turma A',
+                        status: 'Concluída',
+                        statusClass: 'success'
+                    },
+                    {
+                        time: '14:00',
+                        title: 'Business...',
+                        teacher: 'Prof. João...',
+                        group: 'Turma B',
+                        status: 'Pendente',
+                        statusClass: 'warning'
+                    },
+                    {
+                        time: '16:00',
+                        title: 'Business...',
+                        teacher: 'Prof. João...',
+                        group: 'Turma B',
+                        status: 'Pendente',
+                        statusClass: 'warning'
+                    }
+                ]
+            },
+            {
+                day: 'Tue 15/07',
+                date: '15/07',
+                classes: [
+                    {
+                        time: '09:00',
+                        title: 'English ...',
+                        teacher: 'Prof. Maria...',
+                        group: 'Turma A',
+                        status: 'Concluída',
+                        statusClass: 'success'
+                    },
+                    {
+                        time: '14:00',
+                        title: 'Business...',
+                        teacher: 'Prof. João...',
+                        group: 'Turma B',
+                        status: 'Pendente',
+                        statusClass: 'warning'
+                    }
+                ]
+            },
+            {
+                day: 'Wed 16/07',
+                date: '16/07',
+                isToday: true,
+                classes: [
+                    {
+                        time: '09:00',
+                        title: 'English ...',
+                        teacher: 'Prof. Maria...',
+                        group: 'Turma A',
+                        status: 'Concluída',
+                        statusClass: 'success'
+                    },
+                    {
+                        time: '14:00',
+                        title: 'Business...',
+                        teacher: 'Prof. João...',
+                        group: 'Turma B',
+                        status: 'Pendente',
+                        statusClass: 'warning'
+                    }
+                ]
+            },
+            {
+                day: 'Thu 17/07',
+                date: '17/07',
+                classes: [
+                    {
+                        time: '09:00',
+                        title: 'English ...',
+                        teacher: 'Prof. Maria...',
+                        group: 'Turma A',
+                        status: 'Concluída',
+                        statusClass: 'success'
+                    }
+                ]
+            },
+            {
+                day: 'Fri 18/07',
+                date: '18/07',
+                classes: [
+                    {
+                        time: '09:00',
+                        title: 'English ...',
+                        teacher: 'Prof. Maria...',
+                        group: 'Turma A',
+                        status: 'Concluída',
+                        statusClass: 'success'
+                    },
+                    {
+                        time: '14:00',
+                        title: 'Business...',
+                        teacher: 'Prof. João...',
+                        group: 'Turma B',
+                        status: 'Pendente',
+                        statusClass: 'warning'
+                    }
+                ]
+            },
+            {
+                day: 'Sat 19/07',
+                date: '19/07',
+                classes: [
+                    {
+                        time: '09:00',
+                        title: 'English ...',
+                        teacher: 'Prof. Maria...',
+                        group: 'Turma A',
+                        status: 'Concluída',
+                        statusClass: 'success'
+                    },
+                    {
+                        time: '14:00',
+                        title: 'Business...',
+                        teacher: 'Prof. João...',
+                        group: 'Turma B',
+                        status: 'Pendente',
+                        statusClass: 'warning'
+                    },
+                    {
+                        time: '16:00',
+                        title: 'Business...',
+                        teacher: 'Prof. João...',
+                        group: 'Turma B',
+                        status: 'Pendente',
+                        statusClass: 'warning'
+                    }
+                ]
+            }
+        ];
+    }
+
+    loadMonthlyLessons() {
+        // Sample data for monthly view - in real app, load from service
+        this.monthlyLessons = [];
+    }
+
+    switchCalendarView(view: 'week' | 'month') {
+        this.calendarView = view;
+    }
+
+    navigatePrevious() {
+        if (this.calendarView === 'week') {
+            this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
+            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() - 7);
+        } else {
+            this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+        }
+        this.loadWeeklyLessons();
+    }
+
+    navigateNext() {
+        if (this.calendarView === 'week') {
+            this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
+            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() + 7);
+        } else {
+            this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+        }
+        this.loadWeeklyLessons();
+    }
+
+    navigateToday() {
+        this.currentDate = new Date();
+        this.setCurrentWeek();
+        this.loadWeeklyLessons();
+    }
+
+    getFormattedWeekRange(): string {
+        const start = this.currentWeekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        return `Semana de ${start} a ${end}`;
+    }
+
+    getFormattedMonth(): string {
+        return this.currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     }
 
     // Listen for scroll events
@@ -176,6 +501,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit(): void {
         this.store.dispatch(lessonsActions.loadLessons());
+        this.lessons$ = this.store.select(LessonsActions.selectAllLessons);
+        this.loading$ = this.store.select(LessonsActions.selectAnyLoading);
+        this.initializeCalendarData();
     }
 
     ngAfterViewInit() {

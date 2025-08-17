@@ -61,12 +61,185 @@
         <app-lesson-reports></app-lesson-reports>
     }
 
+    <!-- Calendario View -->
+    @if (currentView === 'calendario') {
+        <div class="col-12 animate-fade">
+            <!-- Calendar controls -->
+            <div class="flex justify-content-between align-items-center mb-4">
+                <div class="flex align-items-center gap-2">
+                    <button pButton type="button" icon="pi pi-chevron-left"
+                            class="p-button-rounded p-button-text"
+                            (click)="navigatePrevious()"></button>
+                    <h3 class="font-bold text-xl m-0">
+                        @if (calendarView === 'week') {
+                            {{ getFormattedWeekRange() }}
+                        } @else {
+                            {{ getFormattedMonth() }}
+                        }
+                    </h3>
+                    <button pButton type="button" icon="pi pi-chevron-right"
+                            class="p-button-rounded p-button-text"
+                            (click)="navigateNext()"></button>
+                </div>
+
+                <div class="flex gap-2">
+                    <button pButton type="button" label="Filtros" icon="pi pi-filter"
+                            class="p-button-outlined"></button>
+                    <div class="flex">
+                        <button pButton type="button" label="Mês"
+                                [class.p-button-outlined]="calendarView !== 'month'"
+                                [class.p-button-info]="calendarView === 'month'"
+                                (click)="switchCalendarView('month')"></button>
+                        <button pButton type="button" label="Semana"
+                                [class.p-button-outlined]="calendarView !== 'week'"
+                                [class.p-button-info]="calendarView === 'week'"
+                                (click)="switchCalendarView('week')"></button>
+                        <button pButton type="button" label="Hoje"
+                                class="p-button-outlined"
+                                (click)="navigateToday()"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Calendar View -->
+            @if (calendarView === 'week') {
+                <div class="weekly-calendar">
+                    <div class="grid gap-2">
+                        @for (dayData of weeklyLessons; track dayData.date) {
+                            <div class="col-12 md:col">
+                                <div class="card h-full" [class.today-card]="dayData.isToday">
+                                    <div class="card-header text-center mb-3">
+                                        <div class="day-header">
+                                            <div class="day-name text-sm text-gray-600">{{ dayData.day.split(' ')[0] }}</div>
+                                            <div class="day-date font-bold" [class.today-date]="dayData.isToday">
+                                                {{ dayData.day.split(' ')[1] }}
+                                            </div>
+                                        </div>
+                                        @if (dayData.isToday) {
+                                            <div class="today-label text-xs text-primary font-bold">Hoje</div>
+                                        }
+                                        @if (!dayData.classes?.length) {
+                                            <div class="no-lessons text-xs text-gray-500 mt-2">Nenhuma aula agendada</div>
+                                        }
+                                    </div>
+
+                                    <div class="classes-list">
+                                        @for (classItem of dayData.classes; track $index) {
+                                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors"
+                                                 [class]="'border-left-3 border-' + classItem.statusClass">
+                                                <div class="flex align-items-center justify-content-between mb-1">
+                                                    <div class="flex align-items-center gap-1">
+                                                        <i class="pi pi-clock text-xs text-gray-600"></i>
+                                                        <span class="text-sm font-bold">{{ classItem.time }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="class-title text-sm font-medium mb-1">{{ classItem.title }}</div>
+                                                <div class="class-details text-xs text-gray-600 mb-1">
+                                                    {{ classItem.teacher }}<br>
+                                                    {{ classItem.group }}
+                                                </div>
+                                                <div class="status-badge">
+                                                    <span class="p-badge" [class]="'p-badge-' + classItem.statusClass">
+                                                        {{ classItem.status }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Monthly Calendar View -->
+            @if (calendarView === 'month') {
+                <div class="monthly-calendar">
+                    <div class="card">
+                        <div class="calendar-header grid border-bottom-1 border-gray-200 font-bold text-center">
+                            <div class="col">Dom</div>
+                            <div class="col">Seg</div>
+                            <div class="col">Ter</div>
+                            <div class="col">Qua</div>
+                            <div class="col">Qui</div>
+                            <div class="col">Sex</div>
+                            <div class="col">Sáb</div>
+                        </div>
+
+                        <div class="calendar-body">
+                            <!-- July 2025 Calendar Grid -->
+                            <div class="grid calendar-week border-bottom-1 border-gray-100">
+                                <div class="col calendar-day text-gray-400">29</div>
+                                <div class="col calendar-day text-gray-400">30</div>
+                                <div class="col calendar-day">1</div>
+                                <div class="col calendar-day">2</div>
+                                <div class="col calendar-day">3</div>
+                                <div class="col calendar-day">4</div>
+                                <div class="col calendar-day">5</div>
+                            </div>
+                            <div class="grid calendar-week border-bottom-1 border-gray-100">
+                                <div class="col calendar-day">6</div>
+                                <div class="col calendar-day">7</div>
+                                <div class="col calendar-day">8</div>
+                                <div class="col calendar-day">9</div>
+                                <div class="col calendar-day">10</div>
+                                <div class="col calendar-day">11</div>
+                                <div class="col calendar-day">12</div>
+                            </div>
+                            <div class="grid calendar-week border-bottom-1 border-gray-100">
+                                <div class="col calendar-day">13</div>
+                                <div class="col calendar-day">14</div>
+                                <div class="col calendar-day">15</div>
+                                <div class="col calendar-day">16</div>
+                                <div class="col calendar-day">17</div>
+                                <div class="col calendar-day">18</div>
+                                <div class="col calendar-day">19</div>
+                            </div>
+                            <div class="grid calendar-week border-bottom-1 border-gray-100">
+                                <div class="col calendar-day">20</div>
+                                <div class="col calendar-day">21</div>
+                                <div class="col calendar-day">22</div>
+                                <div class="col calendar-day">23</div>
+                                <div class="col calendar-day">24</div>
+                                <div class="col calendar-day">25</div>
+                                <div class="col calendar-day">26</div>
+                            </div>
+                            <div class="grid calendar-week">
+                                <div class="col calendar-day">27</div>
+                                <div class="col calendar-day">28</div>
+                                <div class="col calendar-day">29</div>
+                                <div class="col calendar-day">30</div>
+                                <div class="col calendar-day">31</div>
+                                <div class="col calendar-day text-gray-400">1</div>
+                                <div class="col calendar-day text-gray-400">2</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
     <!-- Estatisticas View -->
     @if (currentView === 'estatisticas') {
         <div class="col-12 animate-fade content-sticky">
             <div class="p-4 text-center">
                 <h3>Estatísticas</h3>
                 <p>Conteúdo das estatísticas será implementado aqui.</p>
+            </div>
+        </div>
+    }
+
+    <!-- Nova Aula View -->
+    @if (currentView === 'nova-aula') {
+        <div class="col-12 animate-fade content-sticky">
+            <div class="p-4 text-center">
+                <h3>Nova Aula</h3>
+                <p>Formulário para criar nova aula será implementado aqui.</p>
+                <button pButton type="button" label="Voltar à Lista"
+                        class="p-button-outlined mt-3"
+                        (click)="currentView = 'list'"></button>
             </div>
         </div>
     }
