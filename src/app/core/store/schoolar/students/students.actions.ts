@@ -1,6 +1,7 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {Update} from "@ngrx/entity";
+import {CreateStudentRequest} from "../../../services/student.service";
 
 export const STUDENT_FEATURE_KEY = 'students';
 
@@ -21,6 +22,11 @@ export const StudentsActions = createActionGroup({
         'Create Student': props<{ student: Student }>(),
         'Create Student Success': props<{ student: Student }>(),
         'Create Student Failure': props<{ error: string }>(),
+
+        // Create student with request payload
+        'Create Student With Request': props<{ request: CreateStudentRequest }>(),
+        'Create Student With Request Success': props<{ student: Student }>(),
+        'Create Student With Request Failure': props<{ error: string }>(),
 
         // Update student
         'Update Student': props<{ student: Student }>(),

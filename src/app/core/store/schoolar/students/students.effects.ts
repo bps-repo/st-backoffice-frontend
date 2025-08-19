@@ -44,9 +44,25 @@ export class StudentsEffects {
             exhaustMap(({student}) =>
                 this.studentsService.createStudent(student).pipe(
                     map((student) => StudentsActions.createStudentSuccess({student})),
-                    catchError((error) =>
-                        of(StudentsActions.createStudentFailure({error: error.message}))
-                    )
+                    catchError((error) => {
+                        const msg = (error && (error.error?.message || error.error?.error || error.message)) || 'Ocorreu um erro ao criar o aluno.';
+                        return of(StudentsActions.createStudentFailure({error: msg}));
+                    })
+                )
+            )
+        )
+    );
+
+    createStudentWithRequest$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.createStudentWithRequest),
+            exhaustMap(({request}) =>
+                this.studentsService.createStudentWithRequest(request).pipe(
+                    map((student) => StudentsActions.createStudentWithRequestSuccess({student})),
+                    catchError((error) => {
+                        const msg = (error && (error.error?.message || error.error?.error || error.message)) || 'Ocorreu um erro ao criar o aluno.';
+                        return of(StudentsActions.createStudentWithRequestFailure({error: msg}));
+                    })
                 )
             )
         )

@@ -23,11 +23,6 @@ const routes: Routes = [
             import('./pages/add-to-class/add-to-class.component').then(c => c.AddToClassComponent)
     },
     {
-        path: 'create-contract',
-        loadComponent: () =>
-            import('./pages/create-contract/create-contract.component').then(c => c.CreateContractComponent)
-    },
-    {
         path: 'unit-progress',
         loadComponent: () =>
             import('./pages/unit-progress/unit-progress.component').then(c => c.UnitProgressComponent)

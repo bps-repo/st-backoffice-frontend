@@ -81,6 +81,33 @@ export const studentsFeature = createFeature({
             createError: error,
         })),
 
+        // Create student with request
+        on(StudentsActions.createStudentWithRequest, (state) => ({
+            ...state,
+            loadingCreate: true,
+            createError: null,
+        })),
+
+        on(StudentsActions.createStudentWithRequestSuccess, (state, {student}) =>
+            studentsAdapter.addOne(student, {
+                ...state,
+                loadingCreate: false,
+                createError: null,
+                // Update pagination totals
+                pagination: {
+                    ...state.pagination,
+                    totalItems: state.pagination.totalItems + 1,
+                    totalPages: Math.ceil((state.pagination.totalItems + 1) / state.pagination.pageSize)
+                }
+            })
+        ),
+
+        on(StudentsActions.createStudentWithRequestFailure, (state, {error}) => ({
+            ...state,
+            loadingCreate: false,
+            createError: error,
+        })),
+
         // Update student
         on(StudentsActions.updateStudent, (state) => ({
             ...state,

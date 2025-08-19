@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MenuItem, SelectItem } from 'primeng/api';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Subject, takeUntil, filter, combineLatest } from 'rxjs';
+import { MenuItem, SelectItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -15,19 +18,26 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { RippleModule } from 'primeng/ripple';
 import { CalendarModule } from 'primeng/calendar';
 import { StepsModule } from 'primeng/steps';
+import { ToastModule } from 'primeng/toast';
 import {
     COUNTRIES,
     DISCOUNTS,
     ENTITIES,
     INSTALATIONS,
     LEVELS,
+    PROVINCES,
+    MUNICIPALITIES,
+    ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
+import { CreateStudentRequest } from 'src/app/core/services/student.service';
+import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
+import { studentsFeature } from 'src/app/core/store/schoolar/students/students.reducers';
 
 @Component({
     selector: 'app-student-create',
     imports: [
         CommonModule,
-        FormsModule,
+        ReactiveFormsModule,
         ButtonModule,
         RippleModule,
         InputTextModule,
@@ -40,12 +50,27 @@ import {
         CheckboxModule,
         CardModule,
         CalendarModule,
-        StepsModule
+        StepsModule,
+        ToastModule
     ],
-    templateUrl: './create.component.html'
+    templateUrl: './create.component.html',
+    providers: [MessageService]
 })
-export class CreateComponent implements OnInit {
+export class CreateComponent implements OnInit, OnDestroy {
     activeIndex: number = 0;
+    studentForm!: FormGroup;
+    private destroy$ = new Subject<void>();
+
+    // Loading and error states from store
+    loading$ = this.store.select(studentsFeature.selectLoadingCreate);
+    createError$ = this.store.select(studentsFeature.selectCreateError);
+
+    constructor(
+        private fb: FormBuilder,
+        private store: Store,
+        private router: Router,
+        private messageService: MessageService
+    ) { }
 
     steps: MenuItem[] = [
         { label: 'Dados Pessoais' },
@@ -54,91 +79,113 @@ export class CreateComponent implements OnInit {
         { label: 'Observações' }
     ];
 
-    student: any = {
-        personalData: {
-            fullName: '',
-            idType: null,
-            idNumber: '',
-            country: null,
-            gender: '',
-            birthDate: null,
-            address: '',
-            email: '',
-            photo: null
-        },
-        academicData: {
-            installation: null,
-            registrationType: null,
-            status: 'active',
-            entity: null,
-            automaticDiscount: null,
-            paymentMethod: null,
-            monthlyReference: null,
-            termsAccepted: {
-                responsibility: false,
-                communication: false,
-                emailMarketing: false,
-                dataProcessing: false,
-                emailInvoices: false
-            }
-        },
-        emergencyContact: {
-            name: '',
-            relationship: '',
-            phone: '',
-            email: '',
-            address: ''
-        },
-        observations: ''
-    };
 
-    idTypes: SelectItem[] = [];
+
     countries: any[] = COUNTRIES;
     levels: any[] = LEVELS;
     installations: SelectItem[] = [];
-    paymentMethods: SelectItem[] = [];
-    referenceOptions: SelectItem[] = [];
-    entities: SelectItem[] = ENTITIES;
-    discounts: SelectItem[] = DISCOUNTS;
+    provinces: SelectItem[] = PROVINCES;
+    municipalities: SelectItem[] = MUNICIPALITIES;
+    academicBackgrounds: SelectItem[] = ACADEMIC_BACKGROUNDS;
 
     genderOptions: SelectItem[] = [
-        { label: 'Masculino', value: 'male' },
-        { label: 'Femenino', value: 'female' }
+        { label: 'Masculino', value: 'MALE' },
+        { label: 'Femenino', value: 'FEMALE' }
     ];
 
     statusOptions: SelectItem[] = [
-        { label: 'Activo', value: 'active' },
-        { label: 'Inactivo', value: 'inactive' }
+        { label: 'Activo', value: 'ACTIVE' },
+        { label: 'Inactivo', value: 'INACTIVE' }
     ];
 
     ngOnInit() {
-        // Initialize dropdown options
-        this.idTypes = [
-            { label: 'Bilhete de identidade', value: 'bi' },
-            { label: 'Passaporte', value: 'passport' },
-            { label: 'Carta de Conduçao', value: 'license' },
-        ];
-
-        this.installations = INSTALATIONS.map(installation => ({
-            label: installation,
-            value: installation
-        }));
-
-        this.paymentMethods = [
-            { label: 'Multicaixa', value: 'multicaixa' },
-            { label: 'Transferência Bancária', value: 'bank_transfer' },
-            { label: 'Dinheiro', value: 'cash' }
-        ];
-
-        this.referenceOptions = [
-            { label: 'Enviar por E-mail', value: 'email' },
-            { label: 'Enviar por SMS', value: 'sms' }
-        ];
+        this.initializeForm();
+        this.initializeDropdowns();
+        this.subscribeToFormSuccess();
 
         // Set initial active step
         this.activeIndex = 0;
 
-        console.log('Student creation form initialized with stepper');
+        console.log('Student creation form initialized with reactive forms and stepper');
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    private initializeForm() {
+        this.studentForm = this.fb.group({
+            // Personal Data
+            firstname: ['', [Validators.required, Validators.minLength(2)]],
+            lastname: ['', [Validators.required, Validators.minLength(2)]],
+            gender: ['', Validators.required],
+            dateOfBirth: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', [Validators.minLength(6)]],
+            photo: [''],
+            phone: ['', [Validators.required, Validators.pattern(/^[0-9+\-\s()]+$/)]],
+            province: ['', Validators.required],
+            municipality: ['', Validators.required],
+            academicBackground: ['', Validators.required],
+
+            // Academic Data
+            status: ['ACTIVE', Validators.required],
+            centerId: ['', Validators.required],
+            levelId: ['', Validators.required],
+            enrollmentDate: ['', Validators.required],
+
+            // Emergency Contact
+            emergencyContactName: ['', Validators.required],
+            emergencyContactRelationship: [''],
+            emergencyContactNumber: ['', [Validators.required, Validators.pattern(/^[0-9+\-\s()]+$/)]],
+
+            // Notes
+            notes: ['']
+        });
+    }
+
+    private initializeDropdowns() {
+        this.installations = INSTALATIONS.map(installation => ({
+            label: installation,
+            value: installation
+        }));
+    }
+
+    private subscribeToFormSuccess() {
+        // Track successful creation by combining loading and error states
+        combineLatest([
+            this.store.select(studentsFeature.selectLoadingCreate),
+            this.store.select(studentsFeature.selectCreateError)
+        ]).pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(([loading, error]) => {
+            // If loading finished and form is disabled
+            if (!loading && this.studentForm.disabled) {
+                if (!error) {
+                    // Success - show toast and navigate
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Sucesso',
+                        detail: 'Aluno criado com sucesso!'
+                    });
+                    this.router.navigate(['/schoolar/students']);
+                } else {
+                    // Error occurred during creation
+                    console.error('Student creation error:', error);
+
+                    // Show error toast
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erro',
+                        detail: `Erro ao criar aluno: ${error}`
+                    });
+
+                    // Re-enable form on error
+                    this.studentForm.enable();
+                }
+            }
+        });
     }
 
     nextStep() {
@@ -152,37 +199,44 @@ export class CreateComponent implements OnInit {
     }
 
     validateCurrentStep(): boolean {
-        // Add validation logic for each step
-        switch (this.activeIndex) {
-            case 0: // Personal Data
-                if (!this.student.personalData.fullName) {
-                    // You could add proper validation messages here
-                    console.log('Please enter the full name');
-                    return false;
-                }
-                return true;
+        const stepFieldsMap = {
+            0: ['firstname', 'lastname', 'gender', 'dateOfBirth', 'email', 'phone', 'province', 'municipality', 'academicBackground'], // Personal Data
+            1: ['centerId', 'levelId', 'status', 'enrollmentDate'], // Academic Data
+            2: ['emergencyContactName', 'emergencyContactNumber'], // Emergency Contact
+            3: [] // Notes - no required fields
+        };
 
-            case 1: // Academic Data
-                if (!this.student.academicData.registrationType) {
-                    console.log('Please select a registration type');
-                    return false;
-                }
-                return true;
+        const currentStepFields = stepFieldsMap[this.activeIndex as keyof typeof stepFieldsMap];
 
-            case 2: // Emergency Contact
-                if (!this.student.emergencyContact.name || !this.student.emergencyContact.phone) {
-                    console.log('Please enter emergency contact name and phone');
-                    return false;
-                }
-                return true;
-
-            case 3: // Observations
-                // No validation needed for observations
-                return true;
-
-            default:
-                return true;
+        for (const field of currentStepFields) {
+            const control = this.studentForm.get(field);
+            if (control && control.invalid) {
+                control.markAsTouched();
+                console.log(`Invalid field: ${field}`, control.errors);
+                return false;
+            }
         }
+
+        return true;
+    }
+
+    // Helper method to check if a field has errors and is touched
+    hasFieldError(fieldName: string): boolean {
+        const field = this.studentForm.get(fieldName);
+        return !!(field && field.invalid && field.touched);
+    }
+
+    // Helper method to get field error message
+    getFieldError(fieldName: string): string {
+        const field = this.studentForm.get(fieldName);
+        if (field && field.errors && field.touched) {
+            const errors = field.errors;
+            if (errors['required']) return `${fieldName} é obrigatório`;
+            if (errors['email']) return 'Email inválido';
+            if (errors['minlength']) return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
+            if (errors['pattern']) return 'Formato inválido';
+        }
+        return '';
     }
 
     goToStep(index: number) {
@@ -204,11 +258,80 @@ export class CreateComponent implements OnInit {
     }
 
     saveStudent() {
+        // Mark all fields as touched to show validation errors
+        this.studentForm.markAllAsTouched();
+
         // Validate all steps before saving
-        if (this.validateStepsBeforeIndex(this.steps.length)) {
-            // In a real application, you would save the student data using a service
-            console.log('Student saved:', this.student);
-            // Navigate back to the general page or show success message
+        if (this.studentForm.valid && this.validateStepsBeforeIndex(this.steps.length)) {
+            // Disable form while submitting
+            this.studentForm.disable();
+
+            // Convert form data to API payload format
+            const formValue = this.studentForm.value;
+            const createStudentRequest: CreateStudentRequest = {
+                firstname: formValue.firstname,
+                lastname: formValue.lastname,
+                gender: formValue.gender,
+                dateOfBirth: this.formatDate(formValue.dateOfBirth),
+                email: formValue.email,
+                password: formValue.password || 'DefaultPassword123', // Default password if not provided
+                photo: formValue.photo,
+                phone: formValue.phone,
+                status: formValue.status,
+                centerId: formValue.centerId,
+                levelId: formValue.levelId,
+                enrollmentDate: this.formatDate(formValue.enrollmentDate),
+                emergencyContactNumber: formValue.emergencyContactNumber,
+                emergencyContactName: formValue.emergencyContactName,
+                emergencyContactRelationship: formValue.emergencyContactRelationship,
+                academicBackground: formValue.academicBackground,
+                province: formValue.province,
+                municipality: formValue.municipality,
+                notes: formValue.notes
+            };
+
+            console.log('Saving student:', createStudentRequest);
+
+            // Dispatch action to create student via NgRx
+            this.store.dispatch(StudentsActions.createStudentWithRequest({ request: createStudentRequest }));
+        } else {
+            console.log('Form is invalid', this.studentForm.errors);
+            // Find first invalid step
+            const firstInvalidStep = this.findFirstInvalidStep();
+            if (firstInvalidStep !== -1) {
+                this.activeIndex = firstInvalidStep;
+            }
         }
+    }
+
+    private findFirstInvalidStep(): number {
+        const stepFieldsMap = {
+            0: ['firstname', 'lastname', 'gender', 'dateOfBirth', 'email', 'phone', 'province', 'municipality', 'academicBackground'],
+            1: ['centerId', 'levelId', 'status', 'enrollmentDate'],
+            2: ['emergencyContactName', 'emergencyContactNumber'],
+            3: []
+        };
+
+        for (let step = 0; step < 4; step++) {
+            const fields = stepFieldsMap[step as keyof typeof stepFieldsMap];
+            for (const field of fields) {
+                const control = this.studentForm.get(field);
+                if (control && control.invalid) {
+                    return step;
+                }
+            }
+        }
+        return -1;
+    }
+
+    // Helper method to format dates to YYYY-MM-DD format
+    private formatDate(date: Date | null): string {
+        if (!date) return '';
+
+        if (date instanceof Date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        return date;
     }
 }

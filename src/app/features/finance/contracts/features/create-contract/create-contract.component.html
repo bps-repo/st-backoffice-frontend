@@ -1,0 +1,283 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Create Student Contract</h5>
+            <p>Create a new contract for a student</p>
+
+            <p-toast></p-toast>
+
+            <form [formGroup]="contractForm" (ngSubmit)="onSubmit()">
+                <div class="grid formgrid p-fluid">
+                    <div class="field col-12 md:col-6">
+                        <label for="student">Student</label>
+                        <p-dropdown
+                            id="student"
+                            formControlName="student"
+                            [options]="students"
+                            optionLabel="name"
+                            placeholder="Select a student"
+                            [(ngModel)]="selectedStudent"
+                            [showClear]="true">
+                            <ng-template pTemplate="item" let-student>
+                                <div>
+                                    <div>{{student.name}}</div>
+                                    <div class="text-sm text-500">{{student.email}} - {{student.center}}</div>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('student')?.invalid && contractForm.get('student')?.touched" class="p-error">
+                            Student is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="contractType">Contract Type</label>
+                        <p-dropdown
+                            id="contractType"
+                            formControlName="contractType"
+                            [options]="contractTypes"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select contract type">
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('contractType')?.invalid && contractForm.get('contractType')?.touched" class="p-error">
+                            Contract type is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="startDate">Start Date</label>
+                        <p-calendar
+                            id="startDate"
+                            formControlName="startDate"
+                            [showIcon]="true"
+                            dateFormat="yy-mm-dd"
+                            placeholder="Select start date">
+                        </p-calendar>
+                        <small *ngIf="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched" class="p-error">
+                            Start date is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="endDate">End Date</label>
+                        <p-calendar
+                            id="endDate"
+                            formControlName="endDate"
+                            [showIcon]="true"
+                            dateFormat="yy-mm-dd"
+                            placeholder="Select end date">
+                        </p-calendar>
+                        <small *ngIf="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched" class="p-error">
+                            End date is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="paymentFrequency">Payment Frequency</label>
+                        <p-dropdown
+                            id="paymentFrequency"
+                            formControlName="paymentFrequency"
+                            [options]="paymentFrequencies"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select payment frequency">
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('paymentFrequency')?.invalid && contractForm.get('paymentFrequency')?.touched" class="p-error">
+                            Payment frequency is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="paymentAmount">Payment Amount</label>
+                        <p-inputNumber
+                            id="paymentAmount"
+                            formControlName="paymentAmount"
+                            mode="currency"
+                            currency="USD"
+                            locale="en-US">
+                        </p-inputNumber>
+                        <small *ngIf="contractForm.get('paymentAmount')?.invalid && contractForm.get('paymentAmount')?.touched" class="p-error">
+                            Valid payment amount is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="status">Status</label>
+                        <p-dropdown
+                            id="status"
+                            formControlName="status"
+                            [options]="statuses"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select status">
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('status')?.invalid && contractForm.get('status')?.touched" class="p-error">
+                            Status is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12">
+                        <label for="terms">Terms and Conditions</label>
+                        <p-inputTextarea
+                            id="terms"
+                            formControlName="terms"
+                            placeholder="Enter contract terms and conditions">
+                        </p-inputTextarea>
+                        <small *ngIf="contractForm.get('terms')?.invalid && contractForm.get('terms')?.touched" class="p-error">
+                            Terms and conditions are required
+                        </small>
+                    </div>
+
+                    <!-- Schema-specific fields -->
+                    <div class="col-12"><h6>Contract Details (Backend Schema)</h6></div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="sellerId">Seller ID</label>
+                        <input id="sellerId" type="text" pInputText formControlName="sellerId" placeholder="Enter seller ID" />
+                        <small *ngIf="contractForm.get('sellerId')?.invalid && contractForm.get('sellerId')?.touched" class="p-error">
+                            Seller ID is required
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-3">
+                        <label for="amount">Total Amount</label>
+                        <p-inputNumber id="amount" formControlName="amount" [min]="0" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+                    </div>
+
+                    <div class="field col-12 md:col-3">
+                        <label for="discountPercent">Discount (%)</label>
+                        <p-inputNumber id="discountPercent" formControlName="discountPercent" [min]="0" [max]="100"></p-inputNumber>
+                    </div>
+
+                    <div class="field col-12 md:col-3">
+                        <label for="unitPrice">Unit Price</label>
+                        <p-inputNumber id="unitPrice" formControlName="unitPrice" [min]="0" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+                    </div>
+
+                    <div class="field col-12 md:col-3">
+                        <label for="schemaContractType">Schema Contract Type</label>
+                        <p-dropdown id="schemaContractType" formControlName="schemaContractType" [options]="[
+                          {label: 'STANDARD', value: 'STANDARD'},
+                          {label: 'PROMOTIONAL', value: 'PROMOTIONAL'},
+                          {label: 'CUSTOM', value: 'CUSTOM'}
+                        ]" optionLabel="label" optionValue="value" placeholder="Select"></p-dropdown>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="adultEnglishCourseProductId">Course Product ID</label>
+                        <input id="adultEnglishCourseProductId" type="text" pInputText formControlName="adultEnglishCourseProductId" placeholder="Product ID" />
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="courseBookId">Course Book ID</label>
+                        <input id="courseBookId" type="text" pInputText formControlName="courseBookId" placeholder="Course Book ID" />
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="levelId">Level ID</label>
+                        <input id="levelId" type="text" pInputText formControlName="levelId" placeholder="Level ID" />
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="notes">Notes</label>
+                        <input id="notes" type="text" pInputText formControlName="notes" placeholder="Additional notes" />
+                    </div>
+
+                    <div class="field col-12 md:col-4">
+                        <div class="flex align-items-center gap-2">
+                            <input id="includeManuals" type="checkbox" formControlName="includeManuals" />
+                            <label for="includeManuals">Include Manuals</label>
+                        </div>
+                    </div>
+
+                    <div class="field col-12 md:col-4">
+                        <div class="flex align-items-center gap-2">
+                            <input id="includeRegistrationFee" type="checkbox" formControlName="includeRegistrationFee" />
+                            <label for="includeRegistrationFee">Include Registration Fee</label>
+                        </div>
+                    </div>
+
+                    <div class="field col-12 md:col-4">
+                        <div class="flex align-items-center gap-2">
+                            <input id="courseMaterialPaidSameDay" type="checkbox" formControlName="courseMaterialPaidSameDay" />
+                            <label for="courseMaterialPaidSameDay">Materials Paid Same Day</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12"><h6>Installments</h6></div>
+
+                    <div class="field col-12 md:col-4">
+                        <label for="numberOfInstallments">Number of Installments</label>
+                        <p-inputNumber id="numberOfInstallments" formControlName="numberOfInstallments" [min]="1"></p-inputNumber>
+                    </div>
+
+                    <div class="field col-12 md:col-4">
+                        <label for="firstInstallmentDate">First Installment Date</label>
+                        <p-calendar id="firstInstallmentDate" formControlName="firstInstallmentDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="flex align-items-center gap-3 mb-3">
+                            <div class="flex align-items-center gap-2">
+                                <input id="autoDistribute" type="checkbox" formControlName="autoDistribute" />
+                                <label for="autoDistribute">Auto-distribute installments</label>
+                            </div>
+                            <button pButton type="button" label="Recalculate" icon="pi pi-refresh" class="p-button-text" (click)="regenerateInstallments(true)"></button>
+                            <small class="text-500">When enabled, due dates are monthly from the first date and amounts are equally distributed. You can still edit fields manually.</small>
+                        </div>
+                        <div formArrayName="customInstallments" class="grid">
+                            <div class="col-12" *ngFor="let ci of customInstallments.controls; let i = index" [formGroupName]="i">
+                                <div class="grid">
+                                    <div class="field col-12 md:col-2">
+                                        <label>Nr.</label>
+                                        <p-inputNumber formControlName="installmentNumber" [min]="1"></p-inputNumber>
+                                    </div>
+                                    <div class="field col-12 md:col-3">
+                                        <label>Due Date</label>
+                                        <p-calendar formControlName="dueDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                                    </div>
+                                    <div class="field col-12 md:col-3">
+                                        <label>Amount</label>
+                                        <p-inputNumber formControlName="amount" [min]="0" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+                                    </div>
+                                    <div class="field col-12 md:col-3">
+                                        <label>Status</label>
+                                        <p-dropdown formControlName="status" [options]="[
+                                          {label: 'Pending', value: 'PENDING_PAYMENT'},
+                                          {label: 'Paid', value: 'PAID'},
+                                          {label: 'Overdue', value: 'OVERDUE'},
+                                          {label: 'Cancelled', value: 'CANCELLED'}
+                                        ]" optionLabel="label" optionValue="value"></p-dropdown>
+                                    </div>
+                                    <div class="field col-12 md:col-1 flex align-items-end">
+                                        <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-danger" (click)="removeInstallment(i)"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex align-items-center gap-3">
+                            <button pButton type="button" label="Add Installment" icon="pi pi-plus" class="p-button-text" (click)="addInstallment()"></button>
+                            <div>
+                                <small class="text-600">Sum of installments: {{ installmentsTotal | number:'1.2-2' }}</small>
+                                <small *ngIf="(contractForm.get('amount')?.value || 0) !== installmentsTotal" class="p-error ml-2">
+                                    Total differs from Amount ({{ contractForm.get('amount')?.value || 0 | number:'1.2-2' }})
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-content-end mt-4">
+                    <p-button
+                        type="submit"
+                        label="Create Contract"
+                        icon="pi pi-check"
+                        [loading]="loading"
+                        [disabled]="contractForm.invalid">
+                    </p-button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
