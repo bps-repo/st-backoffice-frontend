@@ -3,7 +3,7 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {Subject, takeUntil, filter, combineLatest} from 'rxjs';
+import {Subject, takeUntil, combineLatest, debounceTime} from 'rxjs';
 import {MenuItem, SelectItem, MessageService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
@@ -147,6 +147,7 @@ export class CreateComponent implements OnInit, OnDestroy {
             this.store.select(studentsFeature.selectLoadingCreate),
             this.store.select(studentsFeature.selectCreateError)
         ]).pipe(
+            debounceTime(1000),
             takeUntil(this.destroy$)
         ).subscribe(([loading, error]) => {
             // If loading finished and form is disabled
@@ -158,7 +159,7 @@ export class CreateComponent implements OnInit, OnDestroy {
                         summary: 'Sucesso',
                         detail: 'Aluno criado com sucesso!'
                     });
-                    // this.router.navigate(['/schoolar/students']).then();
+                    this.router.navigate(['/schoolar/students']).then();
                 } else {
                     // Error occurred during creation
                     console.error('Student creation error:', error);
@@ -278,9 +279,9 @@ export class CreateComponent implements OnInit, OnDestroy {
             };
 
             console.log('Saving student:', createStudentRequest);
-
+            this.resetForm()
             // Dispatch action to create student via NgRx
-            this.store.dispatch(StudentsActions.createStudentWithRequest({request: createStudentRequest}));
+            this.store.dispatch(StudentsActions.createStudentWithRequest({request: createStudentRequest}))
         } else {
             console.log('Form is invalid', this.studentForm.errors);
             // Find first invalid step
@@ -309,6 +310,11 @@ export class CreateComponent implements OnInit, OnDestroy {
             }
         }
         return -1;
+    }
+
+    private resetForm() {
+        this.studentForm.reset();
+        this.activeIndex = 0;
     }
 
     // Helper method to format dates to YYYY-MM-DD format

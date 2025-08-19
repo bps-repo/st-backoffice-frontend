@@ -3,6 +3,7 @@
     <div class="col-12">
         <h2>Inscrever novo Aluno</h2>
         <span>Inscriçãos completo dos alunos</span>
+        <br />
         @if (createError$ | async) {
             <span *ngIf="createError$ | async"> class="text-red-500">{{ (createError$ | async) }}</span>
         }
@@ -40,7 +41,8 @@
                             </div>
                             <div class="col-12 md:col-4 field">
                                 <label for="identificationNumber" class="font-bold">Bilhete de Identidade</label>
-                                <input id="identificationNumber" type="text" pInputText formControlName="identificationNumber"/>
+                                <input id="identificationNumber" type="text" pInputText
+                                       formControlName="identificationNumber"/>
                                 <small *ngIf="hasFieldError('identificationNumber')"
                                        class="p-error">{{ getFieldError('identificationNumber') }}</small>
                             </div>
@@ -167,19 +169,6 @@
                                     placeholder="Selecione um centro"
                                     [showClear]="true"
                                     [required]="true"
-                                ></p-dropdown>
-                            </div>
-
-                            <div class="col-12 md:col-6 field">
-                                <label for="status" class="font-bold">Estado</label>
-                                <p-dropdown
-                                    id="status"
-                                    [options]="statusOptions"
-                                    formControlName="status"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Selecione"
-                                    [showClear]="true"
                                 ></p-dropdown>
                             </div>
                         </div>
