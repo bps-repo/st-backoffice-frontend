@@ -89,17 +89,17 @@ export class CreateComponent implements OnInit {
     loadStudents(): void {
         // Simulando dados de estudantes
         this.students = [
-            { 
-                id: '1', 
+            {
+                id: '1',
                 code: 1001,
-                user: { 
-                    id: '1', 
-                    firstname: 'João', 
-                    lastname: 'Silva', 
+                user: {
+                    id: '1',
+                    firstname: 'João',
+                    lastname: 'Silva',
                     email: 'joao@example.com',
                     phone: '+244 923456789',
                     roleName: 'STUDENT',
-                    dateOfBirth: '1995-05-15',
+                    birthdate: '1995-05-15',
                     gender: 'MALE',
                     status: 'ACTIVE' as any
                 },
@@ -109,17 +109,17 @@ export class CreateComponent implements OnInit {
                 levelId: '1',
                 enrollmentDate: '2023-01-15'
             },
-            { 
-                id: '2', 
+            {
+                id: '2',
                 code: 1002,
-                user: { 
-                    id: '2', 
-                    firstname: 'Maria', 
-                    lastname: 'Santos', 
+                user: {
+                    id: '2',
+                    firstname: 'Maria',
+                    lastname: 'Santos',
                     email: 'maria@example.com',
                     phone: '+244 923456790',
                     roleName: 'STUDENT',
-                    dateOfBirth: '1998-08-20',
+                    birthdate: '1998-08-20',
                     gender: 'FEMALE',
                     status: 'ACTIVE' as any
                 },
@@ -129,17 +129,17 @@ export class CreateComponent implements OnInit {
                 levelId: '2',
                 enrollmentDate: '2023-02-10'
             },
-            { 
-                id: '3', 
+            {
+                id: '3',
                 code: 1003,
-                user: { 
-                    id: '3', 
-                    firstname: 'Pedro', 
-                    lastname: 'Costa', 
+                user: {
+                    id: '3',
+                    firstname: 'Pedro',
+                    lastname: 'Costa',
                     email: 'pedro@example.com',
                     phone: '+244 923456791',
                     roleName: 'STUDENT',
-                    dateOfBirth: '1997-03-10',
+                    birthdate: '1997-03-10',
                     gender: 'MALE',
                     status: 'ACTIVE' as any
                 },
@@ -149,17 +149,17 @@ export class CreateComponent implements OnInit {
                 levelId: '1',
                 enrollmentDate: '2023-03-05'
             },
-            { 
-                id: '4', 
+            {
+                id: '4',
                 code: 1004,
-                user: { 
-                    id: '4', 
-                    firstname: 'Ana', 
-                    lastname: 'Lima', 
+                user: {
+                    id: '4',
+                    firstname: 'Ana',
+                    lastname: 'Lima',
                     email: 'ana@example.com',
                     phone: '+244 923456792',
                     roleName: 'STUDENT',
-                    dateOfBirth: '1999-11-25',
+                    birthdate: '1999-11-25',
                     gender: 'FEMALE',
                     status: 'ACTIVE' as any
                 },

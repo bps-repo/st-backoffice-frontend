@@ -161,7 +161,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
             },
             {
                 title: 'Data de Nascimento',
-                value: student.user?.dateOfBirth || 'N/A',
+                value: student.user?.birthdate || 'N/A',
             },
             {
                 title: 'Telefone',

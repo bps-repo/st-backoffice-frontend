@@ -200,7 +200,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit() {
         this.customTemplates = {
             name: this.nameTemplate,
-            dateOfBirth: this.dateOfBirthTemplate,
+            birthdate: this.dateOfBirthTemplate,
             email: this.emailTemplate,
             phone: this.phoneTemplate,
             actions: this.actionsTemplate,

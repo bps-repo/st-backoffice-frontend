@@ -46,7 +46,7 @@ export const COLUMNS: TableColumn[] = [
     },
 
     {
-        field: 'dateOfBirth',
+        field: 'birthdate',
         header: 'Data de Nascimento',
         filterType: 'date',
         customTemplate: true,

@@ -6,7 +6,7 @@ export interface User {
     phone: string;
     photo?: string;
     roleName: string;
-    dateOfBirth: string;
+    birthdate: string;
     gender: string;
     identificationNumber?: string;
     status: UserStatus;
