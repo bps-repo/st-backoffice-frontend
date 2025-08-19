@@ -103,7 +103,8 @@ export const ACADEMIC_BACKGROUNDS: SelectItem[] = [
     { label: 'Ensino Primário', value: 'PRIMARY_SCHOOL' },
     { label: 'Ensino Secundário', value: 'SECONDARY_SCHOOL' },
     { label: 'Ensino Médio', value: 'HIGH_SCHOOL' },
-    { label: 'Ensino Superior', value: 'HIGHER_EDUCATION' },
+    { label: 'Ensino Superior', value: 'UNIVERSITY' },
     { label: 'Mestrado', value: 'MASTERS' },
     { label: 'Doutoramento', value: 'DOCTORATE' },
+    { label: 'Outro', value: 'OTHER' },
 ];

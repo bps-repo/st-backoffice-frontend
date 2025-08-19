@@ -1,37 +1,33 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Subject, takeUntil, filter, combineLatest } from 'rxjs';
-import { MenuItem, SelectItem, MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RippleModule } from 'primeng/ripple';
-import { CalendarModule } from 'primeng/calendar';
-import { StepsModule } from 'primeng/steps';
-import { ToastModule } from 'primeng/toast';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Subject, takeUntil, filter, combineLatest} from 'rxjs';
+import {MenuItem, SelectItem, MessageService} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {CheckboxModule} from 'primeng/checkbox';
+import {DropdownModule} from 'primeng/dropdown';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import {RippleModule} from 'primeng/ripple';
+import {CalendarModule} from 'primeng/calendar';
+import {StepsModule} from 'primeng/steps';
+import {ToastModule} from 'primeng/toast';
 import {
-    COUNTRIES,
-    DISCOUNTS,
-    ENTITIES,
     INSTALATIONS,
-    LEVELS,
     PROVINCES,
     MUNICIPALITIES,
     ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
-import { CreateStudentRequest } from 'src/app/core/services/student.service';
-import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
-import { studentsFeature } from 'src/app/core/store/schoolar/students/students.reducers';
+import {CreateStudentRequest} from 'src/app/core/services/student.service';
+import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
+import {studentsFeature} from 'src/app/core/store/schoolar/students/students.reducers';
 
 @Component({
     selector: 'app-student-create',
@@ -70,32 +66,30 @@ export class CreateComponent implements OnInit, OnDestroy {
         private store: Store,
         private router: Router,
         private messageService: MessageService
-    ) { }
+    ) {
+    }
 
     steps: MenuItem[] = [
-        { label: 'Dados Pessoais' },
-        { label: 'Dados Acadêmicos' },
-        { label: 'Contato de Emergência' },
-        { label: 'Observações' }
+        {label: 'Dados Pessoais'},
+        {label: 'Dados institucional'},
+        {label: 'Contato de Emergência'},
+        {label: 'Observações'}
     ];
 
 
-
-    countries: any[] = COUNTRIES;
-    levels: any[] = LEVELS;
     installations: SelectItem[] = [];
     provinces: SelectItem[] = PROVINCES;
     municipalities: SelectItem[] = MUNICIPALITIES;
     academicBackgrounds: SelectItem[] = ACADEMIC_BACKGROUNDS;
 
     genderOptions: SelectItem[] = [
-        { label: 'Masculino', value: 'MALE' },
-        { label: 'Femenino', value: 'FEMALE' }
+        {label: 'Masculino', value: 'MALE'},
+        {label: 'Femenino', value: 'FEMALE'}
     ];
 
     statusOptions: SelectItem[] = [
-        { label: 'Activo', value: 'ACTIVE' },
-        { label: 'Inactivo', value: 'INACTIVE' }
+        {label: 'Activo', value: 'ACTIVE'},
+        {label: 'Inactivo', value: 'INACTIVE'}
     ];
 
     ngOnInit() {
@@ -103,10 +97,7 @@ export class CreateComponent implements OnInit, OnDestroy {
         this.initializeDropdowns();
         this.subscribeToFormSuccess();
 
-        // Set initial active step
         this.activeIndex = 0;
-
-        console.log('Student creation form initialized with reactive forms and stepper');
     }
 
     ngOnDestroy() {
@@ -120,7 +111,8 @@ export class CreateComponent implements OnInit, OnDestroy {
             firstname: ['', [Validators.required, Validators.minLength(2)]],
             lastname: ['', [Validators.required, Validators.minLength(2)]],
             gender: ['', Validators.required],
-            dateOfBirth: ['', Validators.required],
+            identificationNumber: ['', [Validators.required, Validators.pattern(/[0-9]{9}[A-Z]{2}[0-9]{3}$/)]],
+            birthdate: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.minLength(6)]],
             photo: [''],
@@ -130,10 +122,7 @@ export class CreateComponent implements OnInit, OnDestroy {
             academicBackground: ['', Validators.required],
 
             // Academic Data
-            status: ['ACTIVE', Validators.required],
             centerId: ['', Validators.required],
-            levelId: ['', Validators.required],
-            enrollmentDate: ['', Validators.required],
 
             // Emergency Contact
             emergencyContactName: ['', Validators.required],
@@ -169,7 +158,7 @@ export class CreateComponent implements OnInit, OnDestroy {
                         summary: 'Sucesso',
                         detail: 'Aluno criado com sucesso!'
                     });
-                    this.router.navigate(['/schoolar/students']);
+                    // this.router.navigate(['/schoolar/students']).then();
                 } else {
                     // Error occurred during creation
                     console.error('Student creation error:', error);
@@ -200,8 +189,8 @@ export class CreateComponent implements OnInit, OnDestroy {
 
     validateCurrentStep(): boolean {
         const stepFieldsMap = {
-            0: ['firstname', 'lastname', 'gender', 'dateOfBirth', 'email', 'phone', 'province', 'municipality', 'academicBackground'], // Personal Data
-            1: ['centerId', 'levelId', 'status', 'enrollmentDate'], // Academic Data
+            0: ['firstname', 'lastname', 'gender', 'birthdate', 'email', 'phone', 'province', 'municipality', 'academicBackground'], // Personal Data
+            1: ['centerId', 'status', 'enrollmentDate'], // Academic Data
             2: ['emergencyContactName', 'emergencyContactNumber'], // Emergency Contact
             3: [] // Notes - no required fields
         };
@@ -269,18 +258,16 @@ export class CreateComponent implements OnInit, OnDestroy {
             // Convert form data to API payload format
             const formValue = this.studentForm.value;
             const createStudentRequest: CreateStudentRequest = {
+                identificationNumber: formValue.identificationNumber,
                 firstname: formValue.firstname,
                 lastname: formValue.lastname,
                 gender: formValue.gender,
-                dateOfBirth: this.formatDate(formValue.dateOfBirth),
+                birthdate: this.formatDate(formValue.birthdate),
                 email: formValue.email,
                 password: formValue.password || 'DefaultPassword123', // Default password if not provided
                 photo: formValue.photo,
                 phone: formValue.phone,
-                status: formValue.status,
                 centerId: formValue.centerId,
-                levelId: formValue.levelId,
-                enrollmentDate: this.formatDate(formValue.enrollmentDate),
                 emergencyContactNumber: formValue.emergencyContactNumber,
                 emergencyContactName: formValue.emergencyContactName,
                 emergencyContactRelationship: formValue.emergencyContactRelationship,
@@ -293,7 +280,7 @@ export class CreateComponent implements OnInit, OnDestroy {
             console.log('Saving student:', createStudentRequest);
 
             // Dispatch action to create student via NgRx
-            this.store.dispatch(StudentsActions.createStudentWithRequest({ request: createStudentRequest }));
+            this.store.dispatch(StudentsActions.createStudentWithRequest({request: createStudentRequest}));
         } else {
             console.log('Form is invalid', this.studentForm.errors);
             // Find first invalid step
@@ -306,8 +293,8 @@ export class CreateComponent implements OnInit, OnDestroy {
 
     private findFirstInvalidStep(): number {
         const stepFieldsMap = {
-            0: ['firstname', 'lastname', 'gender', 'dateOfBirth', 'email', 'phone', 'province', 'municipality', 'academicBackground'],
-            1: ['centerId', 'levelId', 'status', 'enrollmentDate'],
+            0: ['firstname', 'lastname', 'gender', 'birthdate', 'identificationNumber', 'email', 'phone', 'province', 'municipality', 'academicBackground'],
+            1: ['centerId', 'status'],
             2: ['emergencyContactName', 'emergencyContactNumber'],
             3: []
         };
@@ -328,10 +315,6 @@ export class CreateComponent implements OnInit, OnDestroy {
     private formatDate(date: Date | null): string {
         if (!date) return '';
 
-        if (date instanceof Date) {
-            return date.toISOString().split('T')[0];
-        }
-
-        return date;
+        return date.toISOString().split('T')[0];
     }
 }

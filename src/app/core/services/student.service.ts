@@ -8,18 +8,16 @@ import {map} from "rxjs/operators";
 
 // Request payload for creating a student according to backend contract
 export interface CreateStudentRequest {
+    identificationNumber: string
     firstname: string;
     lastname: string;
     gender: string; // 'MALE' or 'FEMALE'
-    dateOfBirth: string; // YYYY-MM-DD
+    birthdate: string; // YYYY-MM-DD
     email: string;
     password: string;
     photo?: string;
     phone: string;
-    status: string; // 'ACTIVE' or 'INACTIVE'
     centerId: string;
-    levelId: string;
-    enrollmentDate: string; // YYYY-MM-DD
     emergencyContactNumber?: string;
     emergencyContactName?: string;
     emergencyContactRelationship?: string;
