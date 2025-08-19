@@ -162,7 +162,7 @@
                                 <label for="centerId" class="font-bold">Centro (Instalação)</label>
                                 <p-dropdown
                                     id="centerId"
-                                    [options]="installations"
+                                    [options]="(centersOptions$ | async)!"
                                     formControlName="centerId"
                                     optionLabel="label"
                                     optionValue="value"

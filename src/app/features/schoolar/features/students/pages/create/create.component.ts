@@ -20,7 +20,6 @@ import {CalendarModule} from 'primeng/calendar';
 import {StepsModule} from 'primeng/steps';
 import {ToastModule} from 'primeng/toast';
 import {
-    INSTALATIONS,
     PROVINCES,
     MUNICIPALITIES,
     ACADEMIC_BACKGROUNDS,
@@ -28,6 +27,9 @@ import {
 import {CreateStudentRequest} from 'src/app/core/services/student.service';
 import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
 import {studentsFeature} from 'src/app/core/store/schoolar/students/students.reducers';
+import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
+import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
+import {map, Observable} from 'rxjs';
 
 @Component({
     selector: 'app-student-create',
@@ -61,6 +63,9 @@ export class CreateComponent implements OnInit, OnDestroy {
     loading$ = this.store.select(studentsFeature.selectLoadingCreate);
     createError$ = this.store.select(studentsFeature.selectCreateError);
 
+    // Real centers options (as SelectItem[]) derived from the centers store
+    centersOptions$!: Observable<SelectItem[]>;
+
     constructor(
         private fb: FormBuilder,
         private store: Store,
@@ -77,7 +82,6 @@ export class CreateComponent implements OnInit, OnDestroy {
     ];
 
 
-    installations: SelectItem[] = [];
     provinces: SelectItem[] = PROVINCES;
     municipalities: SelectItem[] = MUNICIPALITIES;
     academicBackgrounds: SelectItem[] = ACADEMIC_BACKGROUNDS;
@@ -94,7 +98,7 @@ export class CreateComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.initializeForm();
-        this.initializeDropdowns();
+        this.initializeCentersDropdown();
         this.subscribeToFormSuccess();
 
         this.activeIndex = 0;
@@ -134,11 +138,12 @@ export class CreateComponent implements OnInit, OnDestroy {
         });
     }
 
-    private initializeDropdowns() {
-        this.installations = INSTALATIONS.map(installation => ({
-            label: installation,
-            value: installation
-        }));
+    private initializeCentersDropdown() {
+        // Dispatch load centers and map to dropdown options from the store
+        this.store.dispatch(CenterActions.loadCenters());
+        this.centersOptions$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
+            map(centers => centers.map(c => ({ label: c.name, value: c.id } as SelectItem)))
+        );
     }
 
     private subscribeToFormSuccess() {
