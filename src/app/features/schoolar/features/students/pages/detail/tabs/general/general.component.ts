@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy, Inject, Optional} from '@angular/core';
+import {Component, OnInit, OnDestroy, Inject, Optional, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {InputTextModule} from 'primeng/inputtext';
 import {PieChartComponent} from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
@@ -39,7 +39,7 @@ import {STUDENT_DATA} from 'src/app/shared/tokens/student.token';
     ],
     templateUrl: './general.component.html'
 })
-export class GeneralComponent implements OnInit, OnDestroy {
+export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     Math = Math;
 
     // Student information
@@ -61,6 +61,8 @@ export class GeneralComponent implements OnInit, OnDestroy {
     // Notifications
     notifications: any[] = [];
 
+    @Input() student: Student | null = null;
+
     constructor(
         private store: Store,
         private route: ActivatedRoute,
@@ -71,6 +73,10 @@ export class GeneralComponent implements OnInit, OnDestroy {
         // Use the injected student data
         if (this.studentData) {
             this.updateStudentInfo(this.studentData);
+        }
+        // Or use the @Input student if provided
+        if (this.student) {
+            this.updateStudentInfo(this.student);
         }
 
         // Mock upcoming lessons (this could be replaced with real data from an API)
@@ -126,6 +132,12 @@ export class GeneralComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['student'] && changes['student'].currentValue) {
+            this.updateStudentInfo(changes['student'].currentValue as Student);
+        }
     }
 
     updateStudentInfo(student: Student): void {

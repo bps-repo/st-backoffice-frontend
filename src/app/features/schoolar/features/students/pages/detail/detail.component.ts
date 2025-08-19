@@ -18,6 +18,7 @@ import {SelectButtonModule} from 'primeng/selectbutton';
 import {FormsModule} from '@angular/forms';
 import {StudentPaymentTabComponent} from "./tabs/payments/payment.tab.component";
 import {StudentLessonsTabComponent} from "./tabs/lessons/lessons.tab.component";
+import {GeneralComponent} from "./tabs/general/general.component";
 
 
 @Component({
@@ -34,7 +35,8 @@ import {StudentLessonsTabComponent} from "./tabs/lessons/lessons.tab.component";
         SelectButtonModule,
         FormsModule,
         StudentPaymentTabComponent,
-        StudentLessonsTabComponent
+        StudentLessonsTabComponent,
+        GeneralComponent
     ],
     providers: [DatePipe],
     templateUrl: './detail.component.html'

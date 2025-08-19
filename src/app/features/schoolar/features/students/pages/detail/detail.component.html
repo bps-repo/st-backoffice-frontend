@@ -108,16 +108,7 @@
 
         <!-- Visão geral Tab Content -->
         @if (currentView === 'overview') {
-            <div class="col-12 animate-fade px-fadein">
-                <div class="card">
-                    <h3>Visão geral do aluno</h3>
-                    <p>Informações gerais sobre o aluno, progresso acadêmico e desempenho.</p>
-                    <!-- Placeholder content -->
-                    <div class="mt-4 p-4 surface-100 border-round">
-                        <p>Conteúdo da visão geral será exibido aqui.</p>
-                    </div>
-                </div>
-            </div>
+            <app-general [student]="student$ | async"></app-general>
         }
 
         <!-- Historico de aulas Tab Content -->
