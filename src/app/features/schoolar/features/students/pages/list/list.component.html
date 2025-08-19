@@ -68,11 +68,13 @@
 
     <!-- KPI Cards - only visible in list view with smooth animation -->
     @if (currentView === 'list') {
-        @for (k of kpis; track k) {
-            <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)"
-                 class="animate-fade px-fadein">
-                <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
-            </div>
+        @if (kpis$ | async; as kpis) {
+            @for (k of kpis; track k) {
+                <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)"
+                     class="animate-fade px-fadein">
+                    <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
+                </div>
+            }
         }
     }
 
@@ -157,6 +159,14 @@
     <p-badge
         [value]="rowData.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
         [severity]="rowData.status === 'ACTIVE' ? 'success' : 'danger'"
+        class="w-full"
+    ></p-badge>
+</ng-template>
+
+<ng-template #typeTemplate let-rowData>
+    <p-badge
+        [value]="rowData.vip ? 'VIP' : 'STANDARD'"
+        [severity]="rowData.vip ? 'warning' : 'info'"
         class="w-full"
     ></p-badge>
 </ng-template>

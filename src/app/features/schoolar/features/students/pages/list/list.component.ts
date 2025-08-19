@@ -8,10 +8,10 @@ import {
 import {Student, StudentStatus} from 'src/app/core/models/academic/student';
 import {Store} from '@ngrx/store';
 
-import {Observable, Subject, take} from 'rxjs';
+import {Observable, Subject, take, map} from 'rxjs';
 import {ChartModule} from 'primeng/chart';
 import {ButtonModule} from 'primeng/button';
-import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS, KPI} from "../../constants";
+import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
@@ -24,6 +24,7 @@ import {LevelActions} from "../../../../../../core/store/schoolar/level/level.ac
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 import {BadgeModule} from "primeng/badge";
 import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 import {CalendarModule} from "primeng/calendar";
 import {ChipsModule} from "primeng/chips";
 import {SelectButtonModule} from "primeng/selectbutton";
@@ -82,6 +83,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('statusTemplate', {static: true})
     statusTemplate!: TemplateRef<any>;
 
+    @ViewChild('typeTemplate', {static: true})
+    typeTemplate!: TemplateRef<any>;
+
     // References to sticky header elements
     @ViewChild('mainHeader', {static: false})
     mainHeader!: ElementRef;
@@ -94,7 +98,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     isViewSelectorSticky: boolean = false;
 
-    students$?: Observable<Student[]>;
+    students$!: Observable<Student[]>;
 
     loading$: Observable<boolean>;
 
@@ -118,6 +122,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     ];
 
     private destroy$ = new Subject<void>();
+
+    // KPIs derived from students data
+    kpis$!: Observable<Kpi[]>;
 
     // Method to handle view selection
     onViewChange(event: any) {
@@ -171,6 +178,53 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             responsive: true,
             maintainAspectRatio: false
         };
+
+        // Build KPI indicators dynamically from students data
+        this.kpis$ = this.students$.pipe(
+            map((students: Student[]) => {
+                const total = students.length;
+                const active = students.filter(s => s.status === StudentStatus.ACTIVE).length;
+                const inactive = students.filter(s => s.status === StudentStatus.INACTIVE).length;
+                const renewing = students.filter(s => s.status === StudentStatus.PENDING_PAYMENT).length;
+                const vip = students.filter(s => !!s.vip).length;
+                const standard = students.filter(s => !s.vip).length;
+
+                const kpis: Kpi[] = [
+                    {
+                        label: 'Total de Alunos',
+                        value: total,
+                        icon: {label: 'users', color: 'text-blue-500', type: 'mat'},
+                    },
+                    {
+                        label: 'Ativos',
+                        value: active,
+                        icon: {label: 'user-check', color: 'text-green-500', type: 'mat'},
+                    },
+                    {
+                        label: 'Inativos',
+                        value: inactive,
+                        icon: {label: 'user-cancel', color: 'text-red-500', type: 'mat'},
+                    },
+                    {
+                        label: 'Em renovação',
+                        value: renewing,
+                        icon: {label: 'exclamation-circle', color: 'text-orange-500'},
+                    },
+                    {
+                        label: 'VIP',
+                        value: vip,
+                        icon: {label: 'graduation-cap', color: 'text-purple-500'},
+                    },
+                    {
+                        label: 'Standard',
+                        value: standard,
+                        icon: {label: 'calendar', color: 'text-secondary'},
+                    },
+                ];
+
+                return kpis;
+            })
+        );
     }
 
     ngOnInit(): void {
@@ -207,7 +261,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             centerId: this.centerTemplate,
             levelId: this.levelTemplate,
             studentClass: this.classTemplate,
-            status: this.statusTemplate
+            status: this.statusTemplate,
+            vip: this.typeTemplate,
         };
 
         // Initialize sticky state check after view is initialized
@@ -258,6 +313,5 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     protected StudentStatus = StudentStatus
-    protected readonly kpis = KPI;
     protected readonly Math = Math;
 }

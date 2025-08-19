@@ -16,6 +16,20 @@ export interface Student {
     certificates?: any[];
     attendances?: any[];
     unitProgresses?: any[];
+    // VIP fields
+    vip?: boolean;
+    vipTeacherId?: string | null;
+    // Additional optional flags (minimal addition to align with backend data)
+    directChatEnabled?: boolean;
+    fixedDateClasses?: boolean;
+    // Optional emergency and background info
+    emergencyContactNumber?: string | null;
+    emergencyContactName?: string | null;
+    emergencyContactRelationship?: string | null;
+    academicBackground?: string | null;
+    province?: string | null;
+    municipality?: string | null;
+    notes?: string | null;
     createdAt?: string;
     updatedAt?: string;
 }

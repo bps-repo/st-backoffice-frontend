@@ -3,11 +3,11 @@ import {Kpi} from "../../../../shared/kpi-indicator/kpi-indicator.component";
 
 export const GLOBAL_FILTERS = ['id', 'name', 'code', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'dateOfBirth'];
 export const COLUMNS: TableColumn[] = [
-    {
+   /* {
         field: 'code',
         header: 'ID',
         filterType: 'numeric',
-    },
+    },*/
     {
         field: 'name',
         header: 'Nome',
@@ -44,7 +44,12 @@ export const COLUMNS: TableColumn[] = [
         filterType: 'text',
         customTemplate: true,
     },
-
+    {
+        field: 'vip',
+        header: 'Tipo',
+        filterType: 'text',
+        customTemplate: true,
+    },
     {
         field: 'birthdate',
         header: 'Data de Nascimento',

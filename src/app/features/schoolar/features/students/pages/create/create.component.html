@@ -9,7 +9,7 @@
             <ng-template pTemplate="content">
                 <form [formGroup]="studentForm" (ngSubmit)="saveStudent()" novalidate>
                 <!-- Stepper -->
-                <div class="mb-5">ƒ
+                <div class="mb-5">
                     <p-steps [model]="steps" [activeIndex]="activeIndex" [readonly]="false"
                              (activeIndexChange)="goToStep($event)" styleClass="mt-2"></p-steps>
                 </div>
