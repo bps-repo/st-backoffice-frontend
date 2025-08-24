@@ -20,9 +20,9 @@ export const UnitActions = createActionGroup({
         'Load Unit Success': props<{ unit: Unit }>(),
         'Load Unit Failure': props<{ error: string }>(),
 
-        'Load Paged Units': props<{ size: number }>(),
-        'Load Paged Units Success': props<{ units: Unit[], pagination: any }>(),
-        'Load Paged Units Failure': props<{ error: string }>(),
+        'Load  Units': emptyProps(),
+        'Load  Units Success': props<{ units: Unit[] }>(),
+        'Load  Units Failure': props<{ error: string }>(),
 
         'Delete Unit': props<{ id: string }>(),
         'Delete Unit Success': props<{ id: string }>(),

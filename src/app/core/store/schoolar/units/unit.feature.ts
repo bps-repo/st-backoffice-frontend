@@ -69,25 +69,21 @@ export const unitFeature = createFeature({
         })),
 
         // load paged units
-        on(UnitActions.loadPagedUnits, (state) => ({
+        on(UnitActions.loadUnits, (state) => ({
             ...state,
             loading: true,
             error: null,
         })),
-        on(UnitActions.loadPagedUnitsSuccess, (state, {units, pagination}) =>
+        on(UnitActions.loadUnitsSuccess, (state, {units}) =>
             unitsAdapter.setAll(units, {
                 ...state,
                 loading: false,
                 error: null,
                 lastFetch: Date.now(),
                 cacheExpired: false,
-                currentPage: pagination.currentPage,
-                pageSize: pagination.pageSize,
-                totalItems: pagination.totalItems,
-                totalPages: pagination.totalPages,
             })
         ),
-        on(UnitActions.loadPagedUnitsFailure, (state, {error}) => ({
+        on(UnitActions.loadUnitsFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error,

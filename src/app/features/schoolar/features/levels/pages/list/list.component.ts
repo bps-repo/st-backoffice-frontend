@@ -26,6 +26,7 @@ import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.acti
 import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 import {ProgressBarModule} from 'primeng/progressbar';
 import {ChipModule} from 'primeng/chip';
+import {CreateUnitDialogComponent} from "../../../units/dialogs/create-unit-dialog/create-unit-dialog.component";
 
 @Component({
     selector: 'app-level-general',
@@ -45,7 +46,8 @@ import {ChipModule} from 'primeng/chip';
         FormsModule,
         KpiIndicatorsComponent,
         ProgressBarModule,
-        ChipModule
+        ChipModule,
+        CreateUnitDialogComponent
     ],
     templateUrl: './list.component.html',
     standalone: true,
@@ -120,6 +122,7 @@ import {ChipModule} from 'primeng/chip';
 export class ListComponent implements OnInit, AfterViewInit {
 
     @ViewChild(CreateLevelDialogComponent) createLevelDialog!: CreateLevelDialogComponent;
+    @ViewChild(CreateUnitDialogComponent) createUnitDialog!: CreateUnitDialogComponent;
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
 
@@ -185,7 +188,7 @@ export class ListComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         // Load data
         this.store.dispatch(LevelActions.loadLevels());
-        this.store.dispatch(UnitActions.loadPagedUnits({size: 10}));
+        this.store.dispatch(UnitActions.loadUnits());
 
         // Initialize KPIs
         this.initializeKpis();
@@ -298,6 +301,10 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     createLevel(): void {
         this.createLevelDialog.show();
+    }
+
+    createUnit(): void {
+        this.createUnitDialog.show();
     }
 
     deleteLevel(level: Level): void {

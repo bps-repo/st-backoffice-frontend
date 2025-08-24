@@ -9,7 +9,7 @@
         <div class="flex gap-2">
             <button
                 pButton
-                (click)="createLevel()"
+                (click)="createUnit()"
                 label="Nova unidade"
                 icon="pi pi-plus"
                 class="p-button-outlined p-button-secondary"
@@ -243,6 +243,7 @@
 </section>
 
 <!-- Diálogo de criação -->
+<app-create-unit-dialog></app-create-unit-dialog>
 <app-create-level-dialog></app-create-level-dialog>
 <!-- Diálogo de confirmação -->
 <p-confirmDialog></p-confirmDialog>

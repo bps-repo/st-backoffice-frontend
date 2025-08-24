@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {Unit} from '../models/course/unit';
 import {environment} from 'src/environments/environment';
-import {ApiResponse} from './interfaces/ApiResponseService';
+import {ApiResponse, PageableResponse} from './interfaces/ApiResponseService';
 import {Class} from '../models/academic/class';
 
 @Injectable({
@@ -28,10 +28,10 @@ export class UnitService {
         return this.http.get<ApiResponse<Unit>>(`${this.apiUrl}/${id}`);
     }
 
-    loadPagedUnits(size: number): Observable<ApiResponse<{ content: Unit[] }>> {
-        return this.http.get<ApiResponse<{ content: Unit[] }>>(`${this.apiUrl}/paged`, {
-            params: {size: size.toString()}
-        });
+    loadUnits(): Observable<Unit[]> {
+        return this.http.get<ApiResponse<PageableResponse<Unit[]>>>(`${this.apiUrl}`).pipe(
+            map(response => response.data.content)
+        );
     }
 
     deleteUnit(id: string): Observable<ApiResponse<null>> {

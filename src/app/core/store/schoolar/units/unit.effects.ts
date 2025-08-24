@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
-import {of} from 'rxjs';
+import {exhaustMap, of} from 'rxjs';
 import {catchError, map, mergeMap} from 'rxjs/operators';
 import {UnitService} from 'src/app/core/services/unit.service';
 import {UnitActions} from './unit.actions';
@@ -41,6 +41,21 @@ export class UnitEffects {
                 this.unitService.loadUnitById(id).pipe(
                     map((response) => UnitActions.loadUnitSuccess({unit: response.data})),
                     catchError((error) => of(UnitActions.loadUnitFailure({error: error.message})))
+                )
+            )
+        )
+    );
+
+    // Load paged units (missing wiring added)
+    loadPagedUnits$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(UnitActions.loadUnits),
+            exhaustMap(() =>
+                this.unitService.loadUnits().pipe(
+                    map((units) => {
+                        return UnitActions.loadUnitsSuccess({units});
+                    }),
+                    catchError((error) => of(UnitActions.loadUnitsFailure({error: error.message})))
                 )
             )
         )

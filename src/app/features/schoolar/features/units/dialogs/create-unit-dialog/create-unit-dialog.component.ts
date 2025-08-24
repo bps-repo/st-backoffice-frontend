@@ -12,6 +12,7 @@ import {Store} from '@ngrx/store';
 import {Observable, of} from 'rxjs';
 import * as UnitSelectors from "../../../../../../core/store/schoolar/units/unit.selectors";
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
+import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 
 @Component({
     selector: 'app-create-unit-dialog',
@@ -47,7 +48,7 @@ export class CreateUnitDialogComponent implements OnInit {
     constructor(private store: Store) {
         this.loading$ = this.store.select(UnitSelectors.selectLoading);
         this.error$ = this.store.select(UnitSelectors.selectError);
-        this.levelOptions$ = of();
+        this.levelOptions$ = this.store.select(LevelSelectors.selectAllLevels);
     }
 
     ngOnInit() {
