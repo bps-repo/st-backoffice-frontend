@@ -12,8 +12,9 @@ export class AuthService {
     constructor(private http: HttpClient) {
     }
 
-    login(email: string, password: string) {
-        return this.http.post<any>(`${this.apiUrl}/login`, {email, password});
+    login(username: string, password: string) {
+        console.log('login', username, password);
+        return this.http.post<any>(`${this.apiUrl}/login`, {username, password});
     }
 
     logout() {
