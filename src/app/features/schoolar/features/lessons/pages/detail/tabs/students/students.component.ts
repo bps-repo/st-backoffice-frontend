@@ -6,7 +6,7 @@ import {TableModule} from 'primeng/table';
 import {CardModule} from 'primeng/card';
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
-import {Lesson, mockLesson} from "../../../../../../../../core/models/academic/lesson";
+import {Lesson} from "../../../../../../../../core/models/academic/lesson";
 import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
@@ -16,7 +16,7 @@ import {ActivatedRoute, Router} from "@angular/router";
     templateUrl: './students.component.html'
 })
 export class StudentsComponent implements OnInit, OnDestroy {
-    lessonItem: Lesson | null = mockLesson;
+    lessonItem?: Lesson;
     lessonId: string | null = null;
     private destroy$ = new Subject<void>();
 

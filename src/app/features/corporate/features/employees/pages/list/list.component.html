@@ -29,11 +29,11 @@
 
 <!-- Name template field -->
 <ng-template #nameTemplate let-rowData>
-    <span> name </span>
+    <span>{{ rowData.name }}</span>
 </ng-template>
 
 <ng-template #emailTemplate let-rowData>
-    <span>email</span>
+    <span>{{ rowData.email }}</span>
 </ng-template>
 
 <ng-template #hireDateTemplate let-rowData>

@@ -3,11 +3,6 @@ import {TableColumn} from "../../../../shared/components/tables/global-table/glo
 export const GLOBAL_FILTERS = ['id', 'code', 'name', 'email', 'department', 'position', 'status', 'hireDate'];
 export const COLUMNS: TableColumn[] = [
     {
-        field: 'id',
-        header: 'ID',
-        filterType: 'numeric',
-    },
-    {
         field: 'name',
         header: 'Nome',
         filterType: 'text',

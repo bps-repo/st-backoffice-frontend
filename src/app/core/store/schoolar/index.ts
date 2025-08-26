@@ -31,6 +31,9 @@ import {rolesFeature} from "../roles/roles.feature";
 import {permissionsFeature} from "../permissions/permissions.feature";
 import {RolesState} from "../roles/models/roles.state";
 import {PermissionsState} from "../permissions/models/permissions.state";
+import {EmployeesEffects} from "../corporate/employees/employees.effects";
+import {employeesFeature} from "../corporate/employees/employees.feature";
+import {EmployeesState} from "../corporate/employees/employees.state";
 
 export interface AppState {
     students: StudentState;
@@ -46,6 +49,7 @@ export interface AppState {
     centers: CenterState;
     roles: RolesState;
     permissions: PermissionsState;
+    employees: EmployeesState;
 }
 
 export const AppEffects = [
@@ -57,7 +61,8 @@ export const AppEffects = [
     LessonsEffects,
     ClassEffects,
     RolesEffects,
-    PermissionsEffects
+    PermissionsEffects,
+    EmployeesEffects
 ]
 
 export const AppFeatures = [
@@ -70,5 +75,6 @@ export const AppFeatures = [
     lessonsFeature,
     classesFeature,
     rolesFeature,
-    permissionsFeature
+    permissionsFeature,
+    employeesFeature
 ]

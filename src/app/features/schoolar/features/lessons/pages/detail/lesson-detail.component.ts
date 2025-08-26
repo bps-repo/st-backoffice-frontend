@@ -10,7 +10,7 @@ import {SplitButtonModule} from 'primeng/splitbutton';
 import {MenuItem} from 'primeng/api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {Lesson, mockLesson} from "../../../../../../core/models/academic/lesson";
+import {Lesson} from "../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../core/enums/lesson-status";
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 
@@ -29,7 +29,7 @@ import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/less
 export class LessonDetailComponent implements OnInit, OnDestroy {
     tabs!: Tab[];
     items!: MenuItem[];
-    lesson: Lesson | null = mockLesson
+    lesson?: Lesson | null
     private destroy$ = new Subject<void>();
 
     constructor(

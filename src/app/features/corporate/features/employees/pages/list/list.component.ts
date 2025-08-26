@@ -5,11 +5,11 @@ import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Employee} from 'src/app/core/models/corporate/employee';
-import {EmployeeService} from 'src/app/core/services/employee.service';
-
 import {Observable, Subject, of} from 'rxjs';
-import {catchError, finalize, takeUntil} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
+import {Store} from '@ngrx/store';
+import {EmployeesActions} from 'src/app/core/store/corporate/employees/employees.actions';
+import {selectAllEmployees, selectLoading} from 'src/app/core/store/corporate/employees/employees.selectors';
 import {ButtonModule} from 'primeng/button';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
@@ -37,7 +37,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('hireDateTemplate', {static: true})
     hireDateTemplate!: TemplateRef<any>;
 
-    employees$: Observable<Employee[]> = of([]);
+    // Using a view model (any) because API returns nested user fields not present in core Employee model
+    employees$: Observable<any[]> = of([]);
     loading$: Observable<boolean> = of(false);
     columns: TableColumn[] = COLUMNS;
     globalFilterFields: string[] = GLOBAL_FILTERS;
@@ -48,8 +49,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private destroy$ = new Subject<void>();
 
     constructor(
-        private employeeService: EmployeeService,
-        private router: Router
+        private router: Router,
+        private store: Store
     ) {
         this.employees$.subscribe(employees => {
             console.log('Employees loaded:', employees);
@@ -58,6 +59,20 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit(): void {
         this.loadEmployees();
+        // select loading and employees from store
+        this.loading$ = this.store.select(selectLoading);
+        this.employees$ = this.store.select(selectAllEmployees).pipe(
+            map((items: any[]) => items.map((e: any) => ({
+                id: e.id,
+                name: e.user ? `${e.user.firstname ?? ''} ${e.user.lastname ?? ''}`.trim() : '',
+                email: e.user?.email ?? '',
+                department: e.user?.roleName ?? e.user?.roles?.[0]?.name ?? '',
+                position: e.user?.roleName ?? e.user?.roles?.[0]?.name ?? '',
+                status: e.status ?? e.user?.status ?? '',
+                hireDate: e.hiringDate ?? e.hireDate ?? null,
+                raw: e,
+            })))
+        );
     }
 
     ngAfterViewInit() {
@@ -74,23 +89,11 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     loadEmployees(): void {
-        this.loading = true;
-        this.loading$ = of(true);
-
-        this.employees$ = this.employeeService.getEmployees().pipe(
-            takeUntil(this.destroy$),
-            catchError(error => {
-                console.error('Error loading employees', error);
-                return of([]);
-            }),
-            finalize(() => {
-                this.loading = false;
-                this.loading$ = of(false);
-            })
-        );
+        // Dispatch NgRx action instead of calling service directly
+        this.store.dispatch(EmployeesActions.loadEmployees());
     }
 
-    onRowSelect(employee: Employee) {
+    onRowSelect(employee: any) {
         this.router.navigate(['/corporate/employees', employee.id]).then();
     }
 

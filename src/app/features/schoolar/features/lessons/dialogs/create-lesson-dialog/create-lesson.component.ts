@@ -107,7 +107,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: employees => {
-                    this.teacherOptions = (employees || []).map((e: any) => {
+                    this.teacherOptions = employees.map((e: any) => {
                         const first = e?.user?.firstname || e?.firstname || '';
                         const last = e?.user?.lastname || e?.lastname || '';
                         const label = `${first} ${last}`.trim() || e?.user?.email || e.id;
@@ -115,7 +115,26 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                     });
                 },
                 error: () => {
-                    this.teacherOptions = [];
+                    // Fallback: load all employees and filter client-side by role
+                    this.employeeService.getEmployees()
+                        .pipe(takeUntil(this.destroy$))
+                        .subscribe({
+                            next: (all: any[]) => {
+                                const onlyTeachers = (all || []).filter((e: any) => {
+                                    const roles = e?.roles || e?.user?.roles || [];
+                                    return Array.isArray(roles) && roles.some((r: any) => (r?.name || r) === 'TEACHER');
+                                });
+                                this.teacherOptions = onlyTeachers.map((e: any) => {
+                                    const first = e?.user?.firstname || e?.firstname || '';
+                                    const last = e?.user?.lastname || e?.lastname || '';
+                                    const label = `${first} ${last}`.trim() || e?.user?.email || e.id;
+                                    return {label, value: e.id};
+                                });
+                            },
+                            error: () => {
+                                this.teacherOptions = [];
+                            }
+                        });
                 }
             });
 
@@ -138,7 +157,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     }
 
     cancel() {
-        this.router.navigate(['/schoolar/lessons']);
+        this.router.navigate(['/schoolar/lessons']).then();
     }
 
     private formatDateTime(dt: string | Date | undefined): string | undefined {
@@ -180,7 +199,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         });
 
         this.loading = false;
-        this.router.navigate(['/schoolar/lessons']);
+        this.router.navigate(['/schoolar/lessons']).then();
     }
 
     validateForm(): boolean {

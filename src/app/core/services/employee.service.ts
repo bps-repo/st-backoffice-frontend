@@ -48,25 +48,12 @@ export class EmployeeService {
     }
 
     /**
-     * Gets employees by department.
-     * @param department The department to filter by.
-     * @returns An observable containing an array of Employee objects.
-     */
-    getEmployeesByDepartment(department: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/by-department/${department}`).pipe(
-            map((response) => response.data.content as any[])
-        );
-    }
-
-    /**
      * Gets employees by role.
      * @param role The role to filter by.
      * @returns An observable containing an array of Employee objects.
      */
     getEmployeesByRole(role: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/by-role/${role}`).pipe(
-            map((response) => response.data.content as any[])
-        );
+        return this.searchEmployees({ roleName: role });
     }
 
     /**
@@ -75,9 +62,8 @@ export class EmployeeService {
      * @returns An observable containing an array of Employee objects.
      */
     getEmployeesByCenter(centerId: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/by-center/${centerId}`).pipe(
-            map((response) => response.data.content as any[])
-        );
+        // Updated to use search endpoint: GET /employees/search?centerId={centerId}
+        return this.searchEmployees({ centerId });
     }
 
     /**
@@ -125,5 +111,60 @@ export class EmployeeService {
 
     removeRoleFromEmployee(employeeId: string, id: string): Observable<Employee> {
         return of()
+    }
+    /**
+     * Gets employees by status.
+     * @param status The status to filter by (e.g., ACTIVE).
+     */
+    getEmployeesByStatus(status: string): Observable<any[]> {
+        // New endpoint: GET /employees/status/{status}
+        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/status/${status}`).pipe(
+            map((response) => response.data as any[])
+        );
+    }
+
+    /**
+     * Search employees with flexible filters (non-paginated).
+     * Example: status=ACTIVE&centerId=uuid&roleName=TEACHER&minWage=1000
+     */
+    searchEmployees(filters: {
+        status?: string;
+        centerId?: string;
+        roleName?: string;
+        minWage?: number;
+        emailContains?: string;
+        [key: string]: any;
+    }): Observable<any[]> {
+        const params = new URLSearchParams();
+        Object.entries(filters || {}).forEach(([k, v]) => {
+            if (v !== undefined && v !== null && v !== '') params.set(k, String(v));
+        });
+        const url = `${this.apiUrl}/search${params.toString() ? `?${params.toString()}` : ''}`;
+        return this.http.get<ApiResponse<any[]>>(url).pipe(
+            map(res => res.data as any[])
+        );
+    }
+
+    /**
+     * Search employees with pagination.
+     * Example: /employees/search/paginated?emailContains=john&page=0&size=10&sort=hiringDate
+     */
+    searchEmployeesPaginated(
+        filters: { [key: string]: any },
+        page: number,
+        size: number,
+        sort?: string
+    ): Observable<PageableResponse<any[]>> {
+        const params = new URLSearchParams();
+        Object.entries(filters || {}).forEach(([k, v]) => {
+            if (v !== undefined && v !== null && v !== '') params.set(k, String(v));
+        });
+        params.set('page', String(page));
+        params.set('size', String(size));
+        if (sort) params.set('sort', sort);
+        const url = `${this.apiUrl}/search/paginated?${params.toString()}`;
+        return this.http.get<ApiResponse<PageableResponse<any[]>>>(url).pipe(
+            map(res => res.data as PageableResponse<any[]>)
+        );
     }
 }
