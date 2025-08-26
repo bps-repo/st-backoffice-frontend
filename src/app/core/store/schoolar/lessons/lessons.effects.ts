@@ -4,7 +4,7 @@ import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
 import {LessonService} from '../../../services/lesson.service';
 import {lessonsActions} from "./lessons.actions";
-import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Injectable()
 export class LessonsEffects {

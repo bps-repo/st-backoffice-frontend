@@ -7,17 +7,19 @@ import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {CalendarModule} from 'primeng/calendar';
-import {LEVELS, INSTALATIONS} from 'src/app/shared/constants/app';
 import {Store} from '@ngrx/store';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
 import {Router} from '@angular/router';
-import {Subject} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {CheckboxModule} from "primeng/checkbox";
 import {CardModule} from 'primeng/card';
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
+import {CenterService} from 'src/app/core/services/center.service';
+import {EmployeeService} from 'src/app/core/services/employee.service';
+import {UnitService} from 'src/app/core/services/unit.service';
 
 @Component({
     selector: 'app-create-lesson',
@@ -48,16 +50,23 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         level: '',
         students: [],
         online: false,
+        onlineLink: '',
+        // IDs expected by API; UI may later provide selectors for these
+        teacherId: undefined,
+        unitId: undefined,
+        centerId: undefined,
         startDatetime: new Date(),
         endDatetime: new Date(),
-        status: LessonStatus.BOOKED
+        status: LessonStatus.AVAILABLE
     };
 
     // Dropdown options
     typeOptions: SelectItem[] = [];
-    levelOptions: SelectItem[] = [];
+    teacherOptions: SelectItem[] = [];
+    unitOptions: SelectItem[] = [];
     centerOptions: SelectItem[] = [];
     statusOptions: SelectItem[] = [
+        {label: 'Available', value: LessonStatus.AVAILABLE},
         {label: 'Booked', value: LessonStatus.BOOKED},
         {label: 'Cancelled', value: LessonStatus.CANCELLED},
         {label: 'Completed', value: LessonStatus.COMPLETED}
@@ -66,27 +75,61 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
         private router: Router,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private centerService: CenterService,
+        private employeeService: EmployeeService,
+        private unitService: UnitService
     ) {
     }
 
     ngOnInit() {
-        // Initialize dropdown options
+        // Optional type options (kept for potential future use)
         this.typeOptions = [
             {label: 'VIP', value: 'VIP'},
             {label: 'Online', value: 'Online'},
             {label: 'In Center', value: 'In Center'}
         ];
 
-        this.levelOptions = LEVELS.map(level => ({
-            label: level.label,
-            value: level.value
-        }));
+        // Load Centers
+        this.centerService.getAllCenters()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: centers => {
+                    this.centerOptions = (centers || []).map(c => ({label: c.name, value: c.id}));
+                },
+                error: () => {
+                    this.centerOptions = [];
+                }
+            });
 
-        this.centerOptions = INSTALATIONS.map(center => ({
-            label: center,
-            value: center
-        }));
+        // Load Teachers (employees with role TEACHER)
+        this.employeeService.getEmployeesByRole('TEACHER')
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: employees => {
+                    this.teacherOptions = (employees || []).map((e: any) => {
+                        const first = e?.user?.firstname || e?.firstname || '';
+                        const last = e?.user?.lastname || e?.lastname || '';
+                        const label = `${first} ${last}`.trim() || e?.user?.email || e.id;
+                        return {label, value: e.id};
+                    });
+                },
+                error: () => {
+                    this.teacherOptions = [];
+                }
+            });
+
+        // Load Units
+        this.unitService.loadUnits()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: units => {
+                    this.unitOptions = (units || []).map(u => ({label: u.name, value: u.id}));
+                },
+                error: () => {
+                    this.unitOptions = [];
+                }
+            });
     }
 
     ngOnDestroy(): void {
@@ -98,6 +141,13 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.router.navigate(['/schoolar/lessons']);
     }
 
+    private formatDateTime(dt: string | Date | undefined): string | undefined {
+        if (!dt) return undefined;
+        const d = typeof dt === 'string' ? new Date(dt) : dt;
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
     saveLesson() {
         if (!this.validateForm()) {
             return;
@@ -105,15 +155,24 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
         this.loading = true;
 
-        // Create a complete lesson object from the form data
-        const lessonToSave: Lesson = {
-            ...this.lesson as Lesson
-        };
+        // Build API-compliant payload
+        const payload: Lesson = {
+            title: this.lesson.title || '',
+            description: this.lesson.description || '',
+            online: !!this.lesson.online,
+            onlineLink: this.lesson.online ? (this.lesson.onlineLink || '') : '',
+            teacherId: (this.lesson as any).teacherId,
+            startDatetime: this.formatDateTime(this.lesson.startDatetime) as string,
+            endDatetime: this.formatDateTime(this.lesson.endDatetime) as string,
+            unitId: (this.lesson as any).unitId,
+            centerId: (this.lesson as any).centerId,
+            status: (this.lesson.status as any) ?? LessonStatus.AVAILABLE
+        } as Lesson;
 
         // Dispatch the create lesson action
-        this.store.dispatch(lessonsActions.createLesson({lesson: lessonToSave}));
+        this.store.dispatch(lessonsActions.createLesson({lesson: payload}));
 
-        // Show success message and navigate to the lessons general
+        // Show success message and navigate to the lessons list
         this.messageService.add({
             severity: 'success',
             summary: 'Success',
@@ -134,7 +193,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return false;
         }
 
-        if (!this.lesson.teacher) {
+        if (!(this.lesson as any).teacherId) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
@@ -143,11 +202,20 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return false;
         }
 
-        if (!this.lesson.level) {
+        if (!(this.lesson as any).unitId) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Level is required'
+                detail: 'Unit is required'
+            });
+            return false;
+        }
+
+        if (!(this.lesson as any).centerId) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Center is required'
             });
             return false;
         }
