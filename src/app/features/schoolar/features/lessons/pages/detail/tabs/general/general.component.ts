@@ -35,7 +35,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
     /**
      * Calculate duration between start and end date/time in minutes
      */
-    getDuration(startDate: Date, endDate: Date): number {
+    getDuration(startDate: string | Date, endDate: string | Date): number {
         if (!startDate || !endDate) {
             return 0;
         }

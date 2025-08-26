@@ -18,7 +18,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from "../../../../../../../../core/models/academic/lesson";
 import { Material } from "../../../../../../../../core/models/academic/material";
-import { LessonApiService } from "../../../../../../../../core/services/lesson-api.service";
+import { LessonService } from "../../../../../../../../core/services/lesson.service";
 
 @Component({
     selector: 'app-materials-dashboard',
@@ -53,7 +53,7 @@ export class MaterialsComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private store: Store,
-        private lessonApiService: LessonApiService,
+        private lessonApiService: LessonService,
         private messageService: MessageService
     ) {}
 

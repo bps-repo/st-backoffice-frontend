@@ -7,24 +7,30 @@ import {Class} from "./class";
 
 export interface Lesson {
     id?: string;
-    teacher: string;
-    level: string;
-    unit?: string,
-    description: string;
-    students: any[];
     title: string;
+    description: string;
     online: boolean;
     onlineLink?: string;
-    startDatetime: Date;
-    endDatetime: Date;
+    teacherId?: string;
+    startDatetime: string | Date;
+    endDatetime: string | Date;
+    unitId?: string;
+    centerId?: string;
+    status: LessonStatus | string;
+    materialsIds?: string[] | null;
+    assessmentIds?: string[] | null;
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+    // Legacy fields for backward compatibility
+    teacher?: string;
+    level?: string;
+    unit?: string;
+    students?: any[];
     center?: Center | string;
     classEntity?: Class;
     student?: Student[];
-    status: LessonStatus;
     attendances?: Attendance[];
     materials?: Material[];
-    createdAt?: Date;
-    updatedAt?: Date;
 }
 
 export const mockLesson: Lesson = {

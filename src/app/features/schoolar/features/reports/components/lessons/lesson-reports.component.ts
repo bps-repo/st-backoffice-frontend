@@ -12,7 +12,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonApiService } from '../../../../../../core/services/lesson-api.service';
+import { LessonService } from '../../../../../../core/services/lesson.service';
 import { StudentService } from '../../../../../../core/services/student.service';
 import { LessonStatus } from '../../../../../../core/enums/lesson-status';
 
@@ -63,7 +63,7 @@ export class LessonReports implements OnInit {
     constructor(
         private router: Router,
         private messageService: MessageService,
-        private lessonApiService: LessonApiService,
+        private lessonApiService: LessonService,
         private studentService: StudentService
     ) {}
 

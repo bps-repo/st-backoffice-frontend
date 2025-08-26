@@ -14,7 +14,7 @@ import {ToastModule} from 'primeng/toast';
 import {DropdownModule} from 'primeng/dropdown';
 import {Lesson} from "../../../../../../core/models/academic/lesson";
 import {Material} from "../../../../../../core/models/academic/material";
-import {LessonApiService} from "../../../../../../core/services/lesson-api.service";
+import {LessonService} from "../../../../../../core/services/lesson.service";
 
 @Component({
     selector: 'app-add-material',
@@ -46,7 +46,7 @@ export class AddMaterialComponent implements OnInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private lessonApiService: LessonApiService,
+        private lessonApiService: LessonService,
         private messageService: MessageService
     ) {
     }

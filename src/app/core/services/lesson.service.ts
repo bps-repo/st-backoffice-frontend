@@ -9,7 +9,7 @@ import {map} from "rxjs/operators";
 @Injectable({
     providedIn: 'root',
 })
-export class LessonApiService {
+export class LessonService {
     private apiUrl = `${environment.apiUrl}/lessons`;
 
     constructor(private readonly http: HttpClient) {
@@ -17,6 +17,15 @@ export class LessonApiService {
 
     getLessons(): Observable<Lesson[]> {
         return this.http.get<ApiResponse<PageableResponse<Lesson[]>>>(`${this.apiUrl}`).pipe(
+            map((response) => response.data.content as Lesson[])
+        )
+    }
+
+    /**
+     * Get all lessons without pagination for calendar and list views
+     */
+    getAllLessons(): Observable<Lesson[]> {
+        return this.http.get<ApiResponse<PageableResponse<Lesson[]>>>(`${this.apiUrl}?page=0&size=1000`).pipe(
             map((response) => response.data.content as Lesson[])
         )
     }
@@ -62,12 +71,43 @@ export class LessonApiService {
         );
     }
 
+    /**
+     * Search lessons by date range (and optionally other criteria) using the unified /lessons/search endpoint.
+     * This is a backward-compatible helper for date-range only queries.
+     */
     getLessonsByDateRange(startDate: string, endDate: string): Observable<Lesson[]> {
-        let params = new HttpParams()
+        const params = new HttpParams()
             .set('startDate', startDate)
             .set('endDate', endDate);
 
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/filter/date-range`, {params}).pipe(
+        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, { params }).pipe(
+            map((response) => response.data as Lesson[])
+        );
+    }
+
+    /**
+     * Generic search for lessons with all supported filters.
+     * queryparams: [unitId, startDate, endDate, centerId, online, status, teacherId, titleContains]
+     */
+    searchLessons(filters: {
+        unitId?: string;
+        startDate?: string;
+        endDate?: string;
+        centerId?: string;
+        online?: boolean;
+        status?: string; // AVAILABLE | COMPLETE | OVERDUE | CANCELLED
+        teacherId?: string;
+        titleContains?: string;
+        page?: number;
+        size?: number;
+    }): Observable<Lesson[]> {
+        let params = new HttpParams();
+        Object.entries(filters || {}).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                params = params.set(key, String(value));
+            }
+        });
+        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, { params }).pipe(
             map((response) => response.data as Lesson[])
         );
     }

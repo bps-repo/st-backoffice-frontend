@@ -12,8 +12,9 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import {LESSONS_EVENTS} from 'src/app/shared/constants/lessons';
 import {EventTooltipComponent} from 'src/app/shared/components/event-tooltip/event-tooltip.component';
+import {LessonService} from 'src/app/core/services/lesson.service';
+import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PaginatorModule} from "primeng/paginator";
@@ -34,6 +35,9 @@ import {CardModule} from "primeng/card";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {KpiIndicatorsComponent, Kpi} from "src/app/shared/kpi-indicator/kpi-indicator.component";
 import {CalendarReportsComponent} from "./reports/calendar-reports.component";
+import {Store} from '@ngrx/store';
+import {lessonsActions} from 'src/app/core/store/schoolar/lessons/lessons.actions';
+import {selectAllLessons, selectLessonsByDateRange} from 'src/app/core/store/schoolar/lessons/lessons.selectors';
 
 @Component({
     selector: "app-lesson-calendar",
@@ -67,7 +71,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     @ViewChild('mainHeader', {static: false}) mainHeader!: ElementRef;
     @ViewChild('viewSelector', {static: false}) viewSelector!: ElementRef;
 
-    events: Partial<LessonEvent>[] = LESSONS_EVENTS;
+    events: Partial<LessonEvent>[] = [];
     filteredEvents: Partial<LessonEvent>[] = [];
 
     today: string = '';
@@ -168,7 +172,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
 
     constructor(
         private viewContainerRef: ViewContainerRef,
-        private router: Router
+        private router: Router,
+        private lessonApiService: LessonService,
+        private store: Store
     ) {
     }
 
@@ -177,21 +183,20 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         const now = new Date();
         this.today = now.toISOString().split('T')[0];
 
-        // Initialize events
-        this.filteredEvents = [...this.events];
-
-        // Extract unique tags from events
-        this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
-            .map(item => JSON.parse(item));
-
-        // Extract unique teachers, centers, and classes for filtering
-        this.extractFilterOptions();
-
-        // Calculate KPI metrics
-        this.calculateKpiMetrics();
-
-        // Initialize KPI objects for the KpiIndicatorsComponent
-        this.initializeKpis();
+        // Subscribe to lessons by date range and map to calendar events
+        this.store.select(selectAllLessons).subscribe((lessons: Lesson[]) => {
+            this.events = lessons.map(lesson => this.mapLessonToEvent(lesson));
+            this.filteredEvents = [...this.events];
+            this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
+                .map(item => JSON.parse(item));
+            this.extractFilterOptions();
+            this.calculateKpiMetrics();
+            this.initializeKpis();
+            this.calendarOptions = {
+                ...this.calendarOptions,
+                events: this.filteredEvents
+            };
+        });
 
         // Initialize calendar options
         this.calendarOptions = {
@@ -226,8 +231,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             eventDrop: (info: any) => this.handleEventDrop(info),
             eventResize: (info: any) => this.handleEventResize(info),
             themeSystem: this.darkMode ? 'bootstrap5' : 'standard',
-            datesSet: (dateInfo: any) => this.updateCurrentMonthYear(dateInfo),
+            datesSet: (dateInfo: any) => this.onDatesSet(dateInfo),
         };
+        this.store.dispatch(lessonsActions.loadLessons());
     }
 
     ngAfterViewInit() {
@@ -609,8 +615,23 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
      */
     updateCurrentMonthYear(dateInfo: any): void {
         const date = dateInfo.view.currentStart;
-        const options = {month: 'long', year: 'numeric'};
-        this.currentMonthYear = date.toLocaleDateString('pt-BR', options);
+        const options = {month: 'long', year: 'numeric'} as const;
+        this.currentMonthYear = date.toLocaleDateString('pt-BR', options as any);
+    }
+
+    /**
+     * Handle calendar date range changes: update header and load lessons
+     */
+    onDatesSet(dateInfo: any): void {
+        this.updateCurrentMonthYear(dateInfo);
+        const start: Date = dateInfo.start || dateInfo.view?.currentStart;
+        const end: Date = dateInfo.end || dateInfo.view?.currentEnd;
+        if (start && end) {
+            this.store.dispatch(lessonsActions.loadLessonsByDateRange({
+                startDate: new Date(start).toISOString(),
+                endDate: new Date(end).toISOString()
+            }));
+        }
     }
 
     /**
@@ -815,5 +836,36 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     validate() {
         let {start, end} = this.changedEvent;
         return start && end;
+    }
+
+    private mapLessonToEvent(lesson: Lesson): Partial<LessonEvent> {
+        const start = new Date(lesson.startDatetime as any);
+        const end = new Date(lesson.endDatetime as any);
+        const status = (lesson.status || '').toString().toLowerCase();
+        // Simple color coding based on status
+        const tagColor = status === 'canceled' ? '#ef4444' : status === 'active' ? '#22c55e' : '#3b82f6';
+        const centerName = typeof lesson.center === 'string' ? lesson.center : (lesson.center as any)?.name;
+        const className = (lesson.classEntity as any)?.name || '';
+        const time = `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')}`;
+
+        return {
+            id: lesson.id,
+            title: lesson.title,
+            start,
+            end,
+            backgroundColor: tagColor,
+            borderColor: tagColor,
+            textColor: '#212121',
+            tag: {name: status ? status : 'lesson', color: tagColor},
+            extendedProps: {
+                teacher: lesson.teacher || '',
+                center: centerName || '',
+                classEntity: className || '',
+                description: lesson.description || '',
+                isOnline: !!lesson.online,
+                status: lesson.status?.toString() || undefined,
+                time
+            }
+        } as unknown as Partial<LessonEvent>;
     }
 }

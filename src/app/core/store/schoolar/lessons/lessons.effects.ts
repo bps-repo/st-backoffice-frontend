@@ -2,14 +2,14 @@ import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
-import {LessonApiService} from '../../../services/lesson-api.service';
+import {LessonService} from '../../../services/lesson.service';
 import {lessonsActions} from "./lessons.actions";
 import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
 
 @Injectable()
 export class LessonsEffects {
     private actions$ = inject(Actions);
-    private lessonApiService = inject(LessonApiService);
+    private lessonApiService = inject(LessonService);
 
     // Basic CRUD operations
     loadLessons$ = createEffect(() =>
