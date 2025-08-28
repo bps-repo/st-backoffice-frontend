@@ -15,14 +15,14 @@ export const COLUMNS: TableColumn[] = [
         customTemplate: true,
     },
     {
-        field: 'phone',
-        header: 'Telefone',
+        field: 'email',
+        header: 'Email',
         filterType: 'text',
         customTemplate: true,
     },
     {
-        field: 'email',
-        header: 'Email',
+        field: 'phone',
+        header: 'Telefone',
         filterType: 'text',
         customTemplate: true,
     },
@@ -35,12 +35,6 @@ export const COLUMNS: TableColumn[] = [
     {
         field: 'levelId',
         header: 'Nível',
-        filterType: 'text',
-        customTemplate: true,
-    },
-    {
-        field: 'studentClass',
-        header: 'Turma',
         filterType: 'text',
         customTemplate: true,
     },

@@ -3,6 +3,7 @@ import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, T
 import {DialogModule} from 'primeng/dialog';
 import {ToastModule} from 'primeng/toast';
 import {Lesson} from 'src/app/core/models/academic/lesson';
+import {LessonStatus} from 'src/app/core/enums/lesson-status';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
@@ -20,7 +21,8 @@ import {RippleModule} from "primeng/ripple";
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {TooltipModule} from 'primeng/tooltip';
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import * as LessonsActions from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import {selectAllLessons, selectAnyLoading, selectAnyError} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import {map, takeUntil} from 'rxjs/operators';
 import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
 import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
 import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
@@ -185,6 +187,55 @@ import {BadgeModule} from 'primeng/badge';
         .calendar-week:last-child .calendar-day {
             border-bottom: none;
         }
+
+        /* Lesson Details Dialog Styles */
+        ::ng-deep .lesson-details-dialog {
+            z-index: 9999;
+        }
+
+        ::ng-deep .lesson-details-dialog .p-dialog {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        ::ng-deep .lesson-details-dialog .p-dialog-content {
+            padding: 1.25rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        ::ng-deep .lesson-details-dialog .p-dialog-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.25rem;
+            border-bottom: none;
+        }
+
+        ::ng-deep .lesson-details-dialog .p-dialog-header .p-dialog-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        ::ng-deep .lesson-details-dialog .p-dialog-header .p-dialog-header-icon {
+            color: white;
+            opacity: 0.9;
+        }
+
+        ::ng-deep .lesson-details-dialog .p-dialog-header .p-dialog-header-icon:hover {
+            opacity: 1;
+        }
+
+        .lesson-details-content h6 {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .lesson-details-content .text-600 {
+            color: var(--text-color-secondary);
+        }
     `]
 })
 export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -195,6 +246,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     classes: Lesson[] = [];
 
     loading$: Observable<boolean>;
+
+    error$: Observable<string | null>;
 
     selected: SelectItem[] = [];
 
@@ -238,6 +291,11 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     weeklyLessons: any[] = [];
     monthlyLessons: any[] = [];
 
+    // Dialog state
+    lessonDialogVisible: boolean = false;
+    selectedLesson: Lesson | null = null;
+    private hoverTimeout: any = null;
+
     @ViewChild("startDatetime", {static: true})
     startDatetimeTemplate?: TemplateRef<any>;
 
@@ -246,6 +304,18 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @ViewChild("actionsTemplate", {static: true})
     actionsTemplate?: TemplateRef<any>;
+
+    @ViewChild("teacherTemplate", {static: true})
+    teacherTemplate?: TemplateRef<any>;
+
+    @ViewChild("centerTemplate", {static: true})
+    centerTemplate?: TemplateRef<any>;
+
+    @ViewChild("unitTemplate", {static: true})
+    unitTemplate?: TemplateRef<any>;
+
+    @ViewChild("statusTemplate", {static: true})
+    statusTemplate?: TemplateRef<any>;
 
     columnTemplates: Record<string, TemplateRef<any>> = {}
 
@@ -256,6 +326,10 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.currentView = event.value;
         if (this.currentView === 'calendario') {
             this.initializeCalendarData();
+            // Load calendar data with current lessons
+            if (this.classes?.length > 0) {
+                this.loadWeeklyLessonsFromData(this.classes);
+            }
         }
     }
 
@@ -441,7 +515,12 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
             this.currentDate.setMonth(this.currentDate.getMonth() - 1);
         }
-        this.loadWeeklyLessons();
+        // Load real data for new period
+        if (this.classes?.length > 0) {
+            this.loadWeeklyLessonsFromData(this.classes);
+        } else {
+            this.loadWeeklyLessons();
+        }
     }
 
     navigateNext() {
@@ -451,13 +530,23 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
             this.currentDate.setMonth(this.currentDate.getMonth() + 1);
         }
-        this.loadWeeklyLessons();
+        // Load real data for new period
+        if (this.classes?.length > 0) {
+            this.loadWeeklyLessonsFromData(this.classes);
+        } else {
+            this.loadWeeklyLessons();
+        }
     }
 
     navigateToday() {
         this.currentDate = new Date();
         this.setCurrentWeek();
-        this.loadWeeklyLessons();
+        // Load real data for today
+        if (this.classes?.length > 0) {
+            this.loadWeeklyLessonsFromData(this.classes);
+        } else {
+            this.loadWeeklyLessons();
+        }
     }
 
     getFormattedWeekRange(): string {
@@ -495,21 +584,34 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         private store: Store<LessonState>,
         private router: Router
     ) {
-        this.lessons$ = store.select(LessonsActions.selectAllLessons)
-        this.loading$ = store.select(LessonsActions.selectLoadingLessons);
+        this.lessons$ = this.store.select(selectAllLessons);
+        this.loading$ = this.store.select(selectAnyLoading);
+        this.error$ = this.store.select(selectAnyError);
     }
 
     ngOnInit(): void {
         this.store.dispatch(lessonsActions.loadLessons());
-        this.lessons$ = this.store.select(LessonsActions.selectAllLessons);
-        this.loading$ = this.store.select(LessonsActions.selectAnyLoading);
         this.initializeCalendarData();
+
+        // Subscribe to lessons for calendar view
+        this.lessons$.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(lessons => {
+            this.classes = lessons;
+            if (this.currentView === 'calendario') {
+                this.loadWeeklyLessonsFromData(lessons);
+            }
+        });
     }
 
     ngAfterViewInit() {
         this.columnTemplates = {
             startDatetime: this.startDatetimeTemplate!,
             endDatetime: this.endDatetimeTemplate!,
+            teacherId: this.teacherTemplate!,
+            centerId: this.centerTemplate!,
+            unitId: this.unitTemplate!,
+            status: this.statusTemplate!,
             actions: this.actionsTemplate!,
         }
 
@@ -522,10 +624,258 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+
+        // Clean up hover timeout
+        if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+            this.hoverTimeout = null;
+        }
     }
 
     navigateToCreateLesson() {
         this.router.navigate(['/schoolar/lessons/create']).then();
+    }
+
+    /**
+     * Retry loading lessons
+     */
+    retryLoadLessons() {
+        this.store.dispatch(lessonsActions.loadLessons());
+    }
+
+    /**
+     * Show lesson details dialog with hover delay
+     */
+    showLessonDetails(lesson: Lesson) {
+        // Clear any existing timeout
+        if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+        }
+
+        // Show dialog after a short delay
+        this.hoverTimeout = setTimeout(() => {
+            this.selectedLesson = lesson;
+            this.lessonDialogVisible = true;
+        }, 300); // 300ms delay
+    }
+
+    /**
+     * Hide lesson details dialog
+     */
+    hideLessonDetails() {
+        // Clear timeout to prevent showing
+        if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+            this.hoverTimeout = null;
+        }
+
+        // Hide dialog immediately
+        this.lessonDialogVisible = false;
+        this.selectedLesson = null;
+    }
+
+    /**
+     * Keep dialog open when hovering over it
+     */
+    keepDialogOpen() {
+        // Clear any hide timeout to keep dialog open
+        if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+            this.hoverTimeout = null;
+        }
+    }
+
+    /**
+     * Get students list as comma-separated string
+     */
+    getStudentsString(lesson: Lesson): string {
+        if (lesson.students && lesson.students.length > 0) {
+            return lesson.students.map(student => student.name || student.toString()).join(', ');
+        }
+        return 'Nenhum aluno inscrito';
+    }
+
+    /**
+     * Get materials list as comma-separated string
+     */
+    getMaterialsString(lesson: Lesson): string {
+        if (lesson.materials && lesson.materials.length > 0) {
+            return lesson.materials.map(material => material.title || material.toString()).join(', ');
+        }
+        return 'Nenhum material';
+    }
+
+    /**
+     * View lesson details
+     */
+    viewLesson(lessonId: string) {
+        this.router.navigate(['/schoolar/lessons', lessonId]).then();
+    }
+
+    /**
+     * Edit lesson
+     */
+    editLesson(lessonId: string) {
+        // Navigate to edit page or open edit dialog
+        this.router.navigate(['/schoolar/lessons', lessonId, 'edit']).then();
+    }
+
+    /**
+     * Open online lesson link
+     */
+    openOnlineLink(link: string) {
+        window.open(link, '_blank');
+    }
+
+    /**
+     * Get teacher name from lesson data
+     */
+    getTeacherName(lesson: Lesson): string {
+        // Priority: teacher name field > teacherId fallback > N/A
+        if (lesson.teacher && typeof lesson.teacher === 'string') {
+            return lesson.teacher;
+        }
+        // If teacherId exists but no teacher name, show teacherId as fallback
+        if (lesson.teacherId) {
+            return lesson.teacherId;
+        }
+        return 'N/A';
+    }
+
+    /**
+     * Get center name from lesson data
+     */
+    getCenterName(lesson: Lesson): string {
+        // Priority: center object name > center string > centerId fallback > N/A
+        if (lesson.center) {
+            if (typeof lesson.center === 'object' && lesson.center.name) {
+                return lesson.center.name;
+            }
+            if (typeof lesson.center === 'string') {
+                return lesson.center;
+            }
+        }
+        // If centerId exists but no center name, show centerId as fallback
+        if (lesson.centerId) {
+            return lesson.centerId;
+        }
+        return 'N/A';
+    }
+
+    /**
+     * Get unit name from lesson data
+     */
+    getUnitName(lesson: Lesson): string {
+        // Priority: unit name field > unitId fallback > N/A
+        if (lesson.unit && typeof lesson.unit === 'string') {
+            return lesson.unit;
+        }
+        // If unitId exists but no unit name, show unitId as fallback
+        if (lesson.unitId) {
+            return lesson.unitId;
+        }
+        return 'N/A';
+    }
+
+    /**
+     * Get display label for lesson status
+     */
+    getStatusLabel(status: string | LessonStatus): string {
+        if (typeof status === 'string') {
+            switch (status.toUpperCase()) {
+                case 'AVAILABLE': return 'Disponível';
+                case 'BOOKED': return 'Agendada';
+                case 'COMPLETED': return 'Concluída';
+                case 'CANCELLED': return 'Cancelada';
+                case 'SCHEDULED': return 'Agendada';
+                case 'POSTPONED': return 'Adiada';
+                case 'OVERDUE': return 'Atrasada';
+                default: return status;
+            }
+        }
+        // Handle enum values
+        switch (status) {
+            case LessonStatus.AVAILABLE: return 'Disponível';
+            case LessonStatus.BOOKED: return 'Agendada';
+            case LessonStatus.COMPLETED: return 'Concluída';
+            case LessonStatus.CANCELLED: return 'Cancelada';
+            case LessonStatus.SCHEDULED: return 'Agendada';
+            case LessonStatus.POSTPONED: return 'Adiada';
+            case LessonStatus.OVERDUE: return 'Atrasada';
+            default: return 'Desconhecido';
+        }
+    }
+
+    /**
+     * Load weekly lessons from real data
+     */
+    loadWeeklyLessonsFromData(lessons: Lesson[]) {
+        const weekStart = new Date(this.currentWeekStart);
+        const weekEnd = new Date(this.currentWeekEnd);
+
+        // Filter lessons for current week
+        const weekLessons = lessons.filter(lesson => {
+            const lessonDate = new Date(lesson.startDatetime);
+            return lessonDate >= weekStart && lessonDate <= weekEnd;
+        });
+
+        // Create week structure
+        this.weeklyLessons = [];
+        for (let i = 0; i < 7; i++) {
+            const currentDay = new Date(weekStart);
+            currentDay.setDate(weekStart.getDate() + i);
+
+            const dayLessons = weekLessons.filter(lesson => {
+                const lessonDate = new Date(lesson.startDatetime);
+                return lessonDate.toDateString() === currentDay.toDateString();
+            });
+
+            const isToday = currentDay.toDateString() === new Date().toDateString();
+
+            this.weeklyLessons.push({
+                day: currentDay.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
+                date: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                isToday,
+                classes: dayLessons.map(lesson => ({
+                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    title: lesson.title,
+                    teacher: this.getTeacherName(lesson),
+                    group: lesson.level || 'N/A',
+                    status: this.getStatusLabel(lesson.status),
+                    statusClass: this.getStatusClass(lesson.status),
+                    lesson: lesson // Include the full lesson object for the dialog
+                }))
+            });
+        }
+    }
+
+    /**
+     * Get CSS class for status
+     */
+    private getStatusClass(status: string | LessonStatus): string {
+        if (typeof status === 'string') {
+            switch (status.toUpperCase()) {
+                case 'AVAILABLE':
+                case 'COMPLETED': return 'success';
+                case 'BOOKED':
+                case 'SCHEDULED': return 'warning';
+                case 'CANCELLED':
+                case 'OVERDUE': return 'danger';
+                case 'POSTPONED': return 'info';
+                default: return 'secondary';
+            }
+        }
+        // Handle enum values
+        switch (status) {
+            case LessonStatus.AVAILABLE:
+            case LessonStatus.COMPLETED: return 'success';
+            case LessonStatus.BOOKED:
+            case LessonStatus.SCHEDULED: return 'warning';
+            case LessonStatus.CANCELLED:
+            case LessonStatus.OVERDUE: return 'danger';
+            case LessonStatus.POSTPONED: return 'info';
+            default: return 'secondary';
+        }
     }
 
     /**

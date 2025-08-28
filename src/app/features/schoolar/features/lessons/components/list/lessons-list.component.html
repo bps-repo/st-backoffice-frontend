@@ -42,6 +42,36 @@
                 </div>
             </div>
 
+            <!-- Error message -->
+            @if (error$ | async; as error) {
+                <div class="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="pi pi-times-circle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Erro ao carregar aulas
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <p>{{ error }}</p>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex space-x-2">
+                                    <p-button
+                                        label="Tentar novamente"
+                                        size="small"
+                                        severity="danger"
+                                        [outlined]="true"
+                                        (click)="retryLoadLessons()">
+                                    </p-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <app-global-table
                 tableLabel="Aulas"
                 [columnTemplates]="columnTemplates"
@@ -64,6 +94,44 @@
     <!-- Calendario View -->
     @if (currentView === 'calendario') {
         <div class="col-12 animate-fade">
+            <!-- Error message for calendar -->
+            @if (error$ | async; as error) {
+                <div class="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="pi pi-times-circle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Erro ao carregar aulas do calendário
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <p>{{ error }}</p>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex space-x-2">
+                                    <p-button
+                                        label="Tentar novamente"
+                                        size="small"
+                                        severity="danger"
+                                        [outlined]="true"
+                                        (click)="retryLoadLessons()">
+                                    </p-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Loading indicator for calendar -->
+            @if (loading$ | async) {
+                <div class="flex justify-content-center align-items-center p-4 mb-4">
+                    <i class="pi pi-spin pi-spinner mr-2"></i>
+                    <span>Carregando aulas...</span>
+                </div>
+            }
+
             <!-- Calendar controls -->
             <div class="flex justify-content-between align-items-center mb-4">
                 <div class="flex align-items-center gap-2">
@@ -103,7 +171,7 @@
 
             <!-- Weekly Calendar View -->
             @if (calendarView === 'week') {
-                <div class="weekly-calendar">
+                <div class="weekly-calendar card">
                     <div class="grid gap-2">
                         @for (dayData of weeklyLessons; track dayData.date) {
                             <div class="col-12 md:col">
@@ -126,7 +194,10 @@
                                     <div class="classes-list">
                                         @for (classItem of dayData.classes; track $index) {
                                             <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors"
-                                                 [class]="'border-left-3 border-' + classItem.statusClass">
+                                                 [class]="'border-left-3 border-' + classItem.statusClass"
+                                                 (mouseenter)="showLessonDetails(classItem.lesson)"
+                                                 (mouseleave)="hideLessonDetails()"
+                                                 (click)="viewLesson(classItem.lesson.id!)">
                                                 <div class="flex align-items-center justify-content-between mb-1">
                                                     <div class="flex align-items-center gap-1">
                                                         <i class="pi pi-clock text-xs text-gray-600"></i>
@@ -248,33 +319,59 @@
 
 <ng-template #teacherTemplate let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
+        {{ getTeacherName(row) }}
     </span>
 </ng-template>
 
-
 <ng-template #centerTemplate let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
+        {{ getCenterName(row) }}
     </span>
 </ng-template>
 
 <ng-template #unitTemplate let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
+        {{ getUnitName(row) }}
     </span>
 </ng-template>
 
 <ng-template #statusTemplate let-row>
-    <span>
-        {{ row.startDatetime | date: 'short' }}
+    <span class="p-badge"
+          [ngClass]="{
+            'p-badge-success': row.status === 'COMPLETED' || row.status === 'AVAILABLE',
+            'p-badge-warning': row.status === 'SCHEDULED' || row.status === 'BOOKED',
+            'p-badge-danger': row.status === 'CANCELLED' || row.status === 'OVERDUE',
+            'p-badge-info': row.status === 'POSTPONED'
+          }">
+        {{ getStatusLabel(row.status) }}
     </span>
 </ng-template>
 
 <ng-template #actionsTemplate let-row>
-    <span>
-        {{ row.startDatetime | date: 'short' }}
-    </span>
+    <div class="flex gap-2">
+        <p-button icon="pi pi-eye"
+                  size="small"
+                  severity="info"
+                  [outlined]="true"
+                  pTooltip="Ver detalhes"
+                  (mouseenter)="showLessonDetails(row)"
+                  (mouseleave)="hideLessonDetails()"
+                  (click)="viewLesson(row.id)"></p-button>
+        <p-button icon="pi pi-pencil"
+                  size="small"
+                  severity="secondary"
+                  [outlined]="true"
+                  pTooltip="Editar"
+                  (click)="editLesson(row.id)"></p-button>
+        @if (row.online && row.onlineLink) {
+            <p-button icon="pi pi-external-link"
+                      size="small"
+                      severity="help"
+                      [outlined]="true"
+                      pTooltip="Abrir link da aula"
+                      (click)="openOnlineLink(row.onlineLink)"></p-button>
+        }
+    </div>
 </ng-template>
 
 <ng-template #startDatetime let-row>
@@ -295,3 +392,108 @@
         ver
     </span>
 </ng-template>
+
+<!-- Lesson Details Dialog -->
+<p-dialog
+    [header]="selectedLesson?.title || 'Detalhes da Aula'"
+    [(visible)]="lessonDialogVisible"
+    [modal]="false"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="lesson-details-dialog"
+    [style]="{width: '400px'}"
+    (mouseenter)="keepDialogOpen()"
+    (mouseleave)="hideLessonDetails()">
+
+    @if (selectedLesson) {
+        <div class="lesson-details-content">
+            <!-- Status Badge -->
+            <div class="flex justify-content-between align-items-center mb-3">
+                <span class="p-badge text-sm"
+                      [ngClass]="{
+                        'p-badge-success': selectedLesson.status === 'COMPLETED' || selectedLesson.status === 'AVAILABLE',
+                        'p-badge-warning': selectedLesson.status === 'SCHEDULED' || selectedLesson.status === 'BOOKED',
+                        'p-badge-danger': selectedLesson.status === 'CANCELLED' || selectedLesson.status === 'OVERDUE',
+                        'p-badge-info': selectedLesson.status === 'POSTPONED'
+                      }">
+                    {{ getStatusLabel(selectedLesson.status) }}
+                </span>
+                <span class="text-sm text-500">{{ selectedLesson.startDatetime | date: 'dd/MM/yyyy' }}</span>
+            </div>
+
+            <!-- Time -->
+            <div class="flex align-items-center gap-2 mb-3">
+                <i class="pi pi-clock text-600"></i>
+                <span class="font-medium">{{ selectedLesson.startDatetime | date: 'HH:mm' }}</span>
+            </div>
+
+            <!-- Teacher -->
+            <div class="flex align-items-center gap-2 mb-3">
+                <i class="pi pi-user text-600"></i>
+                <span>{{ getTeacherName(selectedLesson) }}</span>
+            </div>
+
+            <!-- Class/Group -->
+            <div class="flex align-items-center gap-2 mb-3">
+                <i class="pi pi-users text-600"></i>
+                <span>{{ selectedLesson.level || 'N/A' }}</span>
+            </div>
+
+            <!-- Center -->
+            <div class="flex align-items-center gap-2 mb-3">
+                <i class="pi pi-map-marker text-600"></i>
+                <span>{{ getCenterName(selectedLesson) }}</span>
+            </div>
+
+            <!-- Students -->
+            <div class="mb-3">
+                <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                    <i class="pi pi-users text-600"></i>
+                    Alunos ({{ selectedLesson.students?.length || 0 }})
+                </h6>
+                <div class="text-sm text-700">
+                    {{ getStudentsString(selectedLesson) }}
+                </div>
+            </div>
+
+            <!-- Materials -->
+            <div class="mb-3">
+                <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                    <i class="pi pi-book text-600"></i>
+                    Materiais ({{ selectedLesson.materials?.length || 0 }})
+                </h6>
+                <div class="text-sm text-700">
+                    {{ getMaterialsString(selectedLesson) }}
+                </div>
+            </div>
+
+            <!-- Description -->
+            @if (selectedLesson.description) {
+                <div class="mb-3">
+                    <h6 class="text-900 font-semibold mb-2">Descrição</h6>
+                    <div class="text-sm text-700">
+                        {{ selectedLesson.description }}
+                    </div>
+                </div>
+            }
+
+            <!-- Online Link -->
+            @if (selectedLesson.online && selectedLesson.onlineLink) {
+                <div class="mb-3">
+                    <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                        <i class="pi pi-globe text-600"></i>
+                        Aula Online
+                    </h6>
+                    <p-button
+                        label="Abrir Link da Aula"
+                        icon="pi pi-external-link"
+                        size="small"
+                        [outlined]="true"
+                        (click)="openOnlineLink(selectedLesson.onlineLink!)">
+                    </p-button>
+                </div>
+            }
+        </div>
+    }
+</p-dialog>

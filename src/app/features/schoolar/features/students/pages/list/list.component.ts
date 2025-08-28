@@ -117,8 +117,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     viewOptions = [
         { label: 'Lista de alunos', value: 'list' },
+        { label: 'Relatórios', value: 'reports' },
         { label: 'Dashboard', value: 'dashboard' },
-        { label: 'Relatórios', value: 'reports' }
     ];
 
     private destroy$ = new Subject<void>();

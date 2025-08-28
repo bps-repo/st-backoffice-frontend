@@ -52,9 +52,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         {label: 'Visão geral', value: 'overview'},
         {label: 'Historico de aulas', value: 'lessons'},
         {label: 'Avaliações', value: 'assessments'},
-        {label: 'Frequências', value: 'attendances'},
         {label: 'Pagamentos', value: 'payments'},
-        {label: 'Historico', value: 'history'}
     ];
 
     // Method to handle view selection
