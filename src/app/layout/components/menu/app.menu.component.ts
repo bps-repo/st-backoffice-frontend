@@ -46,11 +46,6 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/schoolar/assessments'],
                     },
                     {
-                        label: 'Certificados',
-                        icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/schoolar/certificates'],
-                    },
-                    {
                         label: 'Materiais didáticos',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/materials'],
@@ -65,11 +60,6 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/schoolar/reports'],
                     },
-                    {
-                        label: 'Configurações',
-                        icon: 'pi pi-fw pi-cog',
-                        routerLink: ['/schoolar/settings'],
-                    },
                 ],
             },
             {
@@ -82,29 +72,24 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/finances/dashboards'],
                     },
                     {
-                        label: 'Facturas pró-forma',
+                        label: 'Gestão de Contratos',
+                        icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/finances/contracts'],
+                    },
+                    {
+                        label: 'Vendas Avulsas',
                         icon: 'pi pi-fw pi-file',
                         routerLink: ['/finances/invoices'],
                     },
                     {
-                        label: 'Pagamentos',
-                        icon: 'pi pi-fw pi-file',
-                        routerLink: ['/finances/payments'],
-                    },
-                    {
-                        label: 'Contratos',
-                        icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/finances/contracts'],
+                        label: 'Gestão de Tarefas',
+                        icon: 'pi pi-fw pi-check-square',
+                        routerLink: ['/settings/tasks'],
                     },
                     {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/finances/reports'],
-                    },
-                    {
-                        label: 'Configurações',
-                        icon: 'pi pi-fw pi-cog',
-                        routerLink: ['/finances/settings'],
                     },
                 ],
             },
@@ -148,12 +133,6 @@ export class AppMenuComponent implements OnInit {
                             },
                         ]
                     },
-
-                    {
-                        label: 'Configurações',
-                        icon: 'pi pi-fw pi-cog',
-                        routerLink: ['/corporate/settings'],
-                    },
                 ],
             },
             {
@@ -169,11 +148,6 @@ export class AppMenuComponent implements OnInit {
                         label: 'Info Geral',
                         icon: 'pi pi-fw pi-building',
                         routerLink: ['/settings/general-info'],
-                    },
-                    {
-                        label: 'Gestão de Tarefas',
-                        icon: 'pi pi-fw pi-check-square',
-                        routerLink: ['/settings/tasks'],
                     },
                     {
                         label: 'Suporte',

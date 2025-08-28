@@ -4,7 +4,7 @@ import {of} from 'rxjs';
 import {catchError, map, mergeMap} from 'rxjs/operators';
 import {CenterService} from 'src/app/core/services/center.service';
 import {CenterActions} from "./centers.actions";
-import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Injectable()
 export class CentersEffects {

@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
@@ -39,6 +39,7 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     constructor(
         private router: Router,
+        private route: ActivatedRoute,
         private store: Store,
         private confirmationService: ConfirmationService
     ) {
@@ -47,6 +48,11 @@ export class ListComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
+        // If navigated to /create, open the dialog automatically to keep UX consistent
+        if (this.router.url.endsWith('/create')) {
+            // Delay to ensure ViewChild is available
+            setTimeout(() => this.createCenterDialog?.show());
+        }
     }
 
     ngOnInit(): void {
@@ -62,7 +68,8 @@ export class ListComponent implements OnInit, AfterViewInit {
     }
 
     createCenter(): void {
-        this.createCenterDialog.show();
+        // Navigate to the create route instead of opening dialog directly
+        this.router.navigate(['create'], {relativeTo: this.route});
     }
 
     deleteCenter(center: Center): void {
