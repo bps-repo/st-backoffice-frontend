@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {DropdownModule} from 'primeng/dropdown';
@@ -11,8 +11,9 @@ import {Store} from '@ngrx/store';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
 import {Router} from '@angular/router';
-import {Subject, takeUntil} from 'rxjs';
+import {Subject, takeUntil, take} from 'rxjs';
 import {MessageService} from 'primeng/api';
+import {Actions, ofType} from '@ngrx/effects';
 import {ToastModule} from 'primeng/toast';
 import {CheckboxModule} from "primeng/checkbox";
 import {CardModule} from 'primeng/card';
@@ -26,7 +27,7 @@ import {UnitService} from 'src/app/core/services/unit.service';
     standalone: true,
     imports: [
         CommonModule,
-        FormsModule,
+        ReactiveFormsModule,
         ButtonModule,
         DropdownModule,
         InputTextModule,
@@ -41,6 +42,7 @@ import {UnitService} from 'src/app/core/services/unit.service';
 })
 export class CreateLessonComponent implements OnInit, OnDestroy {
     loading: boolean = false;
+    form!: FormGroup;
     private destroy$ = new Subject<void>();
 
     lesson: Partial<Lesson> = {
@@ -73,16 +75,31 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     ];
 
     constructor(
+        private fb: FormBuilder,
         private store: Store,
         private router: Router,
         private messageService: MessageService,
         private centerService: CenterService,
         private employeeService: EmployeeService,
-        private unitService: UnitService
-    ) {
-    }
+        private unitService: UnitService,
+        private actions$: Actions
+    ) {}
 
     ngOnInit() {
+        // Build reactive form
+        this.form = this.fb.group({
+            title: ['', Validators.required],
+            centerId: [null, Validators.required],
+            startDatetime: [new Date(), Validators.required],
+            endDatetime: [new Date(), Validators.required],
+            teacherId: [null, Validators.required],
+            unitId: [null, Validators.required],
+            online: [false],
+            onlineLink: ['http://sample.com'],
+            status: [LessonStatus.AVAILABLE],
+            description: ['']
+        });
+
         // Optional type options (kept for potential future use)
         this.typeOptions = [
             {label: 'VIP', value: 'VIP'},
@@ -168,109 +185,69 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     }
 
     saveLesson() {
-        if (!this.validateForm()) {
+        if (this.form.invalid) {
+            this.form.markAllAsTouched();
+            this.messageService.add({severity: 'error', summary: 'Error', detail: 'Please fill in all required fields'});
             return;
         }
 
         this.loading = true;
 
+        const v = this.form.value as any;
+
         // Build API-compliant payload
         const payload: Lesson = {
-            title: this.lesson.title || '',
-            description: this.lesson.description || '',
-            online: !!this.lesson.online,
-            onlineLink: this.lesson.online ? (this.lesson.onlineLink || '') : '',
-            teacherId: (this.lesson as any).teacherId,
-            startDatetime: this.formatDateTime(this.lesson.startDatetime) as string,
-            endDatetime: this.formatDateTime(this.lesson.endDatetime) as string,
-            unitId: (this.lesson as any).unitId,
-            centerId: (this.lesson as any).centerId,
-            status: (this.lesson.status as any) ?? LessonStatus.AVAILABLE
+            title: v.title || '',
+            description: v.description || '',
+            online: !!v.online,
+            onlineLink: v.online ? (v.onlineLink || '') : '',
+            teacherId: v.teacherId,
+            startDatetime: this.formatDateTime(v.startDatetime) as string,
+            endDatetime: this.formatDateTime(v.endDatetime) as string,
+            unitId: v.unitId,
+            centerId: v.centerId,
+            status: (v.status as any) ?? LessonStatus.AVAILABLE
         } as Lesson;
 
         // Dispatch the create lesson action
         this.store.dispatch(lessonsActions.createLesson({lesson: payload}));
 
-        // Show success message and navigate to the lessons list
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Lesson created successfully'
-        });
-
-        this.loading = false;
-        this.router.navigate(['/schoolar/lessons']).then();
-    }
-
-    validateForm(): boolean {
-        if (!this.lesson.title) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Title is required'
+        // Wait for success or failure
+        this.actions$.pipe(ofType(lessonsActions.createLessonSuccess), takeUntil(this.destroy$), take(1))
+            .subscribe(() => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Lesson created successfully'
+                });
+                this.router.navigate(['/schoolar/lessons']).then();
             });
-            return false;
-        }
-
-        if (!(this.lesson as any).teacherId) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Teacher is required'
+        this.actions$.pipe(ofType(lessonsActions.createLessonFailure), takeUntil(this.destroy$), take(1))
+            .subscribe(({error}: any) => {
+                this.loading = false;
+                // Show backend error(s). Split combined message to multiple toasts if needed
+                const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
+                if (messages.length === 0) {
+                    this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to create lesson'});
+                } else {
+                    messages.forEach((msg: string) => this.messageService.add({severity: 'error', summary: 'Error', detail: msg}));
+                }
             });
-            return false;
-        }
-
-        if (!(this.lesson as any).unitId) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Unit is required'
-            });
-            return false;
-        }
-
-        if (!(this.lesson as any).centerId) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Center is required'
-            });
-            return false;
-        }
-
-        if (!this.lesson.startDatetime) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Start date/time is required'
-            });
-            return false;
-        }
-
-        if (!this.lesson.endDatetime) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'End date/time is required'
-            });
-            return false;
-        }
-
-        return true;
     }
 
     resetForm() {
-        this.lesson = {
+        this.form.reset({
             title: '',
             description: '',
-            teacher: '',
-            level: '',
-            students: [],
-            online: false,
+            centerId: null,
             startDatetime: new Date(),
             endDatetime: new Date(),
-            status: LessonStatus.BOOKED
-        };
+            teacherId: null,
+            unitId: null,
+            online: false,
+            onlineLink: '',
+            status: LessonStatus.AVAILABLE
+        });
     }
 }

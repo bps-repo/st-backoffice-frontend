@@ -10,14 +10,14 @@
 
     <div class="col-12">
         <div class="card">
-            <div class="p-fluid grid">
+            <form class="p-fluid grid" [formGroup]="form">
                 <div class="col-12 md:col-6  field">
                     <label for="title" class="font-bold">Título *</label>
                     <input
                         id="title"
                         type="text"
                         pInputText
-                        [(ngModel)]="lesson.title"
+                        formControlName="title"
                         placeholder="Ex. English Conversation A1"
                         required>
                 </div>
@@ -27,7 +27,7 @@
                     <p-dropdown
                         id="center"
                         [options]="centerOptions"
-                        [(ngModel)]="lesson.centerId"
+                        formControlName="centerId"
                         optionLabel="label"
                         optionValue="value"
                         placeholder="Selecione o centro"
@@ -40,7 +40,7 @@
                     <label for="startDatetime" class="font-bold">Data de Início *</label>
                     <p-calendar
                         id="startDatetime"
-                        [(ngModel)]="lesson.startDatetime"
+                        formControlName="startDatetime"
                         [showIcon]="true"
                         [showTime]="true"
                         dateFormat="dd/mm/yy"
@@ -52,7 +52,7 @@
                     <label for="endDatetime" class="font-bold">Data de fim *</label>
                     <p-calendar
                         id="endDatetime"
-                        [(ngModel)]="lesson.endDatetime"
+                        formControlName="endDatetime"
                         [showIcon]="true"
                         [showTime]="true"
                         dateFormat="dd/mm/yy"
@@ -65,7 +65,7 @@
                     <p-dropdown
                         id="teacher"
                         [options]="teacherOptions"
-                        [(ngModel)]="lesson.teacherId"
+                        formControlName="teacherId"
                         optionLabel="label"
                         optionValue="value"
                         placeholder="Selecione o professor"
@@ -79,7 +79,7 @@
                     <p-dropdown
                         id="unit"
                         [options]="unitOptions"
-                        [(ngModel)]="lesson.unitId"
+                        formControlName="unitId"
                         optionLabel="label"
                         optionValue="value"
                         placeholder="Selecione a unidade"
@@ -93,19 +93,19 @@
                         <label for="online" class="font-bold mr-2">Aula online?</label>
                         <p-checkbox
                             id="online"
-                            [(ngModel)]="lesson.online"
+                            formControlName="online"
                             [binary]="true">
                         </p-checkbox>
                     </div>
                 </div>
 
-                <div class="col-12 field" *ngIf="lesson.online">
+                <div class="col-12 field" *ngIf="form.get('online')?.value">
                     <label for="onlineLink" class="font-bold">Link da aula online</label>
                     <input
                         id="onlineLink"
                         type="text"
                         pInputText
-                        [(ngModel)]="lesson.onlineLink"
+                        formControlName="onlineLink"
                         placeholder="Enter online meeting link">
                 </div>
 
@@ -114,7 +114,7 @@
                     <p-dropdown
                         id="status"
                         [options]="statusOptions"
-                        [(ngModel)]="lesson.status"
+                        formControlName="status"
                         optionLabel="label"
                         optionValue="value"
                         placeholder="Select a status">
@@ -127,11 +127,11 @@
                         id="description"
                         rows="3"
                         pInputTextarea
-                        [(ngModel)]="lesson.description"
+                        formControlName="description"
                         placeholder="Descreva  os objectivos e conteúdos das aulas">
                     </textarea>
                 </div>
-            </div>
+            </form>
 
             <div class="flex justify-content-end gap-2 mt-4">
                 <button

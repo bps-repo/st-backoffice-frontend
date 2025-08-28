@@ -46,9 +46,32 @@ export class LessonsEffects {
             exhaustMap(({lesson}) =>
                 this.lessonApiService.createLesson(lesson).pipe(
                     map((createdLesson) => lessonsActions.createLessonSuccess({lesson: createdLesson})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.createLessonFailure({error: error.message}))
-                    )
+                    catchError((error: HttpErrorResponse) => {
+                        // Try to extract rich error information from backend
+                        let details: string[] = [];
+                        const errBody: any = error && (error.error ?? null);
+
+                        if (errBody) {
+                            const mainMessage = errBody.message || errBody.error || error.message || 'Failed to create lesson';
+                            if (Array.isArray(errBody.validationErrors) && errBody.validationErrors.length) {
+                                details = errBody.validationErrors.map((ve: any) => {
+                                    const field = ve?.field ? `${ve.field}: ` : '';
+                                    return `${field}${ve?.message || 'Invalid value'}`;
+                                });
+                            } else {
+                                details.push(mainMessage);
+                            }
+                            // Enrich with status-specific info if available
+                            if (errBody.errorCode) {
+                                details = details.map(d => `${d}`); // could prefix codes if desired
+                            }
+                        } else {
+                            details.push(error.message || 'Failed to create lesson');
+                        }
+
+                        const message = details.filter(Boolean).join(' | ');
+                        return of(lessonsActions.createLessonFailure({error: message}));
+                    })
                 )
             )
         )
