@@ -25,6 +25,7 @@ import {LevelActions} from "../../../../../../core/store/schoolar/level/level.ac
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 import {ProgressBarModule} from 'primeng/progressbar';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ChipModule} from 'primeng/chip';
 import {CreateUnitDialogComponent} from "../../../units/dialogs/create-unit-dialog/create-unit-dialog.component";
 
@@ -46,6 +47,7 @@ import {CreateUnitDialogComponent} from "../../../units/dialogs/create-unit-dial
         FormsModule,
         KpiIndicatorsComponent,
         ProgressBarModule,
+        ProgressSpinnerModule,
         ChipModule,
         CreateUnitDialogComponent
     ],
@@ -289,6 +291,19 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     getUnitsForLevel(levelId: string): Unit[] {
         return this.units.filter(unit => unit.levelId === levelId);
+    }
+
+    // Computed list applying filters
+    get filteredLevels(): Level[] {
+        const term = (this.searchTerm || '').toLowerCase().trim();
+        const byTerm = (l: Level) => {
+            if (!term) return true;
+            const name = (l.name || '').toLowerCase();
+            const desc = (l.description || '').toLowerCase();
+            return name.includes(term) || desc.includes(term);
+        };
+        const bySelected = (l: Level) => !this.selectedLevelId || l.id === this.selectedLevelId;
+        return (this.levels || []).filter(l => byTerm(l) && bySelected(l));
     }
 
     getLevelColor(index: number): string {

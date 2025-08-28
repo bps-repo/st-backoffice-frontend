@@ -9,21 +9,21 @@ export const levelsFeature = createFeature({
 
         on(LevelActions.createLevel, state => ({
             ...state,
-            loading: true,
-            error: null
+            loadingCreate: true,
+            createError: null
         })),
         on(LevelActions.createLevelSuccess, (state, {level}) => levelsAdapter.setOne(
             level,
             {
                 ...state,
-                loading: false,
-                error: null
+                loadingCreate: false,
+                createError: null
             }
         )),
         on(LevelActions.createLevelFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingCreate: false,
+            createError: error
         })),
 
 

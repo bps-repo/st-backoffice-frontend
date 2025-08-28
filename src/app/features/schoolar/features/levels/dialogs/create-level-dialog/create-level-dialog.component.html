@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <p-dialog
     [(visible)]="visible"
     [style]="{ width: '500px' }"
@@ -83,6 +84,8 @@
                 pButton
                 label="Save"
                 icon="pi pi-check"
+                [loading]="(loadingCreate$ | async) || false"
+                [disabled]="(loadingCreate$ | async) || false"
                 (click)="saveLevel()">
             </button>
         </div>
