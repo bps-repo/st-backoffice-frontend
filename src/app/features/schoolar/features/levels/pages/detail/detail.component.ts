@@ -1,25 +1,36 @@
 // student.component.ts
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {Observable} from 'rxjs';
+import {Observable, Subject, takeUntil, combineLatest, of} from 'rxjs';
+import {map, switchMap, catchError} from 'rxjs/operators';
 import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
+import {DropdownModule} from 'primeng/dropdown';
 import {FormsModule} from '@angular/forms';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {Level} from 'src/app/core/models/course/level';
+import {Unit} from 'src/app/core/models/course/unit';
+import {Student} from 'src/app/core/models/academic/student';
+import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
 import {ChartModule} from 'primeng/chart';
 import {RippleModule} from 'primeng/ripple';
 import {TabViewModule} from 'primeng/tabview';
+import {TabMenuModule} from 'primeng/tabmenu';
+import {SelectButtonModule} from 'primeng/selectbutton';
 import {BadgeModule} from 'primeng/badge';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {ChipModule} from 'primeng/chip';
 import {AvatarModule} from 'primeng/avatar';
+import {MenuItem} from 'primeng/api';
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {LevelService} from 'src/app/core/services/level.service';
+import {UnitService} from 'src/app/core/services/unit.service';
+import {StudentService} from 'src/app/core/services/student.service';
 
 @Component({
     selector: 'app-level-student',
@@ -31,18 +42,40 @@ import {LevelActions} from "../../../../../../core/store/schoolar/level/level.ac
         InputTextModule,
         InputTextareaModule,
         ButtonModule,
+        DropdownModule,
         FormsModule,
         ProgressSpinnerModule,
         ChartModule,
         RippleModule,
         TabViewModule,
+        TabMenuModule,
+        SelectButtonModule,
         BadgeModule,
         ProgressBarModule,
         ChipModule,
         AvatarModule
-    ]
+    ],
+    styles: [`
+        ::ng-deep .p-selectbutton {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        ::ng-deep .p-selectbutton .p-button {
+            margin-right: 0.5rem;
+            border: none;
+        }
+
+        ::ng-deep .p-selectbutton .p-button:last-child {
+            margin-right: 0;
+        }
+
+        .animate-fade {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    `]
 })
-export class DetailComponent implements OnInit {
+export class DetailComponent implements OnInit, OnDestroy {
 
     levelId: string = '';
     level$: Observable<Level | null>;
@@ -50,40 +83,50 @@ export class DetailComponent implements OnInit {
     editableLevel: Level | null = null;
     loading$: Observable<boolean>;
     loading: boolean = true;
+    private destroy$ = new Subject<void>();
 
     // UI state
     selectedTab: 'overview' | 'students' | 'units' = 'overview';
+    currentTab: string = 'overview';
 
-    // Header KPI values (mock for UI)
+    // View options for the select button (similar to Aulas list)
+    viewOptions = [
+        { label: 'Visão Geral', value: 'overview' },
+        { label: 'Alunos', value: 'students' },
+        { label: 'Unidades', value: 'units' }
+    ];
+
+    // Real data observables
+    units$: Observable<Unit[]> = of([]);
+    students$: Observable<Student[]> = of([]);
+    unitProgresses$: Observable<UnitProgress[]> = of([]);
+
+    // Loading states
+    loadingRelatedData: boolean = false;
+
+    // Header KPI values (calculated from real data)
     headerStats = [
-        { label: 'Total de Alunos', value: 4, icon: 'pi pi-users' },
-        { label: 'Unidades', value: 3, icon: 'pi pi-book' },
-        { label: 'Tópicos', value: 9, icon: 'pi pi-bullseye' },
-        { label: 'Horas Totais', value: '63h', icon: 'pi pi-calendar' },
-        { label: 'Progresso Médio', value: '60%', icon: 'pi pi-chart-line' },
+        { label: 'Total de Alunos', value: 0, icon: 'pi pi-users' },
+        { label: 'Unidades', value: 0, icon: 'pi pi-book' },
+        { label: 'Tópicos', value: 0, icon: 'pi pi-bullseye' },
+        { label: 'Horas Totais', value: '0h', icon: 'pi pi-calendar' },
+        { label: 'Progresso Médio', value: '0%', icon: 'pi pi-chart-line' },
     ];
 
-    // Students list (mocked)
-    students = [
-        { name: 'João Silva', initials: 'JS', unitsInfo: '1 unidade(s) em progresso', progress: 67, completed: false },
-        { name: 'Maria Santos', initials: 'MS', unitsInfo: '2 unidade(s) em progresso', progress: 67, completed: false },
-        { name: 'Ana Ferreira', initials: 'AF', unitsInfo: '1 unidade(s) em progresso', progress: 67, completed: false },
-        { name: 'Bruno Almeida', initials: 'BA', unitsInfo: '3 unidade(s) em progresso', progress: 100, completed: true },
-        { name: 'Ana Ferreira', initials: 'AF', unitsInfo: '1 unidade(s) em progresso', progress: 67, completed: false },
-    ];
+    // Students list (calculated from real data)
+    students: any[] = [];
 
-    // Units for overview and units tabs (mocked)
-    unitsSummary = [
-        { idx: 1, title: 'Apresentações e Cumprimentos', desc: 'Introdução básica, apresentações pessoais e cumprimentos', topics: 3, hours: '20h' },
-        { idx: 2, title: 'Conversação Básica', desc: 'Conversas simples do dia a dia', topics: 3, hours: '25h' },
-        { idx: 3, title: 'Números e Alfabeto', desc: 'Números, alfabeto e vocabulário básico', topics: 3, hours: '18h' },
-    ];
+    // Units for overview and units tabs (calculated from real data)
+    unitsSummary: any[] = [];
 
-    unitsCards = [
-        { title: 'Apresentações e Cumprimentos', desc: 'Introdução básica, apresentações pessoais e cumprimentos', progress: 75, done: 2, inProgress: 2, chips: ['Greetings', 'Personal Information', 'Basic Introductions'] },
-        { title: 'Conversação Básica', desc: 'Conversas simples do dia a dia', progress: 67, done: 1, inProgress: 1, chips: ['Daily Activities', 'Time and Dates', 'Simple Questions'] },
-        { title: 'Números e Alfabeto', desc: 'Números, alfabeto e vocabulário básico', progress: 84, done: 1, inProgress: 1, chips: ['Numbers', 'Alphabet', 'Basic Vocabulary'] },
-    ];
+    unitsCards: any[] = [];
+
+    // Progress statistics
+    progressStats = {
+        completed: 0,
+        inProgress: 0,
+        notStarted: 0
+    };
 
     // Chart properties
     unitsChartData: any;
@@ -93,7 +136,13 @@ export class DetailComponent implements OnInit {
     completionRateChartData: any;
     completionRateChartOptions: any;
 
-    constructor(private route: ActivatedRoute, private store: Store) {
+    constructor(
+        private route: ActivatedRoute,
+        private store: Store,
+        private levelService: LevelService,
+        private unitService: UnitService,
+        private studentService: StudentService
+    ) {
         this.level$ = this.store.select(LevelSelectors.selectSelectedLevel);
         this.loading$ = this.store.select(LevelSelectors.selectLoading);
     }
@@ -101,15 +150,17 @@ export class DetailComponent implements OnInit {
     ngOnInit(): void {
         this.route.params.subscribe(params => {
             this.levelId = params['id'];
-            this.loadLevel();
+            if (this.levelId) {
+                this.loadLevel();
+            }
         });
 
         this.level$.subscribe(level => {
             this.level = level;
             this.editableLevel = level ? {...level} : null;
 
-            // Initialize charts when level data is available
             if (level) {
+                this.loadRelatedData();
                 this.initUnitsChart();
                 this.initEnrollmentChart();
                 this.initCompletionRateChart();
@@ -118,7 +169,194 @@ export class DetailComponent implements OnInit {
 
         this.loading$.subscribe(loading => {
             this.loading = loading;
+            // If loading is false and we have a levelId but no level, there might be an error
+            if (!loading && this.levelId && !this.level) {
+                console.warn('Level not found or failed to load for ID:', this.levelId);
+            }
         });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    loadRelatedData(): void {
+        if (!this.levelId || !this.level) {
+            console.warn('Cannot load related data: levelId or level is null');
+            return;
+        }
+
+        this.loadingRelatedData = true;
+
+        // Load units for this level
+        this.units$ = this.unitService.loadUnits().pipe(
+            map(units => units.filter(unit => unit.levelId === this.levelId)),
+            catchError(error => {
+                console.error('Error loading units:', error);
+                return of([]);
+            })
+        );
+
+        // Load students for this level
+        this.students$ = this.studentService.getStudents().pipe(
+            map(students => students.filter(student => student.levelId === this.levelId)),
+            catchError(error => {
+                console.error('Error loading students:', error);
+                return of([]);
+            })
+        );
+
+        // Load unit progresses for this level
+        this.unitProgresses$ = this.units$.pipe(
+            switchMap(units => {
+                if (units.length === 0) return of([]);
+
+                // Load unit progresses for each unit
+                const unitProgressObservables = units.map(unit =>
+                    this.unitService.loadUnitProgresses(unit.id).pipe(
+                        map(response => response.data || []),
+                        catchError(error => {
+                            console.error(`Error loading unit progresses for unit ${unit.id}:`, error);
+                            return of([]);
+                        })
+                    )
+                );
+
+                return combineLatest(unitProgressObservables).pipe(
+                    map(progressArrays => progressArrays.flat())
+                );
+            }),
+            catchError(error => {
+                console.error('Error loading unit progresses:', error);
+                return of([]);
+            })
+        );
+
+        // Combine all data to calculate statistics
+        combineLatest([this.units$, this.students$, this.unitProgresses$])
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: ([units, students, unitProgresses]) => {
+                    this.calculateStatistics(units, students, unitProgresses);
+                    this.loadingRelatedData = false;
+                },
+                error: (error) => {
+                    console.error('Error loading related data:', error);
+                    this.loadingRelatedData = false;
+                }
+            });
+    }
+
+    calculateStatistics(units: Unit[], students: Student[], unitProgresses: UnitProgress[]): void {
+        // Calculate header statistics
+        const totalStudents = students.length;
+        const totalUnits = units.length;
+        const totalTopics = units.reduce((sum, unit) => sum + (unit.assessments?.length || 0), 0);
+        const totalHours = units.reduce((sum, unit) => sum + (unit.lessons?.length || 0) * 2, 0); // Assuming 2 hours per lesson
+
+        // Calculate average progress
+        const studentProgresses = students.map(student => student.levelProgressPercentage || 0);
+        const averageProgress = studentProgresses.length > 0
+            ? Math.round(studentProgresses.reduce((sum, progress) => sum + progress, 0) / studentProgresses.length)
+            : 0;
+
+        // Update header stats
+        this.headerStats = [
+            { label: 'Total de Alunos', value: totalStudents, icon: 'pi pi-users' },
+            { label: 'Unidades', value: totalUnits, icon: 'pi pi-book' },
+            { label: 'Tópicos', value: totalTopics, icon: 'pi pi-bullseye' },
+            { label: 'Horas Totais', value: `${totalHours}h`, icon: 'pi pi-calendar' },
+            { label: 'Progresso Médio', value: `${averageProgress}%`, icon: 'pi pi-chart-line' },
+        ];
+
+        // Update tab items with student count
+        // This part is no longer needed as viewOptions handles the tab selection
+        // this.tabItems = [
+        //     {
+        //         label: 'Visão Geral',
+        //         icon: 'pi pi-home'
+        //     },
+        //     {
+        //         label: `Alunos (${totalStudents})`,
+        //         icon: 'pi pi-users'
+        //     },
+        //     {
+        //         label: 'Unidades',
+        //         icon: 'pi pi-book'
+        //     }
+        // ];
+
+        // Calculate progress statistics
+        let completed = 0, inProgress = 0, notStarted = 0;
+
+        unitProgresses.forEach((progress: UnitProgress) => {
+            if (progress.completed) {
+                completed++;
+            } else if (progress.completionPercentage > 0) {
+                inProgress++;
+            } else {
+                notStarted++;
+            }
+        });
+
+        this.progressStats = { completed, inProgress, notStarted };
+
+        // Build units summary
+        this.unitsSummary = units.map((unit, index) => ({
+            idx: index + 1,
+            title: unit.name,
+            desc: unit.description,
+            topics: unit.assessments?.length || 0,
+            hours: `${(unit.lessons?.length || 0) * 2}h`
+        }));
+
+        // Build students list
+        this.students = students.map(student => {
+            const studentProgresses = unitProgresses.filter((p: UnitProgress) => p.student.id === student.id);
+            const completedUnits = studentProgresses.filter((p: UnitProgress) => p.completed).length;
+            const totalUnits = units.length;
+            const progress = totalUnits > 0 ? Math.round((completedUnits / totalUnits) * 100) : 0;
+
+            return {
+                name: `${student.user?.firstname || ''} ${student.user?.lastname || ''}`.trim(),
+                initials: this.getInitials(student.user?.firstname || '', student.user?.lastname || ''),
+                unitsInfo: `${completedUnits} unidade(s) em progresso`,
+                progress: progress,
+                completed: progress === 100
+            };
+        });
+
+        // Build units cards
+        this.unitsCards = units.map(unit => {
+            const unitProgressesForUnit = unitProgresses.filter((p: UnitProgress) => p.unit.id === unit.id);
+            const completed = unitProgressesForUnit.filter((p: UnitProgress) => p.completed).length;
+            const inProgress = unitProgressesForUnit.filter((p: UnitProgress) => !p.completed && p.completionPercentage > 0).length;
+            const progress = unitProgressesForUnit.length > 0
+                ? Math.round(unitProgressesForUnit.reduce((sum: number, p: UnitProgress) => sum + p.completionPercentage, 0) / unitProgressesForUnit.length)
+                : 0;
+
+            return {
+                title: unit.name,
+                desc: unit.description,
+                progress: progress,
+                done: completed,
+                inProgress: inProgress,
+                chips: unit.assessments?.map(a => a.name) || []
+            };
+        });
+    }
+
+    getInitials(firstName: string, lastName: string): string {
+        const first = firstName.charAt(0).toUpperCase();
+        const last = lastName.charAt(0).toUpperCase();
+        return `${first}${last}`;
+    }
+
+    // Method to handle view selection (similar to Aulas list)
+    onViewChange(event: any): void {
+        this.currentTab = event.value;
+        this.selectedTab = event.value as 'overview' | 'students' | 'units';
     }
 
     initUnitsChart(): void {

@@ -1,33 +1,33 @@
-import {Component, OnInit, ViewChild, ElementRef, HostListener, AfterViewInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Observable, startWith, map, combineLatest} from 'rxjs';
-import {CreateLevelDialogComponent} from '../../dialogs/create-level-dialog/create-level-dialog.component';
-import {ButtonModule} from 'primeng/button';
-import {ConfirmationService} from 'primeng/api';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {Level} from 'src/app/core/models/course/level';
-import {Unit} from 'src/app/core/models/course/unit';
-import {RippleModule} from "primeng/ripple";
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {TabViewModule} from 'primeng/tabview';
-import {CardModule} from 'primeng/card';
-import {BadgeModule} from 'primeng/badge';
-import {TooltipModule} from 'primeng/tooltip';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {FormsModule} from '@angular/forms';
+import { Component, OnInit, ViewChild, ElementRef, HostListener, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable, startWith, map, combineLatest } from 'rxjs';
+import { CreateLevelDialogComponent } from '../../dialogs/create-level-dialog/create-level-dialog.component';
+import { ButtonModule } from 'primeng/button';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Level } from 'src/app/core/models/course/level';
+import { Unit } from 'src/app/core/models/course/unit';
+import { RippleModule } from "primeng/ripple";
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { TabViewModule } from 'primeng/tabview';
+import { CardModule } from 'primeng/card';
+import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { FormsModule } from '@angular/forms';
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 import * as UnitSelectors from "../../../../../../core/store/schoolar/units/unit.selectors";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
-import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
-import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import {ProgressBarModule} from 'primeng/progressbar';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {ChipModule} from 'primeng/chip';
-import {CreateUnitDialogComponent} from "../../../units/dialogs/create-unit-dialog/create-unit-dialog.component";
+import { LevelActions } from "../../../../../../core/store/schoolar/level/level.actions";
+import { UnitActions } from "../../../../../../core/store/schoolar/units/unit.actions";
+import { KpiIndicatorsComponent, Kpi } from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ChipModule } from 'primeng/chip';
+import { CreateUnitDialogComponent } from "../../../units/dialogs/create-unit-dialog/create-unit-dialog.component";
 
 @Component({
     selector: 'app-level-general',
@@ -152,9 +152,9 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     // Tab view options
     tabOptions = [
-        {label: 'Hierarquia', value: 0},
-        {label: 'Progresso', value: 1},
-        {label: 'Relatórios', value: 2}
+        { label: 'Hierarquia', value: 0 },
+        { label: 'Progresso', value: 1 },
+        { label: 'Relatórios', value: 2 }
     ];
 
     // Level colors for indicators
@@ -243,22 +243,22 @@ export class ListComponent implements OnInit, AfterViewInit {
                 {
                     label: 'Total de níveis',
                     value: totalLevels,
-                    icon: {label: 'layers', color: 'text-blue-500', type: 'mat'}
+                    icon: { label: 'layers', color: 'text-blue-500', type: 'mat' }
                 },
                 {
                     label: 'Total de unidades',
                     value: totalUnits,
-                    icon: {label: 'book', color: 'text-green-500', type: 'mat'}
+                    icon: { label: 'book', color: 'text-green-500', type: 'mat' }
                 },
                 {
                     label: 'Alunos ativos',
                     value: activeStudents,
-                    icon: {label: 'person', color: 'text-orange-500', type: 'mat'}
+                    icon: { label: 'person', color: 'text-orange-500', type: 'mat' }
                 },
                 {
                     label: 'Conclusão média',
                     value: avgCompletion,
-                    icon: {label: 'check-circle', color: 'text-purple-500', type: 'mat'}
+                    icon: { label: 'check-circle', color: 'text-purple-500', type: 'mat' }
                 }
             ];
         });
@@ -311,7 +311,7 @@ export class ListComponent implements OnInit, AfterViewInit {
     }
 
     viewDetails(level: Level): void {
-        this.router.navigate(['/courses/levels', level.id]).then();
+        this.router.navigate(['/schoolar/levels', level.id]).then();
     }
 
     createLevel(): void {
@@ -332,7 +332,7 @@ export class ListComponent implements OnInit, AfterViewInit {
             acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => {
-                this.store.dispatch(LevelActions.deleteLevel({id: level.id}));
+                this.store.dispatch(LevelActions.deleteLevel({ id: level.id }));
             },
             reject: () => {
                 console.log('Ação de exclusão cancelada.');

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TableColumn,
@@ -16,6 +16,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @Component({
     selector: 'app-assessments-list',
@@ -30,11 +31,48 @@ import { FormsModule } from '@angular/forms';
         TableModule,
         TagModule,
         TooltipModule,
-        FormsModule
+        FormsModule,
+        SelectButtonModule
     ],
-    templateUrl: './list.component.html'
+    templateUrl: './list.component.html',
+    styles: [`
+        ::ng-deep .p-selectbutton {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        ::ng-deep .p-selectbutton .p-button {
+            margin-right: 0.5rem;
+            border: none;
+        }
+
+        ::ng-deep .p-selectbutton .p-button:last-child {
+            margin-right: 0;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .sticky-active {
+            background-color: var(--surface-card);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .animate-fade {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    `]
 })
-export class ListComponent implements OnInit {
+export class ListComponent implements OnInit, AfterViewInit {
+    @ViewChild('mainHeader') mainHeader!: ElementRef;
+    @ViewChild('viewSelector') viewSelector!: ElementRef;
+
     assessments: any[] = []; // This would be populated from a service
     columns: TableColumn[] = [];
     globalFilterFields: string[] = [];
@@ -47,10 +85,23 @@ export class ListComponent implements OnInit {
     gradesReleased = 1;
 
     // Current view and filters
-    currentView = 'assessments';
+    currentView = 'list';
     searchTerm = '';
     typeFilter = '';
     statusFilter = '';
+
+    // Sticky state tracking
+    isMainHeaderSticky = false;
+    isViewSelectorSticky = false;
+
+    // View options for the select button
+    viewOptions = [
+        { label: 'Lista de Avaliações', value: 'list' },
+        { label: 'Calendário', value: 'calendario' },
+        { label: 'Relatórios', value: 'relatorios' },
+        { label: 'Estatísticas', value: 'estatisticas' },
+        { label: 'Nova Avaliação', value: 'nova-avaliacao' }
+    ];
 
     // Filter options
     typeOptions = [
@@ -143,6 +194,36 @@ export class ListComponent implements OnInit {
 
         // Populate globalFilterFields
         this.globalFilterFields = this.columns.map(col => col.field);
+    }
+
+    ngAfterViewInit(): void {
+        this.setupStickyHeaders();
+    }
+
+    @HostListener('window:scroll', ['$event'])
+    onWindowScroll(): void {
+        this.updateStickyState();
+    }
+
+    private setupStickyHeaders(): void {
+        this.updateStickyState();
+    }
+
+    private updateStickyState(): void {
+        if (this.mainHeader) {
+            const rect = this.mainHeader.nativeElement.getBoundingClientRect();
+            this.isMainHeaderSticky = rect.top <= 0;
+        }
+
+        if (this.viewSelector) {
+            const rect = this.viewSelector.nativeElement.getBoundingClientRect();
+            this.isViewSelectorSticky = rect.top <= 80;
+        }
+    }
+
+    onViewChange(event: any): void {
+        this.currentView = event.value;
+        // Add any additional logic needed when view changes
     }
 
     getStatusSeverity(status: string): string {

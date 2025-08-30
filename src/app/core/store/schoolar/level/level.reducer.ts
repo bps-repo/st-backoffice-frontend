@@ -45,21 +45,26 @@ export const levelsFeature = createFeature({
             loading: false,
             error,
         })),
-        on(LevelActions.loadLevel, (state) => ({
+        on(LevelActions.loadLevel, (state, {id}) => ({
             ...state,
             loading: true,
             error: null,
+            selectedLevelId: id
         })),
-        on(LevelActions.loadLevelSuccess, (state, {level}) => ({
-            ...state,
-            level: level,
-            loading: false,
-            error: null,
-        })),
+        on(LevelActions.loadLevelSuccess, (state, {level}) => levelsAdapter.setOne(
+            level,
+            {
+                ...state,
+                loading: false,
+                error: null,
+                selectedLevelId: level.id
+            }
+        )),
         on(LevelActions.loadLevelFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error,
+            selectedLevelId: null
         })),
         on(LevelActions.deleteLevel, state => ({
             ...state,
@@ -81,19 +86,33 @@ export const levelsFeature = createFeature({
         })),
         on(LevelActions.updateLevel, state => ({
             ...state,
-            loading: true,
-            error: null
+            loadingUpdate: true,
+            updateError: null
         })),
-        on(LevelActions.updateLevelSuccess, (state, {level}) => ({
-            ...state,
-            level,
-            loading: false,
-            error: null
-        })),
+        on(LevelActions.updateLevelSuccess, (state, {level}) => levelsAdapter.updateOne(
+            { id: level.id, changes: level },
+            {
+                ...state,
+                loadingUpdate: false,
+                updateError: null
+            }
+        )),
         on(LevelActions.updateLevelFailure, (state, {error}) => ({
             ...state,
-            loading: false,
-            error
+            loadingUpdate: false,
+            updateError: error
+        })),
+        on(LevelActions.selectLevel, (state, {id}) => ({
+            ...state,
+            selectedLevelId: id
+        })),
+        on(LevelActions.clearErrors, (state) => ({
+            ...state,
+            error: null,
+            createError: null,
+            updateError: null,
+            deleteError: null
         }))
     )
 });
+

@@ -1,12 +1,13 @@
 <div class="grid">
     <!-- Header -->
-    <div class="col-12 flex justify-content-between align-items-center mb-4">
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
-            <h2 class="font-bold text-2xl mb-2">Gestão de Avaliações</h2>
-            <p class="text-gray-600">Sistema de provas, testes e quizzes com análise por competência</p>
+            <h2 class="font-bold text-2xl mb-4">Gestão de Avaliações</h2>
+            <span class="text-lg">Sistema de provas, testes e quizzes com análise por competência</span>
         </div>
-        <button pButton type="button" label="Nova Avaliação" icon="pi pi-plus" class="p-button-primary"
-            (click)="createAssessment()"></button>
+        <p-button label="Nova Avaliação" icon="pi pi-plus" class="p-button-outlined"
+            (click)="createAssessment()"></p-button>
     </div>
 
     <!-- KPI Cards -->
@@ -51,26 +52,17 @@
         </div>
     </div>
 
-    <!-- Tabs and Search -->
-    <div class="col-12">
-        <div class="card">
-            <!-- Tab Navigation -->
-            <div class="flex align-items-center justify-content-between mb-4">
-                <div class="flex">
-                    <button type="button"
-                        class="px-4 py-2 border-none bg-primary text-white border-round-left cursor-pointer">
-                        Avaliações
-                    </button>
-                    <button type="button" class="px-4 py-2 border-none bg-gray-100 text-gray-700 cursor-pointer">
-                        Lançamento de Notas
-                    </button>
-                    <button type="button"
-                        class="px-4 py-2 border-none bg-gray-100 text-gray-700 border-round-right cursor-pointer">
-                        Relatórios
-                    </button>
-                </div>
-            </div>
+    <!-- View Selector -->
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+            optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
 
+    <!-- Lista de Avaliações View -->
+    @if (currentView === 'list') {
+    <div class="col-12 animate-fade">
+        <div class="card">
             <!-- Search and Filters -->
             <div class="flex align-items-center justify-content-between mb-4">
                 <div class="flex align-items-center gap-3">
@@ -164,4 +156,63 @@
             </div>
         </div>
     </div>
+    }
+
+    <!-- Calendário View -->
+    @if (currentView === 'calendario') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Calendário de Avaliações</h3>
+            <p>Visualize as avaliações em formato de calendário.</p>
+            <!-- Placeholder content for calendar view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Calendário de avaliações será implementado aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Relatórios View -->
+    @if (currentView === 'relatorios') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Relatórios de Avaliações</h3>
+            <p>Gere relatórios detalhados sobre o desempenho dos alunos.</p>
+            <!-- Placeholder content for reports view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Relatórios de avaliações serão implementados aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Estatísticas View -->
+    @if (currentView === 'estatisticas') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Estatísticas de Avaliações</h3>
+            <p>Análise estatística do desempenho geral.</p>
+            <!-- Placeholder content for statistics view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Estatísticas de avaliações serão implementadas aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Nova Avaliação View -->
+    @if (currentView === 'nova-avaliacao') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Nova Avaliação</h3>
+            <p>Formulário para criar nova avaliação.</p>
+            <!-- Placeholder content for new assessment view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Formulário de nova avaliação será implementado aqui.</p>
+            </div>
+            <button pButton type="button" label="Voltar à Lista" class="p-button-outlined mt-3"
+                (click)="currentView = 'list'"></button>
+        </div>
+    </div>
+    }
 </div>
