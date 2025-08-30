@@ -8,6 +8,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '../../service/app.layout.service';
+import { Store } from '@ngrx/store';
+import { authActions } from 'src/app/core/store/auth/actions/auth.actions';
 
 @Component({
     selector: 'app-profilemenu',
@@ -24,7 +26,7 @@ import { LayoutService } from '../../service/app.layout.service';
     ]
 })
 export class AppProfileSidebarComponent {
-    constructor(public layoutService: LayoutService) {}
+    constructor(public layoutService: LayoutService, private readonly store: Store) { }
 
     get visible(): boolean {
         return this.layoutService.state.profileSidebarVisible;
@@ -32,5 +34,9 @@ export class AppProfileSidebarComponent {
 
     set visible(_val: boolean) {
         this.layoutService.state.profileSidebarVisible = _val;
+    }
+
+    logout() {
+        this.store.dispatch(authActions.logout());
     }
 }

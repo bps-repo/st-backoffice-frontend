@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
-import {Actions, createEffect, ofType} from '@ngrx/effects';
-import {of} from 'rxjs';
-import {catchError, exhaustMap, map, tap} from 'rxjs/operators';
-import {AuthService} from '../../../services/auth.service';
-import {authActions} from '../actions/auth.actions';
-import {Router} from '@angular/router';
-import {JwtTokenService} from "../../../services/jwtToken.service";
+import { Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
+import { authActions } from '../actions/auth.actions';
+import { Router } from '@angular/router';
+import { JwtTokenService } from "../../../services/jwtToken.service";
 
 @Injectable()
 export class AuthEffects {
@@ -19,7 +19,7 @@ export class AuthEffects {
     login$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.login),
-            exhaustMap(({email, password}) =>
+            exhaustMap(({ email, password }) =>
                 this.authService.login(email, password).pipe(
                     map((response) =>
                         authActions.loginSuccess({
@@ -43,12 +43,12 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.loginSuccess),
-                tap(({token}) => {
+                tap(({ token }) => {
                     JwtTokenService.decodeToken(token)
                     this.router.navigate(['/schoolar/dashboards']).then();
                 })
             ),
-        {dispatch: false}
+        { dispatch: false }
     );
 
     logout$ = createEffect(() =>
@@ -79,12 +79,13 @@ export class AuthEffects {
                     this.router.navigate(['/auth/login']).then();
                 })
             ),
+        { dispatch: false }
     );
 
     refreshToken$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.refreshToken),
-            exhaustMap(({refreshToken}) =>
+            exhaustMap(({ refreshToken }) =>
                 this.authService.refreshToken(refreshToken).pipe(
                     map((response) =>
                         authActions.refreshTokenSuccess({
@@ -108,11 +109,11 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.refreshTokenSuccess),
-                tap(({token}) => {
+                tap(({ token }) => {
                     JwtTokenService.decodeToken(token);
                 })
             ),
-        {dispatch: false}
+        { dispatch: false }
     );
 
     verify$ = createEffect(() =>
@@ -120,7 +121,7 @@ export class AuthEffects {
             ofType(authActions.verify),
             exhaustMap(() =>
                 this.authService.verify().pipe(
-                    map((response) => authActions.verifySuccess({user: response.data})),
+                    map((response) => authActions.verifySuccess({ user: response.data })),
                     catchError((error) =>
                         of(
                             authActions.verifyFailure({

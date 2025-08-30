@@ -1,57 +1,141 @@
 <div class="grid">
-    <div class="card w-full">
-        <div *ngIf="exam" class="flex justify-content-between gap-5">
-            <div>
-                <h1 class="text-3xl text-dark">{{ exam.name }}</h1>
-                <div class="flex align-items-center gap-2 mt-2">
-                    <span class="p-badge p-badge-info">{{ exam.level }}</span>
-                    <span class="p-badge"
-                          [ngClass]="{
-                            'p-badge-success': exam.status === 'Concluído',
-                            'p-badge-warning': exam.status === 'Pendente',
-                            'p-badge-danger': exam.status === 'Cancelado'
-                          }">
-                        {{ exam.status }}
-                    </span>
-                    <span class="text-500">Teacher: {{ exam.teacher }}</span>
-                    <span class="text-500">Class: {{ exam.class }}</span>
-                    <span class="text-500">Date: {{ exam.date }}</span>
-                </div>
-                <div class="flex align-items-center gap-2 mt-2">
-                    <span class="text-500 font-medium">Average Score:</span>
-                    <div class="flex align-items-center">
-                        <div class="w-8rem mr-2">
-                            <div class="surface-300 border-round" style="height: 0.5rem">
-                                <div class="h-full border-round"
-                                     [ngClass]="{
-                                        'bg-green-500': exam.average! >= 70,
-                                        'bg-yellow-500': exam.average! >= 50 && exam.average! < 70,
-                                        'bg-red-500': exam.average! < 50
-                                     }"
-                                     [ngStyle]="{'width': exam.average + '%', 'transition': 'width 1s'}">
-                                </div>
-                            </div>
-                        </div>
-                        <span class="font-medium"
-                              [ngClass]="{
-                                'text-green-500': exam.average! >= 70,
-                                'text-yellow-500': exam.average! >= 50 && exam.average! < 70,
-                                'text-red-500': exam.average! < 50
-                              }">
-                            {{ exam.average }}%
-                        </span>
+    <!-- Header Section -->
+    <div class="col-12 flex flex-row justify-content-between align-items-center mb-4">
+        <div class="flex justify-between items-start mb-4">
+            <div class="flex flex-column">
+                <h1 class="text-3xl font-bold text-900 mb-1" *ngIf="assessment">{{ assessment.name }}</h1>
+                <p class="text-lg text-600 mb-0" *ngIf="assessment">{{ assessment.type }} • {{ assessment.level }} - {{
+                    assessment.unit }}</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 mb-4">
+            <button pButton label="Editar" icon="pi pi-pencil" class="p-button-outlined"></button>
+            <button pButton label="Lançar Notas" icon="pi pi-user-plus" class="p-button-outlined"></button>
+            <button pButton label="Exportar" icon="pi pi-download" class="p-button-primary"></button>
+            <button pButton label="Imprimir" icon="pi pi-print" class="p-button-danger"></button>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="col-12 mb-4">
+        <p-tabMenu [model]="tabItems" [activeItem]="tabItems[0]" styleClass="border-none"></p-tabMenu>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="col-12 mb-4" *ngIf="assessment">
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <div class="card text-center">
+                    <div class="flex align-items-center justify-content-center mb-3">
+                        <i class="pi pi-file text-blue-500 text-2xl mr-2"></i>
+                        <span class="text-900 font-medium text-xl">Status</span>
                     </div>
+                    <span class="p-badge text-lg p-2" [ngClass]="{
+                        'p-badge-success': assessment.status === 'Concluída',
+                        'p-badge-warning': assessment.status === 'Pendente',
+                        'p-badge-info': assessment.status === 'Ativo',
+                        'p-badge-danger': assessment.status === 'Cancelado'
+                    }">
+                        {{ assessment.status }}
+                    </span>
                 </div>
             </div>
-            <div class="action-buttons">
-                <p-splitButton
-                    label="Actions"
-                    icon="pi pi-sliders-h"
-                    [model]="items"
-                    styleClass="p-button-info text-5xl"
-                ></p-splitButton>
+
+            <div class="col-12 md:col-4">
+                <div class="card text-center">
+                    <div class="flex align-items-center justify-content-center mb-3">
+                        <i class="pi pi-calendar text-blue-500 text-2xl mr-2"></i>
+                        <span class="text-900 font-medium text-xl">Data da Avaliação</span>
+                    </div>
+                    <div class="text-900 font-medium text-xl">{{ assessment.date }}</div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <div class="card text-center">
+                    <div class="flex align-items-center justify-content-center mb-3">
+                        <i class="pi pi-target text-blue-500 text-2xl mr-2"></i>
+                        <span class="text-900 font-medium text-xl">Pontuação Máxima</span>
+                    </div>
+                    <div class="text-900 font-medium text-xl">100</div>
+                </div>
             </div>
         </div>
     </div>
-    <app-tab-view [tabs]="tabs" class="w-full"></app-tab-view>
+
+    <!-- Assessment Details Section -->
+    <div class="col-12 md:col-6 mb-4" *ngIf="assessment">
+        <div class="card">
+            <h3 class="text-xl font-semibold mb-4">Detalhes da Avaliação</h3>
+
+            <!-- Basic Information -->
+            <div class="mb-4">
+                <h4 class="text-lg font-medium mb-3">Informações Básicas</h4>
+                <div class="grid">
+                    <div class="col-12 mb-3">
+                        <label class="block text-sm font-medium text-600 mb-1">Tipo</label>
+                        <span class="text-900">{{ assessment.type || 'Prova Oral' }}</span>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="block text-sm font-medium text-600 mb-1">Unidade</label>
+                        <span class="text-900">{{ assessment.level }} - {{ assessment.unit }}</span>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="block text-sm font-medium text-600 mb-1">Aplicada a</label>
+                        <span class="text-900">{{ assessment.class }}</span>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="block text-sm font-medium text-600 mb-1">Criada em</label>
+                        <span class="text-900">{{ assessment.createdAt || '10/01/2024' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluated Competencies -->
+            <div>
+                <h4 class="text-lg font-medium mb-3">Competências Avaliadas</h4>
+                <div class="flex gap-2 flex-wrap">
+                    <span class="p-badge p-badge-secondary" *ngFor="let competency of assessment.competencies">{{
+                        competency
+                        }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Summary Section -->
+    <div class="col-12 md:col-6 mb-4" *ngIf="assessment">
+        <div class="card">
+            <h3 class="text-xl font-semibold mb-4">Resumo dos Resultados</h3>
+
+            <div class="grid">
+                <div class="col-12 md:col-4">
+                    <div class="text-center">
+                        <div class="text-900 font-bold text-3xl mb-1">{{ assessment.gradesCount || 1 }}</div>
+                        <div class="text-600 text-sm">Notas Lançadas</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="text-center">
+                        <div class="text-green-500 font-bold text-3xl mb-1">{{ assessment.average || 84.0 }}</div>
+                        <div class="text-600 text-sm">Média Geral</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="text-center">
+                        <div class="text-purple-500 font-bold text-3xl mb-1">{{ assessment.completionRate || '10%' }}
+                        </div>
+                        <div class="text-600 text-sm">Taxa de Conclusão</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="col-12">
+        <app-tab-view [tabs]="tabs" class="w-full"></app-tab-view>
+    </div>
 </div>

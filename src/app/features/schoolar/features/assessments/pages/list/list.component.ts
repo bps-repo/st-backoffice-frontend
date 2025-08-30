@@ -1,24 +1,24 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
     TableColumn,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import {TableService} from 'src/app/shared/services/table.service';
-import {Router} from "@angular/router";
-import {AssessmentService} from 'src/app/core/services/assessment.service';
-import {CardModule} from 'primeng/card';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {TabViewModule} from 'primeng/tabview';
-import {BadgeModule} from 'primeng/badge';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {TooltipModule} from 'primeng/tooltip';
-import {FormsModule} from '@angular/forms';
+import { TableService } from 'src/app/shared/services/table.service';
+import { Router } from "@angular/router";
+import { AssessmentService } from 'src/app/core/services/assessment.service';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { TabViewModule } from 'primeng/tabview';
+import { BadgeModule } from 'primeng/badge';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-general',
+    selector: 'app-assessments-list',
     imports: [
         CommonModule,
         CardModule,
@@ -95,7 +95,7 @@ export class ListComponent implements OnInit {
         private tableService: TableService<any>,
         private router: Router,
         private assessmentService: AssessmentService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         // Initialize with sample data - in real app, load from service

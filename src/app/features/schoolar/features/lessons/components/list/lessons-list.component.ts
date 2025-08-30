@@ -1,35 +1,33 @@
-import {CommonModule} from '@angular/common';
-import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {DialogModule} from 'primeng/dialog';
-import {ToastModule} from 'primeng/toast';
-import {Lesson} from 'src/app/core/models/academic/lesson';
-import {LessonStatus} from 'src/app/core/enums/lesson-status';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {SelectItem} from 'primeng/api';
-import {LEVELS} from 'src/app/shared/constants/app';
-import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Store} from '@ngrx/store';
-import {Observable, Subject} from 'rxjs';
-import {Router, RouterModule} from '@angular/router';
-import {ChartModule} from 'primeng/chart';
-import {CardModule} from 'primeng/card';
-import {RippleModule} from "primeng/ripple";
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TooltipModule} from 'primeng/tooltip';
-import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import {selectAllLessons, selectAnyLoading, selectAnyError} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
-import {map, takeUntil} from 'rxjs/operators';
-import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
-import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
-import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
-import {CalendarsDashboardComponent} from "../../../calendars/components/dashboard/dashboard.component";
-import {CalendarAppComponent} from "../../../calendars/components/calendar.app.component";
-import {CalendarModule} from 'primeng/calendar';
-import {BadgeModule} from 'primeng/badge';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { Lesson } from 'src/app/core/models/academic/lesson';
+import { LessonStatus } from 'src/app/core/enums/lesson-status';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { SelectItem } from 'primeng/api';
+import { LEVELS } from 'src/app/shared/constants/app';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
+import { Store } from '@ngrx/store';
+import { Observable, Subject } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
+import { ChartModule } from 'primeng/chart';
+import { CardModule } from 'primeng/card';
+import { RippleModule } from "primeng/ripple";
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
+import { selectAllLessons, selectAnyLoading, selectAnyError } from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import { takeUntil } from 'rxjs/operators';
+import { LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS } from "./lessons.constants";
+import { LessonState } from "../../../../../../core/store/schoolar/lessons/lesson.state";
+import { LessonReports } from "../../../reports/components/lessons/lesson-reports.component";
+import { CalendarModule } from 'primeng/calendar';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
     selector: 'app-lessons',
@@ -271,10 +269,10 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     ];
 
     // References to sticky header elements
-    @ViewChild('mainHeader', {static: false})
+    @ViewChild('mainHeader', { static: false })
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', {static: false})
+    @ViewChild('viewSelector', { static: false })
     viewSelector!: ElementRef;
 
     // Sticky state tracking
@@ -296,25 +294,25 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     selectedLesson: Lesson | null = null;
     private hoverTimeout: any = null;
 
-    @ViewChild("startDatetime", {static: true})
+    @ViewChild("startDatetime", { static: true })
     startDatetimeTemplate?: TemplateRef<any>;
 
-    @ViewChild("endDatetime", {static: true})
+    @ViewChild("endDatetime", { static: true })
     endDatetimeTemplate?: TemplateRef<any>;
 
-    @ViewChild("actionsTemplate", {static: true})
+    @ViewChild("actionsTemplate", { static: true })
     actionsTemplate?: TemplateRef<any>;
 
-    @ViewChild("teacherTemplate", {static: true})
+    @ViewChild("teacherTemplate", { static: true })
     teacherTemplate?: TemplateRef<any>;
 
-    @ViewChild("centerTemplate", {static: true})
+    @ViewChild("centerTemplate", { static: true })
     centerTemplate?: TemplateRef<any>;
 
-    @ViewChild("unitTemplate", {static: true})
+    @ViewChild("unitTemplate", { static: true })
     unitTemplate?: TemplateRef<any>;
 
-    @ViewChild("statusTemplate", {static: true})
+    @ViewChild("statusTemplate", { static: true })
     statusTemplate?: TemplateRef<any>;
 
     columnTemplates: Record<string, TemplateRef<any>> = {}
@@ -336,7 +334,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     // Calendar methods
     initializeCalendarData() {
         this.setCurrentWeek();
-        this.loadWeeklyLessons();
         this.loadMonthlyLessons();
     }
 
@@ -350,153 +347,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.currentWeekEnd = new Date(this.currentWeekStart);
         this.currentWeekEnd.setDate(this.currentWeekStart.getDate() + 6);
-    }
-
-    loadWeeklyLessons() {
-        // Sample data for weekly view - in real app, load from service
-        this.weeklyLessons = [
-            {
-                day: 'Mon 14/07',
-                date: '14/07',
-                classes: [
-                    {
-                        time: '09:00',
-                        title: 'English ...',
-                        teacher: 'Prof. Maria...',
-                        group: 'Turma A',
-                        status: 'Concluída',
-                        statusClass: 'success'
-                    },
-                    {
-                        time: '14:00',
-                        title: 'Business...',
-                        teacher: 'Prof. João...',
-                        group: 'Turma B',
-                        status: 'Pendente',
-                        statusClass: 'warning'
-                    },
-                    {
-                        time: '16:00',
-                        title: 'Business...',
-                        teacher: 'Prof. João...',
-                        group: 'Turma B',
-                        status: 'Pendente',
-                        statusClass: 'warning'
-                    }
-                ]
-            },
-            {
-                day: 'Tue 15/07',
-                date: '15/07',
-                classes: [
-                    {
-                        time: '09:00',
-                        title: 'English ...',
-                        teacher: 'Prof. Maria...',
-                        group: 'Turma A',
-                        status: 'Concluída',
-                        statusClass: 'success'
-                    },
-                    {
-                        time: '14:00',
-                        title: 'Business...',
-                        teacher: 'Prof. João...',
-                        group: 'Turma B',
-                        status: 'Pendente',
-                        statusClass: 'warning'
-                    }
-                ]
-            },
-            {
-                day: 'Wed 16/07',
-                date: '16/07',
-                isToday: true,
-                classes: [
-                    {
-                        time: '09:00',
-                        title: 'English ...',
-                        teacher: 'Prof. Maria...',
-                        group: 'Turma A',
-                        status: 'Concluída',
-                        statusClass: 'success'
-                    },
-                    {
-                        time: '14:00',
-                        title: 'Business...',
-                        teacher: 'Prof. João...',
-                        group: 'Turma B',
-                        status: 'Pendente',
-                        statusClass: 'warning'
-                    }
-                ]
-            },
-            {
-                day: 'Thu 17/07',
-                date: '17/07',
-                classes: [
-                    {
-                        time: '09:00',
-                        title: 'English ...',
-                        teacher: 'Prof. Maria...',
-                        group: 'Turma A',
-                        status: 'Concluída',
-                        statusClass: 'success'
-                    }
-                ]
-            },
-            {
-                day: 'Fri 18/07',
-                date: '18/07',
-                classes: [
-                    {
-                        time: '09:00',
-                        title: 'English ...',
-                        teacher: 'Prof. Maria...',
-                        group: 'Turma A',
-                        status: 'Concluída',
-                        statusClass: 'success'
-                    },
-                    {
-                        time: '14:00',
-                        title: 'Business...',
-                        teacher: 'Prof. João...',
-                        group: 'Turma B',
-                        status: 'Pendente',
-                        statusClass: 'warning'
-                    }
-                ]
-            },
-            {
-                day: 'Sat 19/07',
-                date: '19/07',
-                classes: [
-                    {
-                        time: '09:00',
-                        title: 'English ...',
-                        teacher: 'Prof. Maria...',
-                        group: 'Turma A',
-                        status: 'Concluída',
-                        statusClass: 'success'
-                    },
-                    {
-                        time: '14:00',
-                        title: 'Business...',
-                        teacher: 'Prof. João...',
-                        group: 'Turma B',
-                        status: 'Pendente',
-                        statusClass: 'warning'
-                    },
-                    {
-                        time: '16:00',
-                        title: 'Business...',
-                        teacher: 'Prof. João...',
-                        group: 'Turma B',
-                        status: 'Pendente',
-                        statusClass: 'warning'
-                    }
-                ]
-            }
-        ];
     }
 
     loadMonthlyLessons() {
@@ -518,8 +368,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         // Load real data for new period
         if (this.classes?.length > 0) {
             this.loadWeeklyLessonsFromData(this.classes);
-        } else {
-            this.loadWeeklyLessons();
         }
     }
 
@@ -533,8 +381,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         // Load real data for new period
         if (this.classes?.length > 0) {
             this.loadWeeklyLessonsFromData(this.classes);
-        } else {
-            this.loadWeeklyLessons();
         }
     }
 
@@ -544,8 +390,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         // Load real data for today
         if (this.classes?.length > 0) {
             this.loadWeeklyLessonsFromData(this.classes);
-        } else {
-            this.loadWeeklyLessons();
         }
     }
 
