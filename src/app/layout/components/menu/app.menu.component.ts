@@ -78,8 +78,8 @@ export class AppMenuComponent implements OnInit {
                     },
                     {
                         label: 'Vendas Avulsas',
-                        icon: 'pi pi-fw pi-file',
-                        routerLink: ['/finances/invoices'],
+                        icon: 'pi pi-fw pi-shopping-cart',
+                        routerLink: ['/finances/sales'],
                     },
                     {
                         label: 'Gestão de Tarefas',
