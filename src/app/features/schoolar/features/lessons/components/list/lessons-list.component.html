@@ -211,52 +211,48 @@
                 </div>
 
                 <div class="calendar-body">
-                    <!-- July 2025 Calendar Grid -->
+                    @for (week of getMonthlyCalendarWeeks(); track $index) {
                     <div class="grid calendar-week border-bottom-1 border-gray-100">
-                        <div class="col calendar-day text-gray-400">29</div>
-                        <div class="col calendar-day text-gray-400">30</div>
-                        <div class="col calendar-day">1</div>
-                        <div class="col calendar-day">2</div>
-                        <div class="col calendar-day">3</div>
-                        <div class="col calendar-day">4</div>
-                        <div class="col calendar-day">5</div>
+                        @for (day of week; track day.date) {
+                        <div class="col calendar-day"
+                             [class.text-gray-400]="!day.isCurrentMonth"
+                             [class.today-day]="day.isToday"
+                             [class.current-month]="day.isCurrentMonth">
+
+                            <!-- Day number -->
+                            <div class="day-number" [class.today-number]="day.isToday">
+                                {{ day.dayNumber }}
+                            </div>
+
+                            <!-- Today indicator -->
+                            @if (day.isToday) {
+                            <div class="today-indicator"></div>
+                            }
+
+                            <!-- Lessons for this day -->
+                            @if (day.lessons && day.lessons.length > 0) {
+                            <div class="monthly-lessons">
+                                @for (lesson of day.lessons.slice(0, 3); track lesson.lesson.id) {
+                                <div class="monthly-lesson-card cursor-pointer"
+                                     [class]="'border-left-2 border-' + lesson.statusClass"
+                                     (mouseenter)="showLessonDetails(lesson.lesson)"
+                                     (mouseleave)="hideLessonDetails()"
+                                     (click)="viewLesson(lesson.lesson.id!)">
+                                    <div class="lesson-time text-xs font-bold">{{ lesson.time }}</div>
+                                    <div class="lesson-title text-xs">{{ lesson.title }}</div>
+                                </div>
+                                }
+                                @if (day.lessons.length > 3) {
+                                <div class="more-lessons text-xs text-gray-500">
+                                    +{{ day.lessons.length - 3 }} mais
+                                </div>
+                                }
+                            </div>
+                            }
+                        </div>
+                        }
                     </div>
-                    <div class="grid calendar-week border-bottom-1 border-gray-100">
-                        <div class="col calendar-day">6</div>
-                        <div class="col calendar-day">7</div>
-                        <div class="col calendar-day">8</div>
-                        <div class="col calendar-day">9</div>
-                        <div class="col calendar-day">10</div>
-                        <div class="col calendar-day">11</div>
-                        <div class="col calendar-day">12</div>
-                    </div>
-                    <div class="grid calendar-week border-bottom-1 border-gray-100">
-                        <div class="col calendar-day">13</div>
-                        <div class="col calendar-day">14</div>
-                        <div class="col calendar-day">15</div>
-                        <div class="col calendar-day">16</div>
-                        <div class="col calendar-day">17</div>
-                        <div class="col calendar-day">18</div>
-                        <div class="col calendar-day">19</div>
-                    </div>
-                    <div class="grid calendar-week border-bottom-1 border-gray-100">
-                        <div class="col calendar-day">20</div>
-                        <div class="col calendar-day">21</div>
-                        <div class="col calendar-day">22</div>
-                        <div class="col calendar-day">23</div>
-                        <div class="col calendar-day">24</div>
-                        <div class="col calendar-day">25</div>
-                        <div class="col calendar-day">26</div>
-                    </div>
-                    <div class="grid calendar-week">
-                        <div class="col calendar-day">27</div>
-                        <div class="col calendar-day">28</div>
-                        <div class="col calendar-day">29</div>
-                        <div class="col calendar-day">30</div>
-                        <div class="col calendar-day">31</div>
-                        <div class="col calendar-day text-gray-400">1</div>
-                        <div class="col calendar-day text-gray-400">2</div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>

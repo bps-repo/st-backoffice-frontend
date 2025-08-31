@@ -6,19 +6,15 @@ import {
     ViewChild,
     ElementRef,
     HostListener,
-    AfterViewInit
+    AfterViewInit,
+    signal
 } from '@angular/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
 import {EventTooltipComponent} from 'src/app/shared/components/event-tooltip/event-tooltip.component';
 import {LessonService} from 'src/app/core/services/lesson.service';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PaginatorModule} from "primeng/paginator";
-import {FullCalendarModule, FullCalendarComponent} from "@fullcalendar/angular";
 import {DialogModule} from "primeng/dialog";
 import {CalendarModule} from "primeng/calendar";
 import {CommonModule} from "@angular/common";
@@ -38,6 +34,7 @@ import {CalendarReportsComponent} from "./reports/calendar-reports.component";
 import {Store} from '@ngrx/store';
 import {lessonsActions} from 'src/app/core/store/schoolar/lessons/lessons.actions';
 import {selectAllLessons, selectLessonsByDateRange} from 'src/app/core/store/schoolar/lessons/lessons.selectors';
+import {LessonStatus} from 'src/app/core/enums/lesson-status';
 
 @Component({
     selector: "app-lesson-calendar",
@@ -47,7 +44,6 @@ import {selectAllLessons, selectLessonsByDateRange} from 'src/app/core/store/sch
         FormsModule,
         ReactiveFormsModule,
         PaginatorModule,
-        FullCalendarModule,
         DialogModule,
         CalendarModule,
         CommonModule,
@@ -67,7 +63,6 @@ import {selectAllLessons, selectLessonsByDateRange} from 'src/app/core/store/sch
     styleUrls: ['./calendar.app.component.scss']
 })
 export class CalendarAppComponent implements OnInit, AfterViewInit {
-    @ViewChild('calendar') calendarComponent?: FullCalendarComponent;
     @ViewChild('mainHeader', {static: false}) mainHeader!: ElementRef;
     @ViewChild('viewSelector', {static: false}) viewSelector!: ElementRef;
 
@@ -75,10 +70,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     filteredEvents: Partial<LessonEvent>[] = [];
 
     today: string = '';
-
-    calendarOptions: any = {
-        initialView: 'timeGridWeek',
-    };
 
     showDialog: boolean = false;
     showFilterDialog: boolean = false;
@@ -105,12 +96,10 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
 
     // Calendar view options
     calendarViewOptions: any[] = [
-        {label: 'Mês', value: 'dayGridMonth'},
-        {label: 'Semana', value: 'timeGridWeek'},
-        //{label: 'Day', value: 'timeGridDay'},
-        {label: 'Lista', value: 'listWeek'}
+        {label: 'Mês', value: 'month'},
+        {label: 'Semana', value: 'week'}
     ];
-    selectedCalendarView: string = 'dayGridMonth';
+    selectedCalendarView: string = 'month';
 
     // Tab view options (like students list)
     currentView: string = 'calendar'; // Default view is calendar
@@ -135,7 +124,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     // Available teachers, centers, and classes for filtering
     teachers: any[] = [];
     centers: any[] = [];
-    classes: any[] = [];
+    filterClasses: any[] = [];
 
     selectedTeachers: any[] = [];
     selectedCenters: any[] = [];
@@ -158,6 +147,21 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     protected readonly Math = Math;
 
     private tooltipRef: ComponentRef<EventTooltipComponent> | null = null;
+
+    // Custom calendar properties
+    currentDate: Date = new Date();
+    currentWeekStart: Date = new Date();
+    currentWeekEnd: Date = new Date();
+    weeklyLessons: any[] = [];
+    monthlyCalendarDays: any[] = [];
+    classes: Lesson[] = [];
+
+    // Dialog state
+    lessonDialogVisible = signal(false);
+    selectedLesson: Lesson | null = null;
+    private hoverTimeout: any = null;
+    private dialogHoverTimeout: any = null;
+    private isDialogHovered: boolean = false;
 
     // Listen for scroll events
     @HostListener('window:scroll', ['$event'])
@@ -183,8 +187,12 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         const now = new Date();
         this.today = now.toISOString().split('T')[0];
 
-        // Subscribe to lessons by date range and map to calendar events
+        // Initialize calendar data
+        this.initializeCalendarData();
+
+        // Subscribe to lessons and map to calendar events
         this.store.select(selectAllLessons).subscribe((lessons: Lesson[]) => {
+            this.classes = lessons;
             this.events = lessons.map(lesson => this.mapLessonToEvent(lesson));
             this.filteredEvents = [...this.events];
             this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
@@ -192,47 +200,15 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             this.extractFilterOptions();
             this.calculateKpiMetrics();
             this.initializeKpis();
-            this.calendarOptions = {
-                ...this.calendarOptions,
-                events: this.filteredEvents
-            };
+
+            // Load calendar data based on current view
+            if (this.selectedCalendarView === 'week') {
+                this.loadWeeklyLessonsFromData(lessons);
+            } else {
+                this.loadMonthlyLessonsFromData(lessons);
+            }
         });
 
-        // Initialize calendar options
-        this.calendarOptions = {
-            initialView: this.selectedCalendarView,
-            locale: 'pt-br',
-            events: this.filteredEvents,
-            slotMinTime: '08:00:00',
-            slotMaxTime: '23:00:00',
-            plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin],
-            height: 'auto',
-            aspectRatio: 1.5, // Better ratio for both desktop and mobile
-            handleWindowResize: true,
-            stickyHeaderDates: true,
-            hiddenDays: [0],
-            initialDate: this.today,
-            headerToolbar: false, // Remove default header toolbar
-            editable: true,
-            selectable: true,
-            selectMirror: true,
-            droppable: true,
-            dayMaxEvents: 4,
-            moreLinkContent: (args: { num: number }) => {
-                return {
-                    html: `<span class="show-more-link">mostrar mais...</span>`
-                };
-            },
-            eventClick: (e: MouseEvent) => this.onEventClick(e),
-            dateClick: (e: any) => this.onDateClick(e),
-            eventContent: (args: any) => this.onEventRender(args),
-            eventMouseEnter: this.handleEventMouseEnter.bind(this),
-            eventMouseLeave: this.handleEventMouseLeave.bind(this),
-            eventDrop: (info: any) => this.handleEventDrop(info),
-            eventResize: (info: any) => this.handleEventResize(info),
-            themeSystem: this.darkMode ? 'bootstrap5' : 'standard',
-            datesSet: (dateInfo: any) => this.onDatesSet(dateInfo),
-        };
         this.store.dispatch(lessonsActions.loadLessons());
     }
 
@@ -364,7 +340,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             .map(center => ({label: center, value: center}));
 
         // Extract unique classes
-        this.classes = Array.from(new Set(this.events
+        this.filterClasses = Array.from(new Set(this.events
             .filter(event => event.extendedProps?.classEntity)
             .map(event => event.extendedProps?.classEntity)))
             .map(classEntity => ({label: classEntity, value: classEntity}));
@@ -517,12 +493,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
 
         // Calculate KPI metrics based on filtered events
         this.calculateKpiMetrics();
-
-        // Update calendar events
-        this.calendarOptions = {
-            ...this.calendarOptions,
-            events: this.filteredEvents
-        };
     }
 
     /**
@@ -542,12 +512,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
 
         // Calculate KPI metrics based on filtered events
         this.calculateKpiMetrics();
-
-        // Update calendar events
-        this.calendarOptions = {
-            ...this.calendarOptions,
-            events: this.filteredEvents
-        };
     }
 
     /**
@@ -596,12 +560,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     toggleDarkMode(): void {
         this.darkMode = !this.darkMode;
 
-        // Update calendar theme
-        this.calendarOptions = {
-            ...this.calendarOptions,
-            themeSystem: this.darkMode ? 'bootstrap5' : 'standard'
-        };
-
         // Apply dark mode class to body
         if (this.darkMode) {
             document.body.classList.add('dark-mode');
@@ -634,48 +592,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         }
     }
 
-    /**
-     * Navigate to previous period
-     */
-    navigatePrev(): void {
-        const calendarApi = this.calendarComponent?.getApi();
-        if (calendarApi) {
-            calendarApi.prev();
-        }
-    }
 
-    /**
-     * Navigate to next period
-     */
-    navigateNext(): void {
-        const calendarApi = this.calendarComponent?.getApi();
-        if (calendarApi) {
-            calendarApi.next();
-        }
-    }
-
-    /**
-     * Navigate to today
-     */
-    navigateToday(): void {
-        const calendarApi = this.calendarComponent?.getApi();
-        if (calendarApi) {
-            calendarApi.today();
-        }
-    }
-
-    /**
-     * Change calendar view
-     */
-    changeView(view: string): void {
-        this.selectedCalendarView = view;
-
-        // Get calendar API
-        const calendarApi = this.calendarComponent?.getApi();
-        if (calendarApi) {
-            calendarApi.changeView(view);
-        }
-    }
 
     onEventClick(e: any) {
         this.clickedEvent = e.event;
@@ -810,10 +727,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
                 this.router.navigate(['/schoolar/lessons/detail', eventId]);
             }
 
-            this.calendarOptions = {
-                ...this.calendarOptions,
-                ...{events: this.events},
-            };
             this.clickedEvent = null;
         }
     }
@@ -826,10 +739,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         this.events = this.events.filter(
             (i) => i.id!.toString() !== this.clickedEvent.id.toString()
         );
-        this.calendarOptions = {
-            ...this.calendarOptions,
-            ...{events: this.events},
-        };
         this.showDialog = false;
     }
 
@@ -867,5 +776,395 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
                 time
             }
         } as unknown as Partial<LessonEvent>;
+    }
+
+    // Custom Calendar Methods
+    initializeCalendarData() {
+        this.setCurrentWeek();
+        this.loadMonthlyLessons();
+    }
+
+    setCurrentWeek() {
+        const today = new Date();
+        const currentDay = today.getDay();
+        const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days
+
+        this.currentWeekStart = new Date(today);
+        this.currentWeekStart.setDate(today.getDate() + mondayOffset);
+
+        this.currentWeekEnd = new Date(this.currentWeekStart);
+        this.currentWeekEnd.setDate(this.currentWeekStart.getDate() + 6);
+    }
+
+    loadMonthlyLessons() {
+        // Generate monthly calendar grid
+        this.generateMonthlyCalendar();
+
+        // Load lessons for the current month
+        if (this.classes?.length > 0) {
+            this.loadMonthlyLessonsFromData(this.classes);
+        }
+    }
+
+    generateMonthlyCalendar() {
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+
+        // Get first day of month and last day of month
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        // Get the day of week for first day (0 = Sunday, 1 = Monday, etc.)
+        const firstDayOfWeek = firstDay.getDay();
+
+        // Get the day of week for last day
+        const lastDayOfWeek = lastDay.getDay();
+
+        // Calculate how many days from previous month to show
+        const daysFromPrevMonth = firstDayOfWeek;
+
+        // Calculate how many days from next month to show
+        const daysFromNextMonth = 6 - lastDayOfWeek;
+
+        this.monthlyCalendarDays = [];
+
+        // Add days from previous month
+        const prevMonth = new Date(year, month - 1, 0);
+        for (let i = daysFromPrevMonth - 1; i >= 0; i--) {
+            const day = new Date(year, month - 1, prevMonth.getDate() - i);
+            this.monthlyCalendarDays.push({
+                date: day,
+                dayNumber: day.getDate(),
+                isCurrentMonth: false,
+                isToday: day.toDateString() === new Date().toDateString(),
+                lessons: []
+            });
+        }
+
+        // Add days from current month
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const date = new Date(year, month, day);
+            this.monthlyCalendarDays.push({
+                date: date,
+                dayNumber: day,
+                isCurrentMonth: true,
+                isToday: date.toDateString() === new Date().toDateString(),
+                lessons: []
+            });
+        }
+
+        // Add days from next month
+        for (let day = 1; day <= daysFromNextMonth; day++) {
+            const date = new Date(year, month + 1, day);
+            this.monthlyCalendarDays.push({
+                date: date,
+                dayNumber: day,
+                isCurrentMonth: false,
+                isToday: date.toDateString() === new Date().toDateString(),
+                lessons: []
+            });
+        }
+    }
+
+    loadMonthlyLessonsFromData(lessons: Lesson[]) {
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+
+        // Get first and last day of the month
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        // Filter lessons for current month
+        const monthLessons = lessons.filter(lesson => {
+            const lessonDate = new Date(lesson.startDatetime);
+            return lessonDate >= firstDay && lessonDate <= lastDay;
+        });
+
+        // Assign lessons to calendar days
+        this.monthlyCalendarDays.forEach(day => {
+            day.lessons = monthLessons.filter(lesson => {
+                const lessonDate = new Date(lesson.startDatetime);
+                return lessonDate.toDateString() === day.date.toDateString();
+            }).map(lesson => ({
+                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                title: lesson.title,
+                teacher: this.getTeacherName(lesson),
+                group: lesson.level || 'N/A',
+                status: this.getStatusLabel(lesson.status),
+                statusClass: this.getStatusClass(lesson.status),
+                lesson: lesson
+            }));
+        });
+    }
+
+    getMonthlyCalendarWeeks(): any[][] {
+        const weeks: any[][] = [];
+        let currentWeek: any[] = [];
+
+        this.monthlyCalendarDays.forEach((day, index) => {
+            currentWeek.push(day);
+
+            // If we have 7 days or it's the last day, create a new week
+            if (currentWeek.length === 7 || index === this.monthlyCalendarDays.length - 1) {
+                weeks.push([...currentWeek]);
+                currentWeek = [];
+            }
+        });
+
+        return weeks;
+    }
+
+    loadWeeklyLessonsFromData(lessons: Lesson[]) {
+        const weekStart = new Date(this.currentWeekStart);
+        const weekEnd = new Date(this.currentWeekEnd);
+
+        // Filter lessons for current week
+        const weekLessons = lessons.filter(lesson => {
+            const lessonDate = new Date(lesson.startDatetime);
+            return lessonDate >= weekStart && lessonDate <= weekEnd;
+        });
+
+        // Create week structure
+        this.weeklyLessons = [];
+        for (let i = 0; i < 7; i++) {
+            const currentDay = new Date(weekStart);
+            currentDay.setDate(weekStart.getDate() + i);
+
+            const dayLessons = weekLessons.filter(lesson => {
+                const lessonDate = new Date(lesson.startDatetime);
+                return lessonDate.toDateString() === currentDay.toDateString();
+            });
+
+            const isToday = currentDay.toDateString() === new Date().toDateString();
+
+            this.weeklyLessons.push({
+                day: currentDay.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
+                date: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                isToday,
+                classes: dayLessons.map(lesson => ({
+                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    title: lesson.title,
+                    teacher: this.getTeacherName(lesson),
+                    group: lesson.level || 'N/A',
+                    status: this.getStatusLabel(lesson.status),
+                    statusClass: this.getStatusClass(lesson.status),
+                    lesson: lesson
+                }))
+            });
+        }
+    }
+
+    // Navigation methods
+    navigatePrevious() {
+        if (this.selectedCalendarView === 'week') {
+            this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
+            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() - 7);
+            if (this.classes?.length > 0) {
+                this.loadWeeklyLessonsFromData(this.classes);
+            }
+        } else {
+            this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+            if (this.classes?.length > 0) {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
+        }
+    }
+
+    navigateNext() {
+        if (this.selectedCalendarView === 'week') {
+            this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
+            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() + 7);
+            if (this.classes?.length > 0) {
+                this.loadWeeklyLessonsFromData(this.classes);
+            }
+        } else {
+            this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+            if (this.classes?.length > 0) {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
+        }
+    }
+
+    navigateToday() {
+        this.currentDate = new Date();
+        this.setCurrentWeek();
+        if (this.classes?.length > 0) {
+            if (this.selectedCalendarView === 'week') {
+                this.loadWeeklyLessonsFromData(this.classes);
+            } else {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
+        }
+    }
+
+    changeView(view: string) {
+        this.selectedCalendarView = view;
+
+        if (this.classes?.length > 0) {
+            if (view === 'week') {
+                this.loadWeeklyLessonsFromData(this.classes);
+            } else {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
+        }
+    }
+
+    getFormattedWeekRange(): string {
+        const start = this.currentWeekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        return `Semana de ${start} a ${end}`;
+    }
+
+    getFormattedMonth(): string {
+        return this.currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    }
+
+    // Lesson dialog methods
+    showLessonDetails(lesson: Lesson) {
+        if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+        }
+
+        this.hoverTimeout = setTimeout(() => {
+            this.selectedLesson = lesson;
+            this.lessonDialogVisible.set(true);
+        }, 300);
+    }
+
+    hideLessonDetails() {
+        if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+            this.hoverTimeout = null;
+        }
+
+        setTimeout(() => {
+            if (!this.isDialogHovered) {
+                this.lessonDialogVisible.set(false);
+                this.selectedLesson = null;
+            }
+        }, 100);
+    }
+
+    keepDialogOpen() {
+        if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+            this.hoverTimeout = null;
+        }
+
+        this.isDialogHovered = true;
+
+        if (this.dialogHoverTimeout) {
+            clearTimeout(this.dialogHoverTimeout);
+            this.dialogHoverTimeout = null;
+        }
+    }
+
+    onDialogMouseLeave() {
+        this.isDialogHovered = false;
+
+        this.dialogHoverTimeout = setTimeout(() => {
+            if (!this.isDialogHovered) {
+                this.lessonDialogVisible.set(false);
+                this.selectedLesson = null;
+            }
+        }, 150);
+    }
+
+    viewLesson(lessonId: string) {
+        this.router.navigate(['/schoolar/lessons', lessonId]).then();
+    }
+
+    // Helper methods
+    getTeacherName(lesson: Lesson): string {
+        if (lesson.teacher && typeof lesson.teacher === 'string') {
+            return lesson.teacher;
+        }
+        if (lesson.teacherId) {
+            return lesson.teacherId;
+        }
+        return 'N/A';
+    }
+
+    getStatusLabel(status: string | LessonStatus): string {
+        if (typeof status === 'string') {
+            switch (status.toUpperCase()) {
+                case 'AVAILABLE': return 'Disponível';
+                case 'BOOKED': return 'Agendada';
+                case 'COMPLETED': return 'Concluída';
+                case 'CANCELLED': return 'Cancelada';
+                case 'SCHEDULED': return 'Agendada';
+                case 'POSTPONED': return 'Adiada';
+                case 'OVERDUE': return 'Atrasada';
+                default: return status;
+            }
+        }
+        switch (status) {
+            case LessonStatus.AVAILABLE: return 'Disponível';
+            case LessonStatus.BOOKED: return 'Agendada';
+            case LessonStatus.COMPLETED: return 'Concluída';
+            case LessonStatus.CANCELLED: return 'Cancelada';
+            case LessonStatus.SCHEDULED: return 'Agendada';
+            case LessonStatus.POSTPONED: return 'Adiada';
+            case LessonStatus.OVERDUE: return 'Atrasada';
+            default: return 'Desconhecido';
+        }
+    }
+
+    private getStatusClass(status: string | LessonStatus): string {
+        if (typeof status === 'string') {
+            switch (status.toUpperCase()) {
+                case 'AVAILABLE':
+                case 'COMPLETED': return 'success';
+                case 'BOOKED':
+                case 'SCHEDULED': return 'warning';
+                case 'CANCELLED':
+                case 'OVERDUE': return 'danger';
+                case 'POSTPONED': return 'info';
+                default: return 'secondary';
+            }
+        }
+        switch (status) {
+            case LessonStatus.AVAILABLE:
+            case LessonStatus.COMPLETED: return 'success';
+            case LessonStatus.BOOKED:
+            case LessonStatus.SCHEDULED: return 'warning';
+            case LessonStatus.CANCELLED:
+            case LessonStatus.OVERDUE: return 'danger';
+            case LessonStatus.POSTPONED: return 'info';
+            default: return 'secondary';
+        }
+    }
+
+    getCenterName(lesson: Lesson): string {
+        if (lesson.center) {
+            if (typeof lesson.center === 'object' && lesson.center.name) {
+                return lesson.center.name;
+            }
+            if (typeof lesson.center === 'string') {
+                return lesson.center;
+            }
+        }
+        if (lesson.centerId) {
+            return lesson.centerId;
+        }
+        return 'N/A';
+    }
+
+    getStudentsString(lesson: Lesson): string {
+        if (lesson.students && lesson.students.length > 0) {
+            return lesson.students.map(student => student.name || student.toString()).join(', ');
+        }
+        return 'Nenhum aluno inscrito';
+    }
+
+    getMaterialsString(lesson: Lesson): string {
+        if (lesson.materials && lesson.materials.length > 0) {
+            return lesson.materials.map(material => material.title || material.toString()).join(', ');
+        }
+        return 'Nenhum material';
+    }
+
+    openOnlineLink(link: string) {
+        window.open(link, '_blank');
     }
 }

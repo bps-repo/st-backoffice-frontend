@@ -1,24 +1,19 @@
 <section class="grid">
     <!-- Main Header -->
     <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
-         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Agendamento de aulas</h2>
             <span class="text-lg">Gerencia agendamentos e calendário de aulas</span>
         </div>
-        <p-button
-            (onClick)="createNewEvent()"
-            label="Nova aula"
-            icon="pi pi-plus"
-            class="p-button-outlined"
-        ></p-button>
+        <p-button (onClick)="createNewEvent()" label="Nova aula" icon="pi pi-plus" class="p-button-outlined"></p-button>
     </div>
 
     <!-- View Selector -->
     <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
-         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
         <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-                        optionLabel="label" optionValue="value"></p-selectButton>
+            optionLabel="label" optionValue="value"></p-selectButton>
     </div>
 
     <!-- Calendar View -->
@@ -39,28 +34,16 @@
                     <span class="p-input-icon-left w-full mr-2">
                         <i class="pi pi-search"></i>
                         <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" pInputText
-                               placeholder="Buscar aulas"/>
+                            placeholder="Buscar aulas" />
                     </span>
-                    <button
-                        *ngIf="searchTerm"
-                        pButton
-                        type="button"
-                        icon="pi pi-times"
-                        class="p-button-outlined p-button-danger"
-                        (click)="searchTerm=''; applyFilters()"
-                    ></button>
+                    <button *ngIf="searchTerm" pButton type="button" icon="pi pi-times"
+                        class="p-button-outlined p-button-danger" (click)="searchTerm=''; applyFilters()"></button>
                 </div>
                 <div class="flex gap-2 h-3rem mt-3">
-                    <button
-                        pButton
-                        type="button"
-                        icon="pi pi-filter"
-                        label="Filtros"
-                        (click)="showFilterDialog = true"
+                    <button pButton type="button" icon="pi pi-filter" label="Filtros" (click)="showFilterDialog = true"
                         class="p-button-secondary"
                         [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
-                        [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
-                    ></button>
+                        [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"></button>
                 </div>
             </div>
         </div>
@@ -70,25 +53,26 @@
             <div class="col-12 flex justify-content-between align-items-center">
                 <div>
                     <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text"
-                            (click)="navigatePrev()"></button>
-                    <span class="font-bold text-xl mx-3 mb-10">{{ currentMonthYear }}</span>
+                        (click)="navigatePrevious()"></button>
+                    <span class="font-bold text-xl mx-3 mb-10">
+                        @if (selectedCalendarView === 'week') {
+                        {{ getFormattedWeekRange() }}
+                        } @else {
+                        {{ getFormattedMonth() }}
+                        }
+                    </span>
                     <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text"
-                            (click)="navigateNext()"></button>
+                        (click)="navigateNext()"></button>
                 </div>
 
                 <div class="col-12 md:col-6 lg:col-4 mb-2">
                     <div class="p-buttonset float-right">
-                        <button
-                            *ngFor="let option of calendarViewOptions"
-                            pButton
-                            type="button"
-                            [label]="option.label"
+                        <button *ngFor="let option of calendarViewOptions" pButton type="button" [label]="option.label"
                             [class.p-button-outlined]="selectedCalendarView !== option.value"
                             [class.p-button-info]="selectedCalendarView === option.value"
-                            (click)="changeView(option.value)"
-                        ></button>
+                            (click)="changeView(option.value)"></button>
                         <button pButton type="button" label="Hoje" class="p-button-outlined"
-                                (click)="navigateToday()"></button>
+                            (click)="navigateToday()"></button>
                     </div>
                 </div>
             </div>
@@ -96,7 +80,7 @@
 
         <!-- Active filters display -->
         <div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
-             class="active-filters mb-3 animate-fade px-fadein">
+            class="active-filters mb-3 animate-fade px-fadein">
             <span class="filter-label mr-2">Active Filters:</span>
 
             <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
@@ -123,20 +107,122 @@
                 <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
             </span>
 
-            <button
-                pButton
-                type="button"
-                icon="pi pi-trash"
-                label="Clear All"
-                class="p-button-sm p-button-text p-button-danger ml-2"
-                (click)="clearFilters()"
-            ></button>
+            <button pButton type="button" icon="pi pi-trash" label="Clear All"
+                class="p-button-sm p-button-text p-button-danger ml-2" (click)="clearFilters()"></button>
         </div>
 
-        <!-- Calendar Card -->
-        <div class="card col-12 animate-fade px-fadein">
-            <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+        <!-- Weekly Calendar View -->
+        @if (selectedCalendarView === 'week') {
+        <div class="weekly-calendar card w-full h-full">
+            <div class="grid gap-2">
+                @for (dayData of weeklyLessons; track dayData.date) {
+                <div class="col-12 md:col">
+                    <div class="card h-full" [class.today-card]="dayData.isToday">
+                        <div class="card-header text-center mb-3">
+                            <div class="day-header">
+                                <div class="day-name text-sm text-gray-600">{{ dayData.day.split(' ')[0] }}</div>
+                                <div class="day-date font-bold" [class.today-date]="dayData.isToday">
+                                    {{ dayData.day.split(' ')[1] }}
+                                </div>
+                            </div>
+                            @if (dayData.isToday) {
+                            <div class="today-label text-xs text-primary font-bold">Hoje</div>
+                            }
+                            @if (!dayData.classes?.length) {
+                            <div class="no-lessons text-xs text-gray-500 mt-2">Nenhuma aula agendada</div>
+                            }
+                        </div>
+
+                        <div class="classes-list">
+                            @for (classItem of dayData.classes; track $index) {
+                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors cursor-pointer"
+                                [class]="'border-left-3 border-' + classItem.statusClass"
+                                (mouseenter)="showLessonDetails(classItem.lesson)" (mouseleave)="hideLessonDetails()"
+                                (click)="viewLesson(classItem.lesson.id!)">
+                                <div class="flex align-items-center justify-content-between mb-1">
+                                    <div class="flex align-items-center gap-1">
+                                        <i class="pi pi-clock text-xs text-gray-600"></i>
+                                        <span class="text-sm font-bold">{{ classItem.time }}</span>
+                                    </div>
+                                </div>
+                                <div class="class-title text-sm font-medium mb-1">{{ classItem.title }}</div>
+                                <div class="class-details text-xs text-gray-600 mb-1">
+                                    {{ classItem.teacher }}<br>
+                                    {{ classItem.group }}
+                                </div>
+                                <div class="status-badge">
+                                    <span class="p-badge" [class]="'p-badge-' + classItem.statusClass">
+                                        {{ classItem.status }}
+                                    </span>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
         </div>
+        }
+
+        <!-- Monthly Calendar View -->
+        @if (selectedCalendarView === 'month') {
+        <div class="monthly-calendar w-full h-full">
+            <div class="card">
+                <div class="calendar-header grid border-bottom-1 border-gray-200 font-bold text-center">
+                    <div class="col">Dom</div>
+                    <div class="col">Seg</div>
+                    <div class="col">Ter</div>
+                    <div class="col">Qua</div>
+                    <div class="col">Qui</div>
+                    <div class="col">Sex</div>
+                    <div class="col">Sáb</div>
+                </div>
+
+                <div class="calendar-body">
+                    @for (week of getMonthlyCalendarWeeks(); track $index) {
+                    <div class="grid calendar-week border-bottom-1 border-gray-100">
+                        @for (day of week; track day.date) {
+                        <div class="col calendar-day" [class.text-gray-400]="!day.isCurrentMonth"
+                            [class.today-day]="day.isToday" [class.current-month]="day.isCurrentMonth">
+
+                            <!-- Day number -->
+                            <div class="day-number" [class.today-number]="day.isToday">
+                                {{ day.dayNumber }}
+                            </div>
+
+                            <!-- Today indicator -->
+                            @if (day.isToday) {
+                            <div class="today-indicator"></div>
+                            }
+
+                            <!-- Lessons for this day -->
+                            @if (day.lessons && day.lessons.length > 0) {
+                            <div class="monthly-lessons">
+                                @for (lesson of day.lessons.slice(0, 10); track lesson.lesson.id) {
+                                <div class="monthly-lesson-card cursor-pointer"
+                                    [class]="'border-left-2 border-' + lesson.statusClass"
+                                    (mouseenter)="showLessonDetails(lesson.lesson)" (mouseleave)="hideLessonDetails()"
+                                    (click)="viewLesson(lesson.lesson.id!)">
+                                    <div class="lesson-time text-xs font-bold">{{ lesson.time }}</div>
+                                    <div class="lesson-title text-xs">{{ lesson.title }}</div>
+                                </div>
+                                }
+                                @if (day.lessons.length > 10) {
+                                <div class="more-lessons text-xs text-gray-500">
+                                    +{{ day.lessons.length - 10 }} mais
+                                </div>
+                                }
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+        }
     </ng-container>
 
     <!-- Reports View -->
@@ -158,25 +244,13 @@
 </section>
 
 <!-- Filter Dialog -->
-<p-dialog
-    [(visible)]="showFilterDialog"
-    [style]="{width: '450px'}"
-    header="Filter Events"
-    [modal]="true"
-    [draggable]="false"
-    [resizable]="false"
->
+<p-dialog [(visible)]="showFilterDialog" [style]="{width: '450px'}" header="Filter Events" [modal]="true"
+    [draggable]="false" [resizable]="false">
     <div class="p-fluid">
         <div class="field">
             <label for="tags">Filter by Tags</label>
-            <p-multiSelect
-                id="tags"
-                [options]="tags"
-                [(ngModel)]="selectedTags"
-                optionLabel="name"
-                placeholder="Select Tags"
-                [showToggleAll]="true"
-            >
+            <p-multiSelect id="tags" [options]="tags" [(ngModel)]="selectedTags" optionLabel="name"
+                placeholder="Select Tags" [showToggleAll]="true">
                 <ng-template let-tag pTemplate="item">
                     <div class="flex align-items-center">
                         <span class="color-dot mr-2" [style.background-color]="tag.color"></span>
@@ -191,15 +265,8 @@
                 <p-inputSwitch [(ngModel)]="filterByTeacher" class="mr-2"></p-inputSwitch>
                 <label for="teachers">Filter by Teachers</label>
             </div>
-            <p-multiSelect
-                id="teachers"
-                [options]="teachers"
-                [(ngModel)]="selectedTeachers"
-                optionLabel="label"
-                placeholder="Select Teachers"
-                [disabled]="!filterByTeacher"
-                [showToggleAll]="true"
-            ></p-multiSelect>
+            <p-multiSelect id="teachers" [options]="teachers" [(ngModel)]="selectedTeachers" optionLabel="label"
+                placeholder="Select Teachers" [disabled]="!filterByTeacher" [showToggleAll]="true"></p-multiSelect>
         </div>
 
         <div class="field">
@@ -207,15 +274,8 @@
                 <p-inputSwitch [(ngModel)]="filterByCenter" class="mr-2"></p-inputSwitch>
                 <label for="centers">Filter by Centers</label>
             </div>
-            <p-multiSelect
-                id="centers"
-                [options]="centers"
-                [(ngModel)]="selectedCenters"
-                optionLabel="label"
-                placeholder="Select Centers"
-                [disabled]="!filterByCenter"
-                [showToggleAll]="true"
-            ></p-multiSelect>
+            <p-multiSelect id="centers" [options]="centers" [(ngModel)]="selectedCenters" optionLabel="label"
+                placeholder="Select Centers" [disabled]="!filterByCenter" [showToggleAll]="true"></p-multiSelect>
         </div>
 
         <div class="field">
@@ -223,50 +283,127 @@
                 <p-inputSwitch [(ngModel)]="filterByClass" class="mr-2"></p-inputSwitch>
                 <label for="classes">Filter by Classes</label>
             </div>
-            <p-multiSelect
-                id="classes"
-                [options]="classes"
-                [(ngModel)]="selectedClasses"
-                optionLabel="label"
-                placeholder="Select Classes"
-                [disabled]="!filterByClass"
-                [showToggleAll]="true"
-            ></p-multiSelect>
+            <p-multiSelect id="classes" [options]="classes" [(ngModel)]="selectedClasses" optionLabel="label"
+                placeholder="Select Classes" [disabled]="!filterByClass" [showToggleAll]="true"></p-multiSelect>
         </div>
     </div>
 
     <ng-template pTemplate="footer">
         <button pButton type="button" label="Apply" icon="pi pi-check"
-                (click)="applyFilters(); showFilterDialog = false"></button>
+            (click)="applyFilters(); showFilterDialog = false"></button>
         <button pButton type="button" label="Clear" icon="pi pi-times" class="p-button-outlined"
-                (click)="clearFilters(); showFilterDialog = false"></button>
+            (click)="clearFilters(); showFilterDialog = false"></button>
     </ng-template>
 </p-dialog>
 
+<!-- Lesson Details Dialog -->
+<p-dialog [header]="selectedLesson?.title || 'Detalhes da Aula'" [visible]="lessonDialogVisible()" [modal]="false"
+    [closable]="true" [draggable]="false" [resizable]="false" styleClass="lesson-details-dialog"
+    [style]="{width: '400px'}" (mouseenter)="keepDialogOpen()" (mouseleave)="onDialogMouseLeave()">
+
+    @if (selectedLesson) {
+    <div class="lesson-details-content">
+        <!-- Status Badge -->
+        <div class="flex justify-content-between align-items-center mb-3">
+            <span class="p-badge text-sm" [ngClass]="{
+                        'p-badge-success': selectedLesson.status === 'COMPLETED' || selectedLesson.status === 'AVAILABLE',
+                        'p-badge-warning': selectedLesson.status === 'SCHEDULED' || selectedLesson.status === 'BOOKED',
+                        'p-badge-danger': selectedLesson.status === 'CANCELLED' || selectedLesson.status === 'OVERDUE',
+                        'p-badge-info': selectedLesson.status === 'POSTPONED'
+                      }">
+                {{ getStatusLabel(selectedLesson.status) }}
+            </span>
+            <span class="text-sm text-500">{{ selectedLesson.startDatetime | date: 'dd/MM/yyyy' }}</span>
+        </div>
+
+        <!-- Time -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-clock text-600"></i>
+            <span class="font-medium">{{ (selectedLesson.startDatetime | date: 'HH:mm') + ' - ' +
+                (selectedLesson.endDatetime | date: 'HH:mm') }}</span>
+        </div>
+
+        <!-- Teacher -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-user text-600"></i>
+            <span>{{ getTeacherName(selectedLesson) }}</span>
+        </div>
+
+        <!-- Class/Group -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-users text-600"></i>
+            <span>{{ selectedLesson.level || 'N/A' }}</span>
+        </div>
+
+        <!-- Center -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-map-marker text-600"></i>
+            <span>{{ getCenterName(selectedLesson) }}</span>
+        </div>
+
+        <!-- Students -->
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                <i class="pi pi-users text-600"></i>
+                Alunos ({{ selectedLesson.students?.length || 0 }})
+            </h6>
+            <div class="text-sm text-700">
+                {{ getStudentsString(selectedLesson) }}
+            </div>
+        </div>
+
+        <!-- Materials -->
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                <i class="pi pi-book text-600"></i>
+                Materiais ({{ selectedLesson.materials?.length || 0 }})
+            </h6>
+            <div class="text-sm text-700">
+                {{ getMaterialsString(selectedLesson) }}
+            </div>
+        </div>
+
+        <!-- Description -->
+        @if (selectedLesson.description) {
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2">Descrição</h6>
+            <div class="text-sm text-700">
+                {{ selectedLesson.description }}
+            </div>
+        </div>
+        }
+
+        <!-- Online Link -->
+        @if (selectedLesson.online && selectedLesson.onlineLink) {
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                <i class="pi pi-globe text-600"></i>
+                Aula Online
+            </h6>
+            <p-button label="Abrir Link da Aula" icon="pi pi-external-link" size="small" [outlined]="true"
+                (click)="openOnlineLink(selectedLesson.onlineLink!)">
+            </p-button>
+        </div>
+        }
+    </div>
+    }
+</p-dialog>
+
 <!-- Event Dialog -->
-<p-dialog
-    #dd
-    [(visible)]="showDialog"
-    [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
-    [style]="{ width: '36rem' }"
-    [modal]="true"
-    [closable]="true"
-    (onHide)="view = ''"
->
+<p-dialog #dd [(visible)]="showDialog" [breakpoints]="{ '960px': '75vw', '640px': '90vw' }" [style]="{ width: '36rem' }"
+    [modal]="true" [closable]="true" (onHide)="view = ''">
     <ng-template pTemplate="header">
         <span class="text-900 font-semibold text-xl">{{
-                view === "display"
-                    ? changedEvent.title
-                    : view === "new"
-                        ? "New Event"
-                        : "Edit Event"
+            view === "display"
+            ? changedEvent.title
+            : view === "new"
+            ? "New Event"
+            : "Edit Event"
             }}</span>
     </ng-template>
     <ng-template pTemplate="content">
         <div *ngIf="view === 'display'">
-            <span class="text-900 font-semibold block mb-2"
-            >Description</span
-            >
+            <span class="text-900 font-semibold block mb-2">Description</span>
             <span class="block mb-3">{{ changedEvent.description }}</span>
 
             <div class="grid">
@@ -275,7 +412,7 @@
                     <p class="flex align-items-center m-0">
                         <i class="pi pi-fw pi-clock text-700 mr-2"></i>
                         <span>{{
-                                changedEvent.start.toISOString().slice(0, 10)
+                            changedEvent.start.toISOString().slice(0, 10)
                             }}</span>
                     </p>
                 </div>
@@ -284,7 +421,7 @@
                     <p class="flex align-items-center m-0">
                         <i class="pi pi-fw pi-clock text-700 mr-2"></i>
                         <span>{{
-                                changedEvent.end.toISOString().slice(0, 10)
+                            changedEvent.end.toISOString().slice(0, 10)
                             }}</span>
                     </p>
                 </div>
@@ -298,9 +435,7 @@
                 <div class="col-12">
                     <div class="text-900 font-semibold mb-2">Color</div>
                     <p class="flex align-items-center m-0">
-                        <span
-                            class="inline-flex flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                        ></span>
+                        <span class="inline-flex flex-shrink-0 w-1rem h-1rem mr-2 border-circle"></span>
                         <span>{{ changedEvent.tag.name }}</span>
                     </p>
                 </div>
@@ -309,106 +444,49 @@
         <div *ngIf="view !== 'display'">
             <div class="grid p-fluid formgrid">
                 <div class="col-12 md:col-6 field">
-                    <label for="title" class="text-900 font-semibold"
-                    >Title</label
-                    >
+                    <label for="title" class="text-900 font-semibold">Title</label>
                     <span class="p-input-icon-left">
                         <i class="pi pi-pencil"></i>
-                        <input
-                            id="title"
-                            type="text"
-                            pInputText
-                            placeholder="Title"
-                            [(ngModel)]="changedEvent.title"
-                        />
+                        <input id="title" type="text" pInputText placeholder="Title" [(ngModel)]="changedEvent.title" />
                     </span>
                 </div>
                 <div class="col-12 md:col-6 field">
-                    <label for="location" class="text-900 font-semibold"
-                    >Location</label
-                    >
+                    <label for="location" class="text-900 font-semibold">Location</label>
                     <span class="p-input-icon-left">
                         <i class="pi pi-map-marker"></i>
-                        <input
-                            id="location"
-                            type="text"
-                            pInputText
-                            placeholder="Location"
-                            [(ngModel)]="changedEvent.location"
-                        />
+                        <input id="location" type="text" pInputText placeholder="Location"
+                            [(ngModel)]="changedEvent.location" />
                     </span>
                 </div>
                 <div class="col-12 field">
-                    <label for="description" class="text-900 font-semibold"
-                    >Event Description</label
-                    >
-                    <textarea
-                        id="description"
-                        type="text"
-                        pInputTextarea
-                        [rows]="5"
-                        [(ngModel)]="changedEvent.description"
-                        style="resize: none"
-                    ></textarea>
+                    <label for="description" class="text-900 font-semibold">Event Description</label>
+                    <textarea id="description" type="text" pInputTextarea [rows]="5"
+                        [(ngModel)]="changedEvent.description" style="resize: none"></textarea>
                 </div>
 
                 <div class="col-12 md:col-6 field">
-                    <label for="start" class="text-900 font-semibold"
-                    >Start Date</label
-                    >
-                    <p-calendar
-                        [appendTo]="dd"
-                        dateFormat="mm-dd-yy"
-                        [maxDate]="changedEvent.end"
-                        [showTime]="true"
-                        [required]="true"
-                        inputId="start"
-                        [(ngModel)]="changedEvent.start"
-                    ></p-calendar>
+                    <label for="start" class="text-900 font-semibold">Start Date</label>
+                    <p-calendar [appendTo]="dd" dateFormat="mm-dd-yy" [maxDate]="changedEvent.end" [showTime]="true"
+                        [required]="true" inputId="start" [(ngModel)]="changedEvent.start"></p-calendar>
                 </div>
                 <div class="col-12 md:col-6 field">
-                    <label for="start" class="text-900 font-semibold"
-                    >End Date</label
-                    >
-                    <p-calendar
-                        [appendTo]="dd"
-                        dateFormat="mm-dd-yy"
-                        [minDate]="changedEvent.start"
-                        [showTime]="true"
-                        [required]="true"
-                        inputId="end"
-                        [(ngModel)]="changedEvent.end"
-                    ></p-calendar>
+                    <label for="start" class="text-900 font-semibold">End Date</label>
+                    <p-calendar [appendTo]="dd" dateFormat="mm-dd-yy" [minDate]="changedEvent.start" [showTime]="true"
+                        [required]="true" inputId="end" [(ngModel)]="changedEvent.end"></p-calendar>
                 </div>
                 <div class="col-12 field">
-                    <label
-                        for="company-color"
-                        class="text-900 font-semibold"
-                    >Color</label
-                    >
-                    <p-dropdown
-                        inputId="company-color"
-                        [appendTo]="dd"
-                        [options]="tags"
-                        [(ngModel)]="changedEvent.tag"
-                        optionLabel="name"
-                    >
+                    <label for="company-color" class="text-900 font-semibold">Color</label>
+                    <p-dropdown inputId="company-color" [appendTo]="dd" [options]="tags" [(ngModel)]="changedEvent.tag"
+                        optionLabel="name">
                         <ng-template pTemplate="selectedItem">
-                            <div
-                                *ngIf="changedEvent.tag"
-                                class="flex align-items-center"
-                            >
-                                <div
-                                    class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                                ></div>
+                            <div *ngIf="changedEvent.tag" class="flex align-items-center">
+                                <div class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"></div>
                                 <div>{{ changedEvent.tag.name }}</div>
                             </div>
                         </ng-template>
                         <ng-template let-tag pTemplate="item">
                             <div class="flex align-items-center">
-                                <div
-                                    class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"
-                                ></div>
+                                <div class="flex-shrink-0 w-1rem h-1rem mr-2 border-circle"></div>
                                 <div>{{ tag.name }}</div>
                             </div>
                         </ng-template>
@@ -419,20 +497,8 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button
-            pButton
-            *ngIf="view === 'display'"
-            label="Edit"
-            icon="pi pi-pencil"
-            (click)="onEditClick()"
-        ></button>
-        <button
-            pButton
-            *ngIf="view === 'new' || view === 'edit'"
-            label="Save"
-            icon="pi pi-check"
-            (click)="handleSave()"
-            [disabled]="!changedEvent.start || !changedEvent.end"
-        ></button>
+        <button pButton *ngIf="view === 'display'" label="Edit" icon="pi pi-pencil" (click)="onEditClick()"></button>
+        <button pButton *ngIf="view === 'new' || view === 'edit'" label="Save" icon="pi pi-check" (click)="handleSave()"
+            [disabled]="!changedEvent.start || !changedEvent.end"></button>
     </ng-template>
 </p-dialog>

@@ -167,11 +167,12 @@ import { BadgeModule } from 'primeng/badge';
         }
 
         .calendar-day {
-            min-height: 6rem;
+            min-height: 8rem;
             padding: 0.5rem;
             border-right: 1px solid #e5e7eb;
             cursor: pointer;
             transition: background-color 0.2s ease;
+            position: relative;
         }
 
         .calendar-day:hover {
@@ -184,6 +185,84 @@ import { BadgeModule } from 'primeng/badge';
 
         .calendar-week:last-child .calendar-day {
             border-bottom: none;
+        }
+
+        .calendar-day.current-month {
+            background-color: #ffffff;
+        }
+
+        .calendar-day.today-day {
+            background-color: rgba(var(--primary-color-rgb), 0.05);
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .today-number {
+            color: var(--primary-color);
+            background: rgba(var(--primary-color-rgb), 0.1);
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem auto;
+        }
+
+        .today-indicator {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .monthly-lessons {
+            margin-top: 0.25rem;
+        }
+
+        .monthly-lesson-card {
+            background: white;
+            border: 1px solid #e0e4e7;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+        }
+
+        .monthly-lesson-card:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .lesson-time {
+            color: #6b7280;
+            margin-bottom: 0.125rem;
+        }
+
+        .lesson-title {
+            color: #374151;
+            font-weight: 500;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .more-lessons {
+            text-align: center;
+            padding: 0.125rem;
+            font-style: italic;
+        }
+
+        .border-left-2 {
+            border-left-width: 2px;
         }
 
         /* Lesson Details Dialog Styles */
@@ -299,6 +378,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     // Sample lesson data for calendar
     weeklyLessons: any[] = [];
     monthlyLessons: any[] = [];
+    monthlyCalendarDays: any[] = [];
 
     // Dialog state
     lessonDialogVisible = signal(false);
@@ -339,7 +419,11 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.initializeCalendarData();
             // Load calendar data with current lessons
             if (this.classes?.length > 0) {
-                this.loadWeeklyLessonsFromData(this.classes);
+                if (this.calendarView === 'week') {
+                    this.loadWeeklyLessonsFromData(this.classes);
+                } else {
+                    this.loadMonthlyLessonsFromData(this.classes);
+                }
             }
         }
     }
@@ -363,24 +447,159 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     loadMonthlyLessons() {
-        // Sample data for monthly view - in real app, load from service
-        this.monthlyLessons = [];
+        // Generate monthly calendar grid
+        this.generateMonthlyCalendar();
+
+        // Load lessons for the current month
+        if (this.classes?.length > 0) {
+            this.loadMonthlyLessonsFromData(this.classes);
+        }
+    }
+
+    /**
+     * Generate monthly calendar grid
+     */
+    generateMonthlyCalendar() {
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+
+        // Get first day of month and last day of month
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        // Get the day of week for first day (0 = Sunday, 1 = Monday, etc.)
+        const firstDayOfWeek = firstDay.getDay();
+
+        // Get the day of week for last day
+        const lastDayOfWeek = lastDay.getDay();
+
+        // Calculate how many days from previous month to show
+        const daysFromPrevMonth = firstDayOfWeek;
+
+        // Calculate how many days from next month to show
+        const daysFromNextMonth = 6 - lastDayOfWeek;
+
+        this.monthlyCalendarDays = [];
+
+        // Add days from previous month
+        const prevMonth = new Date(year, month - 1, 0);
+        for (let i = daysFromPrevMonth - 1; i >= 0; i--) {
+            const day = new Date(year, month - 1, prevMonth.getDate() - i);
+            this.monthlyCalendarDays.push({
+                date: day,
+                dayNumber: day.getDate(),
+                isCurrentMonth: false,
+                isToday: day.toDateString() === new Date().toDateString(),
+                lessons: []
+            });
+        }
+
+        // Add days from current month
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const date = new Date(year, month, day);
+            this.monthlyCalendarDays.push({
+                date: date,
+                dayNumber: day,
+                isCurrentMonth: true,
+                isToday: date.toDateString() === new Date().toDateString(),
+                lessons: []
+            });
+        }
+
+        // Add days from next month
+        for (let day = 1; day <= daysFromNextMonth; day++) {
+            const date = new Date(year, month + 1, day);
+            this.monthlyCalendarDays.push({
+                date: date,
+                dayNumber: day,
+                isCurrentMonth: false,
+                isToday: date.toDateString() === new Date().toDateString(),
+                lessons: []
+            });
+        }
+    }
+
+    /**
+     * Load monthly lessons from real data
+     */
+    loadMonthlyLessonsFromData(lessons: Lesson[]) {
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+
+        // Get first and last day of the month
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        // Filter lessons for current month
+        const monthLessons = lessons.filter(lesson => {
+            const lessonDate = new Date(lesson.startDatetime);
+            return lessonDate >= firstDay && lessonDate <= lastDay;
+        });
+
+        // Assign lessons to calendar days
+        this.monthlyCalendarDays.forEach(day => {
+            day.lessons = monthLessons.filter(lesson => {
+                const lessonDate = new Date(lesson.startDatetime);
+                return lessonDate.toDateString() === day.date.toDateString();
+            }).map(lesson => ({
+                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                title: lesson.title,
+                teacher: this.getTeacherName(lesson),
+                group: lesson.level || 'N/A',
+                status: this.getStatusLabel(lesson.status),
+                statusClass: this.getStatusClass(lesson.status),
+                lesson: lesson
+            }));
+        });
+    }
+
+    /**
+     * Get monthly calendar organized in weeks
+     */
+    getMonthlyCalendarWeeks(): any[][] {
+        const weeks: any[][] = [];
+        let currentWeek: any[] = [];
+
+        this.monthlyCalendarDays.forEach((day, index) => {
+            currentWeek.push(day);
+
+            // If we have 7 days or it's the last day, create a new week
+            if (currentWeek.length === 7 || index === this.monthlyCalendarDays.length - 1) {
+                weeks.push([...currentWeek]);
+                currentWeek = [];
+            }
+        });
+
+        return weeks;
     }
 
     switchCalendarView(view: 'week' | 'month') {
         this.calendarView = view;
+
+        // Load appropriate data for the selected view
+        if (this.classes?.length > 0) {
+            if (view === 'week') {
+                this.loadWeeklyLessonsFromData(this.classes);
+            } else {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
+        }
     }
 
     navigatePrevious() {
         if (this.calendarView === 'week') {
             this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
             this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() - 7);
+            // Load real data for new period
+            if (this.classes?.length > 0) {
+                this.loadWeeklyLessonsFromData(this.classes);
+            }
         } else {
             this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-        }
-        // Load real data for new period
-        if (this.classes?.length > 0) {
-            this.loadWeeklyLessonsFromData(this.classes);
+            // Load real data for new period
+            if (this.classes?.length > 0) {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
         }
     }
 
@@ -388,12 +607,16 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         if (this.calendarView === 'week') {
             this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
             this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() + 7);
+            // Load real data for new period
+            if (this.classes?.length > 0) {
+                this.loadWeeklyLessonsFromData(this.classes);
+            }
         } else {
             this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-        }
-        // Load real data for new period
-        if (this.classes?.length > 0) {
-            this.loadWeeklyLessonsFromData(this.classes);
+            // Load real data for new period
+            if (this.classes?.length > 0) {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
         }
     }
 
@@ -402,7 +625,11 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.setCurrentWeek();
         // Load real data for today
         if (this.classes?.length > 0) {
-            this.loadWeeklyLessonsFromData(this.classes);
+            if (this.calendarView === 'week') {
+                this.loadWeeklyLessonsFromData(this.classes);
+            } else {
+                this.loadMonthlyLessonsFromData(this.classes);
+            }
         }
     }
 
@@ -456,7 +683,11 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         ).subscribe(lessons => {
             this.classes = lessons;
             if (this.currentView === 'calendario') {
-                this.loadWeeklyLessonsFromData(lessons);
+                if (this.calendarView === 'week') {
+                    this.loadWeeklyLessonsFromData(lessons);
+                } else {
+                    this.loadMonthlyLessonsFromData(lessons);
+                }
             }
         });
     }
