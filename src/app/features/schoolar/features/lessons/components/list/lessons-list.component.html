@@ -166,7 +166,7 @@
 
                         <div class="classes-list">
                             @for (classItem of dayData.classes; track $index) {
-                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors"
+                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors cursor-pointer"
                                 [class]="'border-left-3 border-' + classItem.statusClass"
                                 (mouseenter)="showLessonDetails(classItem.lesson)" (mouseleave)="hideLessonDetails()"
                                 (click)="viewLesson(classItem.lesson.id!)">
@@ -349,7 +349,7 @@
 </ng-template>
 
 <!-- Lesson Details Dialog -->
-<p-dialog [header]="selectedLesson?.title || 'Detalhes da Aula'" [(visible)]="lessonDialogVisible" [modal]="false"
+<p-dialog [header]="selectedLesson?.title || 'Detalhes da Aula'" [visible]="lessonDialogVisible()" [modal]="false"
     [closable]="true" [draggable]="false" [resizable]="false" styleClass="lesson-details-dialog"
     [style]="{width: '400px'}" (mouseenter)="keepDialogOpen()" (mouseleave)="hideLessonDetails()">
 
@@ -371,7 +371,7 @@
         <!-- Time -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-clock text-600"></i>
-            <span class="font-medium">{{ selectedLesson.startDatetime | date: 'HH:mm' }}</span>
+            <span class="font-medium">{{ (selectedLesson.startDatetime | date: 'HH:mm') + ' - ' + (selectedLesson.endDatetime | date: 'HH:mm') }}</span>
         </div>
 
         <!-- Teacher -->

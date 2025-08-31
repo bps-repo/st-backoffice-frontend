@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/academic/lesson';
@@ -290,7 +290,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     monthlyLessons: any[] = [];
 
     // Dialog state
-    lessonDialogVisible: boolean = false;
+    lessonDialogVisible = signal(false);
     selectedLesson: Lesson | null = null;
     private hoverTimeout: any = null;
 
@@ -496,10 +496,14 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             clearTimeout(this.hoverTimeout);
         }
 
+
+
         // Show dialog after a short delay
         this.hoverTimeout = setTimeout(() => {
             this.selectedLesson = lesson;
-            this.lessonDialogVisible = true;
+            console.log("lesson", lesson);
+            console.log("lesson.status", lesson.status);
+            this.lessonDialogVisible.set(true);
         }, 300); // 300ms delay
     }
 
@@ -514,7 +518,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         // Hide dialog immediately
-        this.lessonDialogVisible = false;
+        this.lessonDialogVisible.set(false);
         this.selectedLesson = null;
     }
 
