@@ -1,11 +1,11 @@
 export const LESSON_COLUMNS = [
-    { field: 'title', header: 'Título' },
-    { field: 'startDatetime', header: 'Data Início', customTemplate: true },
-    { field: 'endDatetime', header: 'Data Fim', customTemplate: true },
+    { field: 'title', header: 'Aula' },
+    { field: 'online', header: 'Tipo', customTemplate: true },
+    { field: 'startDatetime', header: 'Hora/Data', customTemplate: true },
     { field: 'teacherId', header: 'Professor' },
     { field: 'centerId', header: 'Centro' },
     { field: 'unitId', header: 'Unidade' },
-    { field: 'status', header: 'Status' },
+    { field: 'status', header: 'Status', customTemplate: true },
     { field: 'actions', header: 'Acções' },
 ];
 

@@ -41,16 +41,30 @@
 
                 <div class="col-12 md:col-6 field">
                     <label for="startDatetime" class="font-bold">Hora de Início *</label>
-                    <p-calendar id="startDatetime" formControlName="startDatetime" [showIcon]="true" [timeOnly]="true"
-                        hourFormat="24" [required]="true">
+                    <p-calendar (onChange)="callMethod()" id="startDatetime" formControlName="startDatetime"
+                        [showIcon]="true" [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
                     </p-calendar>
+                    <span pTooltip>
+                        <ng-template pTemplate="content">
+                            <p>
+                                {{form.get('startDatetime')?.value | date:'dd/MM/yyyy HH:mm'}}
+                            </p>
+                        </ng-template>
+                    </span>
                 </div>
 
                 <div class="col-12 md:col-6 field">
                     <label for="endDatetime" class="font-bold">Hora de fim *</label>
-                    <p-calendar id="endDatetime" formControlName="endDatetime" [showIcon]="true" [timeOnly]="true"
-                        hourFormat="24" [required]="true">
+                    <p-calendar (onSelect)="callMethod()" id="endDatetime" formControlName="endDatetime" [showIcon]="true"
+                        [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
                     </p-calendar>
+                    <span pTooltip>
+                        <ng-template pTemplate="content">
+                            <p>
+                                {{form.get('endDatetime')?.value | date:'dd/MM/yyyy HH:mm'}}
+                            </p>
+                        </ng-template>
+                    </span>
                 </div>
 
                 <div class="col-12 md:col-6  field">

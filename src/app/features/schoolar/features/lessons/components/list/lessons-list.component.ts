@@ -297,9 +297,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild("startDatetime", { static: true })
     startDatetimeTemplate?: TemplateRef<any>;
 
-    @ViewChild("endDatetime", { static: true })
-    endDatetimeTemplate?: TemplateRef<any>;
-
     @ViewChild("actionsTemplate", { static: true })
     actionsTemplate?: TemplateRef<any>;
 
@@ -314,6 +311,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @ViewChild("statusTemplate", { static: true })
     statusTemplate?: TemplateRef<any>;
+
+    @ViewChild("onlineTemplate", { static: true })
+    onlineTemplate?: TemplateRef<any>;
 
     columnTemplates: Record<string, TemplateRef<any>> = {}
 
@@ -451,12 +451,12 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit() {
         this.columnTemplates = {
             startDatetime: this.startDatetimeTemplate!,
-            endDatetime: this.endDatetimeTemplate!,
             teacherId: this.teacherTemplate!,
             centerId: this.centerTemplate!,
             unitId: this.unitTemplate!,
             status: this.statusTemplate!,
             actions: this.actionsTemplate!,
+            online: this.onlineTemplate!,
         }
 
         // Initialize sticky state check after view is initialized
@@ -732,5 +732,15 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             month: 'short',
             day: 'numeric'
         });
+    }
+
+    getOnlineType(online: boolean): string {
+        return online ? 'Online' : 'Presencial';
+    }
+
+    getFormattedDateTime(startDatetime: string | Date, endDatetime: string | Date): string {
+        const start = new Date(startDatetime);
+        const end = new Date(endDatetime);
+        return `${start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} | ${start.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
     }
 }

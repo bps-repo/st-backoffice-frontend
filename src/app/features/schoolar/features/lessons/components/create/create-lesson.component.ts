@@ -21,6 +21,7 @@ import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/le
 import { CenterService } from 'src/app/core/services/center.service';
 import { EmployeeService } from 'src/app/core/services/employee.service';
 import { UnitService } from 'src/app/core/services/unit.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
     selector: 'app-create-lesson',
@@ -35,7 +36,8 @@ import { UnitService } from 'src/app/core/services/unit.service';
         CalendarModule,
         ToastModule,
         CheckboxModule,
-        CardModule
+        CardModule,
+        TooltipModule
     ],
     providers: [MessageService],
     templateUrl: './create-lesson.component.html'
@@ -191,16 +193,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.router.navigate(['/schoolar/lessons']).then();
     }
 
-    private formatDateTime(dt: string | Date | undefined): string | undefined {
-        if (!dt) return undefined;
-        const d = typeof dt === 'string' ? new Date(dt) : dt;
-        const pad = (n: number) => n.toString().padStart(2, '0');
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    }
-
     private createDateTimeFromHour(hourDate: Date, selectedWeekDay: number): Date {
         const today = new Date();
-        const currentWeekday = today.getDay() === 0 ? 7 : today.getDay(); // Convert Sunday (0) to 7
+        const currentWeekday = today.getDay();
 
         // Calculate the difference in days to the selected weekday
         const dayDifference = selectedWeekDay - currentWeekday;
@@ -211,7 +206,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
         // Set the time from the hour picker
         const result = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
-                              hourDate.getHours(), hourDate.getMinutes(), hourDate.getSeconds());
+            hourDate.getHours(), hourDate.getMinutes(), hourDate.getSeconds());
         return result;
     }
 
@@ -222,6 +217,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return;
         }
 
+
+
+
         this.loading = true;
 
         const v = this.form.value as any;
@@ -231,7 +229,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             title: v.title || '',
             description: v.description || '',
             online: !!v.online,
-            onlineLink: v.online ? (v.onlineLink || '') : '',
+            onlineLink: v.onlineLink,
             teacherId: v.teacherId,
             startDatetime: this.createDateTimeFromHour(v.startDatetime, v.weekDay),
             endDatetime: this.createDateTimeFromHour(v.endDatetime, v.weekDay),
@@ -244,7 +242,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.store.dispatch(lessonsActions.createLesson({ lesson: payload }));
 
         // Wait for success or failure
-        this.actions$.pipe(ofType(lessonsActions.createLessonSuccess), takeUntil(this.destroy$), take(1))
+        this.actions$.pipe(
+            ofType(lessonsActions.createLessonSuccess),
+            takeUntil(this.destroy$), take(1))
             .subscribe(() => {
                 this.loading = false;
                 this.messageService.add({
@@ -295,5 +295,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             onlineLink: '',
             status: LessonStatus.AVAILABLE
         });
+    }
+
+    callMethod() {
+        console.log("startDatetime", this.form.get('startDatetime')?.value);
+        console.log("endDatetime", this.form.get('endDatetime')?.value);
     }
 }

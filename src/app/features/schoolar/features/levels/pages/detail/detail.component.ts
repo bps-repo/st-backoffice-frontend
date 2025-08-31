@@ -1,36 +1,45 @@
 // student.component.ts
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Observable, Subject, takeUntil, combineLatest, of} from 'rxjs';
-import {map, switchMap, catchError} from 'rxjs/operators';
-import {SkeletonModule} from 'primeng/skeleton';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {ButtonModule} from 'primeng/button';
-import {DropdownModule} from 'primeng/dropdown';
-import {FormsModule} from '@angular/forms';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {Level} from 'src/app/core/models/course/level';
-import {Unit} from 'src/app/core/models/course/unit';
-import {Student} from 'src/app/core/models/academic/student';
-import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
-import {ChartModule} from 'primeng/chart';
-import {RippleModule} from 'primeng/ripple';
-import {TabViewModule} from 'primeng/tabview';
-import {TabMenuModule} from 'primeng/tabmenu';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {BadgeModule} from 'primeng/badge';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {ChipModule} from 'primeng/chip';
-import {AvatarModule} from 'primeng/avatar';
-import {MenuItem} from 'primeng/api';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable, Subject, takeUntil, combineLatest, of, BehaviorSubject, forkJoin } from 'rxjs';
+import { map, switchMap, catchError, tap, distinctUntilChanged, shareReplay, startWith } from 'rxjs/operators';
+import { SkeletonModule } from 'primeng/skeleton';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { FormsModule } from '@angular/forms';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Level } from 'src/app/core/models/course/level';
+import { Unit } from 'src/app/core/models/course/unit';
+import { Student } from 'src/app/core/models/academic/student';
+import { UnitProgress } from 'src/app/core/models/academic/unit-progress';
+import { ChartModule } from 'primeng/chart';
+import { RippleModule } from 'primeng/ripple';
+import { TabViewModule } from 'primeng/tabview';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { BadgeModule } from 'primeng/badge';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ChipModule } from 'primeng/chip';
+import { AvatarModule } from 'primeng/avatar';
+import { MenuItem } from 'primeng/api';
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
-import {LevelService} from 'src/app/core/services/level.service';
-import {UnitService} from 'src/app/core/services/unit.service';
-import {StudentService} from 'src/app/core/services/student.service';
+import { LevelActions } from "../../../../../../core/store/schoolar/level/level.actions";
+import { LevelService } from 'src/app/core/services/level.service';
+import { UnitService } from 'src/app/core/services/unit.service';
+import { StudentService } from 'src/app/core/services/student.service';
+
+// Cache interface for better type safety
+interface LevelDetailCache {
+    units: Unit[];
+    students: Student[];
+    unitProgresses: UnitProgress[];
+    lastUpdated: number;
+    isExpired: boolean;
+}
 
 @Component({
     selector: 'app-level-student',
@@ -55,6 +64,7 @@ import {StudentService} from 'src/app/core/services/student.service';
         ChipModule,
         AvatarModule
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     styles: [`
         ::ng-deep .p-selectbutton {
             display: flex;
@@ -73,6 +83,14 @@ import {StudentService} from 'src/app/core/services/student.service';
         .animate-fade {
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
+
+        .skeleton-card {
+            height: 200px;
+        }
+
+        .lazy-loading {
+            min-height: 300px;
+        }
     `]
 })
 export class DetailComponent implements OnInit, OnDestroy {
@@ -89,20 +107,42 @@ export class DetailComponent implements OnInit, OnDestroy {
     selectedTab: 'overview' | 'students' | 'units' = 'overview';
     currentTab: string = 'overview';
 
-    // View options for the select button (similar to Aulas list)
+    // View options for the select button
     viewOptions = [
         { label: 'Visão Geral', value: 'overview' },
         { label: 'Alunos', value: 'students' },
         { label: 'Unidades', value: 'units' }
     ];
 
-    // Real data observables
-    units$: Observable<Unit[]> = of([]);
-    students$: Observable<Student[]> = of([]);
-    unitProgresses$: Observable<UnitProgress[]> = of([]);
+    // Cache for related data (5 minutes expiration)
+    private cache: Map<string, LevelDetailCache> = new Map();
+    private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-    // Loading states
-    loadingRelatedData: boolean = false;
+    // Lazy loading observables with caching
+    private unitsSubject = new BehaviorSubject<Unit[]>([]);
+    private studentsSubject = new BehaviorSubject<Student[]>([]);
+    private unitProgressesSubject = new BehaviorSubject<UnitProgress[]>([]);
+
+    // Public observables with caching and error handling
+    units$ = this.unitsSubject.asObservable().pipe(
+        shareReplay(1),
+        distinctUntilChanged()
+    );
+
+    students$ = this.studentsSubject.asObservable().pipe(
+        shareReplay(1),
+        distinctUntilChanged()
+    );
+
+    unitProgresses$ = this.unitProgressesSubject.asObservable().pipe(
+        shareReplay(1),
+        distinctUntilChanged()
+    );
+
+    // Loading states for each tab
+    loadingOverview = false;
+    loadingStudents = false;
+    loadingUnits = false;
 
     // Header KPI values (calculated from real data)
     headerStats = [
@@ -118,7 +158,6 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     // Units for overview and units tabs (calculated from real data)
     unitsSummary: any[] = [];
-
     unitsCards: any[] = [];
 
     // Progress statistics
@@ -141,38 +180,50 @@ export class DetailComponent implements OnInit, OnDestroy {
         private store: Store,
         private levelService: LevelService,
         private unitService: UnitService,
-        private studentService: StudentService
+        private studentService: StudentService,
+        private cdr: ChangeDetectorRef
     ) {
         this.level$ = this.store.select(LevelSelectors.selectSelectedLevel);
         this.loading$ = this.store.select(LevelSelectors.selectLoading);
     }
 
     ngOnInit(): void {
-        this.route.params.subscribe(params => {
-            this.levelId = params['id'];
-            if (this.levelId) {
+        this.route.params.pipe(
+            takeUntil(this.destroy$),
+            map(params => params['id']),
+            distinctUntilChanged()
+        ).subscribe(levelId => {
+            this.levelId = levelId;
+            if (levelId) {
                 this.loadLevel();
             }
         });
 
-        this.level$.subscribe(level => {
+        this.level$.pipe(
+            takeUntil(this.destroy$),
+            distinctUntilChanged()
+        ).subscribe(level => {
             this.level = level;
-            this.editableLevel = level ? {...level} : null;
+            this.editableLevel = level ? { ...level } : null;
 
             if (level) {
-                this.loadRelatedData();
+                // Load overview data immediately (most important)
+                this.loadOverviewData();
+
+                // Initialize charts
                 this.initUnitsChart();
                 this.initEnrollmentChart();
                 this.initCompletionRateChart();
             }
+
+            this.cdr.markForCheck();
         });
 
-        this.loading$.subscribe(loading => {
+        this.loading$.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(loading => {
             this.loading = loading;
-            // If loading is false and we have a levelId but no level, there might be an error
-            if (!loading && this.levelId && !this.level) {
-                console.warn('Level not found or failed to load for ID:', this.levelId);
-            }
+            this.cdr.markForCheck();
         });
     }
 
@@ -181,71 +232,187 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
-    loadRelatedData(): void {
-        if (!this.levelId || !this.level) {
-            console.warn('Cannot load related data: levelId or level is null');
+    /**
+     * Loads overview data (units and basic statistics) - called immediately
+     */
+    private loadOverviewData(): void {
+        if (!this.levelId || !this.level) return;
+
+        const cacheKey = `${this.levelId}_overview`;
+        const cached = this.getCachedData(cacheKey);
+
+        if (cached && !cached.isExpired) {
+            this.unitsSubject.next(cached.units);
+            this.calculateStatistics(cached.units, cached.students, cached.unitProgresses);
             return;
         }
 
-        this.loadingRelatedData = true;
+        this.loadingOverview = true;
+        this.cdr.markForCheck();
 
-        // Load units for this level
-        this.units$ = this.unitService.loadUnits().pipe(
-            map(units => units.filter(unit => unit.levelId === this.levelId)),
-            catchError(error => {
-                console.error('Error loading units:', error);
-                return of([]);
-            })
+        // Load units and basic data in parallel
+        forkJoin({
+            units: this.unitService.loadUnits().pipe(
+                map(units => units.filter(unit => unit.levelId === this.levelId)),
+                catchError(error => {
+                    console.error('Error loading units:', error);
+                    return of([]);
+                })
+            ),
+            students: this.studentService.getStudents().pipe(
+                map(students => students.filter(student => student.levelId === this.levelId)),
+                catchError(error => {
+                    console.error('Error loading students:', error);
+                    return of([]);
+                })
+            )
+        }).pipe(
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: ({ units, students }) => {
+                this.unitsSubject.next(units);
+
+                // Load unit progresses in parallel for all units
+                this.loadUnitProgressesParallel(units).subscribe(unitProgresses => {
+                    this.unitProgressesSubject.next(unitProgresses);
+                    this.calculateStatistics(units, students, unitProgresses);
+
+                    // Cache the data
+                    this.cacheData(cacheKey, { units, students, unitProgresses });
+
+                    this.loadingOverview = false;
+                    this.cdr.markForCheck();
+                });
+            },
+            error: (error) => {
+                console.error('Error loading overview data:', error);
+                this.loadingOverview = false;
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    /**
+     * Loads unit progresses for all units in parallel (optimized)
+     */
+    private loadUnitProgressesParallel(units: Unit[]): Observable<UnitProgress[]> {
+        if (units.length === 0) return of([]);
+
+        const unitProgressObservables = units.map(unit =>
+            this.unitService.loadUnitProgresses(unit.id).pipe(
+                map(response => response.data || []),
+                catchError(error => {
+                    console.error(`Error loading unit progresses for unit ${unit.id}:`, error);
+                    return of([]);
+                })
+            )
         );
 
-        // Load students for this level
-        this.students$ = this.studentService.getStudents().pipe(
+        return combineLatest(unitProgressObservables).pipe(
+            map(progressArrays => progressArrays.flat())
+        );
+        
+    }
+
+    /**
+     * Loads students data when students tab is selected (lazy loading)
+     */
+    loadStudentsData(): void {
+        if (!this.levelId) return;
+
+        const cacheKey = `${this.levelId}_students`;
+        const cached = this.getCachedData(cacheKey);
+
+        if (cached && !cached.isExpired) {
+            this.studentsSubject.next(cached.students);
+            return;
+        }
+
+        this.loadingStudents = true;
+        this.cdr.markForCheck();
+
+        this.studentService.getStudents().pipe(
             map(students => students.filter(student => student.levelId === this.levelId)),
             catchError(error => {
                 console.error('Error loading students:', error);
                 return of([]);
-            })
-        );
-
-        // Load unit progresses for this level
-        this.unitProgresses$ = this.units$.pipe(
-            switchMap(units => {
-                if (units.length === 0) return of([]);
-
-                // Load unit progresses for each unit
-                const unitProgressObservables = units.map(unit =>
-                    this.unitService.loadUnitProgresses(unit.id).pipe(
-                        map(response => response.data || []),
-                        catchError(error => {
-                            console.error(`Error loading unit progresses for unit ${unit.id}:`, error);
-                            return of([]);
-                        })
-                    )
-                );
-
-                return combineLatest(unitProgressObservables).pipe(
-                    map(progressArrays => progressArrays.flat())
-                );
             }),
-            catchError(error => {
-                console.error('Error loading unit progresses:', error);
-                return of([]);
-            })
-        );
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: (students) => {
+                this.studentsSubject.next(students);
+                this.cacheData(cacheKey, { units: [], students, unitProgresses: [] });
+                this.loadingStudents = false;
+                this.cdr.markForCheck();
+            },
+            error: (error) => {
+                console.error('Error loading students:', error);
+                this.loadingStudents = false;
+                this.cdr.markForCheck();
+            }
+        });
+    }
 
-        // Combine all data to calculate statistics
-        combineLatest([this.units$, this.students$, this.unitProgresses$])
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: ([units, students, unitProgresses]) => {
-                    this.calculateStatistics(units, students, unitProgresses);
-                    this.loadingRelatedData = false;
-                },
-                error: (error) => {
-                    console.error('Error loading related data:', error);
-                    this.loadingRelatedData = false;
-                }
-            });
+    /**
+     * Loads units data when units tab is selected (lazy loading)
+     */
+    loadUnitsData(): void {
+        if (!this.levelId) return;
+
+        const cacheKey = `${this.levelId}_units`;
+        const cached = this.getCachedData(cacheKey);
+
+        if (cached && !cached.isExpired) {
+            this.unitsSubject.next(cached.units);
+            return;
+        }
+
+        this.loadingUnits = true;
+        this.cdr.markForCheck();
+
+        this.unitService.loadUnits().pipe(
+            map(units => units.filter(unit => unit.levelId === this.levelId)),
+            catchError(error => {
+                console.error('Error loading units:', error);
+                return of([]);
+            }),
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: (units) => {
+                this.unitsSubject.next(units);
+                this.cacheData(cacheKey, { units, students: [], unitProgresses: [] });
+                this.loadingUnits = false;
+                this.cdr.markForCheck();
+            },
+            error: (error) => {
+                console.error('Error loading units:', error);
+                this.loadingUnits = false;
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    /**
+     * Cache management methods
+     */
+    private getCachedData(key: string): LevelDetailCache | null {
+        const cached = this.cache.get(key);
+        if (!cached) return null;
+
+        cached.isExpired = Date.now() - cached.lastUpdated > this.CACHE_DURATION;
+        return cached.isExpired ? null : cached;
+    }
+
+    private cacheData(key: string, data: { units: Unit[], students: Student[], unitProgresses: UnitProgress[] }): void {
+        this.cache.set(key, {
+            ...data,
+            lastUpdated: Date.now(),
+            isExpired: false
+        });
+    }
+
+    private clearCache(): void {
+        this.cache.clear();
     }
 
     calculateStatistics(units: Unit[], students: Student[], unitProgresses: UnitProgress[]): void {
@@ -253,7 +420,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         const totalStudents = students.length;
         const totalUnits = units.length;
         const totalTopics = units.reduce((sum, unit) => sum + (unit.assessments?.length || 0), 0);
-        const totalHours = units.reduce((sum, unit) => sum + (unit.lessons?.length || 0) * 2, 0); // Assuming 2 hours per lesson
+        const totalHours = units.reduce((sum, unit) => sum + (unit.lessons?.length || 0) * 2, 0);
 
         // Calculate average progress
         const studentProgresses = students.map(student => student.levelProgressPercentage || 0);
@@ -269,23 +436,6 @@ export class DetailComponent implements OnInit, OnDestroy {
             { label: 'Horas Totais', value: `${totalHours}h`, icon: 'pi pi-calendar' },
             { label: 'Progresso Médio', value: `${averageProgress}%`, icon: 'pi pi-chart-line' },
         ];
-
-        // Update tab items with student count
-        // This part is no longer needed as viewOptions handles the tab selection
-        // this.tabItems = [
-        //     {
-        //         label: 'Visão Geral',
-        //         icon: 'pi pi-home'
-        //     },
-        //     {
-        //         label: `Alunos (${totalStudents})`,
-        //         icon: 'pi pi-users'
-        //     },
-        //     {
-        //         label: 'Unidades',
-        //         icon: 'pi pi-book'
-        //     }
-        // ];
 
         // Calculate progress statistics
         let completed = 0, inProgress = 0, notStarted = 0;
@@ -345,6 +495,8 @@ export class DetailComponent implements OnInit, OnDestroy {
                 chips: unit.assessments?.map(a => a.name) || []
             };
         });
+
+        this.cdr.markForCheck();
     }
 
     getInitials(firstName: string, lastName: string): string {
@@ -353,10 +505,23 @@ export class DetailComponent implements OnInit, OnDestroy {
         return `${first}${last}`;
     }
 
-    // Method to handle view selection (similar to Aulas list)
+    // Method to handle view selection with lazy loading
     onViewChange(event: any): void {
         this.currentTab = event.value;
         this.selectedTab = event.value as 'overview' | 'students' | 'units';
+
+        // Lazy load data based on selected tab
+        switch (this.selectedTab) {
+            case 'students':
+                this.loadStudentsData();
+                break;
+            case 'units':
+                this.loadUnitsData();
+                break;
+            case 'overview':
+                // Overview data is already loaded
+                break;
+        }
     }
 
     initUnitsChart(): void {
@@ -395,7 +560,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: {weight: 700},
+                        font: { weight: 700 },
                         padding: 20,
                     },
                     position: 'right',
@@ -450,13 +615,13 @@ export class DetailComponent implements OnInit, OnDestroy {
             },
             scales: {
                 x: {
-                    ticks: {color: textColor},
-                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
+                    ticks: { color: textColor },
+                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: {color: textColor},
-                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
+                    ticks: { color: textColor },
+                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
                 }
             }
         };
@@ -492,7 +657,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: {weight: 700},
+                        font: { weight: 700 },
                         padding: 20,
                     },
                     position: 'bottom',
@@ -510,7 +675,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     loadLevel(): void {
-        this.store.dispatch(LevelActions.loadLevel({id: this.levelId}));
+        this.store.dispatch(LevelActions.loadLevel({ id: this.levelId }));
     }
 
     editLevel(): void {
@@ -522,7 +687,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                 maximumUnits: this.editableLevel.maximumUnits
             };
 
-            this.store.dispatch(LevelActions.updateLevel({id: this.levelId, level: updatedLevel}));
+            this.store.dispatch(LevelActions.updateLevel({ id: this.levelId, level: updatedLevel }));
         }
     }
 

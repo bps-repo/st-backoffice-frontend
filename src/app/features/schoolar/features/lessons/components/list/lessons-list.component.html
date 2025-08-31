@@ -306,6 +306,10 @@
     </span>
 </ng-template>
 
+<ng-template #onlineTemplate let-row>
+    <span>{{ row.online ? 'Online' : 'Presencial' }}</span>
+</ng-template>
+
 <ng-template #statusTemplate let-row>
     <span class="p-badge" [ngClass]="{
             'p-badge-success': row.status === 'COMPLETED' || row.status === 'AVAILABLE',
@@ -333,16 +337,10 @@
 
 <ng-template #startDatetime let-row>
     <span>
-        {{ row.startDatetime | date: 'short' }}
+        {{ getFormattedDateTime(row.startDatetime, row.endDatetime) }}
     </span>
 </ng-template>
 
-
-<ng-template #endDatetime let-row>
-    <span>
-        {{ row.endDatetime | date: 'short' }}
-    </span>
-</ng-template>
 
 <ng-template #actionsTemplate let-row>
     <span>
