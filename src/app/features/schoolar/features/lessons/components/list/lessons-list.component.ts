@@ -195,6 +195,7 @@ import { BadgeModule } from 'primeng/badge';
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             overflow: hidden;
+            transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
         ::ng-deep .lesson-details-dialog .p-dialog-content {
@@ -223,6 +224,16 @@ import { BadgeModule } from 'primeng/badge';
 
         ::ng-deep .lesson-details-dialog .p-dialog-header .p-dialog-header-icon:hover {
             opacity: 1;
+        }
+
+        /* Smooth hover transitions for lesson cards */
+        .class-card {
+            transition: all 0.2s ease, transform 0.2s ease;
+        }
+
+        .class-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .lesson-details-content h6 {
@@ -293,6 +304,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     lessonDialogVisible = signal(false);
     selectedLesson: Lesson | null = null;
     private hoverTimeout: any = null;
+    private dialogHoverTimeout: any = null;
+    private isDialogHovered: boolean = false;
 
     @ViewChild("startDatetime", { static: true })
     startDatetimeTemplate?: TemplateRef<any>;
@@ -469,10 +482,14 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.destroy$.next();
         this.destroy$.complete();
 
-        // Clean up hover timeout
+        // Clean up hover timeouts
         if (this.hoverTimeout) {
             clearTimeout(this.hoverTimeout);
             this.hoverTimeout = null;
+        }
+        if (this.dialogHoverTimeout) {
+            clearTimeout(this.dialogHoverTimeout);
+            this.dialogHoverTimeout = null;
         }
     }
 
@@ -496,8 +513,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             clearTimeout(this.hoverTimeout);
         }
 
-
-
         // Show dialog after a short delay
         this.hoverTimeout = setTimeout(() => {
             this.selectedLesson = lesson;
@@ -517,9 +532,14 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.hoverTimeout = null;
         }
 
-        // Hide dialog immediately
-        this.lessonDialogVisible.set(false);
-        this.selectedLesson = null;
+        // Add a small delay to allow mouse to move to dialog
+        setTimeout(() => {
+            // Only hide if dialog is not being hovered
+            if (!this.isDialogHovered) {
+                this.lessonDialogVisible.set(false);
+                this.selectedLesson = null;
+            }
+        }, 100); // 100ms delay to allow mouse movement to dialog
     }
 
     /**
@@ -531,6 +551,30 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             clearTimeout(this.hoverTimeout);
             this.hoverTimeout = null;
         }
+
+        // Mark dialog as being hovered
+        this.isDialogHovered = true;
+
+        // Clear any dialog hide timeout
+        if (this.dialogHoverTimeout) {
+            clearTimeout(this.dialogHoverTimeout);
+            this.dialogHoverTimeout = null;
+        }
+    }
+
+    /**
+     * Handle dialog mouse leave
+     */
+    onDialogMouseLeave() {
+        this.isDialogHovered = false;
+
+        // Add a small delay before hiding to allow for mouse movement back to lesson card
+        this.dialogHoverTimeout = setTimeout(() => {
+            if (!this.isDialogHovered) {
+                this.lessonDialogVisible.set(false);
+                this.selectedLesson = null;
+            }
+        }, 150); // 150ms delay
     }
 
     /**

@@ -351,7 +351,7 @@
 <!-- Lesson Details Dialog -->
 <p-dialog [header]="selectedLesson?.title || 'Detalhes da Aula'" [visible]="lessonDialogVisible()" [modal]="false"
     [closable]="true" [draggable]="false" [resizable]="false" styleClass="lesson-details-dialog"
-    [style]="{width: '400px'}" (mouseenter)="keepDialogOpen()" (mouseleave)="hideLessonDetails()">
+    [style]="{width: '400px'}" (mouseenter)="keepDialogOpen()" (mouseleave)="onDialogMouseLeave()">
 
     @if (selectedLesson) {
     <div class="lesson-details-content">
@@ -371,7 +371,8 @@
         <!-- Time -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-clock text-600"></i>
-            <span class="font-medium">{{ (selectedLesson.startDatetime | date: 'HH:mm') + ' - ' + (selectedLesson.endDatetime | date: 'HH:mm') }}</span>
+            <span class="font-medium">{{ (selectedLesson.startDatetime | date: 'HH:mm') + ' - ' +
+                (selectedLesson.endDatetime | date: 'HH:mm') }}</span>
         </div>
 
         <!-- Teacher -->
