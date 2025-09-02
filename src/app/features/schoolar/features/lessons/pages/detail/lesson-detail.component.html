@@ -12,8 +12,28 @@
         </div>
     </div>
 
+    <!-- Loading State -->
+    <div *ngIf="loading$ | async" class="col-12">
+        <div class="card">
+            <div class="flex align-items-center justify-content-center p-4">
+                <i class="pi pi-spin pi-spinner text-2xl"></i>
+                <span class="ml-2">Carregando detalhes da aula...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error$ | async as error" class="col-12">
+        <div class="card">
+            <div class="flex align-items-center justify-content-center p-4 text-red-600">
+                <i class="pi pi-exclamation-triangle text-2xl"></i>
+                <span class="ml-2">Erro ao carregar aula: {{ error }}</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <div *ngIf="lesson" class="grid">
+    <div *ngIf="(lesson$ | async) as lesson" class="grid">
         <!-- Title and Action Buttons Section -->
         <div class="col-12">
             <div class="card">
@@ -71,7 +91,10 @@
                                 <i class="pi pi-users text-blue-600 text-xl"></i>
                             </div>
                         </div>
-                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">{{ getStudentCount() }}</h3>
+                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">
+                            <span *ngIf="loadingStudents" class="pi pi-spin pi-spinner"></span>
+                            <span *ngIf="!loadingStudents">{{ getStudentCount() }}</span>
+                        </h3>
                         <p class="text-600 m-0">Alunos</p>
                     </div>
                 </div>
@@ -82,7 +105,10 @@
                                 <i class="pi pi-check-circle text-green-600 text-xl"></i>
                             </div>
                         </div>
-                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">{{ getAttendanceRate() }}%</h3>
+                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">
+                            <span *ngIf="loadingAttendances" class="pi pi-spin pi-spinner"></span>
+                            <span *ngIf="!loadingAttendances">{{ getAttendanceRate() }}%</span>
+                        </h3>
                         <p class="text-600 m-0">Taxa de Presença</p>
                     </div>
                 </div>
@@ -93,7 +119,10 @@
                                 <i class="pi pi-book text-purple-600 text-xl"></i>
                             </div>
                         </div>
-                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">{{ getMaterialCount() }}</h3>
+                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">
+                            <span *ngIf="loadingMaterials" class="pi pi-spin pi-spinner"></span>
+                            <span *ngIf="!loadingMaterials">{{ getMaterialCount() }}</span>
+                        </h3>
                         <p class="text-600 m-0">Materiais</p>
                     </div>
                 </div>
@@ -135,12 +164,12 @@
                             <div class="col-12">
                                 <div class="field">
                                     <label class="block text-sm font-medium text-600 mb-1">PROFESSOR</label>
-                                    <div class="flex align-items-center gap-2">
-                                        <div class="bg-blue-100 border-circle w-2rem h-2rem flex align-items-center justify-content-center">
-                                            <span class="text-blue-600 font-semibold text-sm">{{ getTeacherInitials() }}</span>
-                                        </div>
-                                        <span class="text-900 font-semibold">{{ lesson.teacher || 'Prof. Maria Silva' }}</span>
-                                    </div>
+                                                                <div class="flex align-items-center gap-2">
+                                <div class="bg-blue-100 border-circle w-2rem h-2rem flex align-items-center justify-content-center">
+                                    <span class="text-blue-600 font-semibold text-sm">{{ getTeacherInitials(lesson) }}</span>
+                                </div>
+                                <span class="text-900 font-semibold">{{ lesson.teacher || 'Prof. Maria Silva' }}</span>
+                            </div>
                                 </div>
                             </div>
                         </div>
@@ -161,7 +190,7 @@
                                 label="Acessar Aula"
                                 icon="pi pi-external-link"
                                 severity="info"
-                                (click)="openOnlineLink()">
+                                (click)="openOnlineLink(lesson)">
                             </p-button>
                             <p-button
                                 *ngIf="!lesson.online || !lesson.onlineLink"
@@ -192,7 +221,7 @@
                     </div>
                     <div class="col-6 md:col-2">
                         <div class="text-center cursor-pointer p-3 border-round hover:surface-100 transition-colors"
-                             (click)="addMaterial()">
+                             (click)="addMaterial(lesson)">
                             <div class="bg-green-100 border-circle w-3rem h-3rem flex align-items-center justify-content-center mx-auto mb-2">
                                 <i class="pi pi-plus-circle text-green-600 text-xl"></i>
                             </div>
@@ -233,6 +262,78 @@
                                 <i class="pi pi-send text-cyan-600 text-xl"></i>
                             </div>
                             <p class="text-900 font-medium text-sm m-0">Enviar Notificação</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students and Materials Section -->
+        <div class="col-12">
+            <div class="grid">
+                <!-- Students Card -->
+                <div class="col-12 md:col-6">
+                    <div class="card h-full">
+                        <h3 class="text-xl font-semibold text-900 mb-4">Alunos Inscritos</h3>
+                        <div *ngIf="loadingStudents" class="flex align-items-center justify-content-center p-4">
+                            <i class="pi pi-spin pi-spinner text-xl"></i>
+                            <span class="ml-2">Carregando alunos...</span>
+                        </div>
+                        <div *ngIf="!loadingStudents && students.length > 0" class="space-y-3">
+                            <div *ngFor="let student of students" class="flex align-items-center gap-3 p-3 border-round surface-100">
+                                <div class="bg-blue-100 border-circle w-2rem h-2rem flex align-items-center justify-content-center">
+                                    <span class="text-blue-600 font-semibold text-sm">
+                                        {{ student.user?.firstname?.[0] }}{{ student.user?.lastname?.[0] }}
+                                    </span>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-900 m-0">{{ student.user?.firstname }} {{ student.user?.lastname }}</p>
+                                    <p class="text-sm text-600 m-0">{{ student.user?.email }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-600 m-0">Progresso</p>
+                                    <p class="font-semibold text-900 m-0">{{ student.levelProgressPercentage }}%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!loadingStudents && students.length === 0" class="text-center p-4">
+                            <i class="pi pi-users text-3xl text-300 mb-2"></i>
+                            <p class="text-600 m-0">Nenhum aluno inscrito nesta aula</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Materials Card -->
+                <div class="col-12 md:col-6">
+                    <div class="card h-full">
+                        <h3 class="text-xl font-semibold text-900 mb-4">Materiais da Aula</h3>
+                        <div *ngIf="loadingMaterials" class="flex align-items-center justify-content-center p-4">
+                            <i class="pi pi-spin pi-spinner text-xl"></i>
+                            <span class="ml-2">Carregando materiais...</span>
+                        </div>
+                        <div *ngIf="!loadingMaterials && materials.length > 0" class="space-y-3">
+                            <div *ngFor="let material of materials" class="flex align-items-center gap-3 p-3 border-round surface-100">
+                                <div class="bg-purple-100 border-circle w-2rem h-2rem flex align-items-center justify-content-center">
+                                    <i class="pi pi-file text-purple-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-900 m-0">{{ material.title }}</p>
+                                    <p class="text-sm text-600 m-0">{{ material.description }}</p>
+                                    <p class="text-xs text-500 m-0">Tipo: {{ material.type }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p-button
+                                        icon="pi pi-download"
+                                        [text]="true"
+                                        size="small"
+                                        pTooltip="Baixar material">
+                                    </p-button>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!loadingMaterials && materials.length === 0" class="text-center p-4">
+                            <i class="pi pi-book text-3xl text-300 mb-2"></i>
+                            <p class="text-600 m-0">Nenhum material disponível</p>
                         </div>
                     </div>
                 </div>

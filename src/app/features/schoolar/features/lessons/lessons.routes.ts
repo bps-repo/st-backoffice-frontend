@@ -5,11 +5,16 @@ import {LessonDetailComponent} from './pages/detail/lesson-detail.component';
 import {BookLessonComponent} from "./components/book-lesson/book-lesson.component";
 import {LessonsListComponent} from "./components/list/lessons-list.component";
 import {AddMaterialComponent} from "./components/add-material/add-material.component";
+import {ScheduleLessonsComponent} from "./components/schedule-lessons/schedule-lessons.component";
 
 const routes: Routes = [
     {
         path: '',
         component: LessonsListComponent,
+    },
+    {
+        path: 'schedule',
+        component: ScheduleLessonsComponent,
     },
     {
         path: 'create',

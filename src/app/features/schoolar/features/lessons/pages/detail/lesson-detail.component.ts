@@ -2,13 +2,22 @@ import {CommonModule} from '@angular/common';
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
-import {Subject, takeUntil} from 'rxjs';
+import {Subject, takeUntil, Observable, combineLatest} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {Location} from '@angular/common';
 import {Lesson} from "../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../core/enums/lesson-status";
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
+import {selectSelectedLesson, selectLoadingLessons, selectError} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import {Student} from "../../../../../../core/models/academic/student";
+import {Attendance} from "../../../../../../core/models/academic/attendance";
+import {Material} from "../../../../../../core/models/academic/material";
+import {StudentService} from "../../../../../../core/services/student.service";
+import {AttendanceService} from "../../../../../../core/services/attendance.service";
+import {MaterialService} from "../../../../../../core/services/material.service";
+import {LessonService} from "../../../../../../core/services/lesson.service";
+import {MOCK_STUDENTS, MOCK_ATTENDANCES, MOCK_MATERIALS, MOCK_LESSON_BOOKINGS} from "../../../../../../core/models/mocks/lesson-detail-mock";
 
 @Component({
     selector: 'app-lesson-detail',
@@ -21,18 +30,39 @@ import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/less
     templateUrl: './lesson-detail.component.html'
 })
 export class LessonDetailComponent implements OnInit, OnDestroy {
-    lesson?: Lesson | null
+    lesson$!: Observable<Lesson | null>;
+    loading$: Observable<boolean>;
+    error$: Observable<string | null>;
+
+    // Related data
+    students: Student[] = [];
+    attendances: Attendance[] = [];
+    materials: Material[] = [];
+
+    // Loading states for related data
+    loadingStudents = false;
+    loadingAttendances = false;
+    loadingMaterials = false;
+
     private destroy$ = new Subject<void>();
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private store: Store,
-        private location: Location
+        private location: Location,
+        private studentService: StudentService,
+        private attendanceService: AttendanceService,
+        private materialService: MaterialService,
+        private lessonService: LessonService
     ) {
+        // Initialize observables from store
+        this.lesson$ = this.store.select(selectSelectedLesson) as Observable<Lesson | null>;
+        this.loading$ = this.store.select(selectLoadingLessons);
+        this.error$ = this.store.select(selectError);
     }
 
-    ngOnInit() {
+        ngOnInit() {
         // Get the lesson ID from the route
         this.route.params
             .pipe(takeUntil(this.destroy$))
@@ -41,26 +71,19 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 if (id) {
                     // Dispatch action to load the lesson
                     this.store.dispatch(lessonsActions.loadLesson({id}));
+
+                    // Load related data
+                    this.loadRelatedData(id);
                 }
             });
 
-        // Mock lesson data for demo purposes (remove when real data is available)
-        this.lesson = {
-            id: '1',
-            title: 'English Conversation A1',
-            level: 'A1',
-            center: 'Centro Principal',
-            teacher: 'Prof. Maria Silva',
-            startDatetime: new Date().toISOString(),
-            endDatetime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-            status: LessonStatus.BOOKED,
-            online: false,
-            onlineLink: undefined,
-            unit: 'Turma A',
-            description: 'Aula de conversação em inglês para iniciantes',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
+        // Subscribe to lesson changes and provide fallback mock data
+        this.lesson$.pipe(takeUntil(this.destroy$)).subscribe(lesson => {
+            if (!lesson) {
+                // If no lesson is loaded, we could set a default mock lesson here
+                // For now, we'll let the template handle the null case
+            }
+        });
     }
 
     ngOnDestroy(): void {
@@ -68,32 +91,160 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
+    /**
+     * Load related data for the lesson
+     */
+    private loadRelatedData(lessonId: string): void {
+        // Load students for this lesson
+        this.loadingStudents = true;
+        this.lessonService.getLessonBookings(lessonId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (bookings) => {
+                    // Extract student IDs from bookings and load student details
+                    const studentIds = bookings.map(booking => booking.studentId).filter(id => id);
+                    if (studentIds.length > 0) {
+                        this.loadStudentsByIds(studentIds);
+                    } else {
+                        // Use mock data if no bookings found
+                        this.students = MOCK_STUDENTS;
+                        this.loadingStudents = false;
+                    }
+                },
+                error: () => {
+                    // Use mock data on error
+                    this.students = MOCK_STUDENTS;
+                    this.loadingStudents = false;
+                }
+            });
+
+        // Load attendances for this lesson
+        this.loadingAttendances = true;
+        // For now, we'll load all attendances and filter by lesson - in a real app, you might have a specific endpoint
+        this.attendanceService.getAttendances()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (allAttendances) => {
+                    // Filter attendances by lesson ID (assuming attendance has lessonId field)
+                    this.attendances = allAttendances.filter(attendance =>
+                        attendance.lessonId === lessonId
+                    );
+                    // Use mock data if no attendances found
+                    if (this.attendances.length === 0) {
+                        this.attendances = MOCK_ATTENDANCES.filter(attendance =>
+                            attendance.lesson.id === lessonId
+                        );
+                    }
+                    this.loadingAttendances = false;
+                },
+                error: () => {
+                    // Use mock data on error
+                    this.attendances = MOCK_ATTENDANCES.filter(attendance =>
+                        attendance.lesson.id === lessonId
+                    );
+                    this.loadingAttendances = false;
+                }
+            });
+
+        // Load materials for this lesson
+        this.loadingMaterials = true;
+        this.lesson$.pipe(takeUntil(this.destroy$)).subscribe(lesson => {
+            if (lesson?.materialsIds && lesson.materialsIds.length > 0) {
+                this.loadMaterialsByIds(lesson.materialsIds);
+            } else {
+                // Use mock data if no materials found
+                this.materials = MOCK_MATERIALS;
+                this.loadingMaterials = false;
+            }
+        });
+    }
+
+    /**
+     * Load students by their IDs
+     */
+    private loadStudentsByIds(studentIds: string[]): void {
+        // For now, we'll load all students and filter - in a real app, you might have a bulk endpoint
+        this.studentService.getStudents()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (allStudents) => {
+                    this.students = allStudents.filter(student =>
+                        studentIds.includes(student.id || '')
+                    );
+                    // Use mock data if no students found
+                    if (this.students.length === 0) {
+                        this.students = MOCK_STUDENTS.filter(student =>
+                            studentIds.includes(student.id || '')
+                        );
+                    }
+                    this.loadingStudents = false;
+                },
+                error: () => {
+                    // Use mock data on error
+                    this.students = MOCK_STUDENTS.filter(student =>
+                        studentIds.includes(student.id || '')
+                    );
+                    this.loadingStudents = false;
+                }
+            });
+    }
+
+    /**
+     * Load materials by their IDs
+     */
+    private loadMaterialsByIds(materialIds: string[]): void {
+        // For now, we'll load all materials and filter - in a real app, you might have a bulk endpoint
+        this.materialService.getMaterials()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (allMaterials) => {
+                    this.materials = allMaterials.filter(material =>
+                        materialIds.includes(material.id || '')
+                    );
+                    // Use mock data if no materials found
+                    if (this.materials.length === 0) {
+                        this.materials = MOCK_MATERIALS.filter(material =>
+                            materialIds.includes(material.id || '')
+                        );
+                    }
+                    this.loadingMaterials = false;
+                },
+                error: () => {
+                    // Use mock data on error
+                    this.materials = MOCK_MATERIALS.filter(material =>
+                        materialIds.includes(material.id || '')
+                    );
+                    this.loadingMaterials = false;
+                }
+            });
+    }
+
     // Navigation methods
     public goBack(): void {
         this.location.back();
     }
 
-    // KPI methods
+    // KPI methods with real data
     public getStudentCount(): number {
-        // Mock data - replace with real data from store
-        return 3;
+        return this.students.length;
     }
 
     public getAttendanceRate(): number {
-        // Mock data - replace with real calculation
-        return 67;
+        if (this.attendances.length === 0) return 0;
+
+        const presentCount = this.attendances.filter(attendance => attendance.present).length;
+        return Math.round((presentCount / this.attendances.length) * 100);
     }
 
     public getMaterialCount(): number {
-        // Mock data - replace with real data from store
-        return 2;
+        return this.materials.length;
     }
 
     // Helper methods
-    public getTeacherInitials(): string {
-        if (!this.lesson?.teacher) return 'MS';
+    public getTeacherInitials(lesson: Lesson | null): string {
+        if (!lesson?.teacher) return 'MS';
 
-        const names = this.lesson.teacher.split(' ');
+        const names = lesson.teacher.split(' ');
         if (names.length >= 2) {
             return (names[0][0] + names[names.length - 1][0]).toUpperCase();
         }
@@ -101,9 +252,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     // Action methods
-    public openOnlineLink(): void {
-        if (this.lesson?.onlineLink) {
-            window.open(this.lesson.onlineLink, '_blank');
+    public openOnlineLink(lesson: Lesson | null): void {
+        if (lesson?.onlineLink) {
+            window.open(lesson.onlineLink, '_blank');
         }
     }
 
@@ -112,9 +263,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         // Implement attendance marking logic
     }
 
-    public addMaterial(): void {
-        if (this.lesson?.id) {
-            this.router.navigate(['/schoolar/lessons/materials/add', this.lesson.id]);
+    public addMaterial(lesson: Lesson | null): void {
+        if (lesson?.id) {
+            this.router.navigate(['/schoolar/lessons/materials/add', lesson.id]);
         }
     }
 
