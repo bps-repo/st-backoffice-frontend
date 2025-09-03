@@ -5,7 +5,7 @@
                 <h2 class="m-0">Marcação de Aulas</h2>
                 <small class="text-600">Adicione ou remova alunos das aulas disponíveis</small>
             </div>
-            <button pButton type="button" label="Salvar Alterações" icon="pi pi-save" class="p-button-rounded p-button-success"
+            <button pButton type="button" [label]="'Salvar Alterações' + ((toAdd.length + toRemove.length) ? ' (' + (toAdd.length + toRemove.length) + ')' : '')" icon="pi pi-save" class="p-button-rounded p-button-success"
                     [disabled]="!toAdd.length && !toRemove.length" (click)="saveChanges()"></button>
         </div>
     </div>
