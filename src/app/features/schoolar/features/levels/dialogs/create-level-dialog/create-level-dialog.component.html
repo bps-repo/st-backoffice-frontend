@@ -1,7 +1,7 @@
 <p-toast></p-toast>
 <p-dialog
     [(visible)]="visible"
-    [style]="{ width: '500px' }"
+    [style]="{ width: '600px' }"
     header="Criar Nível"
     [modal]="true"
     styleClass="p-fluid"
@@ -12,77 +12,62 @@
 
     <div class="grid p-fluid">
         <div class="col-12 field">
-            <label for="name" class="font-bold">Name</label>
+            <label for="name" class="font-bold">Nome do Nível *</label>
             <input
                 id="name"
                 type="text"
                 pInputText
                 [(ngModel)]="level.name"
-                placeholder="Enter level name"
+                placeholder="Ex: Básico, Intermediário, Avançado"
                 required>
         </div>
 
         <div class="col-12 field">
-            <label for="description" class="font-bold">Description</label>
+            <label for="description" class="font-bold">Descrição *</label>
             <textarea
                 id="description"
                 rows="3"
                 pInputTextarea
                 [(ngModel)]="level.description"
-                placeholder="Enter level description">
+                placeholder="Descrição do nível de ensino">
             </textarea>
         </div>
 
         <div class="col-12 field">
-            <label for="duration" class="font-bold">Duration (hours)</label>
+            <label for="duration" class="font-bold">Duração (horas) *</label>
             <input
                 id="duration"
                 type="number"
                 pInputText
                 [(ngModel)]="level.duration"
-                placeholder="Enter level duration"
+                placeholder="0"
                 required>
         </div>
 
         <div class="col-12 field">
-            <label for="maximumUnits" class="font-bold">Maximum Units</label>
+            <label for="maximumUnits" class="font-bold">Unidades Máximas *</label>
             <input
                 id="maximumUnits"
                 type="number"
                 pInputText
                 [(ngModel)]="level.maximumUnits"
-                placeholder="Enter maximum units"
+                placeholder="0"
                 required>
         </div>
-        <!--
-        <div class="col-12 field">
-            <label for="course" class="font-bold">Course</label>
-
-            <p-dropdown
-                id="course"
-                [options]="(courseOptions$ | async) ?? []"
-                [(ngModel)]="level.course"
-                optionLabel="name"
-                placeholder="Selecione um curso"
-                [showClear]="true"
-                [required]="true">
-            </p-dropdown>
-        </div>
-        -->
     </div>
 
     <ng-template pTemplate="footer">
         <div class="flex justify-content-end">
             <button
                 pButton
-                label="Cancel"
+                label="Cancelar"
                 icon="pi pi-times"
                 class="p-button-text mr-2"
                 (click)="hide()">
             </button>
             <button
                 pButton
-                label="Save"
+                label="Salvar"
                 icon="pi pi-check"
                 [loading]="(loadingCreate$ | async) || false"
                 [disabled]="(loadingCreate$ | async) || false"

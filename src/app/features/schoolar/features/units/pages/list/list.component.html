@@ -7,7 +7,7 @@
         [loading]="loading$ | async"
         class="w-full"
         [columnTemplates]="{ actions: actionsTemplate }"
-        (createEntity)="createUnit()"
+        (createEntity)="navigateToCreate()"
     ></app-global-table>
 
     <ng-template #actionsTemplate let-unit>

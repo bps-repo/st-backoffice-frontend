@@ -123,8 +123,6 @@ import { CreateUnitDialogComponent } from "../../../units/dialogs/create-unit-di
 })
 export class ListComponent implements OnInit, AfterViewInit {
 
-    @ViewChild(CreateLevelDialogComponent) createLevelDialog!: CreateLevelDialogComponent;
-    @ViewChild(CreateUnitDialogComponent) createUnitDialog!: CreateUnitDialogComponent;
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
 
@@ -314,12 +312,13 @@ export class ListComponent implements OnInit, AfterViewInit {
         this.router.navigate(['/schoolar/levels', level.id]).then();
     }
 
-    createLevel(): void {
-        this.createLevelDialog.show();
+    navigateToCreateLevel(): void {
+        this.router.navigate(['/schoolar/levels/create']);
     }
 
-    createUnit(): void {
-        this.createUnitDialog.show();
+
+    navigateToCreateUnit(): void {
+        this.router.navigate(['/schoolar/units/create']);
     }
 
     deleteLevel(level: Level): void {

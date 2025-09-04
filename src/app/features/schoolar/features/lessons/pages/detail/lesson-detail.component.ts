@@ -2,6 +2,10 @@ import {CommonModule} from '@angular/common';
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {TableModule} from 'primeng/table';
+import {TagModule} from 'primeng/tag';
+import {FormsModule} from '@angular/forms';
 import {Subject, takeUntil, Observable, combineLatest} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -19,6 +23,23 @@ import {MaterialService} from "../../../../../../core/services/material.service"
 import {LessonService} from "../../../../../../core/services/lesson.service";
 import {MOCK_STUDENTS, MOCK_ATTENDANCES, MOCK_MATERIALS, MOCK_LESSON_BOOKINGS} from "../../../../../../core/models/mocks/lesson-detail-mock";
 
+// Interface for notes
+interface LessonNote {
+    id: string;
+    title: string;
+    content: string;
+    createdAt: Date;
+    createdBy: string;
+}
+
+// Interface for attendance table data
+interface AttendanceTableData {
+    student: Student;
+    attendance: Attendance;
+    present: boolean;
+    observations?: string;
+}
+
 @Component({
     selector: 'app-lesson-detail',
     standalone: true,
@@ -26,6 +47,10 @@ import {MOCK_STUDENTS, MOCK_ATTENDANCES, MOCK_MATERIALS, MOCK_LESSON_BOOKINGS} f
         CommonModule,
         ButtonModule,
         TooltipModule,
+        SelectButtonModule,
+        TableModule,
+        TagModule,
+        FormsModule,
     ],
     templateUrl: './lesson-detail.component.html'
 })
@@ -38,6 +63,17 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     students: Student[] = [];
     attendances: Attendance[] = [];
     materials: Material[] = [];
+    notes: LessonNote[] = [];
+
+    // Tab view properties
+    currentView: string = 'overview'; // Default view is overview
+    viewOptions = [
+        {label: 'Visão Geral', value: 'overview'},
+        {label: 'Alunos', value: 'students'},
+        {label: 'Presença', value: 'attendance'},
+        {label: 'Materiais', value: 'materials'},
+        {label: 'Anotações', value: 'notes'},
+    ];
 
     // Loading states for related data
     loadingStudents = false;
@@ -84,11 +120,36 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 // For now, we'll let the template handle the null case
             }
         });
+
+        // Initialize mock notes data
+        this.initializeMockNotes();
     }
 
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    /**
+     * Initialize mock notes data
+     */
+    private initializeMockNotes(): void {
+        this.notes = [
+            {
+                id: '1',
+                title: 'Aula de Conversação',
+                content: 'Os alunos demonstraram boa compreensão dos tópicos discutidos. João precisa melhorar a pronúncia.',
+                createdAt: new Date('2025-01-21T10:30:00'),
+                createdBy: 'Prof. Maria Silva'
+            },
+            {
+                id: '2',
+                title: 'Material Adicional',
+                content: 'Sugerir exercícios de listening para a próxima aula.',
+                createdAt: new Date('2025-01-21T11:00:00'),
+                createdBy: 'Prof. Maria Silva'
+            }
+        ];
     }
 
     /**
@@ -224,6 +285,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.location.back();
     }
 
+    // Method to handle view selection
+    onViewChange(event: any) {
+        this.currentView = event.value;
+    }
+
     // KPI methods with real data
     public getStudentCount(): number {
         return this.students.length;
@@ -287,6 +353,163 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     public sendNotification(): void {
         console.log('Send notification');
         // Implement notification logic
+    }
+
+    // Status helper methods
+    public getLessonStatusText(lesson: Lesson | null): string {
+        if (!lesson) return 'Desconhecido';
+
+        switch (lesson.status) {
+            case LessonStatus.COMPLETED:
+                return 'Concluída';
+            case LessonStatus.SCHEDULED:
+                return 'Agendada';
+            case LessonStatus.BOOKED:
+                return 'Reservada';
+            case LessonStatus.CANCELLED:
+                return 'Cancelada';
+            case LessonStatus.POSTPONED:
+                return 'Adiada';
+            case LessonStatus.OVERDUE:
+                return 'Atrasada';
+            default:
+                return 'Disponível';
+        }
+    }
+
+    public getLessonStatusSeverity(lesson: Lesson | null): string {
+        if (!lesson) return 'secondary';
+
+        switch (lesson.status) {
+            case LessonStatus.COMPLETED:
+                return 'success';
+            case LessonStatus.SCHEDULED:
+                return 'info';
+            case LessonStatus.BOOKED:
+                return 'warning';
+            case LessonStatus.CANCELLED:
+                return 'danger';
+            case LessonStatus.POSTPONED:
+                return 'warning';
+            case LessonStatus.OVERDUE:
+                return 'danger';
+            default:
+                return 'secondary';
+        }
+    }
+
+    // Attendance table data helper
+    public getAttendanceTableData(): AttendanceTableData[] {
+        return this.students.map(student => {
+            const attendance = this.attendances.find(att =>
+                att.student && att.student.id === student.id
+            );
+
+            return {
+                student,
+                attendance: attendance || {} as Attendance,
+                present: attendance?.present || false,
+                observations: attendance?.justification
+            };
+        });
+    }
+
+    // Enhanced action methods
+    public duplicateLesson(lesson: Lesson | null): void {
+        if (lesson?.id) {
+            console.log('Duplicating lesson:', lesson.id);
+            // Implement duplication logic
+        }
+    }
+
+    public editLesson(lesson: Lesson | null): void {
+        if (lesson?.id) {
+            this.router.navigate(['/schoolar/lessons/edit', lesson.id]);
+        }
+    }
+
+    public exportLesson(lesson: Lesson | null): void {
+        if (lesson?.id) {
+            console.log('Exporting lesson:', lesson.id);
+            // Implement export logic
+        }
+    }
+
+    public printLesson(lesson: Lesson | null): void {
+        if (lesson?.id) {
+            console.log('Printing lesson:', lesson.id);
+            // Implement print logic
+        }
+    }
+
+    public configureOnlineLink(lesson: Lesson | null): void {
+        if (lesson?.id) {
+            console.log('Configuring online link for lesson:', lesson.id);
+            // Implement online link configuration
+        }
+    }
+
+    public addStudent(): void {
+        console.log('Adding student to lesson');
+        // Implement add student logic
+    }
+
+    public viewStudentDetails(student: Student): void {
+        if (student.id) {
+            this.router.navigate(['/schoolar/students', student.id]);
+        }
+    }
+
+    public editStudent(student: Student): void {
+        if (student.id) {
+            this.router.navigate(['/schoolar/students/edit', student.id]);
+        }
+    }
+
+    public markAllPresent(): void {
+        console.log('Marking all students as present');
+        // Implement mark all present logic
+    }
+
+    public editAttendance(attendanceData: AttendanceTableData): void {
+        console.log('Editing attendance for student:', attendanceData.student.id);
+        // Implement edit attendance logic
+    }
+
+    public downloadMaterial(material: Material): void {
+        if (material.id) {
+            console.log('Downloading material:', material.id);
+            // Implement download logic
+        }
+    }
+
+    public editMaterial(material: Material): void {
+        if (material.id) {
+            console.log('Editing material:', material.id);
+            // Implement edit material logic
+        }
+    }
+
+    public removeMaterial(material: Material): void {
+        if (material.id) {
+            console.log('Removing material:', material.id);
+            // Implement remove material logic
+        }
+    }
+
+    public addNote(): void {
+        console.log('Adding new note');
+        // Implement add note logic
+    }
+
+    public editNote(note: LessonNote): void {
+        console.log('Editing note:', note.id);
+        // Implement edit note logic
+    }
+
+    public removeNote(note: LessonNote): void {
+        console.log('Removing note:', note.id);
+        // Implement remove note logic
     }
 
     protected LessonStatus = LessonStatus;

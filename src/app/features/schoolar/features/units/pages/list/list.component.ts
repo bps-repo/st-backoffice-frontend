@@ -91,6 +91,10 @@ export class ListComponent implements OnInit {
         this.createUnitDialog.show();
     }
 
+    navigateToCreate(): void {
+        this.router.navigate(['/schoolar/units/create']);
+    }
+
     deleteUnit(unit: Unit): void {
         this.confirmationService.confirm({
             message: `Tem certeza de que deseja excluir a unidade "${unit.name}"?`,

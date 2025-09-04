@@ -67,6 +67,7 @@
         <app-global-table tableLabel="Aulas" [columnTemplates]="columnTemplates" [data]="lessons$ | async"
             [loading]="loading$ | async" [entity]="'lessons'" [columns]="columns"
             [globalFilterFields]="globalFilterFields" class="w-full"
+            (rowSelect)="viewLesson($event.id!)"
             (createEntity)="navigateToCreateLesson()"></app-global-table>
     </div>
     }

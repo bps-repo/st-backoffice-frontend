@@ -9,16 +9,18 @@
         <div class="flex gap-2">
             <button
                 pButton
-                (click)="createUnit()"
+                (click)="navigateToCreateUnit()"
                 label="Nova unidade"
                 icon="pi pi-plus"
                 class="p-button-outlined p-button-secondary"
             ></button>
-            <p-button
-                (onClick)="createLevel()"
-                label="Novo nível"
+            <button
+                pButton
+                (click)="navigateToCreateLevel()"
+                label="Criar Nível"
                 icon="pi pi-plus"
-            ></p-button>
+                class="p-button-primary"
+            ></button>
         </div>
     </div>
 

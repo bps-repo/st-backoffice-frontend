@@ -2,11 +2,16 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DetailComponent } from './pages/detail/detail.component';
 import { ListComponent } from './pages/list/list.component';
+import { CreateUnitComponent } from './pages/create/create-unit.component';
 
 const routes: Routes = [
         {
             path: '',
             component: ListComponent,
+        },
+        {
+            path: 'create',
+            component: CreateUnitComponent,
         },
         {
             path: ':id',
