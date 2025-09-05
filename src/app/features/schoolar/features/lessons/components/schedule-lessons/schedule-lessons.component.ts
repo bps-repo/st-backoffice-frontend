@@ -52,7 +52,7 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
         this.searchStudentsCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((term) => this.applyStudentsFilter(String(term || '')));
     }
 
-    ngOnDestroy(): void {
+        ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }

@@ -1,3 +1,29 @@
+<style>
+    .scrollable-content {
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+
+    .scrollable-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-track {
+        background: var(--surface-100);
+        border-radius: 3px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-thumb {
+        background: var(--surface-300);
+        border-radius: 3px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-thumb:hover {
+        background: var(--surface-400);
+    }
+</style>
+
 <div class="grid">
     <div class="col-12">
         <div class="flex align-items-center justify-content-between">
@@ -21,7 +47,7 @@
                 <input pInputText type="text" class="w-full" placeholder="Buscar aulas..." [formControl]="searchLessonsCtrl"/>
             </span>
 
-            <div class="flex flex-column gap-2">
+            <div class="flex flex-column gap-2 scrollable-content">
                 <div *ngFor="let lesson of filteredLessons" class="p-3 border-round surface-100 cursor-pointer hover:surface-200"
                      (click)="selectLesson(lesson)" [ngClass]="{'border-2 border-primary': selectedLesson?.id === lesson.id}">
                     <div class="flex align-items-center justify-content-between">
@@ -54,8 +80,9 @@
                     <input pInputText type="text" class="w-full" placeholder="Buscar alunos..." [formControl]="searchStudentsCtrl"/>
                 </span>
 
-                <div class="mb-2 text-600">Matriculados ({{ enrolled.length }})</div>
-                <div class="flex flex-column gap-2 mb-3">
+                <div class="scrollable-content">
+                    <div class="mb-2 text-600">Matriculados ({{ enrolled.length }})</div>
+                    <div class="flex flex-column gap-2 mb-3">
                     <div *ngFor="let s of enrolled" class="flex align-items-center justify-content-between p-2 border-round surface-100">
                         <div>
                             <div class="font-medium">{{ getStudentName(s) }}</div>
@@ -66,24 +93,25 @@
                     </div>
                 </div>
 
-                <div class="mb-2 text-600">Disponíveis ({{ available.length }})</div>
-                <div *ngIf="available.length; else noneAvailable" class="flex flex-column gap-2">
-                    <div *ngFor="let s of available" class="flex align-items-center justify-content-between p-2 border-round surface-100">
-                        <div>
-                            <div class="font-medium">{{ getStudentName(s) }}</div>
-                            <small class="text-600">{{ getStudentEmail(s) }}</small>
+                    <div class="mb-2 text-600">Disponíveis ({{ available.length }})</div>
+                    <div *ngIf="available.length; else noneAvailable" class="flex flex-column gap-2">
+                        <div *ngFor="let s of available" class="flex align-items-center justify-content-between p-2 border-round surface-100">
+                            <div>
+                                <div class="font-medium">{{ getStudentName(s) }}</div>
+                                <small class="text-600">{{ getStudentEmail(s) }}</small>
+                            </div>
+                            <button pButton type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-text"
+                                    (click)="addStudent(s)"></button>
                         </div>
-                        <button pButton type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-text"
-                                (click)="addStudent(s)"></button>
                     </div>
+                    <ng-template #noneAvailable>
+                        <div class="text-center p-5 text-600">
+                            <i class="pi pi-users mb-2 text-3xl text-300"></i>
+                            <div>Nenhum aluno disponível para esta aula</div>
+                            <small>Todos os alunos compatíveis já estão matriculados</small>
+                        </div>
+                    </ng-template>
                 </div>
-                <ng-template #noneAvailable>
-                    <div class="text-center p-5 text-600">
-                        <i class="pi pi-users mb-2 text-3xl text-300"></i>
-                        <div>Nenhum aluno disponível para esta aula</div>
-                        <small>Todos os alunos compatíveis já estão matriculados</small>
-                    </div>
-                </ng-template>
             </ng-container>
 
             <ng-template #selectLessonHint>
