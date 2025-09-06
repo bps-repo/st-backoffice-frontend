@@ -9,6 +9,7 @@ import {TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 import {TagModule} from 'primeng/tag';
 import {Contract} from 'src/app/core/models/corporate/contract';
+import {ContractService} from 'src/app/core/services/contract.service';
 import {Router} from '@angular/router';
 
 @Component({
@@ -29,60 +30,118 @@ import {Router} from '@angular/router';
 })
 export class ManagementComponent implements OnInit {
     // Estatísticas de contratos
-    totalContracts: number = 4;
-    activeContracts: number = 2;
-    pendingValue: string = 'Kz 1600';
-    renewalRate: string = '78%';
+    totalContracts: number = 0;
+    activeContracts: number = 0;
+    pendingValue: string = 'Kz 0';
+    renewalRate: string = '0%';
 
     // Lista de contratos
     contracts: any[] = [];
-    
-    constructor(private router: Router) {}
+    loading = false;
+
+    constructor(
+        private router: Router,
+        private contractService: ContractService
+    ) {}
 
     ngOnInit() {
-        // Simulando dados de contratos
-        this.contracts = [
-            {
-                code: 'CT001',
-                student: 'João Silva',
-                course: 'Inglês Básico',
-                period: '2024-01-15 até 2024-12-15',
-                totalValue: 'Kz 1200',
-                installments: '8/12',
-                pendingValue: 'Kz 400 pendente',
-                status: 'Ativo'
+        this.fetchContracts();
+    }
+
+    fetchContracts(): void {
+        this.loading = true;
+        this.contractService.getContracts().subscribe({
+            next: (resp) => {
+                const data = resp?.data || [];
+                this.contracts = data.map((contract: Contract) => this.normalizeContract(contract));
+                this.calculateStatistics(data);
+                this.loading = false;
             },
-            {
-                code: 'CT003',
-                student: 'Pedro Costa',
-                course: 'Conversação',
-                period: '2024-03-01 até 2024-11-30',
-                totalValue: 'Kz 900',
-                installments: '5/9',
-                pendingValue: 'Kz 400 pendente',
-                status: 'Vencido'
-            },
-            {
-                code: 'CT002',
-                student: 'Maria Santos',
-                course: 'Inglês Avançado',
-                period: '2024-02-01 até 2025-01-31',
-                totalValue: 'Kz 1800',
-                installments: '10/18',
-                pendingValue: 'Kz 800 pendente',
-                status: 'Ativo'
-            },
-            {
-                code: 'CT004',
-                student: 'Ana Lima',
-                course: 'Preparatório TOEFL',
-                period: '2024-01-10 até 2024-05-10',
-                totalValue: 'Kz 2400',
-                installments: '6/6',
-                pendingValue: '',
-                status: 'Finalizado'
+            error: (error) => {
+                console.error('Error fetching contracts:', error);
+                this.loading = false;
             }
-        ];
+        });
+    }
+
+    private normalizeContract(contract: Contract): any {
+        const student = contract.student;
+        const level = contract.levels?.[0];
+
+        return {
+            id: contract.id,
+            code: student?.code || '-',
+            student: student?.user ? `${student.user.firstname} ${student.user.lastname}` : '-',
+            course: level ? `Nível ${level.levelId}` : '-',
+            period: this.formatPeriod(contract.startDate, contract.endDate),
+            totalValue: this.formatCurrency(contract.amount),
+            installments: this.formatInstallments(contract.installments),
+            pendingValue: this.calculatePendingValue(contract.installments),
+            status: this.getStatusLabel(contract.status)
+        };
+    }
+
+    private calculateStatistics(contracts: Contract[]): void {
+        this.totalContracts = contracts.length;
+        this.activeContracts = contracts.filter(c => c.status === 'ACTIVE').length;
+
+        // Calculate total pending value
+        const totalPending = contracts.reduce((sum, contract) => {
+            const pending = contract.installments
+                .filter(i => i.status === 'PENDING_PAYMENT')
+                .reduce((installmentSum, installment) => installmentSum + installment.amount, 0);
+            return sum + pending;
+        }, 0);
+
+        this.pendingValue = this.formatCurrency(totalPending);
+
+        // Calculate completion rate
+        const totalInstallments = contracts.reduce((sum, contract) => sum + contract.installments.length, 0);
+        const paidInstallments = contracts.reduce((sum, contract) =>
+            sum + contract.installments.filter(i => i.status === 'PAID').length, 0);
+
+        const completionRate = totalInstallments > 0 ? (paidInstallments / totalInstallments) * 100 : 0;
+        this.renewalRate = `${Math.round(completionRate)}%`;
+    }
+
+    private formatPeriod(startDate: string, endDate: string): string {
+        if (!startDate || !endDate) return '-';
+        const start = new Date(startDate).toLocaleDateString('pt-BR');
+        const end = new Date(endDate).toLocaleDateString('pt-BR');
+        return `${start} até ${end}`;
+    }
+
+    private formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'AOA'
+        }).format(amount);
+    }
+
+    private formatInstallments(installments: any[]): string {
+        if (!installments || installments.length === 0) return '0/0';
+        const total = installments.length;
+        const paid = installments.filter(i => i.status === 'PAID').length;
+        return `${paid}/${total}`;
+    }
+
+    private calculatePendingValue(installments: any[]): string {
+        if (!installments || installments.length === 0) return '';
+        const pending = installments
+            .filter(i => i.status === 'PENDING_PAYMENT')
+            .reduce((sum, installment) => sum + installment.amount, 0);
+
+        return pending > 0 ? `${this.formatCurrency(pending)} pendente` : '';
+    }
+
+    private getStatusLabel(status: string): string {
+        const statusMap: { [key: string]: string } = {
+            'ACTIVE': 'Ativo',
+            'HOLD': 'Em Espera',
+            'CANCELLED': 'Cancelado',
+            'COMPLETED': 'Finalizado'
+        };
+        return statusMap[status] || status;
     }
 
     createNewContract() {
@@ -90,7 +149,7 @@ export class ManagementComponent implements OnInit {
     }
 
     viewContract(contract: any) {
-        this.router.navigate(['/finances/contracts/details', contract.code]);
+        this.router.navigate(['/finances/contracts/details', contract.id]);
     }
 
     editContract(contract: any) {

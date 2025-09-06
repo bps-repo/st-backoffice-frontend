@@ -270,19 +270,7 @@ export class CreateContractComponent implements OnInit {
             this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'O número de parcelas não corresponde aos itens listados.' });
         }
 
-        // Create contract object
-        const contract: Contract = {
-            studentId: this.selectedStudent.id!.toString(),
-            startDate: this.formatDate(this.contractForm.value.startDate),
-            endDate: this.formatDate(this.contractForm.value.endDate),
-            contractType: this.contractForm.value.contractType,
-            paymentFrequency: this.contractForm.value.paymentFrequency,
-            paymentAmount: this.contractForm.value.paymentAmount,
-            status: this.contractForm.value.status,
-            terms: this.contractForm.value.terms,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
+        // Note: We don't need to create a Contract object here since we're using CreateStudentContractRequest
 
         // Build payload according to backend schema using form values
         const v = this.contractForm.value;

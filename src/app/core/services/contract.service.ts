@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { Contract, ContractListResponse } from '../models/corporate/contract';
+
+export interface ContractDetailResponse {
+  success: boolean;
+  data: Contract;
+  timestamp: string;
+  metadata: any[];
+}
 
 export interface CustomInstallmentRequest {
   id?: string;
@@ -44,12 +52,17 @@ export class ContractService {
   }
 
   // GET /contracts
-  getContracts(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/contracts`);
+  getContracts(): Observable<ContractListResponse> {
+    return this.http.get<ContractListResponse>(`${this.apiUrl}/contracts`);
+  }
+
+  // GET /contracts/{id}
+  getContractById(contractId: string): Observable<ContractDetailResponse> {
+    return this.http.get<ContractDetailResponse>(`${this.apiUrl}/contracts/${contractId}`);
   }
 
   // Optional helper: GET /students/{id}/contracts (if backend supports it)
-  getContractsByStudent(studentId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/students/${studentId}/contracts`);
+  getContractsByStudent(studentId: string): Observable<ContractListResponse> {
+    return this.http.get<ContractListResponse>(`${this.apiUrl}/students/${studentId}/contracts`);
   }
 }

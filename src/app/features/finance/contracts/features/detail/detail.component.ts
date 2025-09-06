@@ -1,22 +1,23 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {TabViewModule} from 'primeng/tabview';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {ToastModule} from 'primeng/toast';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {Contract} from 'src/app/core/models/corporate/contract';
-import {TooltipModule} from 'primeng/tooltip';
-import {DialogModule} from 'primeng/dialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {InputNumberModule} from 'primeng/inputnumber';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TabViewModule } from 'primeng/tabview';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Contract } from 'src/app/core/models/corporate/contract';
+import { ContractService } from 'src/app/core/services/contract.service';
+import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
     selector: 'app-contract-detail',
@@ -44,17 +45,17 @@ import {InputNumberModule} from 'primeng/inputnumber';
 })
 export class DetailComponent implements OnInit {
     contractId: string = '';
-    contract: any = null;
+    contract: Contract | null = null;
     loading: boolean = true;
-    payments: any[] = [];
-    
+    error: string | null = null;
+
     // Diálogos
     showPaymentDetailsDialog: boolean = false;
     showPaymentChargeDialog: boolean = false;
-    
+
     // Parcela selecionada
     selectedPayment: any = null;
-    
+
     // Dados para cobrança
     paymentMethods: any[] = [
         { name: 'Multicaixa', code: 'MULTICAIXA' },
@@ -71,8 +72,9 @@ export class DetailComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
-    ) {}
+        private confirmationService: ConfirmationService,
+        private contractService: ContractService
+    ) { }
 
     ngOnInit(): void {
         this.contractId = this.route.snapshot.paramMap.get('id') || '';
@@ -80,64 +82,74 @@ export class DetailComponent implements OnInit {
     }
 
     loadContractDetails(): void {
-        // Simulando carregamento de dados do contrato
-        setTimeout(() => {
-            this.contract = {
-                id: this.contractId,
-                code: 'CT001',
-                student: 'João Silva',
-                course: 'Inglês Básico',
-                startDate: '2024-01-15',
-                endDate: '2024-12-15',
-                period: '2024-01-15 até 2024-12-15',
-                contractType: 'FULL_COURSE',
-                contractTypeLabel: 'Curso Completo',
-                paymentFrequency: 'MONTHLY',
-                paymentFrequencyLabel: 'Mensal',
-                totalValue: 'Kz 1200',
-                paymentAmount: 100,
-                installments: '8/12',
-                pendingValue: 'Kz 400',
-                status: 'Ativo',
-                terms: 'Este contrato estabelece os termos e condições para o curso de Inglês Básico...',
-                createdAt: '2024-01-10',
-                updatedAt: '2024-01-10'
-            };
-
-            // Simulando pagamentos do contrato
-            this.payments = [
-                { id: '1', date: '2024-01-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '2', date: '2024-02-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '3', date: '2024-03-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '4', date: '2024-04-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '5', date: '2024-05-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '6', date: '2024-06-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '7', date: '2024-07-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '8', date: '2024-08-15', amount: 'Kz 100', status: 'Pago' },
-                { id: '9', date: '2024-09-15', amount: 'Kz 100', status: 'Pendente' },
-                { id: '10', date: '2024-10-15', amount: 'Kz 100', status: 'Pendente' },
-                { id: '11', date: '2024-11-15', amount: 'Kz 100', status: 'Pendente' },
-                { id: '12', date: '2024-12-15', amount: 'Kz 100', status: 'Pendente' }
-            ];
-
+        if (!this.contractId) {
+            this.error = 'ID do contrato não fornecido';
             this.loading = false;
-        }, 1000);
+            return;
+        }
+
+        this.contractService.getContractById(this.contractId).subscribe({
+            next: (response) => {
+                if (response.success) {
+                    this.contract = response.data;
+                    this.loading = false;
+                } else {
+                    this.error = 'Erro ao carregar dados do contrato';
+                    this.loading = false;
+                }
+            },
+            error: (error) => {
+                console.error('Erro ao carregar contrato:', error);
+                this.error = 'Erro ao carregar dados do contrato';
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Não foi possível carregar os dados do contrato'
+                });
+            }
+        });
     }
 
     getStatusClass(status: string): string {
         switch (status) {
-            case 'Ativo':
+            case 'ACTIVE':
                 return 'success';
-            case 'Vencido':
-                return 'danger';
-            case 'Finalizado':
-                return 'info';
-            case 'Pago':
-                return 'success';
-            case 'Pendente':
+            case 'HOLD':
                 return 'warning';
+            case 'CANCELLED':
+                return 'danger';
+            case 'COMPLETED':
+                return 'info';
+            case 'PAID':
+                return 'success';
+            case 'PENDING_PAYMENT':
+                return 'warning';
+            case 'OVERDUE':
+                return 'danger';
             default:
                 return 'warning';
+        }
+    }
+
+    getStatusLabel(status: string): string {
+        switch (status) {
+            case 'ACTIVE':
+                return 'Ativo';
+            case 'HOLD':
+                return 'Em Espera';
+            case 'CANCELLED':
+                return 'Cancelado';
+            case 'COMPLETED':
+                return 'Finalizado';
+            case 'PAID':
+                return 'Pago';
+            case 'PENDING_PAYMENT':
+                return 'Pagamento Pendente';
+            case 'OVERDUE':
+                return 'Vencido';
+            default:
+                return status;
         }
     }
 
@@ -171,7 +183,7 @@ export class DetailComponent implements OnInit {
                     summary: 'Sucesso',
                     detail: 'Contrato cancelado com sucesso!'
                 });
-                this.contract.status = 'Cancelado';
+                this.contract!.status = 'CANCELLED';
             }
         });
     }
@@ -179,20 +191,20 @@ export class DetailComponent implements OnInit {
     goBack(): void {
         this.router.navigate(['/finances/contracts']);
     }
-    
+
     // Métodos para detalhes da parcela
-    viewPaymentDetails(payment: any): void {
-        this.selectedPayment = payment;
+    viewPaymentDetails(installment: any): void {
+        this.selectedPayment = installment;
         this.showPaymentDetailsDialog = true;
     }
-    
+
     // Métodos para cobrança de parcela
-    chargePayment(payment: any): void {
-        this.selectedPayment = payment;
-        this.paymentAmount = Number(payment.amount.replace('Kz ', ''));
+    chargePayment(installment: any): void {
+        this.selectedPayment = installment;
+        this.paymentAmount = installment.amount;
         this.showPaymentChargeDialog = true;
     }
-    
+
     processPayment(): void {
         if (!this.selectedPaymentMethod || !this.paymentDate || !this.paymentAmount) {
             this.messageService.add({
@@ -202,18 +214,18 @@ export class DetailComponent implements OnInit {
             });
             return;
         }
-        
-        // Simulando processamento de pagamento
+
+        // TODO: Implementar chamada para API de processamento de pagamento
+        // Por enquanto, apenas simular o sucesso
         setTimeout(() => {
-            // Atualizando o status da parcela para 'Pago'
-            const index = this.payments.findIndex(p => p.id === this.selectedPayment.id);
-            if (index !== -1) {
-                this.payments[index].status = 'Pago';
-                this.payments[index].paymentMethod = this.selectedPaymentMethod.name;
-                this.payments[index].paymentDate = this.paymentDate.toLocaleDateString('pt-BR');
-                this.payments[index].paymentReference = this.paymentReference;
+            // Atualizando o status da parcela para 'PAID'
+            if (this.contract && this.selectedPayment) {
+                const installment = this.contract.installments.find(i => i.id === this.selectedPayment.id);
+                if (installment) {
+                    installment.status = 'PAID';
+                }
             }
-            
+
             // Fechando o diálogo e mostrando mensagem de sucesso
             this.showPaymentChargeDialog = false;
             this.messageService.add({
@@ -221,16 +233,59 @@ export class DetailComponent implements OnInit {
                 summary: 'Sucesso',
                 detail: 'Pagamento processado com sucesso!'
             });
-            
+
             // Resetando os campos
             this.resetPaymentForm();
         }, 1000);
     }
-    
+
     resetPaymentForm(): void {
         this.selectedPaymentMethod = null;
         this.paymentDate = new Date();
         this.paymentReference = '';
         this.paymentAmount = null;
+    }
+
+    // Helper methods for contract statistics
+    getTotalPaidAmount(): number {
+        if (!this.contract) return 0;
+        return this.contract.installments
+            .filter(installment => installment.status === 'PAID')
+            .reduce((total, installment) => total + installment.amount, 0);
+    }
+
+    getPendingAmount(): number {
+        if (!this.contract) return 0;
+        return this.contract.installments
+            .filter(installment => installment.status === 'PENDING_PAYMENT' || installment.status === 'OVERDUE')
+            .reduce((total, installment) => total + installment.amount, 0);
+    }
+
+    getPaymentProgress(): number {
+        if (!this.contract || this.contract.installments.length === 0) return 0;
+        const totalPaid = this.getTotalPaidAmount();
+        const totalAmount = this.contract.amount;
+        return Math.round((totalPaid / totalAmount) * 100);
+    }
+
+    getPaidInstallmentsCount(): number {
+        if (!this.contract) return 0;
+        return this.contract.installments.filter(installment => installment.status === 'PAID').length;
+    }
+
+    getTotalInstallmentsCount(): number {
+        if (!this.contract) return 0;
+        return this.contract.installments.length;
+    }
+
+    formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('pt-AO', {
+            style: 'currency',
+            currency: 'AOA'
+        }).format(amount);
+    }
+
+    formatDate(dateString: string): string {
+        return new Date(dateString).toLocaleDateString('pt-BR');
     }
 }

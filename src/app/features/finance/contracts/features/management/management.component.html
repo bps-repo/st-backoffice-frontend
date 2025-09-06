@@ -42,15 +42,16 @@
         </div>
 
         <!-- Tabela de contratos -->
-        <p-table 
-            [value]="contracts" 
-            [paginator]="true" 
+        <p-table
+            [value]="contracts"
+            [paginator]="true"
             [rows]="10"
+            [loading]="loading"
             [showCurrentPageReport]="true"
             [tableStyle]="{'min-width': '50rem'}"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} contratos"
             [rowsPerPageOptions]="[5, 10, 25, 50]">
-            
+
             <ng-template pTemplate="header">
                 <tr>
                     <th>Código</th>
@@ -63,7 +64,7 @@
                     <th>Ações</th>
                 </tr>
             </ng-template>
-            
+
             <ng-template pTemplate="body" let-contract>
                 <tr>
                     <td>{{ contract.code }}</td>
@@ -88,11 +89,11 @@
                     </td>
                 </tr>
             </ng-template>
-            
+
             <ng-template pTemplate="paginatorleft">
                 <button pButton type="button" icon="pi pi-refresh" class="p-button-text"></button>
             </ng-template>
-            
+
             <ng-template pTemplate="paginatorright">
                 <button pButton type="button" icon="pi pi-download" class="p-button-text"></button>
             </ng-template>
