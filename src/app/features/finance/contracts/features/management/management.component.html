@@ -63,7 +63,7 @@
 
             <ng-template pTemplate="body" let-contract>
                 <tr>
-                    <td>{{ contract.code }}</td>
+                    <td>{{ contract.studentCode }}</td>
                     <td>{{ contract.studentName }}</td>
                     <td>{{ contract.level }}</td>
                     <td>{{ contract.period }}</td>
@@ -94,11 +94,13 @@
             </ng-template>
 
             <ng-template pTemplate="paginatorleft">
-                <button (click)="loadContracts()" pButton type="button" icon="pi pi-refresh" class="p-button-text"></button>
+                <button (click)="loadContracts()" pButton type="button" icon="pi pi-refresh"
+                    class="p-button-text"></button>
             </ng-template>
 
             <ng-template pTemplate="paginatorright">
-                <button (click)="loadContracts()" pButton type="button" icon="pi pi-download" class="p-button-text"></button>
+                <button (click)="loadContracts()" pButton type="button" icon="pi pi-download"
+                    class="p-button-text"></button>
             </ng-template>
         </p-table>
     </div>
