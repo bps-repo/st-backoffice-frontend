@@ -89,9 +89,9 @@ export class DetailComponent implements OnInit {
         }
 
         this.contractService.getContractById(this.contractId).subscribe({
-            next: (response) => {
-                if (response.success) {
-                    this.contract = response.data;
+            next: (response: Contract) => {
+                if (response) {
+                    this.contract = response;
                     this.loading = false;
                 } else {
                     this.error = 'Erro ao carregar dados do contrato';

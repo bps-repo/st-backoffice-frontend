@@ -1,3 +1,4 @@
+
 export interface User {
     id: string;
     email: string;
@@ -138,9 +139,31 @@ export interface Contract {
     updatedAt?: string;
 }
 
-export interface ContractListResponse {
-    success: boolean;
-    data: Contract[];
-    timestamp: string;
-    metadata: any[];
+export interface CreateStudentContractRequest {
+    studentId: string;
+    sellerId: string;
+    startDate: string; // YYYY-MM-DD
+    endDate: string;   // YYYY-MM-DD
+    amount: number;
+    discountPercent: number;
+    includeManuals: boolean;
+    includeRegistrationFee: boolean;
+    adultEnglishCourseProductId: string;
+    levelId: string;
+    courseBookId: string;
+    courseMaterialPaidSameDay: boolean;
+    unitPrice: number;
+    notes?: string;
+    contractType: 'STANDARD' | 'PROMOTIONAL' | 'CUSTOM';
+    numberOfInstallments: number;
+    firstInstallmentDate: string; // YYYY-MM-DD
+    customInstallments?: CustomInstallmentRequest[];
+}
+
+export interface CustomInstallmentRequest {
+    id?: string;
+    installmentNumber: number;
+    dueDate: string; // YYYY-MM-DD
+    amount: number;
+    status: 'PENDING_PAYMENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
 }

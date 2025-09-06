@@ -1,68 +1,37 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Contract, ContractListResponse } from '../models/corporate/contract';
-
-export interface ContractDetailResponse {
-  success: boolean;
-  data: Contract;
-  timestamp: string;
-  metadata: any[];
-}
-
-export interface CustomInstallmentRequest {
-  id?: string;
-  installmentNumber: number;
-  dueDate: string; // YYYY-MM-DD
-  amount: number;
-  status: 'PENDING_PAYMENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
-}
-
-export interface CreateStudentContractRequest {
-  studentId: string;
-  sellerId: string;
-  startDate: string; // YYYY-MM-DD
-  endDate: string;   // YYYY-MM-DD
-  amount: number;
-  discountPercent: number;
-  includeManuals: boolean;
-  includeRegistrationFee: boolean;
-  adultEnglishCourseProductId: string;
-  levelId: string;
-  courseBookId: string;
-  courseMaterialPaidSameDay: boolean;
-  unitPrice: number;
-  notes?: string;
-  contractType: 'STANDARD' | 'PROMOTIONAL' | 'CUSTOM';
-  numberOfInstallments: number;
-  firstInstallmentDate: string; // YYYY-MM-DD
-  customInstallments?: CustomInstallmentRequest[];
-}
+import { Contract, CreateStudentContractRequest } from '../models/corporate/contract';
+import { ApiResponse } from './interfaces/ApiResponseService';
 
 @Injectable({ providedIn: 'root' })
 export class ContractService {
-  private apiUrl = `${environment.apiUrl}`;
+    private apiUrl = `${environment.apiUrl}/contracts`;
 
-  constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
-  // POST /contracts
-  createStudentContract(payload: CreateStudentContractRequest): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/contracts`, payload);
-  }
+    createStudentContract(payload: CreateStudentContractRequest): Observable<Contract> {
+        return this.http.post<ApiResponse<Contract>>(`${this.apiUrl}`, payload).pipe(
+            map(response => response.data as Contract)
+        );
+    }
 
-  // GET /contracts
-  getContracts(): Observable<ContractListResponse> {
-    return this.http.get<ContractListResponse>(`${this.apiUrl}/contracts`);
-  }
+    getContracts(): Observable<Contract[]> {
+        return this.http.get<ApiResponse<Contract[]>>(`${this.apiUrl}`).pipe(
+            map(response => response.data as Contract[])
+        );
+    }
 
-  // GET /contracts/{id}
-  getContractById(contractId: string): Observable<ContractDetailResponse> {
-    return this.http.get<ContractDetailResponse>(`${this.apiUrl}/contracts/${contractId}`);
-  }
+    getContractById(contractId: string): Observable<Contract> {
+        return this.http.get<ApiResponse<Contract>>(`${this.apiUrl}/${contractId}`).pipe(
+            map(response => response.data as Contract)
+        );
+    }
 
-  // Optional helper: GET /students/{id}/contracts (if backend supports it)
-  getContractsByStudent(studentId: string): Observable<ContractListResponse> {
-    return this.http.get<ContractListResponse>(`${this.apiUrl}/students/${studentId}/contracts`);
-  }
+    getContractsByStudent(studentId: string): Observable<Contract[]> {
+        return this.http.get<ApiResponse<Contract[]>>(`${this.apiUrl}/students/${studentId}/contracts`).pipe(
+            map(response => response.data as Contract[])
+        );
+    }
 }

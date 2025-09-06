@@ -1,16 +1,20 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {CardModule} from 'primeng/card';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {TagModule} from 'primeng/tag';
-import {Contract} from 'src/app/core/models/corporate/contract';
-import {ContractService} from 'src/app/core/services/contract.service';
-import {Router} from '@angular/router';
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { Contract } from 'src/app/core/models/corporate/contract';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { selectAllContracts, selectContractsLoading } from 'src/app/core/store/corporate/contracts/contracts.selectors';
+import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { ContractActions } from 'src/app/core/store/corporate/contracts/contracts.actions';
 
 @Component({
     selector: 'app-contracts-management',
@@ -30,70 +34,76 @@ import {Router} from '@angular/router';
 })
 export class ManagementComponent implements OnInit {
     // Estatísticas de contratos
-    totalContracts: number = 0;
-    activeContracts: number = 0;
-    pendingValue: string = 'Kz 0';
-    renewalRate: string = '0%';
+    totalContracts = signal(0 as number);
+    activeContracts = signal(0 as number);
+    pendingValue = signal('Kz 0,00');
+    renewalRate = signal('0%' as string);
 
     // Lista de contratos
-    contracts: any[] = [];
-    loading = false;
+    contracts$: Observable<any[]>;
+    loading$: Observable<boolean> = of(false);
 
     constructor(
         private router: Router,
-        private contractService: ContractService
-    ) {}
+        private store: Store
+    ) {
+        this.contracts$ = this.store.select(selectAllContracts).pipe(
+            map(contracts => contracts.map(contract => {
+                this.calculateStatistics(contracts);
+                return this.normalizeContract(contract)
+            }
+            ))
+        );
+        this.loading$ = this.store.select(selectContractsLoading);
+    }
 
     ngOnInit() {
-        this.fetchContracts();
+        this.loadContracts();
     }
 
-    fetchContracts(): void {
-        this.loading = true;
-        this.contractService.getContracts().subscribe({
-            next: (resp) => {
-                const data = resp?.data || [];
-                this.contracts = data.map((contract: Contract) => this.normalizeContract(contract));
-                this.calculateStatistics(data);
-                this.loading = false;
-            },
-            error: (error) => {
-                console.error('Error fetching contracts:', error);
-                this.loading = false;
-            }
-        });
+    loadContracts(): void {
+        this.store.dispatch(ContractActions.loadContracts());
     }
-
-    private normalizeContract(contract: Contract): any {
+    private normalizeContract(contract: Contract) {
         const student = contract.student;
+        const seller = contract.seller;
         const level = contract.levels?.[0];
 
         return {
             id: contract.id,
-            code: student?.code || '-',
-            student: student?.user ? `${student.user.firstname} ${student.user.lastname}` : '-',
-            course: level ? `Nível ${level.levelId}` : '-',
+            studentCode: student?.code || '-',
+            studentName: student?.user ? `${student.user.firstname} ${student.user.lastname}` : '-',
+            studentEmail: student?.user?.email || '-',
+            center: student?.center?.name || '-',
+            level: level ? `name (${level.duration} meses)` : '-',
+            seller: seller?.user ? `${seller.user.firstname} ${seller.user.lastname}` : '-',
+            contractType: this.getContractTypeLabel(contract.contractType),
             period: this.formatPeriod(contract.startDate, contract.endDate),
-            totalValue: this.formatCurrency(contract.amount),
+            amount: this.formatCurrency(contract.amount),
             installments: this.formatInstallments(contract.installments),
-            pendingValue: this.calculatePendingValue(contract.installments),
-            status: this.getStatusLabel(contract.status)
+            status: this.getStatusLabel(contract.status),
+            actions: contract.id
         };
     }
 
+    private getContractTypeLabel(type: string): string {
+        const types: { [key: string]: string } = {
+            'STANDARD': 'Padrão',
+            'VIP': 'VIP',
+            'PROMOTIONAL': 'Promocional',
+            'CUSTOM': 'Personalizado'
+        };
+        return types[type] || type;
+    }
+
     private calculateStatistics(contracts: Contract[]): void {
-        this.totalContracts = contracts.length;
-        this.activeContracts = contracts.filter(c => c.status === 'ACTIVE').length;
+        this.totalContracts.set(contracts.length);
+        this.activeContracts.set(contracts.filter(c => c.status === 'ACTIVE').length);
 
         // Calculate total pending value
-        const totalPending = contracts.reduce((sum, contract) => {
-            const pending = contract.installments
-                .filter(i => i.status === 'PENDING_PAYMENT')
-                .reduce((installmentSum, installment) => installmentSum + installment.amount, 0);
-            return sum + pending;
-        }, 0);
+        const totalPending = this.calculatePendingValue(contracts.flatMap(c => c.installments));
 
-        this.pendingValue = this.formatCurrency(totalPending);
+        this.pendingValue.set(totalPending);
 
         // Calculate completion rate
         const totalInstallments = contracts.reduce((sum, contract) => sum + contract.installments.length, 0);
@@ -101,7 +111,7 @@ export class ManagementComponent implements OnInit {
             sum + contract.installments.filter(i => i.status === 'PAID').length, 0);
 
         const completionRate = totalInstallments > 0 ? (paidInstallments / totalInstallments) * 100 : 0;
-        this.renewalRate = `${Math.round(completionRate)}%`;
+        this.renewalRate.set(`${Math.round(completionRate)}%`);
     }
 
     private formatPeriod(startDate: string, endDate: string): string {
@@ -126,12 +136,12 @@ export class ManagementComponent implements OnInit {
     }
 
     private calculatePendingValue(installments: any[]): string {
-        if (!installments || installments.length === 0) return '';
+        if (!installments || installments.length === 0) return 'Kz 0,00';
         const pending = installments
             .filter(i => i.status === 'PENDING_PAYMENT')
             .reduce((sum, installment) => sum + installment.amount, 0);
 
-        return pending > 0 ? `${this.formatCurrency(pending)} pendente` : '';
+        return pending > 0 ? `${this.formatCurrency(pending)}` : 'Kz 0,00';
     }
 
     private getStatusLabel(status: string): string {

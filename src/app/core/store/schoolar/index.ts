@@ -34,6 +34,10 @@ import {PermissionsState} from "../permissions/models/permissions.state";
 import {EmployeesEffects} from "../corporate/employees/employees.effects";
 import {employeesFeature} from "../corporate/employees/employees.feature";
 import {EmployeesState} from "../corporate/employees/employees.state";
+import { contractsFeature } from "../corporate/contracts/contracts.feature";
+import { ContractEffects } from "../corporate/contracts/contracts.effects";
+import { LevelState } from "./level/level.state";
+import { ContractState } from "../corporate/contracts/contracts.state";
 
 export interface AppState {
     students: StudentState;
@@ -50,6 +54,8 @@ export interface AppState {
     roles: RolesState;
     permissions: PermissionsState;
     employees: EmployeesState;
+    levels: LevelState;
+    contracts: ContractState;
 }
 
 export const AppEffects = [
@@ -62,7 +68,8 @@ export const AppEffects = [
     ClassEffects,
     RolesEffects,
     PermissionsEffects,
-    EmployeesEffects
+    EmployeesEffects,
+    ContractEffects
 ]
 
 export const AppFeatures = [
@@ -76,5 +83,6 @@ export const AppFeatures = [
     classesFeature,
     rolesFeature,
     permissionsFeature,
-    employeesFeature
+    employeesFeature,
+    contractsFeature
 ]

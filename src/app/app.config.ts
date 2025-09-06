@@ -1,18 +1,18 @@
-import {ApplicationConfig, isDevMode} from '@angular/core';
-import {provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
-import {provideRouter, withComponentInputBinding} from '@angular/router';
-import {provideAnimations} from '@angular/platform-browser/animations';
-import {AppRoutes} from './app.routes';
-import {FeatureSlice, provideState, provideStore} from '@ngrx/store';
-import {provideEffects} from '@ngrx/effects';
-import {provideStoreDevtools} from '@ngrx/store-devtools';
-import {provideRouterStore, routerReducer} from '@ngrx/router-store';
-import {tokenInterceptor} from './core/interceptors/token.interceptor';
-import {CustomSerializer} from './core/router/custom-serializer';
-import {AppEffects, AppFeatures} from "./core/store/schoolar";
-import {forbiddenInterceptor} from "./core/interceptors/forbidden.interceptor";
-import {MessageService} from "primeng/api";
-import {tokenExpiredInterceptor} from "./core/interceptors/token-expired.interceptor";
+import { ApplicationConfig, isDevMode } from '@angular/core';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { AppRoutes } from './app.routes';
+import { FeatureSlice, provideState, provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { provideRouterStore, routerReducer } from '@ngrx/router-store';
+import { tokenInterceptor } from './core/interceptors/token.interceptor';
+import { CustomSerializer } from './core/router/custom-serializer';
+import { AppEffects, AppFeatures } from "./core/store/schoolar";
+import { forbiddenInterceptor } from "./core/interceptors/forbidden.interceptor";
+import { MessageService } from "primeng/api";
+import { tokenExpiredInterceptor } from "./core/interceptors/token-expired.interceptor";
 
 export const AppConfig: ApplicationConfig = {
     providers: [

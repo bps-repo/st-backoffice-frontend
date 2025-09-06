@@ -4,7 +4,7 @@ import {createSelector} from "@ngrx/store";
 
 
 export const {
-    selectLevelState,
+    selectLevelsState,
     selectUpdateError,
     selectSelectedLevelId,
     selectDeleteError,
@@ -22,7 +22,7 @@ const {
     selectEntities,
     selectAll,
     selectTotal
-} = levelsAdapter.getSelectors(levelsFeature.selectLevelState)
+} = levelsAdapter.getSelectors(levelsFeature.selectLevelsState)
 
 export const selectAllLevels = selectAll
 

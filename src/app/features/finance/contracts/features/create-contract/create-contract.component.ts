@@ -1,23 +1,22 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {DropdownModule} from 'primeng/dropdown';
-import {TableModule} from 'primeng/table';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {CalendarModule} from 'primeng/calendar';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {ToastModule} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
-import {Store} from '@ngrx/store';
-import {Student} from 'src/app/core/models/academic/student';
-import {Contract} from 'src/app/core/models/corporate/contract';
-import {StudentService} from 'src/app/core/services/student.service';
-import {ContractService, CreateStudentContractRequest} from 'src/app/core/services/contract.service';
-import {StudentsActions} from "../../../../../core/store/schoolar/students/students.actions";
-import {selectAllStudents} from "../../../../../core/store/schoolar/students/students.selectors";
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CalendarModule } from 'primeng/calendar';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { Store } from '@ngrx/store';
+import { Student } from 'src/app/core/models/academic/student';
+import { ContractService, } from 'src/app/core/services/contract.service';
+import { StudentsActions } from "../../../../../core/store/schoolar/students/students.actions";
+import { selectAllStudents } from "../../../../../core/store/schoolar/students/students.selectors";
+import { CreateStudentContractRequest } from 'src/app/core/models/corporate/contract';
 
 @Component({
     selector: 'app-create-contract',
@@ -46,31 +45,30 @@ export class CreateContractComponent implements OnInit {
     loading = false;
 
     contractTypes = [
-        {label: 'Full Course', value: 'FULL_COURSE'},
-        {label: 'Monthly', value: 'MONTHLY'},
-        {label: 'Quarterly', value: 'QUARTERLY'},
-        {label: 'Annual', value: 'ANNUAL'}
+        { label: 'Full Course', value: 'FULL_COURSE' },
+        { label: 'Monthly', value: 'MONTHLY' },
+        { label: 'Quarterly', value: 'QUARTERLY' },
+        { label: 'Annual', value: 'ANNUAL' }
     ];
 
     paymentFrequencies = [
-        {label: 'Monthly', value: 'MONTHLY'},
-        {label: 'Quarterly', value: 'QUARTERLY'},
-        {label: 'Semi-Annual', value: 'SEMI_ANNUAL'},
-        {label: 'Annual', value: 'ANNUAL'},
-        {label: 'One-time', value: 'ONE_TIME'}
+        { label: 'Monthly', value: 'MONTHLY' },
+        { label: 'Quarterly', value: 'QUARTERLY' },
+        { label: 'Semi-Annual', value: 'SEMI_ANNUAL' },
+        { label: 'Annual', value: 'ANNUAL' },
+        { label: 'One-time', value: 'ONE_TIME' }
     ];
 
     statuses = [
-        {label: 'Active', value: 'ACTIVE'},
-        {label: 'Pending', value: 'PENDING'},
-        {label: 'Expired', value: 'EXPIRED'},
-        {label: 'Cancelled', value: 'CANCELLED'}
+        { label: 'Active', value: 'ACTIVE' },
+        { label: 'Pending', value: 'PENDING' },
+        { label: 'Expired', value: 'EXPIRED' },
+        { label: 'Cancelled', value: 'CANCELLED' }
     ];
 
     constructor(
         private store: Store,
         private fb: FormBuilder,
-        private studentsService: StudentService,
         private messageService: MessageService,
         private contractService: ContractService
     ) {

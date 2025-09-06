@@ -1,7 +1,7 @@
-import {createFeature, createReducer, on} from '@ngrx/store';
+import { createFeature, createReducer, on } from '@ngrx/store';
 
-import {CENTER_FEATURE_KEY, CenterActions} from "./centers.actions";
-import {centerInitialState, centersAdapter} from "./center.state";
+import { CENTER_FEATURE_KEY, CenterActions } from "./centers.actions";
+import { centerInitialState, centersAdapter } from "./center.state";
 
 export const CenterFeature = createFeature({
     name: CENTER_FEATURE_KEY,
@@ -14,12 +14,12 @@ export const CenterFeature = createFeature({
             loadingCreate: true,
             errorCreate: null
         })),
-        on(CenterActions.createCenterSuccess, (state, {center}) => centersAdapter.addOne(center, {
+        on(CenterActions.createCenterSuccess, (state, { center }) => centersAdapter.addOne(center, {
             ...state,
             loadingCreate: false,
             errorCreate: null
         })),
-        on(CenterActions.createCenterFailure, (state, {error}) => ({
+        on(CenterActions.createCenterFailure, (state, { error }) => ({
             ...state,
             loadingCreate: false,
             errorCreate: error
@@ -31,12 +31,12 @@ export const CenterFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(CenterActions.loadCentersSuccess, (state, {centers}) => centersAdapter.setAll(centers, {
+        on(CenterActions.loadCentersSuccess, (state, { centers }) => centersAdapter.setAll(centers, {
             ...state,
             loading: false,
             error: null
         })),
-        on(CenterActions.loadCentersFailure, (state, {error}) => ({
+        on(CenterActions.loadCentersFailure, (state, { error }) => ({
             ...state,
             loading: false,
             error
@@ -48,14 +48,14 @@ export const CenterFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(CenterActions.loadCenterSuccess, (state, {center}) => ({
+        on(CenterActions.loadCenterSuccess, (state, { center }) => ({
             ...state,
             selectedCenter: center,
             loading: false,
             error: null
         })),
 
-        on(CenterActions.loadCenterFailure, (state, {error}) => ({
+        on(CenterActions.loadCenterFailure, (state, { error }) => ({
             ...state,
             loading: false,
             error
@@ -68,7 +68,7 @@ export const CenterFeature = createFeature({
             errorDelete: null
         })),
 
-        on(CenterActions.deleteCenterSuccess, (state, {id}) =>
+        on(CenterActions.deleteCenterSuccess, (state, { id }) =>
             centersAdapter.removeOne(id, {
                 ...state,
                 loadingDelete: false,
@@ -76,7 +76,7 @@ export const CenterFeature = createFeature({
             })
         ),
 
-        on(CenterActions.deleteCenterFailure, (state, {error}) => ({
+        on(CenterActions.deleteCenterFailure, (state, { error }) => ({
             ...state,
             loadingDelete: false,
             errorDelete: error
@@ -89,7 +89,7 @@ export const CenterFeature = createFeature({
             loadingUpdate: true,
             errorUpdate: null
         })),
-        on(CenterActions.updateCenterSuccess, (state, {center}) => centersAdapter.updateOne({
+        on(CenterActions.updateCenterSuccess, (state, { center }) => centersAdapter.updateOne({
             id: center.id,
             changes: center
         }, {
@@ -97,7 +97,7 @@ export const CenterFeature = createFeature({
             loadingUpdate: false,
             errorUpdate: null
         })),
-        on(CenterActions.updateCenterFailure, (state, {error}) => ({
+        on(CenterActions.updateCenterFailure, (state, { error }) => ({
             ...state,
             loadingUpdate: false,
             errorUpdate: error
