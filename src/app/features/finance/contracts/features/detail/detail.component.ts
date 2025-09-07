@@ -219,7 +219,7 @@ export class DetailComponent implements OnInit {
         // Por enquanto, apenas simular o sucesso
         setTimeout(() => {
             // Atualizando o status da parcela para 'PAID'
-            if (this.contract && this.selectedPayment) {
+            if (this.contract && this.contract.installments && this.selectedPayment) {
                 const installment = this.contract.installments.find(i => i.id === this.selectedPayment.id);
                 if (installment) {
                     installment.status = 'PAID';
@@ -248,33 +248,34 @@ export class DetailComponent implements OnInit {
 
     // Helper methods for contract statistics
     getTotalPaidAmount(): number {
-        if (!this.contract) return 0;
+        if (!this.contract || !this.contract.installments) return 0;
         return this.contract.installments
             .filter(installment => installment.status === 'PAID')
             .reduce((total, installment) => total + installment.amount, 0);
     }
 
     getPendingAmount(): number {
-        if (!this.contract) return 0;
+        if (!this.contract || !this.contract.installments) return 0;
         return this.contract.installments
             .filter(installment => installment.status === 'PENDING_PAYMENT' || installment.status === 'OVERDUE')
             .reduce((total, installment) => total + installment.amount, 0);
     }
 
     getPaymentProgress(): number {
-        if (!this.contract || this.contract.installments.length === 0) return 0;
+        if (!this.contract || !this.contract.installments || this.contract.installments.length === 0) return 0;
         const totalPaid = this.getTotalPaidAmount();
         const totalAmount = this.contract.amount;
+        if (!totalAmount || totalAmount === 0) return 0;
         return Math.round((totalPaid / totalAmount) * 100);
     }
 
     getPaidInstallmentsCount(): number {
-        if (!this.contract) return 0;
+        if (!this.contract || !this.contract.installments) return 0;
         return this.contract.installments.filter(installment => installment.status === 'PAID').length;
     }
 
     getTotalInstallmentsCount(): number {
-        if (!this.contract) return 0;
+        if (!this.contract || !this.contract.installments) return 0;
         return this.contract.installments.length;
     }
 

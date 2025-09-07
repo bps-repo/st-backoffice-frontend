@@ -93,7 +93,7 @@ export interface Seller {
 }
 
 export interface ContractLevel {
-    id: string;
+    id?: string;
     levelId: string;
     productId: string;
     duration: number;
@@ -102,13 +102,13 @@ export interface ContractLevel {
     levelOrder: number;
     offerType: string;
     registrationFeeType: string;
-    finalLevelPrice: number;
+    finalLevelPrice?: number;
     finalCourseMaterialPrice?: number;
     courseMaterialPaid: boolean;
     includeCourseMaterial: boolean;
     includeRegistrationFee: boolean;
-    status?: string;
-    contractType?: string;
+    status: string;
+    contractType: string;
     startDate?: string;
     endDate?: string;
     notes?: string;
@@ -127,43 +127,29 @@ export interface Contract {
     student: Student;
     seller: Seller;
     startDate: string;
-    endDate: string;
-    amount: number;
+    endDate?: string;
+    amount?: number;
     discountPercent: number;
     status: 'ACTIVE' | 'HOLD' | 'CANCELLED' | 'COMPLETED';
     contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
-    levels: ContractLevel[];
-    installments: Installment[];
+    contractLevels: ContractLevel[];
+    installments?: Installment[];
+    numberOfInstallments: number;
     notes?: string;
     createdAt?: string;
     updatedAt?: string;
+    // Legacy support - these might still be returned by the API for backward compatibility
+    levels?: ContractLevel[]; // Alias for contractLevels
 }
 
 export interface CreateStudentContractRequest {
     studentId: string;
     sellerId: string;
     startDate: string; // YYYY-MM-DD
-    endDate: string;   // YYYY-MM-DD
-    amount: number;
     discountPercent: number;
-    includeManuals: boolean;
-    includeRegistrationFee: boolean;
-    adultEnglishCourseProductId: string;
-    levelId: string;
-    courseBookId: string;
-    courseMaterialPaidSameDay: boolean;
-    unitPrice: number;
+    contractLevels: ContractLevel[];
     notes?: string;
-    contractType: 'STANDARD' | 'PROMOTIONAL' | 'CUSTOM';
+    contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
     numberOfInstallments: number;
-    firstInstallmentDate: string; // YYYY-MM-DD
-    customInstallments?: CustomInstallmentRequest[];
 }
 
-export interface CustomInstallmentRequest {
-    id?: string;
-    installmentNumber: number;
-    dueDate: string; // YYYY-MM-DD
-    amount: number;
-    status: 'PENDING_PAYMENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
-}

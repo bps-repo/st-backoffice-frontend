@@ -78,9 +78,9 @@ export class ManagementComponent implements OnInit {
             level: level ? `name (${level.duration} meses)` : '-',
             seller: seller?.user ? `${seller.user.firstname} ${seller.user.lastname}` : '-',
             contractType: this.getContractTypeLabel(contract.contractType),
-            period: this.formatPeriod(contract.startDate, contract.endDate),
-            amount: this.formatCurrency(contract.amount),
-            installments: this.formatInstallments(contract.installments),
+            period: this.formatPeriod(contract.startDate, contract.endDate || ''),
+            amount: this.formatCurrency(contract.amount || 0),
+            installments: this.formatInstallments(contract.installments || []),
             status: this.getStatusLabel(contract.status),
             actions: contract.id
         };
@@ -101,14 +101,14 @@ export class ManagementComponent implements OnInit {
         this.activeContracts.set(contracts.filter(c => c.status === 'ACTIVE').length);
 
         // Calculate total pending value
-        const totalPending = this.calculatePendingValue(contracts.flatMap(c => c.installments));
+        const totalPending = this.calculatePendingValue(contracts.flatMap(c => c.installments || []));
 
         this.pendingValue.set(totalPending);
 
         // Calculate completion rate
-        const totalInstallments = contracts.reduce((sum, contract) => sum + contract.installments.length, 0);
+        const totalInstallments = contracts.reduce((sum, contract) => sum + (contract.installments?.length || 0), 0);
         const paidInstallments = contracts.reduce((sum, contract) =>
-            sum + contract.installments.filter(i => i.status === 'PAID').length, 0);
+            sum + (contract.installments?.filter(i => i.status === 'PAID').length || 0), 0);
 
         const completionRate = totalInstallments > 0 ? (paidInstallments / totalInstallments) * 100 : 0;
         this.renewalRate.set(`${Math.round(completionRate)}%`);
@@ -128,14 +128,14 @@ export class ManagementComponent implements OnInit {
         }).format(amount);
     }
 
-    private formatInstallments(installments: any[]): string {
+    private formatInstallments(installments: any[] | undefined): string {
         if (!installments || installments.length === 0) return '0/0';
         const total = installments.length;
         const paid = installments.filter(i => i.status === 'PAID').length;
         return `${paid}/${total}`;
     }
 
-    private calculatePendingValue(installments: any[]): string {
+    private calculatePendingValue(installments: any[] | undefined): string {
         if (!installments || installments.length === 0) return 'Kz 0,00';
         const pending = installments
             .filter(i => i.status === 'PENDING_PAYMENT')

@@ -17,6 +17,13 @@ import { ContractService, } from 'src/app/core/services/contract.service';
 import { StudentsActions } from "../../../../../core/store/schoolar/students/students.actions";
 import { selectAllStudents } from "../../../../../core/store/schoolar/students/students.selectors";
 import { CreateStudentContractRequest } from 'src/app/core/models/corporate/contract';
+import { EmployeesActions } from '../../../../../core/store/corporate/employees/employees.actions';
+import { selectAllEmployees } from '../../../../../core/store/corporate/employees/employees.selectors';
+import { LevelActions } from '../../../../../core/store/schoolar/level/level.actions';
+import { selectAllLevels } from '../../../../../core/store/schoolar/level/level.selector';
+import { Level } from '../../../../../core/models/course/level';
+import { Service } from '../../../../../core/models/course/service';
+import { Employee } from '../../../../../core/models/corporate/employee';
 
 @Component({
     selector: 'app-create-contract',
@@ -40,30 +47,37 @@ import { CreateStudentContractRequest } from 'src/app/core/models/corporate/cont
 export class CreateContractComponent implements OnInit {
     students: Student[] = [];
     selectedStudent: Student | null = null;
+    employees: Employee[] = [];
+    levels: Level[] = [];
+    services: Service[] = [];
     contractForm: FormGroup;
-    get customInstallments(): FormArray { return this.contractForm.get('customInstallments') as FormArray; }
+    get contractLevels(): FormArray { return this.contractForm.get('contractLevels') as FormArray; }
     loading = false;
 
     contractTypes = [
-        { label: 'Full Course', value: 'FULL_COURSE' },
-        { label: 'Monthly', value: 'MONTHLY' },
-        { label: 'Quarterly', value: 'QUARTERLY' },
-        { label: 'Annual', value: 'ANNUAL' }
+        { label: 'Standard', value: 'STANDARD' },
+        { label: 'VIP', value: 'VIP' },
+        { label: 'Promotional', value: 'PROMOTIONAL' },
+        { label: 'Custom', value: 'CUSTOM' }
     ];
 
-    paymentFrequencies = [
-        { label: 'Monthly', value: 'MONTHLY' },
-        { label: 'Quarterly', value: 'QUARTERLY' },
-        { label: 'Semi-Annual', value: 'SEMI_ANNUAL' },
-        { label: 'Annual', value: 'ANNUAL' },
-        { label: 'One-time', value: 'ONE_TIME' }
+    offerTypes = [
+        { label: 'None', value: 'NONE' },
+        { label: 'Discount', value: 'DISCOUNT' },
+        { label: 'Promotion', value: 'PROMOTION' }
+    ];
+
+    registrationFeeTypes = [
+        { label: 'None', value: 'NONE' },
+        { label: 'Standard', value: 'STANDARD' },
+        { label: 'Waived', value: 'WAIVED' }
     ];
 
     statuses = [
         { label: 'Active', value: 'ACTIVE' },
-        { label: 'Pending', value: 'PENDING' },
-        { label: 'Expired', value: 'EXPIRED' },
-        { label: 'Cancelled', value: 'CANCELLED' }
+        { label: 'Hold', value: 'HOLD' },
+        { label: 'Cancelled', value: 'CANCELLED' },
+        { label: 'Completed', value: 'COMPLETED' }
     ];
 
     constructor(
@@ -74,91 +88,29 @@ export class CreateContractComponent implements OnInit {
     ) {
         this.contractForm = this.fb.group({
             student: [null, Validators.required],
+            sellerId: [null, Validators.required],
             startDate: [null, Validators.required],
-            endDate: [null, Validators.required],
-            // UI fields
-            contractType: [null, Validators.required],
-            paymentFrequency: [null, Validators.required],
-            paymentAmount: [null, [Validators.required, Validators.min(0)]],
-            status: ['ACTIVE', Validators.required],
-            terms: ['', Validators.required],
-            // Schema fields
-            sellerId: ['', Validators.required],
-            amount: [0, [Validators.required, Validators.min(0)]],
             discountPercent: [0, [Validators.min(0), Validators.max(100)]],
-            includeManuals: [true],
-            includeRegistrationFee: [true],
-            adultEnglishCourseProductId: ['', Validators.required],
-            levelId: ['', Validators.required],
-            courseBookId: ['', Validators.required],
-            courseMaterialPaidSameDay: [true],
-            unitPrice: [0, [Validators.required, Validators.min(0)]],
-            notes: [''],
-            schemaContractType: ['STANDARD', Validators.required],
+            contractType: ['STANDARD', Validators.required],
             numberOfInstallments: [1, [Validators.required, Validators.min(1)]],
-            firstInstallmentDate: [null, Validators.required],
-            autoDistribute: [true],
-            customInstallments: this.fb.array([])
+            notes: [''],
+            contractLevels: this.fb.array([])
         });
     }
 
     ngOnInit(): void {
         this.loadStudents();
+        this.loadEmployees();
+        this.loadLevels();
+        this.loadServices();
+
         // Sync defaults
         this.contractForm.get('student')?.valueChanges.subscribe((val) => {
             this.selectedStudent = val;
-            if (val?.levelId) {
-                this.contractForm.patchValue({ levelId: val.levelId });
-            }
-            if (val?.user?.id) {
-                // Default seller as the student's associated user if applicable; can be changed by user
-                this.contractForm.patchValue({ sellerId: val.user.id });
-            }
         });
-        this.contractForm.get('startDate')?.valueChanges.subscribe((d) => {
-            const first = this.contractForm.get('firstInstallmentDate')?.value;
-            if (!first) {
-                this.contractForm.patchValue({ firstInstallmentDate: d });
-            }
-        });
-        // Use paymentAmount as default amount/unitPrice if explicit not set
-        this.contractForm.get('paymentAmount')?.valueChanges.subscribe((amt) => {
-            const toPatch: any = {};
-            if (!this.contractForm.get('amount')?.dirty) toPatch.amount = amt || 0;
-            if (!this.contractForm.get('unitPrice')?.dirty) toPatch.unitPrice = amt || 0;
-            if (Object.keys(toPatch).length) {
-                this.contractForm.patchValue(toPatch);
-            }
-        });
-        // Auto-build installments list based on numberOfInstallments when empty
-        this.contractForm.get('numberOfInstallments')?.valueChanges.subscribe((n: number) => {
-            n = Math.max(1, n || 1);
-            while (this.customInstallments.length < n) {
-                this.customInstallments.push(this.createInstallmentGroup(this.customInstallments.length + 1));
-            }
-            while (this.customInstallments.length > n) {
-                this.customInstallments.removeAt(this.customInstallments.length - 1);
-            }
-            if (this.contractForm.get('autoDistribute')?.value) {
-                this.regenerateInstallments();
-            }
-        });
-        // React to first installment date changes
-        this.contractForm.get('firstInstallmentDate')?.valueChanges.subscribe(() => {
-            if (this.contractForm.get('autoDistribute')?.value) {
-                this.regenerateInstallments();
-            }
-        });
-        // React to amount changes
-        this.contractForm.get('amount')?.valueChanges.subscribe(() => {
-            if (this.contractForm.get('autoDistribute')?.value) {
-                this.regenerateInstallments();
-            }
-        });
-        // Initialize with one installment
-        this.customInstallments.push(this.createInstallmentGroup(1));
-        // Set initial data
-        setTimeout(() => this.regenerateInstallments(), 0);
+
+        // Initialize with one contract level
+        this.addContractLevel();
     }
 
     loadStudents(): void {
@@ -172,86 +124,73 @@ export class CreateContractComponent implements OnInit {
         });
     }
 
-    private createInstallmentGroup(installmentNumber: number) {
-        return this.fb.group({
-            installmentNumber: [installmentNumber, [Validators.required, Validators.min(1)]],
-            dueDate: [null, Validators.required],
-            amount: [0, [Validators.required, Validators.min(0)]],
-            status: ['PENDING_PAYMENT', Validators.required]
+    loadEmployees(): void {
+        this.store.dispatch(EmployeesActions.loadEmployees());
+        this.store.select(selectAllEmployees).subscribe(employees => {
+            this.employees = employees.map(e => ({
+                ...e,
+                name: e['user'] ? `${e['user']['firstname'] || ''} ${e['user']['lastname'] || ''}`.trim() : 'Unknown',
+                displayName: e['user'] ? `${e['user']['firstname'] || ''} ${e['user']['lastname'] || ''}`.trim() + ` (${e['user']['email'] || ''})` : 'Unknown'
+            } as any));
         });
     }
 
-    addInstallment() {
-        this.customInstallments.push(this.createInstallmentGroup(this.customInstallments.length + 1));
-        this.contractForm.patchValue({ numberOfInstallments: this.customInstallments.length });
-        if (this.contractForm.get('autoDistribute')?.value) this.regenerateInstallments();
+    loadLevels(): void {
+        this.store.dispatch(LevelActions.loadLevels());
+        this.store.select(selectAllLevels).subscribe(levels => {
+            this.levels = levels;
+        });
     }
 
-    removeInstallment(index: number) {
-        if (this.customInstallments.length <= 1) return;
-        this.customInstallments.removeAt(index);
-        this.contractForm.patchValue({ numberOfInstallments: this.customInstallments.length });
-        if (this.contractForm.get('autoDistribute')?.value) this.regenerateInstallments();
+    loadServices(): void {
+        this.services = [
+            { id: '1', name: 'English Course Level 1', description: 'Basic English Course', value: 2500, active: true, type: 'REGULAR_COURSE' },
+            { id: '2', name: 'English Course Level 2', description: 'Intermediate English Course', value: 2500, active: true, type: 'REGULAR_COURSE' },
+            { id: '3', name: 'English Course Level 3', description: 'Advanced English Course', value: 2500, active: true, type: 'REGULAR_COURSE' },
+            { id: '4', name: 'Intensive Course', description: 'Intensive English Course', value: 3000, active: true, type: 'INTENSIVE_COURSE' },
+            { id: '5', name: 'Private Lessons', description: 'One-on-one English lessons', value: 2000, active: true, type: 'PRIVATE_LESSONS' },
+            { id: '6', name: 'Exam Preparation', description: 'TOEFL/IELTS preparation course', value: 3500, active: true, type: 'EXAM_PREPARATION' }
+        ];
     }
 
-    regenerateInstallments(force = false) {
-        const n: number = Math.max(1, this.contractForm.get('numberOfInstallments')?.value || 1);
-        const total: number = Number(this.contractForm.get('amount')?.value || 0);
-        const firstDate: Date = this.contractForm.get('firstInstallmentDate')?.value;
-        if (!firstDate || !n) return;
-
-        // Ensure length is correct
-        while (this.customInstallments.length < n) {
-            this.customInstallments.push(this.createInstallmentGroup(this.customInstallments.length + 1));
-        }
-        while (this.customInstallments.length > n) {
-            this.customInstallments.removeAt(this.customInstallments.length - 1);
-        }
-
-        // Distribute amounts equally (round to 2 decimals; adjust last one)
-        const base = Math.floor((total / n) * 100) / 100;
-        let remaining = Math.round(total * 100) - Math.round(base * 100) * (n - 1);
-
-        for (let i = 0; i < n; i++) {
-            const group = this.customInstallments.at(i) as FormGroup;
-            const due = this.addMonths(firstDate, i);
-
-            // Only patch if control is not dirty (unless force)
-            const amountCtrl = group.get('amount');
-            const dateCtrl = group.get('dueDate');
-            const numberCtrl = group.get('installmentNumber');
-
-            if (force || !numberCtrl?.dirty) numberCtrl?.patchValue(i + 1, { emitEvent: false });
-            if (force || !dateCtrl?.dirty) dateCtrl?.patchValue(due, { emitEvent: false });
-            if (force || !amountCtrl?.dirty) {
-                const cents = (i === n - 1) ? remaining : Math.round(base * 100);
-                amountCtrl?.patchValue(cents / 100, { emitEvent: false });
-                if (i !== n - 1) {
-                    remaining -= Math.round(base * 100);
-                }
-            }
-        }
+    private createContractLevelGroup() {
+        return this.fb.group({
+            levelId: [null, Validators.required],
+            productId: [null, Validators.required],
+            duration: [1, [Validators.required, Validators.min(1)]],
+            levelPrice: [0, [Validators.required, Validators.min(0)]],
+            courseMaterialPrice: [0, [Validators.required, Validators.min(0)]],
+            levelOrder: [1, [Validators.required, Validators.min(1)]],
+            offerType: ['NONE', Validators.required],
+            registrationFeeType: ['NONE', Validators.required],
+            courseMaterialPaid: [false],
+            includeCourseMaterial: [true],
+            includeRegistrationFee: [true],
+            status: ['ACTIVE', Validators.required],
+            contractType: ['STANDARD', Validators.required],
+            notes: ['']
+        });
     }
 
-    private addMonths(date: Date, months: number): Date {
-        const d = new Date(date);
-        const day = d.getDate();
-        d.setMonth(d.getMonth() + months);
-        // Handle month overflow (e.g., Jan 31 -> Feb 28/29)
-        if (d.getDate() < day) {
-            d.setDate(0);
-        }
-        return d;
+    addContractLevel() {
+        const levelOrder = this.contractLevels.length + 1;
+        const levelGroup = this.createContractLevelGroup();
+        levelGroup.patchValue({ levelOrder });
+        this.contractLevels.push(levelGroup);
     }
 
-    get installmentsTotal(): number {
-        return (this.contractForm.get('customInstallments') as FormArray).controls
-            .map(c => Number((c as FormGroup).get('amount')?.value || 0))
-            .reduce((a, b) => a + b, 0);
+    removeContractLevel(index: number) {
+        if (this.contractLevels.length <= 1) return;
+        this.contractLevels.removeAt(index);
+        // Update level orders
+        this.contractLevels.controls.forEach((control, i) => {
+            (control as FormGroup).patchValue({ levelOrder: i + 1 });
+        });
     }
 
     onSubmit(): void {
         if (this.contractForm.invalid || !this.selectedStudent) {
+            this.contractForm.markAllAsTouched();
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
@@ -262,56 +201,35 @@ export class CreateContractComponent implements OnInit {
 
         this.loading = true;
 
-        // Validate installments length
-        const num = this.contractForm.get('numberOfInstallments')?.value || 0;
-        if (this.customInstallments.length !== num) {
-            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'O número de parcelas não corresponde aos itens listados.' });
-        }
-
-        // Note: We don't need to create a Contract object here since we're using CreateStudentContractRequest
-
-        // Build payload according to backend schema using form values
+        // Build payload according to new backend schema
         const v = this.contractForm.value;
         const payload: CreateStudentContractRequest = {
             studentId: this.selectedStudent.id!,
             sellerId: v.sellerId,
             startDate: this.formatDate(v.startDate),
-            endDate: this.formatDate(v.endDate),
-            amount: v.amount,
             discountPercent: v.discountPercent ?? 0,
-            includeManuals: !!v.includeManuals,
-            includeRegistrationFee: !!v.includeRegistrationFee,
-            adultEnglishCourseProductId: v.adultEnglishCourseProductId,
-            levelId: v.levelId,
-            courseBookId: v.courseBookId,
-            courseMaterialPaidSameDay: !!v.courseMaterialPaidSameDay,
-            unitPrice: v.unitPrice,
-            notes: v.notes || v.terms,
-            contractType: v.schemaContractType,
-            numberOfInstallments: v.numberOfInstallments,
-            firstInstallmentDate: this.formatDate(v.firstInstallmentDate),
-            customInstallments: (v.customInstallments || []).map((ci: any) => ({
-                installmentNumber: ci.installmentNumber,
-                dueDate: this.formatDate(ci.dueDate),
-                amount: ci.amount,
-                status: ci.status
-            }))
+            contractLevels: v.contractLevels || [],
+            notes: v.notes,
+            contractType: v.contractType,
+            numberOfInstallments: v.numberOfInstallments
         };
 
         this.contractService.createStudentContract(payload).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Sucesso',
-                    detail: `Contrato criado para ${this.selectedStudent!.user.firstname}`
+                    summary: 'Success',
+                    detail: `Contract created for ${this.selectedStudent!.user.firstname}`
                 });
-                this.contractForm.reset({ status: 'ACTIVE' });
+                this.contractForm.reset();
                 this.selectedStudent = null;
+                this.contractLevels.clear();
+                this.addContractLevel();
                 this.loading = false;
             },
             error: (err) => {
-                const detail = err?.error?.message || err?.message || 'Falha ao criar o contrato.';
-                this.messageService.add({ severity: 'error', summary: 'Erro', detail });
+                const detail = err?.error?.message || err?.message || 'Failed to create contract.';
+                this.messageService.add({ severity: 'error', summary: 'Error', detail });
                 this.loading = false;
             }
         });
