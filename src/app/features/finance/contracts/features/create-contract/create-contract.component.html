@@ -30,7 +30,8 @@
                     <div class="field col-12 md:col-6">
                         <label for="sellerId">Vendedor *</label>
                         <p-dropdown id="sellerId" formControlName="sellerId" [options]="employees"
-                            optionLabel="displayName" optionValue="id" placeholder="Selecione um vendedor" [showClear]="true">
+                            optionLabel="displayName" optionValue="id" placeholder="Selecione um vendedor"
+                            [showClear]="true">
                             <ng-template pTemplate="item" let-employee>
                                 <div>
                                     <div>{{employee.name}}</div>
@@ -100,7 +101,7 @@
                     <div class="col-12">
                         <div class="flex align-items-center justify-content-between mb-3">
                             <h6>Níveis de Contrato</h6>
-                            <p-button type="button" label="Add Level" icon="pi pi-plus" class="p-button-sm"
+                            <p-button type="button" label="Adicionar Nível" icon="pi pi-plus" class="p-button-sm"
                                 (click)="addContractLevel()">
                             </p-button>
                         </div>
@@ -170,7 +171,7 @@
                                     <div class="field col-12 md:col-3">
                                         <label>Preço do Nível *</label>
                                         <p-inputNumber formControlName="levelPrice" [min]="0" mode="currency"
-                                            currency="USD" locale="en-US"></p-inputNumber>
+                                            currency="AOA" locale="pt-AO"></p-inputNumber>
                                         <small
                                             *ngIf="level.get('levelPrice')?.invalid && level.get('levelPrice')?.touched"
                                             class="p-error">
@@ -182,7 +183,7 @@
                                     <div class="field col-12 md:col-3">
                                         <label>Preço do Material do Curso *</label>
                                         <p-inputNumber formControlName="courseMaterialPrice" [min]="0" mode="currency"
-                                            currency="USD" locale="en-US"></p-inputNumber>
+                                            currency="AOA" locale="pt-AO"></p-inputNumber>
                                         <small
                                             *ngIf="level.get('courseMaterialPrice')?.invalid && level.get('courseMaterialPrice')?.touched"
                                             class="p-error">
