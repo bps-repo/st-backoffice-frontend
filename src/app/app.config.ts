@@ -9,7 +9,7 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideRouterStore, routerReducer } from '@ngrx/router-store';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { CustomSerializer } from './core/router/custom-serializer';
-import { AppEffects, AppFeatures } from "./core/store/schoolar";
+import { AppEffects, AppFeatures } from "./core/store";
 import { forbiddenInterceptor } from "./core/interceptors/forbidden.interceptor";
 import { MessageService } from "primeng/api";
 import { tokenExpiredInterceptor } from "./core/interceptors/token-expired.interceptor";

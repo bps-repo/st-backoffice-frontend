@@ -10,7 +10,7 @@ import {Employee} from "../models/corporate/employee";
 import {Store} from '@ngrx/store';
 import * as RolesActions from '../store/roles/actions/roles.actions';
 import * as RolesSelectors from '../store/roles/selectors/roles.selectors';
-import {AppState} from '../store/schoolar';
+import {AppState} from '../store';
 
 interface CreateRoleWithPermissionsRequest {
     name: string;

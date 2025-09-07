@@ -170,8 +170,8 @@
                                     <!-- Level Price -->
                                     <div class="field col-12 md:col-3">
                                         <label>Preço do Nível *</label>
-                                        <p-inputNumber formControlName="levelPrice" [min]="0" mode="currency"
-                                            currency="AOA" locale="pt-AO"></p-inputNumber>
+                                        <p-inputNumber formControlName="levelPrice" [min]="0" mode="decimal"
+                                            [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
                                         <small
                                             *ngIf="level.get('levelPrice')?.invalid && level.get('levelPrice')?.touched"
                                             class="p-error">
@@ -182,8 +182,8 @@
                                     <!-- Course Material Price -->
                                     <div class="field col-12 md:col-3">
                                         <label>Preço do Material do Curso *</label>
-                                        <p-inputNumber formControlName="courseMaterialPrice" [min]="0" mode="currency"
-                                            currency="AOA" locale="pt-AO"></p-inputNumber>
+                                        <p-inputNumber formControlName="courseMaterialPrice" [min]="0" mode="decimal"
+                                            [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
                                         <small
                                             *ngIf="level.get('courseMaterialPrice')?.invalid && level.get('courseMaterialPrice')?.touched"
                                             class="p-error">
@@ -266,6 +266,73 @@
                                             placeholder="Enter level-specific notes">
                                         </p-inputTextarea>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contract Summary Section -->
+                    <div class="col-12">
+                        <div class="card">
+                            <h6>Resumo do Contrato</h6>
+                            <div class="grid">
+                                <div class="col-12 md:col-6">
+                                    <div class="flex justify-content-between mb-2">
+                                        <span>Preço Total dos Níveis:</span>
+                                        <span class="font-semibold">{{contractSummary.totalLevelPrice | number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between mb-2">
+                                        <span>Preço Total dos Materiais:</span>
+                                        <span class="font-semibold">{{contractSummary.totalMaterialPrice | number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span class="font-semibold">{{contractSummary.totalAmount | number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between mb-2" *ngIf="contractSummary.totalDiscount > 0">
+                                        <span>Desconto ({{contractForm.get('discountPercent')?.value || 0}}%):</span>
+                                        <span class="font-semibold text-red-500">-{{contractSummary.totalDiscount | number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <hr>
+                                    <div class="flex justify-content-between mb-2">
+                                        <span class="font-bold text-lg">Total Final:</span>
+                                        <span class="font-bold text-lg text-primary">{{contractSummary.finalAmount | number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between" *ngIf="contractForm.get('numberOfInstallments')?.value > 1">
+                                        <span class="font-semibold text-blue-600">Valor por Parcela:</span>
+                                        <span class="font-semibold text-blue-600">{{contractSummary.installmentAmount | number:'1.2-2'}} AOA</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Installments Section -->
+                    <div class="col-12" *ngIf="installments.length > 0">
+                        <div class="card">
+                            <h6>Plano de Parcelas</h6>
+                            <div class="grid">
+                                <div class="col-12">
+                                    <p-table [value]="installments" [tableStyle]="{'min-width': '50rem'}">
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th>Parcela</th>
+                                                <th>Data de Vencimento</th>
+                                                <th>Valor</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-installment>
+                                            <tr>
+                                                <td>{{installment.installmentNumber}}/{{installments.length}}</td>
+                                                <td>{{installment.dueDate | date:'dd/MM/yyyy'}}</td>
+                                                <td>{{installment.amount | number:'1.2-2'}} AOA</td>
+                                                <td>
+                                                    <span class="p-tag p-tag-warning">Pendente</span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
                                 </div>
                             </div>
                         </div>

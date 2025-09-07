@@ -72,7 +72,7 @@ export class DetailComponent implements OnInit {
                 active: this.editableService.active
             };
 
-            this.store.dispatch(ServiceActions.updateService({id: this.serviceId, service: updatedService}));
+            this.store.dispatch(ServiceActions.updateService({id: this.serviceId, service: updatedService as Service}));
         }
     }
 

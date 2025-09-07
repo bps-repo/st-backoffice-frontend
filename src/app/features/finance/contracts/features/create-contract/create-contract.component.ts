@@ -16,7 +16,7 @@ import { Student } from 'src/app/core/models/academic/student';
 import { ContractService, } from 'src/app/core/services/contract.service';
 import { StudentsActions } from "../../../../../core/store/schoolar/students/students.actions";
 import { selectAllStudents } from "../../../../../core/store/schoolar/students/students.selectors";
-import { CreateStudentContractRequest } from 'src/app/core/models/corporate/contract';
+import { CreateStudentContractRequest, Installment } from 'src/app/core/models/corporate/contract';
 import { EmployeesActions } from '../../../../../core/store/corporate/employees/employees.actions';
 import { selectAllEmployees } from '../../../../../core/store/corporate/employees/employees.selectors';
 import { LevelActions } from '../../../../../core/store/schoolar/level/level.actions';
@@ -24,7 +24,8 @@ import { selectAllLevels } from '../../../../../core/store/schoolar/level/level.
 import { Level } from '../../../../../core/models/course/level';
 import { Service } from '../../../../../core/models/course/service';
 import { Employee } from '../../../../../core/models/corporate/employee';
-
+import { selectAllServices } from 'src/app/core/store/corporate/services/service.selector';
+import * as ServiceActions from 'src/app/core/store/corporate/services/service.actions';
 @Component({
     selector: 'app-create-contract',
     templateUrl: './create-contract.component.html',
@@ -53,6 +54,18 @@ export class CreateContractComponent implements OnInit {
     contractForm: FormGroup;
     get contractLevels(): FormArray { return this.contractForm.get('contractLevels') as FormArray; }
     loading = false;
+
+    // Contract summary properties
+    contractSummary = {
+        totalAmount: 0,
+        totalLevelPrice: 0,
+        totalMaterialPrice: 0,
+        totalDiscount: 0,
+        finalAmount: 0,
+        installmentAmount: 0
+    };
+
+    installments: Installment[] = [];
 
     contractTypes = [
         { label: 'Standard', value: 'STANDARD' },
@@ -111,6 +124,29 @@ export class CreateContractComponent implements OnInit {
 
         // Initialize with one contract level
         this.addContractLevel();
+
+        // Watch for changes in contract levels and installments to recalculate summary
+        this.contractForm.valueChanges.subscribe(() => {
+            setTimeout(() => {
+                this.calculateContractSummary();
+                this.generateInstallments();
+            }, 50);
+        });
+
+        // Also watch for specific field changes
+        this.contractForm.get('discountPercent')?.valueChanges.subscribe(() => {
+            setTimeout(() => {
+                this.calculateContractSummary();
+                this.generateInstallments();
+            }, 50);
+        });
+
+        this.contractForm.get('numberOfInstallments')?.valueChanges.subscribe(() => {
+            setTimeout(() => {
+                this.calculateContractSummary();
+                this.generateInstallments();
+            }, 50);
+        });
     }
 
     loadStudents(): void {
@@ -143,21 +179,18 @@ export class CreateContractComponent implements OnInit {
     }
 
     loadServices(): void {
-        this.services = [
-            { id: '1', name: 'English Course Level 1', description: 'Basic English Course', value: 2500, active: true, type: 'REGULAR_COURSE' },
-            { id: '2', name: 'English Course Level 2', description: 'Intermediate English Course', value: 2500, active: true, type: 'REGULAR_COURSE' },
-            { id: '3', name: 'English Course Level 3', description: 'Advanced English Course', value: 2500, active: true, type: 'REGULAR_COURSE' },
-            { id: '4', name: 'Intensive Course', description: 'Intensive English Course', value: 3000, active: true, type: 'INTENSIVE_COURSE' },
-            { id: '5', name: 'Private Lessons', description: 'One-on-one English lessons', value: 2000, active: true, type: 'PRIVATE_LESSONS' },
-            { id: '6', name: 'Exam Preparation', description: 'TOEFL/IELTS preparation course', value: 3500, active: true, type: 'EXAM_PREPARATION' }
-        ];
+        this.store.dispatch(ServiceActions.loadServices());
+        this.store.select(selectAllServices).subscribe(services => {
+            console.log('Services:', services);
+            this.services = services;
+        });
     }
 
     private createContractLevelGroup() {
         return this.fb.group({
             levelId: [null, Validators.required],
             productId: [null, Validators.required],
-            duration: [1, [Validators.required, Validators.min(1)]],
+            duration: [0, [Validators.required, Validators.min(1)]],
             levelPrice: [0, [Validators.required, Validators.min(0)]],
             courseMaterialPrice: [0, [Validators.required, Validators.min(0)]],
             levelOrder: [1, [Validators.required, Validators.min(1)]],
@@ -176,7 +209,43 @@ export class CreateContractComponent implements OnInit {
         const levelOrder = this.contractLevels.length + 1;
         const levelGroup = this.createContractLevelGroup();
         levelGroup.patchValue({ levelOrder });
+
+        // Add level selection change handler
+        levelGroup.get('levelId')?.valueChanges.subscribe(levelId => {
+            if (levelId) {
+                this.onLevelSelected(levelId, levelGroup);
+            }
+        });
+
+        // Add handlers for price changes
+        levelGroup.get('levelPrice')?.valueChanges.subscribe(() => {
+            setTimeout(() => {
+                this.calculateContractSummary();
+                this.generateInstallments();
+            }, 50);
+        });
+
+        levelGroup.get('courseMaterialPrice')?.valueChanges.subscribe(() => {
+            setTimeout(() => {
+                this.calculateContractSummary();
+                this.generateInstallments();
+            }, 50);
+        });
+
+        levelGroup.get('includeCourseMaterial')?.valueChanges.subscribe(() => {
+            setTimeout(() => {
+                this.calculateContractSummary();
+                this.generateInstallments();
+            }, 50);
+        });
+
         this.contractLevels.push(levelGroup);
+
+        // Recalculate summary after adding level
+        setTimeout(() => {
+            this.calculateContractSummary();
+            this.generateInstallments();
+        }, 100);
     }
 
     removeContractLevel(index: number) {
@@ -186,6 +255,108 @@ export class CreateContractComponent implements OnInit {
         this.contractLevels.controls.forEach((control, i) => {
             (control as FormGroup).patchValue({ levelOrder: i + 1 });
         });
+        // Recalculate summary after removing level
+        this.calculateContractSummary();
+        this.generateInstallments();
+    }
+
+    calculateContractSummary(): void {
+        const formValue = this.contractForm.value;
+        let totalLevelPrice = 0;
+        let totalMaterialPrice = 0;
+
+
+        // Calculate totals from contract levels
+        if (formValue.contractLevels && formValue.contractLevels.length > 0) {
+            formValue.contractLevels.forEach((level: any) => {
+                const levelPrice = Number(level.levelPrice) || 0;
+                const materialPrice = Number(level.courseMaterialPrice) || 0;
+
+                totalLevelPrice += levelPrice;
+                if (level.includeCourseMaterial) {
+                    totalMaterialPrice += materialPrice;
+                }
+            });
+        }
+
+        const totalAmount = totalLevelPrice + totalMaterialPrice;
+        const discountPercent = formValue.discountPercent || 0;
+        const totalDiscount = (totalAmount * discountPercent) / 100;
+        const finalAmount = totalAmount - totalDiscount;
+
+        const numberOfInstallments = this.contractForm.get('numberOfInstallments')?.value || 1;
+        const installmentAmount = finalAmount > 0 && numberOfInstallments > 0 ? finalAmount / numberOfInstallments : 0;
+
+        this.contractSummary = {
+            totalAmount,
+            totalLevelPrice,
+            totalMaterialPrice,
+            totalDiscount,
+            finalAmount,
+            installmentAmount: Math.round(installmentAmount * 100) / 100
+        };
+    }
+
+    generateInstallments(): void {
+        const formValue = this.contractForm.value;
+        const numberOfInstallments = formValue.numberOfInstallments || 1;
+        const startDate = formValue.startDate;
+        const finalAmount = this.contractSummary.finalAmount;
+
+        if (!startDate || finalAmount <= 0 || numberOfInstallments <= 0) {
+            this.installments = [];
+            return;
+        }
+
+        const installmentAmount = finalAmount / numberOfInstallments;
+        const installments: Installment[] = [];
+        const baseDate = new Date(startDate);
+
+        for (let i = 0; i < numberOfInstallments; i++) {
+            const dueDate = new Date(baseDate);
+            dueDate.setMonth(dueDate.getMonth() + i);
+
+            installments.push({
+                id: `temp-${i + 1}`, // Temporary ID for display
+                installmentNumber: i + 1,
+                dueDate: dueDate.toISOString().split('T')[0],
+                amount: Math.round(installmentAmount * 100) / 100, // Round to 2 decimal places
+                status: 'PENDING_PAYMENT'
+            });
+        }
+
+        // Adjust the last installment to account for rounding differences
+        if (installments.length > 0) {
+            const totalCalculated = installments.reduce((sum, inst) => sum + inst.amount, 0);
+            const difference = finalAmount - totalCalculated;
+            installments[installments.length - 1].amount += difference;
+            installments[installments.length - 1].amount = Math.round(installments[installments.length - 1].amount * 100) / 100;
+        }
+
+        this.installments = installments;
+    }
+
+    onLevelSelected(levelId: string, levelGroup: FormGroup): void {
+        const selectedLevel = this.levels.find(level => level.id === levelId);
+        if (selectedLevel) {
+            // Auto-populate duration from selected level
+            levelGroup.patchValue({
+                duration: selectedLevel.duration
+            });
+
+            // Trigger recalculation
+            setTimeout(() => {
+                this.calculateContractSummary();
+                this.generateInstallments();
+            }, 100);
+        }
+    }
+
+    // Manual trigger for debugging
+    manualCalculate(): void {
+        console.log('Manual calculation triggered');
+        this.calculateContractSummary();
+        this.generateInstallments();
     }
 
     onSubmit(): void {
@@ -213,6 +384,11 @@ export class CreateContractComponent implements OnInit {
             contractType: v.contractType,
             numberOfInstallments: v.numberOfInstallments
         };
+
+        // Add contract summary and installments to payload if needed
+        console.log('Contract Summary:', this.contractSummary);
+        console.log('Generated Installments:', this.installments);
+        console.log('Payload:', payload);
 
         this.contractService.createStudentContract(payload).subscribe({
             next: () => {

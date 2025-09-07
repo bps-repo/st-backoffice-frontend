@@ -1,6 +1,6 @@
 import {createFeatureSelector, createSelector} from '@ngrx/store';
 import * as fromCertificates from './certificates.reducer';
-import {AppState} from "../index";
+import {AppState} from "../../index";
 
 export const selectSchoolarState = createFeatureSelector<AppState>('schoolar');
 

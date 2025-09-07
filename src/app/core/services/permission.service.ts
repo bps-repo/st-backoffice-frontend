@@ -8,7 +8,7 @@ import {filter, map} from "rxjs/operators";
 import {Store} from '@ngrx/store';
 import * as PermissionsActions from '../store/permissions/actions/permissions.actions';
 import * as PermissionsSelectors from '../store/permissions/selectors/permissions.selectors';
-import {AppState} from '../store/schoolar';
+import {AppState} from '../store';
 
 @Injectable({
     providedIn: 'root',
