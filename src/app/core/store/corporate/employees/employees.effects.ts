@@ -25,6 +25,20 @@ export class EmployeesEffects {
     )
   );
 
+  createEmployee$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(EmployeesActions.createEmployee),
+      exhaustMap(({employeeData}) =>
+        this.employeeApi.createEmployee(employeeData).pipe(
+          map((employee) => EmployeesActions.createEmployeeSuccess({employee})),
+          catchError((error: HttpErrorResponse | any) =>
+            of(EmployeesActions.createEmployeeFailure({error: (error?.message || 'Failed to create employee')}))
+          )
+        )
+      )
+    )
+  );
+
   loadEmployeesByRole$ = createEffect(() =>
     this.actions$.pipe(
       ofType(EmployeesActions.loadEmployeesByRole),

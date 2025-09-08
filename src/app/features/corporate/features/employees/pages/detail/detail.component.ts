@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {Employee, EmployeeStatus} from 'src/app/core/models/corporate/employee';
+import {Employee, EmployeeStatus, EmployeeDetails} from 'src/app/core/models/corporate/employee';
 import {EmployeeService} from 'src/app/core/services/employee.service';
 import {Subject} from 'rxjs';
 import {takeUntil, finalize} from 'rxjs/operators';
@@ -10,6 +10,7 @@ import {TabViewModule} from 'primeng/tabview';
 import {TagModule} from 'primeng/tag';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {RippleModule} from "primeng/ripple";
+import {PermissionTreeDisplayComponent} from 'src/app/shared/components/permission-tree-display/permission-tree-display.component';
 
 @Component({
     selector: 'app-detail',
@@ -22,11 +23,13 @@ import {RippleModule} from "primeng/ripple";
         TabViewModule,
         TagModule,
         ProgressSpinnerModule,
-        RippleModule
+        RippleModule,
+        PermissionTreeDisplayComponent
     ]
 })
 export class DetailComponent implements OnInit, OnDestroy {
     employee: Employee | null = null;
+    employeeDetails: EmployeeDetails | null = null;
     loading = false;
     private destroy$ = new Subject<void>();
 
@@ -55,16 +58,16 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     loadEmployee(id: string): void {
         this.loading = true;
-        this.employeeService.getEmployeeById(id).pipe(
+        this.employeeService.getEmployeeDetails(id).pipe(
             takeUntil(this.destroy$),
             finalize(() => this.loading = false)
         ).subscribe({
-            next: (employee) => {
-                this.employee = employee;
+            next: (employeeDetails) => {
+                this.employeeDetails = employeeDetails;
             },
             error: (error: any) => {
-                console.error('Error loading employee', error);
-                this.employee = null;
+                console.error('Error loading employee details', error);
+                this.employeeDetails = null;
             }
         });
     }
@@ -90,12 +93,38 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     editEmployee(): void {
-        if (this.employee) {
-            this.router.navigate(['/corporate/employees/edit', this.employee.id]);
+        if (this.employeeDetails) {
+            this.router.navigate(['/corporate/employees/edit', this.employeeDetails.id]);
         }
     }
 
     goBack(): void {
         this.router.navigate(['/corporate/employees']);
+    }
+
+    getGenderLabel(gender: string): string {
+        const genderMap: Record<string, string> = {
+            'MALE': 'Masculino',
+            'FEMALE': 'Feminino',
+            'OTHER': 'Outro',
+            'PREFER_NOT_TO_SAY': 'Prefere não dizer'
+        };
+        return genderMap[gender] || gender;
+    }
+
+    formatDate(date: string | null): string | null {
+        if (!date) return null;
+        try {
+            return new Date(date).toLocaleDateString('pt-BR');
+        } catch {
+            return date;
+        }
+    }
+
+    formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(amount);
     }
 }

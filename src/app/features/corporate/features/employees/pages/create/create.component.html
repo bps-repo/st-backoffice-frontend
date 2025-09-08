@@ -1,14 +1,14 @@
 <div class="grid">
     <div class="col-12">
+        <h4>Criar Novo Funcionário</h4>
         <div class="card">
-            <h5>Criar Novo Funcionário</h5>
-            <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+            <form class="mt-4" [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
                 <div class="p-fluid p-formgrid grid">
                     <!-- User Information -->
                     <div class="col-12 md:col-6" formGroupName="user">
-                        <div class="card">
-                            <h5>Informações do Usuário</h5>
-                            <div class="field">
+                        <div class="personal-information">
+                            <h5>Informações Pessoais</h5>
+                            <div class="fields mt-4">
                                 <label for="firstname">Nome</label>
                                 <input id="firstname" type="text" pInputText formControlName="firstname" />
                                 <small *ngIf="employeeForm.get('user.firstname')?.invalid && employeeForm.get('user.firstname')?.touched" class="p-error">
@@ -63,48 +63,37 @@
 
                     <!-- Employment Information -->
                     <div class="col-12 md:col-6">
-                        <div class="card">
+                        <div class="professional-information">
                             <h5>Informações Profissionais</h5>
                             <div class="field" formGroupName="user">
                                 <label for="roleId">Função Principal</label>
-                                <p-dropdown id="roleId" [options]="roles" formControlName="roleId" placeholder="Selecione uma função" optionLabel="name" optionValue="id"></p-dropdown>
+                                <p-dropdown
+                                    id="roleId"
+                                    [options]="roles"
+                                    formControlName="roleId"
+                                    placeholder="Selecione uma função"
+                                    optionLabel="name"
+                                    optionValue="id">
+                                </p-dropdown>
+                                <small *ngIf="loadingRoles" class="text-gray-500">
+                                    <i class="pi pi-spin pi-spinner mr-1"></i>Carregando funções...
+                                </small>
+                                <small *ngIf="!loadingRoles && roles.length === 0" class="text-yellow-600">
+                                    <i class="pi pi-exclamation-triangle mr-1"></i>Nenhuma função encontrada
+                                </small>
                                 <small *ngIf="employeeForm.get('user.roleId')?.invalid && employeeForm.get('user.roleId')?.touched" class="p-error">
                                     Função é obrigatória
                                 </small>
-                            </div>
-                            <div class="field" formGroupName="user">
-                                <label for="additionalPermissionIds">Permissões</label>
-                                <p-tree
-                                    [value]="permissionTree"
-                                    selectionMode="checkbox"
-                                    [(selection)]="selectedPermissions"
-                                    (onNodeSelect)="onPermissionNodeSelect($event)"
-                                    (onNodeUnselect)="onPermissionNodeUnselect($event)"
-                                    styleClass="w-full">
-                                </p-tree>
-                                <small class="text-xs text-gray-500 mt-1">
-                                    Selecione uma função para carregar suas permissões. Você pode desmarcar ou adicionar permissões conforme necessário.
+                                <!-- Debug info (remove in production) -->
+                                <small class="text-xs text-gray-400 mt-1" *ngIf="roles.length > 0">
+                                    {{ roles.length }} função(ões) disponível(eis)
                                 </small>
                             </div>
                             <div class="field">
                                 <label for="centerId">Centro</label>
-                                <input id="centerId" type="text" pInputText formControlName="centerId" />
+                                <p-dropdown id="centerId" [options]="(centers$ | async) || []" formControlName="centerId" placeholder="Selecione um centro" optionLabel="label" optionValue="value"></p-dropdown>
                                 <small *ngIf="employeeForm.get('centerId')?.invalid && employeeForm.get('centerId')?.touched" class="p-error">
                                     Centro é obrigatório
-                                </small>
-                            </div>
-                            <div class="field">
-                                <label for="hiringDate">Data de Contratação</label>
-                                <p-calendar id="hiringDate" formControlName="hiringDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
-                                <small *ngIf="employeeForm.get('hiringDate')?.invalid && employeeForm.get('hiringDate')?.touched" class="p-error">
-                                    Data de contratação é obrigatória
-                                </small>
-                            </div>
-                            <div class="field">
-                                <label for="wage">Salário</label>
-                                <p-inputNumber id="wage" formControlName="wage" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
-                                <small *ngIf="employeeForm.get('wage')?.invalid && employeeForm.get('wage')?.touched" class="p-error">
-                                    Salário é obrigatório
                                 </small>
                             </div>
                             <div class="field">
@@ -117,11 +106,46 @@
                         </div>
                     </div>
 
+                    <!-- Permissions Section - Full Width -->
+                    <div class="col-12">
+                        <div class="card" formGroupName="user">
+                            <div class="flex align-items-center gap-2 mb-3">
+                                <i class="pi pi-shield text-primary text-xl"></i>
+                                <h5 class="m-0">Configuração de Permissões</h5>
+                            </div>
+                            <p class="text-gray-600 mb-4">
+                                Defina as permissões do funcionário. As permissões da função selecionada são incluídas automaticamente,
+                                e você pode adicionar permissões extras conforme necessário.
+                            </p>
+
+                            <div class="field">
+                                <app-permission-tree-selector
+                                    [permissions]="permissions"
+                                    [selectedRole]="selectedRole"
+                                    [selectedPermissionIds]="selectedPermissionIds"
+                                    (permissionIdsChange)="onPermissionIdsChange($event)">
+                                </app-permission-tree-selector>
+                            </div>
+
+                            <div class="bg-blue-50 border-left-3 border-blue-500 p-3 mt-3">
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-info-circle text-blue-600"></i>
+                                    <small class="text-blue-800 font-medium">
+                                        Dica: As permissões da função principal são aplicadas automaticamente e não podem ser removidas.
+                                        Use as permissões adicionais para conceder acesso extra conforme necessário.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Buttons -->
                     <div class="col-12">
-                        <div class="flex justify-content-end">
+                        <div class="flex justify-content-end gap-2">
                             <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
-                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || loading"></button>
+                            <button pButton pRipple label="Salvar Funcionário" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || loading">
+                                <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
+                            </button>
                         </div>
                     </div>
                 </div>

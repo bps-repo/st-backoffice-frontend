@@ -1,7 +1,7 @@
 import {EntityState, createEntityAdapter} from '@ngrx/entity';
-import {EmployeeAny} from './employees.actions';
+import { Employee } from 'src/app/core/models/corporate/employee';
 
-export interface EmployeesState extends EntityState<EmployeeAny> {
+export interface EmployeesState extends EntityState<Employee> {
   loading: boolean;
   error: string | null;
   // Optional cache for role-specific lists
@@ -12,7 +12,7 @@ export interface EmployeesState extends EntityState<EmployeeAny> {
   searchPage: any | null; // last paginated search page object
 }
 
-export const employeesAdapter = createEntityAdapter<EmployeeAny>({
+export const employeesAdapter = createEntityAdapter<Employee>({
   selectId: (e) => e.id,
 });
 

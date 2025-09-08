@@ -1,13 +1,13 @@
-<div class="grid" *ngIf="employee">
+<div class="grid" *ngIf="employeeDetails">
     <div class="col-12">
         <div class="card">
             <div class="flex justify-content-between align-items-center mb-5">
-                <h5>Detalhes do Funcionário: Santiago</h5>
+                <h5>Detalhes do Funcionário: {{ employeeDetails.personalInfo.firstName }} {{ employeeDetails.personalInfo.lastName }}</h5>
                 <div>
                     <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-outlined mr-2"
-                            (click)="editEmployee()"></button>
+                        (click)="editEmployee()"></button>
                     <button pButton pRipple label="Voltar" icon="pi pi-arrow-left" class="p-button-outlined"
-                            (click)="goBack()"></button>
+                        (click)="goBack()"></button>
                 </div>
             </div>
 
@@ -21,22 +21,47 @@
                                 <h5>Informações Pessoais</h5>
                                 <div class="field">
                                     <label>ID</label>
+                                    <div>{{ employeeDetails.id }}</div>
                                 </div>
                                 <div class="field">
                                     <label>Nome Completo</label>
-                                    <div>name</div>
+                                    <div>{{ employeeDetails.personalInfo.firstName }} {{ employeeDetails.personalInfo.lastName }}</div>
+                                </div>
+                                <div class="field">
+                                    <label>Nome de Usuário</label>
+                                    <div>{{ employeeDetails.personalInfo.username }}</div>
                                 </div>
                                 <div class="field">
                                     <label>Email</label>
-                                    <div>email</div>
+                                    <div>{{ employeeDetails.personalInfo.email }}</div>
+                                    <small *ngIf="employeeDetails.personalInfo.emailVerified" class="text-green-600">
+                                        <i class="pi pi-check-circle"></i> Verificado
+                                    </small>
+                                    <small *ngIf="!employeeDetails.personalInfo.emailVerified" class="text-orange-600">
+                                        <i class="pi pi-exclamation-triangle"></i> Não verificado
+                                    </small>
                                 </div>
                                 <div class="field">
                                     <label>Telefone</label>
-                                    <div>993838382</div>
+                                    <div>{{ employeeDetails.personalInfo.phone || 'Não informado' }}</div>
+                                    <small *ngIf="employeeDetails.personalInfo.phone && employeeDetails.personalInfo.phoneVerified" class="text-green-600">
+                                        <i class="pi pi-check-circle"></i> Verificado
+                                    </small>
+                                    <small *ngIf="employeeDetails.personalInfo.phone && !employeeDetails.personalInfo.phoneVerified" class="text-orange-600">
+                                        <i class="pi pi-exclamation-triangle"></i> Não verificado
+                                    </small>
+                                </div>
+                                <div class="field">
+                                    <label>Número de Identificação</label>
+                                    <div>{{ employeeDetails.personalInfo.identificationNumber || 'Não informado' }}</div>
+                                </div>
+                                <div class="field">
+                                    <label>Gênero</label>
+                                    <div>{{ getGenderLabel(employeeDetails.personalInfo.gender) }}</div>
                                 </div>
                                 <div class="field">
                                     <label>Data de Nascimento</label>
-                                    <div>12 - 04 - 2023</div>
+                                    <div>{{ formatDate(employeeDetails.personalInfo.birthdate) || 'Não informado' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -46,20 +71,38 @@
                             <div class="card">
                                 <h5>Informações Profissionais</h5>
                                 <div class="field">
-                                    <label>Departamento</label>
+                                    <label>Centro</label>
+                                    <div>{{ employeeDetails.workInfo.centerName }}</div>
                                 </div>
                                 <div class="field">
                                     <label>Cargo</label>
+                                    <div>{{ employeeDetails.role.name }}</div>
+                                    <small class="text-gray-600">{{ employeeDetails.role.description }}</small>
                                 </div>
                                 <div class="field">
                                     <label>Data de Contratação</label>
-                                    <div>{{ employee.hireDate | date:'dd/MM/yyyy' }}</div>
+                                    <div>{{ formatDate(employeeDetails.workInfo.hiringDate) }}</div>
+                                </div>
+                                <div class="field" *ngIf="employeeDetails.workInfo.resignationDate">
+                                    <label>Data de Demissão</label>
+                                    <div>{{ formatDate(employeeDetails.workInfo.resignationDate) }}</div>
                                 </div>
                                 <div class="field">
-                                    <label>Status</label>
+                                    <label>Salário</label>
+                                    <div>{{ formatCurrency(employeeDetails.workInfo.wage) }}</div>
+                                </div>
+                                <div class="field">
+                                    <label>Status da Conta</label>
                                     <div>
-                                        <p-tag [severity]="getStatusSeverity(employee.status)"
-                                               [value]="getStatusLabel(employee.status)"></p-tag>
+                                        <p-tag [severity]="getStatusSeverity(employeeDetails.accountStatus)"
+                                            [value]="getStatusLabel(employeeDetails.accountStatus)"></p-tag>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Status do Trabalho</label>
+                                    <div>
+                                        <p-tag [severity]="getStatusSeverity(employeeDetails.workInfo.status)"
+                                            [value]="getStatusLabel(employeeDetails.workInfo.status)"></p-tag>
                                     </div>
                                 </div>
                             </div>
@@ -69,7 +112,73 @@
 
                 <!-- Roles Tab -->
                 <p-tabPanel header="Funções e Permissões">
-                    <router-outlet></router-outlet>
+                    <div class="grid">
+                        <!-- Role Information -->
+                        <div class="col-12 md:col-4">
+                            <div class="card">
+                                <h5>Função Principal</h5>
+                                <div class="field">
+                                    <label>Nome da Função</label>
+                                    <div>{{ employeeDetails.role.name }}</div>
+                                </div>
+                                <div class="field">
+                                    <label>Descrição</label>
+                                    <div>{{ employeeDetails.role.description }}</div>
+                                </div>
+                                <div class="field">
+                                    <label>ID da Função</label>
+                                    <div class="text-xs text-gray-500">{{ employeeDetails.role.id }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Permission Summary -->
+                        <div class="col-12 md:col-8">
+                            <div class="card">
+                                <h5>Resumo de Permissões</h5>
+                                <div class="grid">
+                                    <div class="col-12 md:col-4">
+                                        <div class="text-center p-3 bg-blue-50 border-round">
+                                            <div class="text-blue-600 text-2xl font-bold">{{ employeeDetails.role.permissions.length }}</div>
+                                            <div class="text-blue-800 text-sm font-medium">Permissões da Função</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 md:col-4">
+                                        <div class="text-center p-3 bg-green-50 border-round">
+                                            <div class="text-green-600 text-2xl font-bold">{{ employeeDetails.additionalPermissions.length }}</div>
+                                            <div class="text-green-800 text-sm font-medium">Permissões Adicionais</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 md:col-4">
+                                        <div class="text-center p-3 bg-gray-50 border-round">
+                                            <div class="text-gray-600 text-2xl font-bold">{{ employeeDetails.allPermissions.length }}</div>
+                                            <div class="text-gray-800 text-sm font-medium">Total de Permissões</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tree Display of Permissions -->
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="flex align-items-center gap-2 mb-3">
+                                    <i class="pi pi-sitemap text-primary text-xl"></i>
+                                    <h5 class="m-0">Estrutura Hierárquica de Permissões</h5>
+                                </div>
+                                <p class="text-gray-600 mb-4">
+                                    Visualização das permissões organizadas por categorias e subcategorias.
+                                    As permissões estão agrupadas conforme sua hierarquia no sistema.
+                                </p>
+
+                                <app-permission-tree-display
+                                    [rolePermissions]="employeeDetails.role.permissions"
+                                    [additionalPermissions]="employeeDetails.additionalPermissions"
+                                    [allPermissions]="employeeDetails.allPermissions">
+                                </app-permission-tree-display>
+                            </div>
+                        </div>
+                    </div>
                 </p-tabPanel>
             </p-tabView>
         </div>
@@ -82,14 +191,14 @@
     </div>
 </div>
 
-<div class="grid" *ngIf="!employee && !loading">
+<div class="grid" *ngIf="!employeeDetails && !loading">
     <div class="col-12">
         <div class="card">
             <div class="flex flex-column align-items-center">
                 <i class="pi pi-exclamation-triangle text-yellow-500" style="font-size: 3rem"></i>
                 <h5>Funcionário não encontrado</h5>
                 <button pButton pRipple label="Voltar para a lista" icon="pi pi-arrow-left" class="p-button-outlined"
-                        (click)="goBack()"></button>
+                    (click)="goBack()"></button>
             </div>
         </div>
     </div>

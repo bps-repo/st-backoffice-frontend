@@ -10,6 +10,10 @@ import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
 import {BadgeModule} from 'primeng/badge';
 import {CardModule} from 'primeng/card';
+import { Store } from '@ngrx/store';
+import * as LessonActions from 'src/app/core/store/schoolar/lessons/lessons.actions';
+import * as StudentActions from 'src/app/core/store/schoolar/students/students.actions';
+import { selectAllLessons, selectLessonBookings } from 'src/app/core/store/schoolar/lessons/lessons.selectors';
 
 @Component({
     selector: 'app-schedule-lessons',
@@ -42,7 +46,11 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
         private readonly fb: FormBuilder,
         private readonly lessonApi: LessonService,
         private readonly studentApi: StudentService,
-    ) {}
+        private readonly store: Store
+    ) {
+        this.store.dispatch(LessonActions.lessonsActions.loadLessons());
+        this.store.dispatch(StudentActions.StudentsActions.loadStudents());
+    }
 
     ngOnInit(): void {
         this.loadLessons();
@@ -59,9 +67,9 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
 
     private loadLessons() {
         this.loadingLessons = true;
-        this.lessonApi.getAllLessons().pipe(takeUntil(this.destroy$)).subscribe({
+        this.store.select(selectAllLessons).pipe(takeUntil(this.destroy$)).subscribe({
             next: (lessons) => {
-                this.lessons = lessons;
+                this.lessons = lessons as Lesson[];
                 this.filteredLessons = lessons;
                 this.loadingLessons = false;
             },
@@ -83,9 +91,9 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     private loadLessonStudents(lessonId: string) {
         this.loadingStudents = true;
         // get existing bookings
-        this.lessonApi.getLessonBookings(lessonId).pipe(takeUntil(this.destroy$)).subscribe({
+        this.store.select(selectLessonBookings).pipe(takeUntil(this.destroy$)).subscribe({
             next: (bookings) => {
-                const bookedIds = bookings.map(b => b.studentId);
+                const bookedIds = Array.isArray(bookings) ? bookings.map((b: any) => b.studentId) : [];
                 // load all students then split
                 this.studentApi.getStudents().pipe(takeUntil(this.destroy$)).subscribe({
                     next: (students) => {

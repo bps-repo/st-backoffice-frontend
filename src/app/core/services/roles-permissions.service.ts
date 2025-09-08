@@ -119,6 +119,16 @@ export class RolesPermissionsService {
   }
 
   /**
+   * Gets all permissions in tree structure with parent-child relationships.
+   * @returns An observable containing an array of Permission objects with children.
+   */
+  getPermissionsTree(): Observable<any[]> {
+    return this.http.get<ApiResponse<any[]>>(`${this.permissionsApiUrl}/tree`).pipe(
+      map((response) => response.data as any[])
+    );
+  }
+
+  /**
    * Gets a permission by ID.
    * @param id The ID of the permission.
    * @returns An observable containing the Permission object.

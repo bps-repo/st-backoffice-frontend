@@ -1,0 +1,816 @@
+{
+  "permissions": [
+    {
+      "name": "dashboard.view",
+      "description": "View dashboard pages",
+      "module": "general",
+      "children": [
+        {
+          "name": "dashboard.schoolar.view",
+          "description": "View scholar dashboard",
+          "module": "schoolar"
+        },
+        {
+          "name": "dashboard.corporate.view",
+          "description": "View corporate dashboard",
+          "module": "corporate"
+        },
+        {
+          "name": "dashboard.finance.view",
+          "description": "View finance dashboard",
+          "module": "finance"
+        }
+      ]
+    },
+    {
+      "name": "students.manage",
+      "description": "Manage students",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "students.view",
+          "description": "View students list and details",
+          "module": "schoolar"
+        },
+        {
+          "name": "students.create",
+          "description": "Create new students",
+          "module": "schoolar"
+        },
+        {
+          "name": "students.update",
+          "description": "Update student information",
+          "module": "schoolar"
+        },
+        {
+          "name": "students.delete",
+          "description": "Delete students",
+          "module": "schoolar"
+        },
+        {
+          "name": "students.photo.manage",
+          "description": "Manage student photos",
+          "module": "schoolar"
+        },
+        {
+          "name": "students.class.assign",
+          "description": "Assign students to classes",
+          "module": "schoolar"
+        },
+        {
+          "name": "students.class.remove",
+          "description": "Remove students from classes",
+          "module": "schoolar"
+        },
+        {
+          "name": "students.bulk.actions",
+          "description": "Perform bulk actions on students",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "lessons.manage",
+      "description": "Manage lessons",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "lessons.view",
+          "description": "View lessons",
+          "module": "schoolar"
+        },
+        {
+          "name": "lessons.create",
+          "description": "Create new lessons",
+          "module": "schoolar"
+        },
+        {
+          "name": "lessons.update",
+          "description": "Update lesson information",
+          "module": "schoolar"
+        },
+        {
+          "name": "lessons.delete",
+          "description": "Delete lessons",
+          "module": "schoolar"
+        },
+        {
+          "name": "lessons.schedule",
+          "description": "Schedule lessons",
+          "module": "schoolar"
+        },
+        {
+          "name": "lessons.bookings.manage",
+          "description": "Manage lesson bookings",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "classes.manage",
+      "description": "Manage classes",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "classes.view",
+          "description": "View classes",
+          "module": "schoolar"
+        },
+        {
+          "name": "classes.create",
+          "description": "Create new classes",
+          "module": "schoolar"
+        },
+        {
+          "name": "classes.update",
+          "description": "Update class information",
+          "module": "schoolar"
+        },
+        {
+          "name": "classes.delete",
+          "description": "Delete classes",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "calendar.manage",
+      "description": "Manage calendar",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "calendar.view",
+          "description": "View calendar",
+          "module": "schoolar"
+        },
+        {
+          "name": "calendar.events.create",
+          "description": "Create calendar events",
+          "module": "schoolar"
+        },
+        {
+          "name": "calendar.events.update",
+          "description": "Update calendar events",
+          "module": "schoolar"
+        },
+        {
+          "name": "calendar.events.delete",
+          "description": "Delete calendar events",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "assessments.manage",
+      "description": "Manage assessments",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "assessments.view",
+          "description": "View assessments",
+          "module": "schoolar"
+        },
+        {
+          "name": "assessments.create",
+          "description": "Create new assessments",
+          "module": "schoolar"
+        },
+        {
+          "name": "assessments.update",
+          "description": "Update assessment information",
+          "module": "schoolar"
+        },
+        {
+          "name": "assessments.delete",
+          "description": "Delete assessments",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "materials.manage",
+      "description": "Manage educational materials",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "materials.view",
+          "description": "View educational materials",
+          "module": "schoolar"
+        },
+        {
+          "name": "materials.create",
+          "description": "Create new educational materials",
+          "module": "schoolar"
+        },
+        {
+          "name": "materials.update",
+          "description": "Update educational materials",
+          "module": "schoolar"
+        },
+        {
+          "name": "materials.delete",
+          "description": "Delete educational materials",
+          "module": "schoolar"
+        },
+        {
+          "name": "materials.upload",
+          "description": "Upload educational materials",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "courses.manage",
+      "description": "Manage courses",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "courses.view",
+          "description": "View courses",
+          "module": "schoolar"
+        },
+        {
+          "name": "courses.create",
+          "description": "Create new courses",
+          "module": "schoolar"
+        },
+        {
+          "name": "courses.update",
+          "description": "Update course information",
+          "module": "schoolar"
+        },
+        {
+          "name": "courses.delete",
+          "description": "Delete courses",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "levels.manage",
+      "description": "Manage course levels",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "levels.view",
+          "description": "View course levels",
+          "module": "schoolar"
+        },
+        {
+          "name": "levels.create",
+          "description": "Create new course levels",
+          "module": "schoolar"
+        },
+        {
+          "name": "levels.update",
+          "description": "Update course level information",
+          "module": "schoolar"
+        },
+        {
+          "name": "levels.delete",
+          "description": "Delete course levels",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "units.manage",
+      "description": "Manage course units",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "units.view",
+          "description": "View course units",
+          "module": "schoolar"
+        },
+        {
+          "name": "units.create",
+          "description": "Create new course units",
+          "module": "schoolar"
+        },
+        {
+          "name": "units.update",
+          "description": "Update course unit information",
+          "module": "schoolar"
+        },
+        {
+          "name": "units.delete",
+          "description": "Delete course units",
+          "module": "schoolar"
+        },
+        {
+          "name": "units.materials.manage",
+          "description": "Manage unit materials",
+          "module": "schoolar"
+        },
+        {
+          "name": "units.order.update",
+          "description": "Update unit order",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "certificates.manage",
+      "description": "Manage certificates",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "certificates.view",
+          "description": "View certificates",
+          "module": "schoolar"
+        },
+        {
+          "name": "certificates.create",
+          "description": "Create new certificates",
+          "module": "schoolar"
+        },
+        {
+          "name": "certificates.update",
+          "description": "Update certificate information",
+          "module": "schoolar"
+        },
+        {
+          "name": "certificates.delete",
+          "description": "Delete certificates",
+          "module": "schoolar"
+        },
+        {
+          "name": "certificates.generate",
+          "description": "Generate certificates",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "attendance.manage",
+      "description": "Manage attendance",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "attendance.view",
+          "description": "View attendance records",
+          "module": "schoolar"
+        },
+        {
+          "name": "attendance.create",
+          "description": "Create attendance records",
+          "module": "schoolar"
+        },
+        {
+          "name": "attendance.update",
+          "description": "Update attendance records",
+          "module": "schoolar"
+        },
+        {
+          "name": "attendance.delete",
+          "description": "Delete attendance records",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "centers.manage",
+      "description": "Manage centers",
+      "module": "corporate",
+      "children": [
+        {
+          "name": "centers.view",
+          "description": "View centers",
+          "module": "corporate"
+        },
+        {
+          "name": "centers.create",
+          "description": "Create new centers",
+          "module": "corporate"
+        },
+        {
+          "name": "centers.update",
+          "description": "Update center information",
+          "module": "corporate"
+        },
+        {
+          "name": "centers.delete",
+          "description": "Delete centers",
+          "module": "corporate"
+        }
+      ]
+    },
+    {
+      "name": "employees.manage",
+      "description": "Manage employees/users",
+      "module": "corporate",
+      "children": [
+        {
+          "name": "employees.view",
+          "description": "View employees",
+          "module": "corporate"
+        },
+        {
+          "name": "employees.create",
+          "description": "Create new employees",
+          "module": "corporate"
+        },
+        {
+          "name": "employees.update",
+          "description": "Update employee information",
+          "module": "corporate"
+        },
+        {
+          "name": "employees.delete",
+          "description": "Delete employees",
+          "module": "corporate"
+        }
+      ]
+    },
+    {
+      "name": "roles.manage",
+      "description": "Manage user roles",
+      "module": "corporate",
+      "children": [
+        {
+          "name": "roles.view",
+          "description": "View roles",
+          "module": "corporate"
+        },
+        {
+          "name": "roles.create",
+          "description": "Create new roles",
+          "module": "corporate"
+        },
+        {
+          "name": "roles.update",
+          "description": "Update role information",
+          "module": "corporate"
+        },
+        {
+          "name": "roles.delete",
+          "description": "Delete roles",
+          "module": "corporate"
+        },
+        {
+          "name": "roles.permissions.assign",
+          "description": "Assign permissions to roles",
+          "module": "corporate"
+        },
+        {
+          "name": "roles.permissions.remove",
+          "description": "Remove permissions from roles",
+          "module": "corporate"
+        },
+        {
+          "name": "roles.permissions.bulk",
+          "description": "Bulk assign permissions to roles",
+          "module": "corporate"
+        }
+      ]
+    },
+    {
+      "name": "permissions.manage",
+      "description": "Manage permissions",
+      "module": "corporate",
+      "children": [
+        {
+          "name": "permissions.view",
+          "description": "View permissions",
+          "module": "corporate"
+        },
+        {
+          "name": "permissions.create",
+          "description": "Create new permissions",
+          "module": "corporate"
+        },
+        {
+          "name": "permissions.update",
+          "description": "Update permission information",
+          "module": "corporate"
+        },
+        {
+          "name": "permissions.delete",
+          "description": "Delete permissions",
+          "module": "corporate"
+        }
+      ]
+    },
+    {
+      "name": "users.manage",
+      "description": "Manage users",
+      "module": "corporate",
+      "children": [
+        {
+          "name": "users.view",
+          "description": "View users",
+          "module": "corporate"
+        },
+        {
+          "name": "users.create",
+          "description": "Create new users",
+          "module": "corporate"
+        },
+        {
+          "name": "users.update",
+          "description": "Update user information",
+          "module": "corporate"
+        },
+        {
+          "name": "users.delete",
+          "description": "Delete users",
+          "module": "corporate"
+        },
+        {
+          "name": "users.roles.assign",
+          "description": "Assign roles to users",
+          "module": "corporate"
+        },
+        {
+          "name": "users.roles.remove",
+          "description": "Remove roles from users",
+          "module": "corporate"
+        },
+        {
+          "name": "users.permissions.assign",
+          "description": "Assign permissions to users",
+          "module": "corporate"
+        },
+        {
+          "name": "users.permissions.remove",
+          "description": "Remove permissions from users",
+          "module": "corporate"
+        }
+      ]
+    },
+    {
+      "name": "contracts.manage",
+      "description": "Manage contracts",
+      "module": "finance",
+      "children": [
+        {
+          "name": "contracts.view",
+          "description": "View contracts",
+          "module": "finance"
+        },
+        {
+          "name": "contracts.create",
+          "description": "Create new contracts",
+          "module": "finance"
+        },
+        {
+          "name": "contracts.update",
+          "description": "Update contract information",
+          "module": "finance"
+        },
+        {
+          "name": "contracts.delete",
+          "description": "Delete contracts",
+          "module": "finance"
+        }
+      ]
+    },
+    {
+      "name": "invoices.manage",
+      "description": "Manage invoices",
+      "module": "finance",
+      "children": [
+        {
+          "name": "invoices.view",
+          "description": "View invoices",
+          "module": "finance"
+        },
+        {
+          "name": "invoices.create",
+          "description": "Create new invoices",
+          "module": "finance"
+        },
+        {
+          "name": "invoices.update",
+          "description": "Update invoice information",
+          "module": "finance"
+        },
+        {
+          "name": "invoices.delete",
+          "description": "Delete invoices",
+          "module": "finance"
+        }
+      ]
+    },
+    {
+      "name": "payments.manage",
+      "description": "Manage payments",
+      "module": "finance",
+      "children": [
+        {
+          "name": "payments.view",
+          "description": "View payments",
+          "module": "finance"
+        },
+        {
+          "name": "payments.create",
+          "description": "Create new payments",
+          "module": "finance"
+        },
+        {
+          "name": "payments.update",
+          "description": "Update payment information",
+          "module": "finance"
+        },
+        {
+          "name": "payments.delete",
+          "description": "Delete payments",
+          "module": "finance"
+        }
+      ]
+    },
+    {
+      "name": "sales.manage",
+      "description": "Manage sales",
+      "module": "finance",
+      "children": [
+        {
+          "name": "sales.view",
+          "description": "View sales",
+          "module": "finance"
+        },
+        {
+          "name": "sales.create",
+          "description": "Create new sales",
+          "module": "finance"
+        },
+        {
+          "name": "sales.update",
+          "description": "Update sale information",
+          "module": "finance"
+        },
+        {
+          "name": "sales.delete",
+          "description": "Delete sales",
+          "module": "finance"
+        }
+      ]
+    },
+    {
+      "name": "reports.manage",
+      "description": "Manage reports",
+      "module": "general",
+      "children": [
+        {
+          "name": "reports.schoolar.view",
+          "description": "View scholar reports",
+          "module": "schoolar"
+        },
+        {
+          "name": "reports.corporate.view",
+          "description": "View corporate reports",
+          "module": "corporate"
+        },
+        {
+          "name": "reports.finance.view",
+          "description": "View finance reports",
+          "module": "finance"
+        },
+        {
+          "name": "reports.generate",
+          "description": "Generate reports",
+          "module": "general"
+        },
+        {
+          "name": "reports.export",
+          "description": "Export reports",
+          "module": "general"
+        }
+      ]
+    },
+    {
+      "name": "settings.manage",
+      "description": "Manage system settings",
+      "module": "settings",
+      "children": [
+        {
+          "name": "settings.alerts.manage",
+          "description": "Manage alert settings",
+          "module": "settings"
+        },
+        {
+          "name": "settings.general.manage",
+          "description": "Manage general information settings",
+          "module": "settings"
+        },
+        {
+          "name": "settings.support.manage",
+          "description": "Manage support settings",
+          "module": "settings"
+        },
+        {
+          "name": "settings.tasks.manage",
+          "description": "Manage task settings",
+          "module": "settings"
+        },
+        {
+          "name": "settings.corporate.manage",
+          "description": "Manage corporate settings",
+          "module": "corporate"
+        },
+        {
+          "name": "settings.schoolar.manage",
+          "description": "Manage scholar settings",
+          "module": "schoolar"
+        },
+        {
+          "name": "settings.finance.manage",
+          "description": "Manage finance settings",
+          "module": "finance"
+        }
+      ]
+    },
+    {
+      "name": "statistics.view",
+      "description": "View statistics",
+      "module": "general",
+      "children": [
+        {
+          "name": "statistics.schoolar.view",
+          "description": "View scholar statistics",
+          "module": "schoolar"
+        },
+        {
+          "name": "statistics.corporate.view",
+          "description": "View corporate statistics",
+          "module": "corporate"
+        },
+        {
+          "name": "statistics.finance.view",
+          "description": "View finance statistics",
+          "module": "finance"
+        }
+      ]
+    },
+    {
+      "name": "entities.manage",
+      "description": "Manage entities",
+      "module": "schoolar",
+      "children": [
+        {
+          "name": "entities.view",
+          "description": "View entities",
+          "module": "schoolar"
+        },
+        {
+          "name": "entities.create",
+          "description": "Create new entities",
+          "module": "schoolar"
+        },
+        {
+          "name": "entities.update",
+          "description": "Update entity information",
+          "module": "schoolar"
+        },
+        {
+          "name": "entities.delete",
+          "description": "Delete entities",
+          "module": "schoolar"
+        }
+      ]
+    },
+    {
+      "name": "services.manage",
+      "description": "Manage services",
+      "module": "corporate",
+      "children": [
+        {
+          "name": "services.view",
+          "description": "View services",
+          "module": "corporate"
+        },
+        {
+          "name": "services.create",
+          "description": "Create new services",
+          "module": "corporate"
+        },
+        {
+          "name": "services.update",
+          "description": "Update service information",
+          "module": "corporate"
+        },
+        {
+          "name": "services.delete",
+          "description": "Delete services",
+          "module": "corporate"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "system": "St. Andrews Backoffice",
+    "version": "1.0",
+    "generated_at": "2024-12-19",
+    "total_permissions": 147,
+    "modules": [
+      "general",
+      "schoolar",
+      "corporate",
+      "finance",
+      "settings"
+    ],
+    "permission_structure": "hierarchical",
+    "naming_convention": "module.entity.action"
+  }
+}

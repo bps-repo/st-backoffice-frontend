@@ -7,52 +7,57 @@ import { Role } from '../models/auth/role';
 import { Permission } from '../models/auth/permission';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class UserManagementService {
-  private apiUrl = `${environment.apiUrl}/users`;
+    private apiUrl = `${environment.apiUrl}/users`;
 
-  constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
-  }
+    getUsers(): Observable<User[]> {
+        return this.http.get<User[]>(this.apiUrl);
+    }
 
-  getUser(id: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
-  }
+    getUser(id: string): Observable<User> {
+        return this.http.get<User>(`${this.apiUrl}/${id}`);
+    }
 
-  getUserByEmail(email: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/by-email/${email}`);
-  }
+    getUserByEmail(email: string): Observable<User> {
+        return this.http.get<User>(`${this.apiUrl}/by-email/${email}`);
+    }
 
-  updateUser(user: User): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${user.id}`, user);
-  }
+    updateUser(user: User): Observable<User> {
+        return this.http.put<User>(`${this.apiUrl}/${user.id}`, user);
+    }
 
-  // User roles management
-  getUserRoles(userId: string): Observable<Role[]> {
-    return this.http.get<Role[]>(`${this.apiUrl}/${userId}/roles`);
-  }
+    // User roles management
+    getUserRoles(userId: string): Observable<Role[]> {
+        return this.http.get<Role[]>(`${this.apiUrl}/${userId}/roles`);
+    }
 
-  addRoleToUser(userId: string, roleId: number): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/${userId}/roles`, { roleId });
-  }
+    addRoleToUser(userId: string, roleId: string): Observable<User> {
+        return this.http.post<User>(`${this.apiUrl}/${userId}/roles`, { roleId });
+    }
 
-  removeRoleFromUser(userId: string, roleId: number): Observable<User> {
-    return this.http.delete<User>(`${this.apiUrl}/${userId}/roles/${roleId}`);
-  }
+    removeRoleFromUser(userId: string, roleId: string): Observable<User> {
+        return this.http.delete<User>(`${this.apiUrl}/${userId}/roles/${roleId}`);
+    }
 
-  // User permissions management
-  getUserPermissions(userId: string): Observable<Permission[]> {
-    return this.http.get<Permission[]>(`${this.apiUrl}/${userId}/permissions`);
-  }
+    getUserRolesByUserId(userId: string): Observable<Role[]> {
+        return this.http.get<Role[]>(`${this.apiUrl}/${userId}/roles`);
+    }
 
-  addPermissionToUser(userId: string, permissionId: number): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/${userId}/permissions`, { permissionId });
-  }
 
-  removePermissionFromUser(userId: string, permissionId: number): Observable<User> {
-    return this.http.delete<User>(`${this.apiUrl}/${userId}/permissions/${permissionId}`);
-  }
+    // User permissions management
+    getUserPermissions(userId: string): Observable<Permission[]> {
+        return this.http.get<Permission[]>(`${this.apiUrl}/${userId}/permissions`);
+    }
+
+    addPermissionToUser(userId: string, permissionId: string): Observable<User> {
+        return this.http.post<User>(`${this.apiUrl}/${userId}/permissions`, { permissionId });
+    }
+
+    removePermissionFromUser(userId: string, permissionId: string): Observable<User> {
+        return this.http.delete<User>(`${this.apiUrl}/${userId}/permissions/${permissionId}`);
+    }
 }

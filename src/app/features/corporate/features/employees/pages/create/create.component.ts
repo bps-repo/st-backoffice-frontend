@@ -1,25 +1,33 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
-import {EmployeeService} from 'src/app/core/services/employee.service';
-import {Employee, EmployeeStatus} from 'src/app/core/models/corporate/employee';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
-import {finalize} from 'rxjs/operators';
-import {RoleService} from 'src/app/core/services/role.service';
-import {Role} from 'src/app/core/models/auth/role';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {PasswordModule} from 'primeng/password';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {RolesPermissionsService} from 'src/app/core/services/roles-permissions.service';
-import {Permission} from 'src/app/core/models/auth/permission';
-import {TreeSelectModule} from 'primeng/treeselect';
-import {TreeModule} from 'primeng/tree';
-import {TreeNode} from 'primeng/api';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { EmployeeService } from 'src/app/core/services/employee.service';
+import { Employee, EmployeeStatus, CreateEmployeeRequest } from 'src/app/core/models/corporate/employee';
+import { CreateUserRequest } from 'src/app/core/models/auth/user';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { finalize } from 'rxjs/operators';
+import { RoleService } from 'src/app/core/services/role.service';
+import { Role } from 'src/app/core/models/auth/role';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { PasswordModule } from 'primeng/password';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { RolesPermissionsService } from 'src/app/core/services/roles-permissions.service';
+import { Permission } from 'src/app/core/models/auth/permission';
+import { TreeSelectModule } from 'primeng/treeselect';
+import { TreeModule } from 'primeng/tree';
+import { TreeNode } from 'primeng/api';
+import { Store } from '@ngrx/store';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
+import { Center } from 'src/app/core/models/corporate/center';
+import { Observable, map } from 'rxjs';
+import { PermissionSelectorComponent } from 'src/app/shared/components/permission-selector/permission-selector.component';
+import { PermissionTreeSelectorComponent } from 'src/app/shared/components/permission-tree-selector/permission-tree-selector.component';
 
 @Component({
     selector: 'app-create',
@@ -37,55 +45,110 @@ import {TreeNode} from 'primeng/api';
         InputNumberModule,
         RadioButtonModule,
         TreeSelectModule,
-        TreeModule
+        TreeModule,
+        PermissionSelectorComponent,
+        PermissionTreeSelectorComponent
     ]
 })
 export class CreateComponent implements OnInit {
     employeeForm!: FormGroup;
     loading = false;
     statusOptions = [
-        {label: 'Ativo', value: 'ACTIVE'},
-        {label: 'Inativo', value: 'INACTIVE'},
-        {label: 'De Licença', value: 'ON_LEAVE'},
-        {label: 'Terminado', value: 'TERMINATED'}
+        { label: 'Ativo', value: 'ACTIVE' },
+        { label: 'Inativo', value: 'INACTIVE' },
+        { label: 'De Licença', value: 'ON_LEAVE' },
+        { label: 'Terminado', value: 'TERMINATED' }
     ];
     genderOptions = [
-        {label: 'Masculino', value: 'MALE'},
-        {label: 'Feminino', value: 'FEMALE'},
-        {label: 'Outro', value: 'OTHER'}
+        { label: 'Masculino', value: 'MALE' },
+        { label: 'Feminino', value: 'FEMALE' },
     ];
     roles: Role[] = [];
-    permissions: any[] = [];
+    permissions: Permission[] = [];
     permissionTree: TreeNode[] = [];
-    selectedRole: string = '';
+    selectedRole: Role | null = null;
     selectedPermissions: TreeNode[] = [];
     selectedPermissionIds: string[] = [];
+    centers$: Observable<{ label: string, value: string }[]>;
+    loadingRoles = false;
 
     constructor(
         private fb: FormBuilder,
         private employeeService: EmployeeService,
         private roleService: RoleService,
         private rolesPermissionsService: RolesPermissionsService,
-        private router: Router
+        private router: Router,
+        private store: Store
     ) {
+        // Initialize centers dropdown
+        this.centers$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
+            map(centers => centers?.map(center => ({ label: center.name, value: center.id })) || [])
+        );
     }
 
     ngOnInit(): void {
         this.loadRoles();
         this.loadPermissions();
+        this.loadCenters();
         this.initForm();
     }
 
+    loadCenters(): void {
+        this.store.dispatch(CenterActions.loadCenters());
+    }
+
     loadRoles(): void {
-        this.roleService.getRoles().subscribe(roles => {
-            this.roles = roles;
+        this.loadingRoles = true;
+        // Use the direct HTTP method instead of NgRx store for now
+        this.roleService.fetchRoles().subscribe({
+            next: (roles) => {
+                console.log('Loaded roles:', roles);
+                this.roles = roles || [];
+                this.loadingRoles = false;
+            },
+            error: (error) => {
+                console.error('Error loading roles:', error);
+                this.roles = [];
+                // Fallback: try using RolesPermissionsService
+                this.loadRolesFromPermissionsService();
+            }
+        });
+    }
+
+    loadRolesFromPermissionsService(): void {
+        this.rolesPermissionsService.getRoles().subscribe({
+            next: (roles) => {
+                console.log('Loaded roles from permissions service:', roles);
+                this.roles = roles || [];
+                this.loadingRoles = false;
+            },
+            error: (error) => {
+                console.error('Error loading roles from permissions service:', error);
+                this.roles = [];
+                this.loadingRoles = false;
+            }
         });
     }
 
     loadPermissions(): void {
-        this.rolesPermissionsService.getPermissions().subscribe(permissions => {
-            this.permissions = permissions;
-            this.buildPermissionTree(permissions);
+        this.rolesPermissionsService.getPermissionsTree().subscribe({
+            next: (permissions) => {
+                this.permissions = permissions;
+                this.buildPermissionTree(permissions);
+            },
+            error: (error) => {
+                console.error('Error loading permissions tree', error);
+                // Fallback to flat permissions if tree endpoint fails
+                this.rolesPermissionsService.getPermissions().subscribe({
+                    next: (flatPermissions) => {
+                        this.permissions = flatPermissions;
+                        this.buildPermissionTree(flatPermissions);
+                    },
+                    error: (fallbackError) => {
+                        console.error('Error loading flat permissions', fallbackError);
+                    }
+                });
+            }
         });
     }
 
@@ -144,8 +207,6 @@ export class CreateComponent implements OnInit {
                 photo: ['']
             }),
             centerId: ['', Validators.required],
-            hiringDate: [new Date(), Validators.required],
-            wage: [0, [Validators.required, Validators.min(0)]],
             status: ['ACTIVE', Validators.required]
         });
 
@@ -153,26 +214,24 @@ export class CreateComponent implements OnInit {
         this.employeeForm.get('user.roleId')?.valueChanges.subscribe(roleId => {
             if (roleId) {
                 this.onRoleSelected(roleId);
+            } else {
+                this.selectedRole = null;
+                this.selectedPermissionIds = [];
             }
         });
     }
 
     onRoleSelected(roleId: string): void {
-        this.roleService.getRole(roleId).subscribe(role => {
-            if (role && role.permissions) {
-                // Extract permission IDs from the role's permissions
-                const permissionIds = role.permissions.map(permission => permission.id);
+        // Find the selected role from the loaded roles
+        this.selectedRole = this.roles.find(role => role.id === roleId) || null;
 
-                // Update the additionalPermissionIds form control with the role's permissions
-                this.employeeForm.get('user.additionalPermissionIds')?.setValue(permissionIds);
+        if (this.selectedRole && this.selectedRole.permissions) {
+            // Set role permissions as selected (they will be shown as disabled in the new UI)
+            this.selectedPermissionIds = [...this.selectedRole.permissions.map(p => p.id)];
 
-                // Store for UI reference
-                this.selectedPermissionIds = permissionIds;
-
-                // Update the tree selection state
-                this.updateTreeSelectionState(permissionIds);
-            }
-        });
+            // Update form control
+            this.updateFormPermissions();
+        }
     }
 
     updateTreeSelectionState(permissionIds: string[]): void {
@@ -226,11 +285,17 @@ export class CreateComponent implements OnInit {
     }
 
     updateFormPermissions(): void {
-        // Extract the permission IDs from the selected nodes
-        const permissionIds = this.selectedPermissions.map(node => node.key as string);
-
         // Update the form control with the current selected permission IDs
-        this.employeeForm.get('user.additionalPermissionIds')?.setValue(this.selectedPermissionIds);
+        // Remove the role's permission IDs from the list since those come automatically with the role
+        const rolePermissionIds = this.selectedRole ? this.selectedRole.permissions?.map(p => p.id) || [] : [];
+        const additionalPermissionIds = this.selectedPermissionIds.filter(id => !rolePermissionIds.includes(id));
+
+        this.employeeForm.get('user.additionalPermissionIds')?.setValue(additionalPermissionIds);
+    }
+
+    onPermissionIdsChange(permissionIds: string[]): void {
+        this.selectedPermissionIds = permissionIds;
+        this.updateFormPermissions();
     }
 
     onSubmit(): void {
@@ -242,31 +307,25 @@ export class CreateComponent implements OnInit {
         const formValue = this.employeeForm.value;
 
         // Format date values
+        let dateOfBirth = '';
         if (formValue.user.dateOfBirth) {
-            formValue.user.dateOfBirth = formValue.user.dateOfBirth.toISOString().split('T')[0];
-        }
-
-        if (formValue.hiringDate) {
-            formValue.hiringDate = formValue.hiringDate.toISOString().split('T')[0];
+            dateOfBirth = formValue.user.dateOfBirth.toISOString().split('T')[0];
         }
 
         // Create the employee data object according to the new structure
-        const employeeData = {
+        const employeeData: CreateEmployeeRequest = {
             user: {
                 firstname: formValue.user.firstname,
                 lastname: formValue.user.lastname,
                 gender: formValue.user.gender,
-                dateOfBirth: formValue.user.dateOfBirth,
+                dateOfBirth: dateOfBirth,
                 email: formValue.user.email,
                 password: formValue.user.password,
-                roleId: formValue.user.roleId,
                 additionalPermissionIds: formValue.user.additionalPermissionIds || [],
-                photo: formValue.user.photo
+                photo: formValue.user.photo || undefined
             },
-            role: formValue.user.roleId, // Use the roleId from the user form group
+            role: formValue.user.roleId, // Role ID
             centerId: formValue.centerId,
-            hiringDate: formValue.hiringDate,
-            wage: formValue.wage,
             status: formValue.status
         };
 

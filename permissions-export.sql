@@ -1,0 +1,241 @@
+-- St. Andrews Backoffice System Permissions
+-- Generated on 2024-12-19
+-- Total permissions: 147 (including parent and child permissions)
+
+-- Create permissions table if it doesn't exist
+-- Adjust the table structure according to your database schema
+/*
+CREATE TABLE IF NOT EXISTS permissions (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    module VARCHAR(100),
+    parent_id VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES permissions(id) ON DELETE CASCADE
+);
+*/
+
+-- Insert parent permissions
+INSERT INTO permissions (id, name, description, module, parent_id) VALUES
+-- Dashboard permissions
+('dashboard-view', 'dashboard.view', 'View dashboard pages', 'general', NULL),
+('dashboard-schoolar-view', 'dashboard.schoolar.view', 'View scholar dashboard', 'schoolar', 'dashboard-view'),
+('dashboard-corporate-view', 'dashboard.corporate.view', 'View corporate dashboard', 'corporate', 'dashboard-view'),
+('dashboard-finance-view', 'dashboard.finance.view', 'View finance dashboard', 'finance', 'dashboard-view'),
+
+-- Students permissions
+('students-manage', 'students.manage', 'Manage students', 'schoolar', NULL),
+('students-view', 'students.view', 'View students list and details', 'schoolar', 'students-manage'),
+('students-create', 'students.create', 'Create new students', 'schoolar', 'students-manage'),
+('students-update', 'students.update', 'Update student information', 'schoolar', 'students-manage'),
+('students-delete', 'students.delete', 'Delete students', 'schoolar', 'students-manage'),
+('students-photo-manage', 'students.photo.manage', 'Manage student photos', 'schoolar', 'students-manage'),
+('students-class-assign', 'students.class.assign', 'Assign students to classes', 'schoolar', 'students-manage'),
+('students-class-remove', 'students.class.remove', 'Remove students from classes', 'schoolar', 'students-manage'),
+('students-bulk-actions', 'students.bulk.actions', 'Perform bulk actions on students', 'schoolar', 'students-manage'),
+
+-- Lessons permissions
+('lessons-manage', 'lessons.manage', 'Manage lessons', 'schoolar', NULL),
+('lessons-view', 'lessons.view', 'View lessons', 'schoolar', 'lessons-manage'),
+('lessons-create', 'lessons.create', 'Create new lessons', 'schoolar', 'lessons-manage'),
+('lessons-update', 'lessons.update', 'Update lesson information', 'schoolar', 'lessons-manage'),
+('lessons-delete', 'lessons.delete', 'Delete lessons', 'schoolar', 'lessons-manage'),
+('lessons-schedule', 'lessons.schedule', 'Schedule lessons', 'schoolar', 'lessons-manage'),
+('lessons-bookings-manage', 'lessons.bookings.manage', 'Manage lesson bookings', 'schoolar', 'lessons-manage'),
+
+-- Classes permissions
+('classes-manage', 'classes.manage', 'Manage classes', 'schoolar', NULL),
+('classes-view', 'classes.view', 'View classes', 'schoolar', 'classes-manage'),
+('classes-create', 'classes.create', 'Create new classes', 'schoolar', 'classes-manage'),
+('classes-update', 'classes.update', 'Update class information', 'schoolar', 'classes-manage'),
+('classes-delete', 'classes.delete', 'Delete classes', 'schoolar', 'classes-manage'),
+
+-- Calendar permissions
+('calendar-manage', 'calendar.manage', 'Manage calendar', 'schoolar', NULL),
+('calendar-view', 'calendar.view', 'View calendar', 'schoolar', 'calendar-manage'),
+('calendar-events-create', 'calendar.events.create', 'Create calendar events', 'schoolar', 'calendar-manage'),
+('calendar-events-update', 'calendar.events.update', 'Update calendar events', 'schoolar', 'calendar-manage'),
+('calendar-events-delete', 'calendar.events.delete', 'Delete calendar events', 'schoolar', 'calendar-manage'),
+
+-- Assessments permissions
+('assessments-manage', 'assessments.manage', 'Manage assessments', 'schoolar', NULL),
+('assessments-view', 'assessments.view', 'View assessments', 'schoolar', 'assessments-manage'),
+('assessments-create', 'assessments.create', 'Create new assessments', 'schoolar', 'assessments-manage'),
+('assessments-update', 'assessments.update', 'Update assessment information', 'schoolar', 'assessments-manage'),
+('assessments-delete', 'assessments.delete', 'Delete assessments', 'schoolar', 'assessments-manage'),
+
+-- Materials permissions
+('materials-manage', 'materials.manage', 'Manage educational materials', 'schoolar', NULL),
+('materials-view', 'materials.view', 'View educational materials', 'schoolar', 'materials-manage'),
+('materials-create', 'materials.create', 'Create new educational materials', 'schoolar', 'materials-manage'),
+('materials-update', 'materials.update', 'Update educational materials', 'schoolar', 'materials-manage'),
+('materials-delete', 'materials.delete', 'Delete educational materials', 'schoolar', 'materials-manage'),
+('materials-upload', 'materials.upload', 'Upload educational materials', 'schoolar', 'materials-manage'),
+
+-- Courses permissions
+('courses-manage', 'courses.manage', 'Manage courses', 'schoolar', NULL),
+('courses-view', 'courses.view', 'View courses', 'schoolar', 'courses-manage'),
+('courses-create', 'courses.create', 'Create new courses', 'schoolar', 'courses-manage'),
+('courses-update', 'courses.update', 'Update course information', 'schoolar', 'courses-manage'),
+('courses-delete', 'courses.delete', 'Delete courses', 'schoolar', 'courses-manage'),
+
+-- Levels permissions
+('levels-manage', 'levels.manage', 'Manage course levels', 'schoolar', NULL),
+('levels-view', 'levels.view', 'View course levels', 'schoolar', 'levels-manage'),
+('levels-create', 'levels.create', 'Create new course levels', 'schoolar', 'levels-manage'),
+('levels-update', 'levels.update', 'Update course level information', 'schoolar', 'levels-manage'),
+('levels-delete', 'levels.delete', 'Delete course levels', 'schoolar', 'levels-manage'),
+
+-- Units permissions
+('units-manage', 'units.manage', 'Manage course units', 'schoolar', NULL),
+('units-view', 'units.view', 'View course units', 'schoolar', 'units-manage'),
+('units-create', 'units.create', 'Create new course units', 'schoolar', 'units-manage'),
+('units-update', 'units.update', 'Update course unit information', 'schoolar', 'units-manage'),
+('units-delete', 'units.delete', 'Delete course units', 'schoolar', 'units-manage'),
+('units-materials-manage', 'units.materials.manage', 'Manage unit materials', 'schoolar', 'units-manage'),
+('units-order-update', 'units.order.update', 'Update unit order', 'schoolar', 'units-manage'),
+
+-- Certificates permissions
+('certificates-manage', 'certificates.manage', 'Manage certificates', 'schoolar', NULL),
+('certificates-view', 'certificates.view', 'View certificates', 'schoolar', 'certificates-manage'),
+('certificates-create', 'certificates.create', 'Create new certificates', 'schoolar', 'certificates-manage'),
+('certificates-update', 'certificates.update', 'Update certificate information', 'schoolar', 'certificates-manage'),
+('certificates-delete', 'certificates.delete', 'Delete certificates', 'schoolar', 'certificates-manage'),
+('certificates-generate', 'certificates.generate', 'Generate certificates', 'schoolar', 'certificates-manage'),
+
+-- Attendance permissions
+('attendance-manage', 'attendance.manage', 'Manage attendance', 'schoolar', NULL),
+('attendance-view', 'attendance.view', 'View attendance records', 'schoolar', 'attendance-manage'),
+('attendance-create', 'attendance.create', 'Create attendance records', 'schoolar', 'attendance-manage'),
+('attendance-update', 'attendance.update', 'Update attendance records', 'schoolar', 'attendance-manage'),
+('attendance-delete', 'attendance.delete', 'Delete attendance records', 'schoolar', 'attendance-manage'),
+
+-- Centers permissions
+('centers-manage', 'centers.manage', 'Manage centers', 'corporate', NULL),
+('centers-view', 'centers.view', 'View centers', 'corporate', 'centers-manage'),
+('centers-create', 'centers.create', 'Create new centers', 'corporate', 'centers-manage'),
+('centers-update', 'centers.update', 'Update center information', 'corporate', 'centers-manage'),
+('centers-delete', 'centers.delete', 'Delete centers', 'corporate', 'centers-manage'),
+
+-- Employees permissions
+('employees-manage', 'employees.manage', 'Manage employees/users', 'corporate', NULL),
+('employees-view', 'employees.view', 'View employees', 'corporate', 'employees-manage'),
+('employees-create', 'employees.create', 'Create new employees', 'corporate', 'employees-manage'),
+('employees-update', 'employees.update', 'Update employee information', 'corporate', 'employees-manage'),
+('employees-delete', 'employees.delete', 'Delete employees', 'corporate', 'employees-manage'),
+
+-- Roles permissions
+('roles-manage', 'roles.manage', 'Manage user roles', 'corporate', NULL),
+('roles-view', 'roles.view', 'View roles', 'corporate', 'roles-manage'),
+('roles-create', 'roles.create', 'Create new roles', 'corporate', 'roles-manage'),
+('roles-update', 'roles.update', 'Update role information', 'corporate', 'roles-manage'),
+('roles-delete', 'roles.delete', 'Delete roles', 'corporate', 'roles-manage'),
+('roles-permissions-assign', 'roles.permissions.assign', 'Assign permissions to roles', 'corporate', 'roles-manage'),
+('roles-permissions-remove', 'roles.permissions.remove', 'Remove permissions from roles', 'corporate', 'roles-manage'),
+('roles-permissions-bulk', 'roles.permissions.bulk', 'Bulk assign permissions to roles', 'corporate', 'roles-manage'),
+
+-- Permissions permissions
+('permissions-manage', 'permissions.manage', 'Manage permissions', 'corporate', NULL),
+('permissions-view', 'permissions.view', 'View permissions', 'corporate', 'permissions-manage'),
+('permissions-create', 'permissions.create', 'Create new permissions', 'corporate', 'permissions-manage'),
+('permissions-update', 'permissions.update', 'Update permission information', 'corporate', 'permissions-manage'),
+('permissions-delete', 'permissions.delete', 'Delete permissions', 'corporate', 'permissions-manage'),
+
+-- Users permissions
+('users-manage', 'users.manage', 'Manage users', 'corporate', NULL),
+('users-view', 'users.view', 'View users', 'corporate', 'users-manage'),
+('users-create', 'users.create', 'Create new users', 'corporate', 'users-manage'),
+('users-update', 'users.update', 'Update user information', 'corporate', 'users-manage'),
+('users-delete', 'users.delete', 'Delete users', 'corporate', 'users-manage'),
+('users-roles-assign', 'users.roles.assign', 'Assign roles to users', 'corporate', 'users-manage'),
+('users-roles-remove', 'users.roles.remove', 'Remove roles from users', 'corporate', 'users-manage'),
+('users-permissions-assign', 'users.permissions.assign', 'Assign permissions to users', 'corporate', 'users-manage'),
+('users-permissions-remove', 'users.permissions.remove', 'Remove permissions from users', 'corporate', 'users-manage'),
+
+-- Contracts permissions
+('contracts-manage', 'contracts.manage', 'Manage contracts', 'finance', NULL),
+('contracts-view', 'contracts.view', 'View contracts', 'finance', 'contracts-manage'),
+('contracts-create', 'contracts.create', 'Create new contracts', 'finance', 'contracts-manage'),
+('contracts-update', 'contracts.update', 'Update contract information', 'finance', 'contracts-manage'),
+('contracts-delete', 'contracts.delete', 'Delete contracts', 'finance', 'contracts-manage'),
+
+-- Invoices permissions
+('invoices-manage', 'invoices.manage', 'Manage invoices', 'finance', NULL),
+('invoices-view', 'invoices.view', 'View invoices', 'finance', 'invoices-manage'),
+('invoices-create', 'invoices.create', 'Create new invoices', 'finance', 'invoices-manage'),
+('invoices-update', 'invoices.update', 'Update invoice information', 'finance', 'invoices-manage'),
+('invoices-delete', 'invoices.delete', 'Delete invoices', 'finance', 'invoices-manage'),
+
+-- Payments permissions
+('payments-manage', 'payments.manage', 'Manage payments', 'finance', NULL),
+('payments-view', 'payments.view', 'View payments', 'finance', 'payments-manage'),
+('payments-create', 'payments.create', 'Create new payments', 'finance', 'payments-manage'),
+('payments-update', 'payments.update', 'Update payment information', 'finance', 'payments-manage'),
+('payments-delete', 'payments.delete', 'Delete payments', 'finance', 'payments-manage'),
+
+-- Sales permissions
+('sales-manage', 'sales.manage', 'Manage sales', 'finance', NULL),
+('sales-view', 'sales.view', 'View sales', 'finance', 'sales-manage'),
+('sales-create', 'sales.create', 'Create new sales', 'finance', 'sales-manage'),
+('sales-update', 'sales.update', 'Update sale information', 'finance', 'sales-manage'),
+('sales-delete', 'sales.delete', 'Delete sales', 'finance', 'sales-manage'),
+
+-- Reports permissions
+('reports-manage', 'reports.manage', 'Manage reports', 'general', NULL),
+('reports-schoolar-view', 'reports.schoolar.view', 'View scholar reports', 'schoolar', 'reports-manage'),
+('reports-corporate-view', 'reports.corporate.view', 'View corporate reports', 'corporate', 'reports-manage'),
+('reports-finance-view', 'reports.finance.view', 'View finance reports', 'finance', 'reports-manage'),
+('reports-generate', 'reports.generate', 'Generate reports', 'general', 'reports-manage'),
+('reports-export', 'reports.export', 'Export reports', 'general', 'reports-manage'),
+
+-- Settings permissions
+('settings-manage', 'settings.manage', 'Manage system settings', 'settings', NULL),
+('settings-alerts-manage', 'settings.alerts.manage', 'Manage alert settings', 'settings', 'settings-manage'),
+('settings-general-manage', 'settings.general.manage', 'Manage general information settings', 'settings', 'settings-manage'),
+('settings-support-manage', 'settings.support.manage', 'Manage support settings', 'settings', 'settings-manage'),
+('settings-tasks-manage', 'settings.tasks.manage', 'Manage task settings', 'settings', 'settings-manage'),
+('settings-corporate-manage', 'settings.corporate.manage', 'Manage corporate settings', 'corporate', 'settings-manage'),
+('settings-schoolar-manage', 'settings.schoolar.manage', 'Manage scholar settings', 'schoolar', 'settings-manage'),
+('settings-finance-manage', 'settings.finance.manage', 'Manage finance settings', 'finance', 'settings-manage'),
+
+-- Statistics permissions
+('statistics-view', 'statistics.view', 'View statistics', 'general', NULL),
+('statistics-schoolar-view', 'statistics.schoolar.view', 'View scholar statistics', 'schoolar', 'statistics-view'),
+('statistics-corporate-view', 'statistics.corporate.view', 'View corporate statistics', 'corporate', 'statistics-view'),
+('statistics-finance-view', 'statistics.finance.view', 'View finance statistics', 'finance', 'statistics-view'),
+
+-- Entities permissions
+('entities-manage', 'entities.manage', 'Manage entities', 'schoolar', NULL),
+('entities-view', 'entities.view', 'View entities', 'schoolar', 'entities-manage'),
+('entities-create', 'entities.create', 'Create new entities', 'schoolar', 'entities-manage'),
+('entities-update', 'entities.update', 'Update entity information', 'schoolar', 'entities-manage'),
+('entities-delete', 'entities.delete', 'Delete entities', 'schoolar', 'entities-manage'),
+
+-- Services permissions
+('services-manage', 'services.manage', 'Manage services', 'corporate', NULL),
+('services-view', 'services.view', 'View services', 'corporate', 'services-manage'),
+('services-create', 'services.create', 'Create new services', 'corporate', 'services-manage'),
+('services-update', 'services.update', 'Update service information', 'corporate', 'services-manage'),
+('services-delete', 'services.delete', 'Delete services', 'corporate', 'services-manage');
+
+-- Verify the insertion
+SELECT
+    module,
+    COUNT(*) as permission_count
+FROM permissions
+GROUP BY module
+ORDER BY permission_count DESC;
+
+-- Show parent permissions
+SELECT
+    name,
+    description,
+    module
+FROM permissions
+WHERE parent_id IS NULL
+ORDER BY module, name;
+
+-- Show total count
+SELECT COUNT(*) as total_permissions FROM permissions;

@@ -7,9 +7,9 @@ export const lessonsActions = createActionGroup({
     source: LESSONS_FEATURE_KEY,
     events: {
         // Load lessons
-        'Load lessons': emptyProps(),
-        'Load lessons Success': props<{ lessons: Lesson[] }>(),
-        'Load lessons Failure': props<{ error: string }>(),
+        'Load Lessons': emptyProps(),
+        'Load Lessons Success': props<{ lessons: Lesson[] }>(),
+        'Load Lessons Failure': props<{ error: string }>(),
 
         // Load Lesson
         'Load Lesson': props<{ id: string }>(),
