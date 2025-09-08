@@ -1,0 +1,187 @@
+<div class="bulk-booking-container">
+    <p-card header="Bulk Lesson Booking" styleClass="mb-4">
+        <form [formGroup]="bulkBookingForm" (ngSubmit)="submitBulkBooking()">
+            <div class="grid">
+                <!-- Lessons Selection -->
+                <div class="col-12 md:col-6">
+                    <label for="lessons" class="block text-900 font-medium mb-2">Select Lessons</label>
+                    <p-multiSelect
+                        id="lessons"
+                        formControlName="selectedLessons"
+                        [options]="lessons"
+                        optionLabel="title"
+                        [optionValue]="'id'"
+                        placeholder="Choose lessons to book"
+                        [showToggleAll]="true"
+                        [filter]="true"
+                        filterPlaceholder="Search lessons"
+                        styleClass="w-full">
+                        <ng-template let-lesson pTemplate="item">
+                            <div class="flex align-items-center">
+                                <div>
+                                    <div class="font-medium">{{ lesson.title }}</div>
+                                    <div class="text-sm text-500">
+                                        {{ formatDate(lesson.startDatetime) }} -
+                                        {{ formatTime(lesson.startDatetime) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                    <small class="text-500">Select one or more lessons to book students for</small>
+                </div>
+
+                <!-- Students Selection -->
+                <div class="col-12 md:col-6">
+                    <label for="students" class="block text-900 font-medium mb-2">Select Students</label>
+                    <p-multiSelect
+                        id="students"
+                        formControlName="selectedStudents"
+                        [options]="students"
+                        optionLabel="user.firstname"
+                        [optionValue]="'id'"
+                        placeholder="Choose students to book"
+                        [showToggleAll]="true"
+                        [filter]="true"
+                        filterPlaceholder="Search students"
+                        styleClass="w-full">
+                        <ng-template let-student pTemplate="item">
+                            <div class="flex align-items-center">
+                                <div>
+                                    <div class="font-medium">{{ student.user.firstname }} {{ student.user.lastname }}</div>
+                                    <div class="text-sm text-500">{{ student.user.email }}</div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                    <small class="text-500">Select one or more students to book for the lessons</small>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-content-end gap-2 mt-4">
+                <p-button
+                    label="Cancel"
+                    icon="pi pi-times"
+                    [text]="true"
+                    severity="secondary"
+                    (onClick)="bulkBookingForm.reset()">
+                </p-button>
+                <p-button
+                    label="Book Lessons"
+                    icon="pi pi-check"
+                    type="submit"
+                    [loading]="loading"
+                    [disabled]="bulkBookingForm.invalid || loading">
+                </p-button>
+            </div>
+        </form>
+    </p-card>
+
+    <!-- Loading Overlay -->
+    <div *ngIf="loading" class="loading-overlay">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+        <p class="mt-3">Processing bulk booking...</p>
+    </div>
+</div>
+
+<!-- Results Dialog -->
+<p-dialog
+    header="Bulk Booking Results"
+    [(visible)]="showResultsDialog"
+    [modal]="true"
+    [style]="{width: '70vw'}"
+    [maximizable]="true"
+    [closable]="true">
+
+    <div *ngIf="bulkBookingResults" class="results-container">
+        <!-- Summary -->
+        <div class="grid mb-4">
+            <div class="col-12 md:col-3">
+                <p-card styleClass="text-center">
+                    <div class="text-2xl font-bold text-900">{{ bulkBookingResults.data.totalProcessed }}</div>
+                    <div class="text-500">Total Processed</div>
+                </p-card>
+            </div>
+            <div class="col-12 md:col-3">
+                <p-card styleClass="text-center">
+                    <div class="text-2xl font-bold text-green-500">{{ bulkBookingResults.data.successfulBookings }}</div>
+                    <div class="text-500">Successful</div>
+                </p-card>
+            </div>
+            <div class="col-12 md:col-3">
+                <p-card styleClass="text-center">
+                    <div class="text-2xl font-bold text-red-500">{{ bulkBookingResults.data.failedBookings }}</div>
+                    <div class="text-500">Failed</div>
+                </p-card>
+            </div>
+            <div class="col-12 md:col-3">
+                <p-card styleClass="text-center">
+                    <div class="text-2xl font-bold text-blue-500">
+                        {{ bulkBookingResults.data.successfulBookings / bulkBookingResults.data.totalProcessed * 100 | number:'1.1-1' }}%
+                    </div>
+                    <div class="text-500">Success Rate</div>
+                </p-card>
+            </div>
+        </div>
+
+        <!-- Successful Bookings -->
+        <div *ngIf="bulkBookingResults.data.successfulBookingsList.length > 0" class="mb-4">
+            <h4 class="text-green-500 mb-3">Successful Bookings</h4>
+            <p-table [value]="bulkBookingResults.data.successfulBookingsList" [paginator]="true" [rows]="10">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Lesson ID</th>
+                        <th>Student ID</th>
+                        <th>Status</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-booking>
+                    <tr>
+                        <td>{{ booking.bookingId }}</td>
+                        <td>{{ booking.lessonId }}</td>
+                        <td>{{ booking.studentId }}</td>
+                        <td>
+                            <p-badge [value]="booking.status" [severity]="getStatusSeverity(booking.status)"></p-badge>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Failed Bookings -->
+        <div *ngIf="bulkBookingResults.data.failedBookingsList.length > 0">
+            <h4 class="text-red-500 mb-3">Failed Bookings</h4>
+            <p-table [value]="bulkBookingResults.data.failedBookingsList" [paginator]="true" [rows]="10">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Lesson ID</th>
+                        <th>Student ID</th>
+                        <th>Error</th>
+                        <th>Reason</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-failed>
+                    <tr>
+                        <td>{{ failed.lessonId }}</td>
+                        <td>{{ failed.studentId }}</td>
+                        <td>{{ failed.error }}</td>
+                        <td>{{ failed.reason || 'N/A' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Close"
+            icon="pi pi-times"
+            (onClick)="closeResultsDialog()"
+            [text]="true">
+        </p-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

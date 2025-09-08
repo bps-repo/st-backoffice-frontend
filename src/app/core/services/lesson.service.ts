@@ -5,6 +5,7 @@ import {Lesson} from "../models/academic/lesson";
 import {Observable, of} from 'rxjs';
 import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
 import {map} from "rxjs/operators";
+import {BulkBookingRequest, BulkBookingResponse} from "../models/academic/bulk-booking";
 
 @Injectable({
     providedIn: 'root',
@@ -159,6 +160,13 @@ export class LessonService {
     markLessonsOverdue(): Observable<any> {
         return this.http.post<ApiResponse<any>>(`${this.apiUrl}/mark-overdue`, {}).pipe(
             map((response) => response.data)
+        );
+    }
+
+    // Bulk booking endpoint
+    bulkBookLessons(bulkBookingRequest: BulkBookingRequest): Observable<BulkBookingResponse> {
+        return this.http.post<BulkBookingResponse>(`${this.apiUrl}/bookings/bulk`, bulkBookingRequest).pipe(
+            map((response) => response)
         );
     }
 }

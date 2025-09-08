@@ -51,6 +51,10 @@ export const {
     selectLoadingMarkOverdue,
     selectMarkOverdueError,
 
+    // Bulk booking selectors
+    selectLoadingBulkBooking,
+    selectBulkBookingError,
+
     // Specialized data selectors
     selectLessonsByClass,
     selectAvailableLessonsByClass,
@@ -148,15 +152,16 @@ export const selectAnyError = createSelector(
     selectUpdateScheduleError,
     selectUpdateOnlineStatusError,
     selectMarkOverdueError,
+    selectBulkBookingError,
     (error, createError, updateError, deleteError, byClassError, availableByClassError,
      byCenterError, byDateRangeError, studentBookingsError, studentBookingsTodayError,
      lessonBookingsError, createBookingError, deleteBookingError, updateScheduleError,
-     updateOnlineStatusError, markOverdueError) =>
+     updateOnlineStatusError, markOverdueError, bulkBookingError) =>
         error || createError || updateError || deleteError || byClassError ||
         availableByClassError || byCenterError || byDateRangeError ||
         studentBookingsError || studentBookingsTodayError || lessonBookingsError ||
         createBookingError || deleteBookingError || updateScheduleError ||
-        updateOnlineStatusError || markOverdueError
+        updateOnlineStatusError || markOverdueError || bulkBookingError
 );
 
 // Loading selectors
@@ -177,16 +182,17 @@ export const selectAnyLoading = createSelector(
     selectLoadingUpdateSchedule,
     selectLoadingUpdateOnlineStatus,
     selectLoadingMarkOverdue,
+    selectLoadingBulkBooking,
     (loading, loadingCreate, loadingUpdate, loadingDelete, loadingByClass,
      loadingAvailableByClass, loadingByCenter, loadingByDateRange,
      loadingStudentBookings, loadingStudentBookingsToday, loadingLessonBookings,
      loadingCreateBooking, loadingDeleteBooking, loadingUpdateSchedule,
-     loadingUpdateOnlineStatus, loadingMarkOverdue) =>
+     loadingUpdateOnlineStatus, loadingMarkOverdue, loadingBulkBooking) =>
         loading || loadingCreate || loadingUpdate || loadingDelete || loadingByClass ||
         loadingAvailableByClass || loadingByCenter || loadingByDateRange ||
         loadingStudentBookings || loadingStudentBookingsToday || loadingLessonBookings ||
         loadingCreateBooking || loadingDeleteBooking || loadingUpdateSchedule ||
-        loadingUpdateOnlineStatus || loadingMarkOverdue
+        loadingUpdateOnlineStatus || loadingMarkOverdue || loadingBulkBooking
 );
 
 // Filtered lessons selectors

@@ -19,6 +19,7 @@ export interface LessonState extends EntityState<Lesson> {
     loadingUpdateSchedule: boolean;
     loadingUpdateOnlineStatus: boolean;
     loadingMarkOverdue: boolean;
+    loadingBulkBooking: boolean;
 
     // Error states
     error: string | null;
@@ -38,6 +39,7 @@ export interface LessonState extends EntityState<Lesson> {
     updateScheduleError: string | null;
     updateOnlineStatusError: string | null;
     markOverdueError: string | null;
+    bulkBookingError: string | null;
 
     // Selection state
     selectedLessonId: string | null;
@@ -82,6 +84,7 @@ export const lessonsInitialState: LessonState = lessonsAdapter.getInitialState({
     loadingUpdateSchedule: false,
     loadingUpdateOnlineStatus: false,
     loadingMarkOverdue: false,
+    loadingBulkBooking: false,
 
     // Error states
     error: null,
@@ -101,6 +104,7 @@ export const lessonsInitialState: LessonState = lessonsAdapter.getInitialState({
     updateScheduleError: null,
     updateOnlineStatusError: null,
     markOverdueError: null,
+    bulkBookingError: null,
 
     // Selection state
     selectedLessonId: null,

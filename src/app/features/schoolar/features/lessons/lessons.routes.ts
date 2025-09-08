@@ -6,6 +6,7 @@ import {BookLessonComponent} from "./components/book-lesson/book-lesson.componen
 import {LessonsListComponent} from "./components/list/lessons-list.component";
 import {AddMaterialComponent} from "./components/add-material/add-material.component";
 import {ScheduleLessonsComponent} from "./components/schedule-lessons/schedule-lessons.component";
+import {BulkBookingComponent} from "./components/bulk-booking/bulk-booking.component";
 
 const routes: Routes = [
     {
@@ -15,6 +16,10 @@ const routes: Routes = [
     {
         path: 'schedule',
         component: ScheduleLessonsComponent,
+    },
+    {
+        path: 'bulk-booking',
+        component: BulkBookingComponent,
     },
     {
         path: 'create',

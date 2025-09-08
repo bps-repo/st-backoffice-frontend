@@ -366,6 +366,23 @@ export const lessonsFeature = createFeature({
             markOverdueError: error,
         })),
 
+        // Bulk booking endpoints
+        on(lessonsActions.bulkBookLessons, (state) => ({
+            ...state,
+            loadingBulkBooking: true,
+            bulkBookingError: null,
+        })),
+        on(lessonsActions.bulkBookLessonsSuccess, (state, {response}) => ({
+            ...state,
+            loadingBulkBooking: false,
+            bulkBookingError: null,
+        })),
+        on(lessonsActions.bulkBookLessonsFailure, (state, {error}) => ({
+            ...state,
+            loadingBulkBooking: false,
+            bulkBookingError: error,
+        })),
+
         // Clear error
         on(lessonsActions.clearError, (state) => ({
             ...state,
@@ -385,6 +402,7 @@ export const lessonsFeature = createFeature({
             updateScheduleError: null,
             updateOnlineStatusError: null,
             markOverdueError: null,
+            bulkBookingError: null,
         }))
     ),
 });

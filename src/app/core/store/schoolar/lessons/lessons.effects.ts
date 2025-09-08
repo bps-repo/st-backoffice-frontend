@@ -276,4 +276,18 @@ export class LessonsEffects {
             )
         )
     );
+
+    bulkBookLessons$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.bulkBookLessons),
+            exhaustMap(({bulkBookingRequest}) =>
+                this.lessonApiService.bulkBookLessons(bulkBookingRequest).pipe(
+                    map((response) => lessonsActions.bulkBookLessonsSuccess({response})),
+                    catchError((error: HttpErrorResponse) =>
+                        of(lessonsActions.bulkBookLessonsFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
 }
