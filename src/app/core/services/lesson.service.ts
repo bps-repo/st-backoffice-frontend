@@ -17,8 +17,8 @@ export class LessonService {
     }
 
     getLessons(): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<PageableResponse<Lesson[]>>>(`${this.apiUrl}`).pipe(
-            map((response) => response.data.content as Lesson[])
+        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`).pipe(
+            map((response) => response.data as Lesson[])
         )
     }
 

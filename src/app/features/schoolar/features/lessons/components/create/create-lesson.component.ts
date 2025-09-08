@@ -17,10 +17,12 @@ import { Actions, ofType } from '@ngrx/effects';
 import { ToastModule } from 'primeng/toast';
 import { CheckboxModule } from "primeng/checkbox";
 import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
 import { CenterService } from 'src/app/core/services/center.service';
 import { EmployeeService } from 'src/app/core/services/employee.service';
 import { UnitService } from 'src/app/core/services/unit.service';
+import { LevelService } from 'src/app/core/services/level.service';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
@@ -37,6 +39,7 @@ import { TooltipModule } from 'primeng/tooltip';
         ToastModule,
         CheckboxModule,
         CardModule,
+        ProgressSpinnerModule,
         TooltipModule
     ],
     providers: [MessageService],
@@ -46,6 +49,12 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     loading: boolean = false;
     form!: FormGroup;
     private destroy$ = new Subject<void>();
+
+    // Loading states for dropdowns
+    loadingCenters: boolean = false;
+    loadingLevels: boolean = false;
+    loadingUnits: boolean = false;
+    loadingTeachers: boolean = false;
 
     lesson: Partial<Lesson> = {
         title: '',
@@ -65,6 +74,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     // Dropdown options
     typeOptions: SelectItem[] = [];
     teacherOptions: SelectItem[] = [];
+    levelOptions: SelectItem[] = [];
     unitOptions: SelectItem[] = [];
     centerOptions: SelectItem[] = [];
     weekDayOptions: SelectItem[] = [
@@ -90,6 +100,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         private centerService: CenterService,
         private employeeService: EmployeeService,
         private unitService: UnitService,
+        private levelService: LevelService,
         private actions$: Actions
     ) { }
 
@@ -116,6 +127,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             startDatetime: [defaultStartHour, Validators.required],
             endDatetime: [defaultEndHour, Validators.required],
             teacherId: [null, Validators.required],
+            levelId: [null, Validators.required],
             unitId: [null, Validators.required],
             online: [false],
             onlineLink: ['http://sample.com'],
@@ -124,18 +136,22 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         });
 
         // Load Centers
+        this.loadingCenters = true;
         this.centerService.getAllCenters()
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: centers => {
                     this.centerOptions = (centers || []).map(c => ({ label: c.name, value: c.id }));
+                    this.loadingCenters = false;
                 },
                 error: () => {
                     this.centerOptions = [];
+                    this.loadingCenters = false;
                 }
             });
 
         // Load Teachers (employees with role TEACHER)
+        this.loadingTeachers = true;
         this.employeeService.getEmployeesByRole('TEACHER')
             .pipe(takeUntil(this.destroy$))
             .subscribe({
@@ -146,6 +162,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                         const label = `${first} ${last}`.trim() || e?.user?.email || e.id;
                         return { label, value: e.id };
                     });
+                    this.loadingTeachers = false;
                 },
                 error: () => {
                     // Fallback: load all employees and filter client-side by role
@@ -163,23 +180,43 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                                     const label = `${first} ${last}`.trim() || e?.user?.email || e.id;
                                     return { label, value: e.id };
                                 });
+                                this.loadingTeachers = false;
                             },
                             error: () => {
                                 this.teacherOptions = [];
+                                this.loadingTeachers = false;
                             }
                         });
                 }
             });
 
-        // Load Units
-        this.unitService.loadUnits()
+        // Load Levels
+        this.loadingLevels = true;
+        this.levelService.getLevels()
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: units => {
-                    this.unitOptions = (units || []).map(u => ({ label: u.name, value: u.id }));
+                next: levels => {
+                    this.levelOptions = (levels || []).map(l => ({ label: l.name, value: l.id }));
+                    this.loadingLevels = false;
                 },
                 error: () => {
+                    this.levelOptions = [];
+                    this.loadingLevels = false;
+                }
+            });
+
+        // Load Units (initially empty, will be filtered by selected level)
+        this.unitOptions = [];
+
+        // Listen for level changes to filter units
+        this.form.get('levelId')?.valueChanges
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(levelId => {
+                if (levelId) {
+                    this.loadUnitsForLevel(levelId);
+                } else {
                     this.unitOptions = [];
+                    this.form.get('unitId')?.setValue(null);
                 }
             });
     }
@@ -187,6 +224,30 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    private loadUnitsForLevel(levelId: string): void {
+        this.loadingUnits = true;
+        this.unitService.loadUnits()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: units => {
+                    // Filter units by the selected level
+                    const filteredUnits = (units || []).filter(u => u.levelId === levelId);
+                    this.unitOptions = filteredUnits.map(u => ({ label: u.name, value: u.id }));
+
+                    // Reset unit selection if current selection is not valid for the new level
+                    const currentUnitId = this.form.get('unitId')?.value;
+                    if (currentUnitId && !filteredUnits.some(u => u.id === currentUnitId)) {
+                        this.form.get('unitId')?.setValue(null);
+                    }
+                    this.loadingUnits = false;
+                },
+                error: () => {
+                    this.unitOptions = [];
+                    this.loadingUnits = false;
+                }
+            });
     }
 
     cancel() {
@@ -231,6 +292,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             online: !!v.online,
             onlineLink: v.onlineLink,
             teacherId: v.teacherId,
+            level: v.levelId, // Add level to the payload
             startDatetime: this.createDateTimeFromHour(v.startDatetime, v.weekDay),
             endDatetime: this.createDateTimeFromHour(v.endDatetime, v.weekDay),
             unitId: v.unitId,

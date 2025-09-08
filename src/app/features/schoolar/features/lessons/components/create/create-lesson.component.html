@@ -19,16 +19,41 @@
 
                 <div class="col-12 md:col-6 field">
                     <label for="center" class="font-bold">Centro *</label>
-                    <p-dropdown id="center" [options]="centerOptions" formControlName="centerId" optionLabel="label"
-                        optionValue="value" placeholder="Selecione o centro" [showClear]="true" [required]="true">
-                    </p-dropdown>
+                    <div class="relative">
+                        <p-dropdown id="center" [options]="centerOptions" formControlName="centerId" optionLabel="label"
+                            optionValue="value" placeholder="Selecione o centro" [showClear]="true" [required]="true"
+                            [disabled]="loadingCenters">
+                        </p-dropdown>
+                        <p-progressSpinner *ngIf="loadingCenters" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuration="1s"></p-progressSpinner>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6 field">
+                    <label for="level" class="font-bold">Nível *</label>
+                    <div class="relative">
+                        <p-dropdown id="level" [options]="levelOptions" formControlName="levelId" optionLabel="label"
+                            optionValue="value" placeholder="Selecione o nível" [showClear]="true" [required]="true"
+                            [disabled]="loadingLevels">
+                        </p-dropdown>
+                        <p-progressSpinner *ngIf="loadingLevels" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuration="1s"></p-progressSpinner>
+                    </div>
                 </div>
 
                 <div class="col-12 md:col-6  field">
                     <label for="unit" class="font-bold">Unidade *</label>
-                    <p-dropdown id="unit" [options]="unitOptions" formControlName="unitId" optionLabel="label"
-                        optionValue="value" placeholder="Selecione a unidade" [showClear]="true" [required]="true">
-                    </p-dropdown>
+                    <div class="relative">
+                        <p-dropdown id="unit" [options]="unitOptions" formControlName="unitId" optionLabel="label"
+                            optionValue="value" placeholder="Selecione a unidade" [showClear]="true" [required]="true"
+                            [disabled]="loadingUnits">
+                        </p-dropdown>
+                        <p-progressSpinner *ngIf="loadingUnits" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuration="1s"></p-progressSpinner>
+                    </div>
                 </div>
 
                 <div class="col-12 md:col-6 field">
@@ -69,9 +94,15 @@
 
                 <div class="col-12 md:col-6  field">
                     <label for="teacher" class="font-bold">Professor responsável *</label>
-                    <p-dropdown id="teacher" [options]="teacherOptions" formControlName="teacherId" optionLabel="label"
-                        optionValue="value" placeholder="Selecione o professor" [showClear]="true" [required]="true">
-                    </p-dropdown>
+                    <div class="relative">
+                        <p-dropdown id="teacher" [options]="teacherOptions" formControlName="teacherId" optionLabel="label"
+                            optionValue="value" placeholder="Selecione o professor" [showClear]="true" [required]="true"
+                            [disabled]="loadingTeachers">
+                        </p-dropdown>
+                        <p-progressSpinner *ngIf="loadingTeachers" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuration="1s"></p-progressSpinner>
+                    </div>
                 </div>
 
                 <div class="col-12 field">
