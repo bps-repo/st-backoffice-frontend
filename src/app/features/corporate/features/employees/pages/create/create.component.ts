@@ -46,7 +46,6 @@ import { PermissionTreeSelectorComponent } from 'src/app/shared/components/permi
         RadioButtonModule,
         TreeSelectModule,
         TreeModule,
-        PermissionSelectorComponent,
         PermissionTreeSelectorComponent
     ]
 })
