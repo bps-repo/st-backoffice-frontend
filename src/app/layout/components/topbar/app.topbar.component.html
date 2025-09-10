@@ -36,10 +36,19 @@
             <li class="topbar-profile">
                 <button
                     type="button"
-                    class="p-link"
+                    class="p-link profile-button"
                     (click)="onProfileButtonClick()"
-                >
-                    <img src="assets/layout/images/avatar.png" alt="Profile" />
+                    pTooltip="{{ (currentUser$ | async) ? userProfileService.getFullName() : 'Profile' }}"
+                    tooltipPosition="bottom">
+                    <div class="profile-avatar-container bg-primary-500">
+                        <p-avatar
+                            [image]="userProfileService.getPhotoUrl()"
+                            [label]="userProfileService.getInitials()"
+                            size="normal"
+                            shape="circle"
+                            class="profile-avatar">
+                        </p-avatar>
+                    </div>
                 </button>
             </li>
         </ul>

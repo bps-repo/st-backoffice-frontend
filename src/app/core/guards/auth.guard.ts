@@ -4,9 +4,13 @@ import {
     Router,
 } from '@angular/router';
 import {Store} from '@ngrx/store';
-import {authFeature} from '../store/auth/reducers/auth.reducers';
+import {authFeature} from '../store/auth/auth.reducers';
 import {map, Observable, take} from 'rxjs';
 
+/**
+ * Guard for checking if the user is authenticated.
+ * Allows access if the user is authenticated.
+ */
 @Injectable({
     providedIn: 'root',
 })

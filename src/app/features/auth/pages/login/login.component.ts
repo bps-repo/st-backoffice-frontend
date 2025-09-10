@@ -8,14 +8,17 @@ import {
 } from '@angular/core';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule} from '@angular/forms';
 import {Store} from '@ngrx/store';
-import {Subject, takeUntil} from 'rxjs';
+import {combineLatest, map, Observable, of, Subject, takeUntil} from 'rxjs';
 import {
     authFeature,
+} from '../../../../core/store/auth/auth.reducers';
+import {
     AuthState,
-} from '../../../../core/store/auth/reducers/auth.reducers';
-import {authActions} from '../../../../core/store/auth/actions/auth.actions';
+} from '../../../../core/store/auth/auth.state';
+import {authActions} from '../../../../core/store/auth/auth.actions';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
+import * as authSelectors from '../../../../core/store/auth/auth.selectors';
 
 @Component({
     selector: 'app-login',
@@ -28,7 +31,7 @@ import {RouterModule} from '@angular/router';
 export class LoginComponent implements OnDestroy {
     loginForm: FormGroup;
     hidePassword = true;
-    isSubmitting = false;
+    isSubmitting : Observable<boolean> = of(false);
     showAlert = false;
     errorMessage: string = '';
     currentYear: number = new Date().getFullYear();
@@ -42,6 +45,11 @@ export class LoginComponent implements OnDestroy {
         private renderer: Renderer2,
         private el: ElementRef
     ) {
+        this.isSubmitting = combineLatest([
+            this.store.select(authSelectors.selectAuthLoading),
+            this.store.select(authSelectors.selectAuthLoadUserProfile)
+        ]).pipe(map(([loading, loadUserProfile]) => loading || loadUserProfile));
+
         this.loginForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required]],
@@ -52,7 +60,6 @@ export class LoginComponent implements OnDestroy {
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((error) => {
                 if (error) {
-                    this.isSubmitting = false;
                     this.showAlert = true;
 
                     this.detectChange.detectChanges();
@@ -83,7 +90,6 @@ export class LoginComponent implements OnDestroy {
             return;
         }
 
-        this.isSubmitting = true;
         this.detectChange.detectChanges();
 
         const { email, password } = this.loginForm.value;

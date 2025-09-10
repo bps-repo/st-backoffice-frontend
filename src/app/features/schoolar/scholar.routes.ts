@@ -2,6 +2,7 @@ import {Routes} from '@angular/router';
 import {ScholarSettings} from "./features/settings/scholar-settings.component";
 import {ScholarReports} from "./features/reports/scholar-reports.component";
 import {SchoolarDashboard} from "./features/dashboard/dashboard.component";
+import { PermissionGuard } from 'src/app/core/guards/permission.guard';
 
 export const ScholarRoutes: Routes = [
     {
@@ -20,6 +21,8 @@ export const ScholarRoutes: Routes = [
                 path: 'students',
                 loadChildren: () =>
                     import('./features/students/students.routes').then((m) => m.StudentsRoutes),
+                canActivate: [PermissionGuard],
+                data: { permission: 'students.view' },
             },
             {
                 path: 'entities',

@@ -75,7 +75,7 @@ export class RolesComponent implements OnInit, OnDestroy {
 
         forkJoin({
             employee: this.employeeService.getEmployeeById(this.employeeId),
-            permissions: this.userManagementService.getUserPermissions(this.employeeId)
+            permissions: this.userManagementService.getUserPermissions()
         }).pipe(
             takeUntil(this.destroy$),
             finalize(() => this.loading = false)
@@ -83,7 +83,7 @@ export class RolesComponent implements OnInit, OnDestroy {
             next: ({ employee, permissions }) => {
                 this.employee = employee;
 
-                this.availablePermissions = permissions.filter(permission => permission.id !== employee.user.roleId);
+                this.availablePermissions = permissions.filter(permission => permission.id !== employee.user.role.id);
             },
             error: (error) => {
                 console.error('Error loading data', error);

@@ -1,17 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
-import { AuthService } from '../../../services/auth.service';
-import { authActions } from '../actions/auth.actions';
+import { catchError, exhaustMap, map, take, tap } from 'rxjs/operators';
+import { AuthService } from '../../services/auth.service';
+import { UserProfileService } from '../../services/user-profile.service';
+import { authActions } from './auth.actions';
 import { Router } from '@angular/router';
-import { JwtTokenService } from "../../../services/jwtToken.service";
+import { JwtTokenService } from "../../services/jwtToken.service";
+import { Store } from '@ngrx/store';
+import * as authSelectors from './auth.selectors';
 
 @Injectable()
 export class AuthEffects {
     constructor(
+        private store: Store,
         private actions$: Actions,
         private authService: AuthService,
+        private userProfileService: UserProfileService,
         private router: Router
     ) {
     }
@@ -45,7 +50,17 @@ export class AuthEffects {
                 ofType(authActions.loginSuccess),
                 tap(({ token }) => {
                     JwtTokenService.decodeToken(token)
-                    this.router.navigate(['/schoolar/dashboards']).then();
+                    this.store.dispatch(authActions.loadUserProfile());
+
+                    this.store.select(authSelectors.selectAuthLoadUserProfileSuccess).pipe(
+                        take(1),
+                        tap((state) => {
+                            if (state) {
+                                this.router.navigate(['/schoolar/dashboards']).then();
+                            }
+                        })
+                    ).subscribe();
+
                 })
             ),
         { dispatch: false }
@@ -74,6 +89,7 @@ export class AuthEffects {
             this.actions$.pipe(
                 ofType(authActions.logoutSuccess),
                 tap(() => {
+                    this.userProfileService.clearCurrentUser();
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
                     this.router.navigate(['/auth/login']).then();
@@ -110,6 +126,7 @@ export class AuthEffects {
             this.actions$.pipe(
                 ofType(authActions.refreshTokenSuccess),
                 tap(({ token }) => {
+                    this.store.dispatch(authActions.loadUserProfile());
                     JwtTokenService.decodeToken(token);
                 })
             ),
@@ -126,6 +143,79 @@ export class AuthEffects {
                         of(
                             authActions.verifyFailure({
                                 error: error.status,
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
+
+    // User profile effects
+    loadUserProfile$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.loadUserProfile),
+            exhaustMap(() =>
+                this.userProfileService.getCurrentUser().pipe(
+                    map((user) => authActions.loadUserProfileSuccess({ user })),
+                    catchError((error) =>
+                        of(
+                            authActions.loadUserProfileFailure({
+                                error: error.message || 'Failed to load user profile',
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
+
+    updateUserProfile$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.updateUserProfile),
+            exhaustMap(({ userData }) =>
+                this.userProfileService.updateCurrentUser(userData).pipe(
+                    map((user) => authActions.updateUserProfileSuccess({ user })),
+                    catchError((error) =>
+                        of(
+                            authActions.updateUserProfileFailure({
+                                error: error.message || 'Failed to update user profile',
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
+
+    updateUserPhoto$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.updateUserPhoto),
+            exhaustMap(({ photoFile }) =>
+                this.userProfileService.updateUserPhoto(photoFile).pipe(
+                    map((user) => authActions.updateUserPhotoSuccess({ user })),
+                    catchError((error) =>
+                        of(
+                            authActions.updateUserPhotoFailure({
+                                error: error.message || 'Failed to update user photo',
+                            })
+                        )
+                    )
+                )
+            )
+        )
+    );
+
+    changePassword$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.changePassword),
+            exhaustMap(({ currentPassword, newPassword }) =>
+                this.userProfileService.changePassword(currentPassword, newPassword).pipe(
+                    map(() => authActions.changePasswordSuccess()),
+                    catchError((error) =>
+                        of(
+                            authActions.changePasswordFailure({
+                                error: error.message || 'Failed to change password',
                             })
                         )
                     )

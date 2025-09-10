@@ -2,6 +2,11 @@ import {Routes} from '@angular/router';
 
 export const SETTINGS_ROUTES: Routes = [
     {
+        path: 'profile',
+        loadComponent: () =>
+            import('./features/profile/pages/profile/profile.component').then((m) => m.ProfileComponent),
+    },
+    {
         path: 'alerts',
         loadChildren: () =>
             import('./features/alerts/alerts.routes').then((m) => m.AlertsRoutes),

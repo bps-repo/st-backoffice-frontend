@@ -1,45 +1,65 @@
 <p-sidebar [(visible)]="visible" position="right" [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'"
     styleClass="layout-profile-sidebar w-full sm:w-25rem">
     <div class="flex flex-column mx-auto md:mx-0">
-        <span class="mb-2 font-semibold">Bem-Vindo</span>
-        <span class="text-color-secondary font-medium mb-5">Username Name</span>
+        <!-- User Profile Header -->
+        <div class="profile-header mb-4" *ngIf="currentUser$ | async as user">
+            <div class="profile-info">
+                <h3 class="text-color font-medium mb-2">{{ userProfileService.getFullName() }}</h3>
+                <p class="text-color-secondary font-medium mb-2">{{ user.username }}</p>
+                <div class="profile-badges">
+                    <p-badge
+                        [value]="user.role.name"
+                        severity="info"
+                        class="mr-2">
+                    </p-badge>
+                    <p-badge
+                        [value]="user.accountStatus || ''"
+                        [severity]="getStatusSeverity(user.accountStatus)">
+                    </p-badge>
+                </div>
+            </div>
+        </div>
 
+        <!-- Navigation Menu -->
         <ul class="list-none m-0 p-0">
             <li>
                 <a
-                    class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150">
+                    class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150"
+                    (click)="navigateToProfile()">
                     <span>
                         <i class="pi pi-user text-xl text-primary"></i>
                     </span>
                     <div class="ml-3">
                         <span class="mb-2 font-semibold">Perfil</span>
-                        <p class="text-color-secondary m-0">Aceder ao perfil</p>
+                        <p class="text-color-secondary m-0">Visualizar e editar perfil</p>
                     </div>
                 </a>
             </li>
             <li>
                 <a
-                    class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150">
+                    class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150"
+                    (click)="navigateToSettings()">
                     <span>
                         <i class="pi pi-cog text-xl text-primary"></i>
                     </span>
                     <div class="ml-3">
                         <span class="mb-2 font-semibold">Configurações</span>
                         <p class="text-color-secondary m-0">
-                            Aceder as configurações
+                            Configurações da conta
                         </p>
                     </div>
                 </a>
             </li>
             <li>
                 <a
-                    class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150">
+                    class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150"
+                    (click)="logout()">
                     <span>
                         <i class="pi pi-power-off text-xl text-primary"></i>
                     </span>
-                    <div class="ml-3" (click)="logout()">
+                    <div class="ml-3">
                         <span class="mb-2 font-semibold">Sair</span>
-                        <p class="text-color-secondary m-0">Terminar sessão</p>
+                        <p class="text-color-secondary m-0">Sair da conta</p>
                     </div>
                 </a>
             </li>
@@ -48,7 +68,7 @@
 
     <div class="flex flex-column mt-5 mx-auto md:mx-0">
         <span class="mb-2 font-semibold">Notificações</span>
-        <span class="text-color-secondary font-medium mb-5">Você tem 3 notificações novas</span>
+        <span class="text-color-secondary font-medium mb-5">Você tem 0 notificações novas</span>
 
         <ul class="list-none m-0 p-0">
             <li>
@@ -58,7 +78,7 @@
                         <i class="pi pi-folder text-xl text-primary"></i>
                     </span>
                     <div class="ml-3">
-                        <span class="mb-2 font-semibold">Produtos em stock</span>
+                        <span class="mb-2 font-semibold">Notificação</span>
                         <p class="text-color-secondary m-0">3h ago</p>
                     </div>
                 </a>
@@ -78,7 +98,7 @@
                         <img src="assets/demo/images/avatar/circle/avatar-m-8.png" alt="Avatar" class="w-2rem h-2rem" />
                     </span>
                     <div class="ml-3">
-                        <span class="mb-2 font-semibold">James Robinson</span>
+                        <span class="mb-2 font-semibold">Notificação</span>
                         <p class="text-color-secondary m-0">10 min ago</p>
                     </div>
                     <p-badge value="3" class="ml-auto"></p-badge>
@@ -91,7 +111,7 @@
                         <img src="assets/demo/images/avatar/circle/avatar-f-8.png" alt="Avatar" class="w-2rem h-2rem" />
                     </span>
                     <div class="ml-3">
-                        <span class="mb-2 font-semibold">Mary Watson</span>
+                        <span class="mb-2 font-semibold">Notificação</span>
                         <p class="text-color-secondary m-0">15min ago</p>
                     </div>
                     <p-badge value="1" class="ml-auto"></p-badge>

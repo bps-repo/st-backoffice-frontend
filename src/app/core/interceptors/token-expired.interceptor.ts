@@ -3,7 +3,7 @@ import {inject} from "@angular/core";
 import {JwtTokenService} from "../services/jwtToken.service";
 import {MessageService} from "primeng/api";
 import {Store} from '@ngrx/store';
-import {authActions} from '../store/auth/actions/auth.actions';
+import {authActions} from '../store/auth/auth.actions';
 import {Router} from '@angular/router';
 import {catchError} from 'rxjs/operators';
 import {throwError} from 'rxjs';

@@ -1,24 +1,28 @@
 import { Permission } from './permission';
+import { Role } from './role';
 
 export interface User {
     id: string;
-    email: string;
     firstname: string;
     lastname: string;
-    phone: string;
-    photo: string;
-    birthdate: string;
-    dateOfBirth: string; // Added for consistency with the new request structure
-    gender: string;
-    identificationNumber: string;
-    status: string;
     username: string;
-    roleName: string;
+    email: string;
+    phone: string | null;
+    identificationNumber: string | null;
+    photoUrl: string | null;
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
+    birthdate: string | null;
+    accountStatus: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING';
+    emailVerified?: boolean;
+    phoneVerified?: boolean;
+    role: Role;
+    additionalPermissions?: Permission[];
+    allPermissions?: Permission[];
+    status: string;
+    roleName?: string;
     roleId: string;
-    password?: string; // Added for creation requests
-    additionalPermissionIds?: string[]; // Added for additional permissions
+    additionalPermissionIds?: string[];
     permissions?: Permission[];
-    emailVerified: boolean;
     emailVerifiedAt?: Date;
     verificationToken?: string;
     verificationTokenExpiresAt?: Date;

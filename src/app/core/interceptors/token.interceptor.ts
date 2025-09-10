@@ -4,7 +4,7 @@ import {Store} from '@ngrx/store';
 import {catchError, switchMap, throwError} from 'rxjs';
 import {Router} from '@angular/router';
 import {MessageService} from 'primeng/api';
-import {authActions} from '../store/auth/actions/auth.actions';
+import {authActions} from '../store/auth/auth.actions';
 
 export const tokenInterceptor: HttpInterceptorFn = (request, next) => {
     const store = inject(Store);

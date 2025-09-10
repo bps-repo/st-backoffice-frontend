@@ -34,10 +34,10 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-                        <i *ngIf="!isSubmitting" class="pi pi-sign-in mr-2"></i>
-                        <i *ngIf="isSubmitting" class="pi pi-spin pi-spinner mr-2"></i>
-                        {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+                    <button type="submit" class="submit-btn" [disabled]="isSubmitting | async">
+                        <i *ngIf="!(isSubmitting | async)" class="pi pi-sign-in mr-2"></i>
+                        <i *ngIf="isSubmitting | async" class="pi pi-spin pi-spinner mr-2"></i>
+                        {{ (isSubmitting | async) ? 'Entrando...' : 'Entrar' }}
                     </button>
 
                     <div class="forgot">

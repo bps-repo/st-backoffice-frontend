@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/auth/user';
 import { Role } from '../models/auth/role';
 import { Permission } from '../models/auth/permission';
+import { ApiResponse } from './interfaces/ApiResponseService';
+import { an } from '@fullcalendar/core/internal-common';
 
 @Injectable({
     providedIn: 'root',
@@ -49,8 +51,13 @@ export class UserManagementService {
 
 
     // User permissions management
-    getUserPermissions(userId: string): Observable<Permission[]> {
-        return this.http.get<Permission[]>(`${this.apiUrl}/${userId}/permissions`);
+    getUserPermissions(): Observable<Permission[]> {
+        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/me`)
+            .pipe(map((response: any) => {
+                console.log(response.data);
+                return response.data.allPermissions as Permission[] || [];
+            }))
+            ;
     }
 
     addPermissionToUser(userId: string, permissionId: string): Observable<User> {
