@@ -23,7 +23,8 @@ export const authFeature = createFeature({
                 token,
                 refreshToken,
                 error: null,
-                loading: false
+                loading: false,
+                shouldNavigateAfterProfileLoad: true
             };
         }),
 
@@ -133,7 +134,8 @@ export const authFeature = createFeature({
             loadUserProfile: false,
             loadUserProfileSuccess: true,
             loadUserProfileFailure: false,
-            error: null
+            error: null,
+            shouldNavigateAfterProfileLoad: false
         })),
 
         on(authActions.loadUserProfileFailure, (state, { error }) => ({

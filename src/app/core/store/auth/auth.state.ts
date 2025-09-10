@@ -11,6 +11,7 @@ export interface AuthState {
     loadUserProfile: boolean;
     loadUserProfileSuccess: boolean;
     loadUserProfileFailure: boolean;
+    shouldNavigateAfterProfileLoad: boolean;
 }
 
 export const initialState: AuthState = {
@@ -22,5 +23,6 @@ export const initialState: AuthState = {
     loading: false,
     loadUserProfile: false,
     loadUserProfileSuccess: false,
-    loadUserProfileFailure: false
+    loadUserProfileFailure: false,
+    shouldNavigateAfterProfileLoad: false
 };

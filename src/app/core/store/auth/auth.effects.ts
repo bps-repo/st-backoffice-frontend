@@ -8,7 +8,7 @@ import { authActions } from './auth.actions';
 import { Router } from '@angular/router';
 import { JwtTokenService } from "../../services/jwtToken.service";
 import { Store } from '@ngrx/store';
-import * as authSelectors from './auth.selectors';
+// import * as authSelectors from './auth.selectors';
 
 @Injectable()
 export class AuthEffects {
@@ -49,18 +49,28 @@ export class AuthEffects {
             this.actions$.pipe(
                 ofType(authActions.loginSuccess),
                 tap(({ token }) => {
-                    JwtTokenService.decodeToken(token)
+                    JwtTokenService.decodeToken(token);
                     this.store.dispatch(authActions.loadUserProfile());
+                })
+            ),
+        { dispatch: false }
+    );
 
-                    this.store.select(authSelectors.selectAuthLoadUserProfileSuccess).pipe(
+    // Redirect to dashboard only after profile loads successfully during login
+    loadUserProfileSuccessNavigate$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(authActions.loadUserProfileSuccess),
+                tap((action) => {
+                    // Only navigate if we're in a login context
+                    this.store.select(state => (state as any).auth.shouldNavigateAfterProfileLoad).pipe(
                         take(1),
-                        tap((state) => {
-                            if (state) {
+                        tap(shouldNavigate => {
+                            if (shouldNavigate) {
                                 this.router.navigate(['/schoolar/dashboards']).then();
                             }
                         })
                     ).subscribe();
-
                 })
             ),
         { dispatch: false }

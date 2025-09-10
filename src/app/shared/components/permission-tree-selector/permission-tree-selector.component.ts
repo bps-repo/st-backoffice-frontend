@@ -363,21 +363,33 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
   onNodeSelect(event: any) {
     const node = event.node as PermissionTreeNode;
     if (node.permission && !node.isRolePermission) {
+      // add this node id
       if (!this.selectedPermissionIds.includes(node.permission.id)) {
         this.selectedPermissionIds.push(node.permission.id);
-        this.emitChange();
       }
+      // add all non-role descendant ids
+      const descendantIds = this.collectDescendantIds(node);
+      descendantIds.forEach(id => {
+        if (!this.selectedPermissionIds.includes(id)) {
+          this.selectedPermissionIds.push(id);
+        }
+      });
+      this.emitChange();
     }
   }
 
   onNodeUnselect(event: any) {
     const node = event.node as PermissionTreeNode;
     if (node.permission && !node.isRolePermission) {
+      // remove this node id
       const index = this.selectedPermissionIds.indexOf(node.permission.id);
       if (index > -1) {
         this.selectedPermissionIds.splice(index, 1);
-        this.emitChange();
       }
+      // remove all non-role descendant ids
+      const descendantIds = this.collectDescendantIds(node);
+      this.selectedPermissionIds = this.selectedPermissionIds.filter(id => !descendantIds.includes(id));
+      this.emitChange();
     }
   }
 
@@ -423,5 +435,22 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
 
   getTotalSelectedCount(): number {
     return this.selectedPermissionIds.length;
+  }
+
+  private collectDescendantIds(node: PermissionTreeNode): string[] {
+    const ids: string[] = [];
+    const walk = (n: PermissionTreeNode) => {
+      if (n.children && n.children.length > 0) {
+        n.children.forEach(child => {
+          const c = child as PermissionTreeNode;
+          if (c.permission && !c.isRolePermission) {
+            ids.push(c.permission.id);
+          }
+          walk(c);
+        });
+      }
+    };
+    walk(node);
+    return ids;
   }
 }

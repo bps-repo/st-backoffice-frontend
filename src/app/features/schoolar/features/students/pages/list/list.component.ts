@@ -31,6 +31,8 @@ import {SelectButtonModule} from "primeng/selectbutton";
 import {FormsModule} from "@angular/forms";
 import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
 import {StudentReports} from "../../../reports/components/student/student-reports.component";
+import { HasPermissionPipe } from 'src/app/shared/pipes';
+import { HasPermissionDirective } from 'src/app/shared/directives';
 
 @Component({
     selector: 'app-general',
@@ -49,7 +51,8 @@ import {StudentReports} from "../../../reports/components/student/student-report
         SelectButtonModule,
         FormsModule,
         StudentsDashboardComponent,
-        StudentReports
+        StudentReports,
+        HasPermissionDirective
     ],
     templateUrl: './list.component.html',
 })

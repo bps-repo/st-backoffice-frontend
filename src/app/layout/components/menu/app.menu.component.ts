@@ -58,7 +58,7 @@ export class AppMenuComponent implements OnInit {
                         label: 'Marcação de Aulas',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/lessons/schedule'],
-                        visible: this.hasPermission('lessons.view')
+                        visible: this.hasPermission('lessons.manage')
                     },
                     {
                         label: 'Calendário',
@@ -95,6 +95,7 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Financeiro',
                 icon: 'pi pi-fw pi-file-pdf',
+                visible: this.hasPermission('finance.dashboard.view'),
                 items: [
                     {
                         label: 'Dashboard',
@@ -131,6 +132,7 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Empresa',
                 icon: 'pi pi-fw pi-users',
+                visible: this.hasPermission('corporate.dashboard.view'),
                 items: [
                     {
                         label: 'Dashboard',
@@ -153,23 +155,25 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Administração',
                         icon: 'pi pi-fw pi-cog',
+                        visible: this.hasPermission('users.manage'),
                         items: [
                             {
                                 label: 'Usuários',
                                 icon: 'pi pi-fw pi-users',
                                 routerLink: ['/corporate/employees'],
-                                //visible: this.hasPermission('users.view')
+                                visible: this.hasPermission('users.view')
                             },
                             {
                                 label: 'Funções',
                                 icon: 'pi pi-fw pi-id-card',
                                 routerLink: ['/corporate/roles'],
+                                visible: this.hasPermission('roles.view')
                             },
                             {
                                 label: 'Permissões',
                                 icon: 'pi pi-fw pi-lock',
                                 routerLink: ['/corporate/permissions'],
-                                //visible: this.hasPermission('permissions.view')
+                                visible: this.hasPermission('permissions.view')
                             },
                         ]
                     },
@@ -178,6 +182,7 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Configurações',
                 icon: 'pi pi-fw pi-cog',
+                visible: this.hasPermission('settings.alerts.manage'),
                 items: [
                     {
                         label: 'Alertas',

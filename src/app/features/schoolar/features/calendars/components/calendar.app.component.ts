@@ -104,9 +104,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     // Tab view options (like students list)
     currentView: string = 'calendar'; // Default view is calendar
     viewOptions = [
-        {label: 'Calendário', value: 'calendar'},
-        {label: 'Relatórios', value: 'reports'},
-        {label: 'Configurações', value: 'settings'}
+        {label: 'Calendário', value: 'calendar', permission: 'lessons.calendar'},
+        {label: 'Relatórios', value: 'reports', permission: 'lessons.reports'},
+        {label: 'Configurações', value: 'settings', permission: 'lessons.settings'}
     ];
 
     // Sticky header state

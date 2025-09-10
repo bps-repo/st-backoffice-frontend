@@ -6,7 +6,7 @@
             <h2 class="font-bold text-2xl mb-4">Agendamento de aulas</h2>
             <span class="text-lg">Gerencia agendamentos e calendário de aulas</span>
         </div>
-        <p-button (onClick)="createNewEvent()" label="Nova aula" icon="pi pi-plus" class="p-button-outlined"></p-button>
+        <p-button *hasPermission="'lessons.create'" (onClick)="createNewEvent()" label="Nova aula" icon="pi pi-plus" class="p-button-outlined"></p-button>
     </div>
 
     <!-- View Selector -->
