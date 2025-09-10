@@ -67,7 +67,7 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
                       [maxFileSize]="5000000"
                       [auto]="true"
                       (onUpload)="onPhotoUpload($event)"
-                      chooseLabel="Change Photo"
+                      chooseLabel="Alterar Foto"
                       chooseIcon="pi pi-camera"
                       class="photo-upload">
                     </p-fileUpload>
@@ -75,7 +75,7 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
                 </div>
                 <div class="profile-info">
                   <h1 class="profile-name">{{ userProfileService.getFullName() }}</h1>
-                  <p class="profile-username">{{ currentUser$ | async | json }}</p>
+                  <p class="profile-username">{{ (currentUser$ | async )?.username }}</p>
                   <div class="profile-badges">
                     <p-badge
                       [value]="(currentUser$ | async)?.role?.name || ''"
@@ -94,36 +94,36 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
 
         <!-- Profile Form -->
         <div class="col-12 md:col-8">
-          <p-card header="Profile Information">
+          <p-card header="Informações do Perfil">
             <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
               <div class="grid">
                 <div class="col-12 md:col-6">
-                  <label for="firstName">First Name</label>
+                  <label for="firstName">Primeiro Nome</label>
                   <input
                     pInputText
                     id="firstName"
                     formControlName="firstName"
-                    placeholder="Enter first name"
+                    placeholder="Digite o primeiro nome"
                     [class.ng-invalid]="isFieldInvalid('firstName')">
                   <small
                     class="p-error"
                     *ngIf="isFieldInvalid('firstName')">
-                    First name is required
+                    Primeiro nome é obrigatório
                   </small>
                 </div>
 
                 <div class="col-12 md:col-6">
-                  <label for="lastName">Last Name</label>
+                  <label for="lastName">Último Nome</label>
                   <input
                     pInputText
                     id="lastName"
                     formControlName="lastName"
-                    placeholder="Enter last name"
+                    placeholder="Digite o último nome"
                     [class.ng-invalid]="isFieldInvalid('lastName')">
                   <small
                     class="p-error"
                     *ngIf="isFieldInvalid('lastName')">
-                    Last name is required
+                    Último nome é obrigatório
                   </small>
                 </div>
 
@@ -133,67 +133,68 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
                     pInputText
                     id="email"
                     formControlName="email"
-                    placeholder="Enter email"
+                    placeholder="Digite o email"
                     type="email"
                     [class.ng-invalid]="isFieldInvalid('email')">
                   <small
                     class="p-error"
                     *ngIf="isFieldInvalid('email')">
-                    Valid email is required
+                    Email é obrigatório
                   </small>
                 </div>
 
                 <div class="col-12 md:col-6">
-                  <label for="phone">Phone</label>
+                  <label for="phone">Telefone</label>
                   <input
                     pInputText
                     id="phone"
                     formControlName="phone"
-                    placeholder="Enter phone number">
+                    placeholder="Digite o telefone">
                 </div>
 
                 <div class="col-12 md:col-6">
-                  <label for="username">Username</label>
+                    <label for="username">Nome de Usuário</label>
+                  <label for="username">Nome de Usuário</label>
                   <input
                     pInputText
                     id="username"
                     formControlName="username"
-                    placeholder="Enter username"
+                    placeholder="Digite o nome de usuário"
                     [class.ng-invalid]="isFieldInvalid('username')">
                   <small
                     class="p-error"
                     *ngIf="isFieldInvalid('username')">
-                    Username is required
+                    Nome de usuário é obrigatório
                   </small>
                 </div>
 
                 <div class="col-12 md:col-6">
-                  <label for="identificationNumber">Identification Number</label>
+                  <label for="identificationNumber">Número de Identificação</label>
                   <input
                     pInputText
                     id="identificationNumber"
                     formControlName="identificationNumber"
-                    placeholder="Enter identification number">
+                    placeholder="Digite o número de identificação">
                 </div>
 
                 <div class="col-12 md:col-6">
-                  <label for="gender">Gender</label>
+                  <label for="gender">Gênero</label>
                   <p-dropdown
                     id="gender"
                     formControlName="gender"
                     [options]="genderOptions"
-                    placeholder="Select gender"
+                    placeholder="Selecione o gênero"
                     optionLabel="label"
                     optionValue="value">
                   </p-dropdown>
                 </div>
 
                 <div class="col-12 md:col-6">
-                  <label for="birthdate">Birth Date</label>
+                  <label for="birthdate">Data de Nascimento</label>
                   <p-calendar
                     id="birthdate"
                     formControlName="birthdate"
-                    placeholder="Select birth date"
+                    placeholder="Selecione a data de nascimento"
                     [showIcon]="true"
                     dateFormat="dd/mm/yy">
                   </p-calendar>
@@ -203,14 +204,14 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
               <div class="form-actions">
                 <p-button
                   type="submit"
-                  label="Update Profile"
+                  label="Atualizar Perfil"
                   icon="pi pi-save"
                   [loading]="(loading$ | async) || false"
                   [disabled]="profileForm.invalid">
                 </p-button>
                 <p-button
                   type="button"
-                  label="Reset"
+                  label="Resetar"
                   icon="pi pi-refresh"
                   severity="secondary"
                   (click)="resetForm()">
@@ -222,10 +223,10 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
 
         <!-- Account Information -->
         <div class="col-12 md:col-4">
-          <p-card header="Account Information">
+          <p-card header="Informações da Conta">
             <div class="account-info">
               <div class="info-item">
-                <label>Account Status</label>
+                    <label>Status da Conta</label>
                 <p-badge
                   [value]="(currentUser$ | async)?.accountStatus || ''"
                   [severity]="getStatusSeverity((currentUser$ | async)?.accountStatus || '')">
@@ -233,7 +234,7 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
               </div>
 
               <div class="info-item">
-                <label>Email Verified</label>
+                <label>Email Verificado</label>
                 <p-badge
                   [value]="(currentUser$ | async)?.emailVerified ? 'Yes' : 'No'"
                   [severity]="(currentUser$ | async)?.emailVerified ? 'success' : 'warning'">
@@ -241,7 +242,7 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
               </div>
 
               <div class="info-item">
-                <label>Phone Verified</label>
+                <label>Telefone Verificado</label>
                 <p-badge
                   [value]="(currentUser$ | async)?.phoneVerified ? 'Yes' : 'No'"
                   [severity]="(currentUser$ | async)?.phoneVerified ? 'success' : 'warning'">
@@ -254,7 +255,7 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
               </div>
 
               <div class="info-item">
-                <label>Member Since</label>
+                <label>Membro Desde</label>
                 <span>{{ (currentUser$ | async)?.createdAt | date:'medium' }}</span>
               </div>
             </div>
@@ -263,12 +264,26 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
 
             <div class="account-actions">
               <p-button
-                label="Change Password"
+                label="Alterar Senha"
                 icon="pi pi-key"
                 severity="secondary"
                 (click)="showChangePasswordDialog = true">
               </p-button>
             </div>
+          </p-card>
+        </div>
+
+        <!-- User Permissions -->
+        <div class="col-12">
+          <p-card header="Permissões do Usuário">
+            <div class="permissions-list" *ngIf="(currentUser$ | async)?.allPermissions?.length; else noPermissions">
+              <div class="permission-item" *ngFor="let perm of (currentUser$ | async)?.allPermissions">
+                <p-badge [value]="perm.name" severity="info"></p-badge>
+              </div>
+            </div>
+            <ng-template #noPermissions>
+              <span>Nenhuma permissão atribuída.</span>
+            </ng-template>
           </p-card>
         </div>
       </div>
@@ -362,6 +377,16 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
+    }
+
+    .permissions-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .permission-item {
+      margin-bottom: 0.25rem;
     }
 
     @media (max-width: 768px) {

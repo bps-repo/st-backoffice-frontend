@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/auth/user';
 import { Role } from '../models/auth/role';
 import { Permission } from '../models/auth/permission';
 import { ApiResponse } from './interfaces/ApiResponseService';
-import { an } from '@fullcalendar/core/internal-common';
+import { UserProfileService } from './user-profile.service';
 
 @Injectable({
     providedIn: 'root',
@@ -14,7 +14,7 @@ import { an } from '@fullcalendar/core/internal-common';
 export class UserManagementService {
     private apiUrl = `${environment.apiUrl}/users`;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private userProfileService: UserProfileService) { }
 
     getUsers(): Observable<User[]> {
         return this.http.get<User[]>(this.apiUrl);
@@ -52,12 +52,13 @@ export class UserManagementService {
 
     // User permissions management
     getUserPermissions(): Observable<Permission[]> {
-        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/me`)
-            .pipe(map((response: any) => {
-                console.log(response.data);
-                return response.data.allPermissions as Permission[] || [];
-            }))
-            ;
+       return this.userProfileService.getCurrentUser().pipe(
+        map(user => user.allPermissions || []),
+        catchError(error => {
+            console.error('Error fetching user permissions:', error);
+            return of([]);
+        })
+       );
     }
 
     addPermissionToUser(userId: string, permissionId: string): Observable<User> {

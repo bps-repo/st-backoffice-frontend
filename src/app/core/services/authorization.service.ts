@@ -6,6 +6,7 @@ import { UserManagementService } from './user-management.service';
 import { Permission } from '../models/auth/permission';
 import { authFeature } from '../store/auth/auth.reducers';
 import { AppState } from '../store';
+import { User } from '../models/auth/user';
 
 /**
  * Generic service for handling user authorization based on permissions.
@@ -31,6 +32,12 @@ export class AuthorizationService {
    * Initialize user permissions from the store
    */
   private initializeUserPermissions(): void {
+    const stored = localStorage.getItem('currentUser');
+    if (stored) {
+      const user = JSON.parse(stored) as User;
+      console.log('user', user.allPermissions);
+      this.currentUserPermissions$.next(user.allPermissions || []);
+    }
     this.store.select(authFeature.selectUser).pipe(
       switchMap(user => {
         if (user?.id) {
@@ -83,6 +90,7 @@ export class AuthorizationService {
    * @returns Observable<boolean>
    */
   hasPermission(permissionName: string, userId?: string): Observable<boolean> {
+    console.log('permissionName', permissionName);
     if (!permissionName) {
       return of(false);
     }

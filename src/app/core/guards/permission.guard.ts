@@ -4,8 +4,8 @@ import { Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, take } from 'rxjs/operators';
 import { AuthorizationService } from '../services/authorization.service';
-import { authFeature } from '../store/auth/auth.reducers';
 import { MessageService } from 'primeng/api';
+import { selectAuthToken } from '../store/auth/auth.selectors';
 
 /**
  * Guard for checking user permissions.
@@ -21,7 +21,6 @@ export class PermissionGuard implements CanActivate {
         private authorizationService: AuthorizationService,
         private messageService: MessageService
     ) {
-        console.log('PermissionGuard constructor');
     }
 
     canActivate(
@@ -34,12 +33,14 @@ export class PermissionGuard implements CanActivate {
 
         // If no permission is required, allow access
         if (!requiredPermission && !requiredPermissions) {
+            console.log('No permission required, allowing access');
             return of(true);
         }
 
-        return this.store.select(authFeature.selectIsAuthenticated).pipe(
+        return this.store.select(selectAuthToken).pipe(
             take(1),
-            switchMap((isAuthenticated) => {
+            switchMap((token) => {
+                const isAuthenticated = !!token;
                 if (!isAuthenticated) {
                     this.router.navigate(['/auth/login']);
                     return of(false);
