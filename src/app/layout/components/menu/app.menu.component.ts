@@ -132,7 +132,7 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Empresa',
                 icon: 'pi pi-fw pi-users',
-                visible: this.hasPermission('corporate.dashboard.view'),
+                visible: this.hasPermission('settings.corporate.manage'),
                 items: [
                     {
                         label: 'Dashboard',
@@ -182,7 +182,7 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Configurações',
                 icon: 'pi pi-fw pi-cog',
-                visible: this.hasPermission('settings.alerts.manage'),
+                visible: this.hasPermission('settings.corporate.manage'),
                 items: [
                     {
                         label: 'Alertas',

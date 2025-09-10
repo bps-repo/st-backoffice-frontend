@@ -14,6 +14,7 @@ import { COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS } from "../../constants";
 import { TableHeaderAction } from "../../../../../../shared/components/tables/global-table/table-header.component";
 import { Employee, EmployeeStatus } from 'src/app/core/models/corporate/employee';
 import { BadgeModule } from "primeng/badge";
+import { HasPermissionDirective } from 'src/app/shared/directives';
 
 @Component({
     selector: 'app-employee-list',
@@ -22,7 +23,8 @@ import { BadgeModule } from "primeng/badge";
         RouterModule,
         GlobalTable,
         ButtonModule,
-        BadgeModule
+        BadgeModule,
+        HasPermissionDirective
     ],
     templateUrl: './list.component.html',
     standalone: true
