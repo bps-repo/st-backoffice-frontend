@@ -7,12 +7,6 @@ export interface BulkBookingLesson {
     studentIds: string[];
 }
 
-export interface BulkBookingResponse {
-    success: boolean;
-    data: BulkBookingResult;
-    timestamp: string;
-    metadata: any[];
-}
 
 export interface BulkBookingResult {
     totalProcessed: number;
@@ -32,6 +26,6 @@ export interface SuccessfulBooking {
 export interface FailedBooking {
     lessonId: string;
     studentId: string;
-    error: string;
-    reason?: string;
+    errorMessage: string;
+    errorCode: string;
 }

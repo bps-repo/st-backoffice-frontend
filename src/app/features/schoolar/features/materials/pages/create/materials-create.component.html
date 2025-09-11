@@ -10,53 +10,7 @@
         <div class="col-12 lg:col-12">
             <div class="grid formgrid p-fluid">
                 <div class="field card mb-6 col-12 md:col-12 p-5">
-                    <label class="font-medium text-900 mb-3">Arquivo</label>
-                    <p-fileUpload
-                        #fileUploader
-                        name="material[]"
-                        accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,video/mp4,video/avi"
-                        [maxFileSize]="524288000"
-                        (onSelect)="onFileSelect($event)"
-                        (onUpload)="onFileUpload($event)"
-                        (onError)="onFileUploadError($event)"
-                        [customUpload]="true"
-                        [auto]="false"
-                        chooseLabel="Clique para selecionar um arquivo ou arraste aqui"
-                        [showUploadButton]="false"
-                        [showCancelButton]="false"
-                    >
-                        <ng-template pTemplate="content">
-                            <div
-                                class="w-full py-8 border-2 border-dashed border-gray-300 flex justify-content-center align-items-center hover:bg-gray-50 transition-duration-100 cursor-pointer"
-                                (click)="fileUploader.advancedFileInput.nativeElement.click()"
-                            >
-                                <div
-                                    *ngIf="!selectedFile"
-                                    class="h-full flex flex-column justify-content-center align-items-center"
-                                >
-                                    <i class="pi pi-upload text-gray-500 text-4xl mb-3"></i>
-                                    <span class="text-gray-600 text-lg text-center mb-1">Clique para selecionar um arquivo ou arraste aqui</span>
-                                    <span class="text-gray-500 text-sm text-center">Suporta: PDF, DOC, MP4, AVI, MOV (máx 500MB)</span>
-                                </div>
-                                <div *ngIf="selectedFile" class="flex align-items-center gap-3">
-                                    <i class="pi pi-file text-primary text-2xl"></i>
-                                    <div>
-                                        <p class="m-0 font-medium">{{selectedFile.name}}</p>
-                                        <p class="m-0 text-sm text-gray-500">{{formatFileSize(selectedFile.size)}}</p>
-                                    </div>
-                                    <button
-                                        pButton
-                                        pRipple
-                                        icon="pi pi-times"
-                                        class="p-button-rounded p-button-text p-button-sm"
-                                        (click)="removeFile($event)"
-                                    ></button>
-                                </div>
-                            </div>
-                        </ng-template>
-                    </p-fileUpload>
-
-                    <div class="grid mt-4">
+                    <div class="grid">
                         <div class="col-12 md:col-6">
                             <label for="title" class="font-medium text-900">Título do Material</label>
                             <input
@@ -90,6 +44,67 @@
                             placeholder="Descrição do material"
                         ></textarea>
                     </div>
+
+                    <label class="font-medium text-900 mb-3">{{ material.type === 'video' ? 'Link do Vídeo' : 'Arquivo' }}</label>
+                    <div *ngIf="material.type === 'video'; else fileUploadTpl_bottom" class="grid">
+                        <div class="col-12 md:col-8">
+                            <input
+                                type="url"
+                                pInputText
+                                [(ngModel)]="material.fileUrl"
+                                placeholder="https://youtu.be/... ou https://vimeo.com/..."
+                            />
+                        </div>
+                        <div class="col-12 text-color-secondary">
+                            Informe a URL pública do vídeo (YouTube, Vimeo, etc.).
+                        </div>
+                    </div>
+                    <ng-template #fileUploadTpl_bottom>
+                        <p-fileUpload
+                            #fileUploader
+                            name="material[]"
+                            accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,video/mp4,video/avi"
+                            [maxFileSize]="524288000"
+                            (onSelect)="onFileSelect($event)"
+                            (onUpload)="onFileUpload($event)"
+                            (onError)="onFileUploadError($event)"
+                            [customUpload]="true"
+                            [auto]="false"
+                            chooseLabel="Clique para selecionar um arquivo ou arraste aqui"
+                            [showUploadButton]="false"
+                            [showCancelButton]="false"
+                        >
+                            <ng-template pTemplate="content">
+                                <div
+                                    class="w-full py-8 border-2 border-dashed border-gray-300 flex justify-content-center align-items-center hover:bg-gray-50 transition-duration-100 cursor-pointer"
+                                    (click)="fileUploader.advancedFileInput.nativeElement.click()"
+                                >
+                                    <div
+                                        *ngIf="!selectedFile"
+                                        class="h-full flex flex-column justify-content-center align-items-center"
+                                    >
+                                        <i class="pi pi-upload text-gray-500 text-4xl mb-3"></i>
+                                        <span class="text-gray-600 text-lg text-center mb-1">Clique para selecionar um arquivo ou arraste aqui</span>
+                                        <span class="text-gray-500 text-sm text-center">Suporta: PDF, DOC, MP4, AVI, MOV (máx 500MB)</span>
+                                    </div>
+                                    <div *ngIf="selectedFile" class="flex align-items-center gap-3">
+                                        <i class="pi pi-file text-primary text-2xl"></i>
+                                        <div>
+                                            <p class="m-0 font-medium">{{selectedFile.name}}</p>
+                                            <p class="m-0 text-sm text-gray-500">{{formatFileSize(selectedFile.size)}}</p>
+                                        </div>
+                                        <button
+                                            pButton
+                                            pRipple
+                                            icon="pi pi-times"
+                                            class="p-button-rounded p-button-text p-button-sm"
+                                            (click)="removeFile($event)"
+                                        ></button>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-fileUpload>
+                    </ng-template>
                 </div>
             </div>
         </div>

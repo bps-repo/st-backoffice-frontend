@@ -56,7 +56,12 @@ export class MaterialsCreateComponent implements OnInit {
     };
 
     // Distribution
-    distribution = {
+    distribution: {
+        selectedLevels: string[];
+        selectedClasses: string[];
+        selectedTurmas: string[];
+        selectedStudents: string[];
+    } = {
         selectedLevels: [],
         selectedClasses: [],
         selectedTurmas: [],
@@ -73,9 +78,9 @@ export class MaterialsCreateComponent implements OnInit {
     ];
 
     levels: SelectItem[] = [
-        { label: 'Básico', value: 'basico' },
-        { label: 'Intermediário', value: 'intermediario' },
-        { label: 'Avançado', value: 'avancado' }
+        { label: 'Básico', value: '1' },
+        { label: 'Intermediário', value: '2' },
+        { label: 'Avançado', value: '3' }
     ];
 
     classes: SelectItem[] = [
@@ -104,7 +109,14 @@ export class MaterialsCreateComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        // Initialize data - in real app, load from services
+        // Auto-select level from navigation state (when coming from a specific level)
+        const nav = history.state as any;
+        if (nav?.levelId) {
+            const exists = this.levels.some(l => l.value === nav.levelId);
+            if (exists) {
+                this.distribution.selectedLevels = [nav.levelId];
+            }
+        }
     }
 
     onFileSelect(event: any): void {
@@ -169,7 +181,11 @@ export class MaterialsCreateComponent implements OnInit {
     }
 
     isFormValid(): boolean {
-        return !!(this.material.title && this.material.type && this.selectedFile);
+        if (!this.material.title || !this.material.type) return false;
+        if (this.material.type === 'video') {
+            return !!this.material.fileUrl; // expecting a URL for videos
+        }
+        return !!this.selectedFile; // non-video requires a file
     }
 
     saveMaterial(): void {

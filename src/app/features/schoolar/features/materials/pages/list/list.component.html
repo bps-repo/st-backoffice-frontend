@@ -41,8 +41,12 @@
     <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
          [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
-            <h2 class="font-bold text-2xl mb-4">Gestão de materiais didáticos</h2>
-            <span class="text-lg">Biblioteca digital com controle de acesso</span>
+            <h2 class="font-bold text-2xl mb-1">
+                {{ levelName ? ('Materiais - ' + levelName) : 'Gestão de materiais didáticos' }}
+            </h2>
+            <span class="text-lg">
+                {{ levelName ? 'Listagem de materiais para o nível selecionado' : 'Biblioteca digital com controle de acesso' }}
+            </span>
         </div>
         <p-button
             label="Novo material"

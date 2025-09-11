@@ -5,7 +5,8 @@ import {Lesson} from "../models/academic/lesson";
 import {Observable, of} from 'rxjs';
 import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
 import {map} from "rxjs/operators";
-import {BulkBookingRequest, BulkBookingResponse} from "../models/academic/bulk-booking";
+import {BulkBookingRequest, BulkBookingResult} from "../models/academic/bulk-booking";
+import {AvailableStudent} from "../models/academic/available-student";
 
 @Injectable({
     providedIn: 'root',
@@ -164,9 +165,16 @@ export class LessonService {
     }
 
     // Bulk booking endpoint
-    bulkBookLessons(bulkBookingRequest: BulkBookingRequest): Observable<BulkBookingResponse> {
-        return this.http.post<BulkBookingResponse>(`${this.apiUrl}/bookings/bulk`, bulkBookingRequest).pipe(
-            map((response) => response)
+    bulkBookLessons(bulkBookingRequest: BulkBookingRequest): Observable<BulkBookingResult> {
+        return this.http.post<ApiResponse<BulkBookingResult>>(`${this.apiUrl}/bookings/bulk`, bulkBookingRequest).pipe(
+            map((response) => response.data)
+        );
+    }
+
+    // Get available students for a specific lesson
+    getAvailableStudentsForLesson(lessonId: string): Observable<AvailableStudent[]> {
+        return this.http.get<ApiResponse<AvailableStudent[]>>(`${this.apiUrl}/${lessonId}/available-students`).pipe(
+            map((response) => response.data as AvailableStudent[])
         );
     }
 }

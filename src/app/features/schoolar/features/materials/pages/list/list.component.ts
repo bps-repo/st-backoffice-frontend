@@ -1,6 +1,7 @@
 import {Component, ElementRef, OnInit, ViewChild, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
+import { LevelService } from 'src/app/core/services/level.service';
 import {FormsModule} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -52,10 +53,25 @@ export class ListComponent implements OnInit {
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(private router: Router) {
+    constructor(private router: Router, private route: ActivatedRoute, private levelService: LevelService) {
     }
 
+    levelName: string | null = null;
+
     ngOnInit(): void {
+        const levelId = this.route.snapshot.paramMap.get('levelId');
+        const nav = history.state as any;
+        if (nav?.level) {
+            this.levelName = nav.level.name ?? null;
+            this.selectedLevel = nav.level.name ?? null;
+        } else if (levelId) {
+            const levelMap: any = { '1': 'Básico', '2': 'Intermediário', '3': 'Avançado' };
+            this.selectedLevel = levelMap[levelId] ?? null;
+            this.levelService.getLevelById(levelId).subscribe({
+                next: (level) => this.levelName = level?.name ?? this.selectedLevel,
+                error: () => this.levelName = this.selectedLevel
+            });
+        }
         // Sample materials data
         this.materials = [
             {
@@ -142,9 +158,13 @@ export class ListComponent implements OnInit {
 
         // Material types for filtering
         this.materialTypes = [
-            {label: 'PDF', value: 'PDF'},
-            {label: 'Vídeo', value: 'Vídeo'},
-            {label: 'Documento Word', value: 'Word'},
+            { label: 'Conteúdo programático', value: 'Conteúdo programático' },
+            { label: 'Vídeos de dicas', value: 'Vídeos de dicas' },
+            { label: 'Unidades', value: 'Unidades' },
+            { label: 'Livros', value: 'Livros' },
+            { label: 'Exercícios', value: 'Exercícios' },
+            { label: 'Material de apoio', value: 'Material de apoio' },
+            { label: 'Vídeo aulas', value: 'Vídeo aulas' },
         ];
 
         // Levels for filtering
@@ -209,7 +229,13 @@ export class ListComponent implements OnInit {
 
     // Navigation methods
     navigateToCreateMaterial() {
-        this.router.navigate(['/schoolar/materials/create']);
+        const levelId = this.route.snapshot.paramMap.get('levelId');
+        this.router.navigate(['/schoolar/materials/create'], {
+            state: {
+                levelId: levelId ?? null,
+                levelName: this.levelName ?? this.selectedLevel ?? null,
+            }
+        });
     }
 
     viewDetails(material: Partial<Material>): void {

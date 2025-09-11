@@ -22,7 +22,7 @@ import {LessonService} from '../../../../../../core/services/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
 import {Student} from '../../../../../../core/models/academic/student';
-import {BulkBookingRequest, BulkBookingResponse, BulkBookingLesson} from '../../../../../../core/models/academic/bulk-booking';
+import {BulkBookingRequest, BulkBookingResult, BulkBookingLesson} from '../../../../../../core/models/academic/bulk-booking';
 
 @Component({
     selector: 'app-bulk-booking',
@@ -50,7 +50,7 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
     lessons: Lesson[] = [];
     students: Student[] = [];
     loading = false;
-    bulkBookingResults: BulkBookingResponse | null = null;
+    bulkBookingResults: BulkBookingResult | null = null;
     showResultsDialog = false;
     private destroy$ = new Subject<void>();
 
@@ -96,7 +96,7 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
             ofType(lessonsActions.bulkBookLessonsSuccess),
             takeUntil(this.destroy$)
         ).subscribe(({response}) => {
-            this.bulkBookingResults = response;
+            this.bulkBookingResults = response as BulkBookingResult;
             this.showResultsDialog = true;
             this.messageService.add({
                 severity: 'success',
