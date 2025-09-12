@@ -28,6 +28,7 @@ import { LessonState } from "../../../../../../core/store/schoolar/lessons/lesso
 import { LessonReports } from "../../../reports/components/lessons/lesson-reports.component";
 import { CalendarModule } from 'primeng/calendar';
 import { BadgeModule } from 'primeng/badge';
+import { HasPermissionDirective } from 'src/app/shared/directives/has-permission.directive';
 
 @Component({
     selector: 'app-lessons',
@@ -50,6 +51,7 @@ import { BadgeModule } from 'primeng/badge';
         LessonReports,
         CalendarModule,
         BadgeModule,
+        HasPermissionDirective
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`

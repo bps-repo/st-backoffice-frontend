@@ -177,6 +177,7 @@ export class UserProfileService {
   getInitials(): string {
     const user = this.getCurrentUserValue();
     if (!user) return '';
+    console.log('user', `${user.firstname.charAt(0)}${user.lastname.charAt(0)}`.toUpperCase());
     return `${user.firstname.charAt(0)}${user.lastname.charAt(0)}`.toUpperCase();
   }
 

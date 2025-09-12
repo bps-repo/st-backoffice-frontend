@@ -40,13 +40,13 @@
                     (click)="onProfileButtonClick()"
                     pTooltip="{{ (currentUser$ | async) ? userProfileService.getFullName() : 'Profile' }}"
                     tooltipPosition="bottom">
-                    <div class="profile-avatar-container bg-primary-500 border-round-lg">
+                    <div class="profile-avatar-container text-white bg-primary-500 border-round-lg">
                         <p-avatar
                             [image]="userProfileService.getPhotoUrl()"
                             [label]="userProfileService.getInitials()"
                             size="normal"
                             shape="circle"
-                            class="profile-avatar text-white  font-bold! p-5">
+                            class="profile-avatar text-white">
                         </p-avatar>
                     </div>
                 </button>

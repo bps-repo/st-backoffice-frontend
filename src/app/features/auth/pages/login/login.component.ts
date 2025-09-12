@@ -51,7 +51,7 @@ export class LoginComponent implements OnDestroy {
         ]).pipe(map(([loading, loadUserProfile]) => loading || loadUserProfile));
 
         this.loginForm = this.fb.group({
-            email: ['', [Validators.required, Validators.email]],
+            email: ['', [Validators.required]],
             password: ['', [Validators.required]],
         });
 
