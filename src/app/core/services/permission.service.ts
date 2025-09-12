@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Permission} from '../models/auth/permission';
-import {ApiResponse} from "./interfaces/ApiResponseService";
+import {ApiResponse} from "../models/ApiResponseService";
 import {filter, map} from "rxjs/operators";
 import {Store} from '@ngrx/store';
 import * as PermissionsActions from '../store/permissions/actions/permissions.actions';

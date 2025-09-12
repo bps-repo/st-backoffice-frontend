@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { map, tap, catchError, finalize, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { User } from '../models/auth/user';
-import { ApiResponse } from './interfaces/ApiResponseService';
+import { ApiResponse } from '../models/ApiResponseService';
 
 
 @Injectable({

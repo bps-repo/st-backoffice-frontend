@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Student} from 'src/app/core/models/academic/student';
-import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
+import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 
 // Request payload for creating a student according to backend contract

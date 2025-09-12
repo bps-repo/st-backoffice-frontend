@@ -7,7 +7,7 @@ import { Level } from '../models/course/level';
 import { Unit } from '../models/course/unit';
 import { Student } from '../models/academic/student';
 import { UnitProgress } from '../models/academic/unit-progress';
-import { ApiResponse, PageableResponse } from './interfaces/ApiResponseService';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 export interface LevelDetailData {
   level: Level;

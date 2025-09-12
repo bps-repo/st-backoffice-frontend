@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ApiResponse } from './interfaces/ApiResponseService';
+import { ApiResponse } from '../models/ApiResponseService';
 
 @Injectable({
   providedIn: 'root',

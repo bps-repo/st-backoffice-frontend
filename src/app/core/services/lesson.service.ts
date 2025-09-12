@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {environment} from 'src/environments/environment';
 import {Lesson} from "../models/academic/lesson";
 import {Observable, of} from 'rxjs';
-import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
+import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 import {BulkBookingRequest, BulkBookingResult} from "../models/academic/bulk-booking";
 import {AvailableStudent} from "../models/academic/available-student";

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Contract, CreateStudentContractRequest } from '../models/corporate/contract';
-import { ApiResponse } from './interfaces/ApiResponseService';
+import { ApiResponse } from '../models/ApiResponseService';
 
 @Injectable({ providedIn: 'root' })
 export class ContractService {

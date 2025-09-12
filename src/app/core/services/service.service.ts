@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ApiResponse, PageableResponse } from './interfaces/ApiResponseService';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 import { Product } from '../models/corporate/product';
 import { Service } from '../models/course/service';
 

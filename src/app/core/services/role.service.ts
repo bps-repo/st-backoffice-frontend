@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Role} from '../models/auth/role';
 import {Permission} from '../models/auth/permission';
-import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
+import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {filter, map} from "rxjs/operators";
 import {Employee} from "../models/corporate/employee";
 import {Store} from '@ngrx/store';

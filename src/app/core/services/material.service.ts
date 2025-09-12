@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Material } from '../models/academic/material';
-import { ApiResponse, PageableResponse } from './interfaces/ApiResponseService';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 @Injectable({
   providedIn: 'root',

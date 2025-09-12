@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
 import {environment} from '../../../environments/environment';
-import {ApiResponse, PageableResponse} from "./interfaces/ApiResponseService";
+import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 
 @Injectable({
