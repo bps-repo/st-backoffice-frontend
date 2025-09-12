@@ -47,5 +47,7 @@ export const authActions = createActionGroup({
 
         // Clear error actions
         clearError: emptyProps(),
+
+        changeShouldNavigateAfterProfileLoad: props<{ shouldNavigateAfterProfileLoad: boolean }>(),
     },
 });

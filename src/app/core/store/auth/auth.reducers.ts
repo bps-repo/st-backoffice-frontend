@@ -11,7 +11,8 @@ export const authFeature = createFeature({
         on(authActions.login, (state) => ({
             ...state,
             loading: true,
-            error: null
+            error: null,
+            shouldNavigateAfterProfileLoad: true
         })),
 
         on(authActions.loginSuccess, (state, {token, refreshToken}) => {
@@ -34,7 +35,8 @@ export const authFeature = createFeature({
             token: null,
             refreshToken: null,
             error,
-            loading: false
+            loading: false,
+            shouldNavigateAfterProfileLoad: false
         })),
 
         // Logout actions
@@ -43,7 +45,8 @@ export const authFeature = createFeature({
             loadUserProfile: false,
             loadUserProfileSuccess: false,
             loadUserProfileFailure: false,
-            error: null
+            error: null,
+            shouldNavigateAfterProfileLoad: false
         })),
 
         on(authActions.logoutSuccess, (state) => ({
@@ -53,20 +56,23 @@ export const authFeature = createFeature({
             refreshToken: null,
             user: null,
             error: null,
-            loading: false
+            loading: false,
+            shouldNavigateAfterProfileLoad: false
         })),
 
         on(authActions.logoutFailure, (state, {error}) => ({
             ...state,
             error,
-            loading: false
+            loading: false,
+            shouldNavigateAfterProfileLoad: false
         })),
 
         // Refresh token actions
         on(authActions.refreshToken, (state) => ({
             ...state,
             loading: true,
-            error: null
+            error: null,
+            shouldNavigateAfterProfileLoad: false
         })),
 
         on(authActions.refreshTokenSuccess, (state, {token, refreshToken}) => {
@@ -125,7 +131,7 @@ export const authFeature = createFeature({
             loadUserProfile: true,
             loadUserProfileSuccess: false,
             loadUserProfileFailure: false,
-            error: null
+            error: null,
         })),
 
         on(authActions.loadUserProfileSuccess, (state, { user }) => ({
@@ -135,7 +141,6 @@ export const authFeature = createFeature({
             loadUserProfileSuccess: true,
             loadUserProfileFailure: false,
             error: null,
-            shouldNavigateAfterProfileLoad: false
         })),
 
         on(authActions.loadUserProfileFailure, (state, { error }) => ({
@@ -218,6 +223,11 @@ export const authFeature = createFeature({
             loadUserProfileFailure: true,
             loadUserProfileSuccess: false,
             error
+        })),
+
+        on(authActions.changeShouldNavigateAfterProfileLoad, (state, { shouldNavigateAfterProfileLoad }) => ({
+            ...state,
+            shouldNavigateAfterProfileLoad
         }))
     ),
 });

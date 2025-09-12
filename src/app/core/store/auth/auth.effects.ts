@@ -69,6 +69,7 @@ export class AuthEffects {
                             if (shouldNavigate) {
                                 this.router.navigate(['/schoolar/dashboards']).then();
                             }
+                            this.store.dispatch(authActions.changeShouldNavigateAfterProfileLoad({ shouldNavigateAfterProfileLoad: false }));
                         })
                     ).subscribe();
                 })
