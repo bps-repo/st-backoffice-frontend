@@ -13,9 +13,30 @@ import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {RippleModule} from 'primeng/ripple';
 import {ToastModule} from 'primeng/toast';
-import {
-    LEVELS,
-} from 'src/app/shared/constants/app';
+import {MultiSelectModule} from 'primeng/multiselect';
+import {CardModule} from 'primeng/card';
+import {DividerModule} from 'primeng/divider';
+import {ChipModule} from 'primeng/chip';
+import {MaterialService} from 'src/app/core/services/material.service';
+import {StudentService} from 'src/app/core/services/student.service';
+import {LessonService} from 'src/app/core/services/lesson.service';
+import {UnitService} from 'src/app/core/services/unit.service';
+import {AssessmentService} from 'src/app/core/services/assessment.service';
+import {LevelService} from 'src/app/core/services/level.service';
+import {CenterService} from 'src/app/core/services/center.service';
+import {EmployeeService} from 'src/app/core/services/employee.service';
+import {ContractService} from 'src/app/core/services/contract.service';
+import {MaterialCreateRequest, MaterialRelation} from 'src/app/core/models/academic/material';
+import {MaterialType} from 'src/app/core/enums/material-type';
+import {MaterialContentType} from 'src/app/core/enums/material-content-type';
+import {RelatedEntityType} from 'src/app/core/enums/related-entity-type';
+import {Student} from 'src/app/core/models/academic/student';
+import {Lesson} from 'src/app/core/models/academic/lesson';
+import {Unit} from 'src/app/core/models/course/unit';
+import {Level} from 'src/app/core/models/course/level';
+import {Center} from 'src/app/core/models/corporate/center';
+import {Employee} from 'src/app/core/models/corporate/employee';
+import {Contract} from 'src/app/core/models/corporate/contract';
 
 @Component({
     imports: [
@@ -31,92 +52,331 @@ import {
         CalendarModule,
         InputSwitchModule,
         ToastModule,
+        MultiSelectModule,
+        CardModule,
+        DividerModule,
+        ChipModule
     ],
     providers: [MessageService],
     templateUrl: './materials-create.component.html'
 })
 export class MaterialsCreateComponent implements OnInit {
+    loading = false;
 
     // Material data
-    material = {
+    material: MaterialCreateRequest = {
         title: '',
         description: '',
+        fileType: '',
         type: '',
-        fileUrl: ''
+        fileUrl: '',
+        uploaderId: '', // This should come from current user
+        active: true,
+        availabilityStartDate: '',
+        availabilityEndDate: '',
+        relations: []
     };
 
     // File upload
     selectedFile: File | null = null;
 
-    // Access control
-    accessControl = {
-        hasTimeLimit: false,
-        startDate: null,
-        endDate: null
-    };
-
-    // Distribution
-    distribution: {
-        selectedLevels: string[];
-        selectedClasses: string[];
-        selectedTurmas: string[];
-        selectedStudents: string[];
-    } = {
-        selectedLevels: [],
-        selectedClasses: [],
-        selectedTurmas: [],
-        selectedStudents: []
+    // Relations management
+    newRelation: MaterialRelation = {
+        relatedEntityType: '',
+        relatedEntityId: '',
+        description: '',
+        orderIndex: 1,
+        isRequired: true,
+        isActive: true
     };
 
     // Dropdown options
-    materialTypes: SelectItem[] = [
-        { label: 'PDF', value: 'pdf' },
-        { label: 'DOC', value: 'doc' },
-        { label: 'Video', value: 'video' },
-        { label: 'Áudio', value: 'audio' },
-        { label: 'Imagem', value: 'image' }
-    ];
+    fileTypeOptions: SelectItem[] = Object.values(MaterialType).map(type => ({
+        label: type,
+        value: type
+    }));
 
-    levels: SelectItem[] = [
-        { label: 'Básico', value: '1' },
-        { label: 'Intermediário', value: '2' },
-        { label: 'Avançado', value: '3' }
-    ];
+    contentTypeOptions: SelectItem[] = Object.values(MaterialContentType).map(type => ({
+        label: type.replace('_', ' '),
+        value: type
+    }));
 
-    classes: SelectItem[] = [
-        { label: 'Aula 1', value: 'aula-1' },
-        { label: 'Aula 2', value: 'aula-2' },
-        { label: 'Aula 3', value: 'aula-3' },
-        { label: 'Aula 4', value: 'aula-4' }
-    ];
+    relatedEntityTypeOptions: SelectItem[] = Object.values(RelatedEntityType).map(type => ({
+        label: type,
+        value: type
+    }));
 
-    turmas: SelectItem[] = [
-        { label: 'Turma A', value: 'turma-a' },
-        { label: 'Turma B', value: 'turma-b' },
-        { label: 'Turma C', value: 'turma-c' }
-    ];
+    // Real data for related entities
+    relatedEntities: { [key: string]: SelectItem[] } = {
+        [RelatedEntityType.STUDENT]: [],
+        [RelatedEntityType.LESSON]: [],
+        [RelatedEntityType.UNIT]: [],
+        [RelatedEntityType.ASSESSMENT]: [],
+        [RelatedEntityType.LEVEL]: [],
+        [RelatedEntityType.CENTER]: [],
+        [RelatedEntityType.EMPLOYEE]: [],
+        [RelatedEntityType.CONTRACT]: []
+    };
 
-    specificStudents: SelectItem[] = [
-        { label: 'Ana Silva', value: 'ana-silva' },
-        { label: 'João Santos', value: 'joao-santos' },
-        { label: 'Maria Costa', value: 'maria-costa' },
-        { label: 'Pedro Oliveira', value: 'pedro-oliveira' }
-    ];
+    // Loading states for each entity type
+    loadingEntities: { [key: string]: boolean } = {
+        [RelatedEntityType.STUDENT]: false,
+        [RelatedEntityType.LESSON]: false,
+        [RelatedEntityType.UNIT]: false,
+        [RelatedEntityType.ASSESSMENT]: false,
+        [RelatedEntityType.LEVEL]: false,
+        [RelatedEntityType.CENTER]: false,
+        [RelatedEntityType.EMPLOYEE]: false,
+        [RelatedEntityType.CONTRACT]: false
+    };
+
+    // Level selection for units
+    selectedLevelId: string = '';
+    levelOptions: SelectItem[] = [];
+    unitsByLevel: { [levelId: string]: Unit[] } = {};
 
     constructor(
         private messageService: MessageService,
-        private router: Router
+        private router: Router,
+        private materialService: MaterialService,
+        private studentService: StudentService,
+        private lessonService: LessonService,
+        private unitService: UnitService,
+        private assessmentService: AssessmentService,
+        private levelService: LevelService,
+        private centerService: CenterService,
+        private employeeService: EmployeeService,
+        private contractService: ContractService
     ) {}
 
     ngOnInit() {
-        // Auto-select level from navigation state (when coming from a specific level)
-        const nav = history.state as any;
-        if (nav?.levelId) {
-            const exists = this.levels.some(l => l.value === nav.levelId);
-            if (exists) {
-                this.distribution.selectedLevels = [nav.levelId];
+        // Set default uploader ID (in real app, get from auth service)
+        this.material.uploaderId = '2c42fc7c-5e3d-43f7-a3d8-cd13e0554cad';
+
+        // Set default dates
+        const today = new Date();
+        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+        this.material.availabilityStartDate = today.toISOString().split('T')[0];
+        this.material.availabilityEndDate = nextYear.toISOString().split('T')[0];
+
+        // Load all entity data
+        this.loadAllEntityData();
+    }
+
+    loadAllEntityData(): void {
+        this.loadStudents();
+        this.loadLessons();
+        this.loadUnits();
+        this.loadAssessments();
+        this.loadLevels();
+        this.loadCenters();
+        this.loadEmployees();
+        this.loadContracts();
+    }
+
+    loadStudents(): void {
+        this.loadingEntities[RelatedEntityType.STUDENT] = true;
+        this.studentService.getStudents().subscribe({
+            next: (students: Student[]) => {
+                this.relatedEntities[RelatedEntityType.STUDENT] = students.map(student => ({
+                    label: `${student.user?.firstname || ''} ${student.user?.lastname || ''} (ID: ${student.id})`,
+                    value: student.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.STUDENT] = false;
+            },
+            error: (error) => {
+                console.error('Error loading students:', error);
+                this.loadingEntities[RelatedEntityType.STUDENT] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar estudantes'
+                });
             }
+        });
+    }
+
+    loadLessons(): void {
+        this.loadingEntities[RelatedEntityType.LESSON] = true;
+        this.lessonService.getLessons().subscribe({
+            next: (lessons: Lesson[]) => {
+                this.relatedEntities[RelatedEntityType.LESSON] = lessons.map(lesson => ({
+                    label: `${lesson.title} (ID: ${lesson.id})`,
+                    value: lesson.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.LESSON] = false;
+            },
+            error: (error) => {
+                console.error('Error loading lessons:', error);
+                this.loadingEntities[RelatedEntityType.LESSON] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar aulas'
+                });
+            }
+        });
+    }
+
+    loadUnits(): void {
+        // Units will be loaded when a level is selected
+        this.loadingEntities[RelatedEntityType.UNIT] = false;
+    }
+
+    loadUnitsByLevel(levelId: string): void {
+        if (!levelId) {
+            this.relatedEntities[RelatedEntityType.UNIT] = [];
+            return;
         }
+
+        // Check if units for this level are already cached
+        if (this.unitsByLevel[levelId]) {
+            this.relatedEntities[RelatedEntityType.UNIT] = this.unitsByLevel[levelId].map(unit => ({
+                label: `${unit.name} (ID: ${unit.id})`,
+                value: unit.id || ''
+            }));
+            return;
+        }
+
+        this.loadingEntities[RelatedEntityType.UNIT] = true;
+        this.unitService.loadUnits().subscribe({
+            next: (units: Unit[]) => {
+                // Filter units by level
+                const levelUnits = units.filter(unit => unit.levelId === levelId);
+                this.unitsByLevel[levelId] = levelUnits;
+
+                this.relatedEntities[RelatedEntityType.UNIT] = levelUnits.map(unit => ({
+                    label: `${unit.name} (ID: ${unit.id})`,
+                    value: unit.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.UNIT] = false;
+            },
+            error: (error) => {
+                console.error('Error loading units for level:', error);
+                this.loadingEntities[RelatedEntityType.UNIT] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar unidades do nível'
+                });
+            }
+        });
+    }
+
+    loadAssessments(): void {
+        this.loadingEntities[RelatedEntityType.ASSESSMENT] = true;
+        this.assessmentService.getAssessments().subscribe({
+            next: (assessments: any[]) => {
+                this.relatedEntities[RelatedEntityType.ASSESSMENT] = assessments.map(assessment => ({
+                    label: `${assessment.title || 'Assessment'} (ID: ${assessment.id})`,
+                    value: assessment.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
+            },
+            error: (error) => {
+                console.error('Error loading assessments:', error);
+                this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar avaliações'
+                });
+            }
+        });
+    }
+
+    loadLevels(): void {
+        this.loadingEntities[RelatedEntityType.LEVEL] = true;
+        this.levelService.getLevels().subscribe({
+            next: (levels: any[]) => {
+                // Populate both level options and related entities
+                this.levelOptions = levels.map(level => ({
+                    label: `${level.name || 'Level'} (ID: ${level.id})`,
+                    value: level.id || ''
+                }));
+
+                this.relatedEntities[RelatedEntityType.LEVEL] = levels.map(level => ({
+                    label: `${level.name || 'Level'} (ID: ${level.id})`,
+                    value: level.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.LEVEL] = false;
+            },
+            error: (error) => {
+                console.error('Error loading levels:', error);
+                this.loadingEntities[RelatedEntityType.LEVEL] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar níveis'
+                });
+            }
+        });
+    }
+
+    loadCenters(): void {
+        this.loadingEntities[RelatedEntityType.CENTER] = true;
+        this.centerService.getAllCenters().subscribe({
+            next: (centers: Center[]) => {
+                this.relatedEntities[RelatedEntityType.CENTER] = centers.map(center => ({
+                    label: `${center.name} (ID: ${center.id})`,
+                    value: center.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.CENTER] = false;
+            },
+            error: (error) => {
+                console.error('Error loading centers:', error);
+                this.loadingEntities[RelatedEntityType.CENTER] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar centros'
+                });
+            }
+        });
+    }
+
+    loadEmployees(): void {
+        this.loadingEntities[RelatedEntityType.EMPLOYEE] = true;
+        this.employeeService.getEmployees().subscribe({
+            next: (employees: Employee[]) => {
+                this.relatedEntities[RelatedEntityType.EMPLOYEE] = employees.map(employee => ({
+                    label: `${employee.user?.firstname || ''} ${employee.user?.lastname || ''} (ID: ${employee.id})`,
+                    value: employee.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
+            },
+            error: (error) => {
+                console.error('Error loading employees:', error);
+                this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar funcionários'
+                });
+            }
+        });
+    }
+
+    loadContracts(): void {
+        this.loadingEntities[RelatedEntityType.CONTRACT] = true;
+        this.contractService.getContracts().subscribe({
+            next: (contracts: Contract[]) => {
+                this.relatedEntities[RelatedEntityType.CONTRACT] = contracts.map(contract => ({
+                    label: `Contract ${contract.id} (ID: ${contract.id})`,
+                    value: contract.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.CONTRACT] = false;
+            },
+            error: (error) => {
+                console.error('Error loading contracts:', error);
+                this.loadingEntities[RelatedEntityType.CONTRACT] = false;
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Aviso',
+                    detail: 'Erro ao carregar contratos'
+                });
+            }
+        });
     }
 
     onFileSelect(event: any): void {
@@ -126,15 +386,19 @@ export class MaterialsCreateComponent implements OnInit {
             // Auto-detect file type
             const fileName = this.selectedFile!.name.toLowerCase();
             if (fileName.includes('.pdf')) {
-                this.material.type = 'pdf';
+                this.material.fileType = MaterialType.PDF;
             } else if (fileName.includes('.doc') || fileName.includes('.docx')) {
-                this.material.type = 'doc';
-            } else if (fileName.includes('.mp4') || fileName.includes('.avi')) {
-                this.material.type = 'video';
+                this.material.fileType = MaterialType.DOCX;
+            } else if (fileName.includes('.mp3') || fileName.includes('.wav')) {
+                this.material.fileType = MaterialType.AUDIO;
+            } else if (fileName.includes('.ppt') || fileName.includes('.pptx')) {
+                this.material.fileType = MaterialType.PRESENTATION;
+            } else if (fileName.includes('.xls') || fileName.includes('.xlsx')) {
+                this.material.fileType = MaterialType.EXCEL;
             }
 
             // In real app, upload file and get URL
-            this.material.fileUrl = `uploads/${this.selectedFile!.name}`;
+            this.material.fileUrl = `https://example.com/uploads/${this.selectedFile!.name}`;
 
             this.messageService.add({
                 severity: 'success',
@@ -144,13 +408,15 @@ export class MaterialsCreateComponent implements OnInit {
         }
     }
 
-    onFileUpload(event: any): void {
-        // Handle file upload
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Upload Concluído',
-            detail: 'Material enviado com sucesso'
-        });
+    onFileTypeChange(): void {
+        // Clear file selection and URL when file type changes
+        this.selectedFile = null;
+        this.material.fileUrl = '';
+
+        // If video is selected, set a default URL placeholder
+        if (this.material.fileType === MaterialType.VIDEO) {
+            this.material.fileUrl = 'https://youtu.be/...';
+        }
     }
 
     onFileUploadError(event: any): void {
@@ -180,47 +446,197 @@ export class MaterialsCreateComponent implements OnInit {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    isFormValid(): boolean {
-        if (!this.material.title || !this.material.type) return false;
-        if (this.material.type === 'video') {
-            return !!this.material.fileUrl; // expecting a URL for videos
-        }
-        return !!this.selectedFile; // non-video requires a file
-    }
-
-    saveMaterial(): void {
-        if (!this.isFormValid()) {
+    addRelation(): void {
+        if (!this.newRelation.relatedEntityType || !this.newRelation.relatedEntityId || !this.newRelation.description) {
             this.messageService.add({
                 severity: 'error',
-                summary: 'Formulário Inválido',
-                detail: 'Por favor, preencha todos os campos obrigatórios'
+                summary: 'Campos Obrigatórios',
+                detail: 'Preencha todos os campos da relação'
             });
             return;
         }
 
-        // Create material object
-        const materialData = {
-            ...this.material,
-            accessControl: this.accessControl,
-            distribution: this.distribution
-        };
+        // Set order index
+        this.newRelation.orderIndex = this.material.relations.length + 1;
 
-        // In real app, save to service/API
-        console.log('Saving material:', materialData);
+        // Add relation to material
+        this.material.relations.push({ ...this.newRelation });
+
+        // Reset form
+        this.newRelation = {
+            relatedEntityType: '',
+            relatedEntityId: '',
+            description: '',
+            orderIndex: 1,
+            isRequired: true,
+            isActive: true
+        };
 
         this.messageService.add({
             severity: 'success',
-            summary: 'Material Salvo',
-            detail: 'Material didático foi salvo com sucesso'
+            summary: 'Relação Adicionada',
+            detail: 'Relação foi adicionada com sucesso'
+        });
+    }
+
+    removeRelation(index: number): void {
+        this.material.relations.splice(index, 1);
+        // Update order indices
+        this.material.relations.forEach((relation, idx) => {
+            relation.orderIndex = idx + 1;
+        });
+    }
+
+    getRelatedEntityOptions(): SelectItem[] {
+        return this.relatedEntities[this.newRelation.relatedEntityType] || [];
+    }
+
+    isEntityLoading(entityType: string): boolean {
+        return this.loadingEntities[entityType] || false;
+    }
+
+    getEntityCount(entityType: string): number {
+        return this.relatedEntities[entityType]?.length || 0;
+    }
+
+    onEntityTypeChange(): void {
+        // Clear related entity selection when type changes
+        this.newRelation.relatedEntityId = '';
+        this.selectedLevelId = '';
+
+        // If UNIT is selected, clear units list
+        if (this.newRelation.relatedEntityType === RelatedEntityType.UNIT) {
+            this.relatedEntities[RelatedEntityType.UNIT] = [];
+        }
+    }
+
+    onLevelChange(): void {
+        // Clear unit selection when level changes
+        this.newRelation.relatedEntityId = '';
+
+        // Load units for the selected level
+        if (this.newRelation.relatedEntityType === RelatedEntityType.UNIT) {
+            this.loadUnitsByLevel(this.selectedLevelId);
+        }
+    }
+
+    isUnitEntityType(): boolean {
+        return this.newRelation.relatedEntityType === RelatedEntityType.UNIT;
+    }
+
+    shouldShowLevelSelection(): boolean {
+        return this.isUnitEntityType() && this.levelOptions.length > 0;
+    }
+
+    getRelatedEntityPlaceholder(): string {
+        if (this.isEntityLoading(this.newRelation.relatedEntityType)) {
+            return 'Carregando...';
+        }
+
+        if (this.isUnitEntityType()) {
+            if (!this.selectedLevelId) {
+                return 'Selecione um nível primeiro';
+            }
+            return 'Selecione a unidade';
+        }
+
+        return 'Selecione a entidade';
+    }
+
+    isRelatedEntityDisabled(): boolean {
+        if (!this.newRelation.relatedEntityType || this.isEntityLoading(this.newRelation.relatedEntityType)) {
+            return true;
+        }
+
+        if (this.isUnitEntityType()) {
+            return !this.selectedLevelId;
+        }
+
+        return false;
+    }
+
+    isAddRelationButtonEnabled(): boolean {
+        if (!this.newRelation.relatedEntityType || !this.newRelation.relatedEntityId || !this.newRelation.description) {
+            return false;
+        }
+
+        if (this.isUnitEntityType()) {
+            return !!this.selectedLevelId;
+        }
+
+        return true;
+    }
+
+    isFormValid(): boolean {
+        const basicFieldsValid = !!(
+            this.material.title &&
+            this.material.description &&
+            this.material.fileType &&
+            this.material.type &&
+            this.material.fileUrl &&
+            this.material.uploaderId &&
+            this.material.availabilityStartDate &&
+            this.material.availabilityEndDate &&
+            this.material.relations.length > 0
+        );
+
+        // For video files, only URL is required
+        if (this.material.fileType === MaterialType.VIDEO) {
+            return basicFieldsValid && !!this.material.fileUrl && this.material.fileUrl !== 'https://youtu.be/...';
+        }
+
+        // For other file types, require actual file upload
+        return basicFieldsValid && !!this.selectedFile;
+    }
+
+    isVideoFileType(): boolean {
+        return this.material.fileType === MaterialType.VIDEO;
+    }
+
+    saveMaterial(): void {
+        if (!this.isFormValid()) {
+        const message = this.material.fileType === MaterialType.VIDEO
+            ? 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e informe uma URL válida para o vídeo'
+            : 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e faça upload de um arquivo';
+
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Formulário Inválido',
+            detail: message
+            });
+            return;
+        }
+
+        this.loading = true;
+
+        this.materialService.createMaterialWithRelations(this.material).subscribe({
+            next: (createdMaterial) => {
+                this.loading = false;
+        this.messageService.add({
+            severity: 'success',
+                    summary: 'Material Criado',
+                    detail: 'Material foi criado com sucesso!'
         });
 
         // Navigate back to list
         setTimeout(() => {
             this.router.navigate(['/schoolar/materials']);
         }, 2000);
+            },
+            error: (error) => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro ao Criar Material',
+                    detail: error.message || 'Erro desconhecido ao criar material'
+                });
+            }
+        });
     }
 
     cancel(): void {
         this.router.navigate(['/schoolar/materials']);
     }
+
+    protected readonly RelatedEntityType = RelatedEntityType;
 }

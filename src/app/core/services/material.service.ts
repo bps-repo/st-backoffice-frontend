@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Material } from '../models/academic/material';
+import { Material, MaterialCreateRequest } from '../models/academic/material';
 import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 @Injectable({
@@ -65,6 +65,29 @@ export class MaterialService {
   getMaterialsByUploader(uploaderId: string): Observable<Material[]> {
     return this.http.get<ApiResponse<PageableResponse<Material[]>>>(`${this.apiUrl}/by-uploader/${uploaderId}`).pipe(
       map((response) => response.data.content as Material[])
+    );
+  }
+
+  /**
+   * Creates a new material with relations.
+   * @param material The material data with relations to create.
+   * @returns An observable containing the created Material object with relations.
+   */
+  createMaterialWithRelations(material: MaterialCreateRequest): Observable<Material> {
+    return this.http.post<ApiResponse<Material>>(`${this.apiUrl}/create-with-relations`, material).pipe(
+      map((response) => response.data as Material)
+    );
+  }
+
+  /**
+   * Gets materials by entity type and ID (for material relations).
+   * @param entityType The type of entity (LEVEL, UNIT, etc.).
+   * @param entityId The ID of the entity.
+   * @returns An observable containing an array of Material objects.
+   */
+  getMaterialsByEntity(entityType: string, entityId: string): Observable<Material[]> {
+    return this.http.get<ApiResponse<Material[]>>(`${environment.apiUrl}/material-relations/entity/${entityType}/${entityId}`).pipe(
+      map((response) => response.data as Material[])
     );
   }
 }

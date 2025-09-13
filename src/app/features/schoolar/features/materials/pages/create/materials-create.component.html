@@ -1,241 +1,218 @@
 <p-toast></p-toast>
 <div class="grid p-5">
     <div class="col-12 flex-column items-center mb-4">
-        <h2 class="font-bold text-2xl mb-4">Upload de Materiais</h2>
-        <span class="text-lg">Biblioteca digital com controle de acesso</span>
+        <h2 class="font-bold text-2xl mb-4">Criar Material</h2>
+        <span class="text-lg">Criar material com relacionamentos</span>
     </div>
 
     <div class="grid">
-        <!-- UPLOAD SECTION -->
+        <!-- MATERIAL BASIC INFO SECTION -->
         <div class="col-12 lg:col-12">
-            <div class="grid formgrid p-fluid">
-                <div class="field card mb-6 col-12 md:col-12 p-5">
-                    <div class="grid">
-                        <div class="col-12 md:col-6">
-                            <label for="title" class="font-medium text-900">Título do Material</label>
-                            <input
-                                id="title"
-                                type="text"
-                                pInputText
-                                [(ngModel)]="material.title"
-                                placeholder="English Grammar Guide"
-                            />
-                        </div>
-                        <div class="col-12 md:col-6">
-                            <label for="materialType" class="font-medium text-900">Tipo de Material</label>
-                            <p-dropdown
-                                id="materialType"
-                                [options]="materialTypes"
-                                [(ngModel)]="material.type"
-                                optionLabel="label"
-                                optionValue="value"
-                                placeholder="PDF"
-                            ></p-dropdown>
-                        </div>
+            <p-card header="Informações Básicas do Material" class="mb-4">
+                <div class="grid formgrid p-fluid">
+                    <div class="col-12 md:col-6 mb-2">
+                        <label for="title" class="font-medium text-900">Título do Material *</label>
+                        <input id="title" type="text" pInputText [(ngModel)]="material.title"
+                            placeholder="Ex: Questionário de Gramática" required />
                     </div>
+                    <div class="col-12 md:col-6 mb-2">
+                        <label for="description" class="font-medium text-900">Descrição *</label>
+                        <input id="description" type="text" pInputText [(ngModel)]="material.description"
+                            placeholder="Ex: Questionário da aula de ontem" required />
+                    </div>
+                    <div class="col-12 md:col-6 mb-2">
+                        <label for="fileType" class="font-medium text-900">Tipo de Arquivo *</label>
+                        <p-dropdown id="fileType" [options]="fileTypeOptions" [(ngModel)]="material.fileType"
+                            optionLabel="label" optionValue="value" placeholder="Selecione o tipo de arquivo"
+                            (onChange)="onFileTypeChange()"></p-dropdown>
+                    </div>
+                    <div class="col-12 md:col-6 mb-2">
+                        <label for="contentType" class="font-medium text-900">Tipo de Conteúdo *</label>
+                        <p-dropdown id="contentType" [options]="contentTypeOptions" [(ngModel)]="material.type"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Selecione o tipo de conteúdo"></p-dropdown>
+                    </div>
+                    <div class="col-12 mb-2" *ngIf="isVideoFileType()">
+                        <label for="fileUrl" class="font-medium text-900">URL do Vídeo *</label>
+                        <div class="p-inputgroup">
+                            <span class="p-inputgroup-addon">
+                                <i class="pi pi-video"></i>
+                            </span>
+                            <input id="fileUrl" type="url" pInputText [(ngModel)]="material.fileUrl"
+                                placeholder="https://youtu.be/... ou https://vimeo.com/..." required />
+                        </div>
+                        <small class="text-gray-500">Informe a URL pública do vídeo (YouTube, Vimeo, etc.)</small>
+                    </div>
+                </div>
+            </p-card>
+        </div>
 
-                    <div class="field mt-3">
-                        <label for="description" class="font-medium text-900">Descrição</label>
-                        <textarea
-                            id="description"
-                            pInputTextarea
-                            rows="3"
-                            [(ngModel)]="material.description"
-                            placeholder="Descrição do material"
-                        ></textarea>
-                    </div>
-
-                    <label class="font-medium text-900 mb-3">{{ material.type === 'video' ? 'Link do Vídeo' : 'Arquivo' }}</label>
-                    <div *ngIf="material.type === 'video'; else fileUploadTpl_bottom" class="grid">
-                        <div class="col-12 md:col-8">
-                            <input
-                                type="url"
-                                pInputText
-                                [(ngModel)]="material.fileUrl"
-                                placeholder="https://youtu.be/... ou https://vimeo.com/..."
-                            />
-                        </div>
-                        <div class="col-12 text-color-secondary">
-                            Informe a URL pública do vídeo (YouTube, Vimeo, etc.).
-                        </div>
-                    </div>
-                    <ng-template #fileUploadTpl_bottom>
-                        <p-fileUpload
-                            #fileUploader
-                            name="material[]"
-                            accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,video/mp4,video/avi"
-                            [maxFileSize]="524288000"
-                            (onSelect)="onFileSelect($event)"
-                            (onUpload)="onFileUpload($event)"
-                            (onError)="onFileUploadError($event)"
-                            [customUpload]="true"
-                            [auto]="false"
-                            chooseLabel="Clique para selecionar um arquivo ou arraste aqui"
-                            [showUploadButton]="false"
-                            [showCancelButton]="false"
-                        >
-                            <ng-template pTemplate="content">
-                                <div
-                                    class="w-full py-8 border-2 border-dashed border-gray-300 flex justify-content-center align-items-center hover:bg-gray-50 transition-duration-100 cursor-pointer"
-                                    (click)="fileUploader.advancedFileInput.nativeElement.click()"
-                                >
-                                    <div
-                                        *ngIf="!selectedFile"
-                                        class="h-full flex flex-column justify-content-center align-items-center"
-                                    >
-                                        <i class="pi pi-upload text-gray-500 text-4xl mb-3"></i>
-                                        <span class="text-gray-600 text-lg text-center mb-1">Clique para selecionar um arquivo ou arraste aqui</span>
-                                        <span class="text-gray-500 text-sm text-center">Suporta: PDF, DOC, MP4, AVI, MOV (máx 500MB)</span>
-                                    </div>
-                                    <div *ngIf="selectedFile" class="flex align-items-center gap-3">
-                                        <i class="pi pi-file text-primary text-2xl"></i>
-                                        <div>
-                                            <p class="m-0 font-medium">{{selectedFile.name}}</p>
-                                            <p class="m-0 text-sm text-gray-500">{{formatFileSize(selectedFile.size)}}</p>
-                                        </div>
-                                        <button
-                                            pButton
-                                            pRipple
-                                            icon="pi pi-times"
-                                            class="p-button-rounded p-button-text p-button-sm"
-                                            (click)="removeFile($event)"
-                                        ></button>
-                                    </div>
+        <!-- FILE UPLOAD SECTION -->
+        <div class="col-12 lg:col-12" *ngIf="!isVideoFileType()">
+            <p-card header="Upload de Arquivo" class="mb-4">
+                <p-fileUpload #fileUploader name="material[]"
+                    accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,audio/mp3,audio/wav,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    [maxFileSize]="524288000" (onSelect)="onFileSelect($event)" (onError)="onFileUploadError($event)"
+                    [customUpload]="true" [auto]="false" chooseLabel="Selecionar Arquivo" [showUploadButton]="false"
+                    [showCancelButton]="false">
+                    <ng-template pTemplate="content">
+                        <div class="w-full py-8 border-2 border-dashed border-gray-300 flex justify-content-center align-items-center hover:bg-gray-50 transition-duration-100 cursor-pointer"
+                            (click)="fileUploader.advancedFileInput.nativeElement.click()">
+                            <div *ngIf="!selectedFile"
+                                class="h-full flex flex-column justify-content-center align-items-center">
+                                <i class="pi pi-upload text-gray-500 text-4xl mb-3"></i>
+                                <span class="text-gray-600 text-lg text-center mb-1">Clique para selecionar um
+                                    arquivo</span>
+                                <span class="text-gray-500 text-sm text-center">Suporta: PDF, DOCX, MP3, PPTX, XLSX (máx
+                                    500MB)</span>
+                            </div>
+                            <div *ngIf="selectedFile" class="flex align-items-center gap-3">
+                                <i class="pi pi-file text-primary text-2xl"></i>
+                                <div>
+                                    <p class="m-0 font-medium">{{selectedFile.name}}</p>
+                                    <p class="m-0 text-sm text-gray-500">{{formatFileSize(selectedFile.size)}}</p>
                                 </div>
-                            </ng-template>
-                        </p-fileUpload>
+                                <button pButton pRipple icon="pi pi-times"
+                                    class="p-button-rounded p-button-text p-button-sm"
+                                    (click)="removeFile($event)"></button>
+                            </div>
+                        </div>
                     </ng-template>
-                </div>
-            </div>
+                </p-fileUpload>
+            </p-card>
         </div>
 
-        <!-- ACCESS CONTROL SECTION -->
+        <!-- AVAILABILITY SECTION -->
         <div class="col-12 lg:col-12">
-            <div class="card p-5 mb-4">
-                <h3 class="text-xl font-bold mb-4">Controle de Acesso</h3>
-
-                <div class="field">
-                    <div class="flex align-items-center gap-3">
-                        <label for="accessLimit" class="font-medium text-900">Limite de Tempo</label>
-                        <p-inputSwitch
-                            id="accessLimit"
-                            [(ngModel)]="accessControl.hasTimeLimit"
-                        ></p-inputSwitch>
-                    </div>
-                    <small class="text-gray-500">Definir prazo para acesso ao material</small>
-                </div>
-
-                <div *ngIf="accessControl.hasTimeLimit" class="grid mt-3">
+            <p-card header="Disponibilidade" class="mb-4">
+                <div class="grid formgrid p-fluid">
                     <div class="col-12 md:col-6">
-                        <label for="startDate" class="font-medium text-900">Data de Início</label>
-                        <p-calendar
-                            id="startDate"
-                            [(ngModel)]="accessControl.startDate"
-                            [showIcon]="true"
-                            dateFormat="dd/mm/yy"
-                        ></p-calendar>
+                        <label for="startDate" class="font-medium text-900">Data de Início *</label>
+                        <p-calendar id="startDate" [(ngModel)]="material.availabilityStartDate" [showIcon]="true"
+                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
                     </div>
                     <div class="col-12 md:col-6">
-                        <label for="endDate" class="font-medium text-900">Data de Fim</label>
-                        <p-calendar
-                            id="endDate"
-                            [(ngModel)]="accessControl.endDate"
-                            [showIcon]="true"
-                            dateFormat="dd/mm/yy"
-                        ></p-calendar>
+                        <label for="endDate" class="font-medium text-900">Data de Fim *</label>
+                        <p-calendar id="endDate" [(ngModel)]="material.availabilityEndDate" [showIcon]="true"
+                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
+                    </div>
+                    <div class="col-12">
+                        <div class="flex align-items-center gap-3">
+                            <label for="active" class="font-medium text-900">Material Ativo</label>
+                            <p-inputSwitch id="active" [(ngModel)]="material.active"></p-inputSwitch>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </p-card>
         </div>
 
-        <!-- DISTRIBUTION SECTION -->
+        <!-- RELATIONS SECTION -->
         <div class="col-12 lg:col-12">
-            <div class="card p-5 mb-4">
-                <h3 class="text-xl font-bold mb-4">Distribuição</h3>
+            <p-card header="Relacionamentos" class="mb-4">
+                <p-divider></p-divider>
 
-                <!-- Levels -->
-                <div class="field">
-                    <label class="font-medium text-900 mb-2 block">Níveis</label>
-                    <div class="flex flex-wrap gap-2">
-                        <div *ngFor="let level of levels" class="field-checkbox">
-                            <p-checkbox
-                                [inputId]="'level-' + level.value"
-                                name="levels"
-                                [value]="level.value"
-                                [(ngModel)]="distribution.selectedLevels"
-                            ></p-checkbox>
-                            <label [for]="'level-' + level.value" class="ml-2">{{level.label}}</label>
+                <!-- Add New Relation Form -->
+                <div class="grid formgrid p-fluid mb-4">
+                    <div class="col-12">
+                        <h4 class="text-lg font-semibold mb-3">Adicionar Nova Relação</h4>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <label for="relationType" class="font-medium text-900">Tipo de Entidade *</label>
+                        <p-dropdown id="relationType" [options]="relatedEntityTypeOptions"
+                            [(ngModel)]="newRelation.relatedEntityType" optionLabel="label" optionValue="value"
+                            placeholder="Selecione o tipo" (onChange)="onEntityTypeChange()"></p-dropdown>
+                    </div>
+
+                    <!-- Level Selection for Units -->
+                    <div class="col-12 md:col-4" *ngIf="shouldShowLevelSelection()">
+                        <label for="levelSelection" class="font-medium text-900">Selecionar Nível *</label>
+                        <p-dropdown id="levelSelection" [options]="levelOptions" [(ngModel)]="selectedLevelId"
+                            optionLabel="label" optionValue="value" placeholder="Selecione o nível"
+                            (onChange)="onLevelChange()"
+                            [disabled]="isEntityLoading(RelatedEntityType.LEVEL)"></p-dropdown>
+                        <small *ngIf="!isEntityLoading(RelatedEntityType.LEVEL)" class="text-gray-500">
+                            {{levelOptions.length}} níveis disponíveis
+                        </small>
+                    </div>
+
+                    <div class="col-12 md:col-4">
+                        <label for="relatedEntity" class="font-medium text-900">Entidade Relacionada *</label>
+                        <p-dropdown id="relatedEntity" [options]="getRelatedEntityOptions()"
+                            [(ngModel)]="newRelation.relatedEntityId" optionLabel="label" optionValue="value"
+                            [placeholder]="getRelatedEntityPlaceholder()"
+                            [disabled]="isRelatedEntityDisabled()"></p-dropdown>
+                        <small *ngIf="newRelation.relatedEntityType && !isEntityLoading(newRelation.relatedEntityType)"
+                            class="text-gray-500">
+                            {{getEntityCount(newRelation.relatedEntityType)}}
+                            {{newRelation.relatedEntityType.toLowerCase()}}s disponíveis
+                        </small>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <label for="relationDescription" class="font-medium text-900">Descrição *</label>
+                        <input id="relationDescription" type="text" pInputText [(ngModel)]="newRelation.description"
+                            placeholder="Ex: Adicionando quest ao aluno" required />
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="flex align-items-center gap-3">
+                            <label for="isRequired" class="font-medium text-900">Obrigatório</label>
+                            <p-inputSwitch id="isRequired" [(ngModel)]="newRelation.isRequired"></p-inputSwitch>
                         </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="flex align-items-center gap-3">
+                            <label for="isActive" class="font-medium text-900">Ativo</label>
+                            <p-inputSwitch id="isActive" [(ngModel)]="newRelation.isActive"></p-inputSwitch>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button pButton pRipple label="Adicionar Relação" icon="pi pi-plus" class="p-button-success"
+                            (click)="addRelation()" [disabled]="!isAddRelationButtonEnabled()"></button>
                     </div>
                 </div>
 
-                <!-- Classes -->
-                <div class="field">
-                    <label class="font-medium text-900 mb-2 block">Aulas</label>
-                    <div class="flex flex-wrap gap-2">
-                        <div *ngFor="let classItem of classes" class="field-checkbox">
-                            <p-checkbox
-                                [inputId]="'class-' + classItem.value"
-                                name="classes"
-                                [value]="classItem.value"
-                                [(ngModel)]="distribution.selectedClasses"
-                            ></p-checkbox>
-                            <label [for]="'class-' + classItem.value" class="ml-2">{{classItem.label}}</label>
-                        </div>
-                    </div>
-                </div>
+                <p-divider></p-divider>
 
-                <!-- Classes -->
-                <div class="field">
-                    <label class="font-medium text-900 mb-2 block">Turmas</label>
-                    <div class="flex flex-wrap gap-2">
-                        <div *ngFor="let turma of turmas" class="field-checkbox">
-                            <p-checkbox
-                                [inputId]="'turma-' + turma.value"
-                                name="turmas"
-                                [value]="turma.value"
-                                [(ngModel)]="distribution.selectedTurmas"
-                            ></p-checkbox>
-                            <label [for]="'turma-' + turma.value" class="ml-2">{{turma.label}}</label>
-                        </div>
+                <!-- Relations List -->
+                <div class="col-12">
+                    <h4 class="text-lg font-semibold mb-3">Relações Adicionadas ({{material.relations.length}})</h4>
+                    <div *ngIf="material.relations.length === 0" class="text-center text-gray-500 py-4">
+                        Nenhuma relação adicionada ainda
+                    </div>
+                    <div *ngIf="isEntityLoading(newRelation.relatedEntityType) && newRelation.relatedEntityType"
+                        class="text-center text-blue-500 py-2">
+                        <i class="pi pi-spin pi-spinner mr-2"></i>
+                        Carregando {{newRelation.relatedEntityType.toLowerCase()}}s...
+                    </div>
+                    <div *ngFor="let relation of material.relations; let i = index" class="mb-3">
+                        <p-card [style]="{'margin-bottom': '0.5rem'}">
+                            <div class="flex justify-content-between align-items-center">
+                                <div class="flex align-items-center gap-3">
+                                    <p-chip [label]="relation.relatedEntityType"
+                                        [style]="{'background-color': '#e3f2fd', 'color': '#1976d2'}"></p-chip>
+                                    <span class="font-medium">{{relation.description}}</span>
+                                    <span class="text-sm text-gray-500">(ID: {{relation.relatedEntityId}})</span>
+                                    <p-chip *ngIf="relation.isRequired" label="Obrigatório"
+                                        [style]="{'background-color': '#fff3e0', 'color': '#f57c00'}"></p-chip>
+                                    <p-chip *ngIf="!relation.isActive" label="Inativo"
+                                        [style]="{'background-color': '#ffebee', 'color': '#d32f2f'}"></p-chip>
+                                </div>
+                                <button pButton pRipple icon="pi pi-trash"
+                                    class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                    (click)="removeRelation(i)"></button>
+                            </div>
+                        </p-card>
                     </div>
                 </div>
-
-                <!-- Specific Students -->
-                <div class="field">
-                    <label class="font-medium text-900 mb-2 block">Alunos Específicos</label>
-                    <div class="flex flex-wrap gap-2">
-                        <div *ngFor="let student of specificStudents" class="field-checkbox">
-                            <p-checkbox
-                                [inputId]="'student-' + student.value"
-                                name="students"
-                                [value]="student.value"
-                                [(ngModel)]="distribution.selectedStudents"
-                            ></p-checkbox>
-                            <label [for]="'student-' + student.value" class="ml-2">{{student.label}}</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </p-card>
         </div>
 
         <!-- ACTION BUTTONS -->
         <div class="col-12">
             <div class="flex justify-content-end gap-3">
-                <button
-                    pButton
-                    pRipple
-                    label="Cancelar"
-                    class="p-button-outlined"
-                    (click)="cancel()"
-                ></button>
-                <button
-                    pButton
-                    pRipple
-                    label="Atualizar Material"
-                    [disabled]="!isFormValid()"
-                    (click)="saveMaterial()"
-                ></button>
+                <button pButton pRipple label="Cancelar" class="p-button-outlined" (click)="cancel()"
+                    [disabled]="loading"></button>
+                <button pButton pRipple label="Criar Material" icon="pi pi-save" [disabled]="!isFormValid() || loading"
+                    [loading]="loading" (click)="saveMaterial()"></button>
             </div>
         </div>
     </div>
