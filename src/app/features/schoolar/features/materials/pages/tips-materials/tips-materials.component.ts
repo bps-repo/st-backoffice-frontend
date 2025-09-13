@@ -6,6 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { Material } from 'src/app/core/models/academic/material';
+import { VideoModalComponent } from 'src/app/shared/components/video-modal/video-modal.component';
+import { isValidYouTubeUrl } from 'src/app/shared/utils/youtube.utils';
 
 @Component({
   selector: 'app-tips-materials',
@@ -15,7 +17,8 @@ import { Material } from 'src/app/core/models/academic/material';
     CardModule,
     ButtonModule,
     TagModule,
-    TooltipModule
+    TooltipModule,
+    VideoModalComponent
   ],
   template: `
     <div class="grid">
@@ -63,6 +66,14 @@ import { Material } from 'src/app/core/models/academic/material';
                 <div class="flex gap-1">
                   <button
                     pButton
+                    icon="pi pi-play"
+                    class="p-button-text p-button-sm"
+                    (click)="playVideo(material)"
+                    pTooltip="Reproduzir vídeo"
+                    *ngIf="isVideo(material)"
+                  ></button>
+                  <button
+                    pButton
                     icon="pi pi-eye"
                     class="p-button-text p-button-sm"
                     (click)="viewMaterial(material)"
@@ -94,6 +105,16 @@ import { Material } from 'src/app/core/models/academic/material';
       </div>
     </div>
 
+    <!-- Video Modal -->
+    <app-video-modal
+      [visible]="showVideoModal"
+      [videoUrl]="selectedVideoUrl"
+      [videoTitle]="selectedVideoTitle"
+      [videoDescription]="selectedVideoDescription"
+      [autoplay]="true"
+      (onCloseEvent)="closeVideoModal()"
+    ></app-video-modal>
+
     <style>
       .material-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -109,6 +130,12 @@ export class TipsMaterialsComponent implements OnInit {
   levelId: string = '';
   levelName: string = '';
   tipsMaterials: Material[] = [];
+
+  // Video modal properties
+  showVideoModal: boolean = false;
+  selectedVideoUrl: string = '';
+  selectedVideoTitle: string = '';
+  selectedVideoDescription: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -171,5 +198,25 @@ export class TipsMaterialsComponent implements OnInit {
     if (material.fileUrl) {
       window.open(material.fileUrl, '_blank');
     }
+  }
+
+  isVideo(material: Material): boolean {
+    return material.fileType === 'VIDEO' && isValidYouTubeUrl(material.fileUrl);
+  }
+
+  playVideo(material: Material): void {
+    if (this.isVideo(material)) {
+      this.selectedVideoUrl = material.fileUrl;
+      this.selectedVideoTitle = material.title;
+      this.selectedVideoDescription = material.description;
+      this.showVideoModal = true;
+    }
+  }
+
+  closeVideoModal(): void {
+    this.showVideoModal = false;
+    this.selectedVideoUrl = '';
+    this.selectedVideoTitle = '';
+    this.selectedVideoDescription = '';
   }
 }

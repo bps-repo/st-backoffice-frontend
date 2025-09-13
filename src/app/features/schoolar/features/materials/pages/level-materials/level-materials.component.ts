@@ -14,19 +14,24 @@ import { Level } from 'src/app/core/models/course/level';
 import { Unit } from 'src/app/core/models/course/unit';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { VideoModalComponent } from 'src/app/shared/components/video-modal/video-modal.component';
+import { isValidYouTubeUrl } from 'src/app/shared/utils/youtube.utils';
+import { YoutubeTestComponent } from 'src/app/shared/components/youtube-test/youtube-test.component';
 
 @Component({
-  selector: 'app-level-materials',
-  standalone: true,
-  imports: [
-    CommonModule,
-    CardModule,
-    ButtonModule,
-    TagModule,
-    TooltipModule,
-    ProgressSpinnerModule
-  ],
-  template: `
+    selector: 'app-level-materials',
+    standalone: true,
+    imports: [
+        CommonModule,
+        CardModule,
+        ButtonModule,
+        TagModule,
+        TooltipModule,
+        ProgressSpinnerModule,
+        VideoModalComponent,
+        YoutubeTestComponent
+    ],
+    template: `
     <div class="grid">
       <!-- Header -->
       <div class="col-12 mb-4">
@@ -118,27 +123,35 @@ import { catchError, map } from 'rxjs/operators';
                   </div>
                 </div>
 
-                <div class="flex justify-content-between align-items-center">
-                  <span class="text-sm text-gray-500">
-                    {{ formatDate(material.availabilityStartDate) }} - {{ formatDate(material.availabilityEndDate) }}
-                  </span>
-                  <div class="flex gap-1">
-                    <button
-                      pButton
-                      icon="pi pi-eye"
-                      class="p-button-text p-button-sm"
-                      (click)="viewMaterial(material)"
-                      pTooltip="Ver detalhes"
-                    ></button>
-                    <button
-                      pButton
-                      icon="pi pi-download"
-                      class="p-button-text p-button-sm"
-                      (click)="downloadMaterial(material)"
-                      pTooltip="Baixar"
-                    ></button>
-                  </div>
-                </div>
+                    <div class="flex justify-content-between align-items-center">
+                      <span class="text-sm text-gray-500">
+                        {{ formatDate(material.availabilityStartDate) }} - {{ formatDate(material.availabilityEndDate) }}
+                      </span>
+                      <div class="flex gap-1">
+                        <button
+                          pButton
+                          icon="pi pi-play"
+                          class="p-button-text p-button-sm"
+                          (click)="playVideo(material)"
+                          pTooltip="Reproduzir vídeo"
+                          *ngIf="isVideo(material)"
+                        ></button>
+                        <button
+                          pButton
+                          icon="pi pi-eye"
+                          class="p-button-text p-button-sm"
+                          (click)="viewMaterial(material)"
+                          pTooltip="Ver detalhes"
+                        ></button>
+                        <button
+                          pButton
+                          icon="pi pi-download"
+                          class="p-button-text p-button-sm"
+                          (click)="downloadMaterial(material)"
+                          pTooltip="Baixar"
+                        ></button>
+                      </div>
+                    </div>
               </p-card>
             </div>
           </div>
@@ -156,6 +169,21 @@ import { catchError, map } from 'rxjs/operators';
         </p-card>
       </div>
     </div>
+
+    <!-- YouTube Test Component (Temporary) -->
+    <div class="col-12 mb-4">
+      <app-youtube-test></app-youtube-test>
+    </div>
+
+    <!-- Video Modal -->
+    <app-video-modal
+      [visible]="showVideoModal"
+      [videoUrl]="selectedVideoUrl"
+      [videoTitle]="selectedVideoTitle"
+      [videoDescription]="selectedVideoDescription"
+      [autoplay]="true"
+      (onCloseEvent)="closeVideoModal()"
+    ></app-video-modal>
 
     <style>
       .card-hover {
@@ -176,129 +204,173 @@ import { catchError, map } from 'rxjs/operators';
   `
 })
 export class LevelMaterialsComponent implements OnInit {
-  levelId: string = '';
-  levelName: string = '';
-  levelMaterials: Material[] = [];
-  units: Unit[] = [];
-  loading: boolean = true;
-  tipsCount: number = 0;
-  unitsCount: number = 0;
+    levelId: string = '';
+    levelName: string = '';
+    levelMaterials: Material[] = [];
+    units: Unit[] = [];
+    loading: boolean = true;
+    tipsCount: number = 0;
+    unitsCount: number = 0;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private materialService: MaterialService,
-    private levelService: LevelService,
-    private unitService: UnitService
-  ) {}
+    // Video modal properties
+    showVideoModal: boolean = false;
+    selectedVideoUrl: string = '';
+    selectedVideoTitle: string = '';
+    selectedVideoDescription: string = '';
 
-  ngOnInit(): void {
-    this.levelId = this.route.snapshot.paramMap.get('levelId') || '';
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private materialService: MaterialService,
+        private levelService: LevelService,
+        private unitService: UnitService
+    ) { }
 
-    if (this.levelId) {
-      this.loadLevelData();
+    ngOnInit(): void {
+        this.levelId = this.route.snapshot.paramMap.get('levelId') || '';
+
+        if (this.levelId) {
+            this.loadLevelData();
+        } else {
+            this.loading = false;
+        }
+    }
+
+    private loadLevelData(): void {
+        if (!this.levelId) {
+            this.loading = false;
+            return;
+        }
+
+        this.loading = true;
+
+        // Load level information
+        this.levelService.getLevelById(this.levelId).subscribe({
+            next: (level) => {
+                this.levelName = level?.name || 'Nível';
+            },
+            error: () => {
+                this.levelName = 'Nível';
+            }
+        });
+
+        // Load level materials and units in parallel
+        forkJoin({
+            materials: this.materialService.getMaterialsByEntity('LEVEL', this.levelId).pipe(
+                catchError(() => of([]))
+            ),
+            units: this.unitService.loadUnits().pipe(
+                map(units => units.filter(unit => unit.levelId === this.levelId)),
+                catchError(() => of([]))
+            )
+        }).subscribe({
+            next: (data) => {
+                this.levelMaterials = data.materials;
+                this.units = data.units;
+                this.unitsCount = data.units.length;
+                this.tipsCount = data.materials.filter(m => m.type === 'TIPS').length;
+                this.loading = false;
+            },
+            error: (error) => {
+                console.error('Error loading level data:', error);
+                this.loading = false;
+            }
+        });
+    }
+
+    goToTips(): void {
+        // Filter materials by TIPS type and navigate to a tips view
+        const tipsMaterials = this.levelMaterials.filter(m => m.type === 'TIPS');
+        this.router.navigate(['/schoolar/materials/level', this.levelId, 'tips'], {
+            state: { materials: tipsMaterials, levelName: this.levelName }
+        });
+    }
+
+    goToUnits(): void {
+        this.router.navigate(['/schoolar/materials/level', this.levelId, 'units'], {
+            state: { units: this.units, levelName: this.levelName }
+        });
+    }
+
+    goBack(): void {
+        this.router.navigate(['/schoolar/materials']);
+    }
+
+    getIconForType(fileType: string | undefined): string {
+        if (!fileType) {
+            return 'pi pi-file text-gray-500';
+        }
+
+        switch (fileType) {
+            case 'PDF':
+                return 'pi pi-file-pdf text-red-500';
+            case 'VIDEO':
+                return 'pi pi-video text-blue-500';
+            case 'AUDIO':
+                return 'pi pi-volume-up text-green-500';
+            case 'PRESENTATION':
+                return 'pi pi-presentation text-purple-500';
+            case 'WORKSHEET':
+                return 'pi pi-file-edit text-orange-500';
+            case 'DOCX':
+                return 'pi pi-file-word text-blue-600';
+            case 'EXCEL':
+                return 'pi pi-file-excel text-green-600';
+            default:
+                return 'pi pi-file text-gray-500';
+        }
+    }
+
+    formatDate(dateString: string): string {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('pt-BR');
+    }
+
+    viewMaterial(material: Material): void {
+        this.router.navigate(['/schoolar/materials', material.id]);
+    }
+
+    downloadMaterial(material: Material): void {
+        if (material.fileUrl) {
+            window.open(material.fileUrl, '_blank');
+        }
+    }
+
+    isVideo(material: Material): boolean {
+        return material.fileType === 'VIDEO' && isValidYouTubeUrl(material.fileUrl);
+    }
+
+  playVideo(material: Material): void {
+    console.log('=== PLAY VIDEO CLICKED ===');
+    console.log('Material:', material);
+    console.log('Is video:', this.isVideo(material));
+    console.log('File URL:', material.fileUrl);
+    console.log('File Type:', material.fileType);
+
+    if (this.isVideo(material)) {
+      console.log('Setting video data...');
+      this.selectedVideoUrl = material.fileUrl;
+      this.selectedVideoTitle = material.title;
+      this.selectedVideoDescription = material.description;
+
+      console.log('Video data set:');
+      console.log('  URL:', this.selectedVideoUrl);
+      console.log('  Title:', this.selectedVideoTitle);
+      console.log('  Description:', this.selectedVideoDescription);
+
+      console.log('Opening modal...');
+      this.showVideoModal = true;
+
+      console.log('Modal state after opening:', this.showVideoModal);
     } else {
-      this.loading = false;
+      console.warn('Material is not a valid video:', material);
     }
   }
 
-  private loadLevelData(): void {
-    if (!this.levelId) {
-      this.loading = false;
-      return;
+    closeVideoModal(): void {
+        this.showVideoModal = false;
+        this.selectedVideoUrl = '';
+        this.selectedVideoTitle = '';
+        this.selectedVideoDescription = '';
     }
-
-    this.loading = true;
-
-    // Load level information
-    this.levelService.getLevelById(this.levelId).subscribe({
-      next: (level) => {
-        this.levelName = level?.name || 'Nível';
-      },
-      error: () => {
-        this.levelName = 'Nível';
-      }
-    });
-
-    // Load level materials and units in parallel
-    forkJoin({
-      materials: this.materialService.getMaterialsByEntity('LEVEL', this.levelId).pipe(
-        catchError(() => of([]))
-      ),
-      units: this.unitService.loadUnits().pipe(
-        map(units => units.filter(unit => unit.levelId === this.levelId)),
-        catchError(() => of([]))
-      )
-    }).subscribe({
-      next: (data) => {
-        this.levelMaterials = data.materials;
-        this.units = data.units;
-        this.unitsCount = data.units.length;
-        this.tipsCount = data.materials.filter(m => m.type === 'TIPS').length;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading level data:', error);
-        this.loading = false;
-      }
-    });
-  }
-
-  goToTips(): void {
-    // Filter materials by TIPS type and navigate to a tips view
-    const tipsMaterials = this.levelMaterials.filter(m => m.type === 'TIPS');
-    this.router.navigate(['/schoolar/materials/level', this.levelId, 'tips'], {
-      state: { materials: tipsMaterials, levelName: this.levelName }
-    });
-  }
-
-  goToUnits(): void {
-    this.router.navigate(['/schoolar/materials/level', this.levelId, 'units'], {
-      state: { units: this.units, levelName: this.levelName }
-    });
-  }
-
-  goBack(): void {
-    this.router.navigate(['/schoolar/materials']);
-  }
-
-  getIconForType(fileType: string | undefined): string {
-    if (!fileType) {
-      return 'pi pi-file text-gray-500';
-    }
-
-    switch (fileType) {
-      case 'PDF':
-        return 'pi pi-file-pdf text-red-500';
-      case 'VIDEO':
-        return 'pi pi-video text-blue-500';
-      case 'AUDIO':
-        return 'pi pi-volume-up text-green-500';
-      case 'PRESENTATION':
-        return 'pi pi-presentation text-purple-500';
-      case 'WORKSHEET':
-        return 'pi pi-file-edit text-orange-500';
-      case 'DOCX':
-        return 'pi pi-file-word text-blue-600';
-      case 'EXCEL':
-        return 'pi pi-file-excel text-green-600';
-      default:
-        return 'pi pi-file text-gray-500';
-    }
-  }
-
-  formatDate(dateString: string): string {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('pt-BR');
-  }
-
-  viewMaterial(material: Material): void {
-    this.router.navigate(['/schoolar/materials', material.id]);
-  }
-
-  downloadMaterial(material: Material): void {
-    if (material.fileUrl) {
-      window.open(material.fileUrl, '_blank');
-    }
-  }
 }

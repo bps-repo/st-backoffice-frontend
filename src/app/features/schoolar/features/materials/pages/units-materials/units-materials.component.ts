@@ -12,6 +12,8 @@ import { Material } from 'src/app/core/models/academic/material';
 import { Unit } from 'src/app/core/models/course/unit';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { VideoModalComponent } from 'src/app/shared/components/video-modal/video-modal.component';
+import { isValidYouTubeUrl } from 'src/app/shared/utils/youtube.utils';
 
 interface UnitWithMaterials {
   unit: Unit;
@@ -29,7 +31,8 @@ interface UnitWithMaterials {
     TagModule,
     TooltipModule,
     ProgressSpinnerModule,
-    AccordionModule
+    AccordionModule,
+    VideoModalComponent
   ],
   template: `
     <div class="grid">
@@ -99,6 +102,14 @@ interface UnitWithMaterials {
                       <div class="flex gap-1">
                         <button
                           pButton
+                          icon="pi pi-play"
+                          class="p-button-text p-button-sm"
+                          (click)="playVideo(material)"
+                          pTooltip="Reproduzir vídeo"
+                          *ngIf="isVideo(material)"
+                        ></button>
+                        <button
+                          pButton
                           icon="pi pi-eye"
                           class="p-button-text p-button-sm"
                           (click)="viewMaterial(material)"
@@ -140,6 +151,16 @@ interface UnitWithMaterials {
       </div>
     </div>
 
+    <!-- Video Modal -->
+    <app-video-modal
+      [visible]="showVideoModal"
+      [videoUrl]="selectedVideoUrl"
+      [videoTitle]="selectedVideoTitle"
+      [videoDescription]="selectedVideoDescription"
+      [autoplay]="true"
+      (onCloseEvent)="closeVideoModal()"
+    ></app-video-modal>
+
     <style>
       .material-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -174,6 +195,12 @@ export class UnitsMaterialsComponent implements OnInit {
   levelName: string = '';
   unitsWithMaterials: UnitWithMaterials[] = [];
   loading: boolean = true;
+
+  // Video modal properties
+  showVideoModal: boolean = false;
+  selectedVideoUrl: string = '';
+  selectedVideoTitle: string = '';
+  selectedVideoDescription: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -278,5 +305,25 @@ export class UnitsMaterialsComponent implements OnInit {
     if (material.fileUrl) {
       window.open(material.fileUrl, '_blank');
     }
+  }
+
+  isVideo(material: Material): boolean {
+    return material.fileType === 'VIDEO' && isValidYouTubeUrl(material.fileUrl);
+  }
+
+  playVideo(material: Material): void {
+    if (this.isVideo(material)) {
+      this.selectedVideoUrl = material.fileUrl;
+      this.selectedVideoTitle = material.title;
+      this.selectedVideoDescription = material.description;
+      this.showVideoModal = true;
+    }
+  }
+
+  closeVideoModal(): void {
+    this.showVideoModal = false;
+    this.selectedVideoUrl = '';
+    this.selectedVideoTitle = '';
+    this.selectedVideoDescription = '';
   }
 }
