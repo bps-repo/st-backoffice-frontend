@@ -56,6 +56,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     loadingUnits: boolean = false;
     loadingTeachers: boolean = false;
 
+    // Week range properties
+    selectedWeekRange: Date[] = [];
+    availableDays: Date[] = [];
+
     lesson: Partial<Lesson> = {
         title: '',
         description: '',
@@ -77,14 +81,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     levelOptions: SelectItem[] = [];
     unitOptions: SelectItem[] = [];
     centerOptions: SelectItem[] = [];
-    weekDayOptions: SelectItem[] = [
-        { label: 'Segunda-feira', value: 1 },
-        { label: 'Terça-feira', value: 2 },
-        { label: 'Quarta-feira', value: 3 },
-        { label: 'Quinta-feira', value: 4 },
-        { label: 'Sexta-feira', value: 5 },
-        { label: 'Sábado', value: 6 }
-    ];
+    weekDayOptions: SelectItem[] = [];
+    weekRangeOptions: SelectItem[] = [];
     statusOptions: SelectItem[] = [
         { label: 'Available', value: LessonStatus.AVAILABLE },
         { label: 'Booked', value: LessonStatus.BOOKED },
@@ -111,19 +109,15 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         const defaultEndHour = new Date();
         defaultEndHour.setHours(10, 0, 0, 0);
 
-        // Get today's weekday (1=Monday, 2=Tuesday, ..., 6=Saturday, 0=Sunday)
-        const today = new Date();
-        let todayWeekday = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-        // Convert to our format (1=Monday, ..., 6=Saturday)
-        if (todayWeekday === 0) todayWeekday = 7; // Sunday becomes 7
-        // If today is Sunday, default to Monday (1)
-        const defaultWeekday = todayWeekday <= 6 ? todayWeekday : 1;
+        // Initialize week range with current week
+        this.initializeWeekRange();
 
         // Build reactive form
         this.form = this.fb.group({
             title: ['', Validators.required],
             centerId: [null, Validators.required],
-            weekDay: [defaultWeekday, Validators.required],
+            weekRange: [null, Validators.required],
+            selectedDay: [null, Validators.required],
             startDatetime: [defaultStartHour, Validators.required],
             endDatetime: [defaultEndHour, Validators.required],
             teacherId: [null, Validators.required],
@@ -134,6 +128,29 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             status: [LessonStatus.AVAILABLE],
             description: ['']
         });
+
+        // Listen for week range changes
+        this.form.get('weekRange')?.valueChanges
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(weekRange => {
+                if (weekRange && weekRange.length === 2) {
+                    // Validate that the range is exactly 7 days
+                    if (this.isValidWeekRange(weekRange)) {
+                        this.selectedWeekRange = weekRange;
+                        this.updateAvailableDays();
+                        // Reset selected day when week range changes
+                        this.form.get('selectedDay')?.setValue(null);
+                    } else {
+                        // Reset to invalid range
+                        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Aviso',
+                            detail: 'Por favor, selecione entre 1 e 7 dias (máximo uma semana)'
+                        });
+                        this.form.get('weekRange')?.setValue(null);
+                    }
+                }
+            });
 
         // Load Centers
         this.loadingCenters = true;
@@ -219,12 +236,103 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                     this.form.get('unitId')?.setValue(null);
                 }
             });
+
+        // Listen for selected day changes (no automatic range update)
+        this.form.get('selectedDay')?.valueChanges
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(selectedDay => {
+                // Just log the selection, no automatic range update
+                console.log('Day selected:', selectedDay);
+            });
+
+        // Listen for start time changes to automatically update end time
+        this.form.get('startDatetime')?.valueChanges
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(startTime => {
+                if (startTime) {
+                    this.updateEndTimeFromStartTime(startTime);
+                }
+            });
     }
 
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
+
+    private initializeWeekRange(): void {
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        const dayOfWeek = today.getDay();
+        const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Monday
+        startOfWeek.setDate(diff);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        this.selectedWeekRange = [startOfWeek, endOfWeek];
+        this.form?.get('weekRange')?.setValue(this.selectedWeekRange);
+        this.updateAvailableDays();
+    }
+
+    private updateAvailableDays(): void {
+        if (this.selectedWeekRange.length !== 2) return;
+
+        // Normalize the week range
+        const normalizedRange = this.normalizeWeekRange(this.selectedWeekRange);
+        const [startDate, endDate] = normalizedRange;
+
+        this.availableDays = [];
+        this.weekDayOptions = [];
+
+        // Show all days in the selected range
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            this.availableDays.push(new Date(currentDate));
+
+            const dayName = this.getDayName(currentDate.getDay());
+            this.weekDayOptions.push({
+                label: dayName,
+                value: new Date(currentDate)
+            });
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+    }
+
+    private getDayName(dayIndex: number): string {
+        const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        return days[dayIndex];
+    }
+
+    private isValidWeekRange(weekRange: Date[]): boolean {
+        if (!weekRange || weekRange.length !== 2) return false;
+
+        const [startDate, endDate] = weekRange;
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        // Must be between 0 and 6 days difference (1 to 7 days total including both start and end)
+        return diffDays >= 0 && diffDays <= 6;
+    }
+
+    private normalizeWeekRange(weekRange: Date[]): Date[] {
+        if (!weekRange || weekRange.length !== 2) return weekRange;
+
+        const [startDate, endDate] = weekRange;
+
+        // Keep the original range but normalize times
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+
+        return [start, end];
+    }
+
 
     private loadUnitsForLevel(levelId: string): void {
         this.loadingUnits = true;
@@ -254,27 +362,47 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.router.navigate(['/schoolar/lessons']).then();
     }
 
-    private createDateTimeFromHour(hourDate: Date, selectedWeekDay: number): Date {
-        const today = new Date();
-        const currentWeekday = today.getDay();
+    private createDateTimeFromHour(hourDate: Date, selectedDay: Date): Date {
+        // Create a copy of the selected day
+        const result = new Date(selectedDay);
 
-        // Calculate the difference in days to the selected weekday
-        const dayDifference = selectedWeekDay - currentWeekday;
+        // Set the time from the hour picker directly
+        result.setHours(hourDate.getHours(), hourDate.getMinutes(), hourDate.getSeconds(), 0);
 
-        // Create the target date
-        const targetDate = new Date(today);
-        targetDate.setDate(today.getDate() + dayDifference);
+        // Add 1 hour to compensate for the timezone issue
+        result.setHours(result.getHours() + 1);
 
-        // Set the time from the hour picker
-        const result = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
-            hourDate.getHours(), hourDate.getMinutes(), hourDate.getSeconds());
+        // Debug logs
+        console.log('createDateTimeFromHour - Input hourDate:', hourDate);
+        console.log('createDateTimeFromHour - Input selectedDay:', selectedDay);
+        console.log('createDateTimeFromHour - Result (after +1h):', result);
+        console.log('createDateTimeFromHour - Hour from hourDate:', hourDate.getHours());
+        console.log('createDateTimeFromHour - Hour in result:', result.getHours());
+
         return result;
+    }
+
+    private updateEndTimeFromStartTime(startTime: Date): void {
+        // Create a new date with start time + 1 hour
+        const endTime = new Date(startTime);
+        endTime.setHours(endTime.getHours() + 1);
+
+        // Update the end time in the form
+        this.form.get('endDatetime')?.setValue(endTime);
+
+        console.log('Auto-updated end time:', endTime);
     }
 
     saveLesson() {
         if (this.form.invalid) {
             this.form.markAllAsTouched();
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields' });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Por favor, preencha todos os campos obrigatórios' });
+            return;
+        }
+
+        // Additional validation for selected day
+        if (!this.form.get('selectedDay')?.value) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Por favor, selecione um dia da semana' });
             return;
         }
 
@@ -285,7 +413,19 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
         const v = this.form.value as any;
 
+        // Debug logs
+        console.log('Form values:', v);
+        console.log('startDatetime from form:', v.startDatetime);
+        console.log('endDatetime from form:', v.endDatetime);
+        console.log('selectedDay from form:', v.selectedDay);
+
         // Build API-compliant payload
+        const startDateTime = this.createDateTimeFromHour(v.startDatetime, v.selectedDay);
+        const endDateTime = this.createDateTimeFromHour(v.endDatetime, v.selectedDay);
+
+        console.log('Final startDateTime:', startDateTime);
+        console.log('Final endDateTime:', endDateTime);
+
         const payload: Lesson = {
             title: v.title || '',
             description: v.description || '',
@@ -293,8 +433,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             onlineLink: v.onlineLink,
             teacherId: v.teacherId,
             level: v.levelId, // Add level to the payload
-            startDatetime: this.createDateTimeFromHour(v.startDatetime, v.weekDay),
-            endDatetime: this.createDateTimeFromHour(v.endDatetime, v.weekDay),
+            startDatetime: startDateTime,
+            endDatetime: endDateTime,
             unitId: v.unitId,
             centerId: v.centerId,
             status: (v.status as any) ?? LessonStatus.AVAILABLE
@@ -336,27 +476,30 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         const defaultEndHour = new Date();
         defaultEndHour.setHours(10, 0, 0, 0);
 
-        // Get today's weekday (1=Monday, 2=Tuesday, ..., 6=Saturday, 0=Sunday)
-        const today = new Date();
-        let todayWeekday = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-        // Convert to our format (1=Monday, ..., 6=Saturday)
-        if (todayWeekday === 0) todayWeekday = 7; // Sunday becomes 7
-        // If today is Sunday, default to Monday (1)
-        const defaultWeekday = todayWeekday <= 6 ? todayWeekday : 1;
+        // Reset week range to current week
+        this.initializeWeekRange();
 
         this.form.reset({
             title: '',
             description: '',
             centerId: null,
-            weekDay: defaultWeekday,
+            weekRange: this.selectedWeekRange,
+            selectedDay: null,
             startDatetime: defaultStartHour,
             endDatetime: defaultEndHour,
             teacherId: null,
+            levelId: null,
             unitId: null,
             online: false,
             onlineLink: '',
             status: LessonStatus.AVAILABLE
         });
+    }
+
+    onWeekRangeSelect(event: any) {
+        // This method is called when the user selects a range in the calendar
+        // The validation is already handled in the valueChanges subscription
+        console.log("Week range selected:", event);
     }
 
     callMethod() {

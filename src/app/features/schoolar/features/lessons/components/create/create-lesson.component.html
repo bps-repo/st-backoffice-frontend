@@ -56,11 +56,48 @@
                     </div>
                 </div>
 
+                <div class="col-12 field">
+                    <label for="weekRange" class="font-bold">Selecione a Semana *</label>
+                    <p-calendar id="weekRange" formControlName="weekRange" [selectionMode]="'range'"
+                        [readonlyInput]="true" [showIcon]="true" placeholder="Selecione entre 1 e 7 dias"
+                        [required]="true" [appendTo]="'body'" (onSelect)="onWeekRangeSelect($event)">
+                    </p-calendar>
+                    <small class="text-600" *ngIf="form.get('weekRange')?.value">
+                        Período selecionado: {{form.get('weekRange')?.value[0] | date:'dd/MM/yyyy'}} - {{form.get('weekRange')?.value[1] | date:'dd/MM/yyyy'}}
+                    </small>
+                    <small class="text-600 mt-1 block">
+                        <i class="pi pi-info-circle mr-1"></i>
+                        Selecione entre 1 e 7 dias consecutivos (máximo uma semana)
+                    </small>
+                </div>
+
+                <div class="col-12 field" *ngIf="form.get('weekRange')?.value">
+                    <label class="font-bold mb-3">Dias Disponíveis do Período</label>
+                    <div class="grid">
+                        <div class="col-12 md:col-2" *ngFor="let day of weekDayOptions; let i = index">
+                            <div class="p-3 border-round text-center cursor-pointer transition-colors transition-duration-150 border-1"
+                                 [class.bg-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                 [class.text-white]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                 [class.bg-gray-100]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                 [class.text-900]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                 [class.border-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                 [class.border-gray-300]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                 (click)="form.get('selectedDay')?.setValue(day.value)">
+                                <div class="font-bold text-sm">{{day.value | date:'dd'}}</div>
+                                <div class="text-xs">{{day.label}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-600 mt-2 block">
+                        Clique em um dia para selecioná-lo como a data da aula.
+                    </small>
+                </div>
+
                 <div class="col-12 md:col-6 field">
-                    <label for="weekDay" class="font-bold">Dia da Semana *</label>
-                    <p-dropdown id="weekDay" [options]="weekDayOptions" formControlName="weekDay" optionLabel="label"
-                        optionValue="value" placeholder="Selecione o dia da semana" [showClear]="true"
-                        [required]="true">
+                    <label for="selectedDay" class="font-bold">Data da Aula *</label>
+                    <p-dropdown id="selectedDay" [options]="weekDayOptions" formControlName="selectedDay"
+                        optionLabel="label" optionValue="value" placeholder="Selecione a data da aula"
+                        [showClear]="true" [required]="true" [disabled]="!form.get('weekRange')?.value">
                     </p-dropdown>
                 </div>
 
@@ -69,6 +106,10 @@
                     <p-calendar (onChange)="callMethod()" id="startDatetime" formControlName="startDatetime"
                         [showIcon]="true" [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
                     </p-calendar>
+                    <small class="text-600 mt-1 block">
+                        <i class="pi pi-clock mr-1"></i>
+                        A hora de fim será calculada automaticamente (+1h)
+                    </small>
                     <span pTooltip>
                         <ng-template pTemplate="content">
                             <p>
@@ -83,6 +124,10 @@
                     <p-calendar (onSelect)="callMethod()" id="endDatetime" formControlName="endDatetime" [showIcon]="true"
                         [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
                     </p-calendar>
+                    <small class="text-600 mt-1 block">
+                        <i class="pi pi-info-circle mr-1"></i>
+                        Automaticamente calculado (hora de início + 1h)
+                    </small>
                     <span pTooltip>
                         <ng-template pTemplate="content">
                             <p>
