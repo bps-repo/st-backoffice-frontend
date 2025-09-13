@@ -21,7 +21,6 @@ import {StudentService} from "../../../../../../core/services/student.service";
 import {AttendanceService} from "../../../../../../core/services/attendance.service";
 import {MaterialService} from "../../../../../../core/services/material.service";
 import {LessonService} from "../../../../../../core/services/lesson.service";
-import {MOCK_STUDENTS, MOCK_ATTENDANCES, MOCK_MATERIALS, MOCK_LESSON_BOOKINGS} from "../../../../../../core/models/mocks/lesson-detail-mock";
 
 // Interface for notes
 interface LessonNote {
@@ -168,13 +167,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                         this.loadStudentsByIds(studentIds);
                     } else {
                         // Use mock data if no bookings found
-                        this.students = MOCK_STUDENTS;
                         this.loadingStudents = false;
                     }
                 },
                 error: () => {
                     // Use mock data on error
-                    this.students = MOCK_STUDENTS;
                     this.loadingStudents = false;
                 }
             });
@@ -190,19 +187,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                     this.attendances = allAttendances.filter(attendance =>
                         attendance.lessonId === lessonId
                     );
-                    // Use mock data if no attendances found
-                    if (this.attendances.length === 0) {
-                        this.attendances = MOCK_ATTENDANCES.filter(attendance =>
-                            attendance.lesson.id === lessonId
-                        );
-                    }
                     this.loadingAttendances = false;
                 },
                 error: () => {
-                    // Use mock data on error
-                    this.attendances = MOCK_ATTENDANCES.filter(attendance =>
-                        attendance.lesson.id === lessonId
-                    );
                     this.loadingAttendances = false;
                 }
             });
@@ -214,7 +201,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 this.loadMaterialsByIds(lesson.materialsIds);
             } else {
                 // Use mock data if no materials found
-                this.materials = MOCK_MATERIALS;
                 this.loadingMaterials = false;
             }
         });
@@ -232,19 +218,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                     this.students = allStudents.filter(student =>
                         studentIds.includes(student.id || '')
                     );
-                    // Use mock data if no students found
-                    if (this.students.length === 0) {
-                        this.students = MOCK_STUDENTS.filter(student =>
-                            studentIds.includes(student.id || '')
-                        );
-                    }
+
                     this.loadingStudents = false;
                 },
                 error: () => {
-                    // Use mock data on error
-                    this.students = MOCK_STUDENTS.filter(student =>
-                        studentIds.includes(student.id || '')
-                    );
                     this.loadingStudents = false;
                 }
             });
@@ -262,19 +239,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                     this.materials = allMaterials.filter(material =>
                         materialIds.includes(material.id || '')
                     );
-                    // Use mock data if no materials found
-                    if (this.materials.length === 0) {
-                        this.materials = MOCK_MATERIALS.filter(material =>
-                            materialIds.includes(material.id || '')
-                        );
-                    }
+
                     this.loadingMaterials = false;
                 },
                 error: () => {
-                    // Use mock data on error
-                    this.materials = MOCK_MATERIALS.filter(material =>
-                        materialIds.includes(material.id || '')
-                    );
                     this.loadingMaterials = false;
                 }
             });
@@ -307,10 +275,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     // Helper methods
-    public getTeacherInitials(lesson: Lesson | null): string {
-        if (!lesson?.teacher) return 'MS';
+    public getTeacherInitials(lesson: Lesson): string {
+        if (!lesson.teacher) return 'MS';
 
-        const names = lesson.teacher.split(' ');
+        const names = lesson.teacher.name.split(' ');
         if (names.length >= 2) {
             return (names[0][0] + names[names.length - 1][0]).toUpperCase();
         }
@@ -318,7 +286,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     // Action methods
-    public openOnlineLink(lesson: Lesson | null): void {
+    public openOnlineLink(lesson: Lesson): void {
         if (lesson?.onlineLink) {
             window.open(lesson.onlineLink, '_blank');
         }
@@ -329,8 +297,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         // Implement attendance marking logic
     }
 
-    public addMaterial(lesson: Lesson | null): void {
-        if (lesson?.id) {
+    public addMaterial(lesson: Lesson): void {
+        if (lesson.id) {
             this.router.navigate(['/schoolar/lessons/materials/add', lesson.id]);
         }
     }
@@ -356,13 +324,13 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     // Status helper methods
-    public getLessonStatusText(lesson: Lesson | null): string {
+    public getLessonStatusText(lesson: Lesson): string {
         if (!lesson) return 'Desconhecido';
 
         switch (lesson.status) {
-            case LessonStatus.COMPLETED:
-                return 'Concluída';
-            case LessonStatus.SCHEDULED:
+            case LessonStatus.AVAILABLE:
+                return 'Disponível';
+            case LessonStatus.BOOKED:
                 return 'Agendada';
             case LessonStatus.BOOKED:
                 return 'Reservada';
@@ -377,13 +345,13 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         }
     }
 
-    public getLessonStatusSeverity(lesson: Lesson | null): string {
+    public getLessonStatusSeverity(lesson: Lesson): string {
         if (!lesson) return 'secondary';
 
         switch (lesson.status) {
-            case LessonStatus.COMPLETED:
+            case LessonStatus.AVAILABLE:
                 return 'success';
-            case LessonStatus.SCHEDULED:
+            case LessonStatus.COMPLETED:
                 return 'info';
             case LessonStatus.BOOKED:
                 return 'warning';
@@ -415,34 +383,34 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     // Enhanced action methods
-    public duplicateLesson(lesson: Lesson | null): void {
+    public duplicateLesson(lesson: Lesson): void {
         if (lesson?.id) {
             console.log('Duplicating lesson:', lesson.id);
             // Implement duplication logic
         }
     }
 
-    public editLesson(lesson: Lesson | null): void {
+    public editLesson(lesson: Lesson): void {
         if (lesson?.id) {
             this.router.navigate(['/schoolar/lessons/edit', lesson.id]);
         }
     }
 
-    public exportLesson(lesson: Lesson | null): void {
+    public exportLesson(lesson: Lesson): void {
         if (lesson?.id) {
             console.log('Exporting lesson:', lesson.id);
             // Implement export logic
         }
     }
 
-    public printLesson(lesson: Lesson | null): void {
+    public printLesson(lesson: Lesson): void {
         if (lesson?.id) {
             console.log('Printing lesson:', lesson.id);
             // Implement print logic
         }
     }
 
-    public configureOnlineLink(lesson: Lesson | null): void {
+    public configureOnlineLink(lesson: Lesson): void {
         if (lesson?.id) {
             console.log('Configuring online link for lesson:', lesson.id);
             // Implement online link configuration

@@ -326,7 +326,7 @@
         <!-- Teacher -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-user text-600"></i>
-            <span>{{ getTeacherName(selectedLesson) }}</span>
+            <span>{{ selectedLesson.teacher.name }}</span>
         </div>
 
         <!-- Class/Group -->
@@ -338,7 +338,7 @@
         <!-- Center -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-map-marker text-600"></i>
-            <span>{{ getCenterName(selectedLesson) }}</span>
+            <span>{{ selectedLesson.center.name }}</span>
         </div>
 
         <!-- Students -->

@@ -888,7 +888,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             }).map(lesson => ({
                 time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 title: lesson.title,
-                teacher: this.getTeacherName(lesson),
+                teacher: lesson.teacher.name,
                 group: lesson.level || 'N/A',
                 status: this.getStatusLabel(lesson.status),
                 statusClass: this.getStatusClass(lesson.status),
@@ -944,7 +944,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
                 classes: dayLessons.map(lesson => ({
                     time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                     title: lesson.title,
-                    teacher: this.getTeacherName(lesson),
+                    teacher: lesson.teacher.name,
                     group: lesson.level || 'N/A',
                     status: this.getStatusLabel(lesson.status),
                     statusClass: this.getStatusClass(lesson.status),
@@ -1074,16 +1074,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         this.router.navigate(['/schoolar/lessons', lessonId]).then();
     }
 
-    // Helper methods
-    getTeacherName(lesson: Lesson): string {
-        if (lesson.teacher && typeof lesson.teacher === 'string') {
-            return lesson.teacher;
-        }
-        if (lesson.teacherId) {
-            return lesson.teacherId;
-        }
-        return 'N/A';
-    }
 
     getStatusLabel(status: string | LessonStatus): string {
         if (typeof status === 'string') {
@@ -1133,21 +1123,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             case LessonStatus.POSTPONED: return 'info';
             default: return 'secondary';
         }
-    }
-
-    getCenterName(lesson: Lesson): string {
-        if (lesson.center) {
-            if (typeof lesson.center === 'object' && lesson.center.name) {
-                return lesson.center.name;
-            }
-            if (typeof lesson.center === 'string') {
-                return lesson.center;
-            }
-        }
-        if (lesson.centerId) {
-            return lesson.centerId;
-        }
-        return 'N/A';
     }
 
     getStudentsString(lesson: Lesson): string {

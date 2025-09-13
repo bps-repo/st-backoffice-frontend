@@ -66,8 +66,7 @@
 
         <app-global-table tableLabel="Aulas" [columnTemplates]="columnTemplates" [data]="lessons$ | async"
             [loading]="loading$ | async" [entity]="'lessons'" [columns]="columns"
-            [globalFilterFields]="globalFilterFields" class="w-full"
-            (rowSelect)="viewLesson($event.id!)"
+            [globalFilterFields]="globalFilterFields" class="w-full" (rowSelect)="viewLesson($event.id!)"
             (createEntity)="navigateToCreateLesson()"></app-global-table>
     </div>
     }
@@ -215,10 +214,8 @@
                     @for (week of getMonthlyCalendarWeeks(); track $index) {
                     <div class="grid calendar-week border-bottom-1 border-gray-100">
                         @for (day of week; track day.date) {
-                        <div class="col calendar-day"
-                             [class.text-gray-400]="!day.isCurrentMonth"
-                             [class.today-day]="day.isToday"
-                             [class.current-month]="day.isCurrentMonth">
+                        <div class="col calendar-day" [class.text-gray-400]="!day.isCurrentMonth"
+                            [class.today-day]="day.isToday" [class.current-month]="day.isCurrentMonth">
 
                             <!-- Day number -->
                             <div class="day-number" [class.today-number]="day.isToday">
@@ -235,10 +232,9 @@
                             <div class="monthly-lessons">
                                 @for (lesson of day.lessons.slice(0, 3); track lesson.lesson.id) {
                                 <div class="monthly-lesson-card cursor-pointer"
-                                     [class]="'border-left-2 border-' + lesson.statusClass"
-                                     (mouseenter)="showLessonDetails(lesson.lesson)"
-                                     (mouseleave)="hideLessonDetails()"
-                                     (click)="viewLesson(lesson.lesson.id!)">
+                                    [class]="'border-left-2 border-' + lesson.statusClass"
+                                    (mouseenter)="showLessonDetails(lesson.lesson)" (mouseleave)="hideLessonDetails()"
+                                    (click)="viewLesson(lesson.lesson.id!)">
                                     <div class="lesson-time text-xs font-bold">{{ lesson.time }}</div>
                                     <div class="lesson-title text-xs">{{ lesson.title }}</div>
                                 </div>
@@ -287,19 +283,19 @@
 
 <ng-template #teacherTemplate let-row>
     <span>
-        {{ getTeacherName(row) }}
+        {{ row.teacher.name }}
     </span>
 </ng-template>
 
 <ng-template #centerTemplate let-row>
     <span>
-        {{ getCenterName(row) }}
+        {{ row.center.name }}
     </span>
 </ng-template>
 
 <ng-template #unitTemplate let-row>
     <span>
-        {{ getUnitName(row) }}
+        {{ row.unit.name }}
     </span>
 </ng-template>
 
@@ -375,7 +371,7 @@
         <!-- Teacher -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-user text-600"></i>
-            <span>{{ getTeacherName(selectedLesson) }}</span>
+            <span>{{ selectedLesson.teacher.name }}</span>
         </div>
 
         <!-- Class/Group -->
@@ -387,7 +383,7 @@
         <!-- Center -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-map-marker text-600"></i>
-            <span>{{ getCenterName(selectedLesson) }}</span>
+            <span>{{ selectedLesson.center.name }}</span>
         </div>
 
         <!-- Students -->

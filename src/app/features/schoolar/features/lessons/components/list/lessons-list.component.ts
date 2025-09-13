@@ -341,7 +341,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     selected: SelectItem[] = [];
 
-    types: any[] = ['VIP', 'Online', 'In Center'];
+    types: any[] = ['VIP', 'Online'];
 
     levels = LEVELS;
 
@@ -366,6 +366,15 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @ViewChild('viewSelector', { static: false })
     viewSelector!: ElementRef;
+
+    @ViewChild('teacherTemplate', { static: true })
+    teacherTemplate!: TemplateRef<any>;
+
+    @ViewChild('centerTemplate', { static: true })
+    centerTemplate!: TemplateRef<any>;
+
+    @ViewChild('unitTemplate', { static: true })
+    unitTemplate!: TemplateRef<any>;
 
     // Sticky state tracking
     isMainHeaderSticky: boolean = false;
@@ -395,14 +404,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild("actionsTemplate", { static: true })
     actionsTemplate?: TemplateRef<any>;
 
-    @ViewChild("teacherTemplate", { static: true })
-    teacherTemplate?: TemplateRef<any>;
-
-    @ViewChild("centerTemplate", { static: true })
-    centerTemplate?: TemplateRef<any>;
-
-    @ViewChild("unitTemplate", { static: true })
-    unitTemplate?: TemplateRef<any>;
 
     @ViewChild("statusTemplate", { static: true })
     statusTemplate?: TemplateRef<any>;
@@ -546,7 +547,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             }).map(lesson => ({
                 time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 title: lesson.title,
-                teacher: this.getTeacherName(lesson),
+                teacher: lesson.teacher.name,
                 group: lesson.level || 'N/A',
                 status: this.getStatusLabel(lesson.status),
                 statusClass: this.getStatusClass(lesson.status),
@@ -697,9 +698,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit() {
         this.columnTemplates = {
             startDatetime: this.startDatetimeTemplate!,
-            teacherId: this.teacherTemplate!,
-            centerId: this.centerTemplate!,
-            unitId: this.unitTemplate!,
+            teacher: this.teacherTemplate!,
+            center: this.centerTemplate!,
+            unit: this.unitTemplate!,
             status: this.statusTemplate!,
             actions: this.actionsTemplate!,
             online: this.onlineTemplate!,
@@ -853,56 +854,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
-     * Get teacher name from lesson data
-     */
-    getTeacherName(lesson: Lesson): string {
-        // Priority: teacher name field > teacherId fallback > N/A
-        if (lesson.teacher && typeof lesson.teacher === 'string') {
-            return lesson.teacher;
-        }
-        // If teacherId exists but no teacher name, show teacherId as fallback
-        if (lesson.teacherId) {
-            return lesson.teacherId;
-        }
-        return 'N/A';
-    }
-
-    /**
-     * Get center name from lesson data
-     */
-    getCenterName(lesson: Lesson): string {
-        // Priority: center object name > center string > centerId fallback > N/A
-        if (lesson.center) {
-            if (typeof lesson.center === 'object' && lesson.center.name) {
-                return lesson.center.name;
-            }
-            if (typeof lesson.center === 'string') {
-                return lesson.center;
-            }
-        }
-        // If centerId exists but no center name, show centerId as fallback
-        if (lesson.centerId) {
-            return lesson.centerId;
-        }
-        return 'N/A';
-    }
-
-    /**
-     * Get unit name from lesson data
-     */
-    getUnitName(lesson: Lesson): string {
-        // Priority: unit name field > unitId fallback > N/A
-        if (lesson.unit && typeof lesson.unit === 'string') {
-            return lesson.unit;
-        }
-        // If unitId exists but no unit name, show unitId as fallback
-        if (lesson.unitId) {
-            return lesson.unitId;
-        }
-        return 'N/A';
-    }
-
-    /**
      * Get display label for lesson status
      */
     getStatusLabel(status: string | LessonStatus): string {
@@ -964,7 +915,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 classes: dayLessons.map(lesson => ({
                     time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                     title: lesson.title,
-                    teacher: this.getTeacherName(lesson),
+                    teacher: lesson.teacher.name,
                     group: lesson.level || 'N/A',
                     status: this.getStatusLabel(lesson.status),
                     statusClass: this.getStatusClass(lesson.status),

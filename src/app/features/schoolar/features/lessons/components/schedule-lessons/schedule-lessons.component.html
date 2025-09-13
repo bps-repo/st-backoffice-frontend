@@ -47,11 +47,22 @@
             <div class="flex align-items-center justify-content-between mb-3">
                 <h3 class="m-0">Aulas Disponíveis</h3>
             </div>
-            <span class="p-input-icon-left w-full mb-3">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" class="w-full" placeholder="Buscar aulas..."
-                    [formControl]="searchLessonsCtrl" />
-            </span>
+
+            <div class="grid mb-3">
+                <div class="col-12 md:col-8">
+                    <span class="p-input-icon-left w-full">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" class="w-full" placeholder="Buscar aulas..."
+                            [formControl]="searchLessonsCtrl" />
+                    </span>
+                </div>
+                <div class="col-12 md:col-4">
+                    <p-dropdown [options]="levelOptions" [formControl]="levelFilterCtrl"
+                        optionLabel="label" optionValue="value" placeholder="Filtrar por nível"
+                        [showClear]="true" class="w-full">
+                    </p-dropdown>
+                </div>
+            </div>
 
             <div class="flex flex-column gap-2 scrollable-content">
                 <div *ngIf="loadingLessons(); else lessonsContent">
@@ -88,8 +99,12 @@
                             {{ lesson.startDatetime | date:'dd/MM/yyyy HH:mm' }}
                         </div>
                         <div class="mt-2">
-                            <span class="p-tag p-tag-rounded mr-2">{{ lesson.level || 'N/A' }}</span>
-                            <span class="p-tag p-tag-rounded">{{ lesson.center || 'Centro' }}</span>
+                            <span class="p-tag p-tag-rounded mr-2">{{ lesson.unit?.name || 'N/A' }}</span>
+                            <span class="p-tag p-tag-rounded">{{ lesson.center?.name || 'Centro' }}</span>
+                        </div>
+                        <div class="mt-1 text-xs text-500">
+                            <i class="pi pi-user mr-1"></i>
+                            {{ lesson.teacher?.name || 'Professor não definido' }}
                         </div>
                     </div>
                 </ng-template>

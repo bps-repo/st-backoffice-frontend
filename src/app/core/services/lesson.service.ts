@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {environment} from 'src/environments/environment';
-import {Lesson} from "../models/academic/lesson";
+import {Lesson, LessonCreate} from "../models/academic/lesson";
 import {Observable, of} from 'rxjs';
 import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
@@ -38,7 +38,7 @@ export class LessonService {
         );
     }
 
-    createLesson(lessonData: Lesson): Observable<Lesson> {
+    createLesson(lessonData: LessonCreate): Observable<Lesson> {
         return this.http.post<ApiResponse<Lesson>>(`${this.apiUrl}`, lessonData).pipe(
             map((response) => response.data as Lesson)
         );

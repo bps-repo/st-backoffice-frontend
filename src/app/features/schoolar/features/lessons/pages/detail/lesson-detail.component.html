@@ -65,15 +65,14 @@
                             </h1>
                         </div>
                         <div class="flex align-items-center gap-3 mb-3">
-                            <span class="text-600">{{ lesson.online ? 'Online' : 'Presencial' }} • {{ lesson.center ||
-                                'Centro Principal' }}</span>
+                            <span class="text-600">{{ lesson.online ? 'Online' : 'Presencial' }} • {{ lesson.center.name  }}</span>
                             <p-tag [value]="getLessonStatusText(lesson)" [severity]="getLessonStatusSeverity(lesson)"
                                 [rounded]="true">
                             </p-tag>
                         </div>
                         <div class="flex align-items-center gap-2 text-600">
                             <i class="pi pi-calendar"></i>
-                            <span>{{ lesson.startDatetime | date:'dd/MM/yyyy às HH:mm' }}</span>
+                            <span>{{ (lesson.startDatetime | date:'dd/MM/yyyy - HH:mm' | uppercase)  }} - {{ (lesson.endDatetime | date:'HH:mm' | uppercase) }}</span>
                         </div>
                     </div>
 
@@ -173,20 +172,14 @@
                                 <div class="col-12">
                                     <div class="field">
                                         <label class="block text-sm font-medium text-600 mb-1">CENTRO</label>
-                                        <p class="text-900 font-semibold m-0">{{ lesson.center || 'Centro Principal' }}
+                                        <p class="text-900 font-semibold m-0">{{ lesson.center.name }}
                                         </p>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="field">
                                         <label class="block text-sm font-medium text-600 mb-1">NÍVEL</label>
-                                        <p class="text-900 font-semibold m-0">{{ lesson.level || 'A1' }}</p>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="field">
-                                        <label class="block text-sm font-medium text-600 mb-1">TURMA</label>
-                                        <p class="text-900 font-semibold m-0">{{ lesson.unit || 'Turma A' }}</p>
+                                        <p class="text-900 font-semibold m-0">{{ lesson.unit.name }}</p>
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -198,8 +191,7 @@
                                                 <span class="text-blue-600 font-semibold text-sm">{{
                                                     getTeacherInitials(lesson) }}</span>
                                             </div>
-                                            <span class="text-900 font-semibold">{{ lesson.teacher || 'Prof. Maria
-                                                Silva' }}</span>
+                                                <span class="text-900 font-semibold">{{ lesson.teacher.name }}</span>
                                         </div>
                                     </div>
                                 </div>

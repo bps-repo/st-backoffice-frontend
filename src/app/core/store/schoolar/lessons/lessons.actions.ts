@@ -1,5 +1,5 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
-import {Lesson} from 'src/app/core/models/academic/lesson';
+import {Lesson, LessonCreate} from 'src/app/core/models/academic/lesson';
 import {BulkBookingRequest, BulkBookingResult} from 'src/app/core/models/academic/bulk-booking';
 
 export const LESSONS_FEATURE_KEY = 'lessons';
@@ -18,7 +18,7 @@ export const lessonsActions = createActionGroup({
         'Load Lesson Failure': props<{ error: string }>(),
 
         // Create Lesson
-        'Create Lesson': props<{ lesson: Lesson }>(),
+        'Create Lesson': props<{ lesson: LessonCreate }>(),
         'Create Lesson Success': props<{ lesson: Lesson }>(),
         'Create Lesson Failure': props<{ error: string }>(),
 

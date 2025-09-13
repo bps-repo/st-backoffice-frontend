@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { CalendarModule } from 'primeng/calendar';
 import { Store } from '@ngrx/store';
-import { Lesson } from 'src/app/core/models/academic/lesson';
+import { Lesson, LessonCreate } from 'src/app/core/models/academic/lesson';
 import { LessonStatus } from 'src/app/core/enums/lesson-status';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, take } from 'rxjs';
@@ -60,7 +60,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     selectedWeekRange: Date[] = [];
     availableDays: Date[] = [];
 
-    lesson: Partial<Lesson> = {
+    lesson: Partial<LessonCreate> = {
         title: '',
         description: '',
         teacherId: '',
@@ -426,19 +426,19 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         console.log('Final startDateTime:', startDateTime);
         console.log('Final endDateTime:', endDateTime);
 
-        const payload: Lesson = {
+        const payload: LessonCreate = {
             title: v.title || '',
             description: v.description || '',
             online: !!v.online,
             onlineLink: v.onlineLink,
             teacherId: v.teacherId,
-            level: v.levelId, // Add level to the payload
+            level: v.levelId,
             startDatetime: startDateTime,
             endDatetime: endDateTime,
             unitId: v.unitId,
             centerId: v.centerId,
             status: (v.status as any) ?? LessonStatus.AVAILABLE
-        } as Lesson;
+        } as LessonCreate;
 
         // Dispatch the create lesson action
         this.store.dispatch(lessonsActions.createLesson({ lesson: payload }));

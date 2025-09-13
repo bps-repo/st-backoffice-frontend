@@ -7,11 +7,13 @@ import { AvailableStudent } from 'src/app/core/models/academic/available-student
 import { BulkBookingRequest, BulkBookingResult, FailedBooking } from 'src/app/core/models/academic/bulk-booking';
 import { LessonService } from 'src/app/core/services/lesson.service';
 import { StudentService } from 'src/app/core/services/student.service';
+import { LevelService } from 'src/app/core/services/level.service';
 import { filter, map, Subject, takeUntil } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
+import { DropdownModule } from 'primeng/dropdown';
 import { Store } from '@ngrx/store';
 import * as LessonActions from 'src/app/core/store/schoolar/lessons/lessons.actions';
 import * as StudentActions from 'src/app/core/store/schoolar/students/students.actions';
@@ -21,10 +23,11 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LessonStatus } from 'src/app/core/enums/lesson-status';
+import { SelectItem } from 'primeng/api';
 @Component({
     selector: 'app-schedule-lessons',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, BadgeModule, CardModule, ProgressSpinnerModule, ScrollPanelModule, ToastModule],
+    imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, BadgeModule, CardModule, ProgressSpinnerModule, ScrollPanelModule, ToastModule, DropdownModule],
     templateUrl: './schedule-lessons.component.html'
 })
 export class ScheduleLessonsComponent implements OnInit, OnDestroy {
@@ -46,6 +49,11 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
 
     searchLessonsCtrl = this.fb.control('');
     searchStudentsCtrl = this.fb.control('');
+    levelFilterCtrl = this.fb.control(null);
+
+    // Level filter options
+    levelOptions: SelectItem[] = [];
+    loadingLevels = signal(false);
 
     private destroy$ = new Subject<void>();
 
@@ -53,6 +61,7 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
         private readonly fb: FormBuilder,
         private readonly lessonApi: LessonService,
         private readonly studentApi: StudentService,
+        private readonly levelService: LevelService,
         private readonly store: Store,
         private readonly messageService: MessageService
     ) {
@@ -62,10 +71,12 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.loadLessons();
+        this.loadLevels();
 
         // filter on search
         this.searchLessonsCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((term) => this.applyLessonFilter(String(term || '')));
         this.searchStudentsCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((term) => this.applyStudentsFilter(String(term || '')));
+        this.levelFilterCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((levelId) => this.applyLevelFilter(levelId));
     }
 
     ngOnDestroy(): void {
@@ -87,6 +98,23 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
             },
             error: () => {
                 this.loadingLessons.set(false);
+            }
+        });
+    }
+
+    private loadLevels() {
+        this.loadingLevels.set(true);
+        this.levelService.getLevels().pipe(takeUntil(this.destroy$)).subscribe({
+            next: (levels) => {
+                this.levelOptions = [
+                    { label: 'Todos os níveis', value: null },
+                    ...(levels || []).map(level => ({ label: level.name, value: level.id }))
+                ];
+                this.loadingLevels.set(false);
+            },
+            error: () => {
+                this.levelOptions = [{ label: 'Todos os níveis', value: null }];
+                this.loadingLevels.set(false);
             }
         });
     }
@@ -281,11 +309,23 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     }
 
     private applyLessonFilter(term: string) {
-        const t = term.toLowerCase();
-        this.filteredLessons = this.lessons.filter(l =>
-            (l.title || '').toLowerCase().includes(t) ||
-            (l.teacher || '').toLowerCase().includes(t)
-        );
+        this.applyFilters(term, this.levelFilterCtrl.value);
+    }
+
+    private applyLevelFilter(levelId: string | null) {
+        this.applyFilters(this.searchLessonsCtrl.value || '', levelId);
+    }
+
+    private applyFilters(searchTerm: string, levelId: string | null) {
+        const term = searchTerm.toLowerCase();
+        this.filteredLessons = this.lessons.filter(l => {
+            const matchesSearch = (l.title || '').toLowerCase().includes(term) ||
+                                (l.teacher?.name || '').toLowerCase().includes(term);
+
+            const matchesLevel = !levelId || l.unit?.levelId === levelId;
+
+            return matchesSearch && matchesLevel;
+        });
     }
 
     private applyStudentsFilter(_term: string) {
