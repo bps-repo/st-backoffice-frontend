@@ -2,10 +2,8 @@ import { inject, OnInit, OnDestroy } from '@angular/core';
 import { Component } from '@angular/core';
 import { AppMenuitemComponent } from './app.menuitem.component';
 import { CommonModule } from '@angular/common';
-import { AuthorizationService } from 'src/app/core/services/authorization.service';
-import { Permission } from 'src/app/core/models/auth/permission';
 import { Store } from '@ngrx/store';
-import { authFeature } from 'src/app/core/store/auth/auth.reducers';
+import { selectUserPermissionNames } from 'src/app/core/store/auth/auth.selectors';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -20,7 +18,6 @@ import { takeUntil } from 'rxjs/operators';
 export class AppMenuComponent implements OnInit, OnDestroy {
     model: any[] = [];
 
-    private authorizationService = inject(AuthorizationService);
     private store = inject(Store);
     private destroy$ = new Subject<void>();
 
@@ -30,17 +27,13 @@ export class AppMenuComponent implements OnInit, OnDestroy {
 
 
     ngOnInit() {
-        // Listen to auth state changes to refresh menu when user changes
-        this.store.select(authFeature.selectUser).pipe(
+        // Listen to user permissions from NgRx state to refresh menu reactively
+        this.store.select(selectUserPermissionNames).pipe(
             takeUntil(this.destroy$)
-        ).subscribe(user => {
-            if (user?.id) {
-                this.loadUserPermissions();
-            } else {
-                // Clear permissions when user logs out
-                this.permissionSet.clear();
-                this.model = this.buildMenu();
-            }
+        ).subscribe(permissionNames => {
+            this.permissionSet = new Set(permissionNames);
+            console.log('permissionSet from NgRx', this.permissionSet);
+            this.model = this.buildMenu();
         });
     }
 
@@ -49,15 +42,6 @@ export class AppMenuComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
-    private loadUserPermissions() {
-        this.authorizationService.getUserPermissions().pipe(
-            takeUntil(this.destroy$)
-        ).subscribe((permissions: Permission[]) => {
-            this.permissionSet = new Set(permissions.map(p => p.name));
-            console.log('permissionSet', this.permissionSet);
-            this.model = this.buildMenu();
-        });
-    }
 
     private buildMenu(): any[] {
         return this.model = [
