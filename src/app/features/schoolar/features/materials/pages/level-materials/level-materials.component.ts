@@ -170,11 +170,6 @@ import { YoutubeTestComponent } from 'src/app/shared/components/youtube-test/you
       </div>
     </div>
 
-    <!-- YouTube Test Component (Temporary) -->
-    <div class="col-12 mb-4">
-      <app-youtube-test></app-youtube-test>
-    </div>
-
     <!-- Video Modal -->
     <app-video-modal
       [visible]="showVideoModal"

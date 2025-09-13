@@ -10,7 +10,7 @@ export const LevelActions = createActionGroup(
             'Create Level': props<{ level: Partial<Level> }>(),
             'Create Level Success': props<{ level: Level }>(),
             'Create Level Failure': props<{ error: any }>(),
-            'Load Levels': emptyProps(),
+            'Load Levels': props<{ forceRefresh?: boolean }>(),
             'Load Levels Success': props<{ levels: Level[] }>(),
             'Load Levels Failure': props<{ error: any }>(),
             'Load Level': props<{ id: string }>(),
@@ -24,6 +24,12 @@ export const LevelActions = createActionGroup(
             'Update Level Failure': props<{ error: any }>(),
             'Select Level': props<{ id: string }>(),
             'Clear errors': emptyProps(),
+
+            // Cache management actions
+            'Set Last Fetch': props<{ timestamp: number }>(),
+            'Set Cache Expired': props<{ expired: boolean }>(),
+            'Refresh Cache': emptyProps(),
+            'Clear Cache': emptyProps(),
         }
     }
 )

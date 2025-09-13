@@ -9,7 +9,7 @@ export const employeesFeature = createFeature({
 
     on(EmployeesActions.loadEmployees, (state) => ({
       ...state,
-      loading: true,
+      loading: state.ids.length > 0 ? false : true,
       error: null,
     })),
     on(EmployeesActions.loadEmployeesSuccess, (state, {employees}) =>
@@ -27,7 +27,7 @@ export const employeesFeature = createFeature({
 
     on(EmployeesActions.loadEmployeesByRole, (state) => ({
       ...state,
-      loading: true,
+      loading: state.ids.length > 0 ? false : true,
       error: null,
     })),
     on(EmployeesActions.loadEmployeesByRoleSuccess, (state, {employees, role}) => {
@@ -53,7 +53,7 @@ export const employeesFeature = createFeature({
     // Search (non-paginated)
     on(EmployeesActions.searchEmployees, (state) => ({
       ...state,
-      loading: true,
+      loading: state.ids.length > 0 ? false : true,
       error: null,
     })),
     on(EmployeesActions.searchEmployeesSuccess, (state, {employees}) => {
@@ -76,7 +76,7 @@ export const employeesFeature = createFeature({
     // Search (paginated)
     on(EmployeesActions.searchEmployeesPaginated, (state) => ({
       ...state,
-      loading: true,
+      loading: state.ids.length > 0 ? false : true,
       error: null,
     })),
     on(EmployeesActions.searchEmployeesPaginatedSuccess, (state, {page}) => {
@@ -100,7 +100,7 @@ export const employeesFeature = createFeature({
     // By center
     on(EmployeesActions.loadEmployeesByCenter, (state) => ({
       ...state,
-      loading: true,
+      loading: state.ids.length > 0 ? false : true,
       error: null,
     })),
     on(EmployeesActions.loadEmployeesByCenterSuccess, (state, {employees, centerId}) => {
@@ -126,7 +126,7 @@ export const employeesFeature = createFeature({
     // By status
     on(EmployeesActions.loadEmployeesByStatus, (state) => ({
       ...state,
-      loading: true,
+      loading: state.ids.length > 0 ? false : true,
       error: null,
     })),
     on(EmployeesActions.loadEmployeesByStatusSuccess, (state, {employees, status}) => {

@@ -232,7 +232,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit(): void {
         // Dispatch action to load students
-        this.store.dispatch(LevelActions.loadLevels())
+        this.store.dispatch(LevelActions.loadLevels({}))
         this.store.dispatch(CenterActions.loadCenters());
         this.store.dispatch(StudentsActions.loadStudents());
         this.headerActions.push(

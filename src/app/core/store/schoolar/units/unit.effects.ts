@@ -1,13 +1,22 @@
 import {Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {exhaustMap, of} from 'rxjs';
-import {catchError, map, mergeMap} from 'rxjs/operators';
+import {catchError, map, mergeMap, withLatestFrom, filter, tap} from 'rxjs/operators';
 import {UnitService} from 'src/app/core/services/unit.service';
 import {UnitActions} from './unit.actions';
+import {Store} from '@ngrx/store';
+import {selectUnitsState} from './unit.selectors';
+import {CacheService} from 'src/app/core/services/cache.service';
+import {UnitState} from './unit.state';
 
 @Injectable()
 export class UnitEffects {
-    constructor(private actions$: Actions, private unitService: UnitService) {
+    constructor(
+        private actions$: Actions,
+        private unitService: UnitService,
+        private store: Store,
+        private cacheService: CacheService
+    ) {
     }
 
     createUnit$ = createEffect(() =>
@@ -46,11 +55,20 @@ export class UnitEffects {
         )
     );
 
-    // Load paged units (missing wiring added)
+    // Load paged units with cache logic
     loadPagedUnits$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UnitActions.loadUnits),
-            exhaustMap(() =>
+            withLatestFrom(this.store.select(selectUnitsState)),
+            filter(([action, state]) => {
+                return this.cacheService.shouldRefreshCache(
+                    (state as UnitState).lastFetch,
+                    (state as UnitState).cacheExpired,
+                    false, // No force refresh for units by default
+                    (state as UnitState).cacheTimeout
+                );
+            }),
+            exhaustMap(([action, state]) =>
                 this.unitService.loadUnits().pipe(
                     map((units) => {
                         return UnitActions.loadUnitsSuccess({units});
@@ -132,5 +150,28 @@ export class UnitEffects {
                 )
             )
         )
+    );
+
+    // Cache management effects
+    refreshCache$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(UnitActions.refreshCache),
+            map(() => UnitActions.loadUnits())
+        )
+    );
+
+    // Auto-refresh cache when it expires
+    autoRefreshCache$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(UnitActions.loadUnitsSuccess),
+            withLatestFrom(this.store.select(selectUnitsState)),
+            tap(([action, state]) => {
+                // Set up a timer to mark cache as expired after timeout
+                setTimeout(() => {
+                    this.store.dispatch(UnitActions.setCacheExpired({ expired: true }));
+                }, (state as UnitState).cacheTimeout);
+            })
+        ),
+        { dispatch: false }
     );
 }

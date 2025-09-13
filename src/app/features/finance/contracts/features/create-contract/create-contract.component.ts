@@ -172,7 +172,7 @@ export class CreateContractComponent implements OnInit {
     }
 
     loadLevels(): void {
-        this.store.dispatch(LevelActions.loadLevels());
+        this.store.dispatch(LevelActions.loadLevels({}));
         this.store.select(selectAllLevels).subscribe(levels => {
             this.levels = levels;
         });

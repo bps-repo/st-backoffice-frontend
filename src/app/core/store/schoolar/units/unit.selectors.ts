@@ -1,7 +1,6 @@
 import {createSelector} from '@ngrx/store';
 import {unitFeature} from './unit.feature';
 import {unitsAdapter} from './unit.state';
-import {shouldRefreshCache} from './unit.state';
 
 // Basic selectors from feature
 export const {
@@ -112,9 +111,20 @@ export const selectAnyLoading = createSelector(
 );
 
 // Cache selectors
-export const selectShouldRefreshCache = createSelector(
+export const selectCacheTimeout = createSelector(
     selectUnitsState,
-    (state) => shouldRefreshCache(state)
+    (state) => state.cacheTimeout
+);
+
+export const selectCacheStatus = createSelector(
+    selectLastFetch,
+    selectCacheTimeout,
+    (lastFetch, timeout) => ({
+        lastFetch,
+        timeout,
+        age: lastFetch ? Date.now() - lastFetch : null,
+        isExpired: lastFetch ? (Date.now() - lastFetch) > timeout : true
+    })
 );
 
 // Pagination selectors

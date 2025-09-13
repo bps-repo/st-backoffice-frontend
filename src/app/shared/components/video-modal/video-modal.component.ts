@@ -38,7 +38,7 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
         </div>
       </ng-template>
 
-      <div class="video-modal-content">
+      <div class="video-modal-content w-full">
         <app-youtube-player
           *ngIf="videoUrl && videoKey"
           [videoUrl]="videoUrl"

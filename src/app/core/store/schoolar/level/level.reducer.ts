@@ -29,7 +29,7 @@ export const levelsFeature = createFeature({
 
         on(LevelActions.loadLevels, (state) => ({
             ...state,
-            loading: true,
+            loading: state.ids.length > 0 ? false : true,
             error: null,
         })),
         on(LevelActions.loadLevelsSuccess, (state, { levels }) => levelsAdapter.setAll(
@@ -37,7 +37,9 @@ export const levelsFeature = createFeature({
             {
                 ...state,
                 loading: false,
-                error: null
+                error: null,
+                lastFetch: Date.now(),
+                cacheExpired: false
             }
         )),
         on(LevelActions.loadLevelsFailure, (state, { error }) => ({
@@ -68,20 +70,20 @@ export const levelsFeature = createFeature({
         })),
         on(LevelActions.deleteLevel, state => ({
             ...state,
-            loading: true,
+            loadingDelete: true,
             error: null
         })),
         on(LevelActions.deleteLevelSuccess, (state, { id }) => levelsAdapter.removeOne(
             id,
             {
                 ...state,
-                loading: false,
+                loadingDelete: false,
                 error: null
             }
         )),
         on(LevelActions.deleteLevelFailure, (state, { error }) => ({
             ...state,
-            loading: false,
+            loadingDelete: false,
             error
         })),
         on(LevelActions.updateLevel, state => ({
@@ -112,7 +114,28 @@ export const levelsFeature = createFeature({
             createError: null,
             updateError: null,
             deleteError: null
-        }))
+        })),
+
+        // Cache management
+        on(LevelActions.setLastFetch, (state, { timestamp }) => ({
+            ...state,
+            lastFetch: timestamp,
+        })),
+        on(LevelActions.setCacheExpired, (state, { expired }) => ({
+            ...state,
+            cacheExpired: expired,
+        })),
+        on(LevelActions.refreshCache, (state) => ({
+            ...state,
+            cacheExpired: true,
+        })),
+        on(LevelActions.clearCache, (state) =>
+            levelsAdapter.removeAll({
+                ...state,
+                lastFetch: null,
+                cacheExpired: false,
+            })
+        )
     )
 });
 

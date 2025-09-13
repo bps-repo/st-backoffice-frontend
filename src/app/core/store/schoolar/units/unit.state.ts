@@ -41,6 +41,7 @@ export interface UnitState extends EntityState<Unit> {
   // Cache management
   lastFetch: number | null;
   cacheExpired: boolean;
+  cacheTimeout: number; // Cache timeout in milliseconds (default: 5 minutes)
 }
 
 export const unitsAdapter = createEntityAdapter<Unit>({
@@ -93,16 +94,7 @@ export const unitInitialState: UnitState = unitsAdapter.getInitialState({
 
   // Cache management
   lastFetch: null,
-  cacheExpired: false
+  cacheExpired: false,
+  cacheTimeout: 5 * 60 * 1000 // 5 minutes in milliseconds
 });
 
-export const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-export const isCacheValid = (lastFetch: number | null): boolean => {
-  if (!lastFetch) return false;
-  return Date.now() - lastFetch < CACHE_DURATION;
-};
-
-export const shouldRefreshCache = (state: UnitState): boolean => {
-  return !state.lastFetch || state.cacheExpired || !isCacheValid(state.lastFetch);
-};

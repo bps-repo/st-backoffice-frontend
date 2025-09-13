@@ -101,7 +101,7 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
         showinfo: 1,
         rel: 0,
         modestbranding: 1,
-        autoplay: 1
+        autoplay: 0
     };
 
     constructor() { }

@@ -187,7 +187,7 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     ngOnInit(): void {
         // Load data
-        this.store.dispatch(LevelActions.loadLevels());
+        this.store.dispatch(LevelActions.loadLevels({}));
         this.store.dispatch(UnitActions.loadUnits());
 
         // Initialize KPIs

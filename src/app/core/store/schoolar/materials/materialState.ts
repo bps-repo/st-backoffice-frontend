@@ -27,6 +27,7 @@ export interface MaterialState extends EntityState<Material> {
   // Cache management
   lastFetch: number | null;
   cacheExpired: boolean;
+  cacheTimeout: number; // Cache timeout in milliseconds (default: 5 minutes)
 }
 
 export const materialsAdapter = createEntityAdapter<Material>({
@@ -64,16 +65,7 @@ export const materialInitialState: MaterialState = materialsAdapter.getInitialSt
 
   // Cache management
   lastFetch: null,
-  cacheExpired: false
+  cacheExpired: false,
+  cacheTimeout: 5 * 60 * 1000 // 5 minutes in milliseconds
 });
 
-export const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-export const isCacheValid = (lastFetch: number | null): boolean => {
-  if (!lastFetch) return false;
-  return Date.now() - lastFetch < CACHE_DURATION;
-};
-
-export const shouldRefreshCache = (state: MaterialState): boolean => {
-  return !state.lastFetch || state.cacheExpired || !isCacheValid(state.lastFetch);
-};

@@ -28,7 +28,7 @@ export const CenterFeature = createFeature({
         // Load all centers
         on(CenterActions.loadCenters, (state) => ({
             ...state,
-            loading: true,
+            loading: state.ids.length > 0 ? false : true,
             error: null
         })),
         on(CenterActions.loadCentersSuccess, (state, { centers }) => centersAdapter.setAll(centers, {
@@ -45,7 +45,7 @@ export const CenterFeature = createFeature({
         // Load center
         on(CenterActions.loadCenter, (state) => ({
             ...state,
-            loading: true,
+            loading: state.ids.length > 0 ? false : true,
             error: null
         })),
         on(CenterActions.loadCenterSuccess, (state, { center }) => ({

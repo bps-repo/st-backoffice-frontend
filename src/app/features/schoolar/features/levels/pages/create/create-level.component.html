@@ -74,15 +74,15 @@
                                 <ng-template pTemplate="selectedItem" let-option>
                                     <div class="flex align-items-center">
                                         <div class="w-2rem h-2rem border-round mr-2"
-                                             [style.background-color]="option.color"></div>
-                                        <span>{{ option.label }}</span>
+                                             [style.background-color]="option?.color"></div>
+                                        <span>{{ option?.label }}</span>
                                     </div>
                                 </ng-template>
                                 <ng-template pTemplate="item" let-option>
                                     <div class="flex align-items-center">
                                         <div class="w-2rem h-2rem border-round mr-2"
                                              [style.background-color]="option.color"></div>
-                                        <span>{{ option.label }}</span>
+                                        <span>{{ option?.label }}</span>
                                     </div>
                                 </ng-template>
                             </p-dropdown>

@@ -1,14 +1,22 @@
 import {Injectable} from '@angular/core';
 import {Actions, ofType, createEffect} from '@ngrx/effects';
 import {of} from 'rxjs';
-import {catchError, exhaustMap, map, mergeMap} from 'rxjs/operators';
+import {catchError, exhaustMap, map, mergeMap, withLatestFrom, filter, tap} from 'rxjs/operators';
 import {LevelService} from 'src/app/core/services/level.service';
 import {Level} from 'src/app/core/models/course/level';
 import {LevelActions} from "./level.actions";
+import {Store} from '@ngrx/store';
+import {selectLevelState} from './level.selectors';
+import {CacheService} from 'src/app/core/services/cache.service';
 
 @Injectable()
 export class LevelEffects {
-    constructor(private actions$: Actions, private levelService: LevelService) {
+    constructor(
+        private actions$: Actions,
+        private levelService: LevelService,
+        private store: Store,
+        private cacheService: CacheService
+    ) {
     }
 
     createLevel$ = createEffect(() =>
@@ -38,7 +46,17 @@ export class LevelEffects {
     loadLevels$ = createEffect(() =>
         this.actions$.pipe(
             ofType(LevelActions.loadLevels),
-            exhaustMap(() =>
+            withLatestFrom(this.store.select(selectLevelState)),
+            filter(([action, state]) => {
+                const { forceRefresh = false } = action;
+                return this.cacheService.shouldRefreshCache(
+                    state.lastFetch,
+                    state.cacheExpired,
+                    forceRefresh,
+                    state.cacheTimeout
+                );
+            }),
+            exhaustMap(([action, state]) =>
                 this.levelService.getLevels().pipe(
                     map((levels) =>
                         LevelActions.loadLevelsSuccess({levels})
@@ -74,5 +92,28 @@ export class LevelEffects {
                 )
             )
         )
+    );
+
+    // Cache management effects
+    refreshCache$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(LevelActions.refreshCache),
+            map(() => LevelActions.loadLevels({ forceRefresh: true }))
+        )
+    );
+
+    // Auto-refresh cache when it expires
+    autoRefreshCache$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(LevelActions.loadLevelsSuccess),
+            withLatestFrom(this.store.select(selectLevelState)),
+            tap(([action, state]) => {
+                // Set up a timer to mark cache as expired after timeout
+                setTimeout(() => {
+                    this.store.dispatch(LevelActions.setCacheExpired({ expired: true }));
+                }, state.cacheTimeout);
+            })
+        ),
+        { dispatch: false }
     );
 }

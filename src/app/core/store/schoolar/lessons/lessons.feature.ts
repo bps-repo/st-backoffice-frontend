@@ -10,7 +10,7 @@ export const lessonsFeature = createFeature({
         // Load lessons
         on(lessonsActions.loadLessons, (state) => ({
             ...state,
-            loading: true,
+            loading: state.ids.length > 0 ? false : true,
             error: null,
         })),
         on(lessonsActions.loadLessonsSuccess, (state, {lessons}) =>
@@ -31,7 +31,7 @@ export const lessonsFeature = createFeature({
         // Load lesson
         on(lessonsActions.loadLesson, (state) => ({
             ...state,
-            loading: true,
+            loading: state.ids.length > 0 ? false : true,
             error: null,
         })),
         on(lessonsActions.loadLessonSuccess, (state, {lesson}) =>

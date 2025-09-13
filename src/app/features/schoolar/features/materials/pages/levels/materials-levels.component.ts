@@ -89,7 +89,7 @@ export class MaterialsLevelsComponent implements OnInit {
     constructor(private router: Router, private store: Store, private materialService: MaterialService) {}
 
     ngOnInit(): void {
-        this.store.dispatch(LevelActions.loadLevels());
+        this.store.dispatch(LevelActions.loadLevels({}));
     }
 
     goToLevel(level: Level) {
