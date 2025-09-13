@@ -6,6 +6,7 @@ import {
 import {Store} from '@ngrx/store';
 import {authFeature} from '../store/auth/auth.reducers';
 import {map, Observable, take} from 'rxjs';
+import { JwtTokenService } from '../services/jwtToken.service';
 
 /**
  * Guard for checking if the user is authenticated.
@@ -20,17 +21,34 @@ export class AuthGuard implements CanActivate {
     }
 
     canActivate(): Observable<boolean> {
-        return this.store.select(authFeature.selectToken).pipe(
+        return this.store.select(authFeature.selectIsAuthenticated).pipe(
             take(1),
-            map((token) => {
+            map((isAuthenticated) => {
+                // Double-check with localStorage and token validity
                 const storedToken = localStorage.getItem('accessToken');
-                const isAuthenticated = !!token || !!storedToken;
+                let tokenValid = false;
 
-                if (!isAuthenticated) {
+                if (storedToken) {
+                    try {
+                        JwtTokenService.decodeToken(storedToken);
+                        tokenValid = !JwtTokenService.isTokenExpired();
+                    } catch {
+                        tokenValid = false;
+                    }
+                }
+
+                const actuallyAuthenticated = isAuthenticated && tokenValid;
+
+                if (!actuallyAuthenticated) {
+                    // Clear invalid tokens
+                    if (storedToken && !tokenValid) {
+                        localStorage.removeItem('accessToken');
+                        localStorage.removeItem('refreshToken');
+                    }
                     this.router.navigate(['/auth/login']);
                 }
 
-                return isAuthenticated;
+                return actuallyAuthenticated;
             })
         );
     }

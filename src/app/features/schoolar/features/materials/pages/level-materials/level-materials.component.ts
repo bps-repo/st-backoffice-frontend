@@ -10,13 +10,11 @@ import { MaterialService } from 'src/app/core/services/material.service';
 import { LevelService } from 'src/app/core/services/level.service';
 import { UnitService } from 'src/app/core/services/unit.service';
 import { Material } from 'src/app/core/models/academic/material';
-import { Level } from 'src/app/core/models/course/level';
 import { Unit } from 'src/app/core/models/course/unit';
-import { Observable, forkJoin, of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { VideoModalComponent } from 'src/app/shared/components/video-modal/video-modal.component';
 import { isValidYouTubeUrl } from 'src/app/shared/utils/youtube.utils';
-import { YoutubeTestComponent } from 'src/app/shared/components/youtube-test/youtube-test.component';
 
 @Component({
     selector: 'app-level-materials',
@@ -29,7 +27,6 @@ import { YoutubeTestComponent } from 'src/app/shared/components/youtube-test/you
         TooltipModule,
         ProgressSpinnerModule,
         VideoModalComponent,
-        YoutubeTestComponent
     ],
     template: `
     <div class="grid">

@@ -23,9 +23,15 @@ import { map } from 'rxjs/operators';
             .card-hover:hover .img-zoom { transform: scale(1.06); }
         </style>
         <div class="grid">
-            <div class="col-12 mb-3">
-                <h2 class="font-bold text-2xl">Gestão de materiais didáticos</h2>
-                <span class="text-lg">Escolha um nível para visualizar os materiais</span>
+            <div class="col-12 flex justify-content-between align-items-center">
+                <div class="mb-3">
+                    <h2 class="font-bold text-2xl">Gestão de materiais didáticos</h2>
+                    <span class="text-lg">Escolha um nível para visualizar os materiais</span>
+                </div>
+
+                <div class="mb-3">
+                    <p-button label="Adicionar material" icon="pi pi-plus" (onClick)="goToCreateMaterial()"></p-button>
+                </div>
             </div>
 
             <div class="col-12" *ngIf="(loading$ | async); else levelsGrid">
@@ -86,10 +92,14 @@ export class MaterialsLevelsComponent implements OnInit {
 
     private backgroundPath: string = 'assets/background_login.png';
 
-    constructor(private router: Router, private store: Store, private materialService: MaterialService) {}
+    constructor(private router: Router, private store: Store, private materialService: MaterialService) { }
 
     ngOnInit(): void {
         this.store.dispatch(LevelActions.loadLevels({}));
+    }
+
+    goToCreateMaterial() {
+        this.router.navigate(['/schoolar/materials/create']);
     }
 
     goToLevel(level: Level) {

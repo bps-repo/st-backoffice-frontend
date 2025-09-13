@@ -54,7 +54,7 @@ export class JwtTokenService {
     }
 
     static getUser(): Partial<User> | null {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('accessToken');
 
         if (!token) {
             return null;

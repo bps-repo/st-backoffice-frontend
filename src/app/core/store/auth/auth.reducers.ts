@@ -88,14 +88,19 @@ export const authFeature = createFeature({
             };
         }),
 
-        on(authActions.refreshTokenFailure, (state, {error}) => ({
-            ...state,
-            isAuthenticated: false,
-            token: null,
-            refreshToken: null,
-            error,
-            loading: false
-        })),
+        on(authActions.refreshTokenFailure, (state, {error}) => {
+            // Clear tokens from localStorage on refresh failure
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            return {
+                ...state,
+                isAuthenticated: false,
+                token: null,
+                refreshToken: null,
+                error,
+                loading: false
+            };
+        }),
 
         // Verify actions
         on(authActions.verify, (state) => ({
@@ -228,6 +233,20 @@ export const authFeature = createFeature({
         on(authActions.changeShouldNavigateAfterProfileLoad, (state, { shouldNavigateAfterProfileLoad }) => ({
             ...state,
             shouldNavigateAfterProfileLoad
+        })),
+
+        // Token validation actions
+        on(authActions.validateToken, (state) => ({
+            ...state,
+            loading: true,
+            error: null
+        })),
+
+        on(authActions.validateTokenSuccess, (state, { isValid }) => ({
+            ...state,
+            isAuthenticated: isValid,
+            loading: false,
+            error: null
         }))
     ),
 });

@@ -48,6 +48,10 @@ export const authActions = createActionGroup({
         // Clear error actions
         clearError: emptyProps(),
 
+        // Token validation actions
+        validateToken: emptyProps(),
+        validateTokenSuccess: props<{ isValid: boolean }>(),
+
         changeShouldNavigateAfterProfileLoad: props<{ shouldNavigateAfterProfileLoad: boolean }>(),
     },
 });

@@ -12,7 +12,6 @@ import { CustomSerializer } from './core/router/custom-serializer';
 import { AppEffects, AppFeatures } from "./core/store";
 import { forbiddenInterceptor } from "./core/interceptors/forbidden.interceptor";
 import { MessageService } from "primeng/api";
-import { tokenExpiredInterceptor } from "./core/interceptors/token-expired.interceptor";
 // YouTube Player is imported directly in components that need it
 
 export const AppConfig: ApplicationConfig = {
@@ -21,7 +20,7 @@ export const AppConfig: ApplicationConfig = {
         // HTTP
         provideHttpClient(
             withFetch(),
-            withInterceptors([tokenInterceptor, forbiddenInterceptor, tokenExpiredInterceptor])
+            withInterceptors([tokenInterceptor, forbiddenInterceptor])
         ),
         // Animations
         provideAnimations(),

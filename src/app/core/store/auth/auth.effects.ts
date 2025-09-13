@@ -234,4 +234,25 @@ export class AuthEffects {
             )
         )
     );
+
+    validateToken$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(authActions.validateToken),
+            map(() => {
+                const token = localStorage.getItem('accessToken');
+                let isValid = false;
+
+                if (token) {
+                    try {
+                        JwtTokenService.decodeToken(token);
+                        isValid = !JwtTokenService.isTokenExpired();
+                    } catch {
+                        isValid = false;
+                    }
+                }
+
+                return authActions.validateTokenSuccess({ isValid });
+            })
+        )
+    );
 }
