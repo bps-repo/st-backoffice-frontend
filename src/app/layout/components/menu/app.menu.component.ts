@@ -107,7 +107,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
             {
                 label: 'Financeiro',
                 icon: 'pi pi-fw pi-file-pdf',
-                visible: this.hasPermission('finance.dashboard.view'),
+                visible: this.hasPermission('Manage Attendance Automation'),
                 items: [
                     {
                         label: 'Dashboard',
@@ -133,12 +133,12 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         routerLink: ['/settings/tasks'],
                         visible: this.hasPermission('tasks.manage')
                     },
-                    {
-                        label: 'Relatórios',
-                        icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/finances/reports'],
-                        visible: this.hasPermission('reports.finance.view')
-                    },
+                    // {
+                    //     label: 'Relatórios',
+                    //     icon: 'pi pi-fw pi-file-pdf',
+                    //     routerLink: ['/finances/reports'],
+                    //     visible: this.hasPermission('reports.finance.view')
+                    // },
                 ],
             },
             {
@@ -158,12 +158,12 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         routerLink: ['/corporate/centers'],
                         visible: this.hasPermission('centers.view')
                     },
-                    {
-                        label: 'Relatório',
-                        icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/corporate/reports'],
-                        visible: this.hasPermission('reports.corporate.view')
-                    },
+                    // {
+                    //     label: 'Relatório',
+                    //     icon: 'pi pi-fw pi-file-pdf',
+                    //     routerLink: ['/corporate/reports'],
+                    //     visible: this.hasPermission('reports.corporate.view')
+                    // },
                     {
                         label: 'Administração',
                         icon: 'pi pi-fw pi-cog',

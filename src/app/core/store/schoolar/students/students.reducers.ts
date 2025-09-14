@@ -35,7 +35,7 @@ export const studentsFeature = createFeature({
         // Load single student
         on(StudentsActions.loadStudent, (state) => ({
             ...state,
-            loading: state.ids.length > 0 ? false : true,
+            loading: true,
             error: null,
         })),
 
