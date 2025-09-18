@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TreeModule } from 'primeng/tree';
+import { CheckboxModule } from 'primeng/checkbox';
 import { TreeNode } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { BadgeModule } from 'primeng/badge';
@@ -8,6 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { Permission } from 'src/app/core/models/auth/permission';
 import { Role } from 'src/app/core/models/auth/role';
+import { FormsModule } from '@angular/forms';
 
 interface PermissionTreeNode extends TreeNode {
   id?: string;
@@ -23,10 +25,12 @@ interface PermissionTreeNode extends TreeNode {
   imports: [
     CommonModule,
     TreeModule,
+    CheckboxModule,
     CardModule,
     BadgeModule,
     TagModule,
-    ButtonModule
+    ButtonModule,
+    FormsModule
   ],
   template: `
     <div class="permission-tree-selector">
@@ -92,14 +96,17 @@ interface PermissionTreeNode extends TreeNode {
       <div class="permission-tree-container">
         <p-tree
           [value]="permissionTree"
-          selectionMode="checkbox"
-          [(selection)]="selectedNodes"
-          (onNodeSelect)="onNodeSelect($event)"
-          (onNodeUnselect)="onNodeUnselect($event)"
           [metaKeySelection]="false"
           class="w-full">
           <ng-template let-node pTemplate="default">
             <div class="tree-node-content flex align-items-center gap-2 w-full">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="isNodeSelected(node)"
+                (onChange)="onToggleNode(node, $event)"
+                [disabled]="node.isRolePermission"
+                class="mr-2">
+              </p-checkbox>
               <div class="flex-1">
                 <div class="flex align-items-center gap-2">
                   <span [class]="getNodeLabelClass(node)">
@@ -184,8 +191,8 @@ interface PermissionTreeNode extends TreeNode {
     }
 
     :deep(.p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight) {
-      background-color: #dbeafe;
-      color: #1e40af;
+      background-color: transparent;
+      color: inherit;
     }
 
     :deep(.p-tree .p-tree-container .p-treenode .p-treenode-content.p-treenode-selectable:not(.p-highlight):hover) {
@@ -236,12 +243,19 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['permissions'] || changes['selectedRole'] || changes['selectedPermissionIds']) {
+    if (changes['permissions'] || changes['selectedRole']) {
       this.updatePermissionTree();
+    } else if (changes['selectedPermissionIds']) {
+      // Only update selection counts when selectedPermissionIds changes
+      this.updateSelectionCounts();
+      this.updateAdditionalPermissions();
     }
   }
 
   private updatePermissionTree() {
+    // Preserve expanded state before rebuild
+    const expandedKeys = this.collectExpandedKeys(this.permissionTree);
+
     // Get role permission IDs
     this.rolePermissionIds = this.selectedRole?.permissions?.map(p => p.id) || [];
 
@@ -250,6 +264,9 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
 
     // Build tree structure
     this.permissionTree = this.buildTreeFromPermissions(this.permissions);
+
+    // Reapply expanded state
+    this.applyExpandedKeys(this.permissionTree, expandedKeys);
 
     // Update selection
     this.updateSelection();
@@ -329,6 +346,11 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
     this.updateNodeSelection(this.permissionTree);
   }
 
+  private updateSelectionCounts() {
+    // Update only the selection counts without rebuilding the tree
+    this.updateNodeSelectionCounts(this.permissionTree);
+  }
+
   private updateNodeSelection(nodes: PermissionTreeNode[]) {
     nodes.forEach(node => {
       if (node.permission && this.selectedPermissionIds.includes(node.permission.id)) {
@@ -340,8 +362,21 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
       }
 
       // Update selection counts
-      if (node.childrenCount) {
+      if (node.children) {
         node.selectedCount = this.countSelectedChildren(node.permission!);
+      }
+    });
+  }
+
+  private updateNodeSelectionCounts(nodes: PermissionTreeNode[]) {
+    nodes.forEach(node => {
+      // Update selection counts for nodes with children
+      if (node.children && node.permission) {
+        node.selectedCount = this.countSelectedChildren(node.permission);
+      }
+
+      if (node.children) {
+        this.updateNodeSelectionCounts(node.children);
       }
     });
   }
@@ -360,41 +395,50 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
     });
   }
 
-  onNodeSelect(event: any) {
-    const node = event.node as PermissionTreeNode;
-    if (node.permission && !node.isRolePermission) {
-      // add this node id
-      if (!this.selectedPermissionIds.includes(node.permission.id)) {
-        this.selectedPermissionIds.push(node.permission.id);
-      }
-      // add all non-role descendant ids
-      const descendantIds = this.collectDescendantIds(node);
-      descendantIds.forEach(id => {
-        if (!this.selectedPermissionIds.includes(id)) {
-          this.selectedPermissionIds.push(id);
-        }
-      });
-      this.emitChange();
-    }
+  onNodeSelect(event: any) { /* unused now */ }
+  onNodeUnselect(event: any) { /* unused now */ }
+
+  isNodeSelected(node: PermissionTreeNode): boolean {
+    return !!(node.permission && this.selectedPermissionIds.includes(node.permission.id));
   }
 
-  onNodeUnselect(event: any) {
-    const node = event.node as PermissionTreeNode;
-    if (node.permission && !node.isRolePermission) {
-      // remove this node id
-      const index = this.selectedPermissionIds.indexOf(node.permission.id);
-      if (index > -1) {
-        this.selectedPermissionIds.splice(index, 1);
-      }
-      // remove all non-role descendant ids
-      const descendantIds = this.collectDescendantIds(node);
-      this.selectedPermissionIds = this.selectedPermissionIds.filter(id => !descendantIds.includes(id));
-      this.emitChange();
+  onToggleNode(node: PermissionTreeNode, event: any) {
+    if (!node.permission || node.isRolePermission) {
+      return;
     }
+    const checked = !!event.checked;
+    const id = node.permission.id;
+    const idx = this.selectedPermissionIds.indexOf(id);
+    // collect descendants within this branch that are selectable (non-role)
+    const descendantIds = this.collectDescendantIds(node);
+
+    if (checked) {
+      // select this node
+      if (idx === -1) {
+        this.selectedPermissionIds.push(id);
+      }
+      // select descendants
+      descendantIds.forEach(childId => {
+        if (!this.selectedPermissionIds.includes(childId)) {
+          this.selectedPermissionIds.push(childId);
+        }
+      });
+    } else {
+      // unselect this node
+      if (idx > -1) {
+        this.selectedPermissionIds.splice(idx, 1);
+      }
+      // unselect descendants
+      this.selectedPermissionIds = this.selectedPermissionIds.filter(selId => !descendantIds.includes(selId));
+    }
+    this.emitChange();
   }
 
   private emitChange() {
-    this.updatePermissionTree();
+    // Do not rebuild the whole tree on selection changes to avoid collapsing state
+    // Only update selection counts and additional permissions without rebuilding tree
+    this.updateSelectionCounts();
+    this.updateAdditionalPermissions();
     this.permissionIdsChange.emit([...this.selectedPermissionIds]);
   }
 
@@ -431,6 +475,40 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
         this.expandAllNodes(node.children, expanded);
       }
     });
+  }
+
+  private collectExpandedKeys(nodes: PermissionTreeNode[]): Set<string> {
+    const keys = new Set<string>();
+    const walk = (n: PermissionTreeNode[]) => {
+      n.forEach(node => {
+        if (node.expanded && node.key) {
+          keys.add(String(node.key));
+        }
+        if (node.children && node.children.length > 0) {
+          walk(node.children as PermissionTreeNode[]);
+        }
+      });
+    };
+    if (nodes && nodes.length > 0) {
+      walk(nodes);
+    }
+    return keys;
+  }
+
+  private applyExpandedKeys(nodes: PermissionTreeNode[], expandedKeys: Set<string>) {
+    const walk = (n: PermissionTreeNode[]) => {
+      n.forEach(node => {
+        if (node.key && expandedKeys.has(String(node.key))) {
+          node.expanded = true;
+        }
+        if (node.children && node.children.length > 0) {
+          walk(node.children as PermissionTreeNode[]);
+        }
+      });
+    };
+    if (expandedKeys.size > 0 && nodes && nodes.length > 0) {
+      walk(nodes);
+    }
   }
 
   getTotalSelectedCount(): number {

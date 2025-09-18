@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/services/employee.service';
-import { Employee, EmployeeStatus, CreateEmployeeRequest } from 'src/app/core/models/corporate/employee';
-import { CreateUserRequest } from 'src/app/core/models/auth/user';
+import { CreateEmployeeRequest } from 'src/app/core/models/corporate/employee';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
@@ -24,9 +23,7 @@ import { TreeNode } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
-import { Center } from 'src/app/core/models/corporate/center';
 import { Observable, map } from 'rxjs';
-import { PermissionSelectorComponent } from 'src/app/shared/components/permission-selector/permission-selector.component';
 import { PermissionTreeSelectorComponent } from 'src/app/shared/components/permission-tree-selector/permission-tree-selector.component';
 
 @Component({

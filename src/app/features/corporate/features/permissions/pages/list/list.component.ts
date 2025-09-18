@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
     TableColumn,
-    GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
 import {Permission} from 'src/app/core/models/auth/permission';
 import {PermissionService} from 'src/app/core/services/permission.service';
@@ -24,7 +23,6 @@ import {selectPermissionsLoading} from "../../../../../../core/store/permissions
     imports: [
         CommonModule,
         RouterModule,
-        GlobalTable,
         ButtonModule,
         SelectButtonModule,
         PermissionTreeViewComponent,
@@ -33,15 +31,9 @@ import {selectPermissionsLoading} from "../../../../../../core/store/permissions
     templateUrl: './list.component.html',
     standalone: true
 })
-export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ListComponent implements OnInit, OnDestroy {
 
     // Custom Templates for the table
-    @ViewChild('createdAtTemplate', {static: true})
-    createdAtTemplate!: TemplateRef<any>;
-
-    @ViewChild('updatedAtTemplate', {static: true})
-    updatedAtTemplate!: TemplateRef<any>;
-
     permissions$: Observable<Permission[]> = of([]);
     loading$: Observable<boolean> = of(false);
     columns: TableColumn[] = COLUMNS;
@@ -62,13 +54,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit(): void {
         this.loadPermissions();
-    }
-
-    ngAfterViewInit() {
-        this.customTemplates = {
-            createdAt: this.createdAtTemplate,
-            updatedAt: this.updatedAtTemplate
-        };
     }
 
     ngOnDestroy(): void {

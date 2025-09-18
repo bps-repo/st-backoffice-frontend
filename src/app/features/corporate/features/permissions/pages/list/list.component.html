@@ -5,12 +5,3 @@
             [loading]="(loading$ | async)!"></app-permission-tree-view>
     </div>
 </div>
-
-<!-- Date templates -->
-<ng-template #createdAtTemplate let-rowData>
-    <span>{{ rowData.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-</ng-template>
-
-<ng-template #updatedAtTemplate let-rowData>
-    <span>{{ rowData.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-</ng-template>
