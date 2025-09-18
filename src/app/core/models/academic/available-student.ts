@@ -1,3 +1,6 @@
+import { Level } from "../course/level";
+import { Center } from "../corporate/center";
+
 export interface AvailableStudent {
     id: string;
     code: number;
@@ -8,8 +11,8 @@ export interface AvailableStudent {
     birthdate: string;
     currentUnitId: string;
     currentUnitName: string;
-    levelId: string;
+    level: Level;
     levelName: string;
-    centerId: string;
+    center: Center;
     centerName: string;
 }

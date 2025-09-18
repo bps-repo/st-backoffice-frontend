@@ -8,6 +8,7 @@ import { authActions } from './auth.actions';
 import { Router } from '@angular/router';
 import { JwtTokenService } from "../../services/jwtToken.service";
 import { Store } from '@ngrx/store';
+import { ApiError } from '../../services/error-message.service';
 // import * as authSelectors from './auth.selectors';
 
 @Injectable()
@@ -32,13 +33,23 @@ export class AuthEffects {
                             refreshToken: response.data.refreshToken,
                         })
                     ),
-                    catchError((error) =>
-                        of(
+                    catchError((error) => {
+                        // Extract detailed error information from the API response
+                        const apiError: ApiError = error.error || {
+                            timestamp: new Date().toISOString(),
+                            status: error.status || 500,
+                            error: error.name || 'Unknown Error',
+                            message: error.message || 'An unexpected error occurred',
+                            errorCode: error.error?.errorCode || 'UNKNOWN_ERROR',
+                            path: error.url || '/api/v1/auth/login'
+                        };
+
+                        return of(
                             authActions.loginFailure({
-                                error: error.status,
+                                error: apiError,
                             })
-                        )
-                    )
+                        );
+                    })
                 )
             )
         )

@@ -260,7 +260,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                 })
             ),
             students: this.studentService.getStudents().pipe(
-                map(students => students.filter(student => student.levelId === this.levelId)),
+                map(students => students.filter(student => student.level.id === this.levelId)),
                 catchError(error => {
                     console.error('Error loading students:', error);
                     return of([]);
@@ -311,7 +311,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         return combineLatest(unitProgressObservables).pipe(
             map(progressArrays => progressArrays.flat())
         );
-        
+
     }
 
     /**
@@ -332,7 +332,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
 
         this.studentService.getStudents().pipe(
-            map(students => students.filter(student => student.levelId === this.levelId)),
+            map(students => students.filter(student => student.level.id === this.levelId)),
             catchError(error => {
                 console.error('Error loading students:', error);
                 return of([]);

@@ -1,3 +1,5 @@
+import { Center } from "../corporate/center";
+import { Level } from "../course/level";
 import {Unit} from "../course/unit";
 import {User} from "../user.model";
 import {Class} from "./class";
@@ -9,8 +11,8 @@ export interface Student {
     status: StudentStatus;
     levelProgressPercentage: number;
     studentClass?: Class;
-    centerId: string;
-    levelId: string;
+    center: Center;
+    level: Level;
     currentUnit?: Unit;
     enrollmentDate: string;
     certificates?: any[];

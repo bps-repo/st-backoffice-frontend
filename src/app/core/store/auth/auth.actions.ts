@@ -1,5 +1,6 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
 import {User} from '../../models/auth/user';
+import {ApiError} from '../../services/error-message.service';
 
 export const authActions = createActionGroup({
     source: 'auth',
@@ -7,7 +8,7 @@ export const authActions = createActionGroup({
         // Login actions
         login: props<{ email: string; password: string }>(),
         loginSuccess: props<{ refreshToken: string; token: string }>(),
-        loginFailure: props<{ error: any }>(),
+        loginFailure: props<{ error: ApiError }>(),
 
         // Logout actions
         logout: emptyProps(),

@@ -49,12 +49,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     customTemplates: Record<string, TemplateRef<any>> = {};
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
-    viewOptions = [
-        {label: 'Tabela', value: 'table'},
-        {label: 'Árvore', value: 'tree'}
-    ];
-    selectedView: string = 'table';
-
     private loading = false;
     private destroy$ = new Subject<void>();
 

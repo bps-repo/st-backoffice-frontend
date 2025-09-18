@@ -50,8 +50,8 @@ export class StudentService {
             status: apiStudent.status,
             levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
             studentClass: apiStudent.studentClass, // if backend uses different key, adjust here
-            centerId: apiStudent.centerId ?? apiStudent.center?.id ?? '',
-            levelId: apiStudent.levelId ?? apiStudent.level?.id ?? '',
+            center: apiStudent.center ?? apiStudent.center?.id ?? '',
+            level: apiStudent.level?? apiStudent.level?.id ?? '',
             currentUnit: apiStudent.currentUnit,
             enrollmentDate: apiStudent.enrollmentDate,
             certificates: apiStudent.certificates ?? apiStudent.certificatesIds,

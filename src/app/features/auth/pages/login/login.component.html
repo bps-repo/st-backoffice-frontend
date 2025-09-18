@@ -15,6 +15,34 @@
                     <img class="logo" src="assets/st-andrews-logo.png" alt="Security Icon" />
                 </div>
 
+                <!-- Error Alert -->
+                <div *ngIf="showAlert" class="error-alert" [ngClass]="'alert-' + errorSeverity">
+                    <div class="alert-content">
+                        <div class="alert-icon">
+                            <i *ngIf="errorSeverity === 'error'" class="pi pi-exclamation-triangle"></i>
+                            <i *ngIf="errorSeverity === 'warning'" class="pi pi-exclamation-circle"></i>
+                            <i *ngIf="errorSeverity === 'info'" class="pi pi-info-circle"></i>
+                        </div>
+                        <div class="alert-message">
+                            <p>{{ errorMessage }}</p>
+                            <div *ngIf="shouldShowRetry" class="retry-section">
+                                <p class="retry-text">
+                                    <i class="pi pi-clock"></i>
+                                    Tente novamente em {{ retryDelay }} segundos
+                                </p>
+                                <button type="button" class="retry-btn" (click)="retryLogin()"
+                                        [disabled]="retryDelay > 0">
+                                    <i class="pi pi-refresh"></i>
+                                    Tentar Novamente
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="alert-close" (click)="dismissError()">
+                            <i class="pi pi-times"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                     <div>
                         <label for="email">Email</label>

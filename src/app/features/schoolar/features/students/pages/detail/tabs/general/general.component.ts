@@ -145,9 +145,9 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
             id: student.id,
             name: student.user?.firstname || 'N/A',
             email: student.user?.email || 'N/A',
-            center: student.centerId || 'N/A',
+            center: student.center.name || 'N/A',
             course: 'English Language', // This could be derived from student.levelId
-            level: student.levelId || 'N/A',
+            level: student.level.name || 'N/A',
             unit: student.currentUnit?.name || 'N/A',
             unitOrder: student.currentUnit?.order || 1,
             totalUnits: 4, // This could be derived from the level
@@ -165,7 +165,7 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
             },
             {
                 title: 'Tipo de Inscrição',
-                value: student.levelId ? `${student.levelId}` : 'N/A',
+                value: student.level.name ? `${student.level.name}` : 'N/A',
             },
             {
                 title: 'Nº de Identificação',

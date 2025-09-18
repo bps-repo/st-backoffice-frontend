@@ -178,8 +178,8 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
             },
             status: 'ACTIVE' as any,
             levelProgressPercentage: 0,
-            centerId: student.centerId,
-            levelId: student.levelId,
+            center: student.center,
+            level: student.level,
             enrollmentDate: new Date().toISOString()
         };
 
@@ -205,10 +205,10 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
             birthdate: student.user?.birthdate || '',
             currentUnitId: student.currentUnit?.id || '',
             currentUnitName: student.currentUnit?.name || '',
-            levelId: student.levelId,
-            levelName: '', // We don't have this in Student model
-            centerId: student.centerId,
-            centerName: '' // We don't have this in Student model
+            level: student.level,
+            levelName: student.level.name, // We don't have this in Student model
+            center: student.center,
+            centerName: student.center.name // We don't have this in Student model
         };
 
         this.available = [availableStudent, ...this.available];

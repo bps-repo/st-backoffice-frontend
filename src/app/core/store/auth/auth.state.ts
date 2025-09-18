@@ -1,12 +1,13 @@
 import { User } from "../../models/auth/user";
 import { JwtTokenService } from "../../services/jwtToken.service";
+import { ApiError } from "../../services/error-message.service";
 
 export interface AuthState {
     isAuthenticated: boolean;
     token: string | null;
     refreshToken: string | null;
     user: User | null;
-    error: any | null;
+    error: ApiError | null;
     loading: boolean;
 
     loadUserProfile: boolean;

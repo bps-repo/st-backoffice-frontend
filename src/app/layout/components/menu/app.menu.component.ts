@@ -131,7 +131,6 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Gestão de Tarefas',
                         icon: 'pi pi-fw pi-check-square',
                         routerLink: ['/settings/tasks'],
-                        visible: this.hasPermission('tasks.manage')
                     },
                     // {
                     //     label: 'Relatórios',

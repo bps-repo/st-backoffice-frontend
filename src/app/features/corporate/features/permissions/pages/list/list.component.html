@@ -1,56 +1,8 @@
 <div class="grid">
-    <div class="col-12 mb-3">
-        <div class="flex justify-content-end">
-            <p-selectButton [options]="viewOptions" [(ngModel)]="selectedView" optionLabel="label" optionValue="value"></p-selectButton>
-        </div>
-    </div>
 
-    <div class="col-12">
-        <!-- Permissions Table -->
-        <app-global-table
-            *ngIf="selectedView === 'table'"
-            tableLabel="Permissões"
-            [headerActions]="headerActions"
-            [data]="(permissions$ | async)!"
-            [entity]="'permissions'"
-            [columns]="columns"
-            [globalFilterFields]="globalFilterFields"
-            [loading]="loading$ | async"
-            [columnTemplates]="customTemplates"
-            [expandableRows]="true"
-            [childrenField]="'children'"
-            (rowSelect)="onRowSelect($event)"
-            (createEntity)="navigateToCreatePermission()"
-            class="w-full"
-        >
-            <ng-template #expansion let-permission>
-                <div class="p-3 child-permissions">
-                    <div *ngFor="let child of permission.children" class="p-2 mb-2 surface-100 border-round">
-                        <div class="grid">
-                            <div class="col-3">
-                                <span class="font-semibold">{{ child.name }}</span>
-                            </div>
-                            <div class="col-5">
-                                <span>{{ child.description }}</span>
-                            </div>
-                            <div class="col-2">
-                                <span>{{ child.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                            </div>
-                            <div class="col-2">
-                                <span>{{ child.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </ng-template>
-        </app-global-table>
-
-        <!-- Permissions Tree View -->
-        <app-permission-tree-view
-            *ngIf="selectedView === 'tree'"
-            [permissions]="(permissions$ | async)!"
-            [loading]="(loading$ | async)!"
-        ></app-permission-tree-view>
+    <div class="col-12"> <!-- Permissions Tree View -->
+        <app-permission-tree-view [permissions]="(permissions$ | async)!"
+            [loading]="(loading$ | async)!"></app-permission-tree-view>
     </div>
 </div>
 
