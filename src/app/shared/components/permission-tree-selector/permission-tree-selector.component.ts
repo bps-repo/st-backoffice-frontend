@@ -517,18 +517,15 @@ export class PermissionTreeSelectorComponent implements OnInit, OnChanges {
 
   private collectDescendantIds(node: PermissionTreeNode): string[] {
     const ids: string[] = [];
-    const walk = (n: PermissionTreeNode) => {
-      if (n.children && n.children.length > 0) {
-        n.children.forEach(child => {
-          const c = child as PermissionTreeNode;
-          if (c.permission && !c.isRolePermission) {
-            ids.push(c.permission.id);
-          }
-          walk(c);
-        });
-      }
-    };
-    walk(node);
+    // Only collect direct children, not all descendants
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(child => {
+        const c = child as PermissionTreeNode;
+        if (c.permission && !c.isRolePermission) {
+          ids.push(c.permission.id);
+        }
+      });
+    }
     return ids;
   }
 }

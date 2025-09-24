@@ -1,30 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { EmployeeService } from 'src/app/core/services/employee.service';
 import { CreateEmployeeRequest } from 'src/app/core/models/corporate/employee';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
-import { finalize } from 'rxjs/operators';
-import { RoleService } from 'src/app/core/services/role.service';
+import { takeUntil } from 'rxjs/operators';
 import { Role } from 'src/app/core/models/auth/role';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PasswordModule } from 'primeng/password';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { RolesPermissionsService } from 'src/app/core/services/roles-permissions.service';
 import { Permission } from 'src/app/core/models/auth/permission';
-import { TreeSelectModule } from 'primeng/treeselect';
-import { TreeModule } from 'primeng/tree';
-import { TreeNode } from 'primeng/api';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
 import { Observable, map } from 'rxjs';
 import { PermissionTreeSelectorComponent } from 'src/app/shared/components/permission-tree-selector/permission-tree-selector.component';
+import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
+import * as EmployeesSelectors from 'src/app/core/store/corporate/employees/employees.selectors';
+import { Subject } from 'rxjs';
+import * as RolesActions from 'src/app/core/store/roles/actions/roles.actions';
+import * as RolesSelectors from 'src/app/core/store/roles/selectors/roles.selectors';
+import * as PermissionsActions from 'src/app/core/store/permissions/actions/permissions.actions';
+import * as PermissionsSelectors from 'src/app/core/store/permissions/selectors/permissions.selectors';
 
 @Component({
     selector: 'app-create',
@@ -41,14 +43,11 @@ import { PermissionTreeSelectorComponent } from 'src/app/shared/components/permi
         PasswordModule,
         InputNumberModule,
         RadioButtonModule,
-        TreeSelectModule,
-        TreeModule,
         PermissionTreeSelectorComponent
     ]
 })
-export class CreateComponent implements OnInit {
+export class CreateComponent implements OnInit, OnDestroy {
     employeeForm!: FormGroup;
-    loading = false;
     statusOptions = [
         { label: 'Ativo', value: 'ACTIVE' },
         { label: 'Inativo', value: 'INACTIVE' },
@@ -61,20 +60,19 @@ export class CreateComponent implements OnInit {
     ];
     roles: Role[] = [];
     permissions: Permission[] = [];
-    permissionTree: TreeNode[] = [];
     selectedRole: Role | null = null;
-    selectedPermissions: TreeNode[] = [];
     selectedPermissionIds: string[] = [];
     centers$: Observable<{ label: string, value: string }[]>;
+    creating$: Observable<boolean> | undefined;
+    error$: Observable<string | null> | undefined;
+    private destroy$ = new Subject<void>();
     loadingRoles = false;
 
     constructor(
         private fb: FormBuilder,
-        private employeeService: EmployeeService,
-        private roleService: RoleService,
-        private rolesPermissionsService: RolesPermissionsService,
         private router: Router,
-        private store: Store
+        private store: Store,
+        private actions$: Actions
     ) {
         // Initialize centers dropdown
         this.centers$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
@@ -83,111 +81,48 @@ export class CreateComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.loadRoles();
-        this.loadPermissions();
-        this.loadCenters();
-        this.initForm();
-    }
-
-    loadCenters(): void {
+        // Dispatch initial loads
+        this.store.dispatch(RolesActions.loadRoles());
+        this.store.dispatch(PermissionsActions.loadPermissionTree());
         this.store.dispatch(CenterActions.loadCenters());
-    }
 
-    loadRoles(): void {
-        this.loadingRoles = true;
-        // Use the direct HTTP method instead of NgRx store for now
-        this.roleService.fetchRoles().subscribe({
-            next: (roles) => {
-                console.log('Loaded roles:', roles);
+        this.initForm();
+
+        // Bind loading and error from employees feature
+        this.creating$ = this.store.select(EmployeesSelectors.selectLoading);
+        this.error$ = this.store.select(EmployeesSelectors.selectError);
+
+        // Navigate on successful creation
+        this.actions$.pipe(
+            ofType(EmployeesActions.createEmployeeSuccess),
+            takeUntil(this.destroy$)
+        ).subscribe(({ employee }) => {
+            this.router.navigate(['/corporate/employees', employee.id]);
+        });
+
+        // Subscribe to roles state
+        this.store.select(RolesSelectors.selectAllRoles)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(roles => {
                 this.roles = roles || [];
-                this.loadingRoles = false;
-            },
-            error: (error) => {
-                console.error('Error loading roles:', error);
-                this.roles = [];
-                // Fallback: try using RolesPermissionsService
-                this.loadRolesFromPermissionsService();
-            }
-        });
-    }
-
-    loadRolesFromPermissionsService(): void {
-        this.rolesPermissionsService.getRoles().subscribe({
-            next: (roles) => {
-                console.log('Loaded roles from permissions service:', roles);
-                this.roles = roles || [];
-                this.loadingRoles = false;
-            },
-            error: (error) => {
-                console.error('Error loading roles from permissions service:', error);
-                this.roles = [];
-                this.loadingRoles = false;
-            }
-        });
-    }
-
-    loadPermissions(): void {
-        this.rolesPermissionsService.getPermissionsTree().subscribe({
-            next: (permissions) => {
-                this.permissions = permissions;
-                this.buildPermissionTree(permissions);
-            },
-            error: (error) => {
-                console.error('Error loading permissions tree', error);
-                // Fallback to flat permissions if tree endpoint fails
-                this.rolesPermissionsService.getPermissions().subscribe({
-                    next: (flatPermissions) => {
-                        this.permissions = flatPermissions;
-                        this.buildPermissionTree(flatPermissions);
-                    },
-                    error: (fallbackError) => {
-                        console.error('Error loading flat permissions', fallbackError);
-                    }
-                });
-            }
-        });
-    }
-
-    buildPermissionTree(permissions: Permission[]): void {
-        // Create a map to store parent-child relationships
-        const permissionMap = new Map<string, TreeNode>();
-
-        // First pass: create TreeNode objects for each permission
-        permissions.forEach(permission => {
-            permissionMap.set(permission.id, {
-                key: permission.id,
-                label: permission.name,
-                data: permission,
-                children: [],
-                selectable: true
             });
-        });
+        this.store.select(RolesSelectors.selectRolesLoading)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(loading => this.loadingRoles = !!loading);
 
-        // Second pass: build the tree structure
-        const rootNodes: TreeNode[] = [];
-
-        permissions.forEach(permission => {
-            const node = permissionMap.get(permission.id);
-
-            if (permission.children && permission.children.length > 0) {
-                // Add children to this node
-                permission.children.forEach(child => {
-                    const childNode = permissionMap.get(child.id);
-                    if (childNode) {
-                        node?.children?.push(childNode);
-                    }
-                });
-            }
-
-            // If this is a top-level permission (no parent), add to root nodes
-            // This is a simplified approach - you may need to adjust based on your actual data structure
-            if (!permission.children || permission.children.length === 0) {
-                rootNodes.push(node!);
-            }
-        });
-
-        this.permissionTree = rootNodes;
+        // Subscribe to permission tree
+        this.store.select(PermissionsSelectors.selectPermissionTree)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(tree => {
+                this.permissions = tree || [];
+            });
     }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
 
     initForm(): void {
         this.employeeForm = this.fb.group({
@@ -231,53 +166,7 @@ export class CreateComponent implements OnInit {
     }
 
     updateTreeSelectionState(permissionIds: string[]): void {
-        // Find the TreeNodes that correspond to the selected permission IDs
-        const findSelectedNodes = (nodes: TreeNode[], selectedIds: string[]): TreeNode[] => {
-            let result: TreeNode[] = [];
-
-            nodes.forEach(node => {
-                if (selectedIds.includes(node.key as string)) {
-                    result.push(node);
-                }
-
-                if (node.children && node.children.length > 0) {
-                    result = [...result, ...findSelectedNodes(node.children, selectedIds)];
-                }
-            });
-
-            return result;
-        };
-
-        // Update the selected nodes
-        this.selectedPermissions = findSelectedNodes(this.permissionTree, permissionIds);
-    }
-
-    onPermissionNodeSelect(event: any): void {
-        const node = event.node as TreeNode;
-        const permissionId = node.key as string;
-
-        // Add the permission ID to the selected permissions if not already there
-        if (!this.selectedPermissionIds.includes(permissionId)) {
-            this.selectedPermissionIds = [...this.selectedPermissionIds, permissionId];
-        }
-
-        // If the node has children, select them too (handled by the tree component)
-
-        // Update the form control value
-        this.updateFormPermissions();
-    }
-
-    onPermissionNodeUnselect(event: any): void {
-        const node = event.node as TreeNode;
-        const permissionId = node.key as string;
-
-        // Remove the permission ID from the selected permissions
-        this.selectedPermissionIds = this.selectedPermissionIds.filter(id => id !== permissionId);
-
-        // If the node has children, unselect them too (handled by the tree component)
-
-        // Update the form control value
-        this.updateFormPermissions();
+        // No local TreeNode management; child component renders the tree
     }
 
     updateFormPermissions(): void {
@@ -299,7 +188,6 @@ export class CreateComponent implements OnInit {
             return;
         }
 
-        this.loading = true;
         const formValue = this.employeeForm.value;
 
         // Format date values
@@ -325,16 +213,7 @@ export class CreateComponent implements OnInit {
             status: formValue.status
         };
 
-        this.employeeService.createEmployee(employeeData)
-            .pipe(finalize(() => this.loading = false))
-            .subscribe({
-                next: (createdEmployee) => {
-                    this.router.navigate(['/corporate/employees', createdEmployee.id]);
-                },
-                error: (error) => {
-                    console.error('Error creating employee', error);
-                }
-            });
+        this.store.dispatch(EmployeesActions.createEmployee({ employeeData }));
     }
 
     cancel(): void {

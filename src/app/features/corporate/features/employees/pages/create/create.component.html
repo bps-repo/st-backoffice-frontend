@@ -119,7 +119,7 @@
                             </p>
 
                             <div class="field">
-                                <app-permission-tree-selector   
+                                <app-permission-tree-selector
                                     [permissions]="permissions"
                                     [selectedRole]="selectedRole"
                                     [selectedPermissionIds]="selectedPermissionIds"
@@ -143,8 +143,8 @@
                     <div class="col-12">
                         <div class="flex justify-content-end gap-2">
                             <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
-                            <button pButton pRipple label="Salvar Funcionário" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || loading">
-                                <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
+                            <button pButton pRipple label="Salvar Funcionário" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || (creating$ | async)">
+                                <i class="pi pi-spin pi-spinner" *ngIf="(creating$ | async)"></i>
                             </button>
                         </div>
                     </div>

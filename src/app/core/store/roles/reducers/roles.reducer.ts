@@ -8,7 +8,7 @@ export const rolesReducer = createReducer(
     // Load Roles
     on(RolesActions.loadRoles, (state) => ({
         ...state,
-        loading: true,
+        loading: state.ids.length > 0 ? false : true,
         error: null
     })),
     on(RolesActions.loadRolesSuccess, (state, {roles}) =>

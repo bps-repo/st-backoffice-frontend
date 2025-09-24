@@ -41,7 +41,7 @@ import * as ServiceActions from 'src/app/core/store/corporate/services/service.a
         InputNumberModule,
         CalendarModule,
         InputTextareaModule,
-        ToastModule
+        ToastModule,
     ],
     providers: [MessageService]
 })
@@ -70,27 +70,23 @@ export class CreateContractComponent implements OnInit {
     contractTypes = [
         { label: 'Standard', value: 'STANDARD' },
         { label: 'VIP', value: 'VIP' },
-        { label: 'Promotional', value: 'PROMOTIONAL' },
-        { label: 'Custom', value: 'CUSTOM' }
     ];
 
     offerTypes = [
-        { label: 'None', value: 'NONE' },
-        { label: 'Discount', value: 'DISCOUNT' },
-        { label: 'Promotion', value: 'PROMOTION' }
+        { label: 'Nenhum', value: 'NONE' },
+        { label: 'Desconto', value: 'FLL_OFFER' },
     ];
 
     registrationFeeTypes = [
-        { label: 'None', value: 'NONE' },
-        { label: 'Standard', value: 'STANDARD' },
-        { label: 'Waived', value: 'WAIVED' }
+        { label: 'Nenhum', value: 'NONE' },
+        { label: 'Incluído', value: 'INCLUDED' },
     ];
 
     statuses = [
-        { label: 'Active', value: 'ACTIVE' },
-        { label: 'Hold', value: 'HOLD' },
-        { label: 'Cancelled', value: 'CANCELLED' },
-        { label: 'Completed', value: 'COMPLETED' }
+        { label: 'Ativo', value: 'ACTIVE' },
+        { label: 'Pendente', value: 'PENDING' },
+        { label: 'Cancelado', value: 'CANCELLED' },
+        { label: 'Completo', value: 'COMPLETED' }
     ];
 
     constructor(

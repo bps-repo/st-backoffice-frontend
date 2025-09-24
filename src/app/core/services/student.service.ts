@@ -49,7 +49,6 @@ export class StudentService {
             user: apiStudent.user,
             status: apiStudent.status,
             levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
-            studentClass: apiStudent.studentClass, // if backend uses different key, adjust here
             center: apiStudent.center ?? apiStudent.center?.id ?? '',
             level: apiStudent.level?? apiStudent.level?.id ?? '',
             currentUnit: apiStudent.currentUnit,

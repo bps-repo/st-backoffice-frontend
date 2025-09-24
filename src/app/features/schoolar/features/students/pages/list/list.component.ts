@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ViewEncapsulation, ElementRef, HostListener} from '@angular/core';
+import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ElementRef, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -79,9 +79,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @ViewChild('levelTemplate', {static: true})
     levelTemplate!: TemplateRef<any>;
-
-    @ViewChild('classTemplate', {static: true})
-    classTemplate!: TemplateRef<any>;
 
     @ViewChild('statusTemplate', {static: true})
     statusTemplate!: TemplateRef<any>;
@@ -263,7 +260,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             actions: this.actionsTemplate,
             centerId: this.centerTemplate,
             levelId: this.levelTemplate,
-            studentClass: this.classTemplate,
             status: this.statusTemplate,
             vip: this.typeTemplate,
         };
@@ -289,30 +285,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     navigateToEditStudent(id: string) {
 
-    }
-
-    getStudentLevel(levelId: string): string {
-        if (!levelId) return 'Sem nível';
-
-        let levelName = '';
-        this.store.select(LevelSelectors.selectLevelById(levelId))
-            .pipe(take(1))
-            .subscribe(level => {
-                levelName = level?.name ?? 'Nível não encontrado';
-            });
-        return levelName;
-    }
-
-    getStudentCenter(centerId: string): string {
-        if (!centerId) return 'Sem centro';
-
-        let centerName = '';
-        this.store.select(CenterSelectors.selectCenterById(centerId))
-            .pipe(take(1))
-            .subscribe(center => {
-                centerName = center?.name ?? 'Centro não encontrado';
-            });
-        return centerName;
     }
 
     protected StudentStatus = StudentStatus

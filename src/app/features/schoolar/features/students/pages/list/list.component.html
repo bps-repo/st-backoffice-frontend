@@ -39,10 +39,10 @@
     </div>
 
     <!-- Student Table -->
-    <app-global-table [loading]="loading$ | async" tableLabel="Alunos" [headerActions]="headerActions" [data]="(students$ | async)!"
-        [entity]="'students'" [columns]="columns" [globalFilterFields]="globalFilterFields"
-        [columnTemplates]="customTemplates" (rowSelect)="onRowSelect($event)" (createEntity)="navigateToCreateStudent()"
-        class="w-full animate-fade px-fadein"></app-global-table>
+    <app-global-table [loading]="loading$ | async" tableLabel="Alunos" [headerActions]="headerActions"
+        [data]="(students$ | async)!" [entity]="'students'" [columns]="columns"
+        [globalFilterFields]="globalFilterFields" [columnTemplates]="customTemplates" (rowSelect)="onRowSelect($event)"
+        (createEntity)="navigateToCreateStudent()" class="w-full animate-fade px-fadein"></app-global-table>
     }
 
     <!-- Dashboard View - appears with scale animation and sticks below headers -->
@@ -80,16 +80,13 @@
 </ng-template>
 
 <ng-template #centerTemplate let-rowData>
-    <span>{{ getStudentCenter(rowData.centerId) }}</span>
+    <span>{{ rowData.center.name ?? 'N/A' }}</span>
 </ng-template>
 
 <ng-template #levelTemplate let-rowData>
-    <span> {{ getStudentLevel(rowData.levelId) }} </span>
+    <span> {{ rowData.level.name ?? 'N/A' }} </span>
 </ng-template>
 
-<ng-template #classTemplate let-rowData>
-    <span> {{ rowData.studentClass?.name ?? 'N/A' }} </span>
-</ng-template>
 
 <ng-template #statusTemplate let-rowData>
     <p-badge [value]="rowData.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
