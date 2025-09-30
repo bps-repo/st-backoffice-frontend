@@ -197,17 +197,16 @@ export class CreateContractComponent implements OnInit {
     generateInstallments(): void {
         const formValue = this.contractForm.value;
         const numberOfInstallments = formValue.numberOfInstallments || 1;
-        const startDate = undefined; // startDate not used in new schema
         const finalAmount = this.contractSummary.finalAmount;
 
-        if (!startDate || finalAmount <= 0 || numberOfInstallments <= 0) {
+        if (finalAmount <= 0 || numberOfInstallments <= 0) {
             this.installments = [];
             return;
         }
 
         const installmentAmount = finalAmount / numberOfInstallments;
         const installments: Installment[] = [];
-        const baseDate = new Date(startDate);
+        const baseDate = new Date(); // Use current date as base for installments
 
         for (let i = 0; i < numberOfInstallments; i++) {
             const dueDate = new Date(baseDate);

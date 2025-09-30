@@ -27,6 +27,24 @@
                     </div>
 
 
+                    <!-- Seller Selection -->
+                    <div class="field col-12 md:col-4">
+                        <label for="sellerId">Vendedor *</label>
+                        <p-dropdown id="sellerId" formControlName="sellerId" [options]="employees" optionLabel="displayName"
+                            optionValue="id" placeholder="Selecione um vendedor" [showClear]="true">
+                            <ng-template pTemplate="item" let-employee>
+                                <div>
+                                    <div>{{employee.displayName}}</div>
+                                    <div class="text-sm text-500">{{employee.user?.email}}</div>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('sellerId')?.invalid && contractForm.get('sellerId')?.touched"
+                            class="p-error">
+                            Vendedor é obrigatório
+                        </small>
+                    </div>
+
                     <!-- Contract Type -->
                     <div class="field col-12 md:col-4">
                         <label for="contractType">Tipo de Contrato *</label>
@@ -191,29 +209,83 @@
                     <!-- Installments Section -->
                     <div class="col-12" *ngIf="installments.length > 0">
                         <div class="card">
-                            <h6>Plano de Parcelas</h6>
+                            <div class="flex align-items-center justify-content-between mb-3">
+                                <h6 class="m-0">Plano de Parcelas</h6>
+                                <span class="text-sm text-500">Total: {{installments.length}} parcelas</span>
+                            </div>
                             <div class="grid">
                                 <div class="col-12">
-                                    <p-table [value]="installments" [tableStyle]="{'min-width': '50rem'}">
+                                    <p-table [value]="installments" [tableStyle]="{'min-width': '50rem'}"
+                                        [paginator]="false" [showCurrentPageReport]="false">
                                         <ng-template pTemplate="header">
                                             <tr>
-                                                <th>Parcela</th>
-                                                <th>Data de Vencimento</th>
-                                                <th>Valor</th>
-                                                <th>Status</th>
+                                                <th style="width: 15%">Parcela</th>
+                                                <th style="width: 25%">Data de Vencimento</th>
+                                                <th style="width: 25%">Valor</th>
+                                                <th style="width: 20%">Status</th>
+                                                <th style="width: 15%">Ações</th>
                                             </tr>
                                         </ng-template>
-                                        <ng-template pTemplate="body" let-installment>
+                                        <ng-template pTemplate="body" let-installment let-i="rowIndex">
                                             <tr>
-                                                <td>{{installment.installmentNumber}}/{{installments.length}}</td>
-                                                <td>{{installment.dueDate | date:'dd/MM/yyyy'}}</td>
-                                                <td>{{installment.amount | number:'1.2-2'}} AOA</td>
                                                 <td>
-                                                    <span class="p-tag p-tag-warning">Pendente</span>
+                                                    <div class="flex align-items-center gap-2">
+                                                        <i class="pi pi-calendar text-primary"></i>
+                                                        <span class="font-semibold">{{installment.installmentNumber}}/{{installments.length}}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex align-items-center gap-2">
+                                                        <i class="pi pi-clock text-500"></i>
+                                                        <span>{{installment.dueDate | date:'dd/MM/yyyy'}}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="font-semibold text-primary">{{installment.amount | number:'1.2-2'}} AOA</span>
+                                                </td>
+                                                <td>
+                                                    <span class="p-tag p-tag-warning">
+                                                        <i class="pi pi-clock mr-1"></i>
+                                                        Pendente
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <p-button icon="pi pi-eye"
+                                                        class="p-button-sm p-button-text p-button-info"
+                                                        title="Ver detalhes da parcela {{installment.installmentNumber}}">
+                                                    </p-button>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="emptymessage">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-500 p-4">
+                                                    <i class="pi pi-info-circle mr-2"></i>
+                                                    Nenhuma parcela gerada. Preencha os dados do contrato para gerar o plano de pagamento.
                                                 </td>
                                             </tr>
                                         </ng-template>
                                     </p-table>
+                                </div>
+                            </div>
+
+                            <!-- Installments Summary -->
+                            <div class="grid mt-3" *ngIf="installments.length > 0">
+                                <div class="col-12 md:col-6">
+                                    <div class="flex justify-content-between align-items-center p-3 border-round bg-blue-50">
+                                        <span class="font-semibold">Valor Total das Parcelas:</span>
+                                        <span class="font-bold text-primary text-lg">
+                                            {{contractSummary.finalAmount | number:'1.2-2'}} AOA
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-6">
+                                    <div class="flex justify-content-between align-items-center p-3 border-round bg-green-50">
+                                        <span class="font-semibold">Valor por Parcela:</span>
+                                        <span class="font-bold text-green-600 text-lg">
+                                            {{contractSummary.installmentAmount | number:'1.2-2'}} AOA
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
