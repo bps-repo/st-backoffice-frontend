@@ -36,8 +36,8 @@
             <button pButton type="button"
                 [label]="savingChanges() ? 'Salvando...' : ('Salvar Alterações' + (enrolled.length ? ' (' + enrolled.length + ' alunos)' : ''))"
                 [icon]="savingChanges() ? 'pi pi-spin pi-spinner' : 'pi pi-save'"
-                class="p-button-rounded p-button-success"
-                [disabled]="!enrolled.length || savingChanges()" (click)="saveChanges()"></button>
+                class="p-button-rounded p-button-success" [disabled]="!enrolled.length || savingChanges()"
+                (click)="saveChanges()"></button>
         </div>
     </div>
 
@@ -57,9 +57,8 @@
                     </span>
                 </div>
                 <div class="col-12 md:col-4">
-                    <p-dropdown [options]="levelOptions" [formControl]="levelFilterCtrl"
-                        optionLabel="label" optionValue="value" placeholder="Filtrar por nível"
-                        [showClear]="true" class="w-full">
+                    <p-dropdown [options]="levelOptions" [formControl]="levelFilterCtrl" optionLabel="label"
+                        optionValue="value" placeholder="Filtrar por nível" [showClear]="true" class="w-full">
                     </p-dropdown>
                 </div>
             </div>
@@ -67,8 +66,8 @@
             <div class="flex flex-column gap-2 scrollable-content">
                 <div *ngIf="loadingLessons(); else lessonsContent">
                     <div class="flex align-items-center justify-content-center p-4 border-round surface-100">
-                        <p-progressSpinner [style]="{'width': '24px', 'height': '24px'}" strokeWidth="4" fill="transparent"
-                            animationDuration="1s"></p-progressSpinner>
+                        <p-progressSpinner [style]="{'width': '24px', 'height': '24px'}" strokeWidth="4"
+                            fill="transparent" animationDuration="1s"></p-progressSpinner>
                         <span class="ml-2 text-600">Carregando aulas...</span>
                     </div>
                     <!-- Skeleton loaders for lessons -->
@@ -88,7 +87,8 @@
                 </div>
                 <ng-template #lessonsContent>
                     <div *ngFor="let lesson of filteredLessons"
-                        class="p-3 border-round surface-100 cursor-pointer hover:surface-200" (click)="selectLesson(lesson)"
+                        class="p-3 border-round surface-100 cursor-pointer hover:surface-200"
+                        (click)="selectLesson(lesson)"
                         [ngClass]="{'border-2 border-primary': selectedLesson?.id === lesson.id}">
                         <div class="flex align-items-center justify-content-between">
                             <div class="font-medium">{{ lesson.title }}</div>
@@ -132,13 +132,14 @@
                     <div class="mb-2 text-600">Matriculados ({{ enrolled.length }})</div>
                     <div *ngIf="loadingStudents(); else enrolledContent" class="flex flex-column gap-2 mb-3">
                         <div class="flex align-items-center justify-content-center p-4 border-round surface-100">
-                            <p-progressSpinner [style]="{'width': '24px', 'height': '24px'}" strokeWidth="4" fill="transparent"
-                                animationDuration="1s"></p-progressSpinner>
+                            <p-progressSpinner [style]="{'width': '24px', 'height': '24px'}" strokeWidth="4"
+                                fill="transparent" animationDuration="1s"></p-progressSpinner>
                             <span class="ml-2 text-600">Carregando alunos matriculados...</span>
                         </div>
                         <!-- Skeleton loaders for enrolled students -->
                         <div class="flex flex-column gap-2">
-                            <div *ngFor="let i of [1,2]" class="flex align-items-center justify-content-between p-2 border-round surface-100">
+                            <div *ngFor="let i of [1,2]"
+                                class="flex align-items-center justify-content-between p-2 border-round surface-100">
                                 <div class="flex-1">
                                     <div class="h-1rem bg-gray-200 border-round w-8 mb-1"></div>
                                     <div class="h-1rem bg-gray-200 border-round w-12"></div>
@@ -166,13 +167,14 @@
                     <div class="mb-2 text-600">Disponíveis ({{ available.length }})</div>
                     <div *ngIf="loadingStudents(); else availableContent">
                         <div class="flex align-items-center justify-content-center p-4 border-round surface-100">
-                            <p-progressSpinner [style]="{'width': '24px', 'height': '24px'}" strokeWidth="4" fill="transparent"
-                                animationDuration="1s"></p-progressSpinner>
+                            <p-progressSpinner [style]="{'width': '24px', 'height': '24px'}" strokeWidth="4"
+                                fill="transparent" animationDuration="1s"></p-progressSpinner>
                             <span class="ml-2 text-600">Carregando alunos disponíveis...</span>
                         </div>
                         <!-- Skeleton loaders for available students -->
                         <div class="flex flex-column gap-2">
-                            <div *ngFor="let i of [1,2,3]" class="flex align-items-center justify-content-between p-2 border-round surface-100">
+                            <div *ngFor="let i of [1,2,3]"
+                                class="flex align-items-center justify-content-between p-2 border-round surface-100">
                                 <div class="flex-1">
                                     <div class="h-1rem bg-gray-200 border-round w-8 mb-1"></div>
                                     <div class="h-1rem bg-gray-200 border-round w-12 mb-1"></div>

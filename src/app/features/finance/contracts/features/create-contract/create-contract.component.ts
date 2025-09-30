@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
-import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CalendarModule } from 'primeng/calendar';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -22,10 +21,7 @@ import { selectAllEmployees } from '../../../../../core/store/corporate/employee
 import { LevelActions } from '../../../../../core/store/schoolar/level/level.actions';
 import { selectAllLevels } from '../../../../../core/store/schoolar/level/level.selector';
 import { Level } from '../../../../../core/models/course/level';
-import { Service } from '../../../../../core/models/course/service';
 import { Employee } from '../../../../../core/models/corporate/employee';
-import { selectAllServices } from 'src/app/core/store/corporate/services/service.selector';
-import * as ServiceActions from 'src/app/core/store/corporate/services/service.actions';
 @Component({
     selector: 'app-create-contract',
     templateUrl: './create-contract.component.html',
@@ -36,10 +32,9 @@ import * as ServiceActions from 'src/app/core/store/corporate/services/service.a
         ReactiveFormsModule,
         ButtonModule,
         DropdownModule,
-        TableModule,
         InputTextModule,
+        TableModule,
         InputNumberModule,
-        CalendarModule,
         InputTextareaModule,
         ToastModule,
     ],
@@ -50,9 +45,7 @@ export class CreateContractComponent implements OnInit {
     selectedStudent: Student | null = null;
     employees: Employee[] = [];
     levels: Level[] = [];
-    services: Service[] = [];
     contractForm: FormGroup;
-    get contractLevels(): FormArray { return this.contractForm.get('contractLevels') as FormArray; }
     loading = false;
 
     // Contract summary properties
@@ -72,23 +65,6 @@ export class CreateContractComponent implements OnInit {
         { label: 'VIP', value: 'VIP' },
     ];
 
-    offerTypes = [
-        { label: 'Nenhum', value: 'NONE' },
-        { label: 'Desconto', value: 'FLL_OFFER' },
-    ];
-
-    registrationFeeTypes = [
-        { label: 'Nenhum', value: 'NONE' },
-        { label: 'Incluído', value: 'INCLUDED' },
-    ];
-
-    statuses = [
-        { label: 'Ativo', value: 'ACTIVE' },
-        { label: 'Pendente', value: 'PENDING' },
-        { label: 'Cancelado', value: 'CANCELLED' },
-        { label: 'Completo', value: 'COMPLETED' }
-    ];
-
     constructor(
         private store: Store,
         private fb: FormBuilder,
@@ -96,14 +72,20 @@ export class CreateContractComponent implements OnInit {
         private contractService: ContractService
     ) {
         this.contractForm = this.fb.group({
-            student: [null, Validators.required],
-            sellerId: [null, Validators.required],
-            startDate: [null, Validators.required],
+            student: [null, [Validators.required]],
+            sellerId: [null, [Validators.required]],
             discountPercent: [0, [Validators.min(0), Validators.max(100)]],
-            contractType: ['STANDARD', Validators.required],
+            contractType: ['STANDARD', [Validators.required]],
             numberOfInstallments: [1, [Validators.required, Validators.min(1)]],
             notes: [''],
-            contractLevels: this.fb.array([])
+            // Contract level fields directly in main form
+            levelId: [null, [Validators.required]],
+            duration: [0, [Validators.required, Validators.min(1)]],
+            levelPrice: [0, [Validators.required, Validators.min(0)]],
+            courseMaterialPrice: [0, [Validators.required, Validators.min(0)]],
+            courseMaterialPaid: [true],
+            includeRegistrationFee: [true],
+            levelNotes: ['']
         });
     }
 
@@ -111,17 +93,13 @@ export class CreateContractComponent implements OnInit {
         this.loadStudents();
         this.loadEmployees();
         this.loadLevels();
-        this.loadServices();
 
         // Sync defaults
         this.contractForm.get('student')?.valueChanges.subscribe((val) => {
             this.selectedStudent = val;
         });
 
-        // Initialize with one contract level
-        this.addContractLevel();
-
-        // Watch for changes in contract levels and installments to recalculate summary
+        // Watch for changes to recalculate summary
         this.contractForm.valueChanges.subscribe(() => {
             setTimeout(() => {
                 this.calculateContractSummary();
@@ -129,20 +107,8 @@ export class CreateContractComponent implements OnInit {
             }, 50);
         });
 
-        // Also watch for specific field changes
-        this.contractForm.get('discountPercent')?.valueChanges.subscribe(() => {
-            setTimeout(() => {
-                this.calculateContractSummary();
-                this.generateInstallments();
-            }, 50);
-        });
-
-        this.contractForm.get('numberOfInstallments')?.valueChanges.subscribe(() => {
-            setTimeout(() => {
-                this.calculateContractSummary();
-                this.generateInstallments();
-            }, 50);
-        });
+        // Register change handlers for level fields
+        this.registerLevelChangeHandlers();
     }
 
     loadStudents(): void {
@@ -174,86 +140,27 @@ export class CreateContractComponent implements OnInit {
         });
     }
 
-    loadServices(): void {
-        this.store.dispatch(ServiceActions.loadServices());
-        this.store.select(selectAllServices).subscribe(services => {
-            console.log('Services:', services);
-            this.services = services;
-        });
-    }
-
-    private createContractLevelGroup() {
-        return this.fb.group({
-            levelId: [null, Validators.required],
-            productId: [null, Validators.required],
-            duration: [0, [Validators.required, Validators.min(1)]],
-            levelPrice: [0, [Validators.required, Validators.min(0)]],
-            courseMaterialPrice: [0, [Validators.required, Validators.min(0)]],
-            levelOrder: [1, [Validators.required, Validators.min(1)]],
-            offerType: ['NONE', Validators.required],
-            registrationFeeType: ['NONE', Validators.required],
-            courseMaterialPaid: [false],
-            includeCourseMaterial: [true],
-            includeRegistrationFee: [true],
-            status: ['ACTIVE', Validators.required],
-            contractType: ['STANDARD', Validators.required],
-            notes: ['']
-        });
-    }
-
-    addContractLevel() {
-        const levelOrder = this.contractLevels.length + 1;
-        const levelGroup = this.createContractLevelGroup();
-        levelGroup.patchValue({ levelOrder });
-
-        // Add level selection change handler
-        levelGroup.get('levelId')?.valueChanges.subscribe(levelId => {
+    // Register change handlers for level fields
+    private registerLevelChangeHandlers() {
+        this.contractForm.get('levelId')?.valueChanges.subscribe(levelId => {
             if (levelId) {
-                this.onLevelSelected(levelId, levelGroup);
+                this.onLevelSelected(levelId);
             }
         });
 
-        // Add handlers for price changes
-        levelGroup.get('levelPrice')?.valueChanges.subscribe(() => {
+        this.contractForm.get('levelPrice')?.valueChanges.subscribe(() => {
             setTimeout(() => {
                 this.calculateContractSummary();
                 this.generateInstallments();
             }, 50);
         });
 
-        levelGroup.get('courseMaterialPrice')?.valueChanges.subscribe(() => {
+        this.contractForm.get('courseMaterialPrice')?.valueChanges.subscribe(() => {
             setTimeout(() => {
                 this.calculateContractSummary();
                 this.generateInstallments();
             }, 50);
         });
-
-        levelGroup.get('includeCourseMaterial')?.valueChanges.subscribe(() => {
-            setTimeout(() => {
-                this.calculateContractSummary();
-                this.generateInstallments();
-            }, 50);
-        });
-
-        this.contractLevels.push(levelGroup);
-
-        // Recalculate summary after adding level
-        setTimeout(() => {
-            this.calculateContractSummary();
-            this.generateInstallments();
-        }, 100);
-    }
-
-    removeContractLevel(index: number) {
-        if (this.contractLevels.length <= 1) return;
-        this.contractLevels.removeAt(index);
-        // Update level orders
-        this.contractLevels.controls.forEach((control, i) => {
-            (control as FormGroup).patchValue({ levelOrder: i + 1 });
-        });
-        // Recalculate summary after removing level
-        this.calculateContractSummary();
-        this.generateInstallments();
     }
 
     calculateContractSummary(): void {
@@ -262,18 +169,12 @@ export class CreateContractComponent implements OnInit {
         let totalMaterialPrice = 0;
 
 
-        // Calculate totals from contract levels
-        if (formValue.contractLevels && formValue.contractLevels.length > 0) {
-            formValue.contractLevels.forEach((level: any) => {
-                const levelPrice = Number(level.levelPrice) || 0;
-                const materialPrice = Number(level.courseMaterialPrice) || 0;
+        // Calculate totals from contract level fields
+        const levelPrice = Number(formValue.levelPrice) || 0;
+        const materialPrice = Number(formValue.courseMaterialPrice) || 0;
 
-                totalLevelPrice += levelPrice;
-                if (level.includeCourseMaterial) {
-                    totalMaterialPrice += materialPrice;
-                }
-            });
-        }
+        totalLevelPrice += levelPrice;
+        totalMaterialPrice += materialPrice;
 
         const totalAmount = totalLevelPrice + totalMaterialPrice;
         const discountPercent = formValue.discountPercent || 0;
@@ -296,7 +197,7 @@ export class CreateContractComponent implements OnInit {
     generateInstallments(): void {
         const formValue = this.contractForm.value;
         const numberOfInstallments = formValue.numberOfInstallments || 1;
-        const startDate = formValue.startDate;
+        const startDate = undefined; // startDate not used in new schema
         const finalAmount = this.contractSummary.finalAmount;
 
         if (!startDate || finalAmount <= 0 || numberOfInstallments <= 0) {
@@ -332,11 +233,11 @@ export class CreateContractComponent implements OnInit {
         this.installments = installments;
     }
 
-    onLevelSelected(levelId: string, levelGroup: FormGroup): void {
+    onLevelSelected(levelId: string): void {
         const selectedLevel = this.levels.find(level => level.id === levelId);
         if (selectedLevel) {
             // Auto-populate duration from selected level
-            levelGroup.patchValue({
+            this.contractForm.patchValue({
                 duration: selectedLevel.duration
             });
 
@@ -373,9 +274,23 @@ export class CreateContractComponent implements OnInit {
         const payload: CreateStudentContractRequest = {
             studentId: this.selectedStudent.id!,
             sellerId: v.sellerId,
-            startDate: this.formatDate(v.startDate),
+            amount: this.contractSummary.finalAmount || 0,
+            enrollmentFee: 0,
+            enrollmentFeePaid: true,
             discountPercent: v.discountPercent ?? 0,
-            contractLevels: v.contractLevels || [],
+            unitPrice: Number(v.levelPrice || 0),
+            contractLevel: {
+                levelId: v.levelId,
+                duration: Number(v.duration || 0),
+                levelPrice: Number(v.levelPrice || 0),
+                courseMaterialPrice: Number(v.courseMaterialPrice || 0),
+                finalCourseMaterialPrice: Number(v.courseMaterialPrice || 0),
+                courseMaterialPaid: Boolean(v.courseMaterialPaid),
+                includeRegistrationFee: Boolean(v.includeRegistrationFee),
+                notes: v.levelNotes
+            },
+            includeRegistrationFee: Boolean(v.includeRegistrationFee),
+            numberOfLevelsOffered: 1,
             notes: v.notes,
             contractType: v.contractType,
             numberOfInstallments: v.numberOfInstallments
@@ -395,8 +310,6 @@ export class CreateContractComponent implements OnInit {
                 });
                 this.contractForm.reset();
                 this.selectedStudent = null;
-                this.contractLevels.clear();
-                this.addContractLevel();
                 this.loading = false;
             },
             error: (err) => {

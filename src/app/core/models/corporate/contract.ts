@@ -145,9 +145,23 @@ export interface Contract {
 export interface CreateStudentContractRequest {
     studentId: string;
     sellerId: string;
-    startDate: string; // YYYY-MM-DD
+    amount: number;
+    enrollmentFee: number;
+    enrollmentFeePaid: boolean;
     discountPercent: number;
-    contractLevels: ContractLevel[];
+    unitPrice: number;
+    contractLevel: {
+        levelId: string;
+        duration: number;
+        levelPrice: number;
+        courseMaterialPrice: number;
+        finalCourseMaterialPrice: number;
+        courseMaterialPaid: boolean;
+        includeRegistrationFee: boolean;
+        notes?: string;
+    };
+    includeRegistrationFee: boolean;
+    numberOfLevelsOffered: number;
     notes?: string;
     contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
     numberOfInstallments: number;
