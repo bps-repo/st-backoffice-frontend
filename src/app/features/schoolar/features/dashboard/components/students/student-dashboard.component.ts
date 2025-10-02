@@ -7,12 +7,14 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, combineLatest } from 'rxjs';
+import { Observable, Subject, combineLatest, forkJoin } from 'rxjs';
 import { map, takeUntil, switchMap } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
+import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
 import { ScholarStatisticsService } from 'src/app/core/services/scholar-statistics.service';
 import { AttendanceService } from 'src/app/core/services/attendance.service';
+import { LevelService } from 'src/app/core/services/level.service';
 
 @Component({
     selector: 'app-students',
@@ -54,10 +56,13 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
         private statisticsService: ScholarStatisticsService,
-        private attendanceService: AttendanceService
+        private attendanceService: AttendanceService,
+        private levelService: LevelService
     ) {}
 
     ngOnInit(): void {
+        // Dispatch action to load students if not already loaded
+        this.store.dispatch(StudentsActions.loadStudents());
         this.loadData();
         this.initCharts();
     }
@@ -352,21 +357,37 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private getStudentLevel(student: Student): string {
-        // Mock level calculation - in real app would come from student's level data
-        const levels = ['Beginner', 'Elementary', 'Intermediate', 'Advanced'];
-        return levels[Math.floor(Math.random() * levels.length)];
+        // Get actual level from student data
+        if (student.level && typeof student.level === 'object' && 'name' in student.level) {
+            return student.level.name;
+        }
+        return 'N/A';
     }
 
     private calculateAttendance(student: Student): string {
-        // Mock attendance calculation - in real app would come from attendance service
-        const attendance = 85 + Math.floor(Math.random() * 15);
-        return `${attendance}%`;
+        // Calculate real attendance from student attendance data
+        if (student.attendances && student.attendances.length > 0) {
+            const presentCount = student.attendances.filter((attendance: any) => attendance.present === true).length;
+            const totalCount = student.attendances.length;
+            const percentage = Math.round((presentCount / totalCount) * 100);
+            return `${percentage}%`;
+        }
+        // Default value if no attendance data
+        return 'N/A';
     }
 
     private calculateGrade(student: Student, index: number): string {
-        // Mock grade calculation - in real app would come from assessment data
-        const grades = ['A', 'A-', 'B+', 'B', 'B-'];
-        return grades[index % grades.length];
+        // Calculate grade based on level progress percentage
+        if (student.levelProgressPercentage !== undefined) {
+            const progress = student.levelProgressPercentage;
+            if (progress >= 90) return 'A';
+            if (progress >= 80) return 'B+';
+            if (progress >= 70) return 'B';
+            if (progress >= 60) return 'B-';
+            if (progress >= 50) return 'C+';
+            return 'C';
+        }
+        return 'N/A';
     }
 
     private updateCharts(students: Student[]): void {
@@ -428,9 +449,20 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private updateEnrollmentChart(students: Student[]): void {
-        // Mock enrollment data by month
+        // Real enrollment data by month based on enrollment date
         const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        const enrollmentData = months.map(() => Math.floor(Math.random() * 50) + 20);
+        const currentYear = new Date().getFullYear();
+        const enrollmentData = new Array(12).fill(0);
+
+        students.forEach(student => {
+            if (student.enrollmentDate || student.createdAt) {
+                const enrollmentDate = new Date(student.enrollmentDate || student.createdAt!);
+                if (enrollmentDate.getFullYear() === currentYear) {
+                    const month = enrollmentDate.getMonth();
+                    enrollmentData[month]++;
+                }
+            }
+        });
 
         this.lineChartData = {
             labels: months,
@@ -445,15 +477,25 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private updateLevelChart(students: Student[]): void {
-        // Mock level distribution
-        const levels = ['Iniciante', 'Básico', 'Intermediário', 'Avançado'];
-        const levelData = levels.map(() => Math.floor(Math.random() * 100) + 50);
+        // Real level distribution based on student levels
+        const levelCounts: {[key: string]: number} = {};
+
+        students.forEach(student => {
+            let levelName = 'Não Definido';
+            if (student.level && typeof student.level === 'object' && 'name' in student.level) {
+                levelName = student.level.name;
+            }
+            levelCounts[levelName] = (levelCounts[levelName] || 0) + 1;
+        });
+
+        const labels = Object.keys(levelCounts);
+        const data = Object.values(levelCounts);
 
         this.barChartData = {
-            labels: levels,
+            labels: labels,
             datasets: [{
                 label: 'Número de Alunos',
-                data: levelData,
+                data: data,
                 backgroundColor: '#42A5F5'
             }]
         };

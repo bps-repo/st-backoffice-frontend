@@ -78,7 +78,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         if (!this.roleId) return;
 
         combineLatest({
-            role: this.roleService.getRole(this.roleId),
+            role: this.roleService.getRoleById(this.roleId),
             permissions: this.permissionService.getPermissions()
         }).pipe(
             takeUntil(this.destroy$),

@@ -1,6 +1,6 @@
-import {createReducer, on} from '@ngrx/store';
-import {rolesAdapter, initialRolesState} from '../models/roles.state';
-import * as RolesActions from '../actions/roles.actions';
+import { createReducer, on } from '@ngrx/store';
+import { rolesAdapter, initialRolesState } from './roles.state';
+import * as RolesActions from './roles.actions';
 
 export const rolesReducer = createReducer(
     initialRolesState,
@@ -11,14 +11,14 @@ export const rolesReducer = createReducer(
         loading: state.ids.length > 0 ? false : true,
         error: null
     })),
-    on(RolesActions.loadRolesSuccess, (state, {roles}) =>
+    on(RolesActions.loadRolesSuccess, (state, { roles }) =>
         rolesAdapter.setAll(roles, {
             ...state,
             loading: false,
             error: null
         })
     ),
-    on(RolesActions.loadRolesFailure, (state, {error}) => ({
+    on(RolesActions.loadRolesFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -30,7 +30,7 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.loadRoleSuccess, (state, {role}) =>
+    on(RolesActions.loadRoleSuccess, (state, { role }) =>
         rolesAdapter.upsertOne(role, {
             ...state,
             selectedRoleId: role.id,
@@ -38,7 +38,7 @@ export const rolesReducer = createReducer(
             error: null
         })
     ),
-    on(RolesActions.loadRoleFailure, (state, {error}) => ({
+    on(RolesActions.loadRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -50,7 +50,7 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.createRoleSuccess, (state, {role}) =>
+    on(RolesActions.createRoleSuccess, (state, { role }) =>
         rolesAdapter.addOne(role, {
             ...state,
             selectedRoleId: role.id,
@@ -58,7 +58,7 @@ export const rolesReducer = createReducer(
             error: null
         })
     ),
-    on(RolesActions.createRoleFailure, (state, {error}) => ({
+    on(RolesActions.createRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -70,7 +70,7 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.createRoleWithPermissionsSuccess, (state, {role}) =>
+    on(RolesActions.createRoleWithPermissionsSuccess, (state, { role }) =>
         rolesAdapter.addOne(role, {
             ...state,
             selectedRoleId: role.id,
@@ -78,7 +78,7 @@ export const rolesReducer = createReducer(
             error: null
         })
     ),
-    on(RolesActions.createRoleWithPermissionsFailure, (state, {error}) => ({
+    on(RolesActions.createRoleWithPermissionsFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -90,9 +90,9 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.updateRoleSuccess, (state, {role}) =>
+    on(RolesActions.updateRoleSuccess, (state, { role }) =>
         rolesAdapter.updateOne(
-            {id: role.id, changes: role},
+            { id: role.id, changes: role },
             {
                 ...state,
                 loading: false,
@@ -100,7 +100,7 @@ export const rolesReducer = createReducer(
             }
         )
     ),
-    on(RolesActions.updateRoleFailure, (state, {error}) => ({
+    on(RolesActions.updateRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -112,7 +112,7 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.deleteRoleSuccess, (state, {id}) =>
+    on(RolesActions.deleteRoleSuccess, (state, { id }) =>
         rolesAdapter.removeOne(id, {
             ...state,
             selectedRoleId: state.selectedRoleId === id ? null : state.selectedRoleId,
@@ -120,7 +120,7 @@ export const rolesReducer = createReducer(
             error: null
         })
     ),
-    on(RolesActions.deleteRoleFailure, (state, {error}) => ({
+    on(RolesActions.deleteRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -132,9 +132,9 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.addPermissionToRoleSuccess, (state, {role}) =>
+    on(RolesActions.addPermissionToRoleSuccess, (state, { role }) =>
         rolesAdapter.updateOne(
-            {id: role.id, changes: role},
+            { id: role.id, changes: role },
             {
                 ...state,
                 loading: false,
@@ -142,7 +142,7 @@ export const rolesReducer = createReducer(
             }
         )
     ),
-    on(RolesActions.addPermissionToRoleFailure, (state, {error}) => ({
+    on(RolesActions.addPermissionToRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -154,9 +154,9 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.removePermissionFromRoleSuccess, (state, {role}) =>
+    on(RolesActions.removePermissionFromRoleSuccess, (state, { role }) =>
         rolesAdapter.updateOne(
-            {id: role.id, changes: role},
+            { id: role.id, changes: role },
             {
                 ...state,
                 loading: false,
@@ -164,7 +164,7 @@ export const rolesReducer = createReducer(
             }
         )
     ),
-    on(RolesActions.removePermissionFromRoleFailure, (state, {error}) => ({
+    on(RolesActions.removePermissionFromRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
@@ -176,9 +176,9 @@ export const rolesReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(RolesActions.addPermissionsBulkToRoleSuccess, (state, {role}) =>
+    on(RolesActions.addPermissionsBulkToRoleSuccess, (state, { role }) =>
         rolesAdapter.updateOne(
-            {id: role.id, changes: role},
+            { id: role.id, changes: role },
             {
                 ...state,
                 loading: false,
@@ -186,14 +186,14 @@ export const rolesReducer = createReducer(
             }
         )
     ),
-    on(RolesActions.addPermissionsBulkToRoleFailure, (state, {error}) => ({
+    on(RolesActions.addPermissionsBulkToRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
         error
     })),
 
     // Set Selected Role
-    on(RolesActions.setSelectedRole, (state, {id}) => ({
+    on(RolesActions.setSelectedRole, (state, { id }) => ({
         ...state,
         selectedRoleId: id
     })),

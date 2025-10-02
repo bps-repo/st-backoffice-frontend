@@ -4,36 +4,21 @@
             <h2 class="font-bold text-2xl mb-4">Gestão de perfis</h2>
             <span class="text-lg">Cadastro e gestão de perfis e permissões de acesso</span>
         </div>
-        <p-button
-            (onClick)="navigateToCreateRole()"
-            label="Novo perfil"
-            icon="pi pi-plus"
-            class="p-button-outlined"
-        ></p-button>
+        <p-button (onClick)="navigateToCreateRole()" label="Novo perfil" icon="pi pi-plus"
+            class="p-button-outlined"></p-button>
     </div>
     <!-- Roles Table -->
-    <app-global-table
-        tableLabel="Perfis"
-        [headerActions]="headerActions"
-        [data]="(roles$ | async)!"
-        [entity]="'roles'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        [loading]="loading$ | async"
-        [columnTemplates]="customTemplates"
-        (rowSelect)="onRowSelect($event)"
-        (createEntity)="navigateToCreateRole()"
-        class="w-full h-full!"
-    ></app-global-table>
+    <app-global-table tableLabel="Perfis" [headerActions]="headerActions" [data]="(roles$ | async)!" [entity]="'roles'"
+        [columns]="columns" [globalFilterFields]="globalFilterFields" [loading]="loading$ | async"
+        [columnTemplates]="customTemplates" (rowSelect)="onRowSelect($event)" (createEntity)="navigateToCreateRole()"
+        class="w-full h-100"></app-global-table>
 </div>
 
 <!-- Permissions template field -->
 <ng-template #permissionsTemplate let-rowData>
     <div class="flex flex-wrap">
-        <p-tag *ngFor="let permission of rowData.permissions"
-               [value]="permission.name"
-               severity="info"
-               class="mr-1 mb-1">
+        <p-tag *ngFor="let permission of rowData.permissions" [value]="permission.name" severity="info"
+            class="mr-1 mb-1">
         </p-tag>
         <span *ngIf="rowData.permissions.length === 0">Nenhuma permissão atribuída</span>
     </div>

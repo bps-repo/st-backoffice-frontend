@@ -13,6 +13,7 @@ import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil, switchMap } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
+import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
 import { ScholarStatisticsService } from 'src/app/core/services/scholar-statistics.service';
 import { AttendanceService } from 'src/app/core/services/attendance.service';
 
@@ -140,6 +141,8 @@ export class StudentReports implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
+        // Dispatch action to load students if not already loaded
+        this.store.dispatch(StudentsActions.loadStudents());
         this.loadData();
         this.route.params.subscribe(params => {
             this.reportId = params['id'];
@@ -373,18 +376,40 @@ export class StudentReports implements OnInit, OnDestroy {
     }
 
     private calculateAverageAttendance(students: Student[]): number {
-        // Mock calculation - in real app would use attendance service
-        return Math.floor(75 + Math.random() * 20);
+        // Calculate real average attendance from student attendance data
+        let totalAttendance = 0;
+        let studentsWithAttendance = 0;
+
+        students.forEach(student => {
+            if (student.attendances && student.attendances.length > 0) {
+                const presentCount = student.attendances.filter((attendance: any) => attendance.present === true).length;
+                const totalCount = student.attendances.length;
+                const percentage = (presentCount / totalCount) * 100;
+                totalAttendance += percentage;
+                studentsWithAttendance++;
+            }
+        });
+
+        return studentsWithAttendance > 0 ? Math.round(totalAttendance / studentsWithAttendance) : 0;
     }
 
     private calculateNewStudents(students: Student[]): number {
-        // Mock calculation - in real app would filter by creation date
-        return Math.floor(students.length * 0.1);
+        // Calculate new students from last 30 days
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        return students.filter(student => {
+            const enrollmentDate = new Date(student.enrollmentDate || student.createdAt || '');
+            return enrollmentDate >= thirtyDaysAgo;
+        }).length;
     }
 
     private calculateRetentionRate(students: Student[]): number {
-        // Mock calculation - in real app would use historical data
-        return Math.floor(80 + Math.random() * 15);
+        // Calculate retention rate based on active vs total students
+        const activeStudents = students.filter(s => s.status === StudentStatus.ACTIVE).length;
+        const totalStudents = students.length;
+
+        return totalStudents > 0 ? Math.round((activeStudents / totalStudents) * 100) : 0;
     }
 
     private updateCharts(students: Student[]): void {
@@ -395,14 +420,38 @@ export class StudentReports implements OnInit, OnDestroy {
 
     private updateAttendanceByMonthChart(students: Student[]): void {
         const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        // Mock attendance data - in real app would use attendance service
-        const attendanceData = months.map(() => Math.floor(70 + Math.random() * 25));
+        const currentYear = new Date().getFullYear();
+        const attendanceData = new Array(12).fill(0);
+        const monthCounts = new Array(12).fill(0);
+
+        // Calculate real attendance data by month
+        students.forEach(student => {
+            if (student.attendances && student.attendances.length > 0) {
+                student.attendances.forEach((attendance: any) => {
+                    if (attendance.date) {
+                        const attendanceDate = new Date(attendance.date);
+                        if (attendanceDate.getFullYear() === currentYear) {
+                            const month = attendanceDate.getMonth();
+                            monthCounts[month]++;
+                            if (attendance.present) {
+                                attendanceData[month]++;
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Convert to percentages
+        const percentageData = attendanceData.map((present, index) =>
+            monthCounts[index] > 0 ? Math.round((present / monthCounts[index]) * 100) : 0
+        );
 
         this.attendanceByMonthData = {
             labels: months,
             datasets: [{
                 label: 'Frequência (%)',
-                data: attendanceData,
+                data: percentageData,
                 backgroundColor: '#42A5F5',
                 borderColor: '#42A5F5'
             }]
@@ -453,15 +502,25 @@ export class StudentReports implements OnInit, OnDestroy {
     }
 
     private updateStudentsByLevelChart(students: Student[]): void {
-        // Mock level distribution - in real app would use level data
-        const levels = ['Iniciante', 'Básico', 'Intermediário', 'Avançado'];
-        const levelData = levels.map(() => Math.floor(Math.random() * 100) + 50);
+        // Real level distribution based on student levels
+        const levelCounts: {[key: string]: number} = {};
+
+        students.forEach(student => {
+            let levelName = 'Não Definido';
+            if (student.level && typeof student.level === 'object' && 'name' in student.level) {
+                levelName = student.level.name;
+            }
+            levelCounts[levelName] = (levelCounts[levelName] || 0) + 1;
+        });
+
+        const labels = Object.keys(levelCounts);
+        const data = Object.values(levelCounts);
 
         this.studentsByLevelData = {
-            labels: levels,
+            labels: labels,
             datasets: [{
                 label: 'Número de Alunos',
-                data: levelData,
+                data: data,
                 backgroundColor: '#42A5F5'
             }]
         };

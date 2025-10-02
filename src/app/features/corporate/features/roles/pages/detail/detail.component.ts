@@ -1,23 +1,23 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
-import {Role} from 'src/app/core/models/auth/role';
-import {RoleService} from 'src/app/core/services/role.service';
-import {Observable, of, Subject} from 'rxjs';
-import {takeUntil, finalize} from 'rxjs/operators';
-import {ButtonModule} from 'primeng/button';
-import {TabViewModule} from 'primeng/tabview';
-import {DialogModule} from 'primeng/dialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {ToastModule} from 'primeng/toast';
-import {RippleModule} from "primeng/ripple";
-import {Store} from "@ngrx/store";
-import {selectRolesLoading} from "../../../../../../core/store/roles/selectors/roles.selectors";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Role } from 'src/app/core/models/auth/role';
+import { Observable, of, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ButtonModule } from 'primeng/button';
+import { TabViewModule } from 'primeng/tabview';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { RippleModule } from "primeng/ripple";
+import { Store } from "@ngrx/store";
+import { selectRolesLoading, selectSelectedRole } from "../../../../../../core/store/roles/roles.selectors";
+import { loadRole, updateRole, deleteRole } from 'src/app/core/store/roles/roles.actions';
 
 @Component({
     selector: 'app-role-detail',
@@ -41,8 +41,8 @@ import {selectRolesLoading} from "../../../../../../core/store/roles/selectors/r
 })
 export class DetailComponent implements OnInit, OnDestroy {
     role: Role | null = null;
+    role$!: Observable<Role | null>;
     loading$: Observable<boolean> = of(false);
-    saving = false;
     editDialogVisible = false;
     roleForm!: FormGroup;
     private destroy$ = new Subject<void>();
@@ -50,12 +50,11 @@ export class DetailComponent implements OnInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private roleService: RoleService,
         private fb: FormBuilder,
         private confirmationService: ConfirmationService,
-        private messageService: MessageService,
         private readonly store$: Store
     ) {
+        this.role$ = this.store$.select(selectSelectedRole) as Observable<Role | null>;
         this.loading$ = this.store$.select(selectRolesLoading);
     }
 
@@ -66,7 +65,11 @@ export class DetailComponent implements OnInit, OnDestroy {
         ).subscribe(params => {
             const id = params.get('id');
             if (id) {
+                this.loading$ = this.store$.select(selectRolesLoading);
                 this.loadRole(id);
+                this.role$.subscribe(role => {
+                    this.role = role;
+                });
             }
         });
     }
@@ -84,72 +87,38 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     loadRole(id: string): void {
-        this.roleService.getRole(id).pipe(
-            takeUntil(this.destroy$),
-        ).subscribe({
-            next: (role) => {
-                this.role = role;
-            },
-            error: (error) => {
-                console.error('Error loading role', error);
-                this.role = null;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao carregar função. Por favor, tente novamente.'
-                });
-            }
-        });
-    }
-
-    editRole(): void {
-        if (this.role) {
-            this.roleForm.patchValue({
-                name: this.role.name,
-                description: this.role.description
-            });
-            this.editDialogVisible = true;
-        }
+        this.store$.dispatch(loadRole({ id }));
     }
 
     hideEditDialog(): void {
         this.editDialogVisible = false;
     }
 
-    saveRole(): void {
+
+    onEditRole(role: Role): void {
+        this.editDialogVisible = true;
+        this.roleForm.patchValue({
+            name: role.name,
+            description: role.description
+        });
+    }
+
+    editRole(): void {
         if (this.roleForm.invalid || !this.role) {
             return;
         }
 
-        this.saving = true;
+        if (!this.role) return;
+
+        this.hideEditDialog();
+
         const updatedRole: Role = {
             ...this.role,
             name: this.roleForm.value.name,
             description: this.roleForm.value.description
         };
 
-        this.roleService.updateRole(updatedRole).pipe(
-            takeUntil(this.destroy$),
-            finalize(() => this.saving = false)
-        ).subscribe({
-            next: (role) => {
-                this.role = role;
-                this.hideEditDialog();
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Função atualizada com sucesso'
-                });
-            },
-            error: (error) => {
-                console.error('Error updating role', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao atualizar função. Por favor, tente novamente.'
-                });
-            }
-        });
+        this.store$.dispatch(updateRole({ role: updatedRole }));
     }
 
     deleteRole(): void {
@@ -160,26 +129,7 @@ export class DetailComponent implements OnInit, OnDestroy {
             header: 'Confirmar Exclusão',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.roleService.deleteRole(this.role!.id).pipe(
-                    takeUntil(this.destroy$),
-                ).subscribe({
-                    next: () => {
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Sucesso',
-                            detail: 'Função excluída com sucesso'
-                        });
-                        this.router.navigate(['/corporate/roles']).then();
-                    },
-                    error: (error) => {
-                        console.error('Error deleting role', error);
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Erro',
-                            detail: 'Erro ao excluir função. Por favor, tente novamente.'
-                        });
-                    }
-                });
+                this.store$.dispatch(deleteRole({ id: this.role!.id }));
             }
         });
     }

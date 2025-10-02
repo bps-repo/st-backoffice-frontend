@@ -23,8 +23,8 @@ import { PermissionTreeSelectorComponent } from 'src/app/shared/components/permi
 import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
 import * as EmployeesSelectors from 'src/app/core/store/corporate/employees/employees.selectors';
 import { Subject } from 'rxjs';
-import * as RolesActions from 'src/app/core/store/roles/actions/roles.actions';
-import * as RolesSelectors from 'src/app/core/store/roles/selectors/roles.selectors';
+import * as RolesActions from 'src/app/core/store/roles/roles.actions';
+import * as RolesSelectors from 'src/app/core/store/roles/roles.selectors';
 import * as PermissionsActions from 'src/app/core/store/permissions/actions/permissions.actions';
 import * as PermissionsSelectors from 'src/app/core/store/permissions/selectors/permissions.selectors';
 

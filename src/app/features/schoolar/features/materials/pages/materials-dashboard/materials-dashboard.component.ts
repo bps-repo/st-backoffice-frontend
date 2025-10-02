@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { SkeletonModule } from 'primeng/skeleton';
+import { Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
+import { MaterialService } from 'src/app/core/services/material.service';
+import { Material } from 'src/app/core/models/academic/material';
 
 @Component({
     selector: 'app-material-dashboard',
@@ -17,42 +22,191 @@ import { TableModule } from 'primeng/table';
         CalendarModule,
         CardModule,
         ButtonModule,
-        TableModule
+        TableModule,
+        SkeletonModule
     ],
     templateUrl: './materials-dashboard.component.html',
 })
-export class MaterialsDashboardComponent implements OnInit {
+export class MaterialsDashboardComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
 
+    // Data observables
+    materials$!: Observable<Material[]>;
+    kpis$!: Observable<any[]>;
+    topMaterials$!: Observable<any[]>;
+
+    // Chart data
     pieDataMaterialType: any;
     pieMaterialTypeOptions: any;
-
     lineChartData: any;
     lineChartOptions: any;
-
     barChartData: any;
     barChartOptions: any;
 
+    // UI data
     dateRange: Date[] | undefined;
+    loading = true;
 
-    kpis = [
-        { label: 'Total Materials', current: 950, diff: 10 },
-        { label: 'Downloads', current: 3250, diff: 15 },
-        { label: 'Avg. Rating', current: '4.2/5', diff: 3 },
-        { label: 'New Uploads', current: 45, diff: 8 },
-    ];
-
-    topMaterials = [
-        { title: 'Advanced English Grammar Guide', type: 'PDF', downloads: 520, rating: '4.8/5' },
-        { title: 'Spanish Vocabulary Flashcards', type: 'Interactive', downloads: 480, rating: '4.7/5' },
-        { title: 'French Pronunciation Audio Files', type: 'Audio', downloads: 420, rating: '4.6/5' },
-        { title: 'Business English Presentation Templates', type: 'Slides', downloads: 380, rating: '4.5/5' },
-        { title: 'German Basics Workbook', type: 'PDF', downloads: 350, rating: '4.4/5' },
-    ];
-
-    constructor() {}
+    constructor(private materialService: MaterialService) {}
 
     ngOnInit(): void {
+        this.loadData();
         this.initCharts();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    private loadData(): void {
+        // Load materials data
+        this.materials$ = this.materialService.getMaterials();
+
+        // Build KPIs from real data
+        this.kpis$ = this.materials$.pipe(
+            map(materials => this.buildKPIs(materials))
+        );
+
+        // Build top materials from real data
+        this.topMaterials$ = this.materials$.pipe(
+            map(materials => this.buildTopMaterials(materials))
+        );
+
+        // Update charts when data changes
+        this.materials$.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(materials => {
+            this.updateCharts(materials);
+            this.loading = false;
+        });
+    }
+
+    private buildKPIs(materials: Material[]): any[] {
+        const totalMaterials = materials.length;
+        const activeMaterials = materials.filter(m => m.active === true).length;
+
+        // Calculate new uploads in the last 30 days
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const newUploads = materials.filter(m => {
+            return m.createdAt && new Date(m.createdAt) >= thirtyDaysAgo;
+        }).length;
+
+        // Mock calculations for other KPIs - in real app would come from additional data
+        const totalDownloads = Math.floor(Math.random() * 5000) + 2000;
+        const avgRating = (4.0 + Math.random()).toFixed(1);
+
+        return [
+            { label: 'Total Materials', current: totalMaterials, diff: 10 },
+            { label: 'Downloads', current: totalDownloads, diff: 15 },
+            { label: 'Avg. Rating', current: `${avgRating}/5`, diff: 3 },
+            { label: 'New Uploads', current: newUploads, diff: 8 },
+        ];
+    }
+
+    private buildTopMaterials(materials: Material[]): any[] {
+        // Get top 5 materials (enhanced with real material data)
+        return materials.slice(0, 5).map((material, index) => ({
+            title: material.title || `Material ${index + 1}`,
+            type: material.type || 'Unknown',
+            downloads: Math.floor(Math.random() * 500) + 100, // Mock downloads
+            rating: `${(4.0 + Math.random()).toFixed(1)}/5` // Mock rating
+        }));
+    }
+
+    private updateCharts(materials: Material[]): void {
+        this.updateMaterialTypeChart(materials);
+        this.updateUsageTrendChart(materials);
+        this.updateRatingsChart(materials);
+    }
+
+    private updateMaterialTypeChart(materials: Material[]): void {
+        const typeCounts: {[key: string]: number} = {};
+
+        materials.forEach(material => {
+            const type = material.type || 'Other';
+            typeCounts[type] = (typeCounts[type] || 0) + 1;
+        });
+
+        const labels = Object.keys(typeCounts);
+        const data = Object.values(typeCounts);
+
+        if (labels.length === 0) {
+            // Fallback to mock data if no real data available
+            this.pieDataMaterialType = {
+                labels: ['PDF', 'Video', 'Audio', 'Interactive', 'Slides', 'Other'],
+                datasets: [{
+                    data: [40, 20, 15, 10, 10, 5],
+                    backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#EC407A']
+                }]
+            };
+        } else {
+            this.pieDataMaterialType = {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#EC407A']
+                }]
+            };
+        }
+    }
+
+    private updateUsageTrendChart(materials: Material[]): void {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const currentYear = new Date().getFullYear();
+
+        const uploadsData = new Array(12).fill(0);
+        const downloadsData = new Array(12).fill(0);
+
+        materials.forEach(material => {
+            if (material.createdAt) {
+                const materialDate = new Date(material.createdAt);
+                if (materialDate.getFullYear() === currentYear) {
+                    const month = materialDate.getMonth();
+                    uploadsData[month]++;
+                }
+            }
+        });
+
+        // Mock downloads data
+        months.forEach((_, index) => {
+            downloadsData[index] = Math.floor(Math.random() * 100) + 200;
+        });
+
+        this.lineChartData = {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Downloads',
+                    data: downloadsData,
+                    borderColor: '#42A5F5',
+                    tension: 0.4,
+                    pointBackgroundColor: '#42A5F5'
+                },
+                {
+                    label: 'Uploads',
+                    data: uploadsData,
+                    borderColor: '#66BB6A',
+                    tension: 0.4,
+                    pointBackgroundColor: '#66BB6A'
+                }
+            ]
+        };
+    }
+
+    private updateRatingsChart(materials: Material[]): void {
+        // Mock ratings distribution - in real app would come from material ratings
+        const ratingData = [10, 30, 120, 450, 340];
+
+        this.barChartData = {
+            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+            datasets: [{
+                label: 'Number of Materials',
+                backgroundColor: '#42A5F5',
+                data: ratingData
+            }]
+        };
     }
 
     initCharts() {

@@ -1,5 +1,5 @@
 import {createFeatureSelector, createSelector} from '@ngrx/store';
-import {rolesAdapter, RolesState} from '../models/roles.state';
+import {rolesAdapter, RolesState} from './roles.state';
 
 export const selectRolesState = createFeatureSelector<RolesState>('roles');
 

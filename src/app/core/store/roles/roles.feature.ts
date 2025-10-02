@@ -1,5 +1,5 @@
 import { createFeature } from '@ngrx/store';
-import { rolesReducer } from './reducers/roles.reducer';
+import { rolesReducer } from './roles.reducer';
 
 export const rolesFeature = createFeature({
   name: 'roles',

@@ -5,7 +5,7 @@
                 <h5>Detalhes do perfil: {{ role.name }}</h5>
                 <div>
                     <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-outlined mr-2"
-                        (click)="editRole()"></button>
+                        (click)="onEditRole(role)"></button>
                     <button pButton pRipple label="Excluir" icon="pi pi-trash"
                         class="p-button-outlined p-button-danger mr-2" (click)="deleteRole()"></button>
                     <button pButton pRipple label="Voltar" icon="pi pi-arrow-left" class="p-button-outlined"
@@ -66,8 +66,8 @@
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
             (click)="hideEditDialog()"></button>
-        <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-text" (click)="saveRole()"
-            [disabled]="roleForm.invalid || saving"></button>
+        <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-text" (click)="editRole()"
+            [disabled]="roleForm.invalid || (loading$ | async)"></button>
     </ng-template>
 </p-dialog>
 

@@ -15,8 +15,8 @@ import {TagModule} from 'primeng/tag';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import {Store} from "@ngrx/store";
-import {selectRolesLoading} from "../../../../../../core/store/roles/selectors/roles.selectors";
-import {setSelectedRole} from "../../../../../../core/store/roles/actions/roles.actions";
+import {selectAllRoles, selectRolesLoading} from "../../../../../../core/store/roles/roles.selectors";
+import {loadRoles, setSelectedRole} from "../../../../../../core/store/roles/roles.actions";
 
 @Component({
     selector: 'app-roles-list',
@@ -46,11 +46,11 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private destroy$ = new Subject<void>();
 
     constructor(
-        private roleService: RoleService,
         private router: Router,
         private store$: Store,
     ) {
         this.loading$ = this.store$.select(selectRolesLoading)
+        this.roles$ = this.store$.select(selectAllRoles)
     }
 
     ngOnInit(): void {
@@ -71,15 +71,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     loadRoles(): void {
-        this.roles$ = this.roleService.getRoles().pipe(
-            takeUntil(this.destroy$),
-            catchError(error => {
-                console.error('Error loading roles', error);
-                return of([]);
-            }),
-            finalize(() => {
-            })
-        );
+        this.store$.dispatch(loadRoles())
     }
 
     onRowSelect(role: Role) {
