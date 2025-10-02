@@ -67,19 +67,18 @@ export class ManagementComponent implements OnInit {
     private normalizeContract(contract: Contract) {
         const student = contract.student;
         const seller = contract.seller;
-        const level = contract.levels?.[0];
 
         return {
             id: contract.id,
             studentCode: student?.code || '-',
-            studentName: student?.user ? `${student.user.firstname} ${student.user.lastname}` : '-',
-            studentEmail: student?.user?.email || '-',
+            studentName: student?.name || '-',
+            studentEmail: student?.email || '-',
             center: student?.center?.name || '-',
-            level: level ? `name (${level.duration} meses)` : '-',
-            seller: seller?.user ? `${seller.user.firstname} ${seller.user.lastname}` : '-',
+            level: student?.level?.name || '-',
+            seller: seller?.name || '-',
             contractType: this.getContractTypeLabel(contract.contractType),
             period: this.formatPeriod(contract.startDate, contract.endDate || ''),
-            amount: this.formatCurrency(contract.amount || 0),
+            amount: this.formatCurrency(contract.financial?.finalAmount ?? contract.financial?.totalAmount ?? 0),
             installments: this.formatInstallments(contract.installments || []),
             status: this.getStatusLabel(contract.status),
             actions: contract.id

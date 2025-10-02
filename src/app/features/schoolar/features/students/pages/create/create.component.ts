@@ -1,35 +1,35 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Subject, takeUntil, combineLatest, debounceTime} from 'rxjs';
-import {MenuItem, SelectItem, MessageService} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {CheckboxModule} from 'primeng/checkbox';
-import {DropdownModule} from 'primeng/dropdown';
-import {FileUploadModule} from 'primeng/fileupload';
-import {InputGroupModule} from 'primeng/inputgroup';
-import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {RippleModule} from 'primeng/ripple';
-import {CalendarModule} from 'primeng/calendar';
-import {StepsModule} from 'primeng/steps';
-import {ToastModule} from 'primeng/toast';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Subject, takeUntil, combineLatest, debounceTime, of } from 'rxjs';
+import { MenuItem, SelectItem, MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadModule } from 'primeng/fileupload';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { RippleModule } from 'primeng/ripple';
+import { CalendarModule } from 'primeng/calendar';
+import { StepsModule } from 'primeng/steps';
+import { ToastModule } from 'primeng/toast';
 import {
     PROVINCES,
     MUNICIPALITIES,
     ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
-import {CreateStudentRequest} from 'src/app/core/services/student.service';
-import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
-import {studentsFeature} from 'src/app/core/store/schoolar/students/students.reducers';
-import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
+import { CreateStudentRequest } from 'src/app/core/services/student.service';
+import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
+import { studentsFeature } from 'src/app/core/store/schoolar/students/students.reducers';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
-import {map, Observable} from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Component({
     selector: 'app-student-create',
@@ -52,6 +52,7 @@ import {map, Observable} from 'rxjs';
         ToastModule
     ],
     templateUrl: './create.component.html',
+    styleUrls: ['./create.component.scss'],
     providers: [MessageService]
 })
 export class CreateComponent implements OnInit, OnDestroy {
@@ -60,7 +61,7 @@ export class CreateComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     // Loading and error states from store
-    loading$ = this.store.select(studentsFeature.selectLoadingCreate);
+    loading$ = this.store.select(studentsFeature.selectLoadingCreate)
     createError$ = this.store.select(studentsFeature.selectCreateError);
 
     // Real centers options (as SelectItem[]) derived from the centers store
@@ -75,10 +76,10 @@ export class CreateComponent implements OnInit, OnDestroy {
     }
 
     steps: MenuItem[] = [
-        {label: 'Dados Pessoais'},
-        {label: 'Dados institucional'},
-        {label: 'Contato de Emergência'},
-        {label: 'Observações'}
+        { label: 'Dados Pessoais' },
+        { label: 'Dados institucional' },
+        { label: 'Contato de Emergência' },
+        { label: 'Observações' }
     ];
 
 
@@ -87,13 +88,13 @@ export class CreateComponent implements OnInit, OnDestroy {
     academicBackgrounds: SelectItem[] = ACADEMIC_BACKGROUNDS;
 
     genderOptions: SelectItem[] = [
-        {label: 'Masculino', value: 'MALE'},
-        {label: 'Femenino', value: 'FEMALE'}
+        { label: 'Masculino', value: 'MALE' },
+        { label: 'Femenino', value: 'FEMALE' }
     ];
 
     statusOptions: SelectItem[] = [
-        {label: 'Activo', value: 'ACTIVE'},
-        {label: 'Inactivo', value: 'INACTIVE'}
+        { label: 'Activo', value: 'ACTIVE' },
+        { label: 'Inactivo', value: 'INACTIVE' }
     ];
 
     ngOnInit() {
@@ -286,7 +287,7 @@ export class CreateComponent implements OnInit, OnDestroy {
             console.log('Saving student:', createStudentRequest);
             this.resetForm()
             // Dispatch action to create student via NgRx
-            this.store.dispatch(StudentsActions.createStudentWithRequest({request: createStudentRequest}))
+            this.store.dispatch(StudentsActions.createStudentWithRequest({ request: createStudentRequest }))
         } else {
             console.log('Form is invalid', this.studentForm.errors);
             // Find first invalid step

@@ -51,45 +51,34 @@ export interface Level {
     updatedAt: string;
 }
 
+// New API student shape for contracts
+export interface ContractStudentLevelSummary {
+    id: string;
+    name: string;
+    order: number;
+}
+
+export interface ContractStudentCenterSummary {
+    id: string;
+    name: string;
+}
+
 export interface Student {
     id: string;
     code: number;
-    user: User;
-    enrollmentDate: string;
+    name: string;
+    email: string;
+    phone: string;
     status: string;
-    center: Center;
-    level?: Level;
-    currentUnit?: Unit;
-    levelProgressPercentage: number;
-    vip: boolean;
-    vipTeacherId?: string;
-    directChatEnabled: boolean;
-    fixedDateClasses: boolean;
-    emergencyContactNumber: string;
-    emergencyContactName: string;
-    emergencyContactRelationship: string;
-    academicBackground: string;
-    province: string;
-    municipality: string;
-    notes?: string;
-    unitProgressesIds?: any;
-    certificatesIds?: any;
-    contractsIds?: any;
-    attendancesIds?: any;
-    createdAt: string;
-    updatedAt: string;
+    level: ContractStudentLevelSummary;
+    center: ContractStudentCenterSummary;
 }
 
+// New API seller shape for contracts
 export interface Seller {
     id: string;
-    user: User;
-    centerId: string;
-    hiringDate: string;
-    resignationDate?: string;
-    wage: number;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
+    name: string;
+    email: string;
 }
 
 export interface ContractLevel {
@@ -122,22 +111,33 @@ export interface Installment {
     status: 'PENDING_PAYMENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
 }
 
+export interface ContractFinancialSummary {
+    totalAmount: number;
+    discountPercent: number;
+    finalAmount: number;
+    courseMaterialPrice: number | null;
+    courseMaterialPaid: boolean;
+    currency: string;
+}
+
 export interface Contract {
     id: string;
     student: Student;
     seller: Seller;
     startDate: string;
     endDate?: string;
-    amount?: number;
-    discountPercent: number;
+    contractNumber: string | null;
+    financial: ContractFinancialSummary;
+    amount?: number; // Deprecated: use financial.totalAmount
+    discountPercent: number; // Deprecated: use financial.discountPercent
     status: 'ACTIVE' | 'HOLD' | 'CANCELLED' | 'COMPLETED';
     contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
     contractLevels: ContractLevel[];
     installments?: Installment[];
     numberOfInstallments: number;
     notes?: string;
-    createdAt?: string;
-    updatedAt?: string;
+    createdAt?: string | null;
+    updatedAt?: string | null;
     // Legacy support - these might still be returned by the API for backward compatibility
     levels?: ContractLevel[]; // Alias for contractLevels
 }

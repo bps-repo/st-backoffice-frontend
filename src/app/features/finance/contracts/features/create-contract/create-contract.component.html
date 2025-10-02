@@ -30,8 +30,9 @@
                     <!-- Seller Selection -->
                     <div class="field col-12 md:col-4">
                         <label for="sellerId">Vendedor *</label>
-                        <p-dropdown id="sellerId" formControlName="sellerId" [options]="employees" optionLabel="displayName"
-                            optionValue="id" placeholder="Selecione um vendedor" [showClear]="true">
+                        <p-dropdown id="sellerId" formControlName="sellerId" [options]="employees"
+                            optionLabel="displayName" optionValue="id" placeholder="Selecione um vendedor"
+                            [showClear]="true">
                             <ng-template pTemplate="item" let-employee>
                                 <div>
                                     <div>{{employee.displayName}}</div>
@@ -93,7 +94,8 @@
                                             </div>
                                         </ng-template>
                                     </p-dropdown>
-                                    <small *ngIf="contractForm.get('levelId')?.invalid && contractForm.get('levelId')?.touched"
+                                    <small
+                                        *ngIf="contractForm.get('levelId')?.invalid && contractForm.get('levelId')?.touched"
                                         class="p-error">
                                         Nível é obrigatório
                                     </small>
@@ -103,7 +105,8 @@
                                 <div class="field col-12 md:col-4">
                                     <label>Duração (meses) *</label>
                                     <p-inputNumber formControlName="duration" [min]="1"></p-inputNumber>
-                                    <small *ngIf="contractForm.get('duration')?.invalid && contractForm.get('duration')?.touched"
+                                    <small
+                                        *ngIf="contractForm.get('duration')?.invalid && contractForm.get('duration')?.touched"
                                         class="p-error">
                                         Duração é obrigatória
                                     </small>
@@ -113,9 +116,9 @@
                                 <div class="field col-12 md:col-6">
                                     <label>Preço do Nível *</label>
                                     <p-inputNumber formControlName="levelPrice" [min]="0" mode="decimal"
-                                        [minFractionDigits]="2" [maxFractionDigits]="2"
-                                        suffix=" AOA"></p-inputNumber>
-                                    <small *ngIf="contractForm.get('levelPrice')?.invalid && contractForm.get('levelPrice')?.touched"
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
+                                    <small
+                                        *ngIf="contractForm.get('levelPrice')?.invalid && contractForm.get('levelPrice')?.touched"
                                         class="p-error">
                                         Preço do Nível é obrigatório
                                     </small>
@@ -125,9 +128,9 @@
                                 <div class="field col-12 md:col-6">
                                     <label>Preço do Material do Curso *</label>
                                     <p-inputNumber formControlName="courseMaterialPrice" [min]="0" mode="decimal"
-                                        [minFractionDigits]="2" [maxFractionDigits]="2"
-                                        suffix=" AOA"></p-inputNumber>
-                                    <small *ngIf="contractForm.get('courseMaterialPrice')?.invalid && contractForm.get('courseMaterialPrice')?.touched"
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
+                                    <small
+                                        *ngIf="contractForm.get('courseMaterialPrice')?.invalid && contractForm.get('courseMaterialPrice')?.touched"
                                         class="p-error">
                                         Preço do Material do Curso é obrigatório
                                     </small>
@@ -155,8 +158,8 @@
                                 <!-- Notes for Level -->
                                 <div class="field col-12 md:col-12">
                                     <label>Notas do Nível</label>
-                                    <p-inputTextarea formControlName="levelNotes" placeholder="Enter level-specific notes"
-                                        rows="5" />
+                                    <p-inputTextarea formControlName="levelNotes"
+                                        placeholder="Enter level-specific notes" rows="5" />
                                 </div>
                             </div>
                         </div>
@@ -231,7 +234,8 @@
                                                 <td>
                                                     <div class="flex align-items-center gap-2">
                                                         <i class="pi pi-calendar text-primary"></i>
-                                                        <span class="font-semibold">{{installment.installmentNumber}}/{{installments.length}}</span>
+                                                        <span
+                                                            class="font-semibold">{{installment.installmentNumber}}/{{installments.length}}</span>
                                                     </div>
                                                 </td>
                                                 <td>
@@ -241,7 +245,8 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span class="font-semibold text-primary">{{installment.amount | number:'1.2-2'}} AOA</span>
+                                                    <span class="font-semibold text-primary">{{installment.amount |
+                                                        number:'1.2-2'}} AOA</span>
                                                 </td>
                                                 <td>
                                                     <span class="p-tag p-tag-warning">
@@ -261,7 +266,8 @@
                                             <tr>
                                                 <td colspan="5" class="text-center text-500 p-4">
                                                     <i class="pi pi-info-circle mr-2"></i>
-                                                    Nenhuma parcela gerada. Preencha os dados do contrato para gerar o plano de pagamento.
+                                                    Nenhuma parcela gerada. Preencha os dados do contrato para gerar o
+                                                    plano de pagamento.
                                                 </td>
                                             </tr>
                                         </ng-template>
@@ -272,7 +278,8 @@
                             <!-- Installments Summary -->
                             <div class="grid mt-3" *ngIf="installments.length > 0">
                                 <div class="col-12 md:col-6">
-                                    <div class="flex justify-content-between align-items-center p-3 border-round bg-blue-50">
+                                    <div
+                                        class="flex justify-content-between align-items-center p-3 border-round bg-blue-50">
                                         <span class="font-semibold">Valor Total das Parcelas:</span>
                                         <span class="font-bold text-primary text-lg">
                                             {{contractSummary.finalAmount | number:'1.2-2'}} AOA
@@ -280,7 +287,8 @@
                                     </div>
                                 </div>
                                 <div class="col-12 md:col-6">
-                                    <div class="flex justify-content-between align-items-center p-3 border-round bg-green-50">
+                                    <div
+                                        class="flex justify-content-between align-items-center p-3 border-round bg-green-50">
                                         <span class="font-semibold">Valor por Parcela:</span>
                                         <span class="font-bold text-green-600 text-lg">
                                             {{contractSummary.installmentAmount | number:'1.2-2'}} AOA

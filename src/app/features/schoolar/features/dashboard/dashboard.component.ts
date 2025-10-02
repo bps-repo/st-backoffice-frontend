@@ -29,7 +29,6 @@ export class SchoolarDashboard {
         {label: 'Geral', value: {key: 'general', component: GeneralScholarDashboardComponent}},
         {label: 'Alunos', value: {key: 'students', component: StudentsDashboardComponent}},
         {label: 'Aulas', value: {key: 'lessons', component: LessonsDashboardComponent}},
-        {label: 'Turmas', value: {key: 'classes', component: ClassesDashboardComponent}},
         {label: 'Materiais', value: {key: 'materials', component: MaterialsDashboardComponent}},
         {label: 'Avaliações', value: {key: 'assessments', component: AssessmentsDashboardComponent}},
         {label: 'Níveis', value: {key: 'levels', component: LevelDashboardComponent}},

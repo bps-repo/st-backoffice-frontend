@@ -264,7 +264,7 @@ export class DetailComponent implements OnInit {
     getPaymentProgress(): number {
         if (!this.contract || !this.contract.installments || this.contract.installments.length === 0) return 0;
         const totalPaid = this.getTotalPaidAmount();
-        const totalAmount = this.contract.amount;
+        const totalAmount = this.contract.financial?.finalAmount ?? this.contract.financial?.totalAmount ?? 0;
         if (!totalAmount || totalAmount === 0) return 0;
         return Math.round((totalPaid / totalAmount) * 100);
     }
