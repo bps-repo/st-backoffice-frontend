@@ -1,22 +1,23 @@
-import {Component, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
-import {RoleService} from 'src/app/core/services/role.service';
-import {PermissionService} from 'src/app/core/services/permission.service';
-import {Role} from 'src/app/core/models/auth/role';
-import {Permission} from 'src/app/core/models/auth/permission';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {finalize} from 'rxjs/operators';
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { RoleService } from 'src/app/core/services/role.service';
+import { PermissionService } from 'src/app/core/services/permission.service';
+import { Role } from 'src/app/core/models/auth/role';
+import { Permission } from 'src/app/core/models/auth/permission';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { finalize } from 'rxjs/operators';
 import {
     PermissionTreeSelectComponent
 } from "../detail/permissions/permission-tree-select/permission-tree-select.component";
-import {RippleModule} from "primeng/ripple";
-import {Store} from "@ngrx/store";
-import {selectPermissionsLoading} from "../../../../../../core/store/permissions/selectors/permissions.selectors";
-import {Observable, of} from "rxjs";
+import { RippleModule } from "primeng/ripple";
+import { Store } from "@ngrx/store";
+import { selectPermissionsLoading, selectPermissionTree } from "../../../../../../core/store/permissions/selectors/permissions.selectors";
+import { Observable, of } from "rxjs";
+import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
 
 @Component({
     selector: 'app-create-role',
@@ -36,18 +37,18 @@ export class CreateComponent implements OnInit {
     roleForm!: FormGroup;
     loading = false;
 
-    permissions: Permission[] = [];
+    permissions$: Observable<Permission[]> = of([]);
     permissionsLoading: Observable<boolean> = of(false)
     selectedPermissionIds: string[] = [];
 
     constructor(
         private fb: FormBuilder,
         private roleService: RoleService,
-        private permissionService: PermissionService,
         private router: Router,
         private readonly store$: Store
     ) {
         this.permissionsLoading = store$.select(selectPermissionsLoading)
+        this.permissions$ = store$.select(selectPermissionTree)
     }
 
     ngOnInit(): void {
@@ -63,16 +64,7 @@ export class CreateComponent implements OnInit {
     }
 
     loadPermissions(): void {
-        this.permissionService.getPermissions()
-            .pipe()
-            .subscribe({
-                next: (permissions) => {
-                    this.permissions = permissions;
-                },
-                error: (error) => {
-                    console.error('Error loading permissions', error);
-                }
-            });
+        this.store$.dispatch(loadPermissionTree());
     }
 
     onPermissionSelected(permissionIds: string[]): void {

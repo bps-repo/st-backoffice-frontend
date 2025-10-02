@@ -4,12 +4,8 @@
         <p-progressSpinner></p-progressSpinner>
     </div>
     <div *ngIf="!loading">
-        <p-tree [value]="treeNodes"
-                selectionMode="checkbox"
-                [(selection)]="selectedNodes"
-                styleClass="w-full"
-                (onNodeSelect)="onNodeSelect($event)"
-                (onNodeUnselect)="onNodeUnselect($event)">
+        <p-tree [value]="treeNodes" selectionMode="checkbox" [(selection)]="selectedNodes" styleClass="w-full"
+            (onNodeSelect)="onNodeSelect($event)" (onNodeUnselect)="onNodeUnselect($event)">
             <ng-template pTemplate="default" let-node>
                 <div class="flex align-items-center gap-2">
                     <span>{{ node.label }}</span>

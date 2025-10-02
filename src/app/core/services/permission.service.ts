@@ -22,15 +22,8 @@ export class PermissionService {
     ) {
     }
 
-    getPermissions(): Observable<Permission[]> {
-        // Dispatch the loadPermissionTree action
-        this.store.dispatch(PermissionsActions.loadPermissionTree());
-        // Return the permission tree from the store
-        return this.store.select(PermissionsSelectors.selectPermissionTree);
-    }
-
     // Original HTTP method for effects to use
-    fetchPermissionTree(): Observable<Permission[]> {
+    getPermissionTree(): Observable<Permission[]> {
         return this.http.get<ApiResponse<Permission[]>>(`${this.apiUrl}/tree`).pipe(
             map(response => {
                 const permissions = response.data as Permission[];

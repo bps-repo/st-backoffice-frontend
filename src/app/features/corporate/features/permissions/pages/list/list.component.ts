@@ -16,7 +16,8 @@ import {TableHeaderAction} from "../../../../../../shared/components/tables/glob
 import {PermissionTreeViewComponent} from "../../components/tree-view/tree-view.component";
 import {FormsModule} from "@angular/forms";
 import {Store} from "@ngrx/store";
-import {selectPermissionsLoading} from "../../../../../../core/store/permissions/selectors/permissions.selectors";
+import {selectPermissionsLoading, selectPermissionTree} from "../../../../../../core/store/permissions/selectors/permissions.selectors";
+import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
 
 @Component({
     selector: 'app-permissions-list',
@@ -41,15 +42,14 @@ export class ListComponent implements OnInit, OnDestroy {
     customTemplates: Record<string, TemplateRef<any>> = {};
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
-    private loading = false;
     private destroy$ = new Subject<void>();
 
     constructor(
-        private permissionService: PermissionService,
         private router: Router,
         private readonly store$: Store
     ) {
         this.loading$ = this.store$.select(selectPermissionsLoading)
+        this.permissions$ = store$.select(selectPermissionTree)
     }
 
     ngOnInit(): void {
@@ -62,15 +62,7 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     loadPermissions(): void {
-        this.permissions$ = this.permissionService.getPermissions().pipe(
-            takeUntil(this.destroy$),
-            catchError(error => {
-                console.error('Error loading permissions', error);
-                return of([]);
-            }),
-            finalize(() => {
-            })
-        );
+       this.store$.dispatch(loadPermissionTree())
     }
 
     onRowSelect(permission: Permission) {

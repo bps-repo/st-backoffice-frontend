@@ -75,7 +75,7 @@ export class RolesEffects {
     removePermissionFromRole$ = createEffect(() => this.actions$.pipe(
         ofType(RolesActions.removePermissionFromRole),
         mergeMap(({ roleId, permissionId }) =>
-            this.roleService.deletePermissionFromRole(roleId, permissionId).pipe(
+            this.roleService.removePermissionFromRole(roleId, permissionId).pipe(
                 map(role => RolesActions.removePermissionFromRoleSuccess({ role })),
                 catchError(error => of(RolesActions.removePermissionFromRoleFailure({ error: error.message })))
             )
@@ -85,7 +85,7 @@ export class RolesEffects {
     addPermissionsBulkToRole$ = createEffect(() => this.actions$.pipe(
         ofType(RolesActions.addPermissionsBulkToRole),
         mergeMap(({ roleId, permissionIds }) =>
-            this.roleService.postPermissionsBulkToRole(roleId, permissionIds).pipe(
+            this.roleService.addPermissionsBulkToRole(roleId, permissionIds).pipe(
                 map(role => RolesActions.addPermissionsBulkToRoleSuccess({ role })),
                 catchError(error => of(RolesActions.addPermissionsBulkToRoleFailure({ error: error.message })))
             )

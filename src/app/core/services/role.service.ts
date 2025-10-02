@@ -39,7 +39,7 @@ export class RoleService {
                         role.permissions = [];
                     }
                     return role;
-                });
+                }).filter(r => r.name != "STUDENT");
             }),
         );
     }
@@ -113,17 +113,8 @@ export class RoleService {
         );
     }
 
-    removePermissionFromRole(roleId: string, permissionId: string): Observable<Role> {
-        // Dispatch the removePermissionFromRole action
-        this.store.dispatch(RolesActions.removePermissionFromRole({ roleId, permissionId }));
-        // Return the role from the store, filtering out undefined values
-        return this.store.select(RolesSelectors.selectRoleById(roleId)).pipe(
-            filter((role): role is Role => !!role)
-        );
-    }
 
-    // Original HTTP method for effects to use
-    deletePermissionFromRole(roleId: string, permissionId: string): Observable<Role> {
+    removePermissionFromRole(roleId: string, permissionId: string): Observable<Role> {
         return this.http.delete<ApiResponse<Role>>(`${this.apiUrl}/${roleId}/permissions/${permissionId}`).pipe(
             map(response => {
                 const role = response.data as Role;
@@ -135,23 +126,8 @@ export class RoleService {
         );
     }
 
-    /**
-     * Adds multiple permissions to a role in bulk.
-     * @param roleId The ID of the role.
-     * @param permissionIds Array of permission IDs to add to the role.
-     * @returns An observable containing the updated Role object.
-     */
-    addPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
-        // Dispatch the addPermissionsBulkToRole action
-        this.store.dispatch(RolesActions.addPermissionsBulkToRole({ roleId, permissionIds }));
-        // Return the role from the store, filtering out undefined values
-        return this.store.select(RolesSelectors.selectRoleById(roleId)).pipe(
-            filter((role): role is Role => !!role)
-        );
-    }
-
     // Original HTTP method for effects to use
-    postPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
+    addPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
         return this.http.post<ApiResponse<Role>>(`${this.apiUrl}/permissions/add-bulk/${roleId}`, permissionIds).pipe(
             map(response => {
                 const role = response.data as Role;
