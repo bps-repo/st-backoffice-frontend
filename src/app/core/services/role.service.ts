@@ -28,7 +28,6 @@ export class RoleService {
     ) {
     }
 
-    // Original HTTP method for effects to use
     getAllRoles(): Observable<Role[]> {
         return this.http.get<ApiResponse<PageableResponse<Role[]>>>(this.apiUrl).pipe(
             map(response => {
@@ -57,7 +56,6 @@ export class RoleService {
         );
     }
 
-    // Original HTTP method for effects to use
     createRole(role: Role): Observable<Role> {
         return this.http.post<ApiResponse<Role>>(this.apiUrl, role).pipe(
             map(response => {
@@ -85,9 +83,6 @@ export class RoleService {
     }
 
     deleteRole(id: string): Observable<void> {
-        // Dispatch the deleteRole action
-        this.store.dispatch(RolesActions.deleteRole({ id }));
-        // Return the original HTTP observable for compatibility
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
@@ -126,7 +121,6 @@ export class RoleService {
         );
     }
 
-    // Original HTTP method for effects to use
     addPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
         console.log("permissiont To ADD", permissionIds);
 
@@ -141,24 +135,7 @@ export class RoleService {
         );
     }
 
-    /**
-     * Creates a role with permissions in a single request.
-     * @param name The name of the role.
-     * @param description The description of the role.
-     * @param permissionIds Array of permission IDs to assign to the role.
-     * @returns An observable containing the created Role object.
-     */
     createRoleWithPermissions(name: string, description: string, permissionIds: string[]): Observable<Role> {
-        // Dispatch the createRoleWithPermissions action
-        this.store.dispatch(RolesActions.createRoleWithPermissions({ name, description, permissionIds }));
-        // Return the selected role from the store, filtering out null/undefined values
-        return this.store.select(RolesSelectors.selectSelectedRole).pipe(
-            filter((selectedRole): selectedRole is Role => !!selectedRole)
-        );
-    }
-
-    // Original HTTP method for effects to use
-    postRoleWithPermissions(name: string, description: string, permissionIds: string[]): Observable<Role> {
         const request: CreateRoleWithPermissionsRequest = {
             name,
             description,

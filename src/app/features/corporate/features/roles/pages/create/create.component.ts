@@ -1,23 +1,22 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, effect, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { RoleService } from 'src/app/core/services/role.service';
-import { PermissionService } from 'src/app/core/services/permission.service';
-import { Role } from 'src/app/core/models/auth/role';
 import { Permission } from 'src/app/core/models/auth/permission';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
-import { finalize } from 'rxjs/operators';
 import {
     PermissionTreeSelectComponent
 } from "../detail/permissions/permission-tree-select/permission-tree-select.component";
 import { RippleModule } from "primeng/ripple";
 import { Store } from "@ngrx/store";
 import { selectPermissionsLoading, selectPermissionTree } from "../../../../../../core/store/permissions/selectors/permissions.selectors";
-import { Observable, of } from "rxjs";
+import { combineLatest, filter, map, Observable, of, Subject, takeUntil } from "rxjs";
 import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
+import { selectRolesError, selectRolesLoading } from 'src/app/core/store/roles/roles.selectors';
+import { createRoleWithPermissions } from 'src/app/core/store/roles/roles.actions';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-create-role',
@@ -33,27 +32,53 @@ import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permi
         RippleModule
     ]
 })
-export class CreateComponent implements OnInit {
-    roleForm!: FormGroup;
-    loading = false;
+export class CreateComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
 
+    roleForm!: FormGroup;
     permissions$: Observable<Permission[]> = of([]);
     permissionsLoading: Observable<boolean> = of(false)
+    loading$: Observable<boolean> = of(false)
     selectedPermissionIds: string[] = [];
+    errors$: Observable<any> = of(null)
 
     constructor(
         private fb: FormBuilder,
-        private roleService: RoleService,
         private router: Router,
-        private readonly store$: Store
+        private readonly store$: Store,
+        private messageService: MessageService
     ) {
+        this.loading$ = combineLatest([
+            this.store$.select(selectPermissionsLoading),
+            this.store$.select(selectRolesLoading)
+        ]).pipe(
+            map(([permissionsLoading, rolesLoading]) => permissionsLoading || rolesLoading)
+        );
+
+
+        this.errors$ = this.store$.select(selectRolesError)
         this.permissionsLoading = store$.select(selectPermissionsLoading)
         this.permissions$ = store$.select(selectPermissionTree)
+
+        this.errors$.pipe(
+            takeUntil(this.destroy$),
+            filter(v => !!v)
+        ).subscribe((v) => {
+            this.messageService.add({
+                severity: "danger",
+                detail: v,
+            });
+        });
     }
 
     ngOnInit(): void {
         this.initForm();
         this.loadPermissions();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     initForm(): void {
@@ -75,25 +100,14 @@ export class CreateComponent implements OnInit {
         if (this.roleForm.invalid) {
             return;
         }
-
-        this.loading = true;
         const formValue = this.roleForm.value;
 
-        // Create the role with permissions in a single request
-        this.roleService.createRoleWithPermissions(
-            formValue.name,
-            formValue.description,
-            this.selectedPermissionIds
-        )
-            .pipe(finalize(() => this.loading = false))
-            .subscribe({
-                next: (createdRole) => {
-                    this.router.navigate(['/corporate/roles', createdRole.id]).then();
-                },
-                error: (error) => {
-                    console.error('Error creating role with permissions', error);
-                }
-            });
+        this.selectedPermissionIds = this.selectedPermissionIds.filter(f => f != null)
+
+        console.log("selected permissions", this.selectedPermissionIds);
+
+
+        this.store$.dispatch(createRoleWithPermissions({ name: formValue.name, description: formValue.description, permissionIds: this.selectedPermissionIds }))
     }
 
     cancel(): void {

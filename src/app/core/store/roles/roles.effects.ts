@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import { RoleService } from 'src/app/core/services/role.service';
 import * as RolesActions from './roles.actions';
+import { HttpErrorResponse } from '@angular/common/module.d-CnjH8Dlt';
 
 @Injectable()
 export class RolesEffects {
@@ -16,7 +17,7 @@ export class RolesEffects {
         ofType(RolesActions.loadRoles),
         switchMap(() => this.roleService.getAllRoles().pipe(
             map(roles => RolesActions.loadRolesSuccess({ roles })),
-            catchError(error => of(RolesActions.loadRolesFailure({ error: error.message })))
+            catchError((error: HttpErrorResponse) => of(RolesActions.loadRolesFailure({ error: error.error.message })))
         ))
     ));
 
@@ -39,9 +40,9 @@ export class RolesEffects {
     createRoleWithPermissions$ = createEffect(() => this.actions$.pipe(
         ofType(RolesActions.createRoleWithPermissions),
         mergeMap(({ name, description, permissionIds }) =>
-            this.roleService.postRoleWithPermissions(name, description, permissionIds).pipe(
+            this.roleService.createRoleWithPermissions(name, description, permissionIds).pipe(
                 map(createdRole => RolesActions.createRoleWithPermissionsSuccess({ role: createdRole })),
-                catchError(error => of(RolesActions.createRoleWithPermissionsFailure({ error: error.message })))
+                catchError((error: HttpErrorResponse) => of(RolesActions.createRoleWithPermissionsFailure({ error: error.error.message })))
             )
         )
     ));
@@ -50,7 +51,7 @@ export class RolesEffects {
         ofType(RolesActions.updateRole),
         mergeMap(({ role }) => this.roleService.updateRole(role).pipe(
             map(updatedRole => RolesActions.updateRoleSuccess({ role: updatedRole })),
-            catchError(error => of(RolesActions.updateRoleFailure({ error: error.message })))
+            catchError((error: HttpErrorResponse) => of(RolesActions.updateRoleFailure({ error: error.error.message })))
         ))
     ));
 
@@ -58,7 +59,7 @@ export class RolesEffects {
         ofType(RolesActions.deleteRole),
         mergeMap(({ id }) => this.roleService.http.delete<void>(`${this.roleService.apiUrl}/${id}`).pipe(
             map(() => RolesActions.deleteRoleSuccess({ id })),
-            catchError(error => of(RolesActions.deleteRoleFailure({ error: error.message })))
+            catchError(error => of(RolesActions.deleteRoleFailure({ error: error })))
         ))
     ));
 
