@@ -8,7 +8,7 @@ export const rolesReducer = createReducer(
     // Load Roles
     on(RolesActions.loadRoles, (state) => ({
         ...state,
-        loading: state.ids.length > 0 ? false : true,
+        loading: true,
         error: null
     })),
     on(RolesActions.loadRolesSuccess, (state, { roles }) =>
@@ -48,6 +48,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.createRole, (state) => ({
         ...state,
         loading: true,
+        successFlag: false,
         error: null
     })),
     on(RolesActions.createRoleSuccess, (state, { role }) =>
@@ -55,12 +56,14 @@ export const rolesReducer = createReducer(
             ...state,
             selectedRoleId: role.id,
             loading: false,
+            successFlag: true,
             error: null
         })
     ),
     on(RolesActions.createRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        successFlag: false,
         error
     })),
 
@@ -68,6 +71,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.createRoleWithPermissions, (state) => ({
         ...state,
         loading: true,
+        successFlag: false,
         error: null
     })),
     on(RolesActions.createRoleWithPermissionsSuccess, (state, { role }) =>
@@ -75,12 +79,14 @@ export const rolesReducer = createReducer(
             ...state,
             selectedRoleId: role.id,
             loading: false,
+            successFlag: true,
             error: null
         })
     ),
     on(RolesActions.createRoleWithPermissionsFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        successFlag: false,
         error
     })),
 
@@ -88,6 +94,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.updateRole, (state) => ({
         ...state,
         loading: true,
+        successFlag: false,
         error: null
     })),
     on(RolesActions.updateRoleSuccess, (state, { role }) =>
@@ -96,6 +103,7 @@ export const rolesReducer = createReducer(
             {
                 ...state,
                 loading: false,
+                successFlag: true,
                 error: null
             }
         )
@@ -103,6 +111,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.updateRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        successFlag: false,
         error
     })),
 
@@ -110,6 +119,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.deleteRole, (state) => ({
         ...state,
         loading: true,
+        successFlag: false,
         error: null
     })),
     on(RolesActions.deleteRoleSuccess, (state, { id }) =>
@@ -117,12 +127,14 @@ export const rolesReducer = createReducer(
             ...state,
             selectedRoleId: state.selectedRoleId === id ? null : state.selectedRoleId,
             loading: false,
+            successFlag: true,
             error: null
         })
     ),
     on(RolesActions.deleteRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        successFlag: false,
         error
     })),
 
@@ -130,6 +142,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.addPermissionToRole, (state) => ({
         ...state,
         loading: true,
+        successFlag: false, // ✅ Added for consistency
         error: null
     })),
     on(RolesActions.addPermissionToRoleSuccess, (state, { role }) =>
@@ -138,6 +151,7 @@ export const rolesReducer = createReducer(
             {
                 ...state,
                 loading: false,
+                successFlag: true, // ✅ Added for consistency
                 error: null
             }
         )
@@ -145,6 +159,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.addPermissionToRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        successFlag: false, // ✅ Added for consistency
         error
     })),
 
@@ -152,6 +167,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.removePermissionFromRole, (state) => ({
         ...state,
         loading: true,
+        successFlag: false, // ✅ Added for consistency
         error: null
     })),
     on(RolesActions.removePermissionFromRoleSuccess, (state, { role }) =>
@@ -160,6 +176,7 @@ export const rolesReducer = createReducer(
             {
                 ...state,
                 loading: false,
+                successFlag: true,
                 error: null
             }
         )
@@ -167,6 +184,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.removePermissionFromRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        successFlag: false,
         error
     })),
 
@@ -174,6 +192,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.addPermissionsBulkToRole, (state) => ({
         ...state,
         loading: true,
+        successFlag: false,
         error: null
     })),
     on(RolesActions.addPermissionsBulkToRoleSuccess, (state, { role }) =>
@@ -182,6 +201,7 @@ export const rolesReducer = createReducer(
             {
                 ...state,
                 loading: false,
+                successFlag: true,
                 error: null
             }
         )
@@ -189,6 +209,7 @@ export const rolesReducer = createReducer(
     on(RolesActions.addPermissionsBulkToRoleFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        successFlag: false,
         error
     })),
 
@@ -201,6 +222,7 @@ export const rolesReducer = createReducer(
     // Clear Roles Error
     on(RolesActions.clearRolesError, (state) => ({
         ...state,
-        error: null
+        error: null,
+        successFlag: false
     }))
 );

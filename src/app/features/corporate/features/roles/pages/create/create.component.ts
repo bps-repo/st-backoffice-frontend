@@ -14,7 +14,7 @@ import { Store } from "@ngrx/store";
 import { selectPermissionsLoading, selectPermissionTree } from "../../../../../../core/store/permissions/selectors/permissions.selectors";
 import { combineLatest, filter, map, Observable, of, Subject, takeUntil } from "rxjs";
 import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
-import { selectRolesError, selectRolesLoading } from 'src/app/core/store/roles/roles.selectors';
+import { selectRolesError, selectRolesLoading, selectSuccessFlag } from 'src/app/core/store/roles/roles.selectors';
 import { createRoleWithPermissions } from 'src/app/core/store/roles/roles.actions';
 import { MessageService } from 'primeng/api';
 
@@ -42,6 +42,8 @@ export class CreateComponent implements OnInit, OnDestroy {
     selectedPermissionIds: string[] = [];
     errors$: Observable<any> = of(null)
 
+    successFlag$: Observable<boolean> = of(false)
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -60,6 +62,8 @@ export class CreateComponent implements OnInit, OnDestroy {
         this.permissionsLoading = store$.select(selectPermissionsLoading)
         this.permissions$ = store$.select(selectPermissionTree)
 
+        this.successFlag$ = this.store$.select(selectSuccessFlag)
+
         this.errors$.pipe(
             takeUntil(this.destroy$),
             filter(v => !!v)
@@ -69,6 +73,17 @@ export class CreateComponent implements OnInit, OnDestroy {
                 detail: v,
             });
         });
+
+        this.successFlag$.subscribe((v) => {
+            if (v) {
+                this.router.navigate(['/corporate/roles']).then();
+
+                this.messageService.add({
+                    severity: "success",
+                    detail: "Novo perfil adicionado",
+                });
+            }
+        })
     }
 
     ngOnInit(): void {
@@ -108,6 +123,8 @@ export class CreateComponent implements OnInit, OnDestroy {
 
 
         this.store$.dispatch(createRoleWithPermissions({ name: formValue.name, description: formValue.description, permissionIds: this.selectedPermissionIds }))
+
+        this.roleForm.reset()
     }
 
     cancel(): void {

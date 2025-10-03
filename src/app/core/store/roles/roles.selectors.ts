@@ -1,5 +1,5 @@
-import {createFeatureSelector, createSelector} from '@ngrx/store';
-import {rolesAdapter, RolesState} from './roles.state';
+import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { rolesAdapter, RolesState } from './roles.state';
 
 export const selectRolesState = createFeatureSelector<RolesState>('roles');
 
@@ -33,6 +33,12 @@ export const selectRolesTotal = createSelector(
 export const selectSelectedRoleId = createSelector(
     selectRolesState,
     (state: RolesState) => state.selectedRoleId
+);
+
+
+export const selectSuccessFlag = createSelector(
+    selectRolesState,
+    (state: RolesState) => state.successFlag
 );
 
 // Select the selected role

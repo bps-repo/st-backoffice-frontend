@@ -9,11 +9,13 @@ export const rolesAdapter = createEntityAdapter<Role>({
 export interface RolesState extends EntityState<Role> {
     selectedRoleId: string | null;
     loading: boolean;
+    successFlag: boolean,
     error: string | null;
 }
 
 export const initialRolesState: RolesState = rolesAdapter.getInitialState({
     selectedRoleId: null,
     loading: false,
+    successFlag: false,
     error: null,
 });
