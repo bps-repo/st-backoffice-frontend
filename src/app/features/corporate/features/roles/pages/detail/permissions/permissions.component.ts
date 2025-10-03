@@ -19,7 +19,7 @@ import { PermissionTreeSelectComponent } from './permission-tree-select/permissi
 import { Store } from "@ngrx/store";
 import { selectAllPermissions, selectPermissionsLoading, selectPermissionTree } from "../../../../../../../core/store/permissions/selectors/permissions.selectors";
 import { addPermissionsBulkToRole, loadRole, removePermissionFromRole } from 'src/app/core/store/roles/roles.actions';
-import { selectRolesLoading, selectSelectedRole } from 'src/app/core/store/roles/roles.selectors';
+import { selectRolesError, selectRolesLoading, selectSelectedRole } from 'src/app/core/store/roles/roles.selectors';
 import { loadPermissions, loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
 
 @Component({
@@ -46,6 +46,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     selectedPermissionIds: string[] = [];
     loading$: Observable<boolean> = of(false);
     hasSelectedPermissions = false;
+    errors$!: Observable<any>
     private destroy$ = new Subject<void>();
     private roleId: string | null = null;
 
@@ -57,6 +58,8 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         this.loading$ = this.store$.select(selectPermissionsLoading) || this.store$.select(selectRolesLoading)
         this.role$ = this.store$.select(selectSelectedRole) as Observable<Role | null>
         this.permissions$ = this.store$.select(selectPermissionTree)
+
+        this.errors$ = store$.select(selectRolesError)
     }
 
     ngOnInit(): void {

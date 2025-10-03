@@ -4,6 +4,8 @@
             <h5>Gerenciar Permissões</h5>
             <p>Adicione ou remova permissões para este perfil.</p>
 
+            <span *ngIf="errors$ | async ">{{errors$ | async}}</span>
+
             <!-- Current Permissions -->
             <div class="mb-5">
                 <h6>Permissões Atuais</h6>
