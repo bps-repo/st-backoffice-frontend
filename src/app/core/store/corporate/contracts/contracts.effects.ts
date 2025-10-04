@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { ContractService } from '../../../services/contract.service';
-import { ContractActions } from './contracts.actions';
+import {Injectable} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {catchError, map, switchMap} from 'rxjs/operators';
+import {of} from 'rxjs';
+import {ContractService} from '../../../services/contract.service';
+import {ContractActions} from './contracts.actions';
 
 @Injectable()
 export class ContractEffects {
@@ -15,9 +15,9 @@ export class ContractEffects {
             switchMap(() =>
                 this.contractService.getContracts().pipe(
                     map(contracts => {
-                        return ContractActions.loadContractsSuccess({ contracts });
+                        return ContractActions.loadContractsSuccess({contracts});
                     }),
-                    catchError(error => of(ContractActions.loadContractsFailure({ error })))
+                    catchError(error => of(ContractActions.loadContractsFailure({error})))
                 )
             )
         )
@@ -27,12 +27,12 @@ export class ContractEffects {
     loadContract$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ContractActions.loadContract),
-            switchMap(({ id }) =>
+            switchMap(({id}) =>
                 this.contractService.getContractById(id).pipe(
                     map(contract => {
-                        return ContractActions.loadContractSuccess({ contract });
+                        return ContractActions.loadContractSuccess({contract});
                     }),
-                    catchError(error => of(ContractActions.loadContractFailure({ error })))
+                    catchError(error => of(ContractActions.loadContractFailure({error})))
                 )
             )
         )
@@ -42,12 +42,12 @@ export class ContractEffects {
     createContract$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ContractActions.createContract),
-            switchMap(({ contract }) =>
+            switchMap(({contract}) =>
                 this.contractService.createStudentContract(contract).pipe(
                     map(response => {
-                        return ContractActions.createContractSuccess({ contract: response });
+                        return ContractActions.createContractSuccess({contract: response});
                     }),
-                    catchError(error => of(ContractActions.createContractFailure({ error })))
+                    catchError(error => of(ContractActions.createContractFailure({error})))
                 )
             )
         )
@@ -57,19 +57,53 @@ export class ContractEffects {
     loadContractsByStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ContractActions.loadContractsByStudent),
-            switchMap(({ studentId }) =>
+            switchMap(({studentId}) =>
                 this.contractService.getContractsByStudent(studentId).pipe(
                     map(contracts => {
-                        return ContractActions.loadContractsByStudentSuccess({ contracts });
+                        return ContractActions.loadContractsByStudentSuccess({contracts});
                     }),
-                    catchError(error => of(ContractActions.loadContractsByStudentFailure({ error })))
+                    catchError(error => of(ContractActions.loadContractsByStudentFailure({error})))
                 )
             )
         )
     );
 
+
+    downloadContract$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ContractActions.downloadContract),
+            switchMap(({contractId}) =>
+                this.contractService.downloadContract(contractId).pipe(
+                    map(contract => {
+
+                        // Criar URL do blob
+                        const url = window.URL.createObjectURL(contract);
+
+                        // Criar elemento link temporário
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `contrato_${contractId}.pdf`;
+
+                        // Iniciar download
+                        document.body.appendChild(link);
+                        link.click();
+
+                        // Limpar
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+
+                        return ContractActions.downloadContractSuccess({contract});
+                    }),
+                    catchError(error => of(ContractActions.downloadContractFailure({error})))
+                )
+            )
+        )
+    );
+
+
     constructor(
         private actions$: Actions,
         private contractService: ContractService
-    ) { }
+    ) {
+    }
 }

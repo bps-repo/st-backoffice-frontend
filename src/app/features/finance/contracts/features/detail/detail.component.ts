@@ -1,23 +1,30 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { TabViewModule } from 'primeng/tabview';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { Contract } from 'src/app/core/models/corporate/contract';
-import { ContractService } from 'src/app/core/services/contract.service';
-import { TooltipModule } from 'primeng/tooltip';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InputNumberModule } from 'primeng/inputnumber';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {TabViewModule} from 'primeng/tabview';
+import {TableModule} from 'primeng/table';
+import {TagModule} from 'primeng/tag';
+import {ToastModule} from 'primeng/toast';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {Contract} from 'src/app/core/models/corporate/contract';
+import {ContractService} from 'src/app/core/services/contract.service';
+import {TooltipModule} from 'primeng/tooltip';
+import {DialogModule} from 'primeng/dialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {DropdownModule} from 'primeng/dropdown';
+import {CalendarModule} from 'primeng/calendar';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {Store} from "@ngrx/store";
+import {ContractActions} from "../../../../../core/store/corporate/contracts/contracts.actions";
+import {Observable, of} from "rxjs";
+import {
+    selectContractsError,
+    selectContractsLoading, selectDownloading, selectSelectedContractByID
+} from "../../../../../core/store/corporate/contracts/contracts.selectors";
 
 @Component({
     selector: 'app-contract-detail',
@@ -46,22 +53,20 @@ import { InputNumberModule } from 'primeng/inputnumber';
 export class DetailComponent implements OnInit {
     contractId: string = '';
     contract: Contract | null = null;
-    loading: boolean = true;
-    error: string | null = null;
+    loading$: Observable<boolean> = of(false);
+    downloading$: Observable<boolean> = of(false);
+    errors$: Observable<any> = of(null);
 
-    // Diálogos
     showPaymentDetailsDialog: boolean = false;
     showPaymentChargeDialog: boolean = false;
 
-    // Parcela selecionada
     selectedPayment: any = null;
 
-    // Dados para cobrança
     paymentMethods: any[] = [
-        { name: 'Multicaixa', code: 'MULTICAIXA' },
-        { name: 'Transferência Bancária', code: 'BANK_TRANSFER' },
-        { name: 'Dinheiro', code: 'CASH' },
-        { name: 'Cartão de Crédito', code: 'CREDIT_CARD' }
+        {name: 'Multicaixa', code: 'MULTICAIXA'},
+        {name: 'Transferência Bancária', code: 'BANK_TRANSFER'},
+        {name: 'Dinheiro', code: 'CASH'},
+        {name: 'Cartão de Crédito', code: 'CREDIT_CARD'}
     ];
     selectedPaymentMethod: any = null;
     paymentDate: Date = new Date();
@@ -73,8 +78,15 @@ export class DetailComponent implements OnInit {
         private router: Router,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private contractService: ContractService
-    ) { }
+        private store$: Store
+    ) {
+        this.store$.select(selectSelectedContractByID).subscribe(contract => {
+            this.contract = contract
+        })
+        this.loading$ = this.store$.select(selectContractsLoading)
+        this.downloading$ = this.store$.select(selectDownloading)
+        this.errors$ = this.store$.select(selectContractsError)
+    }
 
     ngOnInit(): void {
         this.contractId = this.route.snapshot.paramMap.get('id') || '';
@@ -82,33 +94,7 @@ export class DetailComponent implements OnInit {
     }
 
     loadContractDetails(): void {
-        if (!this.contractId) {
-            this.error = 'ID do contrato não fornecido';
-            this.loading = false;
-            return;
-        }
-
-        this.contractService.getContractById(this.contractId).subscribe({
-            next: (response: Contract) => {
-                if (response) {
-                    this.contract = response;
-                    this.loading = false;
-                } else {
-                    this.error = 'Erro ao carregar dados do contrato';
-                    this.loading = false;
-                }
-            },
-            error: (error) => {
-                console.error('Erro ao carregar contrato:', error);
-                this.error = 'Erro ao carregar dados do contrato';
-                this.loading = false;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Não foi possível carregar os dados do contrato'
-                });
-            }
-        });
+        this.store$.dispatch(ContractActions.loadContract({id: this.contractId}))
     }
 
     getStatusClass(status: string): string {
@@ -183,22 +169,19 @@ export class DetailComponent implements OnInit {
                     summary: 'Sucesso',
                     detail: 'Contrato cancelado com sucesso!'
                 });
-                this.contract!.status = 'CANCELLED';
             }
         });
     }
 
     goBack(): void {
-        this.router.navigate(['/finances/contracts']);
+        this.router.navigate(['/finances/contracts']).then();
     }
 
-    // Métodos para detalhes da parcela
     viewPaymentDetails(installment: any): void {
         this.selectedPayment = installment;
         this.showPaymentDetailsDialog = true;
     }
 
-    // Métodos para cobrança de parcela
     chargePayment(installment: any): void {
         this.selectedPayment = installment;
         this.paymentAmount = installment.amount;
@@ -215,8 +198,6 @@ export class DetailComponent implements OnInit {
             return;
         }
 
-        // TODO: Implementar chamada para API de processamento de pagamento
-        // Por enquanto, apenas simular o sucesso
         setTimeout(() => {
             // Atualizando o status da parcela para 'PAID'
             if (this.contract && this.contract.installments && this.selectedPayment) {
@@ -287,6 +268,11 @@ export class DetailComponent implements OnInit {
     }
 
     formatDate(dateString: string): string {
+        if (!dateString || dateString == "N/A") return '';
         return new Date(dateString).toLocaleDateString('pt-BR');
+    }
+
+    downloadContract() {
+        this.store$.dispatch(ContractActions.downloadContract({contractId: this.contractId}))
     }
 }

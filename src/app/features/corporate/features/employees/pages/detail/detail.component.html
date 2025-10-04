@@ -2,7 +2,8 @@
     <div class="col-12">
         <div class="card">
             <div class="flex justify-content-between align-items-center mb-5">
-                <h5>Detalhes do Funcionário: {{ employeeDetails.personalInfo.firstName }} {{ employeeDetails.personalInfo.lastName }}</h5>
+                <h5>Detalhes do Funcionário: {{ employeeDetails.personalInfo.firstName }} {{
+                    employeeDetails.personalInfo.lastName }}</h5>
                 <div>
                     <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-outlined mr-2"
                         (click)="editEmployee()"></button>
@@ -25,7 +26,8 @@
                                 </div>
                                 <div class="field">
                                     <label>Nome Completo</label>
-                                    <div>{{ employeeDetails.personalInfo.firstName }} {{ employeeDetails.personalInfo.lastName }}</div>
+                                    <div>{{ employeeDetails.personalInfo.firstName }} {{
+                                        employeeDetails.personalInfo.lastName }}</div>
                                 </div>
                                 <div class="field">
                                     <label>Nome de Usuário</label>
@@ -44,16 +46,21 @@
                                 <div class="field">
                                     <label>Telefone</label>
                                     <div>{{ employeeDetails.personalInfo.phone || 'Não informado' }}</div>
-                                    <small *ngIf="employeeDetails.personalInfo.phone && employeeDetails.personalInfo.phoneVerified" class="text-green-600">
+                                    <small
+                                        *ngIf="employeeDetails.personalInfo.phone && employeeDetails.personalInfo.phoneVerified"
+                                        class="text-green-600">
                                         <i class="pi pi-check-circle"></i> Verificado
                                     </small>
-                                    <small *ngIf="employeeDetails.personalInfo.phone && !employeeDetails.personalInfo.phoneVerified" class="text-orange-600">
+                                    <small
+                                        *ngIf="employeeDetails.personalInfo.phone && !employeeDetails.personalInfo.phoneVerified"
+                                        class="text-orange-600">
                                         <i class="pi pi-exclamation-triangle"></i> Não verificado
                                     </small>
                                 </div>
                                 <div class="field">
                                     <label>Número de Identificação</label>
-                                    <div>{{ employeeDetails.personalInfo.identificationNumber || 'Não informado' }}</div>
+                                    <div>{{ employeeDetails.personalInfo.identificationNumber || 'Não informado' }}
+                                    </div>
                                 </div>
                                 <div class="field">
                                     <label>Gênero</label>
@@ -61,7 +68,8 @@
                                 </div>
                                 <div class="field">
                                     <label>Data de Nascimento</label>
-                                    <div>{{ formatDate(employeeDetails.personalInfo.birthdate) || 'Não informado' }}</div>
+                                    <div>{{ formatDate(employeeDetails.personalInfo.birthdate) || 'Não informado' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -139,19 +147,22 @@
                                 <div class="grid">
                                     <div class="col-12 md:col-4">
                                         <div class="text-center p-3 bg-blue-50 border-round">
-                                            <div class="text-blue-600 text-2xl font-bold">{{ employeeDetails.role.permissions.length }}</div>
+                                            <div class="text-blue-600 text-2xl font-bold">{{
+                                                employeeDetails.role.permissions.length }}</div>
                                             <div class="text-blue-800 text-sm font-medium">Permissões da Função</div>
                                         </div>
                                     </div>
                                     <div class="col-12 md:col-4">
                                         <div class="text-center p-3 bg-green-50 border-round">
-                                            <div class="text-green-600 text-2xl font-bold">{{ employeeDetails.additionalPermissions.length }}</div>
+                                            <div class="text-green-600 text-2xl font-bold">{{
+                                                employeeDetails.additionalPermissions.length }}</div>
                                             <div class="text-green-800 text-sm font-medium">Permissões Adicionais</div>
                                         </div>
                                     </div>
                                     <div class="col-12 md:col-4">
                                         <div class="text-center p-3 bg-gray-50 border-round">
-                                            <div class="text-gray-600 text-2xl font-bold">{{ employeeDetails.allPermissions.length }}</div>
+                                            <div class="text-gray-600 text-2xl font-bold">{{
+                                                employeeDetails.allPermissions.length }}</div>
                                             <div class="text-gray-800 text-sm font-medium">Total de Permissões</div>
                                         </div>
                                     </div>
@@ -171,8 +182,7 @@
                                     As permissões estão agrupadas conforme sua hierarquia no sistema.
                                 </p>
 
-                                <app-permission-tree-display
-                                    [rolePermissions]="employeeDetails.role.permissions"
+                                <app-permission-tree-display [rolePermissions]="employeeDetails.role.permissions"
                                     [additionalPermissions]="employeeDetails.additionalPermissions"
                                     [allPermissions]="employeeDetails.allPermissions">
                                 </app-permission-tree-display>
@@ -185,13 +195,13 @@
     </div>
 </div>
 
-<div class="grid" *ngIf="loading">
+<div class="grid" *ngIf="loading$ | async">
     <div class="col-12 flex justify-content-center">
         <p-progressSpinner></p-progressSpinner>
     </div>
 </div>
 
-<div class="grid" *ngIf="!employeeDetails && !loading">
+<div class="grid" *ngIf="!employeeDetails && !(loading$ | async)">
     <div class="col-12">
         <div class="card">
             <div class="flex flex-column align-items-center">

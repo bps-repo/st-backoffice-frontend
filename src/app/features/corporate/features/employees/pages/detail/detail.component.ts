@@ -1,16 +1,18 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {Employee, EmployeeStatus, EmployeeDetails} from 'src/app/core/models/corporate/employee';
-import {EmployeeService} from 'src/app/core/services/employee.service';
-import {Subject} from 'rxjs';
-import {takeUntil, finalize} from 'rxjs/operators';
-import {ButtonModule} from 'primeng/button';
-import {TabViewModule} from 'primeng/tabview';
-import {TagModule} from 'primeng/tag';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {RippleModule} from "primeng/ripple";
-import {PermissionTreeDisplayComponent} from 'src/app/shared/components/permission-tree-display/permission-tree-display.component';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { EmployeeStatus, EmployeeDetails } from 'src/app/core/models/corporate/employee';
+import { Observable, of, Subject } from 'rxjs';
+import { takeUntil, } from 'rxjs/operators';
+import { ButtonModule } from 'primeng/button';
+import { TabViewModule } from 'primeng/tabview';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { RippleModule } from "primeng/ripple";
+import { PermissionTreeDisplayComponent } from 'src/app/shared/components/permission-tree-display/permission-tree-display.component';
+import { Store } from '@ngrx/store';
+import { selectEmployeeLoading, selectSelectedEmployee } from 'src/app/core/store/corporate/employees/employees.selectors';
+import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
 
 @Component({
     selector: 'app-detail',
@@ -28,19 +30,33 @@ import {PermissionTreeDisplayComponent} from 'src/app/shared/components/permissi
     ]
 })
 export class DetailComponent implements OnInit, OnDestroy {
-    employee: Employee | null = null;
     employeeDetails: EmployeeDetails | null = null;
-    loading = false;
+
+    employee$!: Observable<EmployeeDetails | null>;
+
+    loading$: Observable<boolean> = of(false)
     private destroy$ = new Subject<void>();
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private employeeService: EmployeeService
-    ) {
-    }
+        private store$: Store
+    ) { }
 
     ngOnInit(): void {
+        // Subscribe to loading state
+        this.loading$ = this.store$.select(selectEmployeeLoading)
+
+        // Subscribe to selected employee
+        this.employee$ = this.store$.select(selectSelectedEmployee) as Observable<EmployeeDetails | null>;
+
+        this.employee$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(employee => {
+                this.employeeDetails = employee;
+            });
+
+        // Load employee from route params
         this.route.paramMap.pipe(
             takeUntil(this.destroy$)
         ).subscribe(params => {
@@ -57,19 +73,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     loadEmployee(id: string): void {
-        this.loading = true;
-        this.employeeService.getEmployeeDetails(id).pipe(
-            takeUntil(this.destroy$),
-            finalize(() => this.loading = false)
-        ).subscribe({
-            next: (employeeDetails) => {
-                this.employeeDetails = employeeDetails;
-            },
-            error: (error: any) => {
-                console.error('Error loading employee details', error);
-                this.employeeDetails = null;
-            }
-        });
+        this.store$.dispatch(EmployeesActions.loadEmployeeById({ id }));
     }
 
     getStatusLabel(status: EmployeeStatus): string {

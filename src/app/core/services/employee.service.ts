@@ -1,10 +1,10 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
-import {Employee, EmployeeStatus, CreateEmployeeRequest, EmployeeDetails} from '../models/corporate/employee';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
+import { Employee, EmployeeStatus, CreateEmployeeRequest, EmployeeDetails } from '../models/corporate/employee';
 
 @Injectable({
     providedIn: 'root',
@@ -36,42 +36,19 @@ export class EmployeeService {
         );
     }
 
-    /**
-     * Gets an employee by ID.
-     * @param id The ID of the employee.
-     * @returns An observable containing the Employee object.
-     */
+
     getEmployeeById(id: string): Observable<Employee> {
-        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(
+        return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/${id}`).pipe(
             map((response) => response.data as Employee)
         );
     }
 
-    /**
-     * Gets detailed employee information by ID.
-     * @param id The ID of the employee.
-     * @returns An observable containing the EmployeeDetails object.
-     */
-    getEmployeeDetails(id: string): Observable<EmployeeDetails> {
-        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/${id}/details`).pipe(
-            map((response) => response.data as EmployeeDetails)
-        );
-    }
 
-    /**
-     * Gets employees by role.
-     * @param role The role to filter by.
-     * @returns An observable containing an array of Employee objects.
-     */
     getEmployeesByRole(role: string): Observable<Employee[]> {
         return this.searchEmployees({ roleName: role });
     }
 
-    /**
-     * Gets employees by center.
-     * @param centerId The ID of the center.
-     * @returns An observable containing an array of Employee objects.
-     */
+
     getEmployeesByCenter(centerId: string): Observable<Employee[]> {
         // Updated to use search endpoint: GET /employees/search?centerId={centerId}
         return this.searchEmployees({ centerId });

@@ -8,10 +8,6 @@ import { authFeature } from '../store/auth/auth.reducers';
 import { AppState } from '../store';
 import { User } from '../models/auth/user';
 
-/**
- * Generic service for handling user authorization based on permissions.
- * Provides methods to check user access rights and manage permission caching.
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -19,7 +15,7 @@ export class AuthorizationService {
   private permissionCache = new Map<string, Permission[]>();
   private currentUserPermissions$ = new BehaviorSubject<Permission[]>([]);
   private cacheExpiry = new Map<string, number>();
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_DURATION = 5 * 60 * 1000;
 
   constructor(
     private store: Store<AppState>,

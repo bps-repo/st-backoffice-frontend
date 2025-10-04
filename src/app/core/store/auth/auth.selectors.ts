@@ -39,7 +39,7 @@ export const selectUserPermissions = createSelector(
 
 export const selectUserPermissionNames = createSelector(
   selectUserPermissions,
-  (permissions) => permissions.map(p => p.name)
+  (permissions) => permissions.map(p => p.key)
 );
 
 export const selectUserHasPermission = (permissionName: string) => createSelector(

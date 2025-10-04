@@ -7,7 +7,7 @@ import { Permission } from 'src/app/core/models/auth/permission';
 import { RoleService } from 'src/app/core/services/role.service';
 import { PermissionService } from 'src/app/core/services/permission.service';
 import { Subject, combineLatest, Observable, of } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
+import { takeUntil, finalize, filter } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
@@ -19,7 +19,7 @@ import { PermissionTreeSelectComponent } from './permission-tree-select/permissi
 import { Store } from "@ngrx/store";
 import { selectAllPermissions, selectPermissionsLoading, selectPermissionTree } from "../../../../../../../core/store/permissions/selectors/permissions.selectors";
 import { addPermissionsBulkToRole, loadRole, removePermissionFromRole } from 'src/app/core/store/roles/roles.actions';
-import { selectRolesError, selectRolesLoading, selectSelectedRole } from 'src/app/core/store/roles/roles.selectors';
+import { selectRolesError, selectRolesLoading, selectSelectedRole, selectSuccessFlag } from 'src/app/core/store/roles/roles.selectors';
 import { loadPermissions, loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
 
 @Component({
@@ -47,19 +47,40 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     loading$: Observable<boolean> = of(false);
     hasSelectedPermissions = false;
     errors$!: Observable<any>
+    successFlag$: Observable<boolean> = of(false);
     private destroy$ = new Subject<void>();
     private roleId: string | null = null;
 
     constructor(
         private route: ActivatedRoute,
         private messageService: MessageService,
-        private readonly store$: Store
+        private readonly store$: Store,
     ) {
         this.loading$ = this.store$.select(selectPermissionsLoading) || this.store$.select(selectRolesLoading)
         this.role$ = this.store$.select(selectSelectedRole) as Observable<Role | null>
         this.permissions$ = this.store$.select(selectPermissionTree)
 
-        this.errors$ = store$.select(selectRolesError)
+        this.errors$ = this.store$.select(selectRolesError)
+        this.successFlag$ = this.store$.select(selectSuccessFlag)
+
+        this.errors$.pipe(
+            takeUntil(this.destroy$),
+            filter(v => !!v)
+        ).subscribe((v) => {
+            this.messageService.add({
+                severity: "danger",
+                detail: v,
+            });
+        });
+
+        this.successFlag$.subscribe((v) => {
+            if (v) {
+                this.messageService.add({
+                    severity: "success",
+                    detail: "Permissões adicionadas com sucesso",
+                });
+            }
+        })
     }
 
     ngOnInit(): void {

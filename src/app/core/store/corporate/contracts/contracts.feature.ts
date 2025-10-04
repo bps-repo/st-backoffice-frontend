@@ -1,6 +1,6 @@
-import { createFeature, createReducer, on } from '@ngrx/store';
-import { CONTRACT_FEATURE_KEY, ContractActions } from './contracts.actions';
-import { contractsAdapter, initialContractState } from './contracts.state';
+import {createFeature, createReducer, on} from '@ngrx/store';
+import {CONTRACT_FEATURE_KEY, ContractActions} from './contracts.actions';
+import {contractsAdapter, initialContractState} from './contracts.state';
 
 
 export const contractsFeature = createFeature({
@@ -14,13 +14,13 @@ export const contractsFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(ContractActions.loadContractsSuccess, (state, { contracts }) => contractsAdapter.setAll(contracts, {
+        on(ContractActions.loadContractsSuccess, (state, {contracts}) => contractsAdapter.setAll(contracts, {
             ...state,
             loading: false,
             error: null,
             lastUpdated: new Date().toISOString()
         })),
-        on(ContractActions.loadContractsFailure, (state, { error }) => ({
+        on(ContractActions.loadContractsFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error
@@ -30,15 +30,16 @@ export const contractsFeature = createFeature({
         on(ContractActions.loadContract, (state) => ({
             ...state,
             loading: true,
-            error: null
+            error: null,
+            selectedContract: null,
         })),
-        on(ContractActions.loadContractSuccess, (state, { contract }) => contractsAdapter.setOne(contract, {
+        on(ContractActions.loadContractSuccess, (state, {contract}) => contractsAdapter.setOne(contract, {
             ...state,
             selectedContract: contract,
             loading: false,
             error: null
         })),
-        on(ContractActions.loadContractFailure, (state, { error }) => ({
+        on(ContractActions.loadContractFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error
@@ -50,13 +51,13 @@ export const contractsFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(ContractActions.createContractSuccess, (state, { contract }) => contractsAdapter.addOne(contract, {
+        on(ContractActions.createContractSuccess, (state, {contract}) => contractsAdapter.addOne(contract, {
             ...state,
             loading: false,
             error: null,
             lastUpdated: new Date().toISOString()
         })),
-        on(ContractActions.createContractFailure, (state, { error }) => ({
+        on(ContractActions.createContractFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error
@@ -68,14 +69,17 @@ export const contractsFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(ContractActions.updateContractSuccess, (state, { contract }) => contractsAdapter.updateOne({ id: contract.id, changes: contract }, {
+        on(ContractActions.updateContractSuccess, (state, {contract}) => contractsAdapter.updateOne({
+            id: contract.id,
+            changes: contract
+        }, {
             ...state,
             selectedContract: state.selectedContract?.id === contract.id ? contract : state.selectedContract,
             loading: false,
             error: null,
             lastUpdated: new Date().toISOString()
         })),
-        on(ContractActions.updateContractFailure, (state, { error }) => ({
+        on(ContractActions.updateContractFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error
@@ -87,16 +91,33 @@ export const contractsFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(ContractActions.deleteContractSuccess, (state, { id }) => contractsAdapter.removeOne(id, {
+        on(ContractActions.deleteContractSuccess, (state, {id}) => contractsAdapter.removeOne(id, {
             ...state,
             selectedContract: state.selectedContract?.id === id ? null : state.selectedContract,
             loading: false,
             error: null,
             lastUpdated: new Date().toISOString()
         })),
-        on(ContractActions.deleteContractFailure, (state, { error }) => ({
+        on(ContractActions.deleteContractFailure, (state, {error}) => ({
             ...state,
             loading: false,
+            error
+        })),
+
+        // Download Contract
+        on(ContractActions.downloadContract, (state) => ({
+            ...state,
+            downloading: true,
+            error: null
+        })),
+        on(ContractActions.downloadContractSuccess, (state, {contract}) => contractsAdapter.setOne(contract, {
+            ...state,
+            downloading: false,
+            error: null,
+        })),
+        on(ContractActions.downloadContractFailure, (state, {error}) => ({
+            ...state,
+            downloading: false,
             error
         })),
 
@@ -106,13 +127,13 @@ export const contractsFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(ContractActions.loadContractsByStudentSuccess, (state, { contracts }) => contractsAdapter.setAll(contracts, {
+        on(ContractActions.loadContractsByStudentSuccess, (state, {contracts}) => contractsAdapter.setAll(contracts, {
             ...state,
             loading: false,
             error: null,
             lastUpdated: new Date().toISOString()
         })),
-        on(ContractActions.loadContractsByStudentFailure, (state, { error }) => ({
+        on(ContractActions.loadContractsByStudentFailure, (state, {error}) => ({
             ...state,
             loading: false,
             error

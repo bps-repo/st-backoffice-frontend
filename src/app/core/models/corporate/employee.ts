@@ -11,8 +11,6 @@ export interface Employee {
     createdAt: string;
     updatedAt: string;
 }
-
-// Enhanced interface for employee details that matches the API response structure
 export interface EmployeeDetails {
     id: string;
     createdAt: string;

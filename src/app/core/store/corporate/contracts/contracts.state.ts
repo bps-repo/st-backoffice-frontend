@@ -1,9 +1,11 @@
-import { createEntityAdapter, EntityState } from "@ngrx/entity";
-import { Contract } from "../../../models/corporate/contract";
+import {createEntityAdapter, EntityState} from "@ngrx/entity";
+import {Contract} from "../../../models/corporate/contract";
 
 export interface ContractState extends EntityState<Contract> {
     selectedContract: Contract | null;
     loading: boolean;
+
+    downloading: boolean;
     error: any;
     errorCreate: any;
     errorDelete: any;
@@ -20,6 +22,8 @@ export const initialContractState: ContractState = contractsAdapter.getInitialSt
     selectedContract: null,
     loading: false,
     error: null,
+
+    downloading: false,
     lastUpdated: null,
     errorCreate: null,
     errorDelete: null,

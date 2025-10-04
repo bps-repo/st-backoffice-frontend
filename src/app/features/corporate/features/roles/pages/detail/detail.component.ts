@@ -56,6 +56,8 @@ export class DetailComponent implements OnInit, OnDestroy {
     ) {
         this.role$ = this.store$.select(selectSelectedRole) as Observable<Role | null>;
         this.loading$ = this.store$.select(selectRolesLoading);
+
+        
     }
 
     ngOnInit(): void {

@@ -23,7 +23,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
 
     private permissionSet = new Set<string>();
 
-    constructor() {}
+    constructor() { }
 
 
     ngOnInit() {
@@ -107,7 +107,11 @@ export class AppMenuComponent implements OnInit, OnDestroy {
             {
                 label: 'Financeiro',
                 icon: 'pi pi-fw pi-file-pdf',
-                visible: this.hasPermission('Manage Attendance Automation'),
+                visible: (this.hasPermission('contracts.view')
+                || this.hasPermission('finance.dashboard.view')
+                || this.hasPermission('sales.view')
+                || this.hasPermission('reports.finance.view')
+            ),
                 items: [
                     {
                         label: 'Dashboard',

@@ -1,5 +1,5 @@
-import { createActionGroup, emptyProps, props } from "@ngrx/store";
-import { Contract, CreateStudentContractRequest } from "../../../models/corporate/contract";
+import {createActionGroup, emptyProps, props} from "@ngrx/store";
+import {Contract, CreateStudentContractRequest} from "../../../models/corporate/contract";
 
 export const CONTRACT_FEATURE_KEY = 'Contract';
 
@@ -30,6 +30,10 @@ export const ContractActions = createActionGroup(
             'Load Contracts By Student': props<{ studentId: string }>(),
             'Load Contracts By Student Success': props<{ contracts: Contract[] }>(),
             'Load Contracts By Student Failure': props<{ error: any }>(),
+
+            'Download Contract': props<{ contractId: string }>(),
+            'Download Contract Success': props<{ contract: any }>(),
+            'Download Contract Failure': props<{ error: any }>(),
 
             'Clear Contracts': emptyProps(),
             'Clear Contracts Errors': emptyProps(),

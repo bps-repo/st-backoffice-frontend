@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { Contract, CreateStudentContractRequest } from '../models/corporate/contract';
-import { ApiResponse } from '../models/ApiResponseService';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {map, Observable} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {Contract, CreateStudentContractRequest} from '../models/corporate/contract';
+import {ApiResponse} from '../models/ApiResponseService';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ContractService {
     private apiUrl = `${environment.apiUrl}/contracts`;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+    }
 
     createStudentContract(payload: CreateStudentContractRequest): Observable<Contract> {
         return this.http.post<ApiResponse<Contract>>(`${this.apiUrl}`, payload).pipe(
@@ -33,5 +34,11 @@ export class ContractService {
         return this.http.get<ApiResponse<Contract[]>>(`${this.apiUrl}/students/${studentId}/contracts`).pipe(
             map(response => response.data as Contract[])
         );
+    }
+
+    downloadContract(contractId: string): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${contractId}/pdf`, {
+            responseType: 'blob'
+        })
     }
 }

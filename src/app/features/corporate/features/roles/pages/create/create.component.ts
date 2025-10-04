@@ -58,10 +58,10 @@ export class CreateComponent implements OnInit, OnDestroy {
         );
 
 
-        this.errors$ = this.store$.select(selectRolesError)
         this.permissionsLoading = store$.select(selectPermissionsLoading)
         this.permissions$ = store$.select(selectPermissionTree)
 
+        this.errors$ = this.store$.select(selectRolesError)
         this.successFlag$ = this.store$.select(selectSuccessFlag)
 
         this.errors$.pipe(
