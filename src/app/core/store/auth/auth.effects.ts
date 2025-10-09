@@ -1,14 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
-import { catchError, exhaustMap, map, take, tap } from 'rxjs/operators';
-import { AuthService } from '../../services/auth.service';
-import { UserProfileService } from '../../services/user-profile.service';
-import { authActions } from './auth.actions';
-import { Router } from '@angular/router';
-import { JwtTokenService } from "../../services/jwtToken.service";
-import { Store } from '@ngrx/store';
-import { ApiError } from '../../services/error-message.service';
+import {Injectable} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {of} from 'rxjs';
+import {catchError, exhaustMap, map, take, tap} from 'rxjs/operators';
+import {AuthService} from '../../services/auth.service';
+import {UserProfileService} from '../../services/user-profile.service';
+import {authActions} from './auth.actions';
+import {Router} from '@angular/router';
+import {JwtTokenService} from "../../services/jwtToken.service";
+import {Store} from '@ngrx/store';
+import {ApiError} from '../../services/error-message.service';
+
 // import * as authSelectors from './auth.selectors';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class AuthEffects {
     login$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.login),
-            exhaustMap(({ email, password }) =>
+            exhaustMap(({email, password}) =>
                 this.authService.login(email, password).pipe(
                     map((response) =>
                         authActions.loginSuccess({
@@ -39,7 +40,7 @@ export class AuthEffects {
                             timestamp: new Date().toISOString(),
                             status: error.status || 500,
                             error: error.name || 'Unknown Error',
-                            message: error.message || 'An unexpected error occurred',
+                            message: error.error || 'An unexpected error occurred',
                             errorCode: error.error?.errorCode || 'UNKNOWN_ERROR',
                             path: error.url || '/api/v1/auth/login'
                         };
@@ -59,15 +60,14 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.loginSuccess),
-                tap(({ token }) => {
+                tap(({token}) => {
                     JwtTokenService.decodeToken(token);
                     this.store.dispatch(authActions.loadUserProfile());
                 })
             ),
-        { dispatch: false }
+        {dispatch: false}
     );
 
-    // Redirect to dashboard only after profile loads successfully during login
     loadUserProfileSuccessNavigate$ = createEffect(
         () =>
             this.actions$.pipe(
@@ -80,12 +80,12 @@ export class AuthEffects {
                             if (shouldNavigate) {
                                 this.router.navigate(['/schoolar/dashboards']).then();
                             }
-                            this.store.dispatch(authActions.changeShouldNavigateAfterProfileLoad({ shouldNavigateAfterProfileLoad: false }));
+                            this.store.dispatch(authActions.changeShouldNavigateAfterProfileLoad({shouldNavigateAfterProfileLoad: false}));
                         })
                     ).subscribe();
                 })
             ),
-        { dispatch: false }
+        {dispatch: false}
     );
 
     logout$ = createEffect(() =>
@@ -117,13 +117,13 @@ export class AuthEffects {
                     this.router.navigate(['/auth/login']).then();
                 })
             ),
-        { dispatch: false }
+        {dispatch: false}
     );
 
     refreshToken$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.refreshToken),
-            exhaustMap(({ refreshToken }) =>
+            exhaustMap(({refreshToken}) =>
                 this.authService.refreshToken(refreshToken).pipe(
                     map((response) =>
                         authActions.refreshTokenSuccess({
@@ -147,12 +147,12 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.refreshTokenSuccess),
-                tap(({ token }) => {
+                tap(({token}) => {
                     this.store.dispatch(authActions.loadUserProfile());
                     JwtTokenService.decodeToken(token);
                 })
             ),
-        { dispatch: false }
+        {dispatch: false}
     );
 
     verify$ = createEffect(() =>
@@ -160,7 +160,7 @@ export class AuthEffects {
             ofType(authActions.verify),
             exhaustMap(() =>
                 this.authService.verify().pipe(
-                    map((response) => authActions.verifySuccess({ user: response.data })),
+                    map((response) => authActions.verifySuccess({user: response.data})),
                     catchError((error) =>
                         of(
                             authActions.verifyFailure({
@@ -179,7 +179,7 @@ export class AuthEffects {
             ofType(authActions.loadUserProfile),
             exhaustMap(() =>
                 this.userProfileService.getCurrentUser().pipe(
-                    map((user) => authActions.loadUserProfileSuccess({ user })),
+                    map((user) => authActions.loadUserProfileSuccess({user})),
                     catchError((error) =>
                         of(
                             authActions.loadUserProfileFailure({
@@ -195,9 +195,9 @@ export class AuthEffects {
     updateUserProfile$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.updateUserProfile),
-            exhaustMap(({ userData }) =>
+            exhaustMap(({userData}) =>
                 this.userProfileService.updateCurrentUser(userData).pipe(
-                    map((user) => authActions.updateUserProfileSuccess({ user })),
+                    map((user) => authActions.updateUserProfileSuccess({user})),
                     catchError((error) =>
                         of(
                             authActions.updateUserProfileFailure({
@@ -213,9 +213,9 @@ export class AuthEffects {
     updateUserPhoto$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.updateUserPhoto),
-            exhaustMap(({ photoFile }) =>
+            exhaustMap(({photoFile}) =>
                 this.userProfileService.updateUserPhoto(photoFile).pipe(
-                    map((user) => authActions.updateUserPhotoSuccess({ user })),
+                    map((user) => authActions.updateUserPhotoSuccess({user})),
                     catchError((error) =>
                         of(
                             authActions.updateUserPhotoFailure({
@@ -231,7 +231,7 @@ export class AuthEffects {
     changePassword$ = createEffect(() =>
         this.actions$.pipe(
             ofType(authActions.changePassword),
-            exhaustMap(({ currentPassword, newPassword }) =>
+            exhaustMap(({currentPassword, newPassword}) =>
                 this.userProfileService.changePassword(currentPassword, newPassword).pipe(
                     map(() => authActions.changePasswordSuccess()),
                     catchError((error) =>
@@ -262,7 +262,7 @@ export class AuthEffects {
                     }
                 }
 
-                return authActions.validateTokenSuccess({ isValid });
+                return authActions.validateTokenSuccess({isValid});
             })
         )
     );

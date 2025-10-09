@@ -104,7 +104,7 @@
                         </div>
                         <div class="mt-1 text-xs text-500">
                             <i class="pi pi-user mr-1"></i>
-                            {{ lesson.teacher?.name || 'Professor não definido' }}
+                            {{ lesson.teacher.name || 'Professor não definido' }}
                         </div>
                     </div>
                 </ng-template>
@@ -116,8 +116,7 @@
     <div class="col-12 md:col-6">
         <div class="card">
             <div class="flex align-items-center justify-content-between mb-3">
-                <h3 class="m-0">{{ selectedLesson ? 'Alunos para: ' + (selectedLesson.title || '') : 'Selecione uma
-                    aula' }}</h3>
+                <h3 class="m-0">{{ selectedLesson ? 'Alunos para: ' + (selectedLesson.title || '') : 'Selecione uma aula' }}</h3>
             </div>
 
             <ng-container *ngIf="selectedLesson; else selectLessonHint">

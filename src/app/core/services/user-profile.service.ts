@@ -28,10 +28,7 @@ export class UserProfileService {
         }
     }
 
-    /**
-     * Get current user profile from the API
-     * @returns Observable<User>
-     */
+
     getCurrentUser(options: { forceRefresh?: boolean } = {}): Observable<User> {
         const { forceRefresh = false } = options;
 
@@ -49,9 +46,7 @@ export class UserProfileService {
             map(response => response.data as User),
             tap(user => {
                 this.currentUserSubject.next(user);
-                try {
-                    localStorage.setItem('currentUser', JSON.stringify(user));
-                } catch { }
+                localStorage.setItem('currentUser', JSON.stringify(user));
             }),
             catchError(error => {
                 this.clearCurrentUser();
@@ -66,19 +61,11 @@ export class UserProfileService {
         return this.currentUserRequest$;
     }
 
-    /**
-     * Get cached current user
-     * @returns User | null
-     */
     getCurrentUserValue(): User | null {
         return this.currentUserSubject.value;
     }
 
-    /**
-     * Update current user profile
-     * @param userData Partial user data to update
-     * @returns Observable<User>
-     */
+
     updateCurrentUser(userData: Partial<User>): Observable<User> {
         const currentUser = this.getCurrentUserValue();
         if (!currentUser) {
@@ -99,11 +86,6 @@ export class UserProfileService {
         );
     }
 
-    /**
-     * Update user avatar/photo
-     * @param photoFile File to upload
-     * @returns Observable<User>
-     */
     updateUserPhoto(photoFile: File): Observable<User> {
         const currentUser = this.getCurrentUserValue();
         if (!currentUser) {
@@ -127,12 +109,7 @@ export class UserProfileService {
         );
     }
 
-    /**
-     * Change user password
-     * @param currentPassword Current password
-     * @param newPassword New password
-     * @returns Observable<any>
-     */
+
     changePassword(currentPassword: string, newPassword: string): Observable<any> {
         const currentUser = this.getCurrentUserValue();
         if (!currentUser) {
@@ -150,109 +127,67 @@ export class UserProfileService {
         );
     }
 
-    /**
-     * Get user's full name
-     * @returns string
-     */
+
     getFullName(): string {
         const user = this.getCurrentUserValue();
         if (!user) return '';
         return `${user.firstname} ${user.lastname}`.trim();
     }
 
-    /**
-     * Get user's display name (username or full name)
-     * @returns string
-     */
+
     getDisplayName(): string {
         const user = this.getCurrentUserValue();
         if (!user) return '';
         return user.username || this.getFullName();
     }
 
-    /**
-     * Get user's initials for avatar
-     * @returns string
-     */
+
     getInitials(): string {
         const user = this.getCurrentUserValue();
         if (!user) return '';
-        return `${user.firstname.charAt(0)}${user.lastname.charAt(0)}`.toUpperCase();
+        return `${user?.firstname.charAt(0)}${user?.lastname.charAt(0)}`.toUpperCase();
     }
-
-    /**
-     * Check if user has a photo
-     * @returns boolean
-     */
     hasPhoto(): boolean {
         return false;
     }
 
-    /**
-     * Get user's photo URL or default avatar
-     * @returns string
-     */
+
     getPhotoUrl(): string {
         return 'assets/layout/images/avatar.png';
     }
 
-    /**
-     * Clear current user data (useful for logout)
-     */
     clearCurrentUser(): void {
         this.currentUserSubject.next(null);
         localStorage.removeItem('currentUser');
         this.currentUserRequest$ = null;
     }
 
-    /**
-     * Refresh current user data
-     * @returns Observable<User>
-     */
+
     refreshCurrentUser(): Observable<User> {
         return this.getCurrentUser({ forceRefresh: true });
     }
 
-    /**
-     * Check if user is verified
-     * @returns boolean
-     */
     isUserVerified(): boolean {
         const user = this.getCurrentUserValue();
         return !!(user?.emailVerified);
     }
 
-    /**
-     * Get user's role name
-     * @returns string
-     */
+
     getRoleName(): string {
         const user = this.getCurrentUserValue();
         return user?.role?.name || '';
     }
 
-    /**
-     * Get user's role description
-     * @returns string
-     */
     getRoleDescription(): string {
         const user = this.getCurrentUserValue();
         return user?.role?.description || '';
     }
 
-    /**
-     * Get user's account status
-     * @returns string
-     */
     getAccountStatus(): string {
         const user = this.getCurrentUserValue();
         return user?.accountStatus || '';
     }
 
-    /**
-     * Check if user account is active
-     * @returns boolean
-     */
     isAccountActive(): boolean {
         return this.getAccountStatus() === 'ACTIVE';
     }

@@ -5,7 +5,6 @@ import { environment } from 'src/environments/environment';
 import { User } from '../models/auth/user';
 import { Role } from '../models/auth/role';
 import { Permission } from '../models/auth/permission';
-import { ApiResponse } from '../models/ApiResponseService';
 import { UserProfileService } from './user-profile.service';
 
 @Injectable({

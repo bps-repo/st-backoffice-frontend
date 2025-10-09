@@ -108,10 +108,10 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                 label: 'Financeiro',
                 icon: 'pi pi-fw pi-file-pdf',
                 visible: (this.hasPermission('contracts.view')
-                || this.hasPermission('finance.dashboard.view')
-                || this.hasPermission('sales.view')
-                || this.hasPermission('reports.finance.view')
-            ),
+                    || this.hasPermission('finance.dashboard.view')
+                    || this.hasPermission('sales.view')
+                    || this.hasPermission('reports.finance.view')
+                ),
                 items: [
                     {
                         label: 'Dashboard',
@@ -147,7 +147,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
             {
                 label: 'Empresa',
                 icon: 'pi pi-fw pi-users',
-                visible: this.hasPermission('settings.corporate.manage'),
+                //visible: this.hasPermission('settings.corporate.manage'),
                 items: [
                     {
                         label: 'Dashboard',
@@ -170,25 +170,25 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                     {
                         label: 'Administração',
                         icon: 'pi pi-fw pi-cog',
-                        visible: this.hasPermission('users.manage'),
+                        // visible: this.hasPermission('users.manage'),
                         items: [
                             {
                                 label: 'Usuários',
                                 icon: 'pi pi-fw pi-users',
                                 routerLink: ['/corporate/employees'],
-                                visible: this.hasPermission('users.view')
+                                // visible: this.hasPermission('users.view')
                             },
                             {
                                 label: 'Funções',
                                 icon: 'pi pi-fw pi-id-card',
                                 routerLink: ['/corporate/roles'],
-                                visible: this.hasPermission('roles.view')
+                                //visible: this.hasPermission('roles.view')
                             },
                             {
                                 label: 'Permissões',
                                 icon: 'pi pi-fw pi-lock',
                                 routerLink: ['/corporate/permissions'],
-                                visible: this.hasPermission('permissions.view')
+                                //visible: this.hasPermission('permissions.view')
                             },
                         ]
                     },

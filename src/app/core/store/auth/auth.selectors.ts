@@ -34,7 +34,7 @@ export const selectAuthShouldNavigateAfterProfileLoad = createSelector(
 // Custom selectors for permissions
 export const selectUserPermissions = createSelector(
   selectUser,
-  (user) => user?.allPermissions || user?.permissions || []
+  (user) => user?.allPermissions || []
 );
 
 export const selectUserPermissionNames = createSelector(
