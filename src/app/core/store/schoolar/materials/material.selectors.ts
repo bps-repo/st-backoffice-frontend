@@ -55,10 +55,21 @@ export const selectMaterialsByActiveStatus = (active: boolean) => createSelector
     (materialsByActive) => materialsByActive[active.toString()] || []
 );
 
-// Get materials by type
+// Get materials by entity and entityId
+export const selectMaterialsByEntityAndId = (entity: string, entityId: string) => createSelector(
+    selectMaterialsByEntity,
+    (materialsByEntity) => (materialsByEntity[entity]?.[entityId]) || []
+);
+
+// Backward-compatible: Get all materials stored under an entity (aggregated per entity)
 export const selectMaterialsByEntityValue = (entity: string) => createSelector(
     selectMaterialsByEntity,
-    (materialsByEntity) => materialsByEntity[entity] || []
+    (materialsByEntity) => {
+        const bucket = materialsByEntity[entity];
+        if (!bucket) return [];
+        // Flatten arrays from all entityIds under the entity
+        return Object.values(bucket).flat();
+    }
 );
 
 // Get materials by uploader

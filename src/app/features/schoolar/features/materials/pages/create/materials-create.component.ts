@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
 import {MessageService, SelectItem} from 'primeng/api';
@@ -17,7 +17,6 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {CardModule} from 'primeng/card';
 import {DividerModule} from 'primeng/divider';
 import {ChipModule} from 'primeng/chip';
-import {MaterialService} from 'src/app/core/services/material.service';
 import {StudentService} from 'src/app/core/services/student.service';
 import {LessonService} from 'src/app/core/services/lesson.service';
 import {UnitService} from 'src/app/core/services/unit.service';
@@ -37,6 +36,11 @@ import {Level} from 'src/app/core/models/course/level';
 import {Center} from 'src/app/core/models/corporate/center';
 import {Employee} from 'src/app/core/models/corporate/employee';
 import {Contract} from 'src/app/core/models/corporate/contract';
+import {Store} from '@ngrx/store';
+import {Actions} from '@ngrx/effects';
+import {MaterialActions} from 'src/app/core/store/schoolar/materials/material.actions';
+import {materialFeature} from 'src/app/core/store/schoolar/materials/material.feature';
+import {ofType} from '@ngrx/effects';
 
 @Component({
     imports: [
@@ -80,6 +84,8 @@ export class MaterialsCreateComponent implements OnInit {
     // File upload
     selectedFile: File | null = null;
 
+    selectedType = signal(RelatedEntityType.STUDENT)
+
     // Relations management
     newRelation: MaterialRelation = {
         relatedEntityType: '',
@@ -102,7 +108,7 @@ export class MaterialsCreateComponent implements OnInit {
     }));
 
     relatedEntityTypeOptions: SelectItem[] = Object.values(RelatedEntityType).map(type => ({
-        label: type,
+        label: this.getEntityType(type),
         value: type
     }));
 
@@ -138,7 +144,6 @@ export class MaterialsCreateComponent implements OnInit {
     constructor(
         private messageService: MessageService,
         private router: Router,
-        private materialService: MaterialService,
         private studentService: StudentService,
         private lessonService: LessonService,
         private unitService: UnitService,
@@ -146,8 +151,11 @@ export class MaterialsCreateComponent implements OnInit {
         private levelService: LevelService,
         private centerService: CenterService,
         private employeeService: EmployeeService,
-        private contractService: ContractService
-    ) {}
+        private contractService: ContractService,
+        private store: Store,
+        private actions$: Actions,
+    ) {
+    }
 
     ngOnInit() {
         // Set default uploader ID (in real app, get from auth service)
@@ -159,8 +167,35 @@ export class MaterialsCreateComponent implements OnInit {
         this.material.availabilityStartDate = today.toISOString().split('T')[0];
         this.material.availabilityEndDate = nextYear.toISOString().split('T')[0];
 
+        // Mirror loading state from store
+        this.store.select(materialFeature.selectLoadingCreate).subscribe(loading => this.loading = loading);
+
         // Load all entity data
         this.loadAllEntityData();
+    }
+
+    protected getEntityType(type: RelatedEntityType) {
+        switch (type) {
+            case RelatedEntityType.STUDENT:
+                return 'Estudante';
+            case RelatedEntityType.LESSON:
+                return 'Aula';
+            case RelatedEntityType.UNIT:
+                return 'Unidade';
+            case RelatedEntityType.ASSESSMENT:
+                return 'Avaliação'
+            case RelatedEntityType.LEVEL:
+                return 'Nível'
+
+            case RelatedEntityType.CENTER:
+                return 'Centro'
+            case RelatedEntityType.EMPLOYEE:
+                return "Funcionário"
+            case RelatedEntityType.CONTRACT:
+                return "Contrato"
+            default :
+                return 'N/A'
+        }
     }
 
     loadAllEntityData(): void {
@@ -460,7 +495,7 @@ export class MaterialsCreateComponent implements OnInit {
         this.newRelation.orderIndex = this.material.relations.length + 1;
 
         // Add relation to material
-        this.material.relations.push({ ...this.newRelation });
+        this.material.relations.push({...this.newRelation});
 
         // Reset form
         this.newRelation = {
@@ -501,6 +536,8 @@ export class MaterialsCreateComponent implements OnInit {
 
     onEntityTypeChange(): void {
         // Clear related entity selection when type changes
+
+        this.selectedType.set(this.newRelation.relatedEntityType as RelatedEntityType)
         this.newRelation.relatedEntityId = '';
         this.selectedLevelId = '';
 
@@ -595,42 +632,40 @@ export class MaterialsCreateComponent implements OnInit {
 
     saveMaterial(): void {
         if (!this.isFormValid()) {
-        const message = this.material.fileType === MaterialType.VIDEO
-            ? 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e informe uma URL válida para o vídeo'
-            : 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e faça upload de um arquivo';
+            const message = this.material.fileType === MaterialType.VIDEO
+                ? 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e informe uma URL válida para o vídeo'
+                : 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e faça upload de um arquivo';
 
             this.messageService.add({
                 severity: 'error',
                 summary: 'Formulário Inválido',
-            detail: message
+                detail: message
             });
             return;
         }
 
-        this.loading = true;
+        // Dispatch NgRx action to create material with relations
+        this.store.dispatch(MaterialActions.createMaterialWithRelations({request: this.material}));
 
-        this.materialService.createMaterialWithRelations(this.material).subscribe({
-            next: (createdMaterial) => {
-                this.loading = false;
-        this.messageService.add({
-            severity: 'success',
-                    summary: 'Material Criado',
-                    detail: 'Material foi criado com sucesso!'
+        // Listen for success
+        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsSuccess)).subscribe(({material}) => {
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Material Criado',
+                detail: 'Material foi criado com sucesso!'
+            });
+            setTimeout(() => {
+                this.router.navigate(['/schoolar/materials']);
+            }, 1000);
         });
 
-        // Navigate back to list
-        setTimeout(() => {
-            this.router.navigate(['/schoolar/materials']);
-        }, 2000);
-            },
-            error: (error) => {
-                this.loading = false;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro ao Criar Material',
-                    detail: error.message || 'Erro desconhecido ao criar material'
-                });
-            }
+        // Listen for failure
+        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsFailure)).subscribe(({error}) => {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erro ao Criar Material',
+                detail: error || 'Erro desconhecido ao criar material'
+            });
         });
     }
 

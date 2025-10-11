@@ -27,6 +27,18 @@ export class MaterialEffects {
         )
     );
 
+    createMaterialWithRelations$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(MaterialActions.createMaterialWithRelations),
+            mergeMap(({ request }) =>
+                this.materialService.createMaterialWithRelations(request).pipe(
+                    map((material) => MaterialActions.createMaterialWithRelationsSuccess({ material })),
+                    catchError((error) => of(MaterialActions.createMaterialWithRelationsFailure({ error: error.message })))
+                )
+            )
+        )
+    );
+
     loadMaterialsByActive$ = createEffect(() =>
         this.actions$.pipe(
             ofType(MaterialActions.loadMaterialsByActive),
@@ -44,7 +56,7 @@ export class MaterialEffects {
             ofType(MaterialActions.loadMaterialsByEntity),
             mergeMap(({ entity, entityId }) =>
                 this.materialService.getMaterialsByEntity(entity, entityId).pipe(
-                    map((materials) => MaterialActions.loadMaterialsByEntitySuccess({ entity: entity, materials })),
+                    map((materials) => MaterialActions.loadMaterialsByEntitySuccess({ entity, entityId, materials })),
                     catchError((error: HttpErrorResponse) => of(MaterialActions.loadMaterialsByEntityFailure({ byEntityError: error.error.message })))
                 )
             )

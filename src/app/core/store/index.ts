@@ -42,6 +42,9 @@ import { ServiceEffects } from "./corporate/services/service.effects";
 import { ServiceState } from "./corporate/services/services.state";
 import { MaterialEffects } from "./schoolar/materials/material.effects";
 import { materialFeature } from "./schoolar/materials/material.feature";
+import { AttendancesEffects } from "./schoolar/attendances/attendances.effects";
+import { attendancesFeature } from "./schoolar/attendances/attendances.feature";
+import { AttendancesState } from "./schoolar/attendances/attendances.state";
 
 export interface AppState {
     students: StudentState;
@@ -61,6 +64,7 @@ export interface AppState {
     levels: LevelState;
     contracts: ContractState;
     services: ServiceState;
+    attendances: AttendancesState;
 
 }
 
@@ -77,7 +81,8 @@ export const AppEffects = [
     EmployeesEffects,
     ContractEffects,
     ServiceEffects,
-    MaterialEffects
+    MaterialEffects,
+    AttendancesEffects
 ]
 
 export const AppFeatures = [
@@ -94,5 +99,6 @@ export const AppFeatures = [
     employeesFeature,
     contractsFeature,
     serviceFeature,
-    materialFeature
+    materialFeature,
+    attendancesFeature
 ]

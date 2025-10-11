@@ -47,6 +47,25 @@ export const materialFeature = createFeature({
             createError: error,
         })),
 
+        // Create material with relations
+        on(MaterialActions.createMaterialWithRelations, (state) => ({
+            ...state,
+            loadingCreate: true,
+            createError: null,
+        })),
+        on(MaterialActions.createMaterialWithRelationsSuccess, (state, { material }) =>
+            materialsAdapter.addOne(material, {
+                ...state,
+                loadingCreate: false,
+                createError: null,
+            })
+        ),
+        on(MaterialActions.createMaterialWithRelationsFailure, (state, { error }) => ({
+            ...state,
+            loadingCreate: false,
+            createError: error,
+        })),
+
         // Load materials by active status
         on(MaterialActions.loadMaterialsByActive, (state) => ({
             ...state,
@@ -74,11 +93,14 @@ export const materialFeature = createFeature({
             loadingByEntity: true,
             byEntityError: null,
         })),
-        on(MaterialActions.loadMaterialsByEntitySuccess, (state, { entity, materials }) => ({
+        on(MaterialActions.loadMaterialsByEntitySuccess, (state, { entity, entityId, materials }) => ({
             ...state,
             materialsByEntity: {
                 ...state.materialsByEntity,
-                [entity]: materials,
+                [entity]: {
+                    ...(state.materialsByEntity[entity] || {}),
+                    [entityId]: materials,
+                },
             },
             loadingByEntity: false,
             byEntityError: null,

@@ -16,6 +16,11 @@ export const MaterialActions = createActionGroup({
         'Create Material Success': props<{ material: Material }>(),
         'Create Material Failure': props<{ error: string }>(),
 
+        // Create material with relations
+        'Create Material With Relations': props<{ request: import('src/app/core/models/academic/material').MaterialCreateRequest }>(),
+        'Create Material With Relations Success': props<{ material: Material }>(),
+        'Create Material With Relations Failure': props<{ error: string }>(),
+
         // Get materials by active status
         'Load Materials By Active': props<{ active: boolean }>(),
         'Load Materials By Active Success': props<{ active: boolean, materials: Material[] }>(),
@@ -23,7 +28,7 @@ export const MaterialActions = createActionGroup({
 
         // Get materials by entity
         'Load Materials By Entity': props<{ entity: string, entityId: string }>(),
-        'Load Materials By Entity Success': props<{ entity: string, materials: Material[] }>(),
+        'Load Materials By Entity Success': props<{ entity: string, entityId: string, materials: Material[] }>(),
         'Load Materials By Entity Failure': props<{ byEntityError: any }>(),
 
         // Get materials by uploader

@@ -21,7 +21,7 @@ export interface MaterialState extends EntityState<Material> {
 
     // Specialized data
     materialsByActive: { [active: string]: Material[] };
-    materialsByEntity: { [entity: string]: Material[] };
+    materialsByEntity: { [entity: string]: { [entityId: string]: Material[] } };
     materialsByUploader: { [uploaderId: string]: Material[] };
 
     // Cache management

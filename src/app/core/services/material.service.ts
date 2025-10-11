@@ -49,6 +49,7 @@ export class MaterialService {
     }
 
     createMaterialWithRelations(material: MaterialCreateRequest): Observable<Material> {
+        console.log("Material to create: ", material)
         return this.http.post<ApiResponse<Material>>(`${this.apiUrl}/create-with-relations`, material).pipe(
             map((response) => response.data as Material)
         );

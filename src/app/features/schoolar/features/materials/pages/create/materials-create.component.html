@@ -13,24 +13,24 @@
                     <div class="col-12 md:col-6 mb-2">
                         <label for="title" class="font-medium text-900">Título do Material *</label>
                         <input id="title" type="text" pInputText [(ngModel)]="material.title"
-                            placeholder="Ex: Questionário de Gramática" required />
+                               placeholder="Ex: Questionário de Gramática" required/>
                     </div>
                     <div class="col-12 md:col-6 mb-2">
                         <label for="description" class="font-medium text-900">Descrição *</label>
                         <input id="description" type="text" pInputText [(ngModel)]="material.description"
-                            placeholder="Ex: Questionário da aula de ontem" required />
+                               placeholder="Ex: Questionário da aula de ontem" required/>
                     </div>
                     <div class="col-12 md:col-6 mb-2">
                         <label for="fileType" class="font-medium text-900">Tipo de Arquivo *</label>
                         <p-dropdown id="fileType" [options]="fileTypeOptions" [(ngModel)]="material.fileType"
-                            optionLabel="label" optionValue="value" placeholder="Selecione o tipo de arquivo"
-                            (onChange)="onFileTypeChange()"></p-dropdown>
+                                    optionLabel="label" optionValue="value" placeholder="Selecione o tipo de arquivo"
+                                    (onChange)="onFileTypeChange()"></p-dropdown>
                     </div>
                     <div class="col-12 md:col-6 mb-2">
                         <label for="contentType" class="font-medium text-900">Tipo de Conteúdo *</label>
                         <p-dropdown id="contentType" [options]="contentTypeOptions" [(ngModel)]="material.type"
-                            optionLabel="label" optionValue="value"
-                            placeholder="Selecione o tipo de conteúdo"></p-dropdown>
+                                    optionLabel="label" optionValue="value"
+                                    placeholder="Selecione o tipo de conteúdo"></p-dropdown>
                     </div>
                     <div class="col-12 mb-2" *ngIf="isVideoFileType()">
                         <label for="fileUrl" class="font-medium text-900">URL do Vídeo *</label>
@@ -39,7 +39,7 @@
                                 <i class="pi pi-video"></i>
                             </span>
                             <input id="fileUrl" type="url" pInputText [(ngModel)]="material.fileUrl"
-                                placeholder="https://youtu.be/... ou https://vimeo.com/..." required />
+                                   placeholder="https://youtu.be/... ou https://vimeo.com/..." required/>
                         </div>
                         <small class="text-gray-500">Informe a URL pública do vídeo (YouTube, Vimeo, etc.)</small>
                     </div>
@@ -51,15 +51,18 @@
         <div class="col-12 lg:col-12" *ngIf="!isVideoFileType()">
             <p-card header="Upload de Arquivo" class="mb-4">
                 <p-fileUpload #fileUploader name="material[]"
-                    accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,audio/mp3,audio/wav,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    [maxFileSize]="524288000" (onSelect)="onFileSelect($event)" (onError)="onFileUploadError($event)"
-                    [customUpload]="true" [auto]="false" chooseLabel="Selecionar Arquivo" [showUploadButton]="false"
-                    [showCancelButton]="false">
+                              accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,audio/mp3,audio/wav,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                              [maxFileSize]="524288000" (onSelect)="onFileSelect($event)"
+                              (onError)="onFileUploadError($event)"
+                              [customUpload]="true" [auto]="false" chooseLabel="Selecionar Arquivo"
+                              [showUploadButton]="false"
+                              [showCancelButton]="false">
                     <ng-template pTemplate="content">
-                        <div class="w-full py-8 border-2 border-dashed border-gray-300 flex justify-content-center align-items-center hover:bg-gray-50 transition-duration-100 cursor-pointer"
+                        <div
+                            class="w-full py-8 border-2 border-dashed border-gray-300 flex justify-content-center align-items-center hover:bg-gray-50 transition-duration-100 cursor-pointer"
                             (click)="fileUploader.advancedFileInput.nativeElement.click()">
                             <div *ngIf="!selectedFile"
-                                class="h-full flex flex-column justify-content-center align-items-center">
+                                 class="h-full flex flex-column justify-content-center align-items-center">
                                 <i class="pi pi-upload text-gray-500 text-4xl mb-3"></i>
                                 <span class="text-gray-600 text-lg text-center mb-1">Clique para selecionar um
                                     arquivo</span>
@@ -69,12 +72,12 @@
                             <div *ngIf="selectedFile" class="flex align-items-center gap-3">
                                 <i class="pi pi-file text-primary text-2xl"></i>
                                 <div>
-                                    <p class="m-0 font-medium">{{selectedFile.name}}</p>
-                                    <p class="m-0 text-sm text-gray-500">{{formatFileSize(selectedFile.size)}}</p>
+                                    <p class="m-0 font-medium">{{ selectedFile.name }}</p>
+                                    <p class="m-0 text-sm text-gray-500">{{ formatFileSize(selectedFile.size) }}</p>
                                 </div>
                                 <button pButton pRipple icon="pi pi-times"
-                                    class="p-button-rounded p-button-text p-button-sm"
-                                    (click)="removeFile($event)"></button>
+                                        class="p-button-rounded p-button-text p-button-sm"
+                                        (click)="removeFile($event)"></button>
                             </div>
                         </div>
                     </ng-template>
@@ -89,12 +92,12 @@
                     <div class="col-12 md:col-6">
                         <label for="startDate" class="font-medium text-900">Data de Início *</label>
                         <p-calendar id="startDate" [(ngModel)]="material.availabilityStartDate" [showIcon]="true"
-                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
+                                    dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
                     </div>
                     <div class="col-12 md:col-6">
                         <label for="endDate" class="font-medium text-900">Data de Fim *</label>
                         <p-calendar id="endDate" [(ngModel)]="material.availabilityEndDate" [showIcon]="true"
-                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
+                                    dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
                     </div>
                     <div class="col-12">
                         <div class="flex align-items-center gap-3">
@@ -108,49 +111,50 @@
 
         <!-- RELATIONS SECTION -->
         <div class="col-12 lg:col-12">
-            <p-card header="Relacionamentos" class="mb-4">
+            <p-card header="Distribuições" class="mb-4">
                 <p-divider></p-divider>
 
                 <!-- Add New Relation Form -->
                 <div class="grid formgrid p-fluid mb-4">
                     <div class="col-12">
-                        <h4 class="text-lg font-semibold mb-3">Adicionar Nova Relação</h4>
+                        <h4 class="text-lg font-semibold mb-3">Adicionar Nova distribuição</h4>
                     </div>
                     <div class="col-12 md:col-4">
-                        <label for="relationType" class="font-medium text-900">Tipo de Entidade *</label>
+                        <label for="relationType" class="font-medium text-900">Selecione a entidade *</label>
                         <p-dropdown id="relationType" [options]="relatedEntityTypeOptions"
-                            [(ngModel)]="newRelation.relatedEntityType" optionLabel="label" optionValue="value"
-                            placeholder="Selecione o tipo" (onChange)="onEntityTypeChange()"></p-dropdown>
+                                    [(ngModel)]="newRelation.relatedEntityType" optionLabel="label" optionValue="value"
+                                    placeholder="Selecione o tipo" (onChange)="onEntityTypeChange()"></p-dropdown>
                     </div>
 
                     <!-- Level Selection for Units -->
                     <div class="col-12 md:col-4" *ngIf="shouldShowLevelSelection()">
                         <label for="levelSelection" class="font-medium text-900">Selecionar Nível *</label>
                         <p-dropdown id="levelSelection" [options]="levelOptions" [(ngModel)]="selectedLevelId"
-                            optionLabel="label" optionValue="value" placeholder="Selecione o nível"
-                            (onChange)="onLevelChange()"
-                            [disabled]="isEntityLoading(RelatedEntityType.LEVEL)"></p-dropdown>
+                                    optionLabel="label" optionValue="value" placeholder="Selecione o nível"
+                                    (onChange)="onLevelChange()"
+                                    [disabled]="isEntityLoading(RelatedEntityType.LEVEL)"></p-dropdown>
                         <small *ngIf="!isEntityLoading(RelatedEntityType.LEVEL)" class="text-gray-500">
-                            {{levelOptions.length}} níveis disponíveis
+                            {{ levelOptions.length }} níveis disponíveis
                         </small>
                     </div>
 
                     <div class="col-12 md:col-4">
-                        <label for="relatedEntity" class="font-medium text-900">Entidade Relacionada *</label>
+                        <label for="relatedEntity"
+                               class="font-medium text-900">Selecione {{ getEntityType(selectedType()) }}</label>
                         <p-dropdown id="relatedEntity" [options]="getRelatedEntityOptions()"
-                            [(ngModel)]="newRelation.relatedEntityId" optionLabel="label" optionValue="value"
-                            [placeholder]="getRelatedEntityPlaceholder()"
-                            [disabled]="isRelatedEntityDisabled()"></p-dropdown>
+                                    [(ngModel)]="newRelation.relatedEntityId" optionLabel="label" optionValue="value"
+                                    [placeholder]="getRelatedEntityPlaceholder()"
+                                    [disabled]="isRelatedEntityDisabled()"></p-dropdown>
                         <small *ngIf="newRelation.relatedEntityType && !isEntityLoading(newRelation.relatedEntityType)"
-                            class="text-gray-500">
-                            {{getEntityCount(newRelation.relatedEntityType)}}
-                            {{newRelation.relatedEntityType.toLowerCase()}}s disponíveis
+                               class="text-gray-500">
+                            {{ getEntityCount(newRelation.relatedEntityType) }}
+                            {{ newRelation.relatedEntityType.toLowerCase() }}s disponíveis
                         </small>
                     </div>
                     <div class="col-12 md:col-4">
                         <label for="relationDescription" class="font-medium text-900">Descrição *</label>
                         <input id="relationDescription" type="text" pInputText [(ngModel)]="newRelation.description"
-                            placeholder="Ex: Adicionando quest ao aluno" required />
+                               placeholder="Ex: Adicionando quest ao aluno" required/>
                     </div>
                     <div class="col-12 md:col-6">
                         <div class="flex align-items-center gap-3">
@@ -166,7 +170,7 @@
                     </div>
                     <div class="col-12">
                         <button pButton pRipple label="Adicionar Relação" icon="pi pi-plus" class="p-button-success"
-                            (click)="addRelation()" [disabled]="!isAddRelationButtonEnabled()"></button>
+                                (click)="addRelation()" [disabled]="!isAddRelationButtonEnabled()"></button>
                     </div>
                 </div>
 
@@ -174,31 +178,31 @@
 
                 <!-- Relations List -->
                 <div class="col-12">
-                    <h4 class="text-lg font-semibold mb-3">Relações Adicionadas ({{material.relations.length}})</h4>
+                    <h4 class="text-lg font-semibold mb-3">Distribuições ({{ material.relations.length }})</h4>
                     <div *ngIf="material.relations.length === 0" class="text-center text-gray-500 py-4">
-                        Nenhuma relação adicionada ainda
+                        Nenhuma distribuição adicionada ainda
                     </div>
                     <div *ngIf="isEntityLoading(newRelation.relatedEntityType) && newRelation.relatedEntityType"
-                        class="text-center text-blue-500 py-2">
+                         class="text-center text-blue-500 py-2">
                         <i class="pi pi-spin pi-spinner mr-2"></i>
-                        Carregando {{newRelation.relatedEntityType.toLowerCase()}}s...
+                        Carregando {{ newRelation.relatedEntityType.toLowerCase() }}s...
                     </div>
                     <div *ngFor="let relation of material.relations; let i = index" class="mb-3">
                         <p-card [style]="{'margin-bottom': '0.5rem'}">
                             <div class="flex justify-content-between align-items-center">
                                 <div class="flex align-items-center gap-3">
                                     <p-chip [label]="relation.relatedEntityType"
-                                        [style]="{'background-color': '#e3f2fd', 'color': '#1976d2'}"></p-chip>
-                                    <span class="font-medium">{{relation.description}}</span>
-                                    <span class="text-sm text-gray-500">(ID: {{relation.relatedEntityId}})</span>
+                                            [style]="{'background-color': '#e3f2fd', 'color': '#1976d2'}"></p-chip>
+                                    <span class="font-medium">{{ relation.description }}</span>
+                                    <span class="text-sm text-gray-500">(ID: {{ relation.relatedEntityId }})</span>
                                     <p-chip *ngIf="relation.isRequired" label="Obrigatório"
-                                        [style]="{'background-color': '#fff3e0', 'color': '#f57c00'}"></p-chip>
+                                            [style]="{'background-color': '#fff3e0', 'color': '#f57c00'}"></p-chip>
                                     <p-chip *ngIf="!relation.isActive" label="Inativo"
-                                        [style]="{'background-color': '#ffebee', 'color': '#d32f2f'}"></p-chip>
+                                            [style]="{'background-color': '#ffebee', 'color': '#d32f2f'}"></p-chip>
                                 </div>
                                 <button pButton pRipple icon="pi pi-trash"
-                                    class="p-button-rounded p-button-text p-button-danger p-button-sm"
-                                    (click)="removeRelation(i)"></button>
+                                        class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                        (click)="removeRelation(i)"></button>
                             </div>
                         </p-card>
                     </div>
@@ -210,9 +214,9 @@
         <div class="col-12">
             <div class="flex justify-content-end gap-3">
                 <button pButton pRipple label="Cancelar" class="p-button-outlined" (click)="cancel()"
-                    [disabled]="loading"></button>
+                        [disabled]="loading"></button>
                 <button pButton pRipple label="Criar Material" icon="pi pi-save" [disabled]="!isFormValid() || loading"
-                    [loading]="loading" (click)="saveMaterial()"></button>
+                        [loading]="loading" (click)="saveMaterial()"></button>
             </div>
         </div>
     </div>

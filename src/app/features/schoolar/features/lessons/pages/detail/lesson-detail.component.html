@@ -121,10 +121,10 @@
                                 <i class="pi pi-check-circle text-green-600 text-xl"></i>
                             </div>
                         </div>
-                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">
-                            <span *ngIf="loadingAttendances" class="pi pi-spin pi-spinner"></span>
-                            <span *ngIf="!loadingAttendances">{{ getAttendanceRate() }}%</span>
-                        </h3>
+                          <h3 class="text-2xl font-bold text-900 m-0 mb-2">
+                              <span *ngIf="loadingAttendances" class="pi pi-spin pi-spinner"></span>
+                             <span *ngIf="!loadingAttendances">{{ getAttendanceRate() }}%</span>
+                          </h3>
                         <p class="text-600 m-0">Taxa de Presença</p>
                     </div>
                 </div>
@@ -191,7 +191,7 @@
                                                 <span class="text-blue-600 font-semibold text-sm">{{
                                                     getTeacherInitials(lesson) }}</span>
                                             </div>
-                                                <span class="text-900 font-semibold">{{ lesson.teacher.name }}</span>
+                                                <span class="text-900 font-semibold">{{ lesson?.teacher?.name || 'N/A' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -362,6 +362,10 @@
 
                     <div *ngIf="!loadingAttendances" class="grid">
                         <div class="col-12">
+                            <div *ngIf="updatingAttendance" class="flex align-items-center justify-content-center p-3 mb-3">
+                                <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
+                                <span>Atualizando presença...</span>
+                            </div>
                             <p-table [value]="getAttendanceTableData()" [tableStyle]="{'min-width': '50rem'}"
                                 styleClass="p-datatable-sm">
                                 <ng-template pTemplate="header">
@@ -388,12 +392,20 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <p-tag [value]="attendance.present ? 'Presente' : 'Ausente'"
-                                                [severity]="attendance.present ? 'success' : 'danger'" [rounded]="true">
-                                            </p-tag>
+                                            <div class="flex align-items-center gap-2">
+                                                <p-dropdown
+                                                    [options]="attendanceStatusOptions"
+                                                    [(ngModel)]="attendance.attendance.status"
+                                                    optionLabel="label"
+                                                    optionValue="value"
+                                                    [disabled]="updatingAttendance"
+                                                    (onChange)="onAttendanceStatusChange(attendance, $event.value)"
+                                                    styleClass="w-full">
+                                                </p-dropdown>
+                                            </div>
                                         </td>
                                         <td>
-                                            <span class="text-600">{{ attendance.observations || '-' }}</span>
+                                            <span class="text-600">{{ attendance.attendance.justification || '-' }}</span>
                                         </td>
                                         <td>
                                             <div class="flex gap-2">
