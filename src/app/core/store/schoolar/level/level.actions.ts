@@ -10,6 +10,7 @@ export const LevelActions = createActionGroup(
             'Create Level': props<{ level: Partial<Level> }>(),
             'Create Level Success': props<{ level: Level }>(),
             'Create Level Failure': props<{ error: any }>(),
+            
             'Load Levels': props<{ forceRefresh?: boolean }>(),
             'Load Levels Success': props<{ levels: Level[] }>(),
             'Load Levels Failure': props<{ error: any }>(),

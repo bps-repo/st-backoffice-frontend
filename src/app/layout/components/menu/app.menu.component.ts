@@ -64,19 +64,16 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/lessons'],
-                        visible: this.hasPermission('lessons.view')
                     },
                     {
                         label: 'Marcação de Aulas',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/lessons/schedule'],
-                        visible: this.hasPermission('lessons.manage')
                     },
                     {
                         label: 'Calendário',
                         icon: 'pi pi-fw pi-calendar',
                         routerLink: ['/schoolar/calendar'],
-                        visible: this.hasPermission('lessons.view')
                     },
                     {
                         label: 'Avaliações',
@@ -121,6 +118,12 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                     },
                     {
                         label: 'Gestão de Contratos',
+                        icon: 'pi pi-fw pi-wallet',
+                        routerLink: ['/finances/contracts'],
+                        visible: this.hasPermission('contracts.view')
+                    },
+                    {
+                        label: 'Pagamentos',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/finances/contracts'],
                         visible: this.hasPermission('contracts.view')

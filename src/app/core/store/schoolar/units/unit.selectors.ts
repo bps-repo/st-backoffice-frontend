@@ -1,6 +1,7 @@
 import {createSelector} from '@ngrx/store';
 import {unitFeature} from './unit.feature';
 import {unitsAdapter} from './unit.state';
+import { en } from '@fullcalendar/core/internal-common';
 
 // Basic selectors from feature
 export const {
@@ -62,16 +63,11 @@ export const selectUnitById = (id: string) => createSelector(
     (entities) => entities[id] || null
 );
 
+
 // Get unit materials by unit ID
 export const selectUnitMaterialsByUnitId = (unitId: string) => createSelector(
     selectUnitMaterials,
     (unitMaterials) => unitMaterials[unitId] || []
-);
-
-// Get unit classes by unit ID
-export const selectUnitClassesByUnitId = (unitId: string) => createSelector(
-    selectUnitClasses,
-    (unitClasses) => unitClasses[unitId] || []
 );
 
 // Get unit progresses by unit ID

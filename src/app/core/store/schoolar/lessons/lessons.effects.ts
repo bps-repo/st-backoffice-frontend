@@ -105,35 +105,6 @@ export class LessonsEffects {
         )
     );
 
-    // Filter endpoints
-    loadLessonsByClass$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(lessonsActions.loadLessonsByClass),
-            exhaustMap(({classId}) =>
-                this.lessonApiService.getLessonsByClass(classId).pipe(
-                    map((lessons) => lessonsActions.loadLessonsByClassSuccess({lessons})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonsByClassFailure({error: error.message}))
-                    )
-                )
-            )
-        )
-    );
-
-    loadAvailableLessonsByClass$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(lessonsActions.loadAvailableLessonsByClass),
-            exhaustMap(({classId}) =>
-                this.lessonApiService.getAvailableLessonsByClass(classId).pipe(
-                    map((lessons) => lessonsActions.loadAvailableLessonsByClassSuccess({lessons})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadAvailableLessonsByClassFailure({error: error.message}))
-                    )
-                )
-            )
-        )
-    );
-
     loadLessonsByCenter$ = createEffect(() =>
         this.actions$.pipe(
             ofType(lessonsActions.loadLessonsByCenter),
@@ -199,7 +170,7 @@ export class LessonsEffects {
                 this.lessonApiService.getLessonBookings(lessonId).pipe(
                     map((bookings) => lessonsActions.loadLessonBookingsSuccess({bookings})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonBookingsFailure({error: error.message}))
+                        of(lessonsActions.loadLessonBookingsFailure({error: error.error.message}))
                     )
                 )
             )

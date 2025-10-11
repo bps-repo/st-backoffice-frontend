@@ -4,8 +4,8 @@
             <h2 class="font-bold text-2xl mb-4">Gestão de utilizadores</h2>
             <span class="text-lg">Gestão de utilizadores do backoffice</span>
         </div>
-        <p-button *hasPermission="'employees.creatse'" (onClick)="navigateToCreateEmployee()" label="Novo utilizador" icon="pi pi-plus"
-            class="p-button-outlined"></p-button>
+        <p-button *hasPermission="'employees.creatse'" (onClick)="navigateToCreateEmployee()" label="Novo utilizador"
+            icon="pi pi-plus" class="p-button-outlined"></p-button>
     </div>
     <!-- Employee Table -->
     <app-global-table tableLabel="Funcionários" [headerActions]="headerActions" [data]="(employees$ | async)!"
@@ -16,15 +16,15 @@
 
 <!-- Name template field -->
 <ng-template #nameTemplate let-rowData>
-    <span>{{ rowData.user.firstname }} {{ rowData.user.lastname }}</span>
+    <span>{{ rowData.personalInfo.firstName }} {{ rowData.personalInfo.lastName }}</span>
 </ng-template>
 
 <ng-template #emailTemplate let-rowData>
-    <span>{{ rowData.user.email }}</span>
+    <span>{{ rowData.personalInfo.email }}</span>
 </ng-template>
 
 <ng-template #positionTemplate let-rowData>
-    <span>{{ rowData.user.roleName }}</span>
+    <span>{{ rowData.role.name }}</span>
 </ng-template>
 
 <ng-template #statusTemplate let-rowData>

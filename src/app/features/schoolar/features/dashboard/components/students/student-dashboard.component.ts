@@ -7,14 +7,12 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, combineLatest, forkJoin } from 'rxjs';
-import { map, takeUntil, switchMap } from 'rxjs/operators';
+import { Observable, Subject, combineLatest } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
 import { ScholarStatisticsService } from 'src/app/core/services/scholar-statistics.service';
-import { AttendanceService } from 'src/app/core/services/attendance.service';
-import { LevelService } from 'src/app/core/services/level.service';
 
 @Component({
     selector: 'app-students',
@@ -56,8 +54,6 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
         private statisticsService: ScholarStatisticsService,
-        private attendanceService: AttendanceService,
-        private levelService: LevelService
     ) {}
 
     ngOnInit(): void {
@@ -196,7 +192,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [
                 {
-                    label: 'New Enrollments',
+                    label: 'Novas inscrições',
                     data: [65, 59, 80, 81, 56, 55, 40, 55, 72, 78, 95, 120],
                     fill: false,
                     borderColor: documentStyle.getPropertyValue('--blue-500'),
@@ -273,7 +269,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 },
                 title: {
                     display: true,
-                    text: 'Students by Level',
+                    text: 'Estudantes por nível',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
@@ -320,17 +316,17 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
 
         return [
             {
-                label: 'Total Students',
+                label: 'Todos estudantes',
                 current: total,
                 diff: totalGrowth
             },
             {
-                label: 'New Enrollments',
+                label: 'Novas inscrições',
                 current: newEnrollments,
                 diff: newEnrollmentsGrowth
             },
             {
-                label: 'Active Students',
+                label: 'Estudantes activos',
                 current: active,
                 diff: activeGrowth
             },

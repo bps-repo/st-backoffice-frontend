@@ -1,19 +1,19 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, signal} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
 import {FormsModule} from '@angular/forms';
-import {Subject, takeUntil, Observable, combineLatest} from 'rxjs';
+import {Subject, takeUntil, Observable, combineLatest, of} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {Location} from '@angular/common';
-import {Lesson} from "../../../../../../core/models/academic/lesson";
+import {Lesson, LessonBooking} from "../../../../../../core/models/academic/lesson";
 import {LessonStatus} from "../../../../../../core/enums/lesson-status";
 import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import {selectSelectedLesson, selectLoadingLessons, selectError} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import {selectSelectedLesson, selectLoadingLessons, selectError, selectLessonBookings, selectBookings} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
 import {Student} from "../../../../../../core/models/academic/student";
 import {Attendance} from "../../../../../../core/models/academic/attendance";
 import {Material} from "../../../../../../core/models/academic/material";
@@ -57,6 +57,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     lesson$!: Observable<Lesson | null>;
     loading$: Observable<boolean>;
     error$: Observable<string | null>;
+
+    bookings = signal<LessonBooking[]>([])
+
 
     // Related data
     students: Student[] = [];
@@ -106,6 +109,13 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 if (id) {
                     // Dispatch action to load the lesson
                     this.store.dispatch(lessonsActions.loadLesson({id}));
+                    this.store.dispatch(lessonsActions.loadLessonBookings({ lessonId: id }))
+
+                    this.store.select(selectBookings).subscribe((v: any) =>{
+                        console.log("bookings", v.bookings);
+                        this.bookings.set(v.bookings)
+                    })
+
 
                     // Load related data
                     this.loadRelatedData(id);

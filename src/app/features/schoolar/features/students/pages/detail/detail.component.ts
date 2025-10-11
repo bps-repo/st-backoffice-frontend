@@ -101,7 +101,7 @@ export class DetailComponent implements OnInit, OnDestroy {
      * Get the name of the student's current level
      */
     getLevelName(student: Student): string {
-        return "Intermediate";
+        return student.level.name;
     }
 
     /**

@@ -1,13 +1,13 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {Store} from '@ngrx/store';
-import {Subject, takeUntil} from 'rxjs';
-import {TableModule} from 'primeng/table';
-import {CardModule} from 'primeng/card';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {Lesson} from "../../../../../../../../core/models/academic/lesson";
-import {ActivatedRoute, Router} from "@angular/router";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { Observable, of, Subject, takeUntil } from 'rxjs';
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { Lesson } from "../../../../../../../../core/models/academic/lesson";
+import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
     selector: 'app-students',
@@ -17,21 +17,24 @@ import {ActivatedRoute, Router} from "@angular/router";
 })
 export class StudentsComponent implements OnInit, OnDestroy {
     lessonItem?: Lesson;
-    lessonId: string | null = null;
+
+    bookings: Observable<Lesson[]> = of([])
+
+    lessonId!: string;
     private destroy$ = new Subject<void>();
 
     constructor(
         private store: Store,
         private router: Router,
         private route: ActivatedRoute
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         this.route.parent?.params
             .pipe(takeUntil(this.destroy$))
             .subscribe(params => {
                 this.lessonId = params['id'];
-            });
+            })
     }
 
     ngOnDestroy(): void {

@@ -1,4 +1,3 @@
-import { Center } from "../corporate/center";
 import { Student } from "./student";
 import { LessonStatus } from "../../enums/lesson-status";
 import { Attendance } from "./attendance";
@@ -36,6 +35,13 @@ export interface Lesson {
     materials?: Material[];
 }
 
+export interface LessonBooking {
+    id: string;
+    lesson: Lesson;
+    student: Student;
+    bookingDate: string;
+    status: BookingStatus;
+  }
 
 export interface LessonCreate {
     id?: string;
@@ -64,3 +70,23 @@ export interface LessonCreate {
     attendances?: Attendance[];
     materials?: Material[];
 }
+
+export type BookingStatus = 'BOOKED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+
+export type StudentStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'GRADUATED';
+
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+
+export type RoleName = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'STAFF';
+
+export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+
+export type AcademicBackground =
+  | 'PRIMARY_SCHOOL'
+  | 'SECONDARY_SCHOOL'
+  | 'HIGH_SCHOOL'
+  | 'UNIVERSITY'
+  | 'POSTGRADUATE'
+  | 'OTHER';
+
+export type ProgressStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';

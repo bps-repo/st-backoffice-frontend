@@ -60,6 +60,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     ) {
         this.employees$ = this.store.select(selectAllEmployees)
         this.loading$ = this.store.select(selectLoading);
+
+        this.employees$.subscribe((v) => console.log("Users", v))
     }
 
     ngOnInit(): void {

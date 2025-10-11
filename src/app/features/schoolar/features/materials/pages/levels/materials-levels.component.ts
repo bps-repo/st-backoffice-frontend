@@ -7,9 +7,8 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { Level } from 'src/app/core/models/course/level';
 import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
-import { selectAllLevels, selectLoading } from 'src/app/core/store/schoolar/level/level.selector';
+import { selectAllLevels, selectLevelsLoading, selectLoading } from 'src/app/core/store/schoolar/level/level.selector';
 import { MaterialService } from 'src/app/core/services/material.service';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-materials-levels',
@@ -57,7 +56,7 @@ import { map } from 'rxjs/operators';
                                         </div>
                                         <div class="opacity-80 mt-1">{{ level.description }}</div>
                                         <div class="mt-2 text-sm opacity-90">
-                                            {{ (materialsCountByLevelId$ | async)?.[level.id] || 0 }} materiais
+                                            10 materiais
                                         </div>
                                     </div>
                                 </div>
@@ -73,26 +72,13 @@ import { map } from 'rxjs/operators';
     `,
 })
 export class MaterialsLevelsComponent implements OnInit {
+
     levels$: Observable<Level[]> = this.store.select(selectAllLevels);
-    loading$: Observable<boolean> = this.store.select(selectLoading);
-    materialsCountByLevelId$: Observable<Record<string, number>> = this.materialService.getMaterials().pipe(
-        map((materials) => {
-            const counts: Record<string, number> = {};
-            for (const material of materials) {
-                if (!material.units) continue;
-                for (const unit of material.units) {
-                    const lid = unit.levelId || unit.level?.id;
-                    if (!lid) continue;
-                    counts[lid] = (counts[lid] || 0) + 1;
-                }
-            }
-            return counts;
-        })
-    );
+    loading$: Observable<boolean> = this.store.select(selectLevelsLoading);
 
     private backgroundPath: string = 'assets/background_login.png';
 
-    constructor(private router: Router, private store: Store, private materialService: MaterialService) { }
+    constructor(private router: Router, private store: Store) { }
 
     ngOnInit(): void {
         this.store.dispatch(LevelActions.loadLevels({}));

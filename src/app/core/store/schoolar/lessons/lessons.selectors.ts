@@ -1,5 +1,5 @@
 import {lessonsFeature} from "./lessons.feature";
-import {lessonsAdapter} from "./lesson.state";
+import {lessonsAdapter, lessonsInitialState} from "./lesson.state";
 import {createSelector} from "@ngrx/store";
 import {Lesson} from "../../../models/academic/lesson";
 
@@ -95,6 +95,12 @@ export const selectSelectedLesson = createSelector(
     (entities, selectedId) => selectedId ? entities[selectedId] : null
 );
 
+
+export const selectBookings = createSelector(
+    selectLessonsState,
+    (state) => state.lessonBookings
+)
+
 // Get lesson by ID
 export const selectLessonById = (id: string) => createSelector(
     selectLessonEntities,
@@ -128,11 +134,6 @@ export const selectStudentBookingsTodayByStudentId = (studentId: string) => crea
     (studentBookingsToday) => studentBookingsToday[studentId] || []
 );
 
-// Lesson bookings selectors
-export const selectLessonBookingsByLessonId = (lessonId: string) => createSelector(
-    selectLessonBookings,
-    (lessonBookings) => lessonBookings[lessonId] || []
-);
 
 // Error selectors
 export const selectAnyError = createSelector(

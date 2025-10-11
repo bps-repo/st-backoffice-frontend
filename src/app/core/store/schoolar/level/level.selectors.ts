@@ -59,7 +59,7 @@ export const selectSelectedLevelId = createSelector(
 export const selectSelectedLevel = createSelector(
   selectLevelEntities,
   selectSelectedLevelId,
-  (entities, selectedId) => selectedId ? entities[selectedId] : null
+  (entities, selectedId) => selectedId ? entities[selectedId]! : null
 );
 
 // Cache-related selectors
