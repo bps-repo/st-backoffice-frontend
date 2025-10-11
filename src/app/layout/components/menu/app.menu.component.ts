@@ -125,7 +125,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                     {
                         label: 'Pagamentos',
                         icon: 'pi pi-fw pi-wallet',
-                        routerLink: ['/finances/contracts'],
+                        routerLink: ['/finances/payments'],
                         visible: this.hasPermission('contracts.view')
                     },
                     {

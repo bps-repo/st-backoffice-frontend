@@ -3,6 +3,7 @@ import {ScholarSettings} from "./features/settings/scholar-settings.component";
 import {ScholarReports} from "./features/reports/scholar-reports.component";
 import {SchoolarDashboard} from "./features/dashboard/dashboard.component";
 import { PermissionGuard } from 'src/app/core/guards/permission.guard';
+import { ListComponent as PaymentReportsListComponent } from '../finance/reports/payment/list.component';
 
 export const ScholarRoutes: Routes = [
     {
@@ -77,6 +78,14 @@ export const ScholarRoutes: Routes = [
             {
                 path: 'reports',
                 component: ScholarReports
+            },
+            {
+                path: 'payments',
+                loadChildren: () => import('../finance/payments/payments.routes').then(m => m.PaymentsRoutes)
+            },
+            {
+                path: 'payments/reports',
+                component: PaymentReportsListComponent
             },
             {
                 path: 'settings',
