@@ -19,14 +19,15 @@ import { CheckboxModule } from "primeng/checkbox";
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import { CenterService } from 'src/app/core/services/center.service';
 import { EmployeeService } from 'src/app/core/services/employee.service';
 import { UnitService } from 'src/app/core/services/unit.service';
 import { LevelService } from 'src/app/core/services/level.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { Employee } from 'src/app/core/models/corporate/employee';
 import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
-import { selectAllCenters,  selectLoadingCenters } from 'src/app/core/store/corporate/center/centers.selector';
+import { selectAllCenters, selectLoadingCenters } from 'src/app/core/store/corporate/center/centers.selector';
+import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
+import { selectAllLevels } from 'src/app/core/store/schoolar/level/level.selector';
 
 @Component({
     selector: 'app-create-lesson',
@@ -55,7 +56,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
     // Loading states for dropdowns
     loadingCenters: Observable<boolean> = of(false);
-    loadingLevels: boolean = false;
+    loadingLevels: Observable<boolean> = of(false);
     loadingUnits: boolean = false;
     loadingTeachers: boolean = false;
 
@@ -98,13 +99,13 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         private store$: Store,
         private router: Router,
         private messageService: MessageService,
-        private centerService: CenterService,
         private employeeService: EmployeeService,
         private unitService: UnitService,
-        private levelService: LevelService,
         private actions$: Actions,
     ) {
         this.store$.dispatch(CenterActions.loadCenters())
+        this.store$.dispatch(LevelActions.loadLevels({}))
+
         this.loadingCenters = store$.select(selectLoadingCenters)
     }
 
@@ -212,17 +213,14 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             });
 
         // Load Levels
-        this.loadingLevels = true;
-        this.levelService.getLevels()
+        this.store$.select(selectAllLevels)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: levels => {
                     this.levelOptions = (levels || []).map(l => ({ label: l.name, value: l.id }));
-                    this.loadingLevels = false;
                 },
                 error: () => {
                     this.levelOptions = [];
-                    this.loadingLevels = false;
                 }
             });
 

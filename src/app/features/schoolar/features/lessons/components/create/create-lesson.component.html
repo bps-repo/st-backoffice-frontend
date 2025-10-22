@@ -35,9 +35,9 @@
                     <div class="relative">
                         <p-dropdown id="level" [options]="levelOptions" formControlName="levelId" optionLabel="label"
                             optionValue="value" placeholder="Selecione o nível" [showClear]="true" [required]="true"
-                            [disabled]="loadingLevels">
+                            [disabled]="(loadingLevels | async)!">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="loadingLevels" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="(loadingLevels | async)" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s"></p-progressSpinner>
                     </div>

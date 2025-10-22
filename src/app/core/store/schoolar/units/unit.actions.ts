@@ -1,5 +1,5 @@
-import {createActionGroup, emptyProps, props} from '@ngrx/store';
-import {Unit} from 'src/app/core/models/course/unit';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
+import { Unit } from 'src/app/core/models/course/unit';
 
 export const UNIT_FEATURE_KEY = 'units';
 
@@ -18,6 +18,11 @@ export const UnitActions = createActionGroup({
         'Load Unit': props<{ id: string }>(),
         'Load Unit Success': props<{ unit: Unit }>(),
         'Load Unit Failure': props<{ error: string }>(),
+
+
+        'Load Units By LevelId': props<{ levelId: string }>(),
+        'Load Unit By LevelId Success': props<{ units: Unit[] }>(),
+        'Load Unit By LevelId Failure': props<{ error: any }>(),
 
         'Load  Units': emptyProps(),
         'Load  Units Success': props<{ units: Unit[] }>(),
