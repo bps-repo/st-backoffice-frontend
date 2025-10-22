@@ -11,7 +11,7 @@ import { Store } from '@ngrx/store';
 import { Lesson, LessonCreate } from 'src/app/core/models/academic/lesson';
 import { LessonStatus } from 'src/app/core/enums/lesson-status';
 import { Router } from '@angular/router';
-import { Subject, takeUntil, take } from 'rxjs';
+import { Subject, takeUntil, take, Observable, of } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { Actions, ofType } from '@ngrx/effects';
 import { ToastModule } from 'primeng/toast';
@@ -25,6 +25,8 @@ import { UnitService } from 'src/app/core/services/unit.service';
 import { LevelService } from 'src/app/core/services/level.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { Employee } from 'src/app/core/models/corporate/employee';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import { selectAllCenters,  selectLoadingCenters } from 'src/app/core/store/corporate/center/centers.selector';
 
 @Component({
     selector: 'app-create-lesson',
@@ -52,7 +54,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     // Loading states for dropdowns
-    loadingCenters: boolean = false;
+    loadingCenters: Observable<boolean> = of(false);
     loadingLevels: boolean = false;
     loadingUnits: boolean = false;
     loadingTeachers: boolean = false;
@@ -93,15 +95,18 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
     constructor(
         private fb: FormBuilder,
-        private store: Store,
+        private store$: Store,
         private router: Router,
         private messageService: MessageService,
         private centerService: CenterService,
         private employeeService: EmployeeService,
         private unitService: UnitService,
         private levelService: LevelService,
-        private actions$: Actions
-    ) { }
+        private actions$: Actions,
+    ) {
+        this.store$.dispatch(CenterActions.loadCenters())
+        this.loadingCenters = store$.select(selectLoadingCenters)
+    }
 
     ngOnInit() {
         // Set default times (9:00 AM for start, 10:00 AM for end)
@@ -154,17 +159,14 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             });
 
         // Load Centers
-        this.loadingCenters = true;
-        this.centerService.getAllCenters()
+        this.store$.select(selectAllCenters)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: centers => {
                     this.centerOptions = (centers || []).map(c => ({ label: c.name, value: c.id }));
-                    this.loadingCenters = false;
                 },
                 error: () => {
                     this.centerOptions = [];
-                    this.loadingCenters = false;
                 }
             });
 
@@ -443,7 +445,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         } as LessonCreate;
 
         // Dispatch the create lesson action
-        this.store.dispatch(lessonsActions.createLesson({ lesson: payload }));
+        this.store$.dispatch(lessonsActions.createLesson({ lesson: payload }));
 
         // Wait for success or failure
         this.actions$.pipe(
