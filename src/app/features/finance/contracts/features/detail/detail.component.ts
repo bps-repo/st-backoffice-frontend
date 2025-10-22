@@ -25,6 +25,7 @@ import {
     selectContractsError,
     selectContractsLoading, selectDownloading, selectSelectedContractByID
 } from "../../../../../core/store/corporate/contracts/contracts.selectors";
+import {InstallmentsActions} from "../../../../../core/store/finance/installments/installments.actions";
 
 @Component({
     selector: 'app-contract-detail',
@@ -198,15 +199,12 @@ export class DetailComponent implements OnInit {
             return;
         }
 
-        setTimeout(() => {
-            // Atualizando o status da parcela para 'PAID'
-            if (this.contract && this.contract.installments && this.selectedPayment) {
-                const installment = this.contract.installments.find(i => i.id === this.selectedPayment.id);
-                if (installment) {
-                    installment.status = 'PAID';
-                }
-            }
+        this.store$.dispatch(InstallmentsActions.payInstallment({
+            installmentId: this.selectedPayment.id,
+            payload: {paymentMethod: "CREDIT_CARD"}
+        }))
 
+        setTimeout(() => {
             // Fechando o diálogo e mostrando mensagem de sucesso
             this.showPaymentChargeDialog = false;
             this.messageService.add({

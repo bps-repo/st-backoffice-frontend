@@ -1,11 +1,11 @@
-import { inject, OnInit, OnDestroy } from '@angular/core';
-import { Component } from '@angular/core';
-import { AppMenuitemComponent } from './app.menuitem.component';
-import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
-import { selectUserPermissionNames } from 'src/app/core/store/auth/auth.selectors';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {inject, OnInit, OnDestroy} from '@angular/core';
+import {Component} from '@angular/core';
+import {AppMenuitemComponent} from './app.menuitem.component';
+import {CommonModule} from '@angular/common';
+import {Store} from '@ngrx/store';
+import {selectUserPermissionNames} from 'src/app/core/store/auth/auth.selectors';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'app-menu',
@@ -23,7 +23,8 @@ export class AppMenuComponent implements OnInit, OnDestroy {
 
     private permissionSet = new Set<string>();
 
-    constructor() { }
+    constructor() {
+    }
 
 
     ngOnInit() {
@@ -79,7 +80,6 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Avaliações',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/assessments'],
-                        visible: this.hasPermission('assessments.view')
                     },
                     {
                         label: 'Materiais didáticos',

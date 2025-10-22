@@ -27,25 +27,6 @@
                     </div>
 
 
-                    <!-- Seller Selection -->
-                    <div class="field col-12 md:col-4">
-                        <label for="sellerId">Vendedor *</label>
-                        <p-dropdown id="sellerId" formControlName="sellerId" [options]="employees"
-                            optionLabel="displayName" optionValue="id" placeholder="Selecione um vendedor"
-                            [showClear]="true">
-                            <ng-template pTemplate="item" let-employee>
-                                <div>
-                                    <div>{{employee.displayName}}</div>
-                                    <div class="text-sm text-500">{{employee.user?.email}}</div>
-                                </div>
-                            </ng-template>
-                        </p-dropdown>
-                        <small *ngIf="contractForm.get('sellerId')?.invalid && contractForm.get('sellerId')?.touched"
-                            class="p-error">
-                            Vendedor é obrigatório
-                        </small>
-                    </div>
-
                     <!-- Contract Type -->
                     <div class="field col-12 md:col-4">
                         <label for="contractType">Tipo de Contrato *</label>

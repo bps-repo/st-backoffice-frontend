@@ -73,7 +73,6 @@ export class CreateContractComponent implements OnInit {
     ) {
         this.contractForm = this.fb.group({
             student: [null, [Validators.required]],
-            sellerId: [null, [Validators.required]],
             discountPercent: [0, [Validators.min(0), Validators.max(100)]],
             contractType: ['STANDARD', [Validators.required]],
             numberOfInstallments: [1, [Validators.required, Validators.min(1)]],

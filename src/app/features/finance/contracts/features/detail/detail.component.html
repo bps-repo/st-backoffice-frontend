@@ -180,7 +180,7 @@
                                         <button
                                             *ngIf="installment.status === 'PENDING_PAYMENT' || installment.status === 'OVERDUE'"
                                             pButton icon="pi pi-dollar"
-                                            class="p-button-rounded p-button-outlined p-button-sm" pTooltip="Cobrar"
+                                            class="p-button-rounded p-button-outlined p-button-sm" pTooltip="Fazer pagamento"
                                             (click)="chargePayment(installment)"></button>
                                         <button pButton icon="pi pi-eye"
                                                 class="p-button-rounded p-button-outlined p-button-sm"
@@ -324,12 +324,6 @@
             <label for="paymentAmount" class="block font-bold mb-2">Valor *</label>
             <p-inputNumber id="paymentAmount" [(ngModel)]="paymentAmount" mode="currency" currency="AOA" locale="pt-AO"
                            [style]="{width: '100%'}"></p-inputNumber>
-        </div>
-
-        <div class="col-12 mb-3">
-            <label for="paymentReference" class="block font-bold mb-2">Referência</label>
-            <input id="paymentReference" type="text" pInputText [(ngModel)]="paymentReference"
-                   placeholder="Número de referência ou comprovante" class="w-full">
         </div>
 
         <div class="col-12 flex justify-content-end">

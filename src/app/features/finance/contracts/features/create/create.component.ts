@@ -13,7 +13,6 @@ import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {Store} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
-import {Contract} from 'src/app/core/models/corporate/contract';
 import {Router} from '@angular/router';
 
 @Component({
@@ -81,96 +80,9 @@ export class CreateComponent implements OnInit {
         });
     }
 
-    ngOnInit(): void {
-        // Carregar lista de estudantes
-        this.loadStudents();
-    }
+    ngOnInit(): void {}
 
-    loadStudents(): void {
-        // Simulando dados de estudantes
-        this.students = [
-            {
-                id: '1',
-                code: 1001,
-                user: {
-                    id: '1',
-                    firstname: 'João',
-                    lastname: 'Silva',
-                    email: 'joao@example.com',
-                    phone: '+244 923456789',
-                    roleName: 'STUDENT',
-                    birthdate: '1995-05-15',
-                    gender: 'MALE',
-                    status: 'ACTIVE' as any
-                },
-                status: 'ACTIVE' as any,
-                levelProgressPercentage: 75,
-                centerId: '1',
-                levelId: '1',
-                enrollmentDate: '2023-01-15'
-            },
-            {
-                id: '2',
-                code: 1002,
-                user: {
-                    id: '2',
-                    firstname: 'Maria',
-                    lastname: 'Santos',
-                    email: 'maria@example.com',
-                    phone: '+244 923456790',
-                    roleName: 'STUDENT',
-                    birthdate: '1998-08-20',
-                    gender: 'FEMALE',
-                    status: 'ACTIVE' as any
-                },
-                status: 'ACTIVE' as any,
-                levelProgressPercentage: 60,
-                centerId: '1',
-                levelId: '2',
-                enrollmentDate: '2023-02-10'
-            },
-            {
-                id: '3',
-                code: 1003,
-                user: {
-                    id: '3',
-                    firstname: 'Pedro',
-                    lastname: 'Costa',
-                    email: 'pedro@example.com',
-                    phone: '+244 923456791',
-                    roleName: 'STUDENT',
-                    birthdate: '1997-03-10',
-                    gender: 'MALE',
-                    status: 'ACTIVE' as any
-                },
-                status: 'ACTIVE' as any,
-                levelProgressPercentage: 45,
-                centerId: '2',
-                levelId: '1',
-                enrollmentDate: '2023-03-05'
-            },
-            {
-                id: '4',
-                code: 1004,
-                user: {
-                    id: '4',
-                    firstname: 'Ana',
-                    lastname: 'Lima',
-                    email: 'ana@example.com',
-                    phone: '+244 923456792',
-                    roleName: 'STUDENT',
-                    birthdate: '1999-11-25',
-                    gender: 'FEMALE',
-                    status: 'ACTIVE' as any
-                },
-                status: 'ACTIVE' as any,
-                levelProgressPercentage: 90,
-                centerId: '2',
-                levelId: '3',
-                enrollmentDate: '2023-01-20'
-            }
-        ];
-    }
+
 
     onSubmit(): void {
         if (this.contractForm.invalid) {

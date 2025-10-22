@@ -13,6 +13,7 @@ export class InstallmentService {
     }
 
     makePayment(installmentId: string, payload: any): Observable<ApiResponse<Installment>> {
+        console.log("payload: ", payload)
         return this.http.post<ApiResponse<Installment>>(`${this.apiUrl}/${installmentId}/pay`, payload);
     }
 
