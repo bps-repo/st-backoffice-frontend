@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { EmployeeStatus, EmployeeDetails } from 'src/app/core/models/corporate/employee';
+import { EmployeeStatus, Employee } from 'src/app/core/models/corporate/employee';
 import { Observable, of, Subject } from 'rxjs';
 import { takeUntil, } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
@@ -30,9 +30,9 @@ import { EmployeesActions } from 'src/app/core/store/corporate/employees/employe
     ]
 })
 export class DetailComponent implements OnInit, OnDestroy {
-    employeeDetails: EmployeeDetails | null = null;
+    employeeDetails: Employee | null = null;
 
-    employee$!: Observable<EmployeeDetails | null>;
+    employee$!: Observable<Employee | null>;
 
     loading$: Observable<boolean> = of(false)
     private destroy$ = new Subject<void>();
@@ -48,7 +48,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.loading$ = this.store$.select(selectEmployeeLoading)
 
         // Subscribe to selected employee
-        this.employee$ = this.store$.select(selectSelectedEmployee) as Observable<EmployeeDetails | null>;
+        this.employee$ = this.store$.select(selectSelectedEmployee) as Observable<Employee | null>;
 
         this.employee$
             .pipe(takeUntil(this.destroy$))

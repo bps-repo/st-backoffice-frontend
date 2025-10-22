@@ -128,18 +128,6 @@ export class UnitEffects {
         )
     );
 
-    loadUnitClasses$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(UnitActions.loadUnitClasses),
-            mergeMap(({unitId}) =>
-                this.unitService.loadUnitClasses(unitId).pipe(
-                    map((response) => UnitActions.loadUnitClassesSuccess({unitId, classes: response.data})),
-                    catchError((error) => of(UnitActions.loadUnitClassesFailure({error: error.message})))
-                )
-            )
-        )
-    );
-
     loadUnitProgresses$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UnitActions.loadUnitProgresses),

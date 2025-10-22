@@ -12,10 +12,7 @@
                         <label>Action Type</label>
                         <div class="flex flex-wrap gap-3">
                             <div *ngFor="let actionType of actionTypes" class="flex align-items-center">
-                                <p-radioButton
-                                    [inputId]="actionType.value"
-                                    name="actionType"
-                                    [value]="actionType.value"
+                                <p-radioButton [inputId]="actionType.value" name="actionType" [value]="actionType.value"
                                     formControlName="actionType">
                                 </p-radioButton>
                                 <label [for]="actionType.value" class="ml-2">{{actionType.label}}</label>
@@ -26,38 +23,11 @@
                     <!-- Add to Center options -->
                     <div *ngIf="selectedActionType === 'ADD_TO_CENTER'" class="field col-12 md:col-6">
                         <label for="center">Center</label>
-                        <p-dropdown
-                            id="center"
-                            formControlName="center"
-                            [options]="centers"
-                            optionLabel="name"
-                            placeholder="Select a center"
-                            [showClear]="true">
+                        <p-dropdown id="center" formControlName="center" [options]="centers" optionLabel="name"
+                            placeholder="Select a center" [showClear]="true">
                         </p-dropdown>
                         <small *ngIf="form.get('center')?.invalid && form.get('center')?.touched" class="p-error">
                             Center is required
-                        </small>
-                    </div>
-
-                    <!-- Add to Class options -->
-                    <div *ngIf="selectedActionType === 'ADD_TO_CLASS'" class="field col-12 md:col-6">
-                        <label for="class">Class</label>
-                        <p-dropdown
-                            id="class"
-                            formControlName="class"
-                            [options]="classes"
-                            optionLabel="name"
-                            placeholder="Select a class"
-                            [showClear]="true">
-                            <ng-template pTemplate="item" let-class>
-                                <div>
-                                    <div>{{class.name}}</div>
-                                    <div class="text-sm text-500">{{class.schedule}} - {{class.center.name}}</div>
-                                </div>
-                            </ng-template>
-                        </p-dropdown>
-                        <small *ngIf="form.get('class')?.invalid && form.get('class')?.touched" class="p-error">
-                            Class is required
                         </small>
                     </div>
 
@@ -65,54 +35,42 @@
                     <ng-container *ngIf="selectedActionType === 'CREATE_CONTRACTS'">
                         <div class="field col-12 md:col-4">
                             <label for="contractType">Contract Type</label>
-                            <p-dropdown
-                                id="contractType"
-                                formControlName="contractType"
-                                [options]="[
+                            <p-dropdown id="contractType" formControlName="contractType" [options]="[
                                     { label: 'Full Course', value: 'FULL_COURSE' },
                                     { label: 'Monthly', value: 'MONTHLY' },
                                     { label: 'Quarterly', value: 'QUARTERLY' },
                                     { label: 'Annual', value: 'ANNUAL' }
-                                ]"
-                                optionLabel="label"
-                                optionValue="value"
-                                placeholder="Select contract type">
+                                ]" optionLabel="label" optionValue="value" placeholder="Select contract type">
                             </p-dropdown>
-                            <small *ngIf="form.get('contractType')?.invalid && form.get('contractType')?.touched" class="p-error">
+                            <small *ngIf="form.get('contractType')?.invalid && form.get('contractType')?.touched"
+                                class="p-error">
                                 Contract type is required
                             </small>
                         </div>
 
                         <div class="field col-12 md:col-4">
                             <label for="paymentFrequency">Payment Frequency</label>
-                            <p-dropdown
-                                id="paymentFrequency"
-                                formControlName="paymentFrequency"
-                                [options]="[
+                            <p-dropdown id="paymentFrequency" formControlName="paymentFrequency" [options]="[
                                     { label: 'Monthly', value: 'MONTHLY' },
                                     { label: 'Quarterly', value: 'QUARTERLY' },
                                     { label: 'Semi-Annual', value: 'SEMI_ANNUAL' },
                                     { label: 'Annual', value: 'ANNUAL' },
                                     { label: 'One-time', value: 'ONE_TIME' }
-                                ]"
-                                optionLabel="label"
-                                optionValue="value"
-                                placeholder="Select payment frequency">
+                                ]" optionLabel="label" optionValue="value" placeholder="Select payment frequency">
                             </p-dropdown>
-                            <small *ngIf="form.get('paymentFrequency')?.invalid && form.get('paymentFrequency')?.touched" class="p-error">
+                            <small
+                                *ngIf="form.get('paymentFrequency')?.invalid && form.get('paymentFrequency')?.touched"
+                                class="p-error">
                                 Payment frequency is required
                             </small>
                         </div>
 
                         <div class="field col-12 md:col-4">
                             <label for="paymentAmount">Payment Amount</label>
-                            <input
-                                type="number"
-                                pInputText
-                                id="paymentAmount"
-                                formControlName="paymentAmount"
+                            <input type="number" pInputText id="paymentAmount" formControlName="paymentAmount"
                                 placeholder="Enter payment amount">
-                            <small *ngIf="form.get('paymentAmount')?.invalid && form.get('paymentAmount')?.touched" class="p-error">
+                            <small *ngIf="form.get('paymentAmount')?.invalid && form.get('paymentAmount')?.touched"
+                                class="p-error">
                                 Valid payment amount is required
                             </small>
                         </div>
@@ -121,24 +79,14 @@
 
                 <div class="card">
                     <h5>Select Students</h5>
-                    <p-table
-                        #table
-                        [value]="students"
-                        [(selection)]="selectedStudents"
-                        [paginator]="true"
-                        [rows]="10"
-                        [globalFilterFields]="['name', 'email', 'center']"
-                        styleClass="p-datatable-gridlines">
+                    <p-table #table [value]="students" [(selection)]="selectedStudents" [paginator]="true" [rows]="10"
+                        [globalFilterFields]="['name', 'email', 'center']" styleClass="p-datatable-gridlines">
                         <ng-template pTemplate="caption">
                             <div class="flex justify-content-between flex-column sm:flex-row">
                                 <div class="p-input-icon-left mb-2">
                                     <i class="pi pi-search"></i>
-                                    <input
-                                        pInputText
-                                        type="text"
-                                        #filter
-                                        (input)="table.filterGlobal(filter.value, 'contains')"
-                                        placeholder="Search"
+                                    <input pInputText type="text" #filter
+                                        (input)="table.filterGlobal(filter.value, 'contains')" placeholder="Search"
                                         class="w-full" />
                                 </div>
                                 <div>
@@ -156,7 +104,8 @@
                                 <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
                                 <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
                                 <th pSortableColumn="center">Center <p-sortIcon field="center"></p-sortIcon></th>
-                                <th pSortableColumn="classEntity">Class <p-sortIcon field="classEntity"></p-sortIcon></th>
+                                <th pSortableColumn="classEntity">Class <p-sortIcon field="classEntity"></p-sortIcon>
+                                </th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-student>
@@ -179,11 +128,7 @@
                 </div>
 
                 <div class="flex justify-content-end mt-4">
-                    <p-button
-                        type="submit"
-                        label="Apply Action"
-                        icon="pi pi-check"
-                        [loading]="loading"
+                    <p-button type="submit" label="Apply Action" icon="pi pi-check" [loading]="loading"
                         [disabled]="form.invalid || selectedStudents.length === 0">
                     </p-button>
                 </div>

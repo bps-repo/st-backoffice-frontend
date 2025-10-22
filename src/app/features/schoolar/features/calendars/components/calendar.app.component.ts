@@ -754,7 +754,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         // Simple color coding based on status
         const tagColor = status === 'canceled' ? '#ef4444' : status === 'active' ? '#22c55e' : '#3b82f6';
         const centerName = typeof lesson.center === 'string' ? lesson.center : (lesson.center as any)?.name;
-        const className = (lesson.classEntity as any)?.name || '';
         const time = `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')}`;
 
         return {
@@ -769,7 +768,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             extendedProps: {
                 teacher: lesson.teacher || '',
                 center: centerName || '',
-                classEntity: className || '',
                 description: lesson.description || '',
                 isOnline: !!lesson.online,
                 status: lesson.status?.toString() || undefined,

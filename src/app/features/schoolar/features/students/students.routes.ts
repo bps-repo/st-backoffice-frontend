@@ -1,5 +1,5 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
     {
@@ -16,11 +16,6 @@ const routes: Routes = [
         path: 'add-to-center',
         loadComponent: () =>
             import('./pages/add-to-center/add-to-center.component').then(c => c.AddToCenterComponent)
-    },
-    {
-        path: 'add-to-class',
-        loadComponent: () =>
-            import('./pages/add-to-class/add-to-class.component').then(c => c.AddToClassComponent)
     },
     {
         path: 'unit-progress',

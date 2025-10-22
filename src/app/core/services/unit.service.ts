@@ -1,10 +1,9 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {map, Observable} from 'rxjs';
-import {Unit} from '../models/course/unit';
-import {environment} from 'src/environments/environment';
-import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
-import {Class} from '../models/academic/class';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
+import { Unit } from '../models/course/unit';
+import { environment } from 'src/environments/environment';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 @Injectable({
     providedIn: 'root',
@@ -38,49 +37,21 @@ export class UnitService {
         return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/${id}`);
     }
 
-    /**
-     * loads materials for a specific unit.
-     * @param unitId The ID of the unit.
-     * @returns An observable containing the materials data.
-     */
+
     loadUnitMaterials(unitId: string): Observable<ApiResponse<any[]>> {
         return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/${unitId}/materials`);
     }
 
-    /**
-     * Removes a material from a unit.
-     * @param unitId The ID of the unit.
-     * @param materialId The ID of the material to remove.
-     * @returns An observable containing the updated unit data.
-     */
     removeMaterialFromUnit(unitId: string, materialId: string): Observable<ApiResponse<Unit>> {
         return this.http.put<ApiResponse<Unit>>(`${this.apiUrl}/${unitId}/remove-material/${materialId}`, {});
     }
 
-    /**
-     * Updates the order of a unit.
-     * @param unitId The ID of the unit.
-     * @param order The new order value.
-     * @returns An observable containing the updated unit data.
-     */
+
     updateUnitOrder(unitId: string, order: number): Observable<ApiResponse<Unit>> {
         return this.http.put<ApiResponse<Unit>>(`${this.apiUrl}/${unitId}/order/${order}`, {});
     }
 
-    /**
-     * loads classes for a specific unit.
-     * @param unitId The ID of the unit.
-     * @returns An observable containing the classes data.
-     */
-    loadUnitClasses(unitId: string): Observable<ApiResponse<Class[]>> {
-        return this.http.get<ApiResponse<Class[]>>(`${this.apiUrl}/${unitId}/classes`);
-    }
 
-    /**
-     * loads unit progresses for a specific unit.
-     * @param unitId The ID of the unit.
-     * @returns An observable containing the unit progresses data.
-     */
     loadUnitProgresses(unitId: string): Observable<ApiResponse<any[]>> {
         return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/${unitId}/unit-progresses`);
     }

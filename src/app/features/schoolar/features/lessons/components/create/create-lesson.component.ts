@@ -24,6 +24,7 @@ import { EmployeeService } from 'src/app/core/services/employee.service';
 import { UnitService } from 'src/app/core/services/unit.service';
 import { LevelService } from 'src/app/core/services/level.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { Employee } from 'src/app/core/models/corporate/employee';
 
 @Component({
     selector: 'app-create-lesson',
@@ -172,7 +173,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.employeeService.getEmployeesByRole('TEACHER')
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: employees => {
+                next: (employees: Employee[]) => {
+                    console.log("Teachers", employees)
                     this.teacherOptions = employees.map((e: any) => {
                         const first = e?.user?.firstname || e?.firstname || '';
                         const last = e?.user?.lastname || e?.lastname || '';

@@ -1,7 +1,7 @@
-import {Student} from "./student";
-import {Assessment} from "./assessment";
-import {Employee} from "./lead-service";
-import {EvaluationDetail} from "./evaluation-detail";
+import { Student } from "./student";
+import { Assessment } from "./assessment";
+import { EvaluationDetail } from "./evaluation-detail";
+import { Employee } from "../corporate/employee";
 
 export interface Evaluation {
     id: string;

@@ -2,7 +2,6 @@ import { Student } from "./student";
 import { LessonStatus } from "../../enums/lesson-status";
 import { Attendance } from "./attendance";
 import { Material } from "./material";
-import { Class } from "./class";
 import { LessonTeacher } from "./lesson-teacher";
 import { LessonUnit } from "./lesson-unit";
 import { LessonCenter } from "./lesson-center";
@@ -29,7 +28,6 @@ export interface Lesson {
     // Legacy fields for backward compatibility
     level?: string;
     students?: any[];
-    classEntity?: Class;
     student?: Student[];
     attendances?: Attendance[];
     materials?: Material[];
@@ -65,7 +63,6 @@ export interface LessonCreate {
     // Legacy fields for backward compatibility
     level?: string;
     students?: any[];
-    classEntity?: Class;
     student?: Student[];
     attendances?: Attendance[];
     materials?: Material[];

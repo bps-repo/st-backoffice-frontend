@@ -1,46 +1,46 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
-import {MessageService, SelectItem} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {CalendarModule} from 'primeng/calendar';
-import {CheckboxModule} from 'primeng/checkbox';
-import {DropdownModule} from 'primeng/dropdown';
-import {FileUploadModule} from 'primeng/fileupload';
-import {InputSwitchModule} from 'primeng/inputswitch';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {RippleModule} from 'primeng/ripple';
-import {ToastModule} from 'primeng/toast';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {CardModule} from 'primeng/card';
-import {DividerModule} from 'primeng/divider';
-import {ChipModule} from 'primeng/chip';
-import {StudentService} from 'src/app/core/services/student.service';
-import {LessonService} from 'src/app/core/services/lesson.service';
-import {UnitService} from 'src/app/core/services/unit.service';
-import {AssessmentService} from 'src/app/core/services/assessment.service';
-import {LevelService} from 'src/app/core/services/level.service';
-import {CenterService} from 'src/app/core/services/center.service';
-import {EmployeeService} from 'src/app/core/services/employee.service';
-import {ContractService} from 'src/app/core/services/contract.service';
-import {MaterialCreateRequest, MaterialRelation} from 'src/app/core/models/academic/material';
-import {MaterialType} from 'src/app/core/enums/material-type';
-import {MaterialContentType} from 'src/app/core/enums/material-content-type';
-import {RelatedEntityType} from 'src/app/core/enums/related-entity-type';
-import {Student} from 'src/app/core/models/academic/student';
-import {Lesson} from 'src/app/core/models/academic/lesson';
-import {Unit} from 'src/app/core/models/course/unit';
-import {Level} from 'src/app/core/models/course/level';
-import {Center} from 'src/app/core/models/corporate/center';
-import {Employee} from 'src/app/core/models/corporate/employee';
-import {Contract} from 'src/app/core/models/corporate/contract';
-import {Store} from '@ngrx/store';
-import {Actions} from '@ngrx/effects';
-import {MaterialActions} from 'src/app/core/store/schoolar/materials/material.actions';
-import {materialFeature} from 'src/app/core/store/schoolar/materials/material.feature';
-import {ofType} from '@ngrx/effects';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MessageService, SelectItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadModule } from 'primeng/fileupload';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { RippleModule } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { ChipModule } from 'primeng/chip';
+import { StudentService } from 'src/app/core/services/student.service';
+import { LessonService } from 'src/app/core/services/lesson.service';
+import { UnitService } from 'src/app/core/services/unit.service';
+import { AssessmentService } from 'src/app/core/services/assessment.service';
+import { LevelService } from 'src/app/core/services/level.service';
+import { CenterService } from 'src/app/core/services/center.service';
+import { EmployeeService } from 'src/app/core/services/employee.service';
+import { ContractService } from 'src/app/core/services/contract.service';
+import { MaterialCreateRequest, MaterialRelation } from 'src/app/core/models/academic/material';
+import { MaterialType } from 'src/app/core/enums/material-type';
+import { MaterialContentType } from 'src/app/core/enums/material-content-type';
+import { RelatedEntityType } from 'src/app/core/enums/related-entity-type';
+import { Student } from 'src/app/core/models/academic/student';
+import { Lesson } from 'src/app/core/models/academic/lesson';
+import { Unit } from 'src/app/core/models/course/unit';
+import { Level } from 'src/app/core/models/course/level';
+import { Center } from 'src/app/core/models/corporate/center';
+import { Employee } from 'src/app/core/models/corporate/employee';
+import { Contract } from 'src/app/core/models/corporate/contract';
+import { Store } from '@ngrx/store';
+import { Actions } from '@ngrx/effects';
+import { MaterialActions } from 'src/app/core/store/schoolar/materials/material.actions';
+import { materialFeature } from 'src/app/core/store/schoolar/materials/material.feature';
+import { ofType } from '@ngrx/effects';
 
 @Component({
     imports: [
@@ -193,7 +193,7 @@ export class MaterialsCreateComponent implements OnInit {
                 return "Funcionário"
             case RelatedEntityType.CONTRACT:
                 return "Contrato"
-            default :
+            default:
                 return 'N/A'
         }
     }
@@ -375,7 +375,7 @@ export class MaterialsCreateComponent implements OnInit {
         this.employeeService.getEmployees().subscribe({
             next: (employees: Employee[]) => {
                 this.relatedEntities[RelatedEntityType.EMPLOYEE] = employees.map(employee => ({
-                    label: `${employee.user?.firstname || ''} ${employee.user?.lastname || ''} (ID: ${employee.id})`,
+                    label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''} (ID: ${employee.id})`,
                     value: employee.id || ''
                 }));
                 this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
@@ -495,7 +495,7 @@ export class MaterialsCreateComponent implements OnInit {
         this.newRelation.orderIndex = this.material.relations.length + 1;
 
         // Add relation to material
-        this.material.relations.push({...this.newRelation});
+        this.material.relations.push({ ...this.newRelation });
 
         // Reset form
         this.newRelation = {
@@ -645,10 +645,10 @@ export class MaterialsCreateComponent implements OnInit {
         }
 
         // Dispatch NgRx action to create material with relations
-        this.store.dispatch(MaterialActions.createMaterialWithRelations({request: this.material}));
+        this.store.dispatch(MaterialActions.createMaterialWithRelations({ request: this.material }));
 
         // Listen for success
-        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsSuccess)).subscribe(({material}) => {
+        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsSuccess)).subscribe(({ material }) => {
             this.messageService.add({
                 severity: 'success',
                 summary: 'Material Criado',
@@ -660,7 +660,7 @@ export class MaterialsCreateComponent implements OnInit {
         });
 
         // Listen for failure
-        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsFailure)).subscribe(({error}) => {
+        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsFailure)).subscribe(({ error }) => {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Erro ao Criar Material',

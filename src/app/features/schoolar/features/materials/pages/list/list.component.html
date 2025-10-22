@@ -39,21 +39,18 @@
 
 <div class="grid">
     <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
-         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-1">
                 {{ levelName ? ('Materiais - ' + levelName) : 'Gestão de materiais didáticos' }}
             </h2>
             <span class="text-lg">
-                {{ levelName ? 'Listagem de materiais para o nível selecionado' : 'Biblioteca digital com controle de acesso' }}
+                {{ levelName ? 'Listagem de materiais para o nível selecionado' : 'Biblioteca digital com controle de
+                acesso' }}
             </span>
         </div>
-        <p-button
-            label="Novo material"
-            icon="pi pi-plus"
-            class="p-button-outlined"
-            (onClick)="navigateToCreateMaterial()"
-        ></p-button>
+        <p-button label="Novo material" icon="pi pi-plus" class="p-button-outlined"
+            (onClick)="navigateToCreateMaterial()"></p-button>
     </div>
 
     <!-- Filtering Card -->
@@ -63,32 +60,17 @@
                 <div class="col-12 md:col-6">
                     <span class="p-input-icon-left w-full">
                         <i class="pi pi-search"></i>
-                        <input
-                            type="text"
-                            pInputText
-                            class="w-full"
-                            placeholder="Buscar por titulo ou professor"
-                            [(ngModel)]="searchText"
-                        />
+                        <input type="text" pInputText class="w-full" placeholder="Buscar por titulo ou professor"
+                            [(ngModel)]="searchText" />
                     </span>
                 </div>
                 <div class="col-12 md:col-3">
-                    <p-dropdown
-                        [options]="materialTypes"
-                        [(ngModel)]="selectedType"
-                        placeholder="Filtrar por tipo"
-                        [showClear]="true"
-                        styleClass="w-full"
-                    ></p-dropdown>
+                    <p-dropdown [options]="materialTypes" [(ngModel)]="selectedType" placeholder="Filtrar por tipo"
+                        [showClear]="true" styleClass="w-full"></p-dropdown>
                 </div>
                 <div class="col-12 md:col-3">
-                    <p-dropdown
-                        [options]="installations"
-                        [(ngModel)]="selectedLevel"
-                        placeholder="Filtrar por nível"
-                        [showClear]="true"
-                        styleClass="w-full"
-                    ></p-dropdown>
+                    <p-dropdown [options]="installations" [(ngModel)]="selectedLevel" placeholder="Filtrar por nível"
+                        [showClear]="true" styleClass="w-full"></p-dropdown>
                 </div>
             </div>
         </p-card>
@@ -104,7 +86,8 @@
                         <i class="text-2xl" [ngClass]="getIconForType(material?.type!)"></i>
                         <div class="flex flex-column">
                             <span class="font-bold text-lg">{{ material.title }}</span>
-                            <span class="text-gray-500">{{ material.uploader?.name || 'N/A' }}</span>
+                            <span class="text-gray-500">{{ material.uploader?.personalInfo?.firstName + " " +
+                                material.uploader?.personalInfo?.lastName }}</span>
                         </div>
                     </div>
 
@@ -117,7 +100,7 @@
                     <div class="flex flex-wrap gap-2 m-2">
                         <p-tag *ngFor="let unit of material.units" [value]="unit.name"></p-tag>
                         <p-tag *ngIf="!material.units || material.units.length === 0" value="Sem níveis"
-                               severity="danger"></p-tag>
+                            severity="danger"></p-tag>
                     </div>
 
                     <div class="col-12 flex justify-content-between align-items-center">
@@ -128,15 +111,15 @@
                     <div class="flex justify-content-between gap-2 mt-3 pt-2rem">
                         <div class="flex gap-1">
                             <button pButton icon="pi pi-eye" label="Ver"
-                                    class="p-button-secondary p-button-text bg-gray-100 ml-0"
-                                    (click)="viewDetails(material)" pTooltip="Ver detalhes"></button>
+                                class="p-button-secondary p-button-text bg-gray-100 ml-0"
+                                (click)="viewDetails(material)" pTooltip="Ver detalhes"></button>
                             <button pButton icon="pi pi-download" label="Baixar"
-                                    class="p-button-secondary p-button-text bg-gray-100"
-                                    (click)="downloadMaterial(material)" pTooltip="Baixar"></button>
+                                class="p-button-secondary p-button-text bg-gray-100"
+                                (click)="downloadMaterial(material)" pTooltip="Baixar"></button>
                         </div>
                         <div>
                             <button pButton icon="pi pi-pencil" class="p-button-secondary p-button-text bg-gray-100"
-                                    (click)="editMaterial(material)" pTooltip="Editar"></button>
+                                (click)="editMaterial(material)" pTooltip="Editar"></button>
                         </div>
                     </div>
                 </p-card>
@@ -145,12 +128,8 @@
 
         <!-- Pagination -->
         <div class="paginator-container">
-            <p-paginator
-                [rows]="10"
-                [totalRecords]="100"
-                [rowsPerPageOptions]="[10, 20, 30]"
-                (onPageChange)="onPageChange($event)"
-            ></p-paginator>
+            <p-paginator [rows]="10" [totalRecords]="100" [rowsPerPageOptions]="[10, 20, 30]"
+                (onPageChange)="onPageChange($event)"></p-paginator>
         </div>
     </div>
 </div>

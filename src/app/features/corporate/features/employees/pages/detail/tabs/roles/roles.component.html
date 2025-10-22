@@ -7,7 +7,7 @@
             <!-- Current Roles -->
             <div class="mb-5">
                 <h6>Função Atual</h6>
-                <p-table [value]="employee?.user?.allPermissions || []" [loading]="loading" styleClass="p-datatable-sm"
+                <p-table [value]="employee!.allPermissions" [loading]="loading" styleClass="p-datatable-sm"
                     [tableStyle]="{'min-width': '50rem'}">
                     <ng-template pTemplate="header">
                         <tr>

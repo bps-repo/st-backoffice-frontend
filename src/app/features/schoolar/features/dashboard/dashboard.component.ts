@@ -8,7 +8,6 @@ import {ViewTabComponent} from "../../../../shared/components/view-tab/view-tab.
 import {GeneralScholarDashboardComponent} from "./components/general/general-scholar-dashboard.component";
 import {StudentsDashboardComponent} from "./components/students/student-dashboard.component";
 import {LessonsDashboardComponent} from "./components/lessons/lessons-dashboard.component";
-import {ClassesDashboardComponent} from "./components/classes/classes-dashboard.component";
 import {MaterialsDashboardComponent} from "../materials/pages/materials-dashboard/materials-dashboard.component";
 import {AssessmentsDashboardComponent} from "./components/assessments/assessment-dashboard.component";
 import {LevelDashboardComponent} from "./components/level/level-dashboard.component";

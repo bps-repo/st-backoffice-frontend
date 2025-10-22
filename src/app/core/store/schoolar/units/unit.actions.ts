@@ -1,6 +1,5 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
 import {Unit} from 'src/app/core/models/course/unit';
-import {Class} from 'src/app/core/models/academic/class';
 
 export const UNIT_FEATURE_KEY = 'units';
 
@@ -40,10 +39,6 @@ export const UnitActions = createActionGroup({
         'Update Unit Order': props<{ unitId: string, order: number }>(),
         'Update Unit Order Success': props<{ unit: Unit }>(),
         'Update Unit Order Failure': props<{ error: string }>(),
-
-        'Load Unit Classes': props<{ unitId: string }>(),
-        'Load Unit Classes Success': props<{ unitId: string, classes: Class[] }>(),
-        'Load Unit Classes Failure': props<{ error: string }>(),
 
         'Load Unit Progresses': props<{ unitId: string }>(),
         'Load Unit Progresses Success': props<{ unitId: string, progresses: any[] }>(),

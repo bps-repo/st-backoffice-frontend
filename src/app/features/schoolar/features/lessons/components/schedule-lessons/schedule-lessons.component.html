@@ -99,8 +99,8 @@
                             {{ lesson.startDatetime | date:'dd/MM/yyyy HH:mm' }}
                         </div>
                         <div class="mt-2">
-                            <span class="p-tag p-tag-rounded mr-2">{{ lesson.unit?.name || 'N/A' }}</span>
-                            <span class="p-tag p-tag-rounded">{{ lesson.center?.name || 'Centro' }}</span>
+                            <span class="p-tag p-tag-rounded mr-2">{{ lesson.unit.name || 'N/A' }}</span>
+                            <span class="p-tag p-tag-rounded">{{ lesson.center.name || 'Centro' }}</span>
                         </div>
                         <div class="mt-1 text-xs text-500">
                             <i class="pi pi-user mr-1"></i>
