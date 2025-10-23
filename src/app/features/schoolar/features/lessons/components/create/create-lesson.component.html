@@ -143,9 +143,9 @@
                     <div class="relative">
                         <p-dropdown id="teacher" [options]="teacherOptions" formControlName="teacherId"
                             optionLabel="label" optionValue="value" placeholder="Selecione o professor"
-                            [showClear]="true" [required]="true" [disabled]="loadingTeachers">
+                            [showClear]="true" [required]="true" [disabled]="(loadingTeachers | async)!">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="loadingTeachers" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="(loadingTeachers | async)" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s"></p-progressSpinner>
                     </div>

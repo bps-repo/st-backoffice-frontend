@@ -1,6 +1,7 @@
 import { createSelector } from '@ngrx/store';
 import { employeesAdapter } from './employees.state';
 import { employeesFeature } from './employees.feature';
+import { Employee } from 'src/app/core/models/corporate/employee';
 
 export const {
     selectEmployeesState,
@@ -26,11 +27,10 @@ export const selectEmployeeLoading = createSelector(
 )
 
 export const selectEmployeesByRole = (role: string) => createSelector(
-    selectEmployeeEntities,
-    employeesFeature.selectEmployeesState,
-    (entities, state) => {
-        const ids = state.byRole[role] || [];
-        return ids.map(id => entities[id]).filter(Boolean);
+    selectAllEmployees,
+    (entities) => {
+        return Object.values(entities)
+            .filter((e: Employee) => e.role.name === role);
     }
 );
 

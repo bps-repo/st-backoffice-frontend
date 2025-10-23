@@ -28,6 +28,8 @@ import { CenterActions } from 'src/app/core/store/corporate/center/centers.actio
 import { selectAllCenters, selectLoadingCenters } from 'src/app/core/store/corporate/center/centers.selector';
 import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
 import { selectAllLevels } from 'src/app/core/store/schoolar/level/level.selector';
+import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
+import { selectEmployeeLoading, selectEmployeesByRole } from 'src/app/core/store/corporate/employees/employees.selectors';
 
 @Component({
     selector: 'app-create-lesson',
@@ -58,7 +60,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     loadingCenters: Observable<boolean> = of(false);
     loadingLevels: Observable<boolean> = of(false);
     loadingUnits: boolean = false;
-    loadingTeachers: boolean = false;
+    loadingTeachers: Observable<boolean> = of(false);
 
     // Week range properties
     selectedWeekRange: Date[] = [];
@@ -99,14 +101,15 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         private store$: Store,
         private router: Router,
         private messageService: MessageService,
-        private employeeService: EmployeeService,
         private unitService: UnitService,
         private actions$: Actions,
     ) {
         this.store$.dispatch(CenterActions.loadCenters())
         this.store$.dispatch(LevelActions.loadLevels({}))
+        this.store$.dispatch(EmployeesActions.loadEmployees())
 
         this.loadingCenters = store$.select(selectLoadingCenters)
+        this.loadingTeachers = store$.select(selectEmployeeLoading)
     }
 
     ngOnInit() {
@@ -172,44 +175,14 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             });
 
         // Load Teachers (employees with role TEACHER)
-        this.loadingTeachers = true;
-        this.employeeService.getEmployeesByRole('TEACHER')
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: (employees: Employee[]) => {
-                    console.log("Teachers", employees)
-                    this.teacherOptions = employees.map((e: Employee) => {
-                        const first = e.personalInfo.firstName || e.personalInfo.lastName || '';
-                        const last = e.personalInfo.firstName || e.personalInfo.lastName || '';
-                        const label = `${first} ${last}`.trim() || e.personalInfo?.email || e.id;
-                        return { label, value: e.id };
-                    });
-                    this.loadingTeachers = false;
-                },
-                error: () => {
-                    // Fallback: load all employees and filter client-side by role
-                    this.employeeService.getEmployees()
-                        .pipe(takeUntil(this.destroy$))
-                        .subscribe({
-                            next: (all: any[]) => {
-                                const onlyTeachers = (all || []).filter((e: any) => {
-                                    const roles = e?.roles || e?.user?.roles || [];
-                                    return Array.isArray(roles) && roles.some((r: any) => (r?.name || r) === 'TEACHER');
-                                });
-                                this.teacherOptions = onlyTeachers.map((e: any) => {
-                                    const first = e?.user?.firstname || e?.firstname || '';
-                                    const last = e?.user?.lastname || e?.lastname || '';
-                                    const label = `${first} ${last}`.trim() || e?.user?.email || e.id;
-                                    return { label, value: e.id };
-                                });
-                                this.loadingTeachers = false;
-                            },
-                            error: () => {
-                                this.teacherOptions = [];
-                                this.loadingTeachers = false;
-                            }
-                        });
-                }
+        this.store$.select(selectEmployeesByRole("TEACHER"))
+            .subscribe((employees: Employee[]) => {
+                this.teacherOptions = employees.map((e: Employee) => {
+                    const first = e.personalInfo.firstName || '';
+                    const last = e.personalInfo.lastName || '';
+                    const label = `${first} ${last}`.trim() || e.personalInfo?.email || e.id;
+                    return { label, value: e.id };
+                });
             });
 
         // Load Levels
