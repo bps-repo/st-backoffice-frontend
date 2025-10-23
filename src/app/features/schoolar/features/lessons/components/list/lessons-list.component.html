@@ -306,9 +306,9 @@
 <ng-template #statusTemplate let-row>
     <span class="p-badge" [ngClass]="{
             'p-badge-success': row.status === 'COMPLETED' || row.status === 'AVAILABLE',
+            'p-badge-info': row.status === 'OVERDUE' || row.status === 'POSTPONED',
             'p-badge-warning': row.status === 'SCHEDULED' || row.status === 'BOOKED',
-            'p-badge-danger': row.status === 'CANCELLED' || row.status === 'OVERDUE',
-            'p-badge-info': row.status === 'POSTPONED'
+            'p-badge-danger': row.status === 'CANCELLED'
           }">
         {{ getStatusLabel(row.status) }}
     </span>

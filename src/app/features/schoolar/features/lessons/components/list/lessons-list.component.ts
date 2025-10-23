@@ -865,7 +865,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 case 'CANCELLED': return 'Cancelada';
                 case 'SCHEDULED': return 'Agendada';
                 case 'POSTPONED': return 'Adiada';
-                case 'OVERDUE': return 'Atrasada';
+                case 'OVERDUE': return 'Lecionada';
                 default: return status;
             }
         }
@@ -877,7 +877,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             case LessonStatus.CANCELLED: return 'Cancelada';
             case LessonStatus.SCHEDULED: return 'Agendada';
             case LessonStatus.POSTPONED: return 'Adiada';
-            case LessonStatus.OVERDUE: return 'Atrasada';
+            case LessonStatus.OVERDUE: return 'Lecionada';
             default: return 'Desconhecido';
         }
     }
@@ -936,7 +936,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 case 'BOOKED':
                 case 'SCHEDULED': return 'warning';
                 case 'CANCELLED':
-                case 'OVERDUE': return 'danger';
+                case 'OVERDUE': return 'info';
                 case 'POSTPONED': return 'info';
                 default: return 'secondary';
             }
@@ -948,7 +948,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             case LessonStatus.BOOKED:
             case LessonStatus.SCHEDULED: return 'warning';
             case LessonStatus.CANCELLED:
-            case LessonStatus.OVERDUE: return 'danger';
+            case LessonStatus.OVERDUE: return 'info';
             case LessonStatus.POSTPONED: return 'info';
             default: return 'secondary';
         }
