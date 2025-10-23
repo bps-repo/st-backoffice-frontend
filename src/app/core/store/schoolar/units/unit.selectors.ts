@@ -1,6 +1,6 @@
-import {createSelector} from '@ngrx/store';
-import {unitFeature} from './unit.feature';
-import {unitsAdapter} from './unit.state';
+import { createSelector } from '@ngrx/store';
+import { unitFeature } from './unit.feature';
+import { unitsAdapter } from './unit.state';
 import { en } from '@fullcalendar/core/internal-common';
 
 // Basic selectors from feature
@@ -150,7 +150,7 @@ export const selectUnitsSortedByOrder = createSelector(
 
 export const selectUnitsByLevelId = (levelId: string) => createSelector(
     selectAllUnits,
-    (units) => units.filter(unit => unit.level?.id === levelId)
+    (units) => units.filter(unit => unit.levelId === levelId)
 );
 
 export const selectActiveUnits = createSelector(

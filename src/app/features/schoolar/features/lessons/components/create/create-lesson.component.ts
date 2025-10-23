@@ -30,6 +30,8 @@ import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
 import { selectAllLevels } from 'src/app/core/store/schoolar/level/level.selector';
 import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
 import { selectEmployeeLoading, selectEmployeesByRole } from 'src/app/core/store/corporate/employees/employees.selectors';
+import { selectUnitsByLevelId } from 'src/app/core/store/schoolar/units/unit.selectors';
+import { UnitActions } from 'src/app/core/store/schoolar/units/unit.actions';
 
 @Component({
     selector: 'app-create-lesson',
@@ -101,10 +103,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         private store$: Store,
         private router: Router,
         private messageService: MessageService,
-        private unitService: UnitService,
         private actions$: Actions,
     ) {
         this.store$.dispatch(CenterActions.loadCenters())
+        this.store$.dispatch(UnitActions.loadUnits())
         this.store$.dispatch(LevelActions.loadLevels({}))
         this.store$.dispatch(EmployeesActions.loadEmployees())
 
@@ -310,29 +312,19 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
 
     private loadUnitsForLevel(levelId: string): void {
-        this.loadingUnits = true;
-        this.unitService.loadUnits()
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: units => {
-                    // Filter units by the selected level
-                    const filteredUnits = (units || []).filter(u => u.levelId === levelId);
-                    this.unitOptions = filteredUnits.map(u => ({ label: u.name, value: u.id }));
+        this.store$.select(selectUnitsByLevelId(levelId))
+            .subscribe((units => {
+                // Filter units by the selected level
+                this.unitOptions = units.map(u => ({ label: u.name, value: u.id }));
 
-                    // Reset unit selection if current selection is not valid for the new level
-                    const currentUnitId = this.form.get('unitId')?.value;
-                    if (currentUnitId && !filteredUnits.some(u => u.id === currentUnitId)) {
-                        this.form.get('unitId')?.setValue(null);
-                    }
-                    this.loadingUnits = false;
-                },
-                error: () => {
-                    this.unitOptions = [];
-                    this.loadingUnits = false;
+                // Reset unit selection if current selection is not valid for the new level
+                const currentUnitId = this.form.get('unitId')?.value;
+                if (currentUnitId && !units.some(u => u.id === currentUnitId)) {
+                    this.form.get('unitId')?.setValue(null);
                 }
-            });
+            }
+            ));
     }
-
     cancel() {
         this.router.navigate(['/schoolar/lessons']).then();
     }
