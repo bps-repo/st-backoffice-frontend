@@ -58,93 +58,100 @@
         <!-- Title and Action Buttons Section -->
         <div class="col-12">
             <div class="card">
-                <div class="flex flex-column md:flex-row justify-content-between align-items-start gap-4">
-                    <div class="flex-1">
-                        <div class="flex align-items-center gap-3 mb-2">
-                            <h1 class="text-3xl font-bold text-900 m-0">{{ lesson.title || 'English Conversation A1' }}
-                            </h1>
+                <div class="flex flex-column gap-5">
+                    <div class="flex flex-column md:flex-row justify-content-between align-items-start gap-4">
+                        <div class="flex-1">
+                            <div class="flex align-items-center gap-3 mb-2">
+                                <h1 class="text-3xl font-bold text-900 m-0">{{ lesson.title || 'English Conversation A1'
+                                    }}
+                                </h1>
+                            </div>
+                            <div class="flex align-items-center gap-3 mb-3">
+                                <span class="text-600">{{ lesson.online ? 'Online' : 'Presencial' }} • {{
+                                    lesson.center.name
+                                    }}</span>
+                                <p-tag [value]="getLessonStatusText(lesson)"
+                                    [severity]="getLessonStatusSeverity(lesson)" [rounded]="true">
+                                </p-tag>
+                            </div>
+                            <div class="flex align-items-center gap-2 text-600">
+                                <i class="pi pi-calendar"></i>
+                                <span>{{ (lesson.startDatetime | date:'dd/MM/yyyy - HH:mm' | uppercase) }} - {{
+                                    (lesson.endDatetime | date:'HH:mm' | uppercase) }}</span>
+                            </div>
                         </div>
-                        <div class="flex align-items-center gap-3 mb-3">
-                            <span class="text-600">{{ lesson.online ? 'Online' : 'Presencial' }} • {{ lesson.center.name  }}</span>
-                            <p-tag [value]="getLessonStatusText(lesson)" [severity]="getLessonStatusSeverity(lesson)"
-                                [rounded]="true">
-                            </p-tag>
-                        </div>
-                        <div class="flex align-items-center gap-2 text-600">
-                            <i class="pi pi-calendar"></i>
-                            <span>{{ (lesson.startDatetime | date:'dd/MM/yyyy - HH:mm' | uppercase)  }} - {{ (lesson.endDatetime | date:'HH:mm' | uppercase) }}</span>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2 flex-wrap">
+                            <p-button icon="pi pi-copy" label="Duplicar" [outlined]="true" size="small"
+                                (click)="duplicateLesson(lesson)">
+                            </p-button>
+                            <p-button icon="pi pi-pencil" label="Editar" severity="info" size="small"
+                                (click)="editLesson(lesson)">
+                            </p-button>
+                            <p-button icon="pi pi-download" label="Exportar" [outlined]="true" size="small"
+                                (click)="exportLesson(lesson)">
+                            </p-button>
+                            <p-button icon="pi pi-print" label="Imprimir" [outlined]="true" size="small"
+                                (click)="printLesson(lesson)">
+                            </p-button>
                         </div>
                     </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex gap-2 flex-wrap">
-                        <p-button icon="pi pi-copy" label="Duplicar" [outlined]="true" size="small"
-                            (click)="duplicateLesson(lesson)">
-                        </p-button>
-                        <p-button icon="pi pi-pencil" label="Editar" severity="info" size="small"
-                            (click)="editLesson(lesson)">
-                        </p-button>
-                        <p-button icon="pi pi-download" label="Exportar" [outlined]="true" size="small"
-                            (click)="exportLesson(lesson)">
-                        </p-button>
-                        <p-button icon="pi pi-print" label="Imprimir" [outlined]="true" size="small"
-                            (click)="printLesson(lesson)">
-                        </p-button>
+                    <!-- KPI Cards Section -->
+                    <div class="col-12">
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <div class="text-center border-1 surface-border">
+                                    <div class="flex align-items-center justify-content-center mb-3 py-2 border-round-lg">
+                                        <div
+                                            class="bg-blue-100 border-circle w-3rem h-3rem flex align-items-center justify-content-center">
+                                            <i class="pi pi-users text-blue-600 text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-900 m-0 mb-2">
+                                        <span *ngIf="loadingStudents" class="pi pi-spin pi-spinner"></span>
+                                        <span *ngIf="!loadingStudents">{{ bookings().length }}</span>
+                                    </h3>
+                                    <p class="text-600 m-0">Alunos</p>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class=" text-center border-1 surface-border py-2 border-round-lg">
+                                    <div class="flex align-items-center justify-content-center mb-3">
+                                        <div
+                                            class="bg-green-100 border-circle w-3rem h-3rem flex align-items-center justify-content-center">
+                                            <i class="pi pi-check-circle text-green-600 text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-900 m-0 mb-2">
+                                        <span *ngIf="loadingAttendances" class="pi pi-spin pi-spinner"></span>
+                                        <span *ngIf="!loadingAttendances">{{ getAttendanceRate() }}%</span>
+                                    </h3>
+                                    <p class="text-600 m-0">Taxa de Presença</p>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class="text-center border-1 surface-border py-2 border-round-lg">
+                                    <div class="flex align-items-center justify-content-center mb-3">
+                                        <div
+                                            class="bg-purple-100 border-circle w-3rem h-3rem flex align-items-center justify-content-center">
+                                            <i class="pi pi-book text-purple-600 text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-900 m-0 mb-2">
+                                        <span *ngIf="loadingMaterials" class="pi pi-spin pi-spinner"></span>
+                                        <span *ngIf="!loadingMaterials">{{ getMaterialCount() }}</span>
+                                    </h3>
+                                    <p class="text-600 m-0">Materiais</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- KPI Cards Section -->
-        <div class="col-12">
-            <div class="grid">
-                <div class="col-12 md:col-4">
-                    <div class="card text-center border-1 surface-border">
-                        <div class="flex align-items-center justify-content-center mb-3">
-                            <div
-                                class="bg-blue-100 border-circle w-3rem h-3rem flex align-items-center justify-content-center">
-                                <i class="pi pi-users text-blue-600 text-xl"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">
-                            <span *ngIf="loadingStudents" class="pi pi-spin pi-spinner"></span>
-                            <span *ngIf="!loadingStudents">{{ bookings().length }}</span>
-                        </h3>
-                        <p class="text-600 m-0">Alunos</p>
-                    </div>
-                </div>
-                <div class="col-12 md:col-4">
-                    <div class="card text-center border-1 surface-border">
-                        <div class="flex align-items-center justify-content-center mb-3">
-                            <div
-                                class="bg-green-100 border-circle w-3rem h-3rem flex align-items-center justify-content-center">
-                                <i class="pi pi-check-circle text-green-600 text-xl"></i>
-                            </div>
-                        </div>
-                          <h3 class="text-2xl font-bold text-900 m-0 mb-2">
-                              <span *ngIf="loadingAttendances" class="pi pi-spin pi-spinner"></span>
-                             <span *ngIf="!loadingAttendances">{{ getAttendanceRate() }}%</span>
-                          </h3>
-                        <p class="text-600 m-0">Taxa de Presença</p>
-                    </div>
-                </div>
-                <div class="col-12 md:col-4">
-                    <div class="card text-center border-1 surface-border">
-                        <div class="flex align-items-center justify-content-center mb-3">
-                            <div
-                                class="bg-purple-100 border-circle w-3rem h-3rem flex align-items-center justify-content-center">
-                                <i class="pi pi-book text-purple-600 text-xl"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold text-900 m-0 mb-2">
-                            <span *ngIf="loadingMaterials" class="pi pi-spin pi-spinner"></span>
-                            <span *ngIf="!loadingMaterials">{{ getMaterialCount() }}</span>
-                        </h3>
-                        <p class="text-600 m-0">Materiais</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Tab Navigation -->
         <div class="col-12 mt-4">
@@ -191,7 +198,8 @@
                                                 <span class="text-blue-600 font-semibold text-sm">{{
                                                     getTeacherInitials(lesson) }}</span>
                                             </div>
-                                                <span class="text-900 font-semibold">{{ lesson?.teacher?.name || 'N/A' }}</span>
+                                            <span class="text-900 font-semibold">{{ lesson?.teacher?.name || 'N/A'
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -362,7 +370,8 @@
 
                     <div *ngIf="!loadingAttendances" class="grid">
                         <div class="col-12">
-                            <div *ngIf="updatingAttendance" class="flex align-items-center justify-content-center p-3 mb-3">
+                            <div *ngIf="updatingAttendance"
+                                class="flex align-items-center justify-content-center p-3 mb-3">
                                 <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
                                 <span>Atualizando presença...</span>
                             </div>
@@ -393,19 +402,17 @@
                                         </td>
                                         <td>
                                             <div class="flex align-items-center gap-2">
-                                                <p-dropdown
-                                                    [options]="attendanceStatusOptions"
-                                                    [(ngModel)]="attendance.attendance.status"
-                                                    optionLabel="label"
-                                                    optionValue="value"
-                                                    [disabled]="updatingAttendance"
+                                                <p-dropdown [options]="attendanceStatusOptions"
+                                                    [(ngModel)]="attendance.attendance.status" optionLabel="label"
+                                                    optionValue="value" [disabled]="updatingAttendance"
                                                     (onChange)="onAttendanceStatusChange(attendance, $event.value)"
                                                     styleClass="w-full">
                                                 </p-dropdown>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="text-600">{{ attendance.attendance.justification || '-' }}</span>
+                                            <span class="text-600">{{ attendance.attendance.justification || '-'
+                                                }}</span>
                                         </td>
                                         <td>
                                             <div class="flex gap-2">

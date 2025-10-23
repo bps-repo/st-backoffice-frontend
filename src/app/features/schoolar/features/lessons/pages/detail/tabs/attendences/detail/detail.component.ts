@@ -19,34 +19,11 @@ import { TagModule } from 'primeng/tag';
 })
 export class DetailComponent implements OnInit {
     attendanceId: string | null = null;
-    attendance: any = {
-        id: 1,
-        date: '2023-06-01',
-        class: {
-            name: 'English Intermediate',
-            code: 'ENG201',
-            teacher: 'John Smith'
-        },
-        students: [
-            { id: 1, name: 'John Doe', status: 'Present', notes: 'Arrived on time' },
-            { id: 2, name: 'Jane Smith', status: 'Absent', notes: 'Sick leave' },
-            { id: 3, name: 'Michael Johnson', status: 'Present', notes: '' },
-            { id: 4, name: 'Emily Brown', status: 'Late', notes: 'Arrived 10 minutes late' },
-            { id: 5, name: 'David Wilson', status: 'Present', notes: '' }
-        ],
-        createdBy: 'Admin User',
-        createdAt: '2023-06-01 09:00:00',
-        updatedAt: '2023-06-01 09:00:00'
-    };
-
-    constructor(private route: ActivatedRoute) {}
+    attendance: any
+    constructor(private route: ActivatedRoute) { }
 
     ngOnInit(): void {
-        this.attendanceId = this.route.snapshot.paramMap.get('id');
-        // In a real application, you would fetch the attendance data from a service
-        // this.attendanceService.getAttendance(this.attendanceId).subscribe(data => {
-        //     this.attendance = data;
-        // });
+        this.attendanceId = this.route.snapshot.paramMap.get('id')
     }
 
     getSeverity(status: string) {

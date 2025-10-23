@@ -1,31 +1,31 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy, signal} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {FormsModule} from '@angular/forms';
-import {Subject, takeUntil, Observable, combineLatest, of} from 'rxjs';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Location} from '@angular/common';
-import {Lesson, LessonBooking} from "../../../../../../core/models/academic/lesson";
-import {LessonStatus} from "../../../../../../core/enums/lesson-status";
-import {AttendanceStatus} from "../../../../../../core/enums/attendance-status";
-import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import {selectSelectedLesson, selectLoadingLessons, selectError, selectLessonBookings, selectBookings} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
-import {attendancesActions} from "../../../../../../core/store/schoolar/attendances/attendances.actions";
-import {selectAttendancesByLesson, selectAttendancesLoading, selectAttendancesError} from "../../../../../../core/store/schoolar/attendances/attendances.selectors";
-import {Student} from "../../../../../../core/models/academic/student";
-import {Attendance} from "../../../../../../core/models/academic/attendance";
-import {AttendanceStatusUpdate} from "../../../../../../core/models/academic/attendance-update";
-import {Material} from "../../../../../../core/models/academic/material";
-import {StudentService} from "../../../../../../core/services/student.service";
-import {MaterialService} from "../../../../../../core/services/material.service";
-import {LessonService} from "../../../../../../core/services/lesson.service";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil, Observable, combineLatest, of } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Location } from '@angular/common';
+import { Lesson, LessonBooking } from "../../../../../../core/models/academic/lesson";
+import { LessonStatus } from "../../../../../../core/enums/lesson-status";
+import { AttendanceStatus } from "../../../../../../core/enums/attendance-status";
+import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
+import { selectSelectedLesson, selectLoadingLessons, selectError, selectLessonBookings, selectBookings } from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import { attendancesActions } from "../../../../../../core/store/schoolar/attendances/attendances.actions";
+import { selectAttendancesByLesson, selectAttendancesLoading, selectAttendancesError } from "../../../../../../core/store/schoolar/attendances/attendances.selectors";
+import { Student } from "../../../../../../core/models/academic/student";
+import { Attendance } from "../../../../../../core/models/academic/attendance";
+import { AttendanceStatusUpdate } from "../../../../../../core/models/academic/attendance-update";
+import { Material } from "../../../../../../core/models/academic/material";
+import { StudentService } from "../../../../../../core/services/student.service";
+import { MaterialService } from "../../../../../../core/services/material.service";
+import { LessonService } from "../../../../../../core/services/lesson.service";
 import { MaterialActions } from "../../../../../../core/store/schoolar/materials/material.actions";
 import { selectMaterialsByEntityAndId } from "../../../../../../core/store/schoolar/materials/material.selectors";
 
@@ -82,11 +82,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     // Tab view properties
     currentView: string = 'overview'; // Default view is overview
     viewOptions = [
-        {label: 'Visão Geral', value: 'overview'},
-        {label: 'Alunos', value: 'students'},
-        {label: 'Presença', value: 'attendance'},
-        {label: 'Materiais', value: 'materials'},
-        {label: 'Anotações', value: 'notes'},
+        { label: 'Visão Geral', value: 'overview' },
+        { label: 'Alunos', value: 'students' },
+        { label: 'Presença', value: 'attendance' },
+        { label: 'Materiais', value: 'materials' },
+        { label: 'Anotações', value: 'notes' },
     ];
 
     // Loading states for related data
@@ -123,7 +123,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 const id = params['id'];
                 if (id) {
                     // Dispatch action to load the lesson
-                    this.store.dispatch(lessonsActions.loadLesson({id}));
+                    this.store.dispatch(lessonsActions.loadLesson({ id }));
                     this.store.dispatch(lessonsActions.loadLessonBookings({ lessonId: id }));
 
                     // Load attendances for this lesson via NgRx
@@ -149,7 +149,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                             }
                         });
 
-                    this.store.select(selectBookings).subscribe((v: any) =>{
+                    this.store.select(selectBookings).subscribe((v: any) => {
                         console.log("bookings", v.bookings);
                         this.bookings.set(v.bookings)
                     })
@@ -269,7 +269,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             case LessonStatus.POSTPONED:
                 return 'Adiada';
             case LessonStatus.OVERDUE:
-                return 'Atrasada';
+                return 'Lecionada';
             default:
                 return 'Disponível';
         }
@@ -290,7 +290,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             case LessonStatus.POSTPONED:
                 return 'warning';
             case LessonStatus.OVERDUE:
-                return 'danger';
+                return 'info';
             default:
                 return 'secondary';
         }
