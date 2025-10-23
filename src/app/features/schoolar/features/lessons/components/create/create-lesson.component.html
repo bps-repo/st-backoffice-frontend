@@ -44,16 +44,22 @@
                 </div>
 
                 <div class="col-12 md:col-6  field">
-                    <label for="unit" class="font-bold">Unidade *</label>
+                    <label for="unit" class="font-bold">Unidades</label>
                     <div class="relative">
                         <p-dropdown id="unit" [options]="unitOptions" formControlName="unitId" optionLabel="label"
-                            optionValue="value" placeholder="Selecione a unidade" [showClear]="true" [required]="true"
+                            optionValue="value" placeholder="Selecione a unidade" [showClear]="true"
                             [disabled]="loadingUnits">
                         </p-dropdown>
                         <p-progressSpinner *ngIf="loadingUnits" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s"></p-progressSpinner>
                     </div>
+                </div>
+                <div class="col-12 md:col-6  field">
+                    <label for="unit" class="font-bold">Tipo de aula</label>
+                    <p-dropdown id="lessonType" [options]="typeOptions" formControlName="type" optionLabel="label"
+                        optionValue="value" placeholder="Selecione o tipo" [showClear]="true">
+                    </p-dropdown>
                 </div>
 
                 <div class="col-12 field">

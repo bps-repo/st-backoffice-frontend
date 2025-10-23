@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { CalendarModule } from 'primeng/calendar';
 import { Store } from '@ngrx/store';
-import { Lesson, LessonCreate } from 'src/app/core/models/academic/lesson';
+import { LessonCreate } from 'src/app/core/models/academic/lesson';
 import { LessonStatus } from 'src/app/core/enums/lesson-status';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, take, Observable, of } from 'rxjs';
@@ -19,9 +19,6 @@ import { CheckboxModule } from "primeng/checkbox";
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import { EmployeeService } from 'src/app/core/services/employee.service';
-import { UnitService } from 'src/app/core/services/unit.service';
-import { LevelService } from 'src/app/core/services/level.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { Employee } from 'src/app/core/models/corporate/employee';
 import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
@@ -32,6 +29,8 @@ import { EmployeesActions } from 'src/app/core/store/corporate/employees/employe
 import { selectEmployeeLoading, selectEmployeesByRole } from 'src/app/core/store/corporate/employees/employees.selectors';
 import { selectUnitsByLevelId } from 'src/app/core/store/schoolar/units/unit.selectors';
 import { UnitActions } from 'src/app/core/store/schoolar/units/unit.actions';
+import { Unit } from 'src/app/core/models/course/unit';
+import { LessonType } from 'src/app/core/enums/lesson-type';
 
 @Component({
     selector: 'app-create-lesson',
@@ -64,6 +63,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     loadingUnits: boolean = false;
     loadingTeachers: Observable<boolean> = of(false);
 
+    selectecGenericUnit: Unit | null = null
+
     // Week range properties
     selectedWeekRange: Date[] = [];
     availableDays: Date[] = [];
@@ -84,7 +85,17 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     };
 
     // Dropdown options
-    typeOptions: SelectItem[] = [];
+    typeOptions: SelectItem[] = [
+        { label: 'Geral', value: LessonType.GENERAL },
+        { label: 'Gramática', value: LessonType.GRAMMAR },
+        { label: 'Vocabulário', value: LessonType.VOCABULARY },
+        { label: 'Prática', value: LessonType.PRACTICAL },
+        { label: 'Pronúncia', value: LessonType.PRONUNCIATION },
+        { label: 'Escrita', value: LessonType.WRITING },
+        { label: 'Leitura', value: LessonType.READING },
+        { label: 'Conversa', value: LessonType.CONVERSATION },
+        { label: 'Fala', value: LessonType.SPEAKING }
+    ];
     teacherOptions: SelectItem[] = [];
     levelOptions: SelectItem[] = [];
     unitOptions: SelectItem[] = [];
@@ -134,8 +145,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             endDatetime: [defaultEndHour, Validators.required],
             teacherId: [null, Validators.required],
             levelId: [null, Validators.required],
-            unitId: [null, Validators.required],
+            unitId: [null],
             online: [false],
+            type: [LessonType.GENERAL, [Validators.required]],
             onlineLink: ['http://sample.com'],
             status: [LessonStatus.AVAILABLE],
             description: ['']
@@ -312,7 +324,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
 
     private loadUnitsForLevel(levelId: string): void {
-        this.store$.select(selectUnitsByLevelId(levelId))
+        this.store$.select(selectUnitsByLevelId(levelId, false))
             .subscribe((units => {
                 // Filter units by the selected level
                 this.unitOptions = units.map(u => ({ label: u.name, value: u.id }));
@@ -380,6 +392,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
         const v = this.form.value as any;
 
+        this.getGenericUnitLevel(v.levelId)
+
         // Debug logs
         console.log('Form values:', v);
         console.log('startDatetime from form:', v.startDatetime);
@@ -402,8 +416,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             level: v.levelId,
             startDatetime: startDateTime,
             endDatetime: endDateTime,
-            unitId: v.unitId,
+            unitId: v.unitId ? v.unitId : this.selectecGenericUnit?.id,
             centerId: v.centerId,
+            type: v.type,
             status: (v.status as any) ?? LessonStatus.AVAILABLE
         } as LessonCreate;
 
@@ -473,4 +488,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         console.log("startDatetime", this.form.get('startDatetime')?.value);
         console.log("endDatetime", this.form.get('endDatetime')?.value);
     }
+
+    getGenericUnitLevel(levelId: any) {
+        this.store$.select(selectUnitsByLevelId(levelId, true)).subscribe((u) => this.selectecGenericUnit = u[0])
+    }
 }
+
+

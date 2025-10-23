@@ -5,6 +5,7 @@ import { Material } from "./material";
 import { LessonTeacher } from "./lesson-teacher";
 import { LessonUnit } from "./lesson-unit";
 import { LessonCenter } from "./lesson-center";
+import { LessonType } from "../../enums/lesson-type";
 
 export interface Lesson {
     id?: string;
@@ -25,6 +26,8 @@ export interface Lesson {
     unit: LessonUnit;
     center: LessonCenter;
 
+    type: LessonType
+
     // Legacy fields for backward compatibility
     level?: string;
     students?: any[];
@@ -39,7 +42,7 @@ export interface LessonBooking {
     student: Student;
     bookingDate: string;
     status: BookingStatus;
-  }
+}
 
 export interface LessonCreate {
     id?: string;
@@ -60,6 +63,8 @@ export interface LessonCreate {
     unitId: string;
     centerId: string;
 
+    type: LessonType
+
     // Legacy fields for backward compatibility
     level?: string;
     students?: any[];
@@ -79,11 +84,11 @@ export type RoleName = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'STAFF';
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
 
 export type AcademicBackground =
-  | 'PRIMARY_SCHOOL'
-  | 'SECONDARY_SCHOOL'
-  | 'HIGH_SCHOOL'
-  | 'UNIVERSITY'
-  | 'POSTGRADUATE'
-  | 'OTHER';
+    | 'PRIMARY_SCHOOL'
+    | 'SECONDARY_SCHOOL'
+    | 'HIGH_SCHOOL'
+    | 'UNIVERSITY'
+    | 'POSTGRADUATE'
+    | 'OTHER';
 
 export type ProgressStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';

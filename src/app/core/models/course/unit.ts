@@ -1,7 +1,7 @@
-import {Level} from "./level";
-import {UnitProgress} from "../academic/unit-progress";
-import {Assessment} from "../academic/assessment";
-import {Lesson} from "../academic/lesson";
+import { Level } from "./level";
+import { UnitProgress } from "../academic/unit-progress";
+import { Assessment } from "../academic/assessment";
+import { Lesson } from "../academic/lesson";
 
 export interface Unit {
     id: string;
@@ -11,6 +11,7 @@ export interface Unit {
     level: Level | null;
     levelId: string;
     orderUnit: number;
+    generic: boolean;
     status: 'active' | 'inactive' | 'archived';
     maximumAssessmentAttempt: number;
     createdAt?: string;
