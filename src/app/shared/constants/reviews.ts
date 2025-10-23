@@ -1,9 +1,9 @@
 import {Tab} from '../@types/tab';
 import {Observable, of} from 'rxjs';
-import {GeneralComponent} from "../../features/schoolar/features/lessons/pages/detail/tabs/general/general.component";
+import {GeneralComponent} from "../../features/schoolar/features/lessons/components/detail/tabs/general/general.component";
 import {
     StudentsComponent
-} from "../../features/schoolar/features/lessons/pages/detail/tabs/students/students.component";
+} from "../../features/schoolar/features/lessons/components/detail/tabs/students/students.component";
 import {ScoresComponent} from "../../features/schoolar/features/assessments/pages/detail/tabs/scores/scores.component";
 import {STUDENT_DATA} from "../tokens/student.token";
 

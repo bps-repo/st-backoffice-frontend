@@ -20,6 +20,7 @@ import { TagModule } from 'primeng/tag';
 export class DetailComponent implements OnInit {
     attendanceId: string | null = null;
     attendance: any
+
     constructor(private route: ActivatedRoute) { }
 
     ngOnInit(): void {
