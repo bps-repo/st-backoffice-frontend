@@ -52,18 +52,21 @@ export const lessonsFeature = createFeature({
         on(lessonsActions.createLesson, (state) => ({
             ...state,
             loadingCreate: true,
+            createLessonSuccess: false,
             createError: null,
         })),
         on(lessonsActions.createLessonSuccess, (state, { lesson }) =>
             lessonsAdapter.addOne(lesson, {
                 ...state,
                 loadingCreate: false,
+                createLessonSuccess: true,
                 createError: null,
             })
         ),
         on(lessonsActions.createLessonFailure, (state, { error }) => ({
             ...state,
             loadingCreate: false,
+            createLessonSuccess: false,
             createError: error,
         })),
 

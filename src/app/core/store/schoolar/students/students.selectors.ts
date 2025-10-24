@@ -6,6 +6,7 @@ export const {
     name,
     reducer,
     selectLoading,
+    selectCreateStudentSuccess,
     selectLoadingCreate,
     selectLoadingUpdate,
     selectLoadingDelete,
@@ -72,6 +73,7 @@ export const selectStudentAllErrors = createSelector(
         bulk: bulkError
     })
 );
+
 
 // Loading selectors
 export const selectStudentAnyLoading = createSelector(
