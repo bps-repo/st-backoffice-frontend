@@ -1,0 +1,14 @@
+export enum LessonType {
+    GENERAL,
+    GRAMMAR,
+    VOCABULARY,
+    PRONUNCIATION,
+    LISTENING,
+    WRITING,
+    SPEAKING,
+    READING,
+    CONVERSATION,
+    PRACTICAL,
+    BUSINESS,
+    OTHER
+}

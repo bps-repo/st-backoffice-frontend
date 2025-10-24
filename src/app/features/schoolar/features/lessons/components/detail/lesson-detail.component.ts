@@ -1,33 +1,35 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy, signal} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {FormsModule} from '@angular/forms';
-import {Subject, takeUntil, Observable, combineLatest, of} from 'rxjs';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Location} from '@angular/common';
-import {Lesson, LessonBooking} from "../../../../../../core/models/academic/lesson";
-import {LessonStatus} from "../../../../../../core/enums/lesson-status";
-import {AttendanceStatus} from "../../../../../../core/enums/attendance-status";
-import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import {selectSelectedLesson, selectLoadingLessons, selectError, selectLessonBookings, selectBookings} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
-import {attendancesActions} from "../../../../../../core/store/schoolar/attendances/attendances.actions";
-import {selectAttendancesByLesson, selectAttendancesLoading, selectAttendancesError} from "../../../../../../core/store/schoolar/attendances/attendances.selectors";
-import {Student} from "../../../../../../core/models/academic/student";
-import {Attendance} from "../../../../../../core/models/academic/attendance";
-import {AttendanceStatusUpdate} from "../../../../../../core/models/academic/attendance-update";
-import {Material} from "../../../../../../core/models/academic/material";
-import {StudentService} from "../../../../../../core/services/student.service";
-import {MaterialService} from "../../../../../../core/services/material.service";
-import {LessonService} from "../../../../../../core/services/lesson.service";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil, Observable, combineLatest, of } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Location } from '@angular/common';
+import { Lesson, LessonBooking } from "../../../../../../core/models/academic/lesson";
+import { LessonStatus } from "../../../../../../core/enums/lesson-status";
+import { AttendanceStatus } from "../../../../../../core/enums/attendance-status";
+import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
+import { selectSelectedLesson, selectLoadingLessons, selectError, selectLessonBookings, selectBookings } from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import { attendancesActions } from "../../../../../../core/store/schoolar/attendances/attendances.actions";
+import { selectAttendancesByLesson, selectAttendancesLoading, selectAttendancesError } from "../../../../../../core/store/schoolar/attendances/attendances.selectors";
+import { Student } from "../../../../../../core/models/academic/student";
+import { Attendance } from "../../../../../../core/models/academic/attendance";
+import { AttendanceStatusUpdate } from "../../../../../../core/models/academic/attendance-update";
+import { Material } from "../../../../../../core/models/academic/material";
+import { StudentService } from "../../../../../../core/services/student.service";
+import { MaterialService } from "../../../../../../core/services/material.service";
+import { LessonService } from "../../../../../../core/services/lesson.service";
 import { MaterialActions } from "../../../../../../core/store/schoolar/materials/material.actions";
 import { selectMaterialsByEntityAndId } from "../../../../../../core/store/schoolar/materials/material.selectors";
+import { selectLoadingMaterials } from 'src/app/core/store/schoolar/units/unit.selectors';
+import { selectStudentAnyLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 
 // Interface for notes
 interface LessonNote {
@@ -63,15 +65,14 @@ interface AttendanceTableData {
     templateUrl: './lesson-detail.component.html'
 })
 export class LessonDetailComponent implements OnInit, OnDestroy {
+    quickActions: any[] = []
     lesson$!: Observable<Lesson | null>;
-    loading$: Observable<boolean>;
     error$: Observable<string | null>;
 
     bookings = signal<LessonBooking[]>([])
 
     // Attendance data
     attendances: Attendance[] = [];
-    loadingAttendances = false;
     attendanceTableData: AttendanceTableData[] = [];
 
     // Related data
@@ -82,17 +83,18 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     // Tab view properties
     currentView: string = 'overview'; // Default view is overview
     viewOptions = [
-        {label: 'Visão Geral', value: 'overview'},
-        {label: 'Alunos', value: 'students'},
-        {label: 'Presença', value: 'attendance'},
-        {label: 'Materiais', value: 'materials'},
-        {label: 'Anotações', value: 'notes'},
+        { label: 'Visão Geral', value: 'overview' },
+        { label: 'Alunos', value: 'students' },
+        { label: 'Presença', value: 'attendance' },
+        { label: 'Materiais', value: 'materials' },
+        { label: 'Anotações', value: 'notes' },
     ];
 
     // Loading states for related data
-    loadingStudents = false;
-    loadingMaterials = false;
-    updatingAttendance = false;
+    loading$: Observable<boolean> = of(false);
+    loadingAttendances$: Observable<boolean> = of(false)
+    loadingStudents$: Observable<boolean> = of(false);
+    loadingMaterials$: Observable<boolean> = of(false);
 
     // Attendance status options for dropdown
     attendanceStatusOptions = [
@@ -110,9 +112,65 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         private location: Location,
     ) {
         // Initialize observables from store
+
+        // Errors states
         this.lesson$ = this.store.select(selectSelectedLesson) as Observable<Lesson | null>;
-        this.loading$ = this.store.select(selectLoadingLessons);
         this.error$ = this.store.select(selectError);
+        this.error$ = this.store.select(selectAttendancesError)
+
+        // Loadings states
+        this.loading$ = this.store.select(selectLoadingLessons);
+        this.loadingAttendances$ = this.store.select(selectAttendancesLoading)
+        this.loadingMaterials$ = this.store.select(selectLoadingMaterials)
+        this.loadingStudents$ = this.store.select(selectStudentAnyLoading)
+
+
+        this.lesson$.subscribe((v) => {
+            this.quickActions = [
+                {
+                    label: 'Marcar Presença',
+                    icon: 'pi-check',
+                    iconColor: 'text-blue-600',
+                    bgColor: 'bg-blue-100',
+                    handler: () => this.markAttendance()
+                },
+                {
+                    label: 'Adicionar Material',
+                    icon: 'pi-plus-circle',
+                    iconColor: 'text-green-600',
+                    bgColor: 'bg-green-100',
+                    handler: () => this.addMaterial(v!)
+                },
+                {
+                    label: 'Fazer Anotação',
+                    icon: 'pi-file-edit',
+                    iconColor: 'text-orange-600',
+                    bgColor: 'bg-orange-100',
+                    handler: () => this.addNote()
+                },
+                {
+                    label: 'Reagendar Aula',
+                    icon: 'pi-clock',
+                    iconColor: 'text-purple-600',
+                    bgColor: 'bg-purple-100',
+                    handler: () => this.rescheduleLesson()
+                },
+                {
+                    label: 'Cancelar Aula',
+                    icon: 'pi-times',
+                    iconColor: 'text-red-600',
+                    bgColor: 'bg-red-100',
+                    handler: () => this.cancelLesson()
+                },
+                {
+                    label: 'Enviar Notificação',
+                    icon: 'pi-send',
+                    iconColor: 'text-cyan-600',
+                    bgColor: 'bg-cyan-100',
+                    handler: () => this.sendNotification()
+                }
+            ];
+        })
     }
 
     ngOnInit() {
@@ -123,11 +181,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 const id = params['id'];
                 if (id) {
                     // Dispatch action to load the lesson
-                    this.store.dispatch(lessonsActions.loadLesson({id}));
+                    this.store.dispatch(lessonsActions.loadLesson({ id }));
                     this.store.dispatch(lessonsActions.loadLessonBookings({ lessonId: id }));
 
-                    // Load attendances for this lesson via NgRx
-                    this.loadingAttendances = true;
                     this.store.dispatch(attendancesActions.loadAttendancesByLesson({ lessonId: id }));
                     // Subscribe to attendances for this lesson
                     this.store.select(selectAttendancesByLesson(id))
@@ -135,42 +191,21 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                         .subscribe((attendances) => {
                             this.attendances = attendances;
                             this.attendanceTableData = this.buildAttendanceTableData(attendances);
-                            this.loadingAttendances = false;
-                        });
-                    // Mirror loading and error state from store
-                    this.store.select(selectAttendancesLoading)
-                        .pipe(takeUntil(this.destroy$))
-                        .subscribe(loading => this.loadingAttendances = loading);
-                    this.store.select(selectAttendancesError)
-                        .pipe(takeUntil(this.destroy$))
-                        .subscribe(err => {
-                            if (err) {
-                                console.error('Error loading attendances by lesson:', err);
-                            }
                         });
 
-                    this.store.select(selectBookings).subscribe((v: any) =>{
-                        console.log("bookings", v.bookings);
+                    this.store.select(selectBookings).subscribe((v: any) => {
                         this.bookings.set(v.bookings)
                     })
 
                     // Load lesson materials using entity LESSON via NgRx
-                    this.loadingMaterials = true;
                     this.store.dispatch(MaterialActions.loadMaterialsByEntity({ entity: 'LESSON', entityId: id }));
                     this.store.select(selectMaterialsByEntityAndId('LESSON', id))
                         .pipe(takeUntil(this.destroy$))
                         .subscribe((materials) => {
                             this.materials = materials;
-                            this.loadingMaterials = false;
                         });
                 }
             });
-
-        // Subscribe to lesson changes and provide fallback mock data
-        this.lesson$.pipe(takeUntil(this.destroy$)).subscribe(lesson => {
-            if (!lesson) {
-            }
-        });
     }
 
     ngOnDestroy(): void {
@@ -228,8 +263,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     public addMaterial(lesson: Lesson): void {
+
         if (lesson.id) {
-            this.router.navigate(['/schoolar/lessons/materials/add', lesson.id]);
+            this.router.navigate(['/schoolar/materials/create'], {
+                queryParams: { entity: "LESSON", entityId: lesson.id }
+            });
         }
     }
 
@@ -269,7 +307,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             case LessonStatus.POSTPONED:
                 return 'Adiada';
             case LessonStatus.OVERDUE:
-                return 'Atrasada';
+                return 'Lecionada';
             default:
                 return 'Disponível';
         }
@@ -290,7 +328,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             case LessonStatus.POSTPONED:
                 return 'warning';
             case LessonStatus.OVERDUE:
-                return 'danger';
+                return 'info';
             default:
                 return 'secondary';
         }
@@ -404,8 +442,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this.updatingAttendance = true;
-
         const statusUpdate: AttendanceStatusUpdate = {
             status: newStatus,
             justification: justification
@@ -413,18 +449,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
         // Dispatch NgRx action to update attendance status
         this.store.dispatch(attendancesActions.updateAttendanceStatus({ id: attendanceData.attendance.id, statusUpdate }));
-        // Mirror loading flag from store until operation completes
-        this.store.select(selectAttendancesLoading)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(loading => this.updatingAttendance = loading);
-        // Optionally react to errors
-        this.store.select(selectAttendancesError)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(error => {
-                if (error) {
-                    console.error('Error updating attendance status:', error);
-                }
-            });
     }
 
     public onAttendanceStatusChange(attendanceData: AttendanceTableData, newStatus: AttendanceStatus): void {

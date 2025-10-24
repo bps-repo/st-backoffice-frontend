@@ -35,7 +35,7 @@ import { UserManagementService } from 'src/app/core/services/user-management.ser
     providers: [MessageService]
 })
 export class RolesComponent implements OnInit, OnDestroy {
-    employee: Employee | null = null;
+    employee?: Employee;
     availablePermissions: Permission[] = [];
     selectedPermission: Permission | null = null;
     loading = false;
@@ -49,8 +49,7 @@ export class RolesComponent implements OnInit, OnDestroy {
         private userManagementService: UserManagementService,
         private messageService: MessageService,
         private employeeService: EmployeeService
-    ) {
-    }
+    ) {}
 
     ngOnInit(): void {
         this.route.parent?.paramMap.pipe(
@@ -83,7 +82,7 @@ export class RolesComponent implements OnInit, OnDestroy {
             next: ({ employee, permissions }) => {
                 this.employee = employee;
 
-                this.availablePermissions = permissions.filter(permission => permission.id !== employee.user.role.id);
+                this.availablePermissions = permissions.filter(permission => permission.id !== employee.role.id);
             },
             error: (error) => {
                 console.error('Error loading data', error);

@@ -1,25 +1,25 @@
-import {Employee} from "./lead-service";
-import {Unit} from "../course/unit";
-import {MaterialRelation} from "./material-relation";
+import { Employee } from "../corporate/employee";
+import { Unit } from "../course/unit";
+import { MaterialRelation } from "./material-relation";
 
-export {MaterialRelation} from "./material-relation";
+export { MaterialRelation } from "./material-relation";
 
 export interface Material {
     id: string;
     title: string;
     description: string;
-    fileType?: string; // Optional for backward compatibility
+    fileType?: string;
     type: string;
     fileUrl: string;
-    uploaderId?: string; // Optional for backward compatibility
+    uploaderId?: string;
     uploaderName?: string;
-    uploader?: Employee; // Legacy field for backward compatibility
-    uploadDate?: string; // Legacy field for backward compatibility
+    uploader?: Employee;
+    uploadDate?: string;
     active: boolean;
     availabilityStartDate: string;
     availabilityEndDate: string;
     relations?: MaterialRelation[];
-    units?: Unit[]; // Legacy field for backward compatibility
+    units?: Unit[];
     createdAt: string;
     updatedAt: string;
 }
@@ -37,7 +37,6 @@ export interface MaterialCreateRequest {
     relations: MaterialRelation[];
 }
 
-// Legacy Material interface for backward compatibility
 export interface LegacyMaterial {
     id: string;
     title: string;

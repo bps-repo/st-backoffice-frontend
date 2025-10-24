@@ -22,11 +22,11 @@
                     <div class="relative">
                         <p-dropdown id="center" [options]="centerOptions" formControlName="centerId" optionLabel="label"
                             optionValue="value" placeholder="Selecione o centro" [showClear]="true" [required]="true"
-                            [disabled]="loadingCenters">
+                            [disabled]="(loadingCenters | async)!">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="loadingCenters" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="(loadingCenters | async)" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
-                            animationDuration="1s"></p-progressSpinner>
+                            animationDuratsion="1s"></p-progressSpinner>
                     </div>
                 </div>
 
@@ -35,25 +35,31 @@
                     <div class="relative">
                         <p-dropdown id="level" [options]="levelOptions" formControlName="levelId" optionLabel="label"
                             optionValue="value" placeholder="Selecione o nível" [showClear]="true" [required]="true"
-                            [disabled]="loadingLevels">
+                            [disabled]="(loadingLevels | async)!">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="loadingLevels" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="(loadingLevels | async)" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s"></p-progressSpinner>
                     </div>
                 </div>
 
                 <div class="col-12 md:col-6  field">
-                    <label for="unit" class="font-bold">Unidade *</label>
+                    <label for="unit" class="font-bold">Unidades</label>
                     <div class="relative">
                         <p-dropdown id="unit" [options]="unitOptions" formControlName="unitId" optionLabel="label"
-                            optionValue="value" placeholder="Selecione a unidade" [showClear]="true" [required]="true"
+                            optionValue="value" placeholder="Selecione a unidade" [showClear]="true"
                             [disabled]="loadingUnits">
                         </p-dropdown>
                         <p-progressSpinner *ngIf="loadingUnits" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s"></p-progressSpinner>
                     </div>
+                </div>
+                <div class="col-12 md:col-6  field">
+                    <label for="unit" class="font-bold">Tipo de aula</label>
+                    <p-dropdown id="lessonType" [options]="typeOptions" formControlName="type" optionLabel="label"
+                        optionValue="value" placeholder="Selecione o tipo" [showClear]="true">
+                    </p-dropdown>
                 </div>
 
                 <div class="col-12 field">
@@ -63,7 +69,8 @@
                         [required]="true" [appendTo]="'body'" (onSelect)="onWeekRangeSelect($event)">
                     </p-calendar>
                     <small class="text-600" *ngIf="form.get('weekRange')?.value">
-                        Período selecionado: {{form.get('weekRange')?.value[0] | date:'dd/MM/yyyy'}} - {{form.get('weekRange')?.value[1] | date:'dd/MM/yyyy'}}
+                        Período selecionado: {{form.get('weekRange')?.value[0] | date:'dd/MM/yyyy'}} -
+                        {{form.get('weekRange')?.value[1] | date:'dd/MM/yyyy'}}
                     </small>
                     <small class="text-600 mt-1 block">
                         <i class="pi pi-info-circle mr-1"></i>
@@ -76,13 +83,13 @@
                     <div class="grid">
                         <div class="col-12 md:col-2" *ngFor="let day of weekDayOptions; let i = index">
                             <div class="p-3 border-round text-center cursor-pointer transition-colors transition-duration-150 border-1"
-                                 [class.bg-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
-                                 [class.text-white]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
-                                 [class.bg-gray-100]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
-                                 [class.text-900]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
-                                 [class.border-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
-                                 [class.border-gray-300]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
-                                 (click)="form.get('selectedDay')?.setValue(day.value)">
+                                [class.bg-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                [class.text-white]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                [class.bg-gray-100]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                [class.text-900]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                [class.border-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                [class.border-gray-300]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                (click)="form.get('selectedDay')?.setValue(day.value)">
                                 <div class="font-bold text-sm">{{day.value | date:'dd'}}</div>
                                 <div class="text-xs">{{day.label}}</div>
                             </div>
@@ -121,8 +128,8 @@
 
                 <div class="col-12 md:col-6 field">
                     <label for="endDatetime" class="font-bold">Hora de fim *</label>
-                    <p-calendar (onSelect)="callMethod()" id="endDatetime" formControlName="endDatetime" [showIcon]="true"
-                        [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
+                    <p-calendar (onSelect)="callMethod()" id="endDatetime" formControlName="endDatetime"
+                        [showIcon]="true" [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
                     </p-calendar>
                     <small class="text-600 mt-1 block">
                         <i class="pi pi-info-circle mr-1"></i>
@@ -140,11 +147,11 @@
                 <div class="col-12 md:col-6  field">
                     <label for="teacher" class="font-bold">Professor responsável *</label>
                     <div class="relative">
-                        <p-dropdown id="teacher" [options]="teacherOptions" formControlName="teacherId" optionLabel="label"
-                            optionValue="value" placeholder="Selecione o professor" [showClear]="true" [required]="true"
-                            [disabled]="loadingTeachers">
+                        <p-dropdown id="teacher" [options]="teacherOptions" formControlName="teacherId"
+                            optionLabel="label" optionValue="value" placeholder="Selecione o professor"
+                            [showClear]="true" [required]="true" [disabled]="(loadingTeachers | async)!">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="loadingTeachers" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="(loadingTeachers | async)" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s"></p-progressSpinner>
                     </div>

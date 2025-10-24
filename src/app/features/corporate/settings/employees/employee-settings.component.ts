@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 
 @Component({
-    selector: 'app-employee-settings',
+    selector: 'app-employees-settings',
     templateUrl: './employee-settings.component.html',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule]

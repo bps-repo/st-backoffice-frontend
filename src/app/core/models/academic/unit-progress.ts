@@ -1,6 +1,5 @@
 import {Student} from "./student";
 import {Unit} from "../course/unit";
-import {Class} from "./class";
 
 export interface UnitProgress {
     id: string;

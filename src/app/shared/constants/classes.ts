@@ -1,7 +1,7 @@
-import {GeneralComponent} from 'src/app/features/schoolar/features/lessons/pages/detail/tabs/general/general.component';
+import {GeneralComponent} from 'src/app/features/schoolar/features/lessons/components/detail/tabs/general/general.component';
 import {
     StudentsComponent
-} from 'src/app/features/schoolar/features/lessons/pages/detail/tabs/students/students.component';
+} from 'src/app/features/schoolar/features/lessons/components/detail/tabs/students/students.component';
 
 import {Tab} from '../@types/tab';
 
@@ -9,10 +9,10 @@ import {Observable, of} from 'rxjs';
 
 import {
     MaterialsComponent
-} from "../../features/schoolar/features/lessons/pages/detail/tabs/materials/materials.component";
+} from "../../features/schoolar/features/lessons/components/detail/tabs/materials/materials.component";
 import {
     AttendanceComponent
-} from "../../features/schoolar/features/lessons/pages/detail/tabs/attendences/list/attendance.component";
+} from "../../features/schoolar/features/lessons/components/detail/tabs/attendences/list/attendance.component";
 import {STUDENT_DATA} from "../tokens/student.token";
 
 export const LESSONS_TABS: Tab[] = [

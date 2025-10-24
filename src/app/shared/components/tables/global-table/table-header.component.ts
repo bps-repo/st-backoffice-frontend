@@ -1,13 +1,12 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {DropdownModule} from 'primeng/dropdown';
-import {SplitButtonModule} from 'primeng/splitbutton';
-import {INSTALATIONS} from '../../../constants/representatives';
-import {Router} from '@angular/router';
-import {CommonModule} from '@angular/common';
-import {SelectItem} from 'primeng/api';
-import {FormsModule} from '@angular/forms';
-import {RippleModule} from "primeng/ripple";
-import {ClassService} from "../../../../core/services/class.service";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { DropdownModule } from 'primeng/dropdown';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { INSTALATIONS } from '../../../constants/representatives';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { SelectItem } from 'primeng/api';
+import { FormsModule } from '@angular/forms';
+import { RippleModule } from "primeng/ripple";
 
 export interface TableHeaderAction {
     label: string;
@@ -57,14 +56,14 @@ export class TableHeaderComponent implements OnInit {
     @Input()
     actions: TableHeaderAction[] = []
 
-    selectedDrop: SelectItem = {value: ''};
+    selectedDrop: SelectItem = { value: '' };
 
     @Input() tableLable = 'Alunos';
     @Input() entity = 'students';
 
     @Output() createEntity = new EventEmitter<void>();
 
-    constructor(private router: Router, private classService: ClassService) {
+    constructor(private router: Router) {
     }
 
     navigateToCreateEntity() {

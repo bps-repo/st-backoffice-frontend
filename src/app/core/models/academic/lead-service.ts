@@ -3,18 +3,12 @@ import {Lead} from "./lead";
 export interface LeadService {
     id: string;
     lead: Lead;
-    consultant: Employee;
+    consultant: any;
     datetime: string;
     notes: string;
     outcome: ServiceOutcome;
     createdAt: string;
     updatedAt: string;
-}
-
-
-export interface Employee {
-    id: string;
-    name: string;
 }
 
 export type ServiceOutcome =

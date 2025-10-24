@@ -2,16 +2,7 @@
 import { User, CreateUserRequest } from "../auth/user";
 import { Role } from "../auth/role";
 import { Permission } from "../auth/permission";
-
 export interface Employee {
-    id: string;
-    status: EmployeeStatus;
-    user: User;
-    centerId: string;
-    createdAt: string;
-    updatedAt: string;
-}
-export interface EmployeeDetails {
     id: string;
     createdAt: string;
     updatedAt: string;

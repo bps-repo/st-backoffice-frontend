@@ -19,6 +19,20 @@ export class UnitEffects {
     ) {
     }
 
+    // Basic CRUD operations
+
+    loadUnits$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(UnitActions.loadUnits),
+            mergeMap(() =>
+                this.unitService.loadUnits().pipe(
+                    map((units) => UnitActions.loadUnitsSuccess({units: units})),
+                    catchError((error) => of(UnitActions.loadUnitsFailure({error: error.message})))
+                )
+            )
+        )
+    );
+
     createUnit$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UnitActions.createUnit),
@@ -123,18 +137,6 @@ export class UnitEffects {
                 this.unitService.updateUnitOrder(unitId, order).pipe(
                     map((response) => UnitActions.updateUnitOrderSuccess({unit: response.data})),
                     catchError((error) => of(UnitActions.updateUnitOrderFailure({error: error.message})))
-                )
-            )
-        )
-    );
-
-    loadUnitClasses$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(UnitActions.loadUnitClasses),
-            mergeMap(({unitId}) =>
-                this.unitService.loadUnitClasses(unitId).pipe(
-                    map((response) => UnitActions.loadUnitClassesSuccess({unitId, classes: response.data})),
-                    catchError((error) => of(UnitActions.loadUnitClassesFailure({error: error.message})))
                 )
             )
         )

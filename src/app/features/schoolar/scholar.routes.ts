@@ -36,11 +36,6 @@ export const ScholarRoutes: Routes = [
                     import('./features/lessons/lessons.routes').then((m) => m.LessonsRoutes),
             },
             {
-                path: 'classes',
-                loadChildren: () =>
-                    import('./features/classes/classes.routes').then((m) => m.ClassesRoutes),
-            },
-            {
                 path: 'calendar',
                 loadChildren: () =>
                     import('./features/calendars/calendar.routes').then((m) => m.CalendarRoutes),

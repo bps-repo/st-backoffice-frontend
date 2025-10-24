@@ -1,6 +1,5 @@
-import {createActionGroup, emptyProps, props} from '@ngrx/store';
-import {Unit} from 'src/app/core/models/course/unit';
-import {Class} from 'src/app/core/models/academic/class';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
+import { Unit } from 'src/app/core/models/course/unit';
 
 export const UNIT_FEATURE_KEY = 'units';
 
@@ -19,6 +18,11 @@ export const UnitActions = createActionGroup({
         'Load Unit': props<{ id: string }>(),
         'Load Unit Success': props<{ unit: Unit }>(),
         'Load Unit Failure': props<{ error: string }>(),
+
+
+        'Load Units By LevelId': props<{ levelId: string }>(),
+        'Load Unit By LevelId Success': props<{ units: Unit[] }>(),
+        'Load Unit By LevelId Failure': props<{ error: any }>(),
 
         'Load  Units': emptyProps(),
         'Load  Units Success': props<{ units: Unit[] }>(),
@@ -40,10 +44,6 @@ export const UnitActions = createActionGroup({
         'Update Unit Order': props<{ unitId: string, order: number }>(),
         'Update Unit Order Success': props<{ unit: Unit }>(),
         'Update Unit Order Failure': props<{ error: string }>(),
-
-        'Load Unit Classes': props<{ unitId: string }>(),
-        'Load Unit Classes Success': props<{ unitId: string, classes: Class[] }>(),
-        'Load Unit Classes Failure': props<{ error: string }>(),
 
         'Load Unit Progresses': props<{ unitId: string }>(),
         'Load Unit Progresses Success': props<{ unitId: string, progresses: any[] }>(),

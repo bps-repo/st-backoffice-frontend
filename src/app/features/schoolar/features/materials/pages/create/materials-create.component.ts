@@ -1,46 +1,47 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
-import {MessageService, SelectItem} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {CalendarModule} from 'primeng/calendar';
-import {CheckboxModule} from 'primeng/checkbox';
-import {DropdownModule} from 'primeng/dropdown';
-import {FileUploadModule} from 'primeng/fileupload';
-import {InputSwitchModule} from 'primeng/inputswitch';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {RippleModule} from 'primeng/ripple';
-import {ToastModule} from 'primeng/toast';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {CardModule} from 'primeng/card';
-import {DividerModule} from 'primeng/divider';
-import {ChipModule} from 'primeng/chip';
-import {StudentService} from 'src/app/core/services/student.service';
-import {LessonService} from 'src/app/core/services/lesson.service';
-import {UnitService} from 'src/app/core/services/unit.service';
-import {AssessmentService} from 'src/app/core/services/assessment.service';
-import {LevelService} from 'src/app/core/services/level.service';
-import {CenterService} from 'src/app/core/services/center.service';
-import {EmployeeService} from 'src/app/core/services/employee.service';
-import {ContractService} from 'src/app/core/services/contract.service';
-import {MaterialCreateRequest, MaterialRelation} from 'src/app/core/models/academic/material';
-import {MaterialType} from 'src/app/core/enums/material-type';
-import {MaterialContentType} from 'src/app/core/enums/material-content-type';
-import {RelatedEntityType} from 'src/app/core/enums/related-entity-type';
-import {Student} from 'src/app/core/models/academic/student';
-import {Lesson} from 'src/app/core/models/academic/lesson';
-import {Unit} from 'src/app/core/models/course/unit';
-import {Level} from 'src/app/core/models/course/level';
-import {Center} from 'src/app/core/models/corporate/center';
-import {Employee} from 'src/app/core/models/corporate/employee';
-import {Contract} from 'src/app/core/models/corporate/contract';
-import {Store} from '@ngrx/store';
-import {Actions} from '@ngrx/effects';
-import {MaterialActions} from 'src/app/core/store/schoolar/materials/material.actions';
-import {materialFeature} from 'src/app/core/store/schoolar/materials/material.feature';
-import {ofType} from '@ngrx/effects';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router'; // Add ActivatedRoute
+import { MessageService, SelectItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadModule } from 'primeng/fileupload';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { RippleModule } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { ChipModule } from 'primeng/chip';
+import { StudentService } from 'src/app/core/services/student.service';
+import { LessonService } from 'src/app/core/services/lesson.service';
+import { UnitService } from 'src/app/core/services/unit.service';
+import { AssessmentService } from 'src/app/core/services/assessment.service';
+import { LevelService } from 'src/app/core/services/level.service';
+import { CenterService } from 'src/app/core/services/center.service';
+import { EmployeeService } from 'src/app/core/services/employee.service';
+import { ContractService } from 'src/app/core/services/contract.service';
+import { MaterialCreateRequest, MaterialRelation } from 'src/app/core/models/academic/material';
+import { MaterialType } from 'src/app/core/enums/material-type';
+import { MaterialContentType } from 'src/app/core/enums/material-content-type';
+import { RelatedEntityType } from 'src/app/core/enums/related-entity-type';
+import { Student } from 'src/app/core/models/academic/student';
+import { Lesson } from 'src/app/core/models/academic/lesson';
+import { Unit } from 'src/app/core/models/course/unit';
+import { Level } from 'src/app/core/models/course/level';
+import { Center } from 'src/app/core/models/corporate/center';
+import { Employee } from 'src/app/core/models/corporate/employee';
+import { Contract } from 'src/app/core/models/corporate/contract';
+import { Store } from '@ngrx/store';
+import { Actions } from '@ngrx/effects';
+import { MaterialActions } from 'src/app/core/store/schoolar/materials/material.actions';
+import { materialFeature } from 'src/app/core/store/schoolar/materials/material.feature';
+import { ofType } from '@ngrx/effects';
+import { forkJoin } from 'rxjs';
 
 @Component({
     imports: [
@@ -74,7 +75,7 @@ export class MaterialsCreateComponent implements OnInit {
         fileType: '',
         type: '',
         fileUrl: '',
-        uploaderId: '', // This should come from current user
+        uploaderId: '',
         active: true,
         availabilityStartDate: '',
         availabilityEndDate: '',
@@ -95,6 +96,10 @@ export class MaterialsCreateComponent implements OnInit {
         isRequired: true,
         isActive: true
     };
+
+    // Query params for auto-distribution
+    private queryParamEntity: string | null = null;
+    private queryParamEntityId: string | null = null;
 
     // Dropdown options
     fileTypeOptions: SelectItem[] = Object.values(MaterialType).map(type => ({
@@ -144,6 +149,7 @@ export class MaterialsCreateComponent implements OnInit {
     constructor(
         private messageService: MessageService,
         private router: Router,
+        private route: ActivatedRoute, // Add ActivatedRoute
         private studentService: StudentService,
         private lessonService: LessonService,
         private unitService: UnitService,
@@ -170,6 +176,12 @@ export class MaterialsCreateComponent implements OnInit {
         // Mirror loading state from store
         this.store.select(materialFeature.selectLoadingCreate).subscribe(loading => this.loading = loading);
 
+        // Get query params
+        this.route.queryParams.subscribe(params => {
+            this.queryParamEntity = params['entity'] || null;
+            this.queryParamEntityId = params['entityId'] || null;
+        });
+
         // Load all entity data
         this.loadAllEntityData();
     }
@@ -186,27 +198,171 @@ export class MaterialsCreateComponent implements OnInit {
                 return 'Avaliação'
             case RelatedEntityType.LEVEL:
                 return 'Nível'
-
             case RelatedEntityType.CENTER:
                 return 'Centro'
             case RelatedEntityType.EMPLOYEE:
                 return "Funcionário"
             case RelatedEntityType.CONTRACT:
                 return "Contrato"
-            default :
+            default:
                 return 'N/A'
         }
     }
 
     loadAllEntityData(): void {
-        this.loadStudents();
-        this.loadLessons();
-        this.loadUnits();
-        this.loadAssessments();
-        this.loadLevels();
-        this.loadCenters();
-        this.loadEmployees();
-        this.loadContracts();
+        // Create an array of observables for all entity loads
+        const loads = [
+            this.studentService.getStudents(),
+            this.lessonService.getLessons(),
+            this.assessmentService.getAssessments(),
+            this.levelService.getLevels(),
+            this.centerService.getAllCenters(),
+            this.employeeService.getEmployees(),
+            this.contractService.getContracts()
+        ];
+
+        // Set all loading states to true
+        this.loadingEntities[RelatedEntityType.STUDENT] = true;
+        this.loadingEntities[RelatedEntityType.LESSON] = true;
+        this.loadingEntities[RelatedEntityType.ASSESSMENT] = true;
+        this.loadingEntities[RelatedEntityType.LEVEL] = true;
+        this.loadingEntities[RelatedEntityType.CENTER] = true;
+        this.loadingEntities[RelatedEntityType.EMPLOYEE] = true;
+        this.loadingEntities[RelatedEntityType.CONTRACT] = true;
+
+        // Use forkJoin to wait for all data to load
+        forkJoin(loads).subscribe({
+            next: ([students, lessons, assessments, levels, centers, employees, contracts]) => {
+                // Process students
+                this.relatedEntities[RelatedEntityType.STUDENT] = (students as Student[]).map(student => ({
+                    label: `${student.user?.firstname || ''} ${student.user?.lastname || ''} (ID: ${student.id})`,
+                    value: student.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.STUDENT] = false;
+
+                // Process lessons
+                this.relatedEntities[RelatedEntityType.LESSON] = (lessons as Lesson[]).map(lesson => ({
+                    label: `${lesson.title} (ID: ${lesson.id})`,
+                    value: lesson.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.LESSON] = false;
+
+                // Process assessments
+                this.relatedEntities[RelatedEntityType.ASSESSMENT] = (assessments as any[]).map(assessment => ({
+                    label: `${assessment.title || 'Assessment'} (ID: ${assessment.id})`,
+                    value: assessment.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
+
+                // Process levels
+                this.levelOptions = (levels as any[]).map(level => ({
+                    label: `${level.name || 'Level'} (ID: ${level.id})`,
+                    value: level.id || ''
+                }));
+                this.relatedEntities[RelatedEntityType.LEVEL] = [...this.levelOptions];
+                this.loadingEntities[RelatedEntityType.LEVEL] = false;
+
+                // Process centers
+                this.relatedEntities[RelatedEntityType.CENTER] = (centers as Center[]).map(center => ({
+                    label: `${center.name} (ID: ${center.id})`,
+                    value: center.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.CENTER] = false;
+
+                // Process employees
+                this.relatedEntities[RelatedEntityType.EMPLOYEE] = (employees as Employee[]).map(employee => ({
+                    label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''} (ID: ${employee.id})`,
+                    value: employee.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
+
+                // Process contracts
+                this.relatedEntities[RelatedEntityType.CONTRACT] = (contracts as Contract[]).map(contract => ({
+                    label: `Contract ${contract.id} (ID: ${contract.id})`,
+                    value: contract.id || ''
+                }));
+                this.loadingEntities[RelatedEntityType.CONTRACT] = false;
+
+                // After all data is loaded, process query params
+                this.processQueryParams();
+            },
+            error: (error) => {
+                console.error('Error loading entity data:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Erro ao carregar dados das entidades'
+                });
+                // Reset all loading states
+                Object.keys(this.loadingEntities).forEach(key => {
+                    this.loadingEntities[key] = false;
+                });
+            }
+        });
+    }
+
+    private processQueryParams(): void {
+        if (!this.queryParamEntity || !this.queryParamEntityId) {
+            return;
+        }
+
+        // Validate that the entity type is valid
+        if (!Object.values(RelatedEntityType).includes(this.queryParamEntity as RelatedEntityType)) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Aviso',
+                detail: `Tipo de entidade inválido: ${this.queryParamEntity}`
+            });
+            return;
+        }
+
+        const entityType = this.queryParamEntity as RelatedEntityType;
+
+        // Check if the entity ID exists in the loaded entities
+        const entityExists = this.relatedEntities[entityType]?.some(
+            entity => entity.value === this.queryParamEntityId
+        );
+
+        if (!entityExists) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Aviso',
+                detail: `Entidade com ID ${this.queryParamEntityId} não encontrada`
+            });
+            return;
+        }
+
+        // Get entity name for description
+        const entity = this.relatedEntities[entityType].find(
+            e => e.value === this.queryParamEntityId
+        );
+
+        // Add the relation automatically
+        const autoRelation: MaterialRelation = {
+            relatedEntityType: entityType,
+            relatedEntityId: this.queryParamEntityId,
+            description: `Distribuição automática para ${this.getEntityType(entityType)}: ${entity?.label || this.queryParamEntityId}`,
+            orderIndex: 1,
+            isRequired: true,
+            isActive: true
+        };
+
+        this.material.relations.push(autoRelation);
+
+        // Show success message
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Distribuição Adicionada',
+            detail: `Distribuição automática adicionada para ${this.getEntityType(entityType)}`
+        });
+
+        // Optionally, scroll to the relations section
+        setTimeout(() => {
+            const relationsSection = document.querySelector('p-card[header="Distribuições"]');
+            if (relationsSection) {
+                relationsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 500);
     }
 
     loadStudents(): void {
@@ -375,7 +531,7 @@ export class MaterialsCreateComponent implements OnInit {
         this.employeeService.getEmployees().subscribe({
             next: (employees: Employee[]) => {
                 this.relatedEntities[RelatedEntityType.EMPLOYEE] = employees.map(employee => ({
-                    label: `${employee.user?.firstname || ''} ${employee.user?.lastname || ''} (ID: ${employee.id})`,
+                    label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''} (ID: ${employee.id})`,
                     value: employee.id || ''
                 }));
                 this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
@@ -495,7 +651,7 @@ export class MaterialsCreateComponent implements OnInit {
         this.newRelation.orderIndex = this.material.relations.length + 1;
 
         // Add relation to material
-        this.material.relations.push({...this.newRelation});
+        this.material.relations.push({ ...this.newRelation });
 
         // Reset form
         this.newRelation = {
@@ -535,23 +691,18 @@ export class MaterialsCreateComponent implements OnInit {
     }
 
     onEntityTypeChange(): void {
-        // Clear related entity selection when type changes
-
         this.selectedType.set(this.newRelation.relatedEntityType as RelatedEntityType)
         this.newRelation.relatedEntityId = '';
         this.selectedLevelId = '';
 
-        // If UNIT is selected, clear units list
         if (this.newRelation.relatedEntityType === RelatedEntityType.UNIT) {
             this.relatedEntities[RelatedEntityType.UNIT] = [];
         }
     }
 
     onLevelChange(): void {
-        // Clear unit selection when level changes
         this.newRelation.relatedEntityId = '';
 
-        // Load units for the selected level
         if (this.newRelation.relatedEntityType === RelatedEntityType.UNIT) {
             this.loadUnitsByLevel(this.selectedLevelId);
         }
@@ -617,12 +768,10 @@ export class MaterialsCreateComponent implements OnInit {
             this.material.relations.length > 0
         );
 
-        // For video files, only URL is required
         if (this.material.fileType === MaterialType.VIDEO) {
             return basicFieldsValid && !!this.material.fileUrl && this.material.fileUrl !== 'https://youtu.be/...';
         }
 
-        // For other file types, require actual file upload
         return basicFieldsValid && !!this.selectedFile;
     }
 
@@ -645,10 +794,10 @@ export class MaterialsCreateComponent implements OnInit {
         }
 
         // Dispatch NgRx action to create material with relations
-        this.store.dispatch(MaterialActions.createMaterialWithRelations({request: this.material}));
+        this.store.dispatch(MaterialActions.createMaterialWithRelations({ request: this.material }));
 
         // Listen for success
-        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsSuccess)).subscribe(({material}) => {
+        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsSuccess)).subscribe(({ material }) => {
             this.messageService.add({
                 severity: 'success',
                 summary: 'Material Criado',
@@ -660,7 +809,7 @@ export class MaterialsCreateComponent implements OnInit {
         });
 
         // Listen for failure
-        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsFailure)).subscribe(({error}) => {
+        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsFailure)).subscribe(({ error }) => {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Erro ao Criar Material',

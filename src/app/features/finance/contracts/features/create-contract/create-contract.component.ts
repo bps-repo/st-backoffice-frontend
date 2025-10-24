@@ -123,11 +123,11 @@ export class CreateContractComponent implements OnInit {
 
     loadEmployees(): void {
         this.store.dispatch(EmployeesActions.loadEmployees());
-        this.store.select(selectAllEmployees).subscribe(employees => {
+        this.store.select(selectAllEmployees).subscribe((employees: Employee[]) => {
             this.employees = employees.map(e => ({
                 ...e,
-                name: e['user'] ? `${e['user']['firstname'] || ''} ${e['user']['lastname'] || ''}`.trim() : 'Unknown',
-                displayName: e['user'] ? `${e['user']['firstname'] || ''} ${e['user']['lastname'] || ''}`.trim() + ` (${e['user']['email'] || ''})` : 'Unknown'
+                name: e.personalInfo ? `${e.personalInfo.firstName || ''} ${e.personalInfo.lastName || ''}`.trim() : 'Unknown',
+                displayName: e.personalInfo ? `${e.personalInfo.firstName || ''} ${e.personalInfo.lastName || ''}`.trim() + ` (${e.personalInfo.email || ''})` : 'Unknown'
             } as any));
         });
     }

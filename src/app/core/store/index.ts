@@ -5,7 +5,6 @@ import {authFeature} from "./auth/auth.reducers";
 import {LessonsEffects} from "./schoolar/lessons/lessons.effects";
 import {lessonsFeature} from "./schoolar/lessons/lessons.feature";
 import {StudentState} from "./schoolar/students/student.state";
-import {ClassState} from "./schoolar/classes/classState";
 import {LessonState} from "./schoolar/lessons/lesson.state";
 import {
     CalendarsState,
@@ -15,9 +14,6 @@ import {
     ReportsState,
     ReviewsState, SettingsState
 } from "./schoolar/app.state";
-import {ClassEffects} from "./schoolar/classes/classes.effects";
-import {classesFeature} from "./schoolar/classes/classes.feature";
-import {CentersEffects} from "./corporate/center/centers.effects";
 import {CenterFeature} from "./corporate/center/centers.reducer";
 import {CenterState} from "./corporate/center/center.state";
 import {UnitEffects} from "./schoolar/units/unit.effects";
@@ -47,10 +43,10 @@ import { attendancesFeature } from "./schoolar/attendances/attendances.feature";
 import { AttendancesState } from "./schoolar/attendances/attendances.state";
 import { InstallmentsEffects } from "../store/finance/installments/installments.effects";
 import { installmentsFeature } from "../store/finance/installments/installments.feature";
+import { CentersEffects } from "./corporate/center/centers.effects";
 
 export interface AppState {
     students: StudentState;
-    classes: ClassState;
     calendars: CalendarsState;
     entities: EntitiesState;
     reviews: ReviewsState;
@@ -77,7 +73,6 @@ export const AppEffects = [
     UnitEffects,
     LevelEffects,
     LessonsEffects,
-    ClassEffects,
     RolesEffects,
     PermissionsEffects,
     EmployeesEffects,
@@ -96,7 +91,6 @@ export const AppFeatures = [
     serviceFeature,
     authFeature,
     lessonsFeature,
-    classesFeature,
     rolesFeature,
     permissionsFeature,
     employeesFeature,

@@ -2,11 +2,6 @@ import {TableColumn} from "../../../../shared/components/tables/global-table/glo
 
 export const LEVEL_COLUMNS: TableColumn[] = [
     {
-        field: 'id',
-        header: 'ID',
-        filterType: 'text',
-    },
-    {
         field: 'name',
         header: 'Nome',
         filterType: 'text',
