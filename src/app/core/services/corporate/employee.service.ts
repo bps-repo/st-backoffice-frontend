@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
-import { Employee, EmployeeStatus, CreateEmployeeRequest } from '../models/corporate/employee';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
+import {ApiResponse, PageableResponse} from "../../models/ApiResponseService";
+import {CreateEmployeeRequest, Employee, EmployeeStatus} from "../../models/corporate/employee";
 
 @Injectable({
     providedIn: 'root',
@@ -45,13 +45,13 @@ export class EmployeeService {
 
 
     getEmployeesByRole(role: string): Observable<Employee[]> {
-        return this.searchEmployees({ roleName: role });
+        return this.searchEmployees({roleName: role});
     }
 
 
     getEmployeesByCenter(centerId: string): Observable<Employee[]> {
         // Updated to use search endpoint: GET /employees/search?centerId={centerId}
-        return this.searchEmployees({ centerId });
+        return this.searchEmployees({centerId});
     }
 
     /**
@@ -100,6 +100,7 @@ export class EmployeeService {
     removeRoleFromEmployee(employeeId: string, id: string): Observable<Employee> {
         return of()
     }
+
     /**
      * Gets employees by status.
      * @param status The status to filter by (e.g., ACTIVE).
