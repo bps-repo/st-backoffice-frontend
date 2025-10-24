@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnInit, ViewChild, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
-import { LevelService } from 'src/app/core/services/level.service';
+import {LevelService} from 'src/app/core/services/level.service';
 import {FormsModule} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -13,6 +13,7 @@ import {TagModule} from 'primeng/tag';
 import {PaginatorModule} from 'primeng/paginator';
 import {TooltipModule} from 'primeng/tooltip';
 import {Unit} from "../../../../../../core/models/course/unit";
+import {HasPermissionDirective} from "../../../../../../shared/directives";
 
 
 @Component({
@@ -26,7 +27,8 @@ import {Unit} from "../../../../../../core/models/course/unit";
         CardModule,
         TagModule,
         PaginatorModule,
-        TooltipModule
+        TooltipModule,
+        HasPermissionDirective
     ],
     styleUrl: 'list.component.css',
     templateUrl: './list.component.html'
@@ -65,7 +67,7 @@ export class ListComponent implements OnInit {
             this.levelName = nav.level.name ?? null;
             this.selectedLevel = nav.level.name ?? null;
         } else if (levelId) {
-            const levelMap: any = { '1': 'Básico', '2': 'Intermediário', '3': 'Avançado' };
+            const levelMap: any = {'1': 'Básico', '2': 'Intermediário', '3': 'Avançado'};
             this.selectedLevel = levelMap[levelId] ?? null;
             this.levelService.getLevelById(levelId).subscribe({
                 next: (level) => this.levelName = level?.name ?? this.selectedLevel,
@@ -75,13 +77,13 @@ export class ListComponent implements OnInit {
 
         // Material types for filtering
         this.materialTypes = [
-            { label: 'Conteúdo programático', value: 'Conteúdo programático' },
-            { label: 'Vídeos de dicas', value: 'Vídeos de dicas' },
-            { label: 'Unidades', value: 'Unidades' },
-            { label: 'Livros', value: 'Livros' },
-            { label: 'Exercícios', value: 'Exercícios' },
-            { label: 'Material de apoio', value: 'Material de apoio' },
-            { label: 'Vídeo aulas', value: 'Vídeo aulas' },
+            {label: 'Conteúdo programático', value: 'Conteúdo programático'},
+            {label: 'Vídeos de dicas', value: 'Vídeos de dicas'},
+            {label: 'Unidades', value: 'Unidades'},
+            {label: 'Livros', value: 'Livros'},
+            {label: 'Exercícios', value: 'Exercícios'},
+            {label: 'Material de apoio', value: 'Material de apoio'},
+            {label: 'Vídeo aulas', value: 'Vídeo aulas'},
         ];
 
         // Levels for filtering

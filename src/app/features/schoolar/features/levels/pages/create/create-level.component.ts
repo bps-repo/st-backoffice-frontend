@@ -42,19 +42,19 @@ export class CreateLevelComponent implements OnInit, OnDestroy {
     error$: Observable<any>;
 
     colorOptions = [
-        { label: 'Azul', value: '#3B82F6', color: '#3B82F6' },
-        { label: 'Verde', value: '#10B981', color: '#10B981' },
-        { label: 'Vermelho', value: '#EF4444', color: '#EF4444' },
-        { label: 'Amarelo', value: '#F59E0B', color: '#F59E0B' },
-        { label: 'Roxo', value: '#8B5CF6', color: '#8B5CF6' },
-        { label: 'Rosa', value: '#EC4899', color: '#EC4899' },
-        { label: 'Cinza', value: '#6B7280', color: '#6B7280' }
+        {label: 'Azul', value: '#3B82F6', color: '#3B82F6'},
+        {label: 'Verde', value: '#10B981', color: '#10B981'},
+        {label: 'Vermelho', value: '#EF4444', color: '#EF4444'},
+        {label: 'Amarelo', value: '#F59E0B', color: '#F59E0B'},
+        {label: 'Roxo', value: '#8B5CF6', color: '#8B5CF6'},
+        {label: 'Rosa', value: '#EC4899', color: '#EC4899'},
+        {label: 'Cinza', value: '#6B7280', color: '#6B7280'}
     ];
 
     statusOptions = [
-        { label: 'Ativo', value: 'ACTIVE' },
-        { label: 'Inativo', value: 'INACTIVE' },
-        { label: 'Rascunho', value: 'DRAFT' }
+        {label: 'Ativo', value: 'ACTIVE'},
+        {label: 'Inativo', value: 'INACTIVE'},
+        {label: 'Rascunho', value: 'DRAFT'}
     ];
 
     private destroy$ = new Subject<void>();
@@ -72,8 +72,8 @@ export class CreateLevelComponent implements OnInit, OnDestroy {
             description: ['', [Validators.required, Validators.minLength(10)]],
             color: ['#3B82F6', Validators.required],
             status: ['ACTIVE', Validators.required],
-            duration: [0, [Validators.required, Validators.min(0)]],
-            maximumUnits: [0, [Validators.required, Validators.min(0)]]
+            duration: [3, [Validators.required, Validators.min(0)]],
+            maximumUnits: [5, [Validators.required, Validators.min(0)]]
         });
 
         this.loading$ = this.store.select(LevelSelectors.selectLoading);
@@ -110,10 +110,8 @@ export class CreateLevelComponent implements OnInit, OnDestroy {
             description: formValue.description,
             duration: formValue.duration,
             maximumUnits: formValue.maximumUnits,
-            // Add additional fields if needed
-            // order: formValue.order,
-            // color: formValue.color,
-            // status: formValue.status
+            order: formValue.order,
+            color: formValue.color,
         };
 
         this.store.dispatch(LevelActions.createLevel({level: payload}));
@@ -125,7 +123,7 @@ export class CreateLevelComponent implements OnInit, OnDestroy {
                 summary: 'Sucesso',
                 detail: 'Nível criado com sucesso'
             });
-            this.router.navigate(['/schoolar/levels']);
+            this.router.navigate(['/schoolar/levels']).then();
         });
 
         // Handle failure
