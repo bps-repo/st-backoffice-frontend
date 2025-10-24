@@ -263,8 +263,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     public addMaterial(lesson: Lesson): void {
+
         if (lesson.id) {
-            this.router.navigate(['/schoolar/lessons/materials/add', lesson.id]);
+            this.router.navigate(['/schoolar/materials/create'], {
+                queryParams: { entity: "LESSON", entityId: lesson.id }
+            });
         }
     }
 
