@@ -1,106 +1,110 @@
-@import '_mixins';
-@import '_colors';
+@use 'sass:meta';
+@use 'mixins' as *;
+@use 'colors';
 
-@import './components/input/_editor';
+// All @use statements must be at the top, outside @layer
+@use 'common' as *;
+@use './components/input/editor' as *;
 
+//Input
+@use './components/input/autocomplete' as *;
+@use './components/input/calendar' as *;
+@use './components/input/cascadeselect' as *;
+@use './components/input/checkbox' as *;
+@use './components/input/chips' as *;
+@use './components/input/colorpicker' as *;
+@use './components/input/dropdown' as *;
+@use './components/input/inputgroup' as *;
+@use './components/input/inputmask' as *;
+@use './components/input/inputnumber' as *;
+@use './components/input/inputswitch' as *;
+@use './components/input/inputtext' as *;
+@use './components/input/listbox' as *;
+@use './components/input/multiselect' as *;
+@use './components/input/password' as *;
+@use './components/input/radiobutton' as *;
+@use './components/input/rating' as *;
+@use './components/input/selectbutton' as *;
+@use './components/input/slider' as *;
+@use './components/input/togglebutton' as *;
+@use './components/input/treeselect' as *;
+
+//Button
+@use './components/button/button' as *;
+@use './components/button/speeddial' as *;
+@use './components/button/splitbutton' as *;
+
+//Data
+@use './components/data/carousel' as *;
+@use './components/data/datatable' as *;
+@use './components/data/dataview' as *;
+@use './components/data/filter' as *;
+@use './components/data/orderlist' as *;
+@use './components/data/organizationchart' as *;
+@use './components/data/paginator' as *;
+@use './components/data/picklist' as *;
+@use './components/data/timeline' as *;
+@use './components/data/tree' as *;
+@use './components/data/treetable' as *;
+@use './components/data/virtualscroller' as *;
+
+//Panel
+@use './components/panel/accordion' as *;
+@use './components/panel/card' as *;
+@use './components/panel/divider' as *;
+@use './components/panel/fieldset' as *;
+@use './components/panel/panel' as *;
+@use './components/panel/scrollpanel' as *;
+@use './components/panel/splitter' as *;
+@use './components/panel/tabview' as *;
+@use './components/panel/toolbar' as *;
+
+//Overlay
+@use './components/overlay/confirmpopup' as *;
+@use './components/overlay/dialog' as *;
+@use './components/overlay/overlaypanel' as *;
+@use './components/overlay/sidebar' as *;
+@use './components/overlay/tooltip' as *;
+
+//File
+@use './components/file/fileupload' as *;
+
+//Menu
+@use './components/menu/breadcrumb' as *;
+@use './components/menu/contextmenu' as *;
+@use './components/menu/dock' as *;
+@use './components/menu/megamenu' as *;
+@use './components/menu/menu' as *;
+@use './components/menu/menubar' as *;
+@use './components/menu/panelmenu' as *;
+@use './components/menu/slidemenu' as *;
+@use './components/menu/steps' as *;
+@use './components/menu/tabmenu' as *;
+@use './components/menu/tieredmenu' as *;
+
+//Messages
+@use './components/messages/inlinemessage' as *;
+@use './components/messages/message' as *;
+@use 'components/messages/toast' as *;
+
+//MultiMedia
+@use './components/multimedia/galleria' as *;
+@use './components/multimedia/image' as *;
+
+//Misc
+@use './components/misc/avatar' as *;
+@use './components/misc/badge' as *;
+@use './components/misc/blockui' as *;
+@use './components/misc/chip' as *;
+@use './components/misc/inplace' as *;
+@use './components/misc/progressbar' as *;
+@use './components/misc/scrolltop' as *;
+@use './components/misc/skeleton' as *;
+@use './components/misc/tag' as *;
+@use './components/misc/terminal' as *;
+
+// Now the CSS layer - all styles from above modules will be included here automatically
 @layer primeng {
-    @import '_common';
-
-    //Input
-    @import './components/input/_autocomplete';
-    @import './components/input/_calendar';
-    @import './components/input/_cascadeselect';
-    @import './components/input/_checkbox';
-    @import './components/input/_chips';
-    @import './components/input/_colorpicker';
-    @import './components/input/_dropdown';
-
-    @import './components/input/_inputgroup';
-    @import './components/input/_inputmask';
-    @import './components/input/_inputnumber';
-    @import './components/input/_inputswitch';
-    @import './components/input/_inputtext';
-    @import './components/input/_listbox';
-    @import './components/input/_multiselect';
-    @import './components/input/_password';
-    @import './components/input/_radiobutton';
-    @import './components/input/_rating';
-    @import './components/input/_selectbutton';
-    @import './components/input/_slider';
-    @import './components/input/_togglebutton';
-    @import './components/input/_treeselect';
-    
-    //Button
-    @import './components/button/_button';
-    @import './components/button/_speeddial';
-    @import './components/button/_splitbutton';
-    
-    //Data
-    @import './components/data/_carousel';
-    @import './components/data/_datatable';
-    @import './components/data/_dataview';
-    @import './components/data/_filter';
-    @import './components/data/_orderlist';
-    @import './components/data/_organizationchart';
-    @import './components/data/_paginator';
-    @import './components/data/_picklist';
-    @import './components/data/_timeline';
-    @import './components/data/_tree';
-    @import './components/data/_treetable';
-    @import './components/data/_virtualscroller';
-    
-    //Panel
-    @import './components/panel/_accordion';
-    @import './components/panel/_card';
-    @import './components/panel/_divider';
-    @import './components/panel/_fieldset';
-    @import './components/panel/_panel';
-    @import './components/panel/_scrollpanel';
-    @import './components/panel/_splitter';
-    @import './components/panel/_tabview';
-    @import './components/panel/_toolbar';
-    
-    //Overlay
-    @import './components/overlay/_confirmpopup';
-    @import './components/overlay/_dialog';
-    @import './components/overlay/_overlaypanel';
-    @import './components/overlay/_sidebar';
-    @import './components/overlay/_tooltip';
-    
-    //File
-    @import './components/file/_fileupload';
-    
-    //Menu
-    @import './components/menu/_breadcrumb';
-    @import './components/menu/_contextmenu';
-    @import './components/menu/_dock';
-    @import './components/menu/_megamenu';
-    @import './components/menu/_menu';
-    @import './components/menu/_menubar';
-    @import './components/menu/_panelmenu';
-    @import './components/menu/_slidemenu';
-    @import './components/menu/_steps';
-    @import './components/menu/_tabmenu';
-    @import './components/menu/_tieredmenu';
-    
-    //Messages
-    @import './components/messages/_inlinemessage';
-    @import './components/messages/_message';
-    @import 'components/messages/toast';
-    
-    //MultiMedia
-    @import './components/multimedia/_galleria';
-    @import './components/multimedia/_image';
-    
-    //Misc
-    @import './components/misc/_avatar';
-    @import './components/misc/_badge';
-    @import './components/misc/_blockui';
-    @import './components/misc/_chip';
-    @import './components/misc/_inplace';
-    @import './components/misc/_progressbar';
-    @import './components/misc/_scrolltop';
-    @import './components/misc/_skeleton';
-    @import './components/misc/_tag';
-    @import './components/misc/_terminal';
+    // If you need to add any custom styles specific to this layer, add them here
+    // The imported styles are already available due to @use statements above
 }

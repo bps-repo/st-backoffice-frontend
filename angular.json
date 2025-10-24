@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "apollo-ng": {
+        "st-backoffice-frontend": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -18,7 +18,7 @@
                     "builder": "@angular-devkit/build-angular:application",
                     "options": {
                         "outputPath": {
-                          "base": "dist/apollo-ng"
+                            "base": "dist/st-backoffice-frontend"
                         },
                         "index": "src/index.html",
                         "polyfills": [
@@ -47,19 +47,19 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "1mb",
+                                    "maximumWarning": "1000kb",
                                     "maximumError": "5mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
-                                    "maximumWarning": "2kb",
-                                    "maximumError": "4kb"
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "20kb"
                                 }
                             ],
                             "outputHashing": "all"
                         },
                         "development": {
-                          "optimization": false,
+                            "optimization": false,
                             "extractLicenses": false,
                             "sourceMap": true,
                             "namedChunks": true
@@ -71,10 +71,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "buildTarget": "apollo-ng:build:production"
+                            "buildTarget": "st-backoffice-frontend:build:production"
                         },
                         "development": {
-                            "buildTarget": "apollo-ng:build:development"
+                            "buildTarget": "st-backoffice-frontend:build:development"
                         }
                     },
                     "defaultConfiguration": "development"
@@ -82,7 +82,7 @@
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                        "buildTarget": "apollo-ng:build"
+                        "buildTarget": "st-backoffice-frontend:build"
                     }
                 },
                 "test": {
@@ -109,6 +109,6 @@
         }
     },
     "cli": {
-      "analytics": "f4104960-3e17-493e-9f68-eebcf7b71a69"
+        "analytics": "f4104960-3e17-493e-9f68-eebcf7b71a69"
     }
 }

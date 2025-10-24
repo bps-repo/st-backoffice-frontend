@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { EventService } from 'src/app/demo/service/event.service';
-// @fullcalendar plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import {EventService} from "../../../../../../core/services/event.service";
 
 @Component({
     templateUrl: './calendar.app.component.html',
