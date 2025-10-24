@@ -2,58 +2,76 @@
 <div class="login-container">
     <!-- Painel central com dois lados -->
     <div class="login-box">
-      <!-- Painel esquerdo -->
-      <div class="left-panel">
-        <img src="assets/st_andrews.jpeg" alt="Logo" />
-        <h1>ST. Andrews English School</h1>
-        <button class="bg-red-900 font-bold cursor-pointer">Voltar</button>
-      </div>
-
-      <!-- Painel direito -->
-      <div class="right-panel">
-        <div class="form-wrapper">
-          <div class="text-center">
-            <img class="logo" src="assets/st-andrews-logo.png" alt="Security Icon" />
-            <p>Asseguramos a sua segurança!</p>
-          </div>
-
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <div>
-              <label for="email">Email</label>
-              <input
-                id="email"
-                type="text"
-                formControlName="email"
-                placeholder="Email"
-              />
-            </div>
-
-            <div>
-              <label for="password">Password</label>
-              <div class="relative">
-                <input
-                  id="password"
-                  [type]="hidePassword ? 'password' : 'text'"
-                  formControlName="password"
-                  placeholder="••••••••"
-                />
-                <button type="button" (click)="togglePasswordVisibility()" class="eye-button">
-                  <i [ngClass]="hidePassword ? 'pi pi-eye-slash' : 'pi pi-eye'" style="color: #1e2e6d"></i>
-                </button>
-              </div>
-            </div>
-
-            <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-              <i *ngIf="!isSubmitting" class="pi pi-sign-in mr-2"></i>
-              <i *ngIf="isSubmitting" class="pi pi-spin pi-spinner mr-2"></i>
-              {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
-            </button>
-
-            <div class="forgot">
-              <a routerLink="/auth/request-password-reset">Esqueci a palavra-passe</a>
-            </div>
-          </form>
+        <!-- Painel esquerdo -->
+        <div class="left-panel">
+            <img src="assets/st_andrews.jpeg" alt="Logo" />
+            <h1>ST. Andrews English School</h1>
         </div>
-      </div>
+
+        <!-- Painel direito -->
+        <div class="right-panel">
+            <div class="form-wrapper">
+                <div class="text-center">
+                    <img class="logo" src="assets/st-andrews-logo.png" alt="Security Icon" />
+                </div>
+
+                <!-- Error Alert -->
+                <div *ngIf="showAlert" class="error-alert" [ngClass]="'alert-' + errorSeverity">
+                    <div class="alert-content">
+                        <div class="alert-icon">
+                            <i *ngIf="errorSeverity === 'error'" class="pi pi-exclamation-triangle"></i>
+                            <i *ngIf="errorSeverity === 'warning'" class="pi pi-exclamation-circle"></i>
+                            <i *ngIf="errorSeverity === 'info'" class="pi pi-info-circle"></i>
+                        </div>
+                        <div class="alert-message">
+                            <p>{{ errorMessage }}</p>
+                            <div *ngIf="shouldShowRetry" class="retry-section">
+                                <p class="retry-text">
+                                    <i class="pi pi-clock"></i>
+                                    Tente novamente em {{ retryDelay }} segundos
+                                </p>
+                                <button type="button" class="retry-btn" (click)="retryLogin()"
+                                        [disabled]="retryDelay > 0">
+                                    <i class="pi pi-refresh"></i>
+                                    Tentar Novamente
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="alert-close" (click)="dismissError()">
+                            <i class="pi pi-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                    <div>
+                        <label for="email">Email</label>
+                        <input id="email" type="text" formControlName="email" placeholder="Email" />
+                    </div>
+
+                    <div>
+                        <label for="password">Password</label>
+                        <div class="relative">
+                            <input id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password"
+                                placeholder="••••••••" />
+                            <button type="button" (click)="togglePasswordVisibility()" class="eye-button">
+                                <i [ngClass]="hidePassword ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                                    style="color: #1e2e6d"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" [disabled]="isSubmitting | async">
+                        <i *ngIf="!(isSubmitting | async)" class="pi pi-sign-in mr-2"></i>
+                        <i *ngIf="isSubmitting | async" class="pi pi-spin pi-spinner mr-2"></i>
+                        {{ (isSubmitting | async) ? 'Entrando...' : 'Entrar' }}
+                    </button>
+
+                    <div class="forgot">
+                        <a routerLink="/auth/request-password-reset">Esqueci a palavra-passe</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
+</div>

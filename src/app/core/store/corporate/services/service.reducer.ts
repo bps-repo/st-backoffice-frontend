@@ -1,117 +1,138 @@
-import {createFeature, createReducer, on} from '@ngrx/store';
+import { createFeature, createReducer, on } from '@ngrx/store';
 import * as ServiceActions from './service.actions';
-import {Service} from 'src/app/core/models/course/service';
+import { initialState, serviceAdapter, serviceFeatureKey } from './services.state';
 
-export interface ServiceState {
-    services: Service[];
-    service: Service | null;
-    loading: boolean;
-    error: any;
-}
-
-export const initialState: ServiceState = {
-    services: [],
-    service: null,
-    loading: false,
-    error: null,
-};
 
 export const serviceFeature = createFeature({
-    name: 'service',
+    name: serviceFeatureKey,
     reducer: createReducer(
         initialState,
         on(ServiceActions.createService, state => ({
             ...state,
             loading: true,
-            error: null
+            error: null,
+            loadingCreate: true,
+            createError: null,
         })),
-        on(ServiceActions.createServiceSuccess, (state, {service}) => ({
+        on(ServiceActions.createServiceSuccess, (state, { service }) => serviceAdapter.addOne(service, {
             ...state,
-            services: [...state.services, service],
-            loading: false
+            loadingCreate: false,
+            loading: false,
+            createError: null,
+            error: null,
         })),
-        on(ServiceActions.createServiceFailure, (state, {error}) => ({
+        on(ServiceActions.createServiceFailure, (state, { error }) => ({
             ...state,
             loading: false,
+            loadingCreate: false,
+            createError: error,
             error
         })),
         on(ServiceActions.loadServices, (state) => ({
             ...state,
             loading: true,
             error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.loadServicesSuccess, (state, {services}) => ({
+        on(ServiceActions.loadServicesSuccess, (state, { services }) => serviceAdapter.setAll(services, {
             ...state,
-            services,
             loading: false,
             error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.loadServicesFailure, (state, {error}) => ({
+        on(ServiceActions.loadServicesFailure, (state, { error }) => ({
             ...state,
             loading: false,
             error,
+            loadingCreate: false,
+            createError: null,
         })),
         on(ServiceActions.loadService, (state) => ({
             ...state,
             loading: true,
             error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.loadServiceSuccess, (state, {service}) => ({
+        on(ServiceActions.loadServiceSuccess, (state, { service }) => serviceAdapter.setOne(service, {
             ...state,
-            service: service,
             loading: false,
             error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.loadServiceFailure, (state, {error}) => ({
+        on(ServiceActions.loadServiceFailure, (state, { error }) => ({
             ...state,
             loading: false,
             error,
+            loadingCreate: false,
+            createError: null,
         })),
         on(ServiceActions.loadPagedServices, state => ({
             ...state,
             loading: true,
-            error: null
+            error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.loadPagedServicesSuccess, (state, {services}) => ({
-            ...state,
-            services,
-            loading: false
-        })),
-        on(ServiceActions.loadPagedServicesFailure, (state, {error}) => ({
+        on(ServiceActions.loadPagedServicesSuccess, (state, { services }) => serviceAdapter.setAll(services, {
             ...state,
             loading: false,
-            error
+            error: null,
+            loadingCreate: false,
+            createError: null,
+        })),
+        on(ServiceActions.loadPagedServicesFailure, (state, { error }) => ({
+            ...state,
+            loading: false,
+            error,
+            loadingCreate: false,
+            createError: null,
         })),
         on(ServiceActions.deleteService, state => ({
             ...state,
             loading: true,
-            error: null
+            error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.deleteServiceSuccess, (state, {id}) => ({
+        on(ServiceActions.deleteServiceSuccess, (state, { id }) => ({
             ...state,
-            services: state.services.filter(service => service.id !== id),
-            loading: false
+            services: serviceAdapter.removeOne(id, state),
+            loading: false,
+            error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.deleteServiceFailure, (state, {error}) => ({
+        on(ServiceActions.deleteServiceFailure, (state, { error }) => ({
             ...state,
             loading: false,
-            error
+            error,
+            loadingCreate: false,
+            createError: null,
         })),
         on(ServiceActions.updateService, state => ({
             ...state,
             loading: true,
-            error: null
+            error: null,
+            loadingCreate: false,
+            createError: null,
         })),
-        on(ServiceActions.updateServiceSuccess, (state, {service}) => ({
-            ...state,
-            service,
-            loading: false,
-            error: null
-        })),
-        on(ServiceActions.updateServiceFailure, (state, {error}) => ({
+        on(ServiceActions.updateServiceSuccess, (state, { service }) => serviceAdapter.updateOne({ id: service.id, changes: service }, {
             ...state,
             loading: false,
-            error
+            error: null,
+            loadingCreate: false,
+            createError: null,
+        })),
+        on(ServiceActions.updateServiceFailure, (state, { error }) => ({
+            ...state,
+            loading: false,
+            error,
+            loadingCreate: false,
+            createError: null,
         }))
     )
 });

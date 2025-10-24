@@ -1,0 +1,292 @@
+<p-toast></p-toast>
+<div class="grid">
+    <div class="col-12">
+        <h5>Criar Contrato</h5>
+        <span>Criar um novo contrato para um aluno</span>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <form [formGroup]="contractForm" (ngSubmit)="onSubmit()">
+                <div class="grid formgrid p-fluid">
+                    <!-- Student Selection -->
+                    <div class="field col-12 md:col-5">
+                        <label for="student">Aluno *</label>
+                        <p-dropdown id="student" formControlName="student" [options]="students" optionLabel="name"
+                            placeholder="Selecione um aluno" [(ngModel)]="selectedStudent" [showClear]="true">
+                            <ng-template pTemplate="item" let-student>
+                                <div>
+                                    <div>{{student.name}}</div>
+                                    <div class="text-sm text-500">{{student.user.email}} - {{student.center.name}}</div>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('student')?.invalid && contractForm.get('student')?.touched"
+                            class="p-error">
+                            Aluno é obrigatório
+                        </small>
+                    </div>
+
+
+                    <!-- Contract Type -->
+                    <div class="field col-12 md:col-4">
+                        <label for="contractType">Tipo de Contrato *</label>
+                        <p-dropdown id="contractType" formControlName="contractType" [options]="contractTypes"
+                            optionLabel="label" optionValue="value" placeholder="Select contract type">
+                        </p-dropdown>
+                        <small
+                            *ngIf="contractForm.get('contractType')?.invalid && contractForm.get('contractType')?.touched"
+                            class="p-error">
+                            Tipo de Contrato é obrigatório
+                        </small>
+                    </div>
+
+                    <!-- Registration Fee -->
+                    <div class="field col-12 md:col-3 mt-6">
+                        <div class="flex align-items-center gap-2">
+                            <input type="checkbox" formControlName="includeRegistrationFee" />
+                            <label>Incluir Taxa de Registro</label>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="field col-12 md:col-6">
+                        <label for="notes">Notas</label>
+                        <p-inputTextarea id="notes" formControlName="notes" placeholder="Enter contract notes"
+                            rows="5" />
+                    </div>
+
+                    <!-- Contract Level Section -->
+                    <div class="col-12">
+                        <div class="flex align-items-center justify-content-between mb-3">
+                            <h6>Informações do produto</h6>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="grid formgrid p-fluid">
+                                <!-- Level -->
+                                <div class="field col-12 md:col-8">
+                                    <label>Nível *</label>
+                                    <p-dropdown formControlName="levelId" [options]="levels" optionLabel="name"
+                                        optionValue="id" placeholder="Select a level" [showClear]="true">
+                                        <ng-template pTemplate="item" let-levelOption>
+                                            <div>
+                                                <div>{{levelOption.name}}</div>
+                                                <div class="text-sm text-500">Duration: {{levelOption.duration}}
+                                                    months - {{levelOption.maximumUnits}} units</div>
+                                            </div>
+                                        </ng-template>
+                                    </p-dropdown>
+                                    <small
+                                        *ngIf="contractForm.get('levelId')?.invalid && contractForm.get('levelId')?.touched"
+                                        class="p-error">
+                                        Nível é obrigatório
+                                    </small>
+                                </div>
+
+                                <!-- Duration -->
+                                <div class="field col-12 md:col-4">
+                                    <label>Duração (meses) *</label>
+                                    <p-inputNumber formControlName="duration" [min]="1"></p-inputNumber>
+                                    <small
+                                        *ngIf="contractForm.get('duration')?.invalid && contractForm.get('duration')?.touched"
+                                        class="p-error">
+                                        Duração é obrigatória
+                                    </small>
+                                </div>
+
+                                <!-- Level Price -->
+                                <div class="field col-12 md:col-6">
+                                    <label>Preço do Nível *</label>
+                                    <p-inputNumber formControlName="levelPrice" [min]="0" mode="decimal"
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
+                                    <small
+                                        *ngIf="contractForm.get('levelPrice')?.invalid && contractForm.get('levelPrice')?.touched"
+                                        class="p-error">
+                                        Preço do Nível é obrigatório
+                                    </small>
+                                </div>
+
+                                <!-- Course Material Price -->
+                                <div class="field col-12 md:col-6">
+                                    <label>Preço do Material do Curso *</label>
+                                    <p-inputNumber formControlName="courseMaterialPrice" [min]="0" mode="decimal"
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
+                                    <small
+                                        *ngIf="contractForm.get('courseMaterialPrice')?.invalid && contractForm.get('courseMaterialPrice')?.touched"
+                                        class="p-error">
+                                        Preço do Material do Curso é obrigatório
+                                    </small>
+                                </div>
+
+                                <!-- Number of Installments -->
+                                <div class="field col-12 md:col-4">
+                                    <label for="numberOfInstallments">Número de Parcelas *</label>
+                                    <p-inputNumber id="numberOfInstallments" formControlName="numberOfInstallments"
+                                        [min]="1"></p-inputNumber>
+                                    <small
+                                        *ngIf="contractForm.get('numberOfInstallments')?.invalid && contractForm.get('numberOfInstallments')?.touched"
+                                        class="p-error">
+                                        Número de Parcelas é obrigatório
+                                    </small>
+                                </div>
+
+                                <!-- Discount Percent -->
+                                <div class="field col-12 md:col-6">
+                                    <label for="discountPercent">Desconto (%)</label>
+                                    <p-inputNumber id="discountPercent" formControlName="discountPercent" [min]="0"
+                                        [max]="100"></p-inputNumber>
+                                </div>
+
+                                <!-- Notes for Level -->
+                                <div class="field col-12 md:col-12">
+                                    <label>Notas do Nível</label>
+                                    <p-inputTextarea formControlName="levelNotes"
+                                        placeholder="Enter level-specific notes" rows="5" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contract Summary Section -->
+                    <div class="col-12">
+                        <div class="card">
+                            <h6>Resumo do Contrato</h6>
+                            <div class="grid">
+                                <div class="col-12 md:col-6">
+                                    <div class="flex justify-content-between gap-3 mb-2">
+                                        <span>Preço Total dos Nível:</span>
+                                        <span class="font-semibold">{{contractSummary.totalLevelPrice | number:'1.2-2'}}
+                                            AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between gap-3 mb-2">
+                                        <span>Preço Total dos Material:</span>
+                                        <span class="font-semibold">{{contractSummary.totalMaterialPrice |
+                                            number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between gap-3 mb-2">
+                                        <span>Subtotal:</span>
+                                        <span class="font-semibold">{{contractSummary.totalAmount | number:'1.2-2'}}
+                                            AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between gap-3 mb-2"
+                                        *ngIf="contractSummary.totalDiscount > 0">
+                                        <span>Desconto ({{contractForm.get('discountPercent')?.value || 0}}%):</span>
+                                        <span class="font-semibold text-red-500">-{{contractSummary.totalDiscount |
+                                            number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <hr>
+                                    <div class="flex justify-content-between gap-3 mb-2">
+                                        <span class="font-bold text-lg">Total Final:</span>
+                                        <span class="font-bold text-lg text-primary">{{contractSummary.finalAmount |
+                                            number:'1.2-2'}} AOA</span>
+                                    </div>
+                                    <div class="flex justify-content-between gap-3"
+                                        *ngIf="contractForm.get('numberOfInstallments')?.value > 1">
+                                        <span class="font-semibold text-blue-600">Valor por Parcela:</span>
+                                        <span class="font-semibold text-blue-600">{{contractSummary.installmentAmount |
+                                            number:'1.2-2'}} AOA</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Installments Section -->
+                    <div class="col-12" *ngIf="installments.length > 0">
+                        <div class="card">
+                            <div class="flex align-items-center justify-content-between mb-3">
+                                <h6 class="m-0">Plano de Parcelas</h6>
+                                <span class="text-sm text-500">Total: {{installments.length}} parcelas</span>
+                            </div>
+                            <div class="grid">
+                                <div class="col-12">
+                                    <p-table [value]="installments" [tableStyle]="{'min-width': '50rem'}"
+                                        [paginator]="false" [showCurrentPageReport]="false">
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th style="width: 15%">Parcela</th>
+                                                <th style="width: 25%">Data de Vencimento</th>
+                                                <th style="width: 25%">Valor</th>
+                                                <th style="width: 20%">Status</th>
+                                                <th style="width: 15%">Ações</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-installment let-i="rowIndex">
+                                            <tr>
+                                                <td>
+                                                    <div class="flex align-items-center gap-2">
+                                                        <i class="pi pi-calendar text-primary"></i>
+                                                        <span
+                                                            class="font-semibold">{{installment.installmentNumber}}/{{installments.length}}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex align-items-center gap-2">
+                                                        <i class="pi pi-clock text-500"></i>
+                                                        <span>{{installment.dueDate | date:'dd/MM/yyyy'}}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="font-semibold text-primary">{{installment.amount |
+                                                        number:'1.2-2'}} AOA</span>
+                                                </td>
+                                                <td>
+                                                    <span class="p-tag p-tag-warning">
+                                                        <i class="pi pi-clock mr-1"></i>
+                                                        Pendente
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <p-button icon="pi pi-eye"
+                                                        class="p-button-sm p-button-text p-button-info"
+                                                        title="Ver detalhes da parcela {{installment.installmentNumber}}">
+                                                    </p-button>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="emptymessage">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-500 p-4">
+                                                    <i class="pi pi-info-circle mr-2"></i>
+                                                    Nenhuma parcela gerada. Preencha os dados do contrato para gerar o
+                                                    plano de pagamento.
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                </div>
+                            </div>
+
+                            <!-- Installments Summary -->
+                            <div class="grid mt-3" *ngIf="installments.length > 0">
+                                <div class="col-12 md:col-6">
+                                    <div
+                                        class="flex justify-content-between align-items-center p-3 border-round bg-blue-50">
+                                        <span class="font-semibold">Valor Total das Parcelas:</span>
+                                        <span class="font-bold text-primary text-lg">
+                                            {{contractSummary.finalAmount | number:'1.2-2'}} AOA
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-6">
+                                    <div
+                                        class="flex justify-content-between align-items-center p-3 border-round bg-green-50">
+                                        <span class="font-semibold">Valor por Parcela:</span>
+                                        <span class="font-bold text-green-600 text-lg">
+                                            {{contractSummary.installmentAmount | number:'1.2-2'}} AOA
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-content-end mt-4">
+                    <p-button type="submit" label="Criar Contrato" icon="pi pi-check" [loading]="loading"
+                        [disabled]="contractForm.invalid">
+                    </p-button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

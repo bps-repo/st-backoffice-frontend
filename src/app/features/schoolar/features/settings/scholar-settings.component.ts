@@ -4,7 +4,7 @@ import {GeneralScholarSettingComponent} from "./components/general/schoolar-sett
 import {LevelSettingComponent} from "./components/level/level-setting.component";
 
 @Component({
-    selector: 'app-finance-settings',
+    selector: 'scholar-settings',
     standalone: true,
     template: `
         <app-view-tab [title]="'Definições'" [viewOptions]="viewOptions"/>

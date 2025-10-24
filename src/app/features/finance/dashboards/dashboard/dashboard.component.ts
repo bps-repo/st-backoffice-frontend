@@ -14,8 +14,9 @@ type ViewOption = { label: string; value: { key: string; component: any } };
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SelectButtonModule, TabViewComponent, ViewTabComponent],
-    template: `<app-view-tab [title]="'Dashboard'" [viewOptions]="viewOptions"/>`,
+    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SelectButtonModule, ViewTabComponent],
+    template: `
+        <app-view-tab [title]="'Dashboard'" [viewOptions]="viewOptions"/>`,
 })
 export class FinanceDashboard implements OnInit {
 

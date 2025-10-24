@@ -1,0 +1,69 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="mb-4">
+            <h1 class="text-3xl font-bold text-900 m-0">Nova Unidade</h1>
+            <p class="text-600 mt-2 mb-0">Crie uma nova unidade de ensino</p>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <h3 class="text-xl font-semibold text-900 mb-4">Informações da Unidade</h3>
+
+            <form [formGroup]="unitForm" (ngSubmit)="saveUnit()">
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="levelId" class="block text-sm font-medium text-600 mb-2">Nível *</label>
+                            <p-dropdown id="levelId" formControlName="levelId" [options]="(levels$ | async) ?? []"
+                                optionLabel="name" optionValue="id" placeholder="Selecione o nível" class="w-full">
+                            </p-dropdown>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="orderUnit" class="block text-sm font-medium text-600 mb-2">Ordem *</label>
+                            <p-inputNumber id="orderUnit" formControlName="orderUnit" [min]="1"
+                                class="w-full"></p-inputNumber>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="name" class="block text-sm font-medium text-600 mb-2">Nome da Unidade *</label>
+                            <input id="name" type="text" pInputText formControlName="name"
+                                placeholder="Ex: Apresentações e Cumprimentos" class="w-full" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="description" class="block text-sm font-medium text-600 mb-2">Descrição *</label>
+                            <textarea id="description" rows="3" pInputTextarea formControlName="description"
+                                placeholder="Descrição detalhada da unidade" class="w-full"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="estimatedHours" class="block text-sm font-medium text-600 mb-2">Horas Estimadas
+                                *</label>
+                            <p-inputNumber id="estimatedHours" formControlName="estimatedHours" [min]="0"
+                                class="w-full"></p-inputNumber>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-content-end gap-2 mt-4">
+                    <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-danger"
+                        (click)="cancel()"></button>
+                    <button pButton type="submit" label="Salvar" icon="pi pi-check" class="p-button-primary"
+                        [disabled]="unitForm.invalid"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

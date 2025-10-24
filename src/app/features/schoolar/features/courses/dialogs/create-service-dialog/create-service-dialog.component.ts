@@ -12,7 +12,7 @@ import {Store} from '@ngrx/store';
 import * as ServiceActions from 'src/app/core/store/corporate/services/service.actions';
 import {Observable} from 'rxjs';
 import {selectServiceError, selectServiceLoading} from 'src/app/core/store/corporate/services/service.selector';
-import {ServiceState} from "../../../../../../core/store/corporate/services/service.reducer";
+import {ServiceState} from "../../../../../../core/store/corporate/services/services.state";
 
 
 @Component({
@@ -92,7 +92,7 @@ export class CreateServiceDialogComponent implements OnInit {
 
         console.log(payload)
 
-        this.store.dispatch(ServiceActions.createService({service: payload}));
+        this.store.dispatch(ServiceActions.createService({service: payload as Service}));
         // Monitorar o estado de carregamento e sucesso
         this.store.select(selectServiceError).subscribe(error => {
             if (!error) {

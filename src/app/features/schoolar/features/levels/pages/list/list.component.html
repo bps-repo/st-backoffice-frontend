@@ -1,51 +1,258 @@
-<p-toast></p-toast>
-
-<div *ngIf="(loading$ | async)" class="spinner-container">
-    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
-</div>
-
-<div *ngIf="(error$ | async) !== null">
-    {{ (error$ | async) }}
-</div>
-
-<div class="grid" *ngIf="!(loading$ | async)">
-    <app-global-table
-            tableLabel="Níveis"
-            [data]="(levels$ | async) ?? []"
-            [entity]="'levels'"
-            [columns]="columns"
-            [loading]="loading$ | async"
-            class="w-full"
-            [columnTemplates]="{ actions: actionsTemplate }"
-            (createEntity)="createLevel()"
-    ></app-global-table>
-
-    <!-- Template para ações -->
-    <ng-template #actionsTemplate let-level>
-        <div class="flex gap-2 justify-content-center">
+<section class="grid">
+    <!-- Header with title and create button -->
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between align-items-center mb-4 sticky-header"
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-2">Gestão de níveis e unidades</h2>
+            <span class="text-lg">Cadastro e acompanhamento completo dos níveis</span>
+        </div>
+        <div class="flex gap-2">
             <button
-                    pButton pRipple
-                    icon="pi pi-eye"
-                    class="p-button-rounded p-button-text"
-                    (click)="viewDetails(level)"
-                    pTooltip="Ver Detalhes"
-                    tooltipPosition="top"
+                pButton
+                (click)="navigateToCreateUnit()"
+                label="Nova unidade"
+                icon="pi pi-plus"
+                class="p-button-outlined p-button-secondary"
             ></button>
-
             <button
-                    pButton
-                    pRipple
-                    icon="pi pi-trash"
-                    class="p-button-rounded p-button-danger"
-                    (click)="deleteLevel(level)"
-                    pTooltip="Excluir"
-                    tooltipPosition="top"
+                pButton
+                (click)="navigateToCreateLevel()"
+                label="Criar Nível"
+                icon="pi pi-plus"
+                class="p-button-primary"
             ></button>
         </div>
-    </ng-template>
+    </div>
 
-    <!-- Diálogo de criação -->
-    <app-create-level-dialog></app-create-level-dialog>
-    <!-- Diálogo de confirmação -->
-    <p-confirmDialog></p-confirmDialog>
-</div>
+    <!-- KPI Cards -->
+    <div class="col-12 mb-3">
+        <div class="grid">
+            <div *ngFor="let kpi of kpis" class="col-12 md:col-6 lg:col-3">
+                <app-kpi-indicators class="w-full h-full" [kpi]="kpi"></app-kpi-indicators>
+            </div>
+        </div>
+    </div>
+
+    <!-- TabView -->
+    <div class="col-12 mt-4">
+        <p-tabView (onChange)="onTabChange($event)">
+            <!-- Hierarchy Tab -->
+            <p-tabPanel header="Hierarquia">
+                <!-- Filter Section -->
+                <div class="grid mt-3 mb-3">
+                    <div class="col-12 md:col-8">
+                        <span class="p-input-icon-left w-full">
+                            <i class="pi pi-search"></i>
+                            <input
+                                type="text"
+                                pInputText
+                                [(ngModel)]="searchTerm"
+                                (input)="onSearch()"
+                                placeholder="Buscar por nome ou descrição"
+                                class="w-full"
+                            />
+                        </span>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <p-dropdown
+                            [options]="levels"
+                            [(ngModel)]="selectedLevelId"
+                            (onChange)="onLevelSelect($event)"
+                            optionLabel="name"
+                            optionValue="id"
+                            placeholder="Filtrar por nível"
+                            [showClear]="true"
+                            class="w-full"
+                        ></p-dropdown>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div *ngIf="(loading$ | async)" class="grid mt-3">
+                    <div class="col-12 flex justify-content-center py-6">
+                        <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+                    </div>
+                </div>
+
+                <!-- Levels Grid -->
+                <div class="grid mt-3" *ngIf="!(loading$ | async)">
+                    <!-- Level Cards -->
+                    <div *ngFor="let level of filteredLevels; let i = index" class="col-12 mb-3">
+                        <div class="card level-card p-3">
+                            <!-- Level Header -->
+                            <div class="flex justify-content-between align-items-center"
+                                 (click)="toggleExpand(level.id)">
+                                <div class="flex align-items-center">
+                                    <span class="level-color-indicator"
+                                          [style.background-color]="getLevelColor(i)"></span>
+                                    <div class="flex flex-column">
+                                        <span class="font-bold text-lg">{{ level.name }}</span>
+                                        <span class="text-sm text-color-secondary">{{ level.description }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex align-items-center gap-3">
+                                    <div class="flex flex-column align-items-center mr-3">
+                                        <span class="font-bold">{{ getUnitsForLevel(level.id).length }}</span>
+                                        <span class="text-xs">Unidades</span>
+                                    </div>
+                                    <div class="flex flex-column align-items-center mr-3">
+                                        <span class="font-bold">0</span>
+                                        <span class="text-xs">Alunos</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button
+                                            pButton pRipple
+                                            icon="pi pi-eye"
+                                            class="p-button-rounded p-button-text"
+                                            (click)="viewDetails(level); $event.stopPropagation()"
+                                            pTooltip="Ver Detalhes"
+                                            tooltipPosition="top"
+                                        ></button>
+                                        <button
+                                            pButton pRipple
+                                            icon="pi pi-pencil"
+                                            class="p-button-rounded p-button-text p-button-warning"
+                                            (click)="viewDetails(level); $event.stopPropagation()"
+                                            pTooltip="Editar"
+                                            tooltipPosition="top"
+                                        ></button>
+                                        <button
+                                            pButton pRipple
+                                            icon="pi pi-trash"
+                                            class="p-button-rounded p-button-text p-button-danger"
+                                            (click)="deleteLevel(level); $event.stopPropagation()"
+                                            pTooltip="Excluir"
+                                            tooltipPosition="top"
+                                        ></button>
+                                        <button
+                                            pButton pRipple
+                                            [icon]="isExpanded(level.id) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                                            class="p-button-rounded p-button-text"
+                                            (click)="toggleExpand(level.id); $event.stopPropagation()"
+                                            pTooltip="Expandir/Recolher"
+                                            tooltipPosition="top"
+                                        ></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Units List (Expandable) -->
+                            <div *ngIf="isExpanded(level.id)" class="unit-list mt-3">
+                                <div *ngFor="let unit of getUnitsForLevel(level.id)" class="unit-item">
+                                    <div class="flex justify-content-between align-items-center">
+                                        <div class="flex flex-column">
+                                            <span class="font-medium">{{ unit.name }}</span>
+                                            <span class="text-sm text-color-secondary">{{ unit.description }}</span>
+                                        </div>
+                                        <p-badge [value]="unit.status"
+                                                 [severity]="unit.status === 'active' ? 'success' : 'warning'"></p-badge>
+                                    </div>
+                                </div>
+                                <div *ngIf="getUnitsForLevel(level.id).length === 0" class="text-center p-3">
+                                    <span class="text-color-secondary">Nenhuma unidade encontrada para este nível</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div *ngIf="levels.length === 0" class="col-12 text-center p-5">
+                        <i class="pi pi-info-circle text-4xl text-color-secondary mb-3"></i>
+                        <h3>Nenhum nível encontrado</h3>
+                        <p>Clique em "Novo nível" para adicionar um nível</p>
+                    </div>
+                </div>
+            </p-tabPanel>
+
+            <!-- Progress Tab -->
+            <p-tabPanel header="Progresso">
+                <div class="grid">
+                    <!-- Search & Filters -->
+                    <div class="col-12 mb-3">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input type="text" pInputText placeholder="Buscar alunos..." class="w-20rem">
+                            </span>
+                            <div class="flex gap-2">
+                                <p-dropdown [options]="levels" optionLabel="name" placeholder="Todos os Níveis"></p-dropdown>
+                                <p-dropdown [options]="[{label: 'Todos os Status', value: ''}, {label: 'Em Progresso', value: 'progress'}, {label: 'Concluído', value: 'done'}]" placeholder="Todos os Status"></p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Cards (static sample aligned to design) -->
+                    <div class="col-12 md:col-6 lg:col-4" *ngFor="let i of [1,2,3,4,5,6]">
+                        <div class="card">
+                            <div class="flex justify-content-between align-items-start mb-2">
+                                <div class="flex align-items-center gap-2">
+                                    <span class="border-circle w-2rem h-2rem bg-gray-200 flex align-items-center justify-content-center"><i class="pi pi-user text-gray-600"></i></span>
+                                    <div class="flex flex-column">
+                                        <span class="font-bold">{{ i % 2 === 0 ? 'Maria Santos' : 'João Silva' }}</span>
+                                        <small class="text-color-secondary">{{ i % 3 === 0 ? 'Conversação Básica' : 'Apresentações e Cumprimentos' }}</small>
+                                    </div>
+                                </div>
+                                <p-badge [value]="i % 3 === 0 ? 'Concluído' : 'Em Progresso'" [severity]="i % 3 === 0 ? 'success' : 'info'"></p-badge>
+                            </div>
+                            <div class="text-sm mb-2"><span class="level-color-indicator" [style.background]="'#10B981'"></span> Beginner</div>
+                            <div class="mb-2 flex justify-content-between text-sm">
+                                <span>Progresso</span>
+                                <span>{{ i % 3 === 0 ? '100%' : (i % 2 === 0 ? '67%' : '33%') }}</span>
+                            </div>
+                            <p-progressBar [value]="i % 3 === 0 ? 100 : (i % 2 === 0 ? 67 : 33)" [showValue]="false" styleClass="mb-3"></p-progressBar>
+                            <div class="text-xs text-color-secondary mb-2">{{ i % 2 === 0 ? '2 de 3 tópicos concluídos' : '1 de 3 tópicos concluídos' }}</div>
+                            <div class="text-xs text-color-secondary mb-3 flex justify-content-between">
+                                <span>Iniciado: 10/01/2024</span>
+                                <span>Última atividade: 20/01/2024</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <p-chip *ngFor="let tag of (i % 2 === 0 ? ['Greetings', 'Personal Information'] : ['Daily Activities'])" [label]="tag"></p-chip>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paginator placeholder -->
+                <div class="col-12 flex justify-content-center mt-3">
+                    <div class="p-buttonset">
+                        <button pButton type="button" icon="pi pi-angle-left" class="p-button-text"></button>
+                        <button pButton type="button" label="1" class="p-button-text p-button-info"></button>
+                        <button pButton type="button" icon="pi pi-angle-right" class="p-button-text"></button>
+                    </div>
+                </div>
+            </p-tabPanel>
+
+            <!-- Reports Tab -->
+            <p-tabPanel header="Relatórios">
+                <div class="grid">
+                    <div class="col-12">
+                        <div class="card">
+                            <h3 class="text-lg font-bold mb-3">Relatórios de Progresso</h3>
+                            <div class="mb-3" *ngFor="let row of [
+                                {name: 'Beginner', students: 5, progress: 60, color: '#10B981'},
+                                {name: 'Elementary', students: 4, progress: 58, color: '#3B82F6'},
+                                {name: 'Intermediate', students: 3, progress: 78, color: '#F59E0B'},
+                                {name: 'Advanced', students: 3, progress: 67, color: '#8B5CF6'}
+                            ]">
+                                <div class="flex justify-content-between align-items-center mb-1">
+                                    <div class="flex align-items-center gap-2">
+                                        <span class="level-color-indicator" [style.background]="row.color"></span>
+                                        <span class="font-medium">{{ row.name }}</span>
+                                    </div>
+                                    <div class="text-sm text-color-secondary">{{ row.students }} alunos&nbsp; {{ row.progress }}% concluído</div>
+                                </div>
+                                <p-progressBar [value]="row.progress" [showValue]="false" styleClass="mb-3"></p-progressBar>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</section>
+
+<!-- Diálogo de criação -->
+<app-create-unit-dialog></app-create-unit-dialog>
+<app-create-level-dialog></app-create-level-dialog>
+<!-- Diálogo de confirmação -->
+<p-confirmDialog></p-confirmDialog>

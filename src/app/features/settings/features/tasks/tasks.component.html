@@ -1,0 +1,358 @@
+<style>
+    ::ng-deep .p-selectbutton {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    ::ng-deep .p-selectbutton .p-button {
+        margin-right: 0.5rem;
+        border: none;
+    }
+
+    ::ng-deep .p-selectbutton .p-button:last-child {
+        margin-right: 0;
+    }
+
+    .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sticky-active {
+        background-color: var(--surface-card);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Animation classes */
+    .animate-fade {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .animate-scale {
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    /* For elements that need to stick to the top */
+    .content-sticky {
+        position: sticky;
+        top: 140px; /* Adjust based on header height */
+        z-index: 90;
+    }
+</style>
+
+<section class="grid">
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Gestão de Tarefas</h2>
+            <span class="text-lg">Acompanhe tarefas que requerem atenção especial</span>
+        </div>
+        <button pButton label="Nova tarefa" icon="pi pi-plus" class="p-button-outlined"></button>
+    </div>
+
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+                        optionLabel="label" optionValue="value">
+            <ng-template let-item pTemplate="item">
+                <div class="flex align-items-center">
+                    <span>{{ item.label }}</span>
+                    <span *ngIf="item.value === 'contratos_terminados'"
+                          class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 border-round">
+            {{ contratosTerminadosCount }}
+          </span>
+                    <span *ngIf="item.value === 'parcelas_vencer'"
+                          class="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 border-round">
+            {{ parcelasVencerCount }}
+          </span>
+                    <span *ngIf="item.value === 'parcelas_vencidas'"
+                          class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 border-round">
+            {{ parcelasVencidasCount }}
+          </span>
+                    <span *ngIf="item.value === 'ausencias_longas'"
+                          class="ml-2 px-2 py-1 text-xs bg-purple-100 text-purple-800 border-round">
+            {{ ausenciasLongasCount }}
+          </span>
+                </div>
+            </ng-template>
+        </p-selectButton>
+    </div>
+
+    <!-- Task Table -->
+    <div class="col-12 animate-fade px-fadein">
+        <div class="card">
+            <div class="flex gap-2 align-items-center mb-3">
+        <span class="p-input-icon-left flex-1">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" class="w-full" placeholder="Buscar tarefas..."/>
+        </span>
+                <button pButton type="button" icon="pi pi-filter" label="Filtros" class="p-button-outlined"></button>
+                <button pButton type="button" icon="pi pi-download" label="Exportar" class="p-button-outlined"></button>
+            </div>
+
+            <p-table [value]="filteredTasks" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}"
+                     [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,25,50]"
+                     [globalFilterFields]="globalFilterFields">
+                <ng-template pTemplate="header">
+                    <tr *ngIf="currentView === 'contratos_terminados'">
+                        <th>Aluno</th>
+                        <th>Nível</th>
+                        <th>Centro</th>
+                        <th>Término</th>
+                        <th>Progresso</th>
+                        <th>Situação Financeira</th>
+                        <th>Ações</th>
+                    </tr>
+                    <tr *ngIf="currentView === 'parcelas_vencer'">
+                        <th>Aluno</th>
+                        <th>Nível</th>
+                        <th>Centro</th>
+                        <th>Parcela</th>
+                        <th>Vencimento</th>
+                        <th>Valor</th>
+                        <th>Método</th>
+                        <th>Ações</th>
+                    </tr>
+                    <tr *ngIf="currentView === 'parcelas_vencidas'">
+                        <th>Aluno</th>
+                        <th>Nível</th>
+                        <th>Centro</th>
+                        <th>Parcela</th>
+                        <th>Vencida em</th>
+                        <th>Atraso (dias)</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
+                    </tr>
+                    <tr *ngIf="currentView === 'ausencias_longas'">
+                        <th>Aluno</th>
+                        <th>Nível</th>
+                        <th>Centro</th>
+                        <th>Última Presença</th>
+                        <th>Dias Ausentes</th>
+                        <th>Frequência</th>
+                        <th>Progresso</th>
+                        <th>Ações</th>
+                    </tr>
+                </ng-template>
+                <!-- Contratos Terminados -->
+                <ng-template pTemplate="body" let-task *ngIf="currentView === 'contratos_terminados'">
+                    <tr>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">{{ task.title }}</span>
+                                <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
+                            </div>
+                        </td>
+                        <td>Intermediário</td>
+                        <td>Centro Lisboa</td>
+                        <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">75%</span>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+              <span [ngClass]="{
+                'bg-green-100 text-green-800': task.status === 'PENDENTE',
+                'bg-yellow-100 text-yellow-800': task.status === 'EM_ANDAMENTO',
+                'bg-red-100 text-red-800': task.status === 'CONCLUIDA'
+              }" class="px-2 py-1 rounded-full text-xs">
+                Em dia
+              </span>
+                        </td>
+                        <td>
+                            <div class="flex gap-2 justify-content-center">
+                                <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
+                                        pTooltip="Reunião" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-times" class="p-button-rounded p-button-text"
+                                        pTooltip="Ignorar" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-check"
+                                        class="p-button-rounded p-button-text p-button-success"
+                                        pTooltip="Renovar" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-text"
+                                        pTooltip="Relatório" tooltipPosition="top"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Parcelas a Vencer -->
+                <ng-template pTemplate="body" let-task *ngIf="currentView === 'parcelas_vencer'">
+                    <tr>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">{{ task.title }}</span>
+                                <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
+                            </div>
+                        </td>
+                        <td>Intermediário</td>
+                        <td>Centro Lisboa</td>
+                        <td>{{ task.description.split(' ')[1] }}</td>
+                        <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
+                        <td>€350,00</td>
+                        <td>Cartão de Crédito</td>
+                        <td>
+                            <div class="flex gap-2 justify-content-center">
+                                <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
+                                        pTooltip="Reunião" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-clock" class="p-button-rounded p-button-text"
+                                        pTooltip="Estender" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-check-circle" class="p-button-rounded p-button-text"
+                                        pTooltip="Concluir" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-credit-card"
+                                        class="p-button-rounded p-button-primary p-button-text"
+                                        pTooltip="Pagar" tooltipPosition="top"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Parcelas Vencidas -->
+                <ng-template pTemplate="body" let-task *ngIf="currentView === 'parcelas_vencidas'">
+                    <tr>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">{{ task.title }}</span>
+                                <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
+                            </div>
+                        </td>
+                        <td>Intermediário</td>
+                        <td>Centro Lisboa</td>
+                        <td>{{ task.description.split(' ')[1] }}</td>
+                        <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
+                        <td>
+              <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">
+                {{ Math.abs(getDaysFromNow(task.dueDate)) }} dias
+              </span>
+                        </td>
+                        <td>€350,00</td>
+                        <td>
+                            <div class="flex gap-2 justify-content-center">
+                                <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
+                                        pTooltip="Reunião" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-clock" class="p-button-rounded p-button-text"
+                                        pTooltip="Estender" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-times-circle"
+                                        class="p-button-rounded p-button-danger p-button-text"
+                                        pTooltip="Fechar" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-ban"
+                                        class="p-button-rounded p-button-warning p-button-text"
+                                        pTooltip="Inativar" tooltipPosition="top"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Ausências Longas -->
+                <ng-template pTemplate="body" let-task *ngIf="currentView === 'ausencias_longas'">
+                    <tr>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">{{ task.title }}</span>
+                                <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
+                            </div>
+                        </td>
+                        <td>Intermediário</td>
+                        <td>Centro Lisboa</td>
+                        <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
+                        <td>
+              <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
+                {{ Math.abs(getDaysFromNow(task.dueDate)) }} dias
+              </span>
+                        </td>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">65%</span>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">45%</span>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex gap-2 justify-content-center">
+                                <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
+                                        pTooltip="Reunião" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-text"
+                                        pTooltip="Relatório" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-exclamation-triangle"
+                                        class="p-button-rounded p-button-danger p-button-text"
+                                        pTooltip="Alerta" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                                        pTooltip="Nota" tooltipPosition="top"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr *ngIf="currentView === 'contratos_terminados'">
+                        <td colspan="7" class="text-center p-4">Nenhum contrato terminado encontrado.</td>
+                    </tr>
+                    <tr *ngIf="currentView === 'parcelas_vencer'">
+                        <td colspan="8" class="text-center p-4">Nenhuma parcela a vencer encontrada.</td>
+                    </tr>
+                    <tr *ngIf="currentView === 'parcelas_vencidas'">
+                        <td colspan="8" class="text-center p-4">Nenhuma parcela vencida encontrada.</td>
+                    </tr>
+                    <tr *ngIf="currentView === 'ausencias_longas'">
+                        <td colspan="8" class="text-center p-4">Nenhuma ausência longa encontrada.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</section>
+
+<!-- Templates for custom columns -->
+<ng-template #statusTemplate let-task>
+  <span [ngClass]="{
+    'bg-blue-100 text-blue-800': task.status === 'PENDENTE',
+    'bg-orange-100 text-orange-800': task.status === 'EM_ANDAMENTO',
+    'bg-green-100 text-green-800': task.status === 'CONCLUIDA'
+  }" class="px-2 py-1 rounded-full text-xs">
+    {{
+          task.status === 'PENDENTE' ? 'Pendente' :
+              task.status === 'EM_ANDAMENTO' ? 'Em Andamento' : 'Concluída'
+      }}
+  </span>
+</ng-template>
+
+<ng-template #priorityTemplate let-task>
+  <span [ngClass]="{
+    'bg-red-100 text-red-800': task.priority === 'ALTA',
+    'bg-orange-100 text-orange-800': task.priority === 'MEDIA',
+    'bg-blue-100 text-blue-800': task.priority === 'BAIXA'
+  }" class="px-2 py-1 rounded-full text-xs">
+    {{ task.priority }}
+  </span>
+</ng-template>
+
+<ng-template #dueDateTemplate let-task>
+    <span>{{ task.dueDate | date:'dd/MM/yyyy' }}</span>
+</ng-template>
+
+<ng-template #actionsTemplate let-task>
+    <div class="flex gap-2 justify-content-center">
+        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                (click)="editTask(task)" pTooltip="Editar" tooltipPosition="top"></button>
+        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                (click)="deleteTask(task)" pTooltip="Excluir" tooltipPosition="top"></button>
+        <button *ngIf="task.status !== 'CONCLUIDA'" pButton pRipple icon="pi pi-check"
+                class="p-button-rounded p-button-text p-button-success"
+                (click)="completeTask(task)" pTooltip="Concluir" tooltipPosition="top"></button>
+    </div>
+</ng-template>

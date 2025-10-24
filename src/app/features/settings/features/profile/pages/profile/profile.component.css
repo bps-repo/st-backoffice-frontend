@@ -1,0 +1,113 @@
+.profile-container {
+    padding: 2rem;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.profile-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    font-size: 3rem;
+}
+
+.avatar-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.photo-upload {
+    width: 100%;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.profile-username {
+    margin: 0 0 1rem 0;
+    color: var(--text-color-secondary);
+    font-size: 1.1rem;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.info-item label {
+    font-weight: 500;
+    color: var(--text-color-secondary);
+}
+
+.role-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.account-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.permissions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.permission-item {
+    margin-bottom: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-avatar-section {
+        order: 1;
+    }
+
+    .profile-info {
+        order: 2;
+    }
+}

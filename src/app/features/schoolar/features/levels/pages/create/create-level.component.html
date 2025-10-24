@@ -1,0 +1,159 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="mb-4">
+            <h1 class="text-3xl font-bold text-900 m-0">Novo Nível</h1>
+            <p class="text-600 mt-2 mb-0">Crie um novo nível de ensino</p>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <h3 class="text-xl font-semibold text-900 mb-4">Informações do Nível</h3>
+
+            <form [formGroup]="levelForm" (ngSubmit)="saveLevel()">
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="name" class="block text-sm font-medium text-600 mb-2">Nome do Nível *</label>
+                            <input
+                                id="name"
+                                type="text"
+                                pInputText
+                                formControlName="name"
+                                placeholder="Ex: Básico, Intermediário, Avançado"
+                                class="w-full"
+                                [ngClass]="{'ng-invalid ng-dirty': levelForm.get('name')?.invalid && levelForm.get('name')?.touched}">
+                            <small class="text-red-500" *ngIf="levelForm.get('name')?.invalid && levelForm.get('name')?.touched">
+                                Nome do nível é obrigatório
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="order" class="block text-sm font-medium text-600 mb-2">Ordem *</label>
+                            <p-inputNumber
+                                id="order"
+                                formControlName="order"
+                                placeholder="1"
+                                class="w-full"
+                                [min]="1"
+                                [showButtons]="false">
+                            </p-inputNumber>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="description" class="block text-sm font-medium text-600 mb-2">Descrição *</label>
+                            <textarea
+                                id="description"
+                                rows="3"
+                                pInputTextarea
+                                formControlName="description"
+                                placeholder="Descrição do nível de ensino"
+                                class="w-full"
+                                [ngClass]="{'ng-invalid ng-dirty': levelForm.get('description')?.invalid && levelForm.get('description')?.touched}">
+                            </textarea>
+                            <small class="text-red-500" *ngIf="levelForm.get('description')?.invalid && levelForm.get('description')?.touched">
+                                Descrição é obrigatória e deve ter pelo menos 10 caracteres
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="color" class="block text-sm font-medium text-600 mb-2">Cor *</label>
+                            <p-dropdown
+                                id="color"
+                                [options]="colorOptions"
+                                formControlName="color"
+                                optionLabel="label"
+                                placeholder="Selecione uma cor"
+                                class="w-full">
+                                <ng-template pTemplate="selectedItem" let-option>
+                                    <div class="flex align-items-center">
+                                        <div class="w-2rem h-2rem border-round mr-2"
+                                             [style.background-color]="option?.color"></div>
+                                        <span>{{ option?.label }}</span>
+                                    </div>
+                                </ng-template>
+                                <ng-template pTemplate="item" let-option>
+                                    <div class="flex align-items-center">
+                                        <div class="w-2rem h-2rem border-round mr-2"
+                                             [style.background-color]="option.color"></div>
+                                        <span>{{ option?.label }}</span>
+                                    </div>
+                                </ng-template>
+                            </p-dropdown>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="status" class="block text-sm font-medium text-600 mb-2">Status *</label>
+                            <p-dropdown
+                                id="status"
+                                [options]="statusOptions"
+                                formControlName="status"
+                                optionLabel="label"
+                                placeholder="Selecione o status"
+                                class="w-full">
+                            </p-dropdown>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="duration" class="block text-sm font-medium text-600 mb-2">Duração (horas) *</label>
+                            <p-inputNumber
+                                id="duration"
+                                formControlName="duration"
+                                placeholder="0"
+                                class="w-full"
+                                [min]="0"
+                                [showButtons]="false">
+                            </p-inputNumber>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="maximumUnits" class="block text-sm font-medium text-600 mb-2">Unidades Máximas *</label>
+                            <p-inputNumber
+                                id="maximumUnits"
+                                formControlName="maximumUnits"
+                                placeholder="0"
+                                class="w-full"
+                                [min]="0"
+                                [showButtons]="false">
+                            </p-inputNumber>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-content-end gap-2 mt-4">
+                    <button
+                        pButton
+                        type="button"
+                        label="Cancelar"
+                        icon="pi pi-times"
+                        class="p-button-danger"
+                        (click)="cancel()">
+                    </button>
+                    <button
+                        pButton
+                        type="submit"
+                        label="Salvar"
+                        icon="pi pi-check"
+                        class="p-button-primary"
+                        [loading]="(loadingCreate$ | async) || false"
+                        [disabled]="(loadingCreate$ | async) || false || levelForm.invalid">
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

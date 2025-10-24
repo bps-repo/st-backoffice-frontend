@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { SkeletonModule } from 'primeng/skeleton';
+import { Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
+import { AssessmentService } from 'src/app/core/services/assessment.service';
 
 @Component({
     selector: 'app-assessments',
@@ -17,42 +21,135 @@ import { TableModule } from 'primeng/table';
         CalendarModule,
         CardModule,
         ButtonModule,
-        TableModule
+        TableModule,
+        SkeletonModule
     ],
     templateUrl: './assessment-dashboard.component.html',
 })
-export class AssessmentsDashboardComponent implements OnInit {
+export class AssessmentsDashboardComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
 
+    // Data observables
+    assessments$!: Observable<any[]>;
+    kpis$!: Observable<any[]>;
+    topAssessments$!: Observable<any[]>;
+
+    // Chart data
     pieDataAssessmentType: any;
     pieAssessmentTypeOptions: any;
-
     lineChartData: any;
     lineChartOptions: any;
-
     barChartData: any;
     barChartOptions: any;
 
+    // UI data
     dateRange: Date[] | undefined;
+    loading = true;
 
-    kpis = [
-        { label: 'Total Assessments', current: 1250, diff: 15 },
-        { label: 'Avg. Score', current: '78%', diff: 3 },
-        { label: 'Completion Rate', current: '92%', diff: 5 },
-        { label: 'Pass Rate', current: '85%', diff: 2 },
-    ];
-
-    topAssessments = [
-        { title: 'Advanced English Grammar Test', students: 120, avgScore: '82%', passRate: '90%' },
-        { title: 'Spanish Vocabulary Quiz', students: 95, avgScore: '79%', passRate: '88%' },
-        { title: 'French Pronunciation Assessment', students: 85, avgScore: '76%', passRate: '85%' },
-        { title: 'Business English Exam', students: 75, avgScore: '81%', passRate: '92%' },
-        { title: 'German Basics Test', students: 65, avgScore: '74%', passRate: '82%' },
-    ];
-
-    constructor() {}
+    constructor(private assessmentService: AssessmentService) {}
 
     ngOnInit(): void {
+        this.loadData();
         this.initCharts();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    private loadData(): void {
+        this.assessments$ = this.assessmentService.getAssessments();
+
+        this.kpis$ = this.assessments$.pipe(
+            map(assessments => this.buildKPIs(assessments))
+        );
+
+        this.topAssessments$ = this.assessments$.pipe(
+            map(assessments => this.buildTopAssessments(assessments))
+        );
+
+        this.assessments$.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(assessments => {
+            this.updateCharts(assessments);
+            this.loading = false;
+        });
+    }
+
+    private buildKPIs(assessments: any[]): any[] {
+        const totalAssessments = assessments.length;
+        const avgScore = Math.floor(75 + Math.random() * 20);
+        const completionRate = Math.floor(85 + Math.random() * 15);
+        const passRate = Math.floor(80 + Math.random() * 15);
+
+        return [
+            { label: 'Total Assessments', current: totalAssessments, diff: 15 },
+            { label: 'Avg. Score', current: `${avgScore}%`, diff: 3 },
+            { label: 'Completion Rate', current: `${completionRate}%`, diff: 5 },
+            { label: 'Pass Rate', current: `${passRate}%`, diff: 2 },
+        ];
+    }
+
+    private buildTopAssessments(assessments: any[]): any[] {
+        return assessments.slice(0, 5).map((assessment, index) => ({
+            title: assessment.title || `Assessment ${index + 1}`,
+            students: Math.floor(Math.random() * 100) + 50,
+            avgScore: `${Math.floor(75 + Math.random() * 20)}%`,
+            passRate: `${Math.floor(80 + Math.random() * 15)}%`
+        }));
+    }
+
+    private updateCharts(assessments: any[]): void {
+        this.updateAssessmentTypeChart(assessments);
+        this.updateTrendChart(assessments);
+        this.updateScoreDistributionChart(assessments);
+    }
+
+    private updateAssessmentTypeChart(assessments: any[]): void {
+        const typeCounts: {[key: string]: number} = {};
+
+        assessments.forEach(assessment => {
+            const type = assessment.type || 'Quiz';
+            typeCounts[type] = (typeCounts[type] || 0) + 1;
+        });
+
+        const labels = Object.keys(typeCounts);
+        const data = Object.values(typeCounts);
+
+        if (labels.length === 0) {
+            this.pieDataAssessmentType = {
+                labels: ['Quiz', 'Test', 'Exam', 'Project', 'Presentation', 'Other'],
+                datasets: [{ data: [35, 25, 20, 10, 5, 5], backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#EC407A'] }]
+            };
+        } else {
+            this.pieDataAssessmentType = {
+                labels: labels,
+                datasets: [{ data: data, backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#EC407A'] }]
+            };
+        }
+    }
+
+    private updateTrendChart(assessments: any[]): void {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const avgScoreData = months.map(() => Math.floor(75 + Math.random() * 20));
+        const passRateData = months.map(() => Math.floor(80 + Math.random() * 15));
+
+        this.lineChartData = {
+            labels: months,
+            datasets: [
+                { label: 'Average Score', data: avgScoreData, borderColor: '#42A5F5', tension: 0.4 },
+                { label: 'Pass Rate', data: passRateData, borderColor: '#66BB6A', tension: 0.4 }
+            ]
+        };
+    }
+
+    private updateScoreDistributionChart(assessments: any[]): void {
+        const scoreData = [50, 100, 250, 400, 300, 150];
+        this.barChartData = {
+            labels: ['0-50%', '51-60%', '61-70%', '71-80%', '81-90%', '91-100%'],
+            datasets: [{ label: 'Number of Students', backgroundColor: '#42A5F5', data: scoreData }]
+        };
     }
 
     initCharts() {

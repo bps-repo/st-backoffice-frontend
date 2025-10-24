@@ -1,99 +1,221 @@
 <div class="grid" *ngIf="exam$ | async as exam">
-    <div class="col-12 md:col-6">
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-3">Skill Scores</h2>
-            <p-chart type="radar" [data]="radarData" [options]="chartOptions" height="300px"></p-chart>
-        </div>
-    </div>
-    <div class="col-12 md:col-6">
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-3">Comparison with Class Average</h2>
-            <p-chart type="bar" [data]="barData" [options]="chartOptions" height="300px"></p-chart>
-        </div>
-    </div>
+    <!-- Performance Analytics Overview -->
     <div class="col-12">
         <div class="card">
-            <h2 class="text-xl font-semibold mb-3">Detailed Scores</h2>
+            <h2 class="text-xl font-semibold mb-4 flex align-items-center">
+                <i class="pi pi-chart-line text-blue-500 mr-2"></i>
+                Análise de Performance
+            </h2>
             <div class="grid">
-                <div class="col-12 md:col-6 lg:col-3">
-                    <div class="card mb-0">
-                        <div class="flex justify-content-between mb-3">
-                            <div>
-                                <span class="block text-500 font-medium mb-3">Reading</span>
-                                <div class="text-900 font-medium text-xl">{{ exam.reading || '0' }}%</div>
-                            </div>
-                            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
-                                <i class="pi pi-book text-blue-500 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="surface-300 border-round" style="height: 0.5rem">
-                            <div class="bg-blue-500 h-full border-round" [ngStyle]="{'width': (exam.reading || '0') + '%'}"></div>
+                <div class="col-12 md:col-3">
+                    <div class="text-center p-3">
+                        <div class="text-900 font-medium text-xl mb-2">Performance Geral</div>
+                        <p-tag [value]="overallPerformance"
+                               [severity]="overallPerformance === 'Excelente' ? 'success' :
+                                          overallPerformance === 'Bom' ? 'info' :
+                                          overallPerformance === 'Satisfatório' ? 'warning' : 'danger'"
+                               class="text-lg p-2"></p-tag>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="text-center p-3">
+                        <div class="text-900 font-medium text-xl mb-2">Pontos Fortes</div>
+                        <div class="text-600">{{ strongAreas.length }} habilidade(s)</div>
+                        <div class="mt-2" *ngFor="let area of strongAreas">
+                            <p-tag [value]="area" severity="success" class="mr-1 mb-1"></p-tag>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 md:col-6 lg:col-3">
-                    <div class="card mb-0">
-                        <div class="flex justify-content-between mb-3">
-                            <div>
-                                <span class="block text-500 font-medium mb-3">Writing</span>
-                                <div class="text-900 font-medium text-xl">{{ exam.writing || '0' }}%</div>
-                            </div>
-                            <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:2.5rem;height:2.5rem">
-                                <i class="pi pi-pencil text-purple-500 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="surface-300 border-round" style="height: 0.5rem">
-                            <div class="bg-purple-500 h-full border-round" [ngStyle]="{'width': (exam.writing || '0') + '%'}"></div>
+                <div class="col-12 md:col-3">
+                    <div class="text-center p-3">
+                        <div class="text-900 font-medium text-xl mb-2">Áreas a Melhorar</div>
+                        <div class="text-600">{{ weakAreas.length }} habilidade(s)</div>
+                        <div class="mt-2" *ngFor="let area of weakAreas">
+                            <p-tag [value]="area" severity="danger" class="mr-1 mb-1"></p-tag>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 md:col-6 lg:col-3">
-                    <div class="card mb-0">
-                        <div class="flex justify-content-between mb-3">
-                            <div>
-                                <span class="block text-500 font-medium mb-3">Listening</span>
-                                <div class="text-900 font-medium text-xl">{{ exam.listening || '0' }}%</div>
-                            </div>
-                            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:2.5rem;height:2.5rem">
-                                <i class="pi pi-volume-up text-green-500 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="surface-300 border-round" style="height: 0.5rem">
-                            <div class="bg-green-500 h-full border-round" [ngStyle]="{'width': (exam.listening || '0') + '%'}"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 md:col-6 lg:col-3">
-                    <div class="card mb-0">
-                        <div class="flex justify-content-between mb-3">
-                            <div>
-                                <span class="block text-500 font-medium mb-3">Speaking</span>
-                                <div class="text-900 font-medium text-xl">{{ exam.speaking || '0' }}%</div>
-                            </div>
-                            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
-                                <i class="pi pi-comment text-orange-500 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="surface-300 border-round" style="height: 0.5rem">
-                            <div class="bg-orange-500 h-full border-round" [ngStyle]="{'width': (exam.speaking || '0') + '%'}"></div>
-                        </div>
+                <div class="col-12 md:col-3">
+                    <div class="text-center p-3">
+                        <div class="text-900 font-medium text-xl mb-2">Média Geral</div>
+                        <div class="text-blue-500 font-bold text-2xl">{{ exam.average }}%</div>
+                        <p-progressBar [value]="exam.average" [showValue]="false" class="mt-2"></p-progressBar>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Charts Section -->
+    <div class="col-12 md:col-4">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex align-items-center">
+                <i class="pi pi-star text-yellow-500 mr-2"></i>
+                Pontuação por Habilidade
+            </h2>
+            <p-chart type="radar" [data]="radarData" [options]="chartOptions" height="300px"></p-chart>
+        </div>
+    </div>
+
+    <div class="col-12 md:col-4">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex align-items-center">
+                <i class="pi pi-chart-bar text-green-500 mr-2"></i>
+                Comparação com Média da Turma
+            </h2>
+            <p-chart type="bar" [data]="barData" [options]="chartOptions" height="300px"></p-chart>
+        </div>
+    </div>
+
+    <div class="col-12 md:col-4">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex align-items-center">
+                <i class="pi pi-chart-pie text-purple-500 mr-2"></i>
+                Distribuição de Performance
+            </h2>
+            <p-chart type="pie" [data]="pieData" [options]="pieOptions" height="300px"></p-chart>
+        </div>
+    </div>
+
+    <!-- Detailed Skill Analysis -->
     <div class="col-12">
         <div class="card">
-            <h2 class="text-xl font-semibold mb-3">Feedback</h2>
-            <ul class="list-none p-0 m-0">
-                <li *ngFor="let feedback of exam.feedback" class="mb-3 p-3 border-1 border-round surface-border">
-                    <div class="flex align-items-start">
-                        <i class="pi pi-comments text-primary mr-2 mt-1"></i>
-                        <div>{{ feedback }}</div>
+            <h2 class="text-xl font-semibold mb-4 flex align-items-center">
+                <i class="pi pi-list text-indigo-500 mr-2"></i>
+                Análise Detalhada por Habilidade
+            </h2>
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-4 mb-3" *ngFor="let skill of skillAnalysis">
+                    <div class="card mb-0 border-1"
+                         [ngClass]="{
+                           'border-green-500': skill.color === 'success',
+                           'border-blue-500': skill.color === 'info',
+                           'border-yellow-500': skill.color === 'warning',
+                           'border-red-500': skill.color === 'danger'
+                         }">
+                        <div class="flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="block text-900 font-medium text-lg capitalize">{{ skill.skill }}</span>
+                                <p-tag [value]="skill.level" [severity]="skill.color" class="mt-1"></p-tag>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-900 font-bold text-xl">{{ skill.score }}%</div>
+                            </div>
+                        </div>
+                        <p-progressBar [value]="skill.score" [showValue]="false"
+                                      [style]="{'height': '8px'}"
+                                      [class]="'progress-' + skill.color"></p-progressBar>
                     </div>
-                </li>
-                <li *ngIf="!exam.feedback?.length" class="text-gray-500">No feedback available</li>
-            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Traditional Detailed Scores (Enhanced) -->
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex align-items-center">
+                <i class="pi pi-star-fill text-yellow-500 mr-2"></i>
+                Pontuações Detalhadas
+            </h2>
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0 bg-blue-50">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-700 font-medium mb-2">Reading</span>
+                                <div class="text-900 font-bold text-xl">{{ exam.reading || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-book text-blue-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <p-progressBar [value]="+(exam.reading || 0)" [showValue]="false"
+                                      styleClass="mb-2" [style]="{'height': '8px'}"></p-progressBar>
+                        <small class="text-600">Compreensão de texto</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0 bg-purple-50">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-700 font-medium mb-2">Writing</span>
+                                <div class="text-900 font-bold text-xl">{{ exam.writing || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-pencil text-purple-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <p-progressBar [value]="+(exam.writing || 0)" [showValue]="false"
+                                      styleClass="mb-2" [style]="{'height': '8px'}"></p-progressBar>
+                        <small class="text-600">Expressão escrita</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0 bg-green-50">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-700 font-medium mb-2">Listening</span>
+                                <div class="text-900 font-bold text-xl">{{ exam.listening || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-volume-up text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <p-progressBar [value]="+(exam.listening || 0)" [showValue]="false"
+                                      styleClass="mb-2" [style]="{'height': '8px'}"></p-progressBar>
+                        <small class="text-600">Compreensão auditiva</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="card mb-0 bg-orange-50">
+                        <div class="flex justify-content-between mb-3">
+                            <div>
+                                <span class="block text-700 font-medium mb-2">Speaking</span>
+                                <div class="text-900 font-bold text-xl">{{ exam.speaking || '0' }}%</div>
+                            </div>
+                            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
+                                <i class="pi pi-microphone text-orange-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <p-progressBar [value]="+(exam.speaking || 0)" [showValue]="false"
+                                      styleClass="mb-2" [style]="{'height': '8px'}"></p-progressBar>
+                        <small class="text-600">Expressão oral</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Section -->
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex align-items-center">
+                <i class="pi pi-comments text-blue-500 mr-2"></i>
+                Feedback Detalhado
+            </h2>
+            <div *ngIf="exam.feedback?.length; else noFeedback">
+                <div *ngFor="let feedback of exam.feedback; let i = index"
+                     class="mb-3 p-4 surface-100 border-round border-1 border-300">
+                    <div class="flex align-items-start">
+                        <div class="flex align-items-center justify-content-center bg-blue-100 border-round mr-3"
+                             style="width:2.5rem;height:2.5rem">
+                            <span class="text-blue-500 font-bold">{{ i + 1 }}</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-900 font-medium mb-1">Feedback {{ i + 1 }}</div>
+                            <div class="text-700">{{ feedback }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ng-template #noFeedback>
+                <div class="text-center p-6">
+                    <i class="pi pi-info-circle text-blue-300 text-4xl mb-3"></i>
+                    <p class="text-600 text-lg m-0">Nenhum feedback detalhado disponível</p>
+                </div>
+            </ng-template>
         </div>
     </div>
 </div>
+

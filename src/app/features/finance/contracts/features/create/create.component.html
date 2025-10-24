@@ -1,0 +1,142 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Criar Novo Contrato</h5>
+            <p-toast></p-toast>
+
+            <form [formGroup]="contractForm" (ngSubmit)="onSubmit()">
+                <div class="grid formgrid p-fluid">
+                    <div class="field col-12 md:col-6">
+                        <label for="student">Aluno</label>
+                        <p-dropdown
+                            id="student"
+                            formControlName="student"
+                            [options]="students"
+                            placeholder="Selecione um aluno"
+                            [filter]="true"
+                            filterBy="user.firstname">
+                            <ng-template pTemplate="selectedItem" let-student>
+                                <div *ngIf="student">
+                                    {{ student.user.firstname }} {{ student.user.lastname }}
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="item" let-student>
+                                {{ student.user.firstname }} {{ student.user.lastname }}
+                            </ng-template>
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('student')?.invalid && contractForm.get('student')?.touched" class="p-error">
+                            Aluno é obrigatório
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="contractType">Tipo de Contrato</label>
+                        <p-dropdown
+                            id="contractType"
+                            formControlName="contractType"
+                            [options]="contractTypes"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecione o tipo de contrato">
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('contractType')?.invalid && contractForm.get('contractType')?.touched" class="p-error">
+                            Tipo de contrato é obrigatório
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="startDate">Data de Início</label>
+                        <p-calendar
+                            id="startDate"
+                            formControlName="startDate"
+                            [showIcon]="true"
+                            dateFormat="yy-mm-dd"
+                            placeholder="Selecione a data de início">
+                        </p-calendar>
+                        <small *ngIf="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched" class="p-error">
+                            Data de início é obrigatória
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="endDate">Data de Término</label>
+                        <p-calendar
+                            id="endDate"
+                            formControlName="endDate"
+                            [showIcon]="true"
+                            dateFormat="yy-mm-dd"
+                            placeholder="Selecione a data de término">
+                        </p-calendar>
+                        <small *ngIf="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched" class="p-error">
+                            Data de término é obrigatória
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="paymentFrequency">Frequência de Pagamento</label>
+                        <p-dropdown
+                            id="paymentFrequency"
+                            formControlName="paymentFrequency"
+                            [options]="paymentFrequencies"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecione a frequência de pagamento">
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('paymentFrequency')?.invalid && contractForm.get('paymentFrequency')?.touched" class="p-error">
+                            Frequência de pagamento é obrigatória
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="paymentAmount">Valor do Pagamento</label>
+                        <p-inputNumber
+                            id="paymentAmount"
+                            formControlName="paymentAmount"
+                            mode="currency"
+                            currency="AOA"
+                            locale="pt-AO"
+                            placeholder="0,00">
+                        </p-inputNumber>
+                        <small *ngIf="contractForm.get('paymentAmount')?.invalid && contractForm.get('paymentAmount')?.touched" class="p-error">
+                            Valor de pagamento válido é obrigatório
+                        </small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="status">Status</label>
+                        <p-dropdown
+                            id="status"
+                            formControlName="status"
+                            [options]="statuses"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecione o status">
+                        </p-dropdown>
+                        <small *ngIf="contractForm.get('status')?.invalid && contractForm.get('status')?.touched" class="p-error">
+                            Status é obrigatório
+                        </small>
+                    </div>
+
+                    <div class="field col-12">
+                        <label for="terms">Termos e Condições</label>
+                        <p-inputTextarea
+                            id="terms"
+                            formControlName="terms"
+                            placeholder="Insira os termos e condições do contrato"
+                            autoResize="true"
+                            style="min-height: 120px">
+                        </p-inputTextarea>
+                        <small *ngIf="contractForm.get('terms')?.invalid && contractForm.get('terms')?.touched" class="p-error">
+                            Termos e condições são obrigatórios
+                        </small>
+                    </div>
+
+                    <div class="field col-12 flex justify-content-end">
+                        <button pButton type="button" label="Cancelar" class="p-button-outlined p-button-secondary mr-2" (click)="cancel()"></button>
+                        <button pButton type="submit" label="Salvar" [loading]="loading"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

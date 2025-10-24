@@ -3,9 +3,10 @@ import {ViewTabComponent} from "../../../../shared/components/view-tab/view-tab.
 import {GeneralScholarReport} from "./components/general/general-scholar-report.component";
 import {StudentReports} from "./components/student/student-reports.component";
 import {LevelReports} from "./components/level/level-reports.component";
+import {LessonReports} from "./components/lessons/lesson-reports.component";
 
 @Component({
-    selector: 'app-finance-settings',
+    selector: 'scholar-reports',
     standalone: true,
     template: `
         <app-view-tab [title]="'Relatórios'" [viewOptions]="viewOptions"/>
@@ -19,5 +20,6 @@ export class ScholarReports {
         {label: 'Geral', value: {key: 'general', component: GeneralScholarReport}},
         {label: 'Estudantes', value: {key: 'students', component: StudentReports}},
         {label: 'Níveis', value: {key: 'levels', component: LevelReports}},
+        {label: 'Aulas', value: {key: 'lessons', component: LessonReports}},
     ];
 }

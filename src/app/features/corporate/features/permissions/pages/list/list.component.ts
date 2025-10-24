@@ -1,39 +1,40 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {Router, RouterModule} from '@angular/router';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import {
     TableColumn,
-    GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Permission} from 'src/app/core/models/auth/permission';
-import {PermissionService} from 'src/app/core/services/permission.service';
+import { Permission } from 'src/app/core/models/auth/permission';
+import { PermissionService } from 'src/app/core/services/permission.service';
 
-import {Observable, Subject, of} from 'rxjs';
-import {catchError, finalize, takeUntil} from 'rxjs/operators';
-import {ButtonModule} from 'primeng/button';
-import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
-import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
+import { Observable, Subject, of } from 'rxjs';
+import { catchError, finalize, takeUntil } from 'rxjs/operators';
+import { ButtonModule } from 'primeng/button';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS } from "../../constants";
+import { TableHeaderAction } from "../../../../../../shared/components/tables/global-table/table-header.component";
+import { PermissionTreeViewComponent } from "../../components/tree-view/tree-view.component";
+import { FormsModule } from "@angular/forms";
+import { Store } from "@ngrx/store";
+import { selectPermissionsLoading, selectPermissionTree } from "../../../../../../core/store/permissions/selectors/permissions.selectors";
+import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
 
 @Component({
     selector: 'app-permissions-list',
     imports: [
         CommonModule,
         RouterModule,
-        GlobalTable,
-        ButtonModule
+        ButtonModule,
+        SelectButtonModule,
+        PermissionTreeViewComponent,
+        FormsModule
     ],
     templateUrl: './list.component.html',
     standalone: true
 })
-export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ListComponent implements OnInit {
 
     // Custom Templates for the table
-    @ViewChild('createdAtTemplate', {static: true})
-    createdAtTemplate!: TemplateRef<any>;
-
-    @ViewChild('updatedAtTemplate', {static: true})
-    updatedAtTemplate!: TemplateRef<any>;
-
     permissions$: Observable<Permission[]> = of([]);
     loading$: Observable<boolean> = of(false);
     columns: TableColumn[] = COLUMNS;
@@ -41,53 +42,25 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     customTemplates: Record<string, TemplateRef<any>> = {};
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
-    private loading = false;
-    private destroy$ = new Subject<void>();
 
     constructor(
-        private permissionService: PermissionService,
-        private router: Router
+        private router: Router,
+        private readonly store$: Store
     ) {
+        this.loading$ = this.store$.select(selectPermissionsLoading)
+        this.permissions$ = store$.select(selectPermissionTree)
     }
 
     ngOnInit(): void {
-        this.loadPermissions();
+        this.store$.dispatch(loadPermissionTree())
     }
 
-    ngAfterViewInit() {
-        this.customTemplates = {
-            createdAt: this.createdAtTemplate,
-            updatedAt: this.updatedAtTemplate
-        };
-    }
-
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
-
-    loadPermissions(): void {
-        this.loading = true;
-        this.loading$ = of(true);
-
-        this.permissions$ = this.permissionService.getPermissions().pipe(
-            takeUntil(this.destroy$),
-            catchError(error => {
-                console.error('Error loading permissions', error);
-                return of([]);
-            }),
-            finalize(() => {
-                this.loading = false;
-                this.loading$ = of(false);
-            })
-        );
-    }
 
     onRowSelect(permission: Permission) {
-        this.router.navigate(['/corporate/permissions', permission.id]);
+        this.router.navigate(['/corporate/permissions', permission.id]).then();
     }
 
     navigateToCreatePermission() {
-        this.router.navigate(['/corporate/permissions/create']);
+        this.router.navigate(['/corporate/permissions/create']).then();
     }
 }

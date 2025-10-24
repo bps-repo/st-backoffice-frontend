@@ -1,0 +1,211 @@
+<div class="grid">
+    <!-- Loading State -->
+    @if (loading) {
+    <div class="col-12 flex justify-content-center align-items-center p-4">
+        <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+        <span class="ml-3">Carregando detalhes da venda...</span>
+    </div>
+    }
+
+    <!-- Sale Details -->
+    @if (!loading && sale) {
+    <div class="col-12">
+        <!-- Header with Back Button and Action Buttons -->
+        <div class="flex justify-content-between align-items-start mb-4">
+            <div class="flex align-items-center gap-3">
+                <button pButton icon="pi pi-arrow-left" class="p-button-text" (click)="goBack()"></button>
+                <div>
+                    <h1 class="text-3xl font-bold text-900 mb-1">Detalhes da Venda</h1>
+                    <p class="text-lg text-600 mb-0">Venda #{{ sale.id }} • {{ formatDate(sale.dates.created) }}</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button pButton label="Editar" icon="pi pi-pencil"
+                    class="p-button-outlined" (click)="editSale()"></button>
+                <button pButton label="Segunda Via Fatura" icon="pi pi-file-pdf"
+                    class="p-button-danger" (click)="downloadInvoice()"></button>
+                <button pButton label="Segunda Via Recibo" icon="pi pi-receipt"
+                    class="p-button-primary" (click)="downloadReceipt()"></button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Left Column -->
+            <div class="col-12 lg:col-8">
+                <!-- Client Data -->
+                <div class="card mb-4">
+                    <h3 class="text-xl font-semibold mb-4">Dados do Cliente</h3>
+                    <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Nome</label>
+                                <span class="text-900">{{ sale.client.name }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Email</label>
+                                <span class="text-900">{{ sale.client.email }}</span>
+                            </div>
+                        </div>
+                        @if (sale.client.phone) {
+                        <div class="col-12 md:col-6">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Telefone</label>
+                                <span class="text-900">{{ sale.client.phone }}</span>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Product/Service Data -->
+                <div class="card mb-4">
+                    <h3 class="text-xl font-semibold mb-4">Dados do Produto/Serviço</h3>
+                    <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Tipo</label>
+                                <p-tag [value]="sale.product.type" [severity]="getTypeSeverity(sale.product.type)"></p-tag>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Produto</label>
+                                <span class="text-900">{{ sale.product.name }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Quantidade</label>
+                                <span class="text-900">{{ sale.product.quantity }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Preço Unitário</label>
+                                <span class="text-900">{{ sale.product.unitPrice | currency:'Kz':'symbol':'1.2-2' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Total</label>
+                                <span class="text-900 font-bold text-blue-600">{{ sale.product.total | currency:'Kz':'symbol':'1.2-2' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Método de Pagamento</label>
+                                <span class="text-900">{{ sale.payment.method }}</span>
+                            </div>
+                        </div>
+                        @if (sale.payment.reference) {
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="block text-600 font-medium mb-2">Referência</label>
+                                <span class="text-900">{{ sale.payment.reference }}</span>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Change History -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-4">Histórico de Alterações</h3>
+                    <div class="flex flex-column gap-3">
+                        @for (item of sale.history; track item.timestamp) {
+                        <div class="p-3 border-round surface-border surface-card">
+                            <div class="flex justify-content-between align-items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-900 mb-1">{{ item.action }}</h4>
+                                    <p class="text-600 mb-0">{{ item.description }}</p>
+                                </div>
+                                <span class="text-sm text-color-secondary">{{ formatDate(item.timestamp) }}</span>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-12 lg:col-4">
+                <!-- Sale Status -->
+                <div class="card mb-4">
+                    <h3 class="text-lg font-semibold mb-4">Status da Venda</h3>
+                    <div class="flex flex-column gap-3">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Status do Pagamento:</span>
+                            <p-tag [value]="sale.payment.status" [severity]="getStatusSeverity(sale.payment.status)"></p-tag>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Quantidade:</span>
+                            <span class="text-900 font-medium">{{ sale.product.quantity }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Preço Unitário:</span>
+                            <span class="text-900 font-medium">{{ sale.product.unitPrice | currency:'Kz':'symbol':'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Total:</span>
+                            <span class="text-900 font-bold text-blue-600">{{ sale.product.total | currency:'Kz':'symbol':'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sale Information -->
+                <div class="card mb-4">
+                    <h3 class="text-lg font-semibold mb-4">Informações da Venda</h3>
+                    <div class="flex flex-column gap-3">
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Data de Criação:</span>
+                            <span class="text-900 font-medium">{{ formatDate(sale.dates.created) }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Última Atualização:</span>
+                            <span class="text-900 font-medium">{{ formatDate(sale.dates.lastUpdate) }}</span>
+                        </div>
+                        @if (sale.dates.paidAt) {
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Data do Pagamento:</span>
+                            <span class="text-900 font-medium">{{ formatDate(sale.dates.paidAt) }}</span>
+                        </div>
+                        }
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">ID da Venda:</span>
+                            <span class="text-900 font-medium">{{ sale.id }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-4">Ações Rápidas</h3>
+                    <div class="flex flex-column gap-2">
+                        <button pButton label="Baixar Comprovante" icon="pi pi-download"
+                            class="p-button-outlined w-full" (click)="downloadProof()"></button>
+                        <button pButton label="Enviar Fatura por Email" icon="pi pi-envelope"
+                            class="p-button-outlined w-full" (click)="sendInvoiceByEmail()"></button>
+                        <button pButton label="Imprimir Recibo" icon="pi pi-print"
+                            class="p-button-outlined w-full" (click)="printReceipt()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (!loading && !sale && saleId) {
+    <div class="col-12">
+        <div class="card text-center p-4">
+            <i class="pi pi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
+            <h3>Venda não encontrada</h3>
+            <p>A venda com ID {{ saleId }} não foi encontrada ou não pôde ser carregada.</p>
+            <p-button label="Voltar" icon="pi pi-arrow-left" class="p-button-outlined mt-3"
+                (click)="goBack()"></p-button>
+        </div>
+    </div>
+    }
+</div>

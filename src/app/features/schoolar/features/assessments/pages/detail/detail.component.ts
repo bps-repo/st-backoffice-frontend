@@ -1,21 +1,25 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {TabMenuModule} from 'primeng/tabmenu';
-import {TabViewModule} from 'primeng/tabview';
-import {Tab} from 'src/app/shared/@types/tab';
-import {TabViewComponent} from 'src/app/shared/components/tables/tab-view/tab-view.component';
-import {ASSESSMENTS_TABS} from 'src/app/shared/constants/reviews';
-import {Observable, Subject, takeUntil} from 'rxjs';
-import {SplitButtonModule} from 'primeng/splitbutton';
-import {MenuItem} from 'primeng/api';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {selectSelectedExam} from 'src/app/core/store/schoolar/assessments/exams.selectors';
-import {Exam} from 'src/app/core/models/academic/exam';
-import {examsActions} from "../../../../../../core/store/schoolar/assessments/exams.actions";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { TabViewModule } from 'primeng/tabview';
+import { Tab } from 'src/app/shared/@types/tab';
+import { TabViewComponent } from 'src/app/shared/components/tables/tab-view/tab-view.component';
+import { ASSESSMENTS_TABS } from 'src/app/shared/constants/reviews';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { MenuItem } from 'primeng/api';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { selectSelectedExam } from 'src/app/core/store/schoolar/assessments/exams.selectors';
+import { Exam } from 'src/app/core/models/academic/exam';
+import { examsActions } from "../../../../../../core/store/schoolar/assessments/exams.actions";
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 @Component({
-    selector: 'app-student',
+    selector: 'app-assessment-detail',
     standalone: true,
     imports: [
         TabMenuModule,
@@ -23,13 +27,18 @@ import {examsActions} from "../../../../../../core/store/schoolar/assessments/ex
         CommonModule,
         TabViewComponent,
         SplitButtonModule,
+        ButtonModule,
+        InputTextModule,
+        InputGroupModule,
+        InputGroupAddonModule,
     ],
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
-    tabs!: Observable<Tab[]>;
+    tabs!: Tab[];
     items!: MenuItem[];
-    exam: Exam | null = null;
+    tabItems!: MenuItem[];
+    assessment: Exam | null = null;
     private destroy$ = new Subject<void>();
 
     constructor(
@@ -42,6 +51,22 @@ export class DetailComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.tabs = ASSESSMENTS_TABS;
 
+        // Initialize tab items for the header navigation
+        this.tabItems = [
+            {
+                label: 'Visão Geral',
+                icon: 'pi pi-home'
+            },
+            {
+                label: 'Notas (1)',
+                icon: 'pi pi-chart-bar'
+            },
+            {
+                label: 'Estatísticas',
+                icon: 'pi pi-chart-line'
+            }
+        ];
+
         // Get the exam ID from the route
         this.route.params
             .pipe(takeUntil(this.destroy$))
@@ -49,7 +74,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                 const id = params['id'];
                 if (id) {
                     // Dispatch action to load the exam
-                    this.store.dispatch(examsActions.loadExam({id}));
+                    this.store.dispatch(examsActions.loadExam({ id }));
                 }
             });
 
@@ -57,7 +82,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.store.select(selectSelectedExam)
             .pipe(takeUntil(this.destroy$))
             .subscribe(exam => {
-                this.exam = exam;
+                this.assessment = exam;
             });
 
         this.items = [
@@ -65,8 +90,8 @@ export class DetailComponent implements OnInit, OnDestroy {
                 label: 'Edit Evaluation',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    if (this.exam && this.exam.id) {
-                        this.router.navigate(['/schoolar/assessments/edit', this.exam.id]);
+                    if (this.assessment && this.assessment.id) {
+                        this.router.navigate(['/schoolar/assessments/edit', this.assessment.id]);
                     } else {
                         console.error('No exam selected or exam ID is missing');
                     }
@@ -76,17 +101,17 @@ export class DetailComponent implements OnInit, OnDestroy {
                 label: 'Record Student Attempt',
                 icon: 'pi pi-user-plus',
                 command: () => {
-                    if (this.exam && this.exam.id) {
-                        this.router.navigate(['/schoolar/assessments/attempt', this.exam.id]);
+                    if (this.assessment && this.assessment.id) {
+                        this.router.navigate(['/schoolar/assessments/attempt', this.assessment.id]);
                     } else {
                         console.error('No exam selected or exam ID is missing');
                     }
                 }
             },
-            {separator: true},
-            {label: 'Print Evaluation Report', icon: 'pi pi-file-pdf'},
-            {label: 'Export Results', icon: 'pi pi-file-excel'},
-            {separator: true},
+            { separator: true },
+            { label: 'Print Evaluation Report', icon: 'pi pi-file-pdf' },
+            { label: 'Export Results', icon: 'pi pi-file-excel' },
+            { separator: true },
             {
                 label: 'Cancel Evaluation',
                 icon: 'pi pi-times',

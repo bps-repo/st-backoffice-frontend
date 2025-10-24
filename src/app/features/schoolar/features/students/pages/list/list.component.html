@@ -1,31 +1,69 @@
-<div *ngIf="(loading$ | async)" class="spinner-container">
-    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
-</div>
+<section class="grid">
 
-<div *ngIf="(error$ | async) !== null">
-    {{ (error$ | async) | json }}
-</div>
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Gestão de alunos</h2>
+            <span class="text-lg">Cadastro e acompanhamento completo dos alunos</span>
+        </div>
+        <p-button *hasPermission="'students.create'" (onClick)="navigateToCreateStudent()" label="Inscrever Aluno"
+            icon="pi pi-plus" class="p-button-outlined"></p-button>
+    </div>
 
-<div class="grid" *ngIf="!(loading$ | async)">
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+            optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- KPI Cards - only visible in list view with smooth animation -->
+    @if (currentView === 'list') {
+    @if (kpis$ | async; as kpis) {
+    @for (k of kpis; track k) {
+    <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)" class="animate-fade px-fadein">
+        <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
+    </div>
+    }
+    }
+    }
+
+    <!-- List View -->
+    @if (currentView === 'list') {
+    <div class="col-12 animate-fade px-fadein">
+        <div class="card">
+            <div class="flex gap-2 align-items-center">
+                <input pInputText type="text" class="w-full" placeholder="Buscar por nome, email, estado" />
+                <button pButton type="button" label="Filtrar"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- Student Table -->
-    <app-global-table
-        tableLabel="Alunos"
-        [headerActions]="headerActions"
-        [data]="(students$ | async)!"
-        [entity]="'students'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        [loading]="loading$ | async"
-        [columnTemplates]="customTemplates"
-        (rowSelect)="onRowSelect($event)"
-        (createEntity)="navigateToCreateStudent()"
-        class="w-full"
-    ></app-global-table>
-</div>
+    <app-global-table [loading]="loading$ | async" tableLabel="Alunos" [headerActions]="headerActions"
+        [data]="(students$ | async)!" [entity]="'students'" [columns]="columns"
+        [globalFilterFields]="globalFilterFields" [columnTemplates]="customTemplates" (rowSelect)="onRowSelect($event)"
+        (createEntity)="navigateToCreateStudent()" class="w-full animate-fade px-fadein"></app-global-table>
+    }
+
+    <!-- Dashboard View - appears with scale animation and sticks below headers -->
+    @if (currentView === 'dashboard') {
+    <div class="col-12 animate-scale px-scalein content-sticky">
+        <app-students></app-students>
+    </div>
+    }
+
+    <!-- Reports View - appears with scale animation and sticks below headers -->
+    @if (currentView === 'reports') {
+    <div class="col-12 animate-scale px-scalein content-sticky">
+        <app-student-report></app-student-report>
+    </div>
+    }
+</section>
+
 
 <!-- Name template field -->
 <ng-template #nameTemplate let-rowData>
-    <span>{{ rowData.user.firstname + " " + rowData.user.lastname }}   </span>
+    <span>{{ rowData.user.firstname + " " + rowData.user.lastname }} </span>
 </ng-template>
 
 <ng-template #phoneTemplate let-rowData>
@@ -38,39 +76,31 @@
 
 
 <ng-template #dateOfBirthTemplate let-rowData>
-    <span>{{ rowData.user.dateOfBirth ?? 'N/A' }}</span>
+    <span>{{ rowData.user.birthdate ?? 'N/A' }}</span>
 </ng-template>
 
 <ng-template #centerTemplate let-rowData>
-    <span>{{ getStudentCenter(rowData.centerId) ?? 'N/A' }}</span>
+    <span>{{ rowData.center.name ?? 'N/A' }}</span>
 </ng-template>
 
 <ng-template #levelTemplate let-rowData>
-    <span> {{ getStudentLevel(rowData.levelId) ?? 'N/A' }} </span>
+    <span> {{ rowData.level.name ?? 'N/A' }} </span>
 </ng-template>
 
-<ng-template #classTemplate let-rowData>
-    <span> {{ rowData.studentClass?.name ?? 'N/A' }} </span>
-</ng-template>
 
 <ng-template #statusTemplate let-rowData>
-    <p-badge
-        [value]="rowData.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
-        [severity]="rowData.status === 'ACTIVE' ? 'success' : 'danger'"
-        class="w-full"
-    ></p-badge>
+    <p-badge [value]="rowData.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
+        [severity]="rowData.status === 'ACTIVE' ? 'success' : 'danger'" class="w-full"></p-badge>
+</ng-template>
+
+<ng-template #typeTemplate let-rowData>
+    <p-badge [value]="rowData.vip ? 'VIP' : 'STANDARD'" [severity]="rowData.vip ? 'warning' : 'info'"
+        class="w-full"></p-badge>
 </ng-template>
 
 <ng-template #actionsTemplate let-center>
     <div class="flex gap-2 justify-content-center">
-        <button
-            pButton
-            pRipple
-            icon="pi pi-eye"
-            class="p-button-rounded p-button-text"
-            (click)="navigateToEditStudent(center)"
-            pTooltip="Ver Detalhes"
-            tooltipPosition="top"
-        ></button>
+        <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
+            (click)="navigateToEditStudent(center)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
     </div>
 </ng-template>

@@ -78,21 +78,20 @@ export class AddToCenterComponent implements OnInit {
         }
 
         this.loading = true;
-        const centerName = this.selectedCenter.name;
 
         // Process each selected student
         const promises = this.selectedStudents.map(student => {
-            const updatedStudent = {...student, center: centerName};
+            const updatedStudent = {...student, center: this.selectedCenter as Center};
             return this.studentsService.updateStudent(updatedStudent);
         });
 
         Promise.all(promises)
             .then(() => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: `${this.selectedStudents.length} students added to ${centerName}`
-                });
+                // this.messageService.add({
+                //     severity: 'success',
+                //     summary: 'Success',
+                //     detail: `${this.selectedStudents.length} students added to ${this.selectedCenter.name}`
+                // });
                 this.selectedStudents = [];
                 this.loadStudents(); // Refresh the general
             })

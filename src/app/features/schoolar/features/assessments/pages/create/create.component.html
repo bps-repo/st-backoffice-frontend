@@ -1,55 +1,211 @@
-<div class="grid">
+<p-toast></p-toast>
+
+<div class="grid p-4">
+    <!-- Header with step indicator -->
+    <div class="col-12 mb-4">
+        <div class="flex align-items-center gap-4 mb-4">
+            <div class="flex align-items-center">
+                <div class="bg-primary border-circle w-2rem h-2rem flex align-items-center justify-content-center text-white font-bold">1</div>
+                <div class="bg-gray-300 h-1 w-3rem mx-2"></div>
+                <div class="bg-gray-300 border-circle w-2rem h-2rem flex align-items-center justify-content-center text-gray-600 font-bold">2</div>
+                <div class="bg-gray-300 h-1 w-3rem mx-2"></div>
+                <div class="bg-gray-300 border-circle w-2rem h-2rem flex align-items-center justify-content-center text-gray-600 font-bold">3</div>
+            </div>
+            <div class="ml-auto">
+                <div class="bg-gray-800 text-white px-4 py-2 border-round-lg">
+                    <i class="pi pi-comment mr-2"></i>
+                    Add a comment
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Form -->
     <div class="col-12">
-        <p-card>
-            <ng-template pTemplate="title">
-                <h2>Create New Assessment</h2>
-            </ng-template>
-            <ng-template pTemplate="content">
-                <div class="grid p-fluid">
-                    <div class="col-12 field">
-                        <label for="title" class="font-bold">Title</label>
-                        <input id="title" type="text" pInputText [(ngModel)]="assessment.title" required>
-                    </div>
+        <div class="card">
+            <h3 class="text-xl font-bold mb-4">Informações da Avaliação</h3>
 
-                    <div class="col-12 md:col-6 field">
-                        <label for="type" class="font-bold">Type</label>
-                        <p-dropdown id="type" [options]="assessmentTypes" [(ngModel)]="assessment.type"
-                            optionLabel="label" placeholder="Select a type" [showClear]="true"></p-dropdown>
-                    </div>
+            <div class="grid p-fluid">
+                <!-- Assessment Name -->
+                <div class="col-12 md:col-6 field">
+                    <label for="name" class="font-bold text-900">Nome da Avaliação</label>
+                    <input
+                        id="name"
+                        type="text"
+                        pInputText
+                        [(ngModel)]="assessment.name"
+                        placeholder="Ex: Prova Unit 1 - Basic Conversation"
+                        required>
+                </div>
 
-                    <div class="col-12 md:col-6 field">
-                        <label for="date" class="font-bold">Date</label>
-                        <p-calendar id="date" [(ngModel)]="assessment.date" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
-                    </div>
+                <!-- Assessment Type -->
+                <div class="col-12 md:col-6 field">
+                    <label for="type" class="font-bold text-900">Tipo de Avaliação</label>
+                    <p-dropdown
+                        id="type"
+                        [options]="assessmentTypes"
+                        [(ngModel)]="assessment.type"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Prova Escrita"
+                        [showClear]="true">
+                    </p-dropdown>
+                </div>
 
-                    <div class="col-12 md:col-6 field">
-                        <label for="totalPoints" class="font-bold">Total Points</label>
-                        <p-inputNumber id="totalPoints" [(ngModel)]="assessment.totalPoints" [min]="0" [max]="1000"></p-inputNumber>
-                    </div>
+                <!-- Assign To -->
+                <div class="col-12 md:col-6 field">
+                    <label for="assignTo" class="font-bold text-900">Atribuir Para</label>
+                    <p-dropdown
+                        id="assignTo"
+                        [options]="assignToOptions"
+                        [(ngModel)]="assessment.assignTo"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Turma Inteira"
+                        [showClear]="true">
+                    </p-dropdown>
+                </div>
 
-                    <div class="col-12 md:col-6 field">
-                        <label for="passingScore" class="font-bold">Passing Score</label>
-                        <p-inputNumber id="passingScore" [(ngModel)]="assessment.passingScore" [min]="0" [max]="1000"></p-inputNumber>
-                    </div>
+                <!-- Unit -->
+                <div class="col-12 md:col-6 field">
+                    <label for="unit" class="font-bold text-900">Unidade</label>
+                    <p-dropdown
+                        id="unit"
+                        [options]="unitOptions"
+                        [(ngModel)]="assessment.unit"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecione a unidade"
+                        [showClear]="true">
+                    </p-dropdown>
+                </div>
 
-                    <div class="col-12 field">
-                        <label for="skillEvaluations" class="font-bold">Skill Evaluations</label>
-                        <p-multiSelect id="skillEvaluations" [options]="skillCategories" [(ngModel)]="assessment.skillEvaluations"
-                            optionLabel="label" placeholder="Select skill evaluations" [showClear]="true" display="chip"></p-multiSelect>
-                    </div>
+                <!-- Assessment Date -->
+                <div class="col-12 md:col-6 field">
+                    <label for="date" class="font-bold text-900">Data da Avaliação</label>
+                    <p-calendar
+                        id="date"
+                        [(ngModel)]="assessment.date"
+                        [showIcon]="true"
+                        dateFormat="dd/mm/yy"
+                        placeholder="dd/mm/aaaa">
+                    </p-calendar>
+                </div>
 
-                    <div class="col-12 field">
-                        <label for="description" class="font-bold">Description</label>
-                        <textarea id="description" pInputTextarea [(ngModel)]="assessment.description" rows="5"></textarea>
+                <!-- Max Score -->
+                <div class="col-12 md:col-6 field">
+                    <label for="maxScore" class="font-bold text-900">Pontuação Máxima</label>
+                    <p-inputNumber
+                        id="maxScore"
+                        [(ngModel)]="assessment.maxScore"
+                        [min]="0"
+                        [max]="1000"
+                        placeholder="100">
+                    </p-inputNumber>
+                </div>
+
+                <!-- Status -->
+                <div class="col-12 md:col-6 field">
+                    <label for="status" class="font-bold text-900">Status</label>
+                    <p-dropdown
+                        id="status"
+                        [options]="statusOptions"
+                        [(ngModel)]="assessment.status"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Rascunho">
+                    </p-dropdown>
+                </div>
+
+                <!-- Competencies Section -->
+                <div class="col-12 field">
+                    <label class="font-bold text-900 mb-3 block">Competências Avaliadas</label>
+                    <div class="grid">
+                        <div class="col-12 md:col-4">
+                            <div class="field-checkbox">
+                                <p-checkbox
+                                    inputId="listening"
+                                    name="competencies"
+                                    [(ngModel)]="assessment.competencies.listening">
+                                </p-checkbox>
+                                <label for="listening" class="ml-2">Listening</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field-checkbox">
+                                <p-checkbox
+                                    inputId="speaking"
+                                    name="competencies"
+                                    [(ngModel)]="assessment.competencies.speaking">
+                                </p-checkbox>
+                                <label for="speaking" class="ml-2">Speaking</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field-checkbox">
+                                <p-checkbox
+                                    inputId="writing"
+                                    name="competencies"
+                                    [(ngModel)]="assessment.competencies.writing">
+                                </p-checkbox>
+                                <label for="writing" class="ml-2">Writing</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field-checkbox">
+                                <p-checkbox
+                                    inputId="vocabulary"
+                                    name="competencies"
+                                    [(ngModel)]="assessment.competencies.vocabulary">
+                                </p-checkbox>
+                                <label for="vocabulary" class="ml-2">Vocabulary</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field-checkbox">
+                                <p-checkbox
+                                    inputId="grammar"
+                                    name="competencies"
+                                    [(ngModel)]="assessment.competencies.grammar">
+                                </p-checkbox>
+                                <label for="grammar" class="ml-2">Grammar</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field-checkbox">
+                                <p-checkbox
+                                    inputId="fluency"
+                                    name="competencies"
+                                    [(ngModel)]="assessment.competencies.fluency">
+                                </p-checkbox>
+                                <label for="fluency" class="ml-2">Fluency</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </ng-template>
-            <ng-template pTemplate="footer">
-                <div class="flex justify-content-end">
-                    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2"></button>
-                    <button pButton label="Save" icon="pi pi-check" (click)="saveAssessment()"></button>
-                </div>
-            </ng-template>
-        </p-card>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button
+                    pButton
+                    type="button"
+                    label="Cancelar"
+                    icon="pi pi-times"
+                    class="p-button-outlined p-button-danger"
+                    (click)="cancel()">
+                </button>
+                <button
+                    pButton
+                    type="button"
+                    label="Salvar"
+                    icon="pi pi-check"
+                    class="p-button-primary"
+                    [loading]="loading"
+                    [disabled]="!isFormValid()"
+                    (click)="saveAssessment()">
+                </button>
+            </div>
+        </div>
     </div>
 </div>

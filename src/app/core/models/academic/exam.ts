@@ -18,4 +18,11 @@ export interface Exam {
     notes?: string[];
     feedback?: string[];
     average?: number;
+    // New properties for the assessment detail layout
+    type?: string;
+    unit?: string;
+    createdAt?: string;
+    competencies?: string[];
+    gradesCount?: number;
+    completionRate?: string;
 }

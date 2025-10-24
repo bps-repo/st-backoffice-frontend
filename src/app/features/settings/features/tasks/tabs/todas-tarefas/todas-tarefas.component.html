@@ -1,0 +1,408 @@
+<div class="container">
+  <div class="mb-4">
+    <h2 class="text-xl font-bold mb-2">Gestão de Situações</h2>
+    <p class="text-gray-600">Acompanhe situações que requerem atenção especial</p>
+  </div>
+
+  <!-- Cards de resumo -->
+  <div class="grid mb-4">
+    <div *ngFor="let card of summaryCards; let i = index" class="col-12 md:col-3 sm:col-6">
+      <p-card [styleClass]="card.class + ' border-none shadow-1 cursor-pointer'" (click)="activeTabIndex = i; onTabChange({index: i})">
+        <div class="flex align-items-center justify-content-between">
+          <div>
+            <h3 class="text-lg font-medium mb-2">{{ card.title }}</h3>
+            <p class="text-3xl font-bold">{{ card.count }}</p>
+          </div>
+          <div>
+            <i [class]="card.icon + ' text-4xl'"></i>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Mensagem de carregamento e erro -->
+  <div *ngIf="contratosTerminando.length === 0" class="flex flex-column justify-content-center align-items-center p-5 transition-all transition-duration-300">
+    <!-- Estado de carregamento -->
+    <div *ngIf="carregando" class="flex flex-column align-items-center mb-3 animation-duration-500 fadeindown">
+      <div class="flex align-items-center mb-2">
+        <i class="pi pi-spin pi-spinner text-primary" style="font-size: 2.5rem"></i>
+        <span class="ml-3 text-lg font-medium">Carregando dados...</span>
+      </div>
+      <div *ngIf="tentativasCarregamento > 1" class="mt-2 text-sm text-gray-600">
+        Tentativa {{ tentativasCarregamento }} de {{ maxTentativas }}
+      </div>
+      <p-progressBar *ngIf="tentativasCarregamento > 1" [value]="(tentativasCarregamento / maxTentativas) * 100" [showValue]="false" [style]="{'height': '6px', 'width': '200px'}" styleClass="mt-2"></p-progressBar>
+    </div>
+    
+    <!-- Estado de erro -->
+    <div *ngIf="erroCarregamento" class="flex flex-column align-items-center mb-3 animation-duration-500 fadein">
+      <div class="flex align-items-center mb-2">
+        <i class="pi pi-exclamation-triangle text-red-500" style="font-size: 2.5rem"></i>
+        <span class="ml-3 text-lg text-red-500 font-medium">Erro ao carregar dados</span>
+      </div>
+      <p class="text-center text-gray-700 mb-3 max-w-30rem">{{ mensagemErro }}</p>
+      <p class="text-center text-gray-500 text-sm">Tente recarregar ou contate o suporte se o problema persistir.</p>
+    </div>
+    
+    <!-- Botões de ação -->
+    <div class="flex gap-2 mt-3 animation-duration-500 fadeincup">
+      <!-- Botão de recarregar -->
+      <button pButton label="Recarregar" icon="pi pi-refresh" 
+              [class]="erroCarregamento ? 'p-button-danger' : 'p-button-outlined'" 
+              [disabled]="carregando"
+              (click)="reiniciarComponente()">
+      </button>
+      
+      <!-- Botão de ajuda -->
+      <button pButton type="button" icon="pi pi-question-circle" 
+              class="p-button-rounded p-button-text p-button-help" 
+              pTooltip="Se o problema persistir, tente limpar o cache do navegador, verificar sua conexão com a internet ou contatar o suporte técnico." 
+              tooltipPosition="top" 
+              [showDelay]="0" 
+              [hideDelay]="0"
+              [tooltipStyleClass]="'max-w-20rem text-sm'">
+      </button>
+    </div>
+  </div>
+  
+  <!-- Abas de conteúdo -->
+  <p-tabView *ngIf="contratosTerminando.length > 0" [(activeIndex)]="activeTabIndex" (onChange)="onTabChange($event)">
+    
+    <!-- Aba 1: Contratos Terminando -->
+    <p-tabPanel header="Contratos Terminando">
+      <!-- Filtros -->
+      <div class="flex flex-column md:flex-row gap-3 mb-3">
+        <div class="p-inputgroup flex-1">
+          <span class="p-inputgroup-addon">
+            <i class="pi pi-search"></i>
+          </span>
+          <input pInputText type="text" placeholder="Pesquisar por nome ou ID..." [(ngModel)]="searchText">
+        </div>
+
+        <div class="flex gap-2">
+          <p-dropdown [options]="turmaOptions" [(ngModel)]="selectedTurma" placeholder="Filtrar por turma" [style]="{'min-width': '12rem'}"></p-dropdown>
+          <p-dropdown [options]="nivelOptions" [(ngModel)]="selectedNivel" placeholder="Nível" [style]="{'min-width': '8rem'}"></p-dropdown>
+          <p-dropdown [options]="centroOptions" [(ngModel)]="selectedCentro" placeholder="Centro" [style]="{'min-width': '8rem'}"></p-dropdown>
+
+          <button pButton icon="pi pi-filter" label="Filtros" class="p-button-outlined"></button>
+          <button pButton icon="pi pi-download" label="Exportar" class="p-button-outlined" (click)="exportarDados()"></button>
+        </div>
+      </div>
+
+      <!-- Tabela de Alunos com Contrato por Terminar -->
+      <p-table [value]="contratosTerminando" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Aluno</th>
+            <th>Curso</th>
+            <th>Término</th>
+            <th>Progresso</th>
+            <th>Situação Financeira</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-aluno>
+          <tr>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ aluno.nome }}</span>
+                <span class="text-sm text-gray-500">{{ aluno.codigo }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ aluno.curso }}</span>
+                <span class="text-sm text-gray-500">{{ aluno.nivel }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ aluno.termino | date:'yyyy-MM-dd' }}</span>
+                <span class="text-sm" [ngClass]="{'text-red-500': aluno.diasRestantes < 15, 'text-blue-500': aluno.diasRestantes >= 15}">
+                  {{ aluno.diasRestantes }} dias
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">
+                  {{ aluno.progresso.atual }}/{{ aluno.progresso.total }} unidades
+                </span>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                  <div class="bg-blue-600 h-2.5 rounded-full" [style.width.%]="(aluno.progresso.atual / aluno.progresso.total) * 100"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span [ngClass]="getSituacaoFinanceiraClass(aluno.situacaoFinanceira)">
+                {{ aluno.situacaoFinanceira }}
+              </span>
+            </td>
+            <td>
+              <div class="flex gap-2">
+                <button pButton icon="pi pi-calendar" class="p-button-rounded p-button-text" pTooltip="Reunião" tooltipPosition="top" (click)="agendarReuniao(aluno)"></button>
+                <button pButton icon="pi pi-times" class="p-button-rounded p-button-text" pTooltip="Ignorar" tooltipPosition="top" (click)="ignorarAlerta(aluno)"></button>
+                <button pButton icon="pi pi-check" class="p-button-rounded p-button-success p-button-text" pTooltip="Renovar" tooltipPosition="top" (click)="renovarContrato(aluno)"></button>
+                <button pButton icon="pi pi-file" class="p-button-rounded p-button-text" pTooltip="Relatório" tooltipPosition="top" (click)="gerarRelatorio(aluno)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center p-4">Nenhum aluno encontrado.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+    
+    <!-- Aba 2: Parcelas a Vencer -->
+    <p-tabPanel header="Parcelas a Vencer (Próximos 3 Dias)">
+      <!-- Filtros -->
+      <div class="flex flex-column md:flex-row gap-3 mb-3">
+        <div class="p-inputgroup flex-1">
+          <span class="p-inputgroup-addon">
+            <i class="pi pi-search"></i>
+          </span>
+          <input pInputText type="text" placeholder="Pesquisar por nome ou ID..." [(ngModel)]="searchText">
+        </div>
+
+        <div class="flex gap-2">
+          <p-dropdown [options]="turmaOptions" [(ngModel)]="selectedTurma" placeholder="Filtrar por turma" [style]="{'min-width': '12rem'}"></p-dropdown>
+          <p-dropdown [options]="nivelOptions" [(ngModel)]="selectedNivel" placeholder="Nível" [style]="{'min-width': '8rem'}"></p-dropdown>
+          <p-dropdown [options]="centroOptions" [(ngModel)]="selectedCentro" placeholder="Centro" [style]="{'min-width': '8rem'}"></p-dropdown>
+
+          <button pButton icon="pi pi-filter" label="Filtros" class="p-button-outlined"></button>
+          <button pButton icon="pi pi-download" label="Exportar" class="p-button-outlined" (click)="exportarDados()"></button>
+        </div>
+      </div>
+
+      <!-- Tabela de Parcelas a Vencer -->
+      <p-table [value]="parcelasVencer" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Aluno</th>
+            <th>Curso</th>
+            <th>Parcela</th>
+            <th>Vencimento</th>
+            <th>Valor</th>
+            <th>Método</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-parcela>
+          <tr>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ parcela.nome }}</span>
+                <span class="text-sm text-gray-500">{{ parcela.codigo }}</span>
+              </div>
+            </td>
+            <td>{{ parcela.curso }}</td>
+            <td>{{ parcela.parcela }}</td>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ parcela.vencimento | date:'yyyy-MM-dd' }}</span>
+                <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                  {{ parcela.diasRestantes }} dias
+                </span>
+              </div>
+            </td>
+            <td>€{{ parcela.valor }}</td>
+            <td>{{ parcela.metodo }}</td>
+            <td>
+              <div class="flex gap-2">
+                <button pButton icon="pi pi-calendar" class="p-button-rounded p-button-text" pTooltip="Reunião" tooltipPosition="top" (click)="agendarReuniao(parcela)"></button>
+                <button pButton icon="pi pi-clock" class="p-button-rounded p-button-text" pTooltip="Estender" tooltipPosition="top" (click)="estenderPrazo(parcela)"></button>
+                <button pButton icon="pi pi-check-circle" class="p-button-rounded p-button-text" pTooltip="Concluir" tooltipPosition="top" (click)="concluirPagamento(parcela)"></button>
+                <button pButton icon="pi pi-credit-card" class="p-button-rounded p-button-primary p-button-text" pTooltip="Pagar" tooltipPosition="top" (click)="realizarPagamento(parcela)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center p-4">Nenhuma parcela encontrada.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+    
+    <!-- Aba 3: Parcelas Vencidas -->
+    <p-tabPanel header="Parcelas Vencidas">
+      <!-- Filtros -->
+      <div class="flex flex-column md:flex-row gap-3 mb-3">
+        <div class="p-inputgroup flex-1">
+          <span class="p-inputgroup-addon">
+            <i class="pi pi-search"></i>
+          </span>
+          <input pInputText type="text" placeholder="Pesquisar por nome ou ID..." [(ngModel)]="searchText">
+        </div>
+
+        <div class="flex gap-2">
+          <p-dropdown [options]="turmaOptions" [(ngModel)]="selectedTurma" placeholder="Filtrar por turma" [style]="{'min-width': '12rem'}"></p-dropdown>
+          <p-dropdown [options]="nivelOptions" [(ngModel)]="selectedNivel" placeholder="Nível" [style]="{'min-width': '8rem'}"></p-dropdown>
+          <p-dropdown [options]="centroOptions" [(ngModel)]="selectedCentro" placeholder="Centro" [style]="{'min-width': '8rem'}"></p-dropdown>
+
+          <button pButton icon="pi pi-filter" label="Filtros" class="p-button-outlined"></button>
+          <button pButton icon="pi pi-download" label="Exportar" class="p-button-outlined" (click)="exportarDados()"></button>
+        </div>
+      </div>
+
+      <!-- Tabela de Parcelas Vencidas -->
+      <p-table [value]="parcelasVencidas" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Aluno</th>
+            <th>Curso</th>
+            <th>Parcela</th>
+            <th>Venceu em</th>
+            <th>Atraso</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-parcela>
+          <tr>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ parcela.nome }}</span>
+                <span class="text-sm text-gray-500">{{ parcela.codigo }}</span>
+              </div>
+            </td>
+            <td>{{ parcela.curso }}</td>
+            <td>{{ parcela.parcela }}</td>
+            <td>{{ parcela.venceuEm | date:'yyyy-MM-dd' }}</td>
+            <td>
+              <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">
+                {{ parcela.atraso }} dias
+              </span>
+            </td>
+            <td>{{ parcela.valor }} Kz</td>
+            <td>
+              <div class="flex gap-2">
+                <button pButton icon="pi pi-calendar" class="p-button-rounded p-button-text" pTooltip="Reunião" tooltipPosition="top" (click)="agendarReuniao(parcela)"></button>
+                <button pButton icon="pi pi-clock" class="p-button-rounded p-button-text" pTooltip="Estender" tooltipPosition="top" (click)="estenderPrazo(parcela)"></button>
+                <button pButton icon="pi pi-times-circle" class="p-button-rounded p-button-danger p-button-text" pTooltip="Fechar" tooltipPosition="top" (click)="fecharParcela(parcela)"></button>
+                <button pButton icon="pi pi-ban" class="p-button-rounded p-button-warning p-button-text" pTooltip="Inativar" tooltipPosition="top" (click)="inativarParcela(parcela)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center p-4">Nenhuma parcela vencida encontrada.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+    
+    <!-- Aba 4: Ausências Longas -->
+    <p-tabPanel header="Alunos Ausentes há 20+ Dias">
+      <!-- Filtros -->
+      <div class="flex flex-column md:flex-row gap-3 mb-3">
+        <div class="p-inputgroup flex-1">
+          <span class="p-inputgroup-addon">
+            <i class="pi pi-search"></i>
+          </span>
+          <input pInputText type="text" placeholder="Pesquisar por nome ou ID..." [(ngModel)]="searchText">
+        </div>
+
+        <div class="flex gap-2">
+          <p-dropdown [options]="turmaOptions" [(ngModel)]="selectedTurma" placeholder="Filtrar por turma" [style]="{'min-width': '12rem'}"></p-dropdown>
+          <p-dropdown [options]="nivelOptions" [(ngModel)]="selectedNivel" placeholder="Nível" [style]="{'min-width': '8rem'}"></p-dropdown>
+          <p-dropdown [options]="centroOptions" [(ngModel)]="selectedCentro" placeholder="Centro" [style]="{'min-width': '8rem'}"></p-dropdown>
+
+          <button pButton icon="pi pi-filter" label="Filtros" class="p-button-outlined"></button>
+          <button pButton icon="pi pi-download" label="Exportar" class="p-button-outlined" (click)="exportarDados()"></button>
+        </div>
+      </div>
+
+      <!-- Tabela de Ausências Longas -->
+      <p-table [value]="ausenciasLongas" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Aluno</th>
+            <th>Curso</th>
+            <th>Última Presença</th>
+            <th>Dias Ausente</th>
+            <th>Frequência</th>
+            <th>Progresso</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-aluno>
+          <tr>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ aluno.nome }}</span>
+                <span class="text-sm text-gray-500">{{ aluno.codigo }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ aluno.curso }}</span>
+                <span class="text-sm text-gray-500">{{ aluno.nivel }}</span>
+              </div>
+            </td>
+            <td>{{ aluno.ultimaPresenca | date:'yyyy-MM-dd' }}</td>
+            <td>
+              <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
+                {{ aluno.diasAusente }} dias
+              </span>
+            </td>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ aluno.frequencia }}%</span>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                  <div class="bg-blue-600 h-2.5 rounded-full" [style.width.%]="aluno.frequencia"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-column">
+                <span class="font-medium">{{ aluno.progresso }}%</span>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                  <div class="bg-blue-600 h-2.5 rounded-full" [style.width.%]="aluno.progresso"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="flex gap-2">
+                <button pButton icon="pi pi-phone" class="p-button-rounded p-button-text" pTooltip="Contatar" tooltipPosition="top" (click)="contatarAluno(aluno)"></button>
+                <button pButton icon="pi pi-calendar" class="p-button-rounded p-button-text" pTooltip="Reunião" tooltipPosition="top" (click)="agendarReuniao(aluno)"></button>
+                <button pButton icon="pi pi-file" class="p-button-rounded p-button-text" pTooltip="Relatório" tooltipPosition="top" (click)="gerarRelatorio(aluno)"></button>
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" pTooltip="Nota" tooltipPosition="top" (click)="adicionarNota(aluno)"></button>
+                <button pButton icon="pi pi-exclamation-triangle" class="p-button-rounded p-button-danger p-button-text" pTooltip="Alerta" tooltipPosition="top" (click)="emitirAlerta(aluno)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center p-4">Nenhum aluno com ausência longa encontrado.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<style>
+  :host ::ng-deep .p-card {
+    border-radius: 8px;
+  }
+
+  :host ::ng-deep .p-card .p-card-content {
+    padding: 0.5rem 0 0 0;
+  }
+
+  :host ::ng-deep .p-dropdown {
+    min-height: 40px;
+  }
+
+  :host ::ng-deep .p-inputtext {
+    min-height: 40px;
+  }
+</style>

@@ -4,7 +4,6 @@ import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
 import {StudentService} from '../../../services/student.service';
 import {StudentsActions} from "./students.actions";
-import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
 
 @Injectable()
 export class StudentsEffects {
@@ -17,8 +16,8 @@ export class StudentsEffects {
             exhaustMap(() =>
                 this.studentsService.getStudents().pipe(
                     map((students) => StudentsActions.loadStudentsSuccess({students, pagination: null})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(StudentsActions.loadStudentsFailure({error: error.error.message}))
+                    catchError((error) =>
+                        of(StudentsActions.loadStudentsFailure({error: error.message}))
                     )
                 )
             )
@@ -31,8 +30,8 @@ export class StudentsEffects {
             exhaustMap(({id}) =>
                 this.studentsService.getStudent(id).pipe(
                     map((student) => StudentsActions.loadStudentSuccess({student})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(StudentsActions.loadStudentFailure({error: error.error.message}))
+                    catchError((error) =>
+                        of(StudentsActions.loadStudentFailure({error: error.message}))
                     )
                 )
             )
@@ -45,13 +44,30 @@ export class StudentsEffects {
             exhaustMap(({student}) =>
                 this.studentsService.createStudent(student).pipe(
                     map((student) => StudentsActions.createStudentSuccess({student})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(StudentsActions.createStudentFailure({error: error.error.message}))
-                    )
+                    catchError((error) => {
+                        const msg = (error && (error.error?.message || error.error?.error || error.message)) || 'Ocorreu um erro ao criar o aluno.';
+                        return of(StudentsActions.createStudentFailure({error: msg}));
+                    })
                 )
             )
         )
     );
+
+    createStudentWithRequest$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.createStudentWithRequest),
+            exhaustMap(({request}) =>
+                this.studentsService.createStudentWithRequest(request).pipe(
+                    map((student) => StudentsActions.createStudentWithRequestSuccess({student})),
+                    catchError((error) => {
+                        const msg = (error && (error.error?.message || error.error?.error || error.message)) || 'Ocorreu um erro ao criar o aluno.';
+                        return of(StudentsActions.createStudentWithRequestFailure({error: msg}));
+                    })
+                )
+            )
+        )
+    );
+
 
     updateStudent$ = createEffect(() =>
         this.actions$.pipe(

@@ -5,11 +5,17 @@ import { Observable } from 'rxjs';
 import { Exam } from 'src/app/core/models/academic/exam';
 import { selectSelectedExam } from 'src/app/core/store/schoolar/assessments/exams.selectors';
 import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
     selector: 'app-students',
     standalone: true,
-    imports: [CommonModule, TableModule],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, ProgressBarModule, CardModule, AvatarModule, TooltipModule],
     templateUrl: './students.component.html'
 })
 export class StudentsComponent implements OnInit {
@@ -35,5 +41,13 @@ export class StudentsComponent implements OnInit {
                 }));
             }
         });
+    }
+
+    getPresentCount(): number {
+        return this.students.filter(student => student.attendance === 'Present').length;
+    }
+
+    getAbsentCount(): number {
+        return this.students.filter(student => student.attendance === 'Absent').length;
     }
 }

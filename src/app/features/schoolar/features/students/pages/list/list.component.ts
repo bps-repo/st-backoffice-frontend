@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ContentChild, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ElementRef, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -8,7 +8,7 @@ import {
 import {Student, StudentStatus} from 'src/app/core/models/academic/student';
 import {Store} from '@ngrx/store';
 
-import {Observable, Subject, take} from 'rxjs';
+import {Observable, Subject, take, map} from 'rxjs';
 import {ChartModule} from 'primeng/chart';
 import {ButtonModule} from 'primeng/button';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
@@ -23,7 +23,16 @@ import * as CenterSelectors from "../../../../../../core/store/corporate/center/
 import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
 import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
 import {BadgeModule} from "primeng/badge";
-import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {CalendarModule} from "primeng/calendar";
+import {ChipsModule} from "primeng/chips";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {FormsModule} from "@angular/forms";
+import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
+import {StudentReports} from "../../../reports/components/student/student-reports.component";
+import { HasPermissionPipe } from 'src/app/shared/pipes';
+import { HasPermissionDirective } from 'src/app/shared/directives';
 
 @Component({
     selector: 'app-general',
@@ -36,9 +45,16 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
         RippleModule,
         TooltipModule,
         BadgeModule,
-        ProgressSpinnerModule
+        KpiIndicatorsComponent,
+        CalendarModule,
+        ChipsModule,
+        SelectButtonModule,
+        FormsModule,
+        StudentsDashboardComponent,
+        StudentReports,
+        HasPermissionDirective
     ],
-    templateUrl: './list.component.html'
+    templateUrl: './list.component.html',
 })
 export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -64,13 +80,25 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('levelTemplate', {static: true})
     levelTemplate!: TemplateRef<any>;
 
-    @ViewChild('classTemplate', {static: true})
-    classTemplate!: TemplateRef<any>;
-
     @ViewChild('statusTemplate', {static: true})
     statusTemplate!: TemplateRef<any>;
 
-    students$?: Observable<Student[]>;
+    @ViewChild('typeTemplate', {static: true})
+    typeTemplate!: TemplateRef<any>;
+
+    // References to sticky header elements
+    @ViewChild('mainHeader', {static: false})
+    mainHeader!: ElementRef;
+
+    @ViewChild('viewSelector', {static: false})
+    viewSelector!: ElementRef;
+
+    // Sticky state tracking
+    isMainHeaderSticky: boolean = false;
+
+    isViewSelectorSticky: boolean = false;
+
+    students$!: Observable<Student[]>;
 
     loading$: Observable<boolean>;
 
@@ -84,10 +112,45 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     chartOptions: any;
 
-    error$: Observable<string | null> = this.store.select(StudentSelectors.selectError);
+    // View selection
+    currentView: string = 'list'; // Default view is list
 
+    viewOptions = [
+        { label: 'Lista de alunos', value: 'list' },
+        { label: 'Relatórios', value: 'reports' },
+        { label: 'Dashboard', value: 'dashboard' },
+    ];
 
     private destroy$ = new Subject<void>();
+
+    // KPIs derived from students data
+    kpis$!: Observable<Kpi[]>;
+
+    // Method to handle view selection
+    onViewChange(event: any) {
+        this.currentView = event.value;
+    }
+
+    // Listen for scroll events
+    @HostListener('window:scroll', ['$event'])
+    onWindowScroll() {
+        this.checkStickyState();
+    }
+
+    // Check if headers are in sticky state
+    checkStickyState() {
+        if (this.mainHeader && this.mainHeader.nativeElement) {
+            const mainHeaderRect = this.mainHeader.nativeElement.getBoundingClientRect();
+            // Header is sticky when its top position is 0
+            this.isMainHeaderSticky = mainHeaderRect.top <= 0;
+        }
+
+        if (this.viewSelector && this.viewSelector.nativeElement) {
+            const viewSelectorRect = this.viewSelector.nativeElement.getBoundingClientRect();
+            // View selector is sticky when its top position is at its sticky position (80px)
+            this.isViewSelectorSticky = viewSelectorRect.top <= 80;
+        }
+    }
 
     constructor(
         private store: Store<StudentState>,
@@ -115,11 +178,58 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             responsive: true,
             maintainAspectRatio: false
         };
+
+        // Build KPI indicators dynamically from students data
+        this.kpis$ = this.students$.pipe(
+            map((students: Student[]) => {
+                const total = students.length;
+                const active = students.filter(s => s.status === StudentStatus.ACTIVE).length;
+                const inactive = students.filter(s => s.status === StudentStatus.INACTIVE).length;
+                const renewing = students.filter(s => s.status === StudentStatus.PENDING_PAYMENT).length;
+                const vip = students.filter(s => !!s.vip).length;
+                const standard = students.filter(s => !s.vip).length;
+
+                const kpis: Kpi[] = [
+                    {
+                        label: 'Total de Alunos',
+                        value: total,
+                        icon: {label: 'users', color: 'text-blue-500', type: 'mat'},
+                    },
+                    {
+                        label: 'Ativos',
+                        value: active,
+                        icon: {label: 'user-check', color: 'text-green-500', type: 'mat'},
+                    },
+                    {
+                        label: 'Inativos',
+                        value: inactive,
+                        icon: {label: 'user-cancel', color: 'text-red-500', type: 'mat'},
+                    },
+                    {
+                        label: 'Em renovação',
+                        value: renewing,
+                        icon: {label: 'exclamation-circle', color: 'text-orange-500'},
+                    },
+                    {
+                        label: 'VIP',
+                        value: vip,
+                        icon: {label: 'graduation-cap', color: 'text-purple-500'},
+                    },
+                    {
+                        label: 'Standard',
+                        value: standard,
+                        icon: {label: 'calendar', color: 'text-secondary'},
+                    },
+                ];
+
+                return kpis;
+            })
+        );
     }
 
     ngOnInit(): void {
         // Dispatch action to load students
-        this.store.dispatch(LevelActions.loadLevels())
+        this.store.dispatch(LevelActions.loadLevels({}))
         this.store.dispatch(CenterActions.loadCenters());
         this.store.dispatch(StudentsActions.loadStudents());
         this.headerActions.push(
@@ -144,15 +254,20 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit() {
         this.customTemplates = {
             name: this.nameTemplate,
-            dateOfBirth: this.dateOfBirthTemplate,
+            birthdate: this.dateOfBirthTemplate,
             email: this.emailTemplate,
             phone: this.phoneTemplate,
             actions: this.actionsTemplate,
             centerId: this.centerTemplate,
             levelId: this.levelTemplate,
-            studentClass: this.classTemplate,
-            status: this.statusTemplate
+            status: this.statusTemplate,
+            vip: this.typeTemplate,
         };
+
+        // Initialize sticky state check after view is initialized
+        setTimeout(() => {
+            this.checkStickyState();
+        });
     }
 
     ngOnDestroy(): void {
@@ -165,36 +280,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     navigateToCreateStudent() {
-        this.router.navigate(['/schoolar/students/create']);
+        this.router.navigate(['/schoolar/students/create']).then();
     }
 
     navigateToEditStudent(id: string) {
 
     }
 
-    getStudentLevel(levelId: string): string {
-        if (!levelId) return 'Sem nível';
-
-        let levelName = '';
-        this.store.select(LevelSelectors.selectLevelById(levelId))
-            .pipe(take(1))
-            .subscribe(level => {
-                levelName = level?.name ?? 'Nível não encontrado';
-            });
-        return levelName;
-    }
-
-    getStudentCenter(centerId: string): string {
-        if (!centerId) return 'Sem centro';
-
-        let centerName = '';
-        this.store.select(CenterSelectors.selectCenterById(centerId))
-            .pipe(take(1))
-            .subscribe(center => {
-                centerName = center?.name ?? 'Centro não encontrado';
-            });
-        return centerName;
-    }
-
     protected StudentStatus = StudentStatus
+    protected readonly Math = Math;
 }

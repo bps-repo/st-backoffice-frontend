@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ApiResponse, PageableResponse } from './interfaces/ApiResponseService';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 @Injectable({
   providedIn: 'root',
@@ -115,6 +115,16 @@ export class RolesPermissionsService {
   getPermissions(): Observable<any[]> {
     return this.http.get<ApiResponse<PageableResponse<any[]>>>(this.permissionsApiUrl).pipe(
       map((response) => response.data.content as any[])
+    );
+  }
+
+  /**
+   * Gets all permissions in tree structure with parent-child relationships.
+   * @returns An observable containing an array of Permission objects with children.
+   */
+  getPermissionsTree(): Observable<any[]> {
+    return this.http.get<ApiResponse<any[]>>(`${this.permissionsApiUrl}/tree`).pipe(
+      map((response) => response.data as any[])
     );
   }
 

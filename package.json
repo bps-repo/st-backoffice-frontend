@@ -1,5 +1,5 @@
 {
-  "name": "st-andrews",
+  "name": "st-andrews-platform",
   "version": "1.0.1",
   "scripts": {
     "ng": "ng",
@@ -17,9 +17,11 @@
     "@angular/compiler": "^19.2.8",
     "@angular/core": "^19.2.8",
     "@angular/forms": "^19.2.8",
+    "@angular/material": "^18.2.14",
     "@angular/platform-browser": "^19.2.8",
     "@angular/platform-browser-dynamic": "^19.2.8",
     "@angular/router": "^19.2.8",
+    "@angular/youtube-player": "^20.2.3",
     "@fullcalendar/angular": "^6.0.3",
     "@fullcalendar/core": "^6.0.3",
     "@fullcalendar/daygrid": "^6.0.3",
@@ -28,6 +30,7 @@
     "@fullcalendar/timegrid": "^6.0.3",
     "@ngrx/effects": "^19.1.0",
     "@ngrx/entity": "^19.1.0",
+    "@ngrx/operators": "^18.0.0",
     "@ngrx/router-store": "^19.1.0",
     "@ngrx/store": "^19.1.0",
     "@ngrx/store-devtools": "^19.1.0",
@@ -38,8 +41,7 @@
     "quill": "^1.3.7",
     "rxjs": "~7.8.1",
     "tslib": "^2.5.0",
-    "zone.js": "~0.15.0",
-    "@ngrx/operators": "^18.0.0"
+    "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.9",

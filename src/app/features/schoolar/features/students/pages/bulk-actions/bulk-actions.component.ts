@@ -12,13 +12,11 @@ import {MessageService} from 'primeng/api';
 import {Store} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {Center} from 'src/app/core/models/corporate/center';
-import {Class} from 'src/app/core/models/academic/class';
 import {CenterService} from 'src/app/core/services/center.service';
 import {StudentService} from 'src/app/core/services/student.service';
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
-import {ClassesActions} from "../../../../../../core/store/schoolar/classes/classesActions";
 
 @Component({
     selector: 'app-bulk-actions',
@@ -40,7 +38,6 @@ import {ClassesActions} from "../../../../../../core/store/schoolar/classes/clas
 export class BulkActionsComponent implements OnInit {
     students: Student[] = [];
     centers: Center[] = [];
-    classes: Partial<Class>[] = [];
     selectedStudents: Student[] = [];
     form: FormGroup;
     loading = false;
@@ -103,7 +100,6 @@ export class BulkActionsComponent implements OnInit {
     ngOnInit(): void {
         this.loadStudents();
         this.loadCenters();
-        this.loadClasses();
     }
 
     loadStudents(): void {
@@ -117,10 +113,6 @@ export class BulkActionsComponent implements OnInit {
         this.centerService.getAllCenters().subscribe(centers => {
             this.centers = centers;
         });
-    }
-
-    loadClasses(): void {
-        this.store$.dispatch(ClassesActions.loadClasses());
     }
 
     onSubmit(): void {

@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
+import {ButtonModule} from "primeng/button";
+import {RippleModule} from "primeng/ripple";
 
 @Component({
+    imports: [
+        ButtonModule,
+        RippleModule
+    ],
     templateUrl: './buttondemo.component.html'
 })
 export class ButtonDemoComponent implements OnInit {

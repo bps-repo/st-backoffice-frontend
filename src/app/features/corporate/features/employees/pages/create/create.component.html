@@ -1,68 +1,99 @@
 <div class="grid">
     <div class="col-12">
+        <h4>Criar Novo Funcionário</h4>
         <div class="card">
-            <h5>Criar Novo Funcionário</h5>
-            <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+            <form class="mt-4" [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
                 <div class="p-fluid p-formgrid grid">
-                    <!-- Personal Information -->
-                    <div class="col-12 md:col-6">
-                        <div class="card">
+                    <!-- User Information -->
+                    <div class="col-12 md:col-6" formGroupName="user">
+                        <div class="personal-information">
                             <h5>Informações Pessoais</h5>
-                            <div class="field">
+                            <div class="fields mt-4">
                                 <label for="firstname">Nome</label>
                                 <input id="firstname" type="text" pInputText formControlName="firstname" />
-                                <small *ngIf="employeeForm.get('firstname')?.invalid && employeeForm.get('firstname')?.touched" class="p-error">
+                                <small *ngIf="employeeForm.get('user.firstname')?.invalid && employeeForm.get('user.firstname')?.touched" class="p-error">
                                     Nome é obrigatório
                                 </small>
                             </div>
                             <div class="field">
                                 <label for="lastname">Sobrenome</label>
                                 <input id="lastname" type="text" pInputText formControlName="lastname" />
-                                <small *ngIf="employeeForm.get('lastname')?.invalid && employeeForm.get('lastname')?.touched" class="p-error">
+                                <small *ngIf="employeeForm.get('user.lastname')?.invalid && employeeForm.get('user.lastname')?.touched" class="p-error">
                                     Sobrenome é obrigatório
+                                </small>
+                            </div>
+                            <div class="field">
+                                <label>Gênero</label>
+                                <div class="grid">
+                                    <div class="col-4" *ngFor="let gender of genderOptions">
+                                        <div class="field-radiobutton">
+                                            <p-radioButton [inputId]="gender.value" [value]="gender.value" formControlName="gender"></p-radioButton>
+                                            <label [for]="gender.value">{{gender.label}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="dateOfBirth">Data de Nascimento</label>
+                                <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <small *ngIf="employeeForm.get('user.dateOfBirth')?.invalid && employeeForm.get('user.dateOfBirth')?.touched" class="p-error">
+                                    Data de nascimento é obrigatória
                                 </small>
                             </div>
                             <div class="field">
                                 <label for="email">Email</label>
                                 <input id="email" type="email" pInputText formControlName="email" />
-                                <small *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched" class="p-error">
+                                <small *ngIf="employeeForm.get('user.email')?.invalid && employeeForm.get('user.email')?.touched" class="p-error">
                                     Email válido é obrigatório
                                 </small>
                             </div>
                             <div class="field">
-                                <label for="phone">Telefone</label>
-                                <input id="phone" type="text" pInputText formControlName="phone" />
+                                <label for="password">Senha</label>
+                                <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="true"></p-password>
+                                <small *ngIf="employeeForm.get('user.password')?.invalid && employeeForm.get('user.password')?.touched" class="p-error">
+                                    Senha é obrigatória (mínimo 8 caracteres)
+                                </small>
                             </div>
                             <div class="field">
-                                <label for="dateOfBirth">Data de Nascimento</label>
-                                <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <label for="photo">URL da Foto</label>
+                                <input id="photo" type="text" pInputText formControlName="photo" />
                             </div>
                         </div>
                     </div>
 
                     <!-- Employment Information -->
                     <div class="col-12 md:col-6">
-                        <div class="card">
+                        <div class="professional-information">
                             <h5>Informações Profissionais</h5>
-                            <div class="field">
-                                <label for="department">Departamento</label>
-                                <input id="department" type="text" pInputText formControlName="department" />
-                                <small *ngIf="employeeForm.get('department')?.invalid && employeeForm.get('department')?.touched" class="p-error">
-                                    Departamento é obrigatório
+                            <div class="field" formGroupName="user">
+                                <label for="roleId">Função Principal</label>
+                                <p-dropdown
+                                    id="roleId"
+                                    [options]="roles"
+                                    formControlName="roleId"
+                                    placeholder="Selecione uma função"
+                                    optionLabel="name"
+                                    optionValue="id">
+                                </p-dropdown>
+                                <small *ngIf="loadingRoles" class="text-gray-500">
+                                    <i class="pi pi-spin pi-spinner mr-1"></i>Carregando funções...
+                                </small>
+                                <small *ngIf="!loadingRoles && roles.length === 0" class="text-yellow-600">
+                                    <i class="pi pi-exclamation-triangle mr-1"></i>Nenhuma função encontrada
+                                </small>
+                                <small *ngIf="employeeForm.get('user.roleId')?.invalid && employeeForm.get('user.roleId')?.touched" class="p-error">
+                                    Função é obrigatória
+                                </small>
+                                <!-- Debug info (remove in production) -->
+                                <small class="text-xs text-gray-400 mt-1" *ngIf="roles.length > 0">
+                                    {{ roles.length }} função(ões) disponível(eis)
                                 </small>
                             </div>
                             <div class="field">
-                                <label for="position">Cargo</label>
-                                <input id="position" type="text" pInputText formControlName="position" />
-                                <small *ngIf="employeeForm.get('position')?.invalid && employeeForm.get('position')?.touched" class="p-error">
-                                    Cargo é obrigatório
-                                </small>
-                            </div>
-                            <div class="field">
-                                <label for="hireDate">Data de Contratação</label>
-                                <p-calendar id="hireDate" formControlName="hireDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
-                                <small *ngIf="employeeForm.get('hireDate')?.invalid && employeeForm.get('hireDate')?.touched" class="p-error">
-                                    Data de contratação é obrigatória
+                                <label for="centerId">Centro</label>
+                                <p-dropdown id="centerId" [options]="(centers$ | async) || []" formControlName="centerId" placeholder="Selecione um centro" optionLabel="label" optionValue="value"></p-dropdown>
+                                <small *ngIf="employeeForm.get('centerId')?.invalid && employeeForm.get('centerId')?.touched" class="p-error">
+                                    Centro é obrigatório
                                 </small>
                             </div>
                             <div class="field">
@@ -75,11 +106,46 @@
                         </div>
                     </div>
 
+                    <!-- Permissions Section - Full Width -->
+                    <div class="col-12">
+                        <div class="card" formGroupName="user">
+                            <div class="flex align-items-center gap-2 mb-3">
+                                <i class="pi pi-shield text-primary text-xl"></i>
+                                <h5 class="m-0">Configuração de Permissões</h5>
+                            </div>
+                            <p class="text-gray-600 mb-4">
+                                Defina as permissões do funcionário. As permissões da função selecionada são incluídas automaticamente,
+                                e você pode adicionar permissões extras conforme necessário.
+                            </p>
+
+                            <div class="field">
+                                <app-permission-tree-selector
+                                    [permissions]="permissions"
+                                    [selectedRole]="selectedRole"
+                                    [selectedPermissionIds]="selectedPermissionIds"
+                                    (permissionIdsChange)="onPermissionIdsChange($event)">
+                                </app-permission-tree-selector>
+                            </div>
+
+                            <div class="bg-blue-50 border-left-3 border-blue-500 p-3 mt-3">
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-info-circle text-blue-600"></i>
+                                    <small class="text-blue-800 font-medium">
+                                        Dica: As permissões da função principal são aplicadas automaticamente e não podem ser removidas.
+                                        Use as permissões adicionais para conceder acesso extra conforme necessário.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Buttons -->
                     <div class="col-12">
-                        <div class="flex justify-content-end">
+                        <div class="flex justify-content-end gap-2">
                             <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
-                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || loading"></button>
+                            <button pButton pRipple label="Salvar Funcionário" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || (creating$ | async)">
+                                <i class="pi pi-spin pi-spinner" *ngIf="(creating$ | async)"></i>
+                            </button>
                         </div>
                     </div>
                 </div>

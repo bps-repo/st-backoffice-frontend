@@ -4,7 +4,7 @@ export const FeaturesRoutes: Routes = [
     {
         path: 'schoolar',
         loadChildren: () =>
-            import('./schoolar/SCHOOLAR_ROUTES').then((m) => m.SCHOOLAR_ROUTES),
+            import('./schoolar/scholar.routes').then((m) => m.ScholarRoutes),
     },
     {
         path: 'settings',

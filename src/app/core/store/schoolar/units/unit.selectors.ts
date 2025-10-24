@@ -1,7 +1,8 @@
-import {createSelector} from '@ngrx/store';
-import {unitFeature} from './unit.feature';
-import {unitsAdapter} from './unit.state';
-import {shouldRefreshCache} from './unit.state';
+import { createSelector } from '@ngrx/store';
+import { unitFeature } from './unit.feature';
+import { unitsAdapter } from './unit.state';
+import { en } from '@fullcalendar/core/internal-common';
+import { Unit } from 'src/app/core/models/course/unit';
 
 // Basic selectors from feature
 export const {
@@ -63,16 +64,11 @@ export const selectUnitById = (id: string) => createSelector(
     (entities) => entities[id] || null
 );
 
+
 // Get unit materials by unit ID
 export const selectUnitMaterialsByUnitId = (unitId: string) => createSelector(
     selectUnitMaterials,
     (unitMaterials) => unitMaterials[unitId] || []
-);
-
-// Get unit classes by unit ID
-export const selectUnitClassesByUnitId = (unitId: string) => createSelector(
-    selectUnitClasses,
-    (unitClasses) => unitClasses[unitId] || []
 );
 
 // Get unit progresses by unit ID
@@ -112,9 +108,20 @@ export const selectAnyLoading = createSelector(
 );
 
 // Cache selectors
-export const selectShouldRefreshCache = createSelector(
+export const selectCacheTimeout = createSelector(
     selectUnitsState,
-    (state) => shouldRefreshCache(state)
+    (state) => state.cacheTimeout
+);
+
+export const selectCacheStatus = createSelector(
+    selectLastFetch,
+    selectCacheTimeout,
+    (lastFetch, timeout) => ({
+        lastFetch,
+        timeout,
+        age: lastFetch ? Date.now() - lastFetch : null,
+        isExpired: lastFetch ? (Date.now() - lastFetch) > timeout : true
+    })
 );
 
 // Pagination selectors
@@ -142,10 +149,16 @@ export const selectUnitsSortedByOrder = createSelector(
     })
 );
 
-export const selectUnitsByLevelId = (levelId: string) => createSelector(
-    selectAllUnits,
-    (units) => units.filter(unit => unit.level?.id === levelId)
-);
+
+export const selectUnitsByLevelId = (levelId: string, generic?: boolean) =>
+    createSelector(
+        selectAllUnits,
+        (units: Unit[]) =>
+            units.filter(unit =>
+                unit.levelId === levelId &&
+                (generic === undefined || unit.generic === generic)
+            )
+    );
 
 export const selectActiveUnits = createSelector(
     selectAllUnits,

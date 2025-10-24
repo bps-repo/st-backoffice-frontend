@@ -1,0 +1,334 @@
+<div class="grid">
+    <div class="col-12">
+        <p-toast></p-toast>
+        <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+        <div class="flex justify-content-between align-items-center mb-3">
+            <div class="flex align-items-center">
+                <button pButton icon="pi pi-arrow-left" class="p-button-text mr-2" (click)="goBack()"></button>
+                <h1 class="m-0">Detalhes do Contrato</h1>
+                <p class="text-500 ml-3 mb-0">Informações completas do contrato</p>
+            </div>
+        </div>
+
+        <div *ngIf="(loading$ | async)" class="flex justify-content-center">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <div *ngIf="(errors$ | async)" class="flex justify-content-center">
+            <div class="card">
+                <div class="text-center">
+                    <i class="pi pi-exclamation-triangle text-red-500" style="font-size: 3rem"></i>
+                    <h3 class="mt-3">Erro ao carregar contrato</h3>
+                    <p class="text-500">{{ (errors$ | async) }}</p>
+                    <button pButton label="Tentar novamente" icon="pi pi-refresh" class="p-button-primary"
+                        (click)="loadContractDetails()"></button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!(loading$ | async) && !(errors$ | async) && contract" class="grid">
+            <!-- Cabeçalho do contrato -->
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <h5>Contrato</h5>
+                    <p class="text-500 mb-4">Contrato {{ getStatusLabel(contract.contractType) }}
+                        - {{ contract.student.name }}</p>
+
+                    <div class="flex align-items-center mb-3">
+                        <div class="flex align-items-center justify-content-center mr-3">
+                            <div class="avatar-circle bg-primary">
+                                <i class="pi pi-user text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ contract.student.name }}</h6>
+                            <p class="text-500 mb-0">{{ contract.student.email }} -
+                                Código: {{ contract.student.code }}</p>
+                        </div>
+                    </div>
+
+                    <h6>Progresso de Pagamento</h6>
+                    <div class="progress-container mb-2">
+                        <div class="progress-bar" [style.width.%]="getPaymentProgress()"></div>
+                    </div>
+                    <div class="flex justify-content-between">
+                        <span>{{ getPaidInstallmentsCount() }}/{{ getTotalInstallmentsCount() }} parcelas pagas</span>
+                        <span>{{ formatCurrency(contract.financial.finalAmount || contract.financial.totalAmount || 0)
+                            }}</span>
+                    </div>
+
+                    <div *ngIf="getPendingAmount() > 0" class="mt-3 p-3 bg-red-50 border-round">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-exclamation-circle text-red-500 mr-2"></i>
+                            <span>{{ formatCurrency(getPendingAmount()) }} em atraso</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados do contrato e informações financeiras -->
+            <div class="col-12 md:col-6 lg:col-4">
+                <div class="card">
+                    <h5>Dados do Contrato</h5>
+                    <div class="grid">
+                        <div class="col-4 font-bold">Aluno:</div>
+                        <div class="col-8">{{ contract.student.name }}</div>
+
+                        <div class="col-4 font-bold">Centro:</div>
+                        <div class="col-8">{{ contract.student.center.name }}</div>
+
+                        <div class="col-4 font-bold">Nível:</div>
+                        <div class="col-8">{{ contract.student.level.name || 'N/A' }}</div>
+
+                        <div class="col-4 font-bold">Período:</div>
+                        <div class="col-8">{{ formatDate(contract.startDate) }}
+                            - {{ formatDate(contract.endDate || '') }}
+                        </div>
+
+                        <div class="col-4 font-bold">Status:</div>
+                        <div class="col-8">
+                            <p-tag [value]="getStatusLabel(contract.status)"
+                                [severity]="getStatusClass(contract.status)"></p-tag>
+                        </div>
+
+                        <div class="col-4 font-bold">Tipo:</div>
+                        <div class="col-8">{{ getStatusLabel(contract.contractType) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-4">
+                <div class="card">
+                    <h5>Informações Financeiras</h5>
+                    <div class="grid">
+                        <div class="col-6 font-bold">Valor Total:</div>
+                        <div class="col-6">{{ formatCurrency(contract.financial.totalAmount || 0) }}</div>
+
+                        <div class="col-6 font-bold">Desconto:</div>
+                        <div class="col-6">{{ contract.financial.discountPercent || 0 }}%</div>
+                        <div class="col-6 font-bold">Total de Parcelas:</div>
+                        <div class="col-6">{{ getTotalInstallmentsCount() }}</div>
+
+                        <div class="col-6 font-bold">Parcelas Pagas:</div>
+                        <div class="col-6">{{ getPaidInstallmentsCount() }}</div>
+
+                        <div class="col-6 font-bold">Valor Pago:</div>
+                        <div class="col-6 text-green-500">{{ formatCurrency(getTotalPaidAmount()) }}</div>
+
+                        <div class="col-6 font-bold">Valor Pendente:</div>
+                        <div class="col-6 text-orange-500">{{ formatCurrency(getPendingAmount()) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-4">
+                <div class="card">
+                    <h5>Informações do Vendedor</h5>
+                    <div class="grid">
+                        <div class="col-4 font-bold">Vendedor:</div>
+                        <div class="col-8">{{ contract.seller.name }}</div>
+
+                        <div class="col-4 font-bold">Email:</div>
+                        <div class="col-8">{{ contract.seller.email }}</div>
+
+                        <div class="col-4 font-bold">Centro:</div>
+                        <div class="col-8">{{ contract.student.center.name }}</div>
+
+                        <div class="col-4 font-bold">Data Contratação:</div>
+                        <div class="col-8">N/A</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapa de parcelas -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <h5 class="m-0">Mapa de Parcelas</h5>
+                        <button (click)="downloadContract()" pButton icon="pi pi-download"
+                            label="{{ (downloading$ | async) ? 'Exportando...' : 'Exportar' }}"
+                            class="p-button-outlined"></button>
+                    </div>
+                    <p class="text-500 mb-4">Histórico e previsão de pagamentos</p>
+
+                    <p-table [value]="contract.installments || []" [paginator]="true" [rows]="5"
+                        [showCurrentPageReport]="true"
+                        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} parcelas">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Parcela</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Data de Pagamento</th>
+                                <th>Ações</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-installment let-i="rowIndex">
+                            <tr>
+                                <td>{{ installment.installmentNumber }}/{{ getTotalInstallmentsCount() }}</td>
+                                <td>{{ formatDate(installment.dueDate) }}</td>
+                                <td>{{ formatCurrency(installment.amount) }}</td>
+                                <td>
+                                    <p-tag [value]="getStatusLabel(installment.status)"
+                                        [severity]="getStatusClass(installment.status)"></p-tag>
+                                </td>
+                                <td>{{ installment.status === 'PAID' ? formatDate(installment.dueDate) : '-' }}</td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <button
+                                            *ngIf="installment.status === 'PENDING_PAYMENT' || installment.status === 'OVERDUE'"
+                                            pButton icon="pi pi-dollar"
+                                            class="p-button-rounded p-button-outlined p-button-sm"
+                                            pTooltip="Fazer pagamento" (click)="chargePayment(installment)"></button>
+                                        <button pButton icon="pi pi-eye"
+                                            class="p-button-rounded p-button-outlined p-button-sm"
+                                            pTooltip="Ver detalhes" (click)="viewPaymentDetails(installment)"></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+
+            <!-- Observações e histórico -->
+            <div class="col-12">
+                <div class="card">
+                    <h5>Observações e Histórico</h5>
+
+                    <h6 class="mt-4">Observações:</h6>
+                    <p>{{ contract.notes || 'Nenhuma observação registrada.' }}</p>
+
+                    <h6 class="mt-4">Informações do Contrato:</h6>
+                    <div class="grid">
+                        <div class="col-6 font-bold">Data de Criação:</div>
+                        <div class="col-6 text-right">{{ contract.createdAt ? formatDate(contract.createdAt) : 'N/A' }}
+                        </div>
+
+                        <div class="col-6 font-bold">Desconto Aplicado:</div>
+                        <div class="col-6 text-right">{{ contract.discountPercent }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-container {
+        height: 8px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: #4caf50;
+    }
+</style>
+
+<!-- Diálogo de Detalhes da Parcela -->
+<p-dialog header="Detalhes da Parcela" [(visible)]="showPaymentDetailsDialog" [modal]="true" [style]="{width: '500px'}"
+    [draggable]="false" [resizable]="false">
+    <div *ngIf="selectedPayment" class="grid">
+        <div class="col-12">
+            <div class="card">
+                <div class="flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0">Parcela {{ selectedPayment.installmentNumber }}
+                        /{{ getTotalInstallmentsCount() }}</h5>
+                    <p-tag [value]="getStatusLabel(selectedPayment.status)"
+                        [severity]="getStatusClass(selectedPayment.status)"></p-tag>
+                </div>
+
+                <div class="grid">
+                    <div class="col-6 font-bold">Valor:</div>
+                    <div class="col-6">{{ formatCurrency(selectedPayment.amount) }}</div>
+
+                    <div class="col-6 font-bold">Data de Vencimento:</div>
+                    <div class="col-6">{{ formatDate(selectedPayment.dueDate) }}</div>
+
+                    <div class="col-6 font-bold">Status:</div>
+                    <div class="col-6">{{ getStatusLabel(selectedPayment.status) }}</div>
+
+                    <div *ngIf="selectedPayment.status === 'PAID'" class="col-6 font-bold">Data de Pagamento:</div>
+                    <div *ngIf="selectedPayment.status === 'PAID'" class="col-6">{{ formatDate(selectedPayment.dueDate)
+                        }}
+                    </div>
+
+                    <div *ngIf="selectedPayment.status === 'PAID' && selectedPayment.paymentMethod"
+                        class="col-6 font-bold">Método de Pagamento:
+                    </div>
+                    <div *ngIf="selectedPayment.status === 'PAID' && selectedPayment.paymentMethod" class="col-6">{{
+                        selectedPayment.paymentMethod }}
+                    </div>
+
+                    <div *ngIf="selectedPayment.status === 'PAID' && selectedPayment.paymentReference"
+                        class="col-6 font-bold">Referência:
+                    </div>
+                    <div *ngIf="selectedPayment.status === 'PAID' && selectedPayment.paymentReference" class="col-6">{{
+                        selectedPayment.paymentReference }}
+                    </div>
+                </div>
+
+                <div *ngIf="selectedPayment.status === 'PENDING_PAYMENT' || selectedPayment.status === 'OVERDUE'"
+                    class="flex justify-content-end mt-3">
+                    <button pButton label="Cobrar Parcela" icon="pi pi-dollar" class="p-button-primary"
+                        (click)="chargePayment(selectedPayment); showPaymentDetailsDialog = false;"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Diálogo de Cobrança de Parcela -->
+<p-dialog header="Cobrar Parcela" [(visible)]="showPaymentChargeDialog" [modal]="true" [style]="{width: '500px'}"
+    [draggable]="false" [resizable]="false">
+    <div *ngIf="selectedPayment" class="grid">
+        <div class="col-12 mb-3">
+            <div class="flex justify-content-between align-items-center">
+                <h5 class="m-0">Parcela {{ selectedPayment.installmentNumber }}/{{ getTotalInstallmentsCount() }}</h5>
+                <p-tag [value]="getStatusLabel(selectedPayment.status)"
+                    [severity]="getStatusClass(selectedPayment.status)"></p-tag>
+            </div>
+            <p class="text-500 mt-2">Vencimento: {{ formatDate(selectedPayment.dueDate) }}</p>
+        </div>
+
+        <div class="col-12 mb-3">
+            <label for="paymentMethod" class="block font-bold mb-2">Método de Pagamento *</label>
+            <p-dropdown id="paymentMethod" [options]="paymentMethods" [(ngModel)]="selectedPaymentMethod"
+                optionLabel="name" placeholder="Selecione um método de pagamento"
+                [style]="{width: '100%'}"></p-dropdown>
+        </div>
+
+        <div class="col-12 mb-3">
+            <label for="paymentDate" class="block font-bold mb-2">Data de Pagamento *</label>
+            <p-calendar id="paymentDate" [(ngModel)]="paymentDate" [showIcon]="true" dateFormat="dd/mm/yy"
+                [style]="{width: '100%'}"></p-calendar>
+        </div>
+
+        <div class="col-12 mb-3">
+            <label for="paymentAmount" class="block font-bold mb-2">Valor *</label>
+            <p-inputNumber id="paymentAmount" [(ngModel)]="paymentAmount" mode="currency" currency="AOA" locale="pt-AO"
+                [style]="{width: '100%'}"></p-inputNumber>
+        </div>
+
+        <div class="col-12 flex justify-content-end">
+            <button pButton label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-secondary mr-2"
+                (click)="showPaymentChargeDialog = false"></button>
+            <button pButton label="Processar Pagamento" icon="pi pi-check" class="p-button-primary"
+                (click)="processPayment()"></button>
+        </div>
+    </div>
+</p-dialog>

@@ -1,6 +1,6 @@
 <div class="grid">
     <!-- KPIs -->
-    <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis">
+    <div class="col-12  md:col-6 xl:col-3" *ngFor="let kpi of kpis$ | async">
         <div class="card h-full">
             <span class="font-semibold text-lg">{{ kpi.label }}</span>
             <div class="flex justify-content-between align-items-start mt-3">
@@ -83,7 +83,7 @@
     <div class="col-12">
         <div class="card">
             <h5 class="text-xl font-semibold mb-4">Top Performing Students</h5>
-            <p-table [value]="topPerformers" [tableStyle]="{ 'min-width': '50rem' }">
+            <p-table [value]="(topPerformers$ | async) || []" [tableStyle]="{ 'min-width': '50rem' }">
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Name</th>

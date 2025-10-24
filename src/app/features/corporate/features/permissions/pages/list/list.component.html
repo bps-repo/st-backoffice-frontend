@@ -1,25 +1,7 @@
 <div class="grid">
-    <!-- Permissions Table -->
-    <app-global-table
-        tableLabel="Permissões"
-        [headerActions]="headerActions"
-        [data]="(permissions$ | async)!"
-        [entity]="'permissions'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        [loading]="loading$ | async"
-        [columnTemplates]="customTemplates"
-        (rowSelect)="onRowSelect($event)"
-        (createEntity)="navigateToCreatePermission()"
-        class="w-full"
-    ></app-global-table>
+
+    <div class="col-12"> <!-- Permissions Tree View -->
+        <app-permission-tree-view [permissions]="(permissions$ | async)!"
+            [loading]="(loading$ | async)!"></app-permission-tree-view>
+    </div>
 </div>
-
-<!-- Date templates -->
-<ng-template #createdAtTemplate let-rowData>
-    <span>{{ rowData.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-</ng-template>
-
-<ng-template #updatedAtTemplate let-rowData>
-    <span>{{ rowData.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-</ng-template>

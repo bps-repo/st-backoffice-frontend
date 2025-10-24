@@ -18,14 +18,13 @@ import { ButtonModule } from 'primeng/button';
 import { AppSidebarComponent } from './components/sidebar/app.sidebar.component';
 import { AppTopbarComponent } from './components/topbar/app.topbar.component';
 import { AppProfileSidebarComponent } from './components/sidebar/app.profilesidebar.component';
-import { AppMenuComponent } from './components/menu/app.menu.component';
-import { AppMenuitemComponent } from './components/menu/app.menuitem.component';
 import { AppBreadcrumbComponent } from './components/breadcrumb/app.breadcrumb.component';
 
 import { LayoutService } from './service/app.layout.service';
 import { MenuService } from './components/menu/app.menu.service';
 
 import { AppConfigModule } from './config/app.config.module';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-layout',
@@ -34,6 +33,7 @@ import { AppConfigModule } from './config/app.config.module';
         FormsModule,
         RouterModule,
         // PrimeNG
+        ToastModule,
         InputTextModule,
         SidebarModule,
         BadgeModule,

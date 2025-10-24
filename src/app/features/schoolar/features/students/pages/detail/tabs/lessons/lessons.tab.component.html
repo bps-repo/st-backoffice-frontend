@@ -1,0 +1,199 @@
+<div class="grid">
+    <!-- View selector -->
+    <div class="col-12 flex justify-content-start gap-2 items-center mb-4">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- List View -->
+    @if (currentView === 'list') {
+        <div class="col-12">
+            <p-card header="Histórico de Aulas" styleClass="mb-4">
+                @if (loading) {
+                    <div class="text-center p-4">
+                        <i class="pi pi-spin pi-spinner text-2xl"></i>
+                        <div class="mt-2">Carregando aulas...</div>
+                    </div>
+                } @else if (lessons.length === 0) {
+                    <div class="text-center p-4 text-gray-500">
+                        <i class="pi pi-calendar-times text-4xl mb-3 block"></i>
+                        <div>Nenhuma aula encontrada</div>
+                    </div>
+                } @else {
+                    <div *ngFor="let lesson of lessons; trackBy: trackByLessonId"
+                         class="flex justify-content-between border-1 border-round surface-card surface-border p-3 mb-3 hover:surface-hover transition-colors cursor-pointer">
+                        <div class="flex flex-column justify-content-between mb-2">
+                            <div class="text-md font-medium">{{ lesson.title }}</div>
+                            <div class="text-sm text-gray-600">{{ lesson.time }}</div>
+                            <span class="text-sm">{{ lesson.date }}</span>
+                            @if (lesson.isOnline) {
+                                <div class="flex align-items-center gap-1 mt-1">
+                                    <i class="pi pi-video text-blue-500"></i>
+                                    <span class="text-xs text-blue-500">Aula Online</span>
+                                    @if (lesson.onlineLink) {
+                                        <a [href]="lesson.onlineLink" target="_blank" class="text-blue-500 text-xs ml-1">
+                                            <i class="pi pi-external-link"></i>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="flex justify-content-between align-items-center gap-2 text-sm text-color-secondary">
+                            <p-tag [value]="lesson.status" [severity]="lesson.statusClass" class="text-sm"></p-tag>
+                        </div>
+                    </div>
+                }
+            </p-card>
+        </div>
+    }
+
+    <!-- Calendar View -->
+    @if (currentView === 'calendar') {
+        <div class="col-12">
+            <!-- Calendar controls -->
+            <div class="flex justify-content-between align-items-center mb-4">
+                <div class="flex align-items-center gap-2">
+                    <button pButton type="button" icon="pi pi-chevron-left"
+                            class="p-button-rounded p-button-text"
+                            (click)="navigatePrevious()" pTooltip="Anterior"></button>
+                    <h3 class="font-bold text-xl m-0">
+                        @if (calendarView === 'week') {
+                            {{ getFormattedWeekRange() }}
+                        } @else {
+                            {{ getFormattedMonth() }}
+                        }
+                    </h3>
+                    <button pButton type="button" icon="pi pi-chevron-right"
+                            class="p-button-rounded p-button-text"
+                            (click)="navigateNext()" pTooltip="Próximo"></button>
+                </div>
+
+                <div class="flex gap-2">
+                    <div class="flex">
+                        <button pButton type="button" label="Mês"
+                                [class.p-button-outlined]="calendarView !== 'month'"
+                                [class.p-button-info]="calendarView === 'month'"
+                                (click)="switchCalendarView('month')"></button>
+                        <button pButton type="button" label="Semana"
+                                [class.p-button-outlined]="calendarView !== 'week'"
+                                [class.p-button-info]="calendarView === 'week'"
+                                (click)="switchCalendarView('week')"></button>
+                        <button pButton type="button" label="Hoje"
+                                class="p-button-outlined"
+                                (click)="navigateToday()"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Calendar View -->
+            @if (calendarView === 'week') {
+                <div class="weekly-calendar">
+                    <div class="grid gap-2">
+                        @for (dayData of weeklyLessons; track dayData.date) {
+                            <div class="col-12 md:col">
+                                <div class="card h-full" [class.today-card]="dayData.isToday">
+                                    <div class="card-header text-center mb-3">
+                                        <div class="day-header">
+                                            <div class="day-name text-sm text-gray-600">{{ dayData.day.split(' ')[0] }}</div>
+                                            <div class="day-date font-bold" [class.today-date]="dayData.isToday">
+                                                {{ dayData.day.split(' ')[1] }}
+                                            </div>
+                                        </div>
+                                        @if (dayData.isToday) {
+                                            <div class="today-label text-xs text-primary font-bold">Hoje</div>
+                                        }
+                                        @if (!dayData.lessons.length) {
+                                            <div class="no-lessons text-xs text-gray-500 mt-2">Nenhuma aula agendada</div>
+                                        }
+                                    </div>
+
+                                    <div class="lessons-list">
+                                        @for (lesson of dayData.lessons; track lesson.id) {
+                                            <div class="lesson-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors border-1 surface-border"
+                                                 [class]="'border-left-3 border-' + lesson.statusClass">
+                                                <div class="flex align-items-center justify-content-between mb-1">
+                                                    <div class="flex align-items-center gap-1">
+                                                        <i class="pi pi-clock text-xs text-gray-600"></i>
+                                                        <span class="text-sm font-bold">{{ lesson.time }}</span>
+                                                    </div>
+                                                    @if (lesson.isOnline) {
+                                                        <i class="pi pi-video text-blue-500 text-xs" pTooltip="Aula Online"></i>
+                                                    }
+                                                </div>
+                                                <div class="lesson-title text-sm font-medium mb-1">{{ lesson.title }}</div>
+                                                <div class="status-badge">
+                                                    <span class="p-badge text-xs" [class]="'p-badge-' + lesson.statusClass">
+                                                        {{ lesson.status }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Monthly Calendar View -->
+            @if (calendarView === 'month') {
+                <div class="monthly-calendar">
+                    <p-card header="Visualização Mensal">
+                        <div class="text-center p-4 text-gray-500">
+                            <i class="pi pi-calendar text-4xl mb-3 block"></i>
+                            <div>Visualização mensal em desenvolvimento</div>
+                            <div class="text-sm mt-2">Use a visualização semanal para ver as aulas detalhadas</div>
+                        </div>
+                    </p-card>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Styles for calendar -->
+<style>
+    .today-card {
+        border: 2px solid var(--primary-color);
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05), rgba(var(--primary-color-rgb), 0.1));
+    }
+
+    .today-date {
+        color: var(--primary-color);
+        background: rgba(var(--primary-color-rgb), 0.1);
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .lesson-card {
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+    .lesson-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .border-success {
+        border-left-color: #10b981 !important;
+    }
+
+    .border-info {
+        border-left-color: #3b82f6 !important;
+    }
+
+    .border-warning {
+        border-left-color: #f59e0b !important;
+    }
+
+    .border-danger {
+        border-left-color: #ef4444 !important;
+    }
+</style>

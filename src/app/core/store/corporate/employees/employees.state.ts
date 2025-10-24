@@ -1,34 +1,30 @@
-import {EntityState} from "@ngrx/entity";
-import {createEntityAdapter} from "@ngrx/entity";
-import {Employee} from "../../../models/corporate/employee";
+import { EntityState, createEntityAdapter } from '@ngrx/entity';
+import { Employee } from 'src/app/core/models/corporate/employee';
 
 export interface EmployeesState extends EntityState<Employee> {
     loading: boolean;
-    loadingCreate: boolean;
-    loadingUpdate: boolean;
-    loadingDelete: boolean;
+    error: string | null;
 
-    error: any;
-    errorCreate: any;
-    errorUpdate: any;
-    errorDelete: any;
+    selectedId: string
 
-    selectedEmployee: Employee | null;
+    byRole: { [role: string]: string[] }; // store IDs by role
+    byCenter: { [centerId: string]: string[] };
+    byStatus: { [status: string]: string[] };
+    searchIds: string[]; // last search (non-paginated)
+    searchPage: any | null; // last paginated search page object
 }
 
-export const EmployeesAdapter = createEntityAdapter<Employee>({
-    selectId: (employee: Employee) => employee.id,
-    sortComparer: false
+export const employeesAdapter = createEntityAdapter<Employee>({
+    selectId: (e) => e.id,
 });
 
-export const EmployeeInitialState: EmployeesState = EmployeesAdapter.getInitialState({
+export const employeesInitialState: EmployeesState = employeesAdapter.getInitialState({
     loading: false,
-    loadingCreate: false,
-    loadingUpdate: false,
-    loadingDelete: false,
+    selectedId: "",
     error: null,
-    errorCreate: null,
-    errorUpdate: null,
-    errorDelete: null,
-    selectedEmployee: null
+    byRole: {},
+    byCenter: {},
+    byStatus: {},
+    searchIds: [],
+    searchPage: null,
 });

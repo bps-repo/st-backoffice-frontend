@@ -14,6 +14,9 @@ import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
+import {Store} from "@ngrx/store";
+import {selectAllRoles, selectRolesLoading} from "../../../../../../core/store/roles/roles.selectors";
+import {loadRoles, setSelectedRole} from "../../../../../../core/store/roles/roles.actions";
 
 @Component({
     selector: 'app-roles-list',
@@ -40,16 +43,19 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     customTemplates: Record<string, TemplateRef<any>> = {};
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
-    private loading = false;
     private destroy$ = new Subject<void>();
 
     constructor(
-        private roleService: RoleService,
-        private router: Router
+        private router: Router,
+        private store$: Store,
     ) {
+        this.loading$ = this.store$.select(selectRolesLoading)
+        this.roles$ = this.store$.select(selectAllRoles)
     }
 
     ngOnInit(): void {
+        // Clear the selected role when navigating to the list view
+        this.store$.dispatch(setSelectedRole({ id: null }));
         this.loadRoles();
     }
 
@@ -65,27 +71,14 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     loadRoles(): void {
-        this.loading = true;
-        this.loading$ = of(true);
-
-        this.roles$ = this.roleService.getRoles().pipe(
-            takeUntil(this.destroy$),
-            catchError(error => {
-                console.error('Error loading roles', error);
-                return of([]);
-            }),
-            finalize(() => {
-                this.loading = false;
-                this.loading$ = of(false);
-            })
-        );
+        this.store$.dispatch(loadRoles())
     }
 
     onRowSelect(role: Role) {
-        this.router.navigate(['/corporate/roles', role.id]);
+        this.router.navigate(['/corporate/roles', role.id]).then();
     }
 
     navigateToCreateRole() {
-        this.router.navigate(['/corporate/roles/create']);
+        this.router.navigate(['/corporate/roles/create']).then();
     }
 }

@@ -1,6 +1,6 @@
-import {createFeature, createReducer, on} from '@ngrx/store';
-import {LESSONS_FEATURE_KEY, lessonsActions} from './lessons.actions';
-import {lessonsAdapter, lessonsInitialState} from "./lesson.state";
+import { createFeature, createReducer, on } from '@ngrx/store';
+import { LESSONS_FEATURE_KEY, lessonsActions } from './lessons.actions';
+import { lessonsAdapter, lessonsInitialState } from "./lesson.state";
 
 // Create feature
 export const lessonsFeature = createFeature({
@@ -10,10 +10,10 @@ export const lessonsFeature = createFeature({
         // Load lessons
         on(lessonsActions.loadLessons, (state) => ({
             ...state,
-            loading: true,
+            loading: state.ids.length > 0 ? false : true,
             error: null,
         })),
-        on(lessonsActions.loadLessonsSuccess, (state, {lessons}) =>
+        on(lessonsActions.loadLessonsSuccess, (state, { lessons }) =>
             lessonsAdapter.setAll(lessons, {
                 ...state,
                 loading: false,
@@ -22,7 +22,7 @@ export const lessonsFeature = createFeature({
                 cacheExpired: false,
             })
         ),
-        on(lessonsActions.loadLessonsFailure, (state, {error}) => ({
+        on(lessonsActions.loadLessonsFailure, (state, { error }) => ({
             ...state,
             loading: false,
             error,
@@ -34,7 +34,7 @@ export const lessonsFeature = createFeature({
             loading: true,
             error: null,
         })),
-        on(lessonsActions.loadLessonSuccess, (state, {lesson}) =>
+        on(lessonsActions.loadLessonSuccess, (state, { lesson }) =>
             lessonsAdapter.upsertOne(lesson, {
                 ...state,
                 selectedLessonId: lesson.id!,
@@ -42,7 +42,7 @@ export const lessonsFeature = createFeature({
                 error: null,
             })
         ),
-        on(lessonsActions.loadLessonFailure, (state, {error}) => ({
+        on(lessonsActions.loadLessonFailure, (state, { error }) => ({
             ...state,
             loading: false,
             error,
@@ -55,7 +55,7 @@ export const lessonsFeature = createFeature({
             createLessonSuccess: false,
             createError: null,
         })),
-        on(lessonsActions.createLessonSuccess, (state, {lesson}) =>
+        on(lessonsActions.createLessonSuccess, (state, { lesson }) =>
             lessonsAdapter.addOne(lesson, {
                 ...state,
                 loadingCreate: false,
@@ -63,7 +63,7 @@ export const lessonsFeature = createFeature({
                 createError: null,
             })
         ),
-        on(lessonsActions.createLessonFailure, (state, {error}) => ({
+        on(lessonsActions.createLessonFailure, (state, { error }) => ({
             ...state,
             loadingCreate: false,
             createLessonSuccess: false,
@@ -76,9 +76,9 @@ export const lessonsFeature = createFeature({
             loadingUpdate: true,
             updateError: null,
         })),
-        on(lessonsActions.updateLessonSuccess, (state, {lesson}) =>
+        on(lessonsActions.updateLessonSuccess, (state, { lesson }) =>
             lessonsAdapter.updateOne(
-                {id: lesson.id!, changes: lesson},
+                { id: lesson.id!, changes: lesson },
                 {
                     ...state,
                     loadingUpdate: false,
@@ -86,7 +86,7 @@ export const lessonsFeature = createFeature({
                 }
             )
         ),
-        on(lessonsActions.updateLessonFailure, (state, {error}) => ({
+        on(lessonsActions.updateLessonFailure, (state, { error }) => ({
             ...state,
             loadingUpdate: false,
             updateError: error,
@@ -98,7 +98,7 @@ export const lessonsFeature = createFeature({
             loadingDelete: true,
             deleteError: null,
         })),
-        on(lessonsActions.deleteLessonSuccess, (state, {id}) =>
+        on(lessonsActions.deleteLessonSuccess, (state, { id }) =>
             lessonsAdapter.removeOne(id, {
                 ...state,
                 selectedLessonId: state.selectedLessonId === id ? null : state.selectedLessonId,
@@ -106,52 +106,10 @@ export const lessonsFeature = createFeature({
                 deleteError: null,
             })
         ),
-        on(lessonsActions.deleteLessonFailure, (state, {error}) => ({
+        on(lessonsActions.deleteLessonFailure, (state, { error }) => ({
             ...state,
             loadingDelete: false,
             deleteError: error,
-        })),
-
-        // Filter endpoints - Load lessons by class
-        on(lessonsActions.loadLessonsByClass, (state) => ({
-            ...state,
-            loadingByClass: true,
-            byClassError: null,
-        })),
-        on(lessonsActions.loadLessonsByClassSuccess, (state, {lessons}) => ({
-            ...state,
-            lessonsByClass: {
-                ...state.lessonsByClass,
-                [lessons.length > 0 && lessons[0].classEntity ? lessons[0].classEntity.id! : 'unknown']: lessons
-            },
-            loadingByClass: false,
-            byClassError: null,
-        })),
-        on(lessonsActions.loadLessonsByClassFailure, (state, {error}) => ({
-            ...state,
-            loadingByClass: false,
-            byClassError: error,
-        })),
-
-        // Filter endpoints - Load available lessons by class
-        on(lessonsActions.loadAvailableLessonsByClass, (state) => ({
-            ...state,
-            loadingAvailableByClass: true,
-            availableByClassError: null,
-        })),
-        on(lessonsActions.loadAvailableLessonsByClassSuccess, (state, {lessons}) => ({
-            ...state,
-            availableLessonsByClass: {
-                ...state.availableLessonsByClass,
-                [lessons.length > 0 && lessons[0].classEntity ? lessons[0].classEntity.id! : 'unknown']: lessons
-            },
-            loadingAvailableByClass: false,
-            availableByClassError: null,
-        })),
-        on(lessonsActions.loadAvailableLessonsByClassFailure, (state, {error}) => ({
-            ...state,
-            loadingAvailableByClass: false,
-            availableByClassError: error,
         })),
 
         // Filter endpoints - Load lessons by center
@@ -160,7 +118,7 @@ export const lessonsFeature = createFeature({
             loadingByCenter: true,
             byCenterError: null,
         })),
-        on(lessonsActions.loadLessonsByCenterSuccess, (state, {lessons}) => ({
+        on(lessonsActions.loadLessonsByCenterSuccess, (state, { lessons }) => ({
             ...state,
             lessonsByCenter: {
                 ...state.lessonsByCenter,
@@ -171,7 +129,7 @@ export const lessonsFeature = createFeature({
             loadingByCenter: false,
             byCenterError: null,
         })),
-        on(lessonsActions.loadLessonsByCenterFailure, (state, {error}) => ({
+        on(lessonsActions.loadLessonsByCenterFailure, (state, { error }) => ({
             ...state,
             loadingByCenter: false,
             byCenterError: error,
@@ -183,13 +141,13 @@ export const lessonsFeature = createFeature({
             loadingByDateRange: true,
             byDateRangeError: null,
         })),
-        on(lessonsActions.loadLessonsByDateRangeSuccess, (state, {lessons}) => ({
+        on(lessonsActions.loadLessonsByDateRangeSuccess, (state, { lessons }) => ({
             ...state,
             lessonsByDateRange: lessons,
             loadingByDateRange: false,
             byDateRangeError: null,
         })),
-        on(lessonsActions.loadLessonsByDateRangeFailure, (state, {error}) => ({
+        on(lessonsActions.loadLessonsByDateRangeFailure, (state, { error }) => ({
             ...state,
             loadingByDateRange: false,
             byDateRangeError: error,
@@ -201,7 +159,7 @@ export const lessonsFeature = createFeature({
             loadingStudentBookings: true,
             studentBookingsError: null,
         })),
-        on(lessonsActions.loadStudentBookingsSuccess, (state, {bookings}) => ({
+        on(lessonsActions.loadStudentBookingsSuccess, (state, { bookings }) => ({
             ...state,
             studentBookings: {
                 ...state.studentBookings,
@@ -210,7 +168,7 @@ export const lessonsFeature = createFeature({
             loadingStudentBookings: false,
             studentBookingsError: null,
         })),
-        on(lessonsActions.loadStudentBookingsFailure, (state, {error}) => ({
+        on(lessonsActions.loadStudentBookingsFailure, (state, { error }) => ({
             ...state,
             loadingStudentBookings: false,
             studentBookingsError: error,
@@ -222,7 +180,7 @@ export const lessonsFeature = createFeature({
             loadingStudentBookingsToday: true,
             studentBookingsTodayError: null,
         })),
-        on(lessonsActions.loadStudentBookingsTodaySuccess, (state, {bookings}) => ({
+        on(lessonsActions.loadStudentBookingsTodaySuccess, (state, { bookings }) => ({
             ...state,
             studentBookingsToday: {
                 ...state.studentBookingsToday,
@@ -231,7 +189,7 @@ export const lessonsFeature = createFeature({
             loadingStudentBookingsToday: false,
             studentBookingsTodayError: null,
         })),
-        on(lessonsActions.loadStudentBookingsTodayFailure, (state, {error}) => ({
+        on(lessonsActions.loadStudentBookingsTodayFailure, (state, { error }) => ({
             ...state,
             loadingStudentBookingsToday: false,
             studentBookingsTodayError: error,
@@ -243,16 +201,16 @@ export const lessonsFeature = createFeature({
             loadingLessonBookings: true,
             lessonBookingsError: null,
         })),
-        on(lessonsActions.loadLessonBookingsSuccess, (state, {bookings}) => ({
+        on(lessonsActions.loadLessonBookingsSuccess, (state, { bookings }) => ({
             ...state,
             lessonBookings: {
                 ...state.lessonBookings,
-                [bookings.length > 0 && bookings[0].lesson ? bookings[0].lesson.id! : 'unknown']: bookings
+                bookings
             },
             loadingLessonBookings: false,
             lessonBookingsError: null,
         })),
-        on(lessonsActions.loadLessonBookingsFailure, (state, {error}) => ({
+        on(lessonsActions.loadLessonBookingsFailure, (state, { error }) => ({
             ...state,
             loadingLessonBookings: false,
             lessonBookingsError: error,
@@ -264,7 +222,7 @@ export const lessonsFeature = createFeature({
             loadingCreateBooking: true,
             createBookingError: null,
         })),
-        on(lessonsActions.createLessonBookingSuccess, (state, {booking}) => {
+        on(lessonsActions.createLessonBookingSuccess, (state, { booking }) => {
             const lessonId = booking.lesson?.id || 'unknown';
             const existingBookings = state.lessonBookings[lessonId] || [];
             return {
@@ -277,7 +235,7 @@ export const lessonsFeature = createFeature({
                 createBookingError: null,
             };
         }),
-        on(lessonsActions.createLessonBookingFailure, (state, {error}) => ({
+        on(lessonsActions.createLessonBookingFailure, (state, { error }) => ({
             ...state,
             loadingCreateBooking: false,
             createBookingError: error,
@@ -289,7 +247,7 @@ export const lessonsFeature = createFeature({
             loadingDeleteBooking: true,
             deleteBookingError: null,
         })),
-        on(lessonsActions.deleteLessonBookingSuccess, (state, {lessonId, bookingId}) => {
+        on(lessonsActions.deleteLessonBookingSuccess, (state, { lessonId, bookingId }) => {
             const existingBookings = state.lessonBookings[lessonId] || [];
             return {
                 ...state,
@@ -301,7 +259,7 @@ export const lessonsFeature = createFeature({
                 deleteBookingError: null,
             };
         }),
-        on(lessonsActions.deleteLessonBookingFailure, (state, {error}) => ({
+        on(lessonsActions.deleteLessonBookingFailure, (state, { error }) => ({
             ...state,
             loadingDeleteBooking: false,
             deleteBookingError: error,
@@ -313,9 +271,9 @@ export const lessonsFeature = createFeature({
             loadingUpdateSchedule: true,
             updateScheduleError: null,
         })),
-        on(lessonsActions.updateLessonScheduleSuccess, (state, {lesson}) =>
+        on(lessonsActions.updateLessonScheduleSuccess, (state, { lesson }) =>
             lessonsAdapter.updateOne(
-                {id: lesson.id!, changes: lesson},
+                { id: lesson.id!, changes: lesson },
                 {
                     ...state,
                     loadingUpdateSchedule: false,
@@ -323,7 +281,7 @@ export const lessonsFeature = createFeature({
                 }
             )
         ),
-        on(lessonsActions.updateLessonScheduleFailure, (state, {error}) => ({
+        on(lessonsActions.updateLessonScheduleFailure, (state, { error }) => ({
             ...state,
             loadingUpdateSchedule: false,
             updateScheduleError: error,
@@ -335,9 +293,9 @@ export const lessonsFeature = createFeature({
             loadingUpdateOnlineStatus: true,
             updateOnlineStatusError: null,
         })),
-        on(lessonsActions.updateLessonOnlineStatusSuccess, (state, {lesson}) =>
+        on(lessonsActions.updateLessonOnlineStatusSuccess, (state, { lesson }) =>
             lessonsAdapter.updateOne(
-                {id: lesson.id!, changes: lesson},
+                { id: lesson.id!, changes: lesson },
                 {
                     ...state,
                     loadingUpdateOnlineStatus: false,
@@ -345,7 +303,7 @@ export const lessonsFeature = createFeature({
                 }
             )
         ),
-        on(lessonsActions.updateLessonOnlineStatusFailure, (state, {error}) => ({
+        on(lessonsActions.updateLessonOnlineStatusFailure, (state, { error }) => ({
             ...state,
             loadingUpdateOnlineStatus: false,
             updateOnlineStatusError: error,
@@ -363,10 +321,27 @@ export const lessonsFeature = createFeature({
             markOverdueError: null,
             cacheExpired: true, // Force a refresh of lessons after marking overdue
         })),
-        on(lessonsActions.markLessonsOverdueFailure, (state, {error}) => ({
+        on(lessonsActions.markLessonsOverdueFailure, (state, { error }) => ({
             ...state,
             loadingMarkOverdue: false,
             markOverdueError: error,
+        })),
+
+        // Bulk booking endpoints
+        on(lessonsActions.bulkBookLessons, (state) => ({
+            ...state,
+            loadingBulkBooking: true,
+            bulkBookingError: null,
+        })),
+        on(lessonsActions.bulkBookLessonsSuccess, (state, { response }) => ({
+            ...state,
+            loadingBulkBooking: false,
+            bulkBookingError: null,
+        })),
+        on(lessonsActions.bulkBookLessonsFailure, (state, { error }) => ({
+            ...state,
+            loadingBulkBooking: false,
+            bulkBookingError: error,
         })),
 
         // Clear error
@@ -388,6 +363,7 @@ export const lessonsFeature = createFeature({
             updateScheduleError: null,
             updateOnlineStatusError: null,
             markOverdueError: null,
+            bulkBookingError: null,
         }))
     ),
 });

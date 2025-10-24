@@ -4,7 +4,6 @@ import {createSelector} from "@ngrx/store";
 
 
 export const {
-    selectCreateLevelSuccess,
     selectLevelsState,
     selectUpdateError,
     selectSelectedLevelId,

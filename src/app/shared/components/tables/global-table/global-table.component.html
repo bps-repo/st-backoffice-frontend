@@ -1,58 +1,22 @@
 <div class="col-12">
     <div class="card">
-        <app-table-header
-            [entity]="entity"
-            [tableLable]="tableLabel"
-            [actions]="headerActions"
-            (createEntity)="createEntity.emit()"
-        ></app-table-header>
 
-        <p-table
-            #dt
-            [value]="data"
-            [rows]="10"
-            [loading]="loading"
-            [paginator]="true"
-            [globalFilterFields]="globalFilterFields"
-            [scrollable]="true"
-            draggable="false"
-            scrollHeight="400px"
-            responsiveLayout="scroll"
-        >
-            <!-- Global Filter -->
-            <ng-template pTemplate="caption">
-                <div class="flex justify-content-between">
-                    <button
-                        pButton
-                        label="Limpar filtro"
-                        class="p-button-outlined"
-                        icon="pi pi-filter-slash"
-                        (click)="clear(dt)"
-                    ></button>
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search"></i>
-                        <input
-                            pInputText
-                            type="text"
-                            (input)="onGlobalFilter(dt, $event)"
-                            placeholder="Pesquisar..."
-                        />
-                    </span>
-                </div>
-            </ng-template>
+        <div *ngIf="loading" class="flex justify-content-center p-4">
+            <p-progressSpinner></p-progressSpinner>
+        </div>
+
+        <p-table #dt [value]="data" [rows]="10" [loading]="loading" [paginator]="true"
+            [globalFilterFields]="globalFilterFields" [scrollable]="true" draggable="false" scrollHeight="400px"
+            responsiveLayout="scroll" [expandedRowKeys]="expandedRows">
 
             <!-- Header -->
             <ng-template pTemplate="header">
                 <tr>
                     <th *ngFor="let col of columns" [style.minWidth]="'5rem'">
-                        <div class="flex justify-content-between">
+                        <div class="flex justify-content-between font-semibold">
                             {{ col.header }}
-                            <p-columnFilter
-                                *ngIf="col.filterType && !col.filterTemplate"
-                                [type]="col.filterType"
-                                [field]="col.field"
-                                display="menu"
-                            ></p-columnFilter>
+                            <p-columnFilter *ngIf="col.filterType && !col.filterTemplate" [type]="col.filterType"
+                                [field]="col.field" display="menu"></p-columnFilter>
                         </div>
                     </th>
                     <th *ngIf="actionsTemplate" [style.minWidth]="'5rem'">Ações</th>
@@ -62,20 +26,34 @@
             <!-- Body -->
             <ng-template pTemplate="body" let-rowData>
                 <tr (click)="selectRow(rowData)" class="cursor-pointer">
-                    <td *ngFor="let col of columns">
-                        <ng-container *ngIf="!col.customTemplate">
-                            {{ rowData[col.field] }}
-                        </ng-container>
-                        <ng-container *ngIf="col.customTemplate && columnTemplates[col.field]">
-                            <ng-container
-                                *ngTemplateOutlet="columnTemplates[col.field]; context: { $implicit: rowData }"
-                            ></ng-container>
-                        </ng-container>
+                    <td *ngFor="let col of columns; let i = index">
+                        <div class="flex align-items-center">
+                            <button *ngIf="i === 0 && expandableRows && hasChildren(rowData)" type="button" pButton
+                                pRipple [icon]="isRowExpanded(rowData) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                                class="p-button-rounded p-button-text p-button-sm mr-2"
+                                (click)="toggleRow(rowData, $event)"></button>
+                            <ng-container *ngIf="!col.customTemplate">
+                                {{ rowData[col.field] }}
+                            </ng-container>
+                            <ng-container *ngIf="col.customTemplate && columnTemplates[col.field]">
+                                <ng-container
+                                    *ngTemplateOutlet="columnTemplates[col.field]; context: { $implicit: rowData }"></ng-container>
+                            </ng-container>
+                        </div>
                     </td>
                     <td *ngIf="actionsTemplate">
                         <ng-container
-                            *ngTemplateOutlet="actionsTemplate; context: { $implicit: rowData }"
-                        ></ng-container>
+                            *ngTemplateOutlet="actionsTemplate; context: { $implicit: rowData }"></ng-container>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Expansion Template -->
+            <ng-template pTemplate="rowexpansion" let-rowData>
+                <tr *ngIf="expandableRows && expansionTemplate">
+                    <td [attr.colspan]="columns.length + (actionsTemplate ? 1 : 0)">
+                        <ng-container
+                            *ngTemplateOutlet="expansionTemplate; context: { $implicit: rowData }"></ng-container>
                     </td>
                 </tr>
             </ng-template>

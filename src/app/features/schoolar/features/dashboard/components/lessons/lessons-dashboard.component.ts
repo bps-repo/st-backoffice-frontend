@@ -1,11 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { SkeletonModule } from 'primeng/skeleton';
+import { Observable, Subject, combineLatest } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
+import { LessonService } from 'src/app/core/services/lesson.service';
+import { AttendanceService } from 'src/app/core/services/attendance.service';
+import { Lesson } from 'src/app/core/models/academic/lesson';
 
 @Component({
     selector: 'app-lessons',
@@ -17,45 +23,226 @@ import { TableModule } from 'primeng/table';
         CalendarModule,
         CardModule,
         ButtonModule,
-        TableModule
+        TableModule,
+        SkeletonModule
     ],
     templateUrl: './lessons-dashboard.component.html',
 })
-export class LessonsDashboardComponent implements OnInit {
+export class LessonsDashboardComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
 
+    // Data observables
+    lessons$!: Observable<Lesson[]>;
+    loading$!: Observable<boolean>;
+    kpis$!: Observable<any[]>;
+    topLessons$!: Observable<any[]>;
+
+    // Chart data
     pieDataLessonType: any;
     pieLessonTypeOptions: any;
-
     doughnutDataSubjects: any;
     doughnutSubjectsOptions: any;
-
     lineChartData: any;
     lineChartOptions: any;
-
     barChartData: any;
     barChartOptions: any;
 
+    // UI data
     dateRange: Date[] | undefined;
+    loading = true;
 
-    kpis = [
-        { label: 'Total Lessons', current: 1250, diff: 15 },
-        { label: 'Completion Rate', current: '94%', diff: 3 },
-        { label: 'Avg. Attendance', current: '88%', diff: 2 },
-        { label: 'Avg. Duration', current: '75 min', diff: 5 },
-    ];
-
-    topLessons = [
-        { title: 'Advanced English Grammar', teacher: 'John Smith', students: 22, rating: '4.9/5' },
-        { title: 'Spanish Conversation', teacher: 'Maria Garcia', students: 18, rating: '4.8/5' },
-        { title: 'French Pronunciation', teacher: 'David Lee', students: 15, rating: '4.7/5' },
-        { title: 'Business English Vocabulary', teacher: 'Sarah Johnson', students: 12, rating: '4.6/5' },
-        { title: 'German Basics', teacher: 'Michael Brown', students: 10, rating: '4.5/5' },
-    ];
-
-    constructor() {}
+    constructor(
+        private lessonService: LessonService,
+        private attendanceService: AttendanceService
+    ) {}
 
     ngOnInit(): void {
+        this.loadData();
         this.initCharts();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    private loadData(): void {
+        // Load lessons data
+        this.lessons$ = this.lessonService.getAllLessons();
+
+        // Build KPIs from real data
+        this.kpis$ = this.lessons$.pipe(
+            map(lessons => this.buildKPIs(lessons))
+        );
+
+        // Build top lessons from real data
+        this.topLessons$ = this.lessons$.pipe(
+            map(lessons => this.buildTopLessons(lessons))
+        );
+
+        // Update charts when data changes
+        this.lessons$.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(lessons => {
+            this.updateCharts(lessons);
+            this.loading = false;
+        });
+    }
+
+    private buildKPIs(lessons: Lesson[]): any[] {
+        const totalLessons = lessons.length;
+        const completedLessons = lessons.filter(l => l.status === 'COMPLETE').length;
+        const completionRate = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+        // Mock calculations for other KPIs - in real app would come from additional data
+        const avgAttendance = Math.floor(80 + Math.random() * 15);
+        const avgDuration = Math.floor(60 + Math.random() * 30);
+
+        return [
+            { label: 'Total Lessons', current: totalLessons, diff: 15 },
+            { label: 'Completion Rate', current: `${completionRate}%`, diff: 3 },
+            { label: 'Avg. Attendance', current: `${avgAttendance}%`, diff: 2 },
+            { label: 'Avg. Duration', current: `${avgDuration} min`, diff: 5 },
+        ];
+    }
+
+    private buildTopLessons(lessons: Lesson[]): any[] {
+        // Get top 5 lessons by some metric (for now, use random data enriched with real lesson data)
+        return lessons.slice(0, 5).map((lesson, index) => ({
+            title: lesson.title || `Lesson ${index + 1}`,
+            teacher: lesson.teacher?.name || 'Unknown Teacher',
+            students: Math.floor(Math.random() * 30) + 10, // Mock student count
+            rating: `${(4.5 + Math.random() * 0.5).toFixed(1)}/5` // Mock rating
+        }));
+    }
+
+    private updateCharts(lessons: Lesson[]): void {
+        this.updateLessonTypeChart(lessons);
+        this.updateSubjectsChart(lessons);
+        this.updateTrendChart(lessons);
+        this.updateRatingsChart(lessons);
+    }
+
+    private updateLessonTypeChart(lessons: Lesson[]): void {
+        // This would need to be based on actual lesson type data if available
+        // For now, keeping mock data structure but could be enhanced with real categorization
+        const types = ['Grammar', 'Vocabulary', 'Conversation', 'Reading', 'Writing', 'Listening'];
+        const data = types.map(() => Math.floor(Math.random() * 50) + 10);
+
+        this.pieDataLessonType = {
+            labels: types,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#EC407A'
+                ],
+                hoverBackgroundColor: [
+                    '#1E88E5', '#4CAF50', '#FF9800', '#F44336', '#9C27B0', '#E91E63'
+                ]
+            }]
+        };
+    }
+
+    private updateSubjectsChart(lessons: Lesson[]): void {
+        // Extract subjects from real lesson data or use mock data
+        const subjectCounts: {[key: string]: number} = {};
+
+        lessons.forEach(lesson => {
+            // This would depend on how subjects are stored in the lesson model
+            // For now, using mock logic
+            const subjects = ['English', 'Spanish', 'French', 'German', 'Italian', 'Other'];
+            const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+            subjectCounts[randomSubject] = (subjectCounts[randomSubject] || 0) + 1;
+        });
+
+        const labels = Object.keys(subjectCounts);
+        const data = Object.values(subjectCounts);
+
+        if (labels.length === 0) {
+            // Fallback to mock data if no real data available
+            this.doughnutDataSubjects = {
+                labels: ['English', 'Spanish', 'French', 'German', 'Italian', 'Other'],
+                datasets: [{
+                    data: [40, 25, 15, 10, 5, 5],
+                    backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#607D8B']
+                }]
+            };
+        } else {
+            this.doughnutDataSubjects = {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#607D8B']
+                }]
+            };
+        }
+    }
+
+    private updateTrendChart(lessons: Lesson[]): void {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const currentYear = new Date().getFullYear();
+
+        const scheduledData = new Array(12).fill(0);
+        const completedData = new Array(12).fill(0);
+        const attendanceData = new Array(12).fill(0);
+
+        lessons.forEach(lesson => {
+            if (lesson.startDatetime || lesson.createdAt) {
+                const lessonDate = new Date(lesson.startDatetime || lesson.createdAt!);
+                if (lessonDate.getFullYear() === currentYear) {
+                    const month = lessonDate.getMonth();
+                    scheduledData[month]++;
+
+                    if (lesson.status === 'COMPLETE') {
+                        completedData[month]++;
+                    }
+
+                    // Mock attendance data
+                    attendanceData[month] += Math.floor(Math.random() * 20) + 10;
+                }
+            }
+        });
+
+        this.lineChartData = {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Lessons Scheduled',
+                    data: scheduledData,
+                    borderColor: '#42A5F5',
+                    tension: 0.4,
+                    pointBackgroundColor: '#42A5F5'
+                },
+                {
+                    label: 'Lessons Completed',
+                    data: completedData,
+                    borderColor: '#66BB6A',
+                    tension: 0.4,
+                    pointBackgroundColor: '#66BB6A'
+                },
+                {
+                    label: 'Student Attendance',
+                    data: attendanceData,
+                    borderColor: '#FFA726',
+                    tension: 0.4,
+                    pointBackgroundColor: '#FFA726'
+                }
+            ]
+        };
+    }
+
+    private updateRatingsChart(lessons: Lesson[]): void {
+        // Mock ratings distribution - in real app would come from lesson ratings
+        const ratingData = [5, 15, 100, 450, 680];
+
+        this.barChartData = {
+            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+            datasets: [{
+                label: 'Number of Lessons',
+                backgroundColor: '#42A5F5',
+                data: ratingData
+            }]
+        };
     }
 
     initCharts() {

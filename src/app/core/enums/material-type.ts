@@ -1,3 +1,9 @@
 export enum MaterialType {
-    PDF, VIDEO, AUDIO, PRESENTATION, WORKSHEET, DOCX, EXCEL
+    PDF = 'PDF',
+    VIDEO = 'VIDEO',
+    AUDIO = 'AUDIO',
+    PRESENTATION = 'PRESENTATION',
+    WORKSHEET = 'WORKSHEET',
+    DOCX = 'DOCX',
+    EXCEL = 'EXCEL'
 }

@@ -14,6 +14,11 @@ export interface LevelState extends EntityState<Level> {
     updateError: any;
     deleteError: any;
     selectedLevelId: string | null;
+
+    // Cache management
+    lastFetch: number | null;
+    cacheExpired: boolean;
+    cacheTimeout: number; // Cache timeout in milliseconds (default: 30 minutes)
 }
 
 export const levelsAdapter = createEntityAdapter<Level>({
@@ -33,5 +38,10 @@ export const levelInitialState: LevelState = levelsAdapter.getInitialState({
     createError: null,
     updateError: null,
     deleteError: null,
-    selectedLevelId: null
+    selectedLevelId: null,
+
+    // Cache management
+    lastFetch: null,
+    cacheExpired: false,
+    cacheTimeout: 30 * 60 * 1000 // 30 minutes in milliseconds
 });

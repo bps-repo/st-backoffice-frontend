@@ -173,28 +173,6 @@ export const unitFeature = createFeature({
             loadingUpdateOrder: false,
             updateOrderError: error,
         })),
-
-        // load unit classes
-        on(UnitActions.loadUnitClasses, (state) => ({
-            ...state,
-            loadingClasses: true,
-            classesError: null,
-        })),
-        on(UnitActions.loadUnitClassesSuccess, (state, {unitId, classes}) => ({
-            ...state,
-            unitClasses: {
-                ...state.unitClasses,
-                [unitId]: classes,
-            },
-            loadingClasses: false,
-            classesError: null,
-        })),
-        on(UnitActions.loadUnitClassesFailure, (state, {error}) => ({
-            ...state,
-            loadingClasses: false,
-            classesError: error,
-        })),
-
         // load unit progresses
         on(UnitActions.loadUnitProgresses, (state) => ({
             ...state,

@@ -1,8 +1,8 @@
-import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
-import { AppConfig } from './app.config';
+import {mergeApplicationConfig, ApplicationConfig} from '@angular/core';
+import {AppConfig} from './app.config';
 
 const AppServerConfig: ApplicationConfig = {
-  providers: [],
+    providers: [],
 };
 
 export const config = mergeApplicationConfig(AppConfig, AppServerConfig);

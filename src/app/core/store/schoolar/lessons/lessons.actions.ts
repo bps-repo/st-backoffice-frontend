@@ -1,5 +1,6 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
-import {Lesson} from 'src/app/core/models/academic/lesson';
+import {Lesson, LessonCreate} from 'src/app/core/models/academic/lesson';
+import {BulkBookingRequest, BulkBookingResult} from 'src/app/core/models/academic/bulk-booking';
 
 export const LESSONS_FEATURE_KEY = 'lessons';
 
@@ -7,9 +8,9 @@ export const lessonsActions = createActionGroup({
     source: LESSONS_FEATURE_KEY,
     events: {
         // Load lessons
-        'Load lessons': emptyProps(),
-        'Load lessons Success': props<{ lessons: Lesson[] }>(),
-        'Load lessons Failure': props<{ error: string }>(),
+        'Load Lessons': emptyProps(),
+        'Load Lessons Success': props<{ lessons: Lesson[] }>(),
+        'Load Lessons Failure': props<{ error: string }>(),
 
         // Load Lesson
         'Load Lesson': props<{ id: string }>(),
@@ -17,7 +18,7 @@ export const lessonsActions = createActionGroup({
         'Load Lesson Failure': props<{ error: string }>(),
 
         // Create Lesson
-        'Create Lesson': props<{ lesson: Lesson }>(),
+        'Create Lesson': props<{ lesson: LessonCreate }>(),
         'Create Lesson Success': props<{ lesson: Lesson }>(),
         'Create Lesson Failure': props<{ error: string }>(),
 
@@ -82,6 +83,11 @@ export const lessonsActions = createActionGroup({
         'Mark Lessons Overdue': emptyProps(),
         'Mark Lessons Overdue Success': props<{ response: any }>(),
         'Mark Lessons Overdue Failure': props<{ error: string }>(),
+
+        // Bulk booking endpoints
+        'Bulk Book Lessons': props<{ bulkBookingRequest: BulkBookingRequest }>(),
+        'Bulk Book Lessons Success': props<{ response: BulkBookingResult }>(),
+        'Bulk Book Lessons Failure': props<{ error: string }>(),
 
         // Clear error
         'Clear Error': emptyProps(),

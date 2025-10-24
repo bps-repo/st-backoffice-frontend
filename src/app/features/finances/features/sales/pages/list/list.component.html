@@ -1,0 +1,175 @@
+<div class="grid">
+    <!-- Header -->
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Vendas Avulsas</h2>
+            <span class="text-lg">Gerencie vendas de produtos e serviços fora de contratos</span>
+        </div>
+        <p-button label="+ Nova Venda Avulsa" icon="pi pi-plus" class="p-button-primary"
+            (click)="createNewSale()"></p-button>
+    </div>
+
+    <!-- View Selector -->
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+            optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- Lista de Vendas View -->
+    @if (currentView === 'list') {
+    <div class="col-12 animate-fade">
+        <!-- Filters Section -->
+        <div class="card mb-4">
+            <h3 class="text-lg font-semibold mb-3">Filtros</h3>
+            <p class="text-color-secondary mb-4">Filtre as vendas por produto, status ou cliente</p>
+
+            <div class="flex align-items-center gap-3">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input type="text" pInputText placeholder="Buscar por cliente ou produto..."
+                        [(ngModel)]="searchTerm" (input)="onSearchChange()" class="w-20rem" />
+                </span>
+                <p-dropdown [options]="typeOptions" [(ngModel)]="typeFilter" placeholder="Todos os Tipos"
+                    (onChange)="onFilterChange()" class="w-12rem"></p-dropdown>
+                <p-dropdown [options]="statusOptions" [(ngModel)]="statusFilter" placeholder="Todos os Status"
+                    (onChange)="onFilterChange()" class="w-12rem"></p-dropdown>
+            </div>
+        </div>
+
+        <!-- Sales List -->
+        <div class="card">
+            <h3 class="text-lg font-semibold mb-4">Lista de Vendas ({{ sales.length }})</h3>
+
+            <!-- Loading State -->
+            @if (loading) {
+            <div class="flex justify-content-center align-items-center p-4">
+                <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+                <span class="ml-3">Carregando vendas...</span>
+            </div>
+            }
+
+            <!-- Error State -->
+            @if (error) {
+            <div class="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="pi pi-times-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Erro ao carregar vendas
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p>{{ error }}</p>
+                        </div>
+                        <div class="mt-4">
+                            <p-button label="Tentar novamente" size="small" severity="danger" [outlined]="true"
+                                (click)="retryLoadSales()">
+                            </p-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+
+            <!-- Sales Table -->
+            @if (!loading && !error) {
+            <p-table [value]="sales" [loading]="loading" responsiveLayout="scroll" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Produto</th>
+                        <th>Tipo</th>
+                        <th>Quantidade</th>
+                        <th>Valor Total</th>
+                        <th>Pagamento</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                        <th>Ação</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-sale>
+                    <tr>
+                        <td>
+                            <div class="flex flex-column">
+                                <span class="font-medium">{{ sale.client.name }}</span>
+                                <small class="text-color-secondary">{{ sale.client.email }}</small>
+                            </div>
+                        </td>
+                        <td>{{ sale.product.name }}</td>
+                        <td>
+                            <p-tag [value]="sale.product.type" [severity]="getTypeSeverity(sale.product.type)"></p-tag>
+                        </td>
+                        <td>{{ sale.product.quantity }}</td>
+                        <td>{{ sale.product.total | currency:'Kz':'symbol':'1.2-2' }}</td>
+                        <td>{{ sale.payment.method }}</td>
+                        <td>
+                            <p-tag [value]="sale.payment.status" [severity]="getStatusSeverity(sale.payment.status)"></p-tag>
+                        </td>
+                        <td>{{ formatDate(sale.dates.created) }}</td>
+                        <td>
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm"
+                                pTooltip="Ver detalhes" (click)="viewSaleDetails(sale)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="9" class="text-center p-4">
+                            <i class="pi pi-shopping-cart text-4xl text-color-secondary mb-3 block"></i>
+                            <p class="text-color-secondary">Nenhuma venda encontrada</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Relatórios View -->
+    @if (currentView === 'relatorios') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Relatórios de Vendas</h3>
+            <p>Gere relatórios detalhados sobre as vendas avulsas.</p>
+            <!-- Placeholder content for reports view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Relatórios de vendas serão implementados aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Estatísticas View -->
+    @if (currentView === 'estatisticas') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Estatísticas de Vendas</h3>
+            <p>Análise estatística das vendas avulsas.</p>
+            <!-- Placeholder content for statistics view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Estatísticas de vendas serão implementadas aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Nova Venda View -->
+    @if (currentView === 'nova-venda') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Nova Venda Avulsa</h3>
+            <p>Formulário para criar nova venda avulsa.</p>
+            <!-- Placeholder content for new sale view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Formulário de nova venda será implementado aqui.</p>
+            </div>
+            <button pButton type="button" label="Voltar à Lista" class="p-button-outlined mt-3"
+                (click)="currentView = 'list'"></button>
+        </div>
+    </div>
+    }
+</div>

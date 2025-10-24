@@ -1,195 +1,179 @@
+<p-toast></p-toast>
 <div class="grid">
-    <p-toast></p-toast>
-    <div *ngIf="errors$ | async as errors" class="col-12">
-        {{ errors | json }}
+    <div class="col-12">
+        <h2>Inscrever novo Aluno</h2>
+        <span>Inscriçãos completo dos alunos</span>
+        <br />
+        @if (createError$ | async) {
+        <span *ngIf="createError$ | async"> class="text-red-500">{{ (createError$ | async) }}</span>
+        }
     </div>
-
     <div class="col-12">
         <p-card>
-            <ng-template pTemplate="title">
-                <h2>Adicionar Estudante</h2>
-            </ng-template>
             <ng-template pTemplate="content">
-                <form [formGroup]="studentForm" (ngSubmit)="saveStudent()">
-                    <!-- DADOS PESSOAIS -->
-                    <div class="mb-4" formGroupName="personalData">
-                        <h3 class="text-900 font-medium text-xl mb-3">Dados Pessoais</h3>
+                <!-- Simple loading indicator -->
+                <div *ngIf="loading$ | async" class="loading-indicator">
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <span>Criando aluno...</span>
+                </div>
+
+                <form [formGroup]="studentForm" (ngSubmit)="saveStudent()" novalidate>
+                    <!-- Stepper -->
+                    <div class="mb-5">
+                        <p-steps [model]="steps" [activeIndex]="activeIndex" [readonly]="false"
+                            (activeIndexChange)="goToStep($event)" styleClass="mt-2"></p-steps>
+                    </div>
+
+                    <!-- Progress indicator -->
+                    <div class="text-center mb-4">
+                        <span class="text-600">Passo {{ activeIndex + 1 }} de {{ steps.length }}</span>
+                    </div>
+
+                    <!-- Step 1: DADOS PESSOAIS -->
+                    <div *ngIf="activeIndex === 0" class="step-content">
                         <div class="grid p-fluid">
-                            <div class="col-12 md:col-4 field">
+                            <div class="col-12 md:col-12 field">
                                 <label for="photo" class="font-bold">Foto</label>
-                                <p-fileUpload
-                                    mode="basic"
-                                    name="photo"
-                                    url="./upload.php"
-                                    accept="image/*"
-                                    [maxFileSize]="1000000"
-                                    styleClass="p-button-outlined p-button-plain"
-                                    chooseLabel="Carregue uma imagem"
-                                    (onSelect)="onPhotoSelect($event)"
-                                ></p-fileUpload>
+                                <p-fileUpload mode="basic" name="photo" url="./upload.php" accept="image/*"
+                                    [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain"
+                                    chooseLabel="Carregue uma imagem" formControlName="photo"></p-fileUpload>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="firstname" class="font-bold">Primeiro nome *</label>
-                                <input
-                                    id="firstname"
-                                    type="text"
-                                    pInputText
-                                    formControlName="firstname"
-                                    [class.ng-invalid]="studentForm.get('personalData.firstname')?.invalid && studentForm.get('personalData.firstname')?.touched"
-                                />
-                                <small class="p-error"
-                                       *ngIf="studentForm.get('personalData.firstname')?.invalid && studentForm.get('personalData.firstname')?.touched">
-                                    {{ getFieldError('personalData.firstname') }}
-                                </small>
+                                <label for="identificationNumber" class="font-bold">Bilhete de Identidade</label>
+                                <input id="identificationNumber" type="text" pInputText
+                                    formControlName="identificationNumber" />
+                                <small *ngIf="hasFieldError('identificationNumber')" class="p-error">{{
+                                    getFieldError('identificationNumber') }}</small>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="firstname" class="font-bold">Primeiro Nome</label>
+                                <input id="firstname" type="text" pInputText formControlName="firstname" />
+                                <small *ngIf="hasFieldError('firstname')" class="p-error">{{ getFieldError('firstname')
+                                    }}</small>
+                            </div>
+                            <div class="col-12 md:col-4 field">
+                                <label for="lastname" class="font-bold">Último Nome</label>
+                                <input id="lastname" type="text" pInputText formControlName="lastname" />
+                                <small *ngIf="hasFieldError('lastname')" class="p-error">{{ getFieldError('lastname')
+                                    }}</small>
                             </div>
 
                             <div class="col-12 md:col-4 field">
-                                <label for="lastname" class="font-bold">último nome*</label>
-                                <input
-                                    id="lastname"
-                                    type="text"
-                                    pInputText
-                                    formControlName="lastname"
-                                    [class.ng-invalid]="studentForm.get('personalData.lastname')?.invalid && studentForm.get('personalData.lastname')?.touched"
-                                />
-                                <small class="p-error"
-                                       *ngIf="studentForm.get('personalData.lastname')?.invalid && studentForm.get('personalData.lastname')?.touched">
-                                    {{ getFieldError('personalData.lastname') }}
-                                </small>
-                            </div>
-                            <div class="col-12 md:col-4 field">
-                                <label for="identificationNumber" class="font-bold">Nº de Identificação</label>
-                                <input id="identificationNumber" type="text" pInputText
-                                       formControlName="identificationNumber"/>
-                            </div>
-                            <div class="col-12 md:col-4 field">
                                 <label for="gender" class="font-bold">Género</label>
-                                <p-dropdown
-                                    id="gender"
-                                    [options]="genderOptions"
-                                    formControlName="gender"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Selecione"
-                                    [showClear]="true"
-                                ></p-dropdown>
-                                <small class="p-error"
-                                       *ngIf="studentForm.get('personalData.gender')?.invalid && studentForm.get('personalData.gender')?.touched">
-                                    {{ getFieldError('personalData.gender') }}
-                                </small>
+                                <p-dropdown id="gender" [options]="genderOptions" formControlName="gender"
+                                    optionLabel="label" optionValue="value" placeholder="Selecione" [showClear]="true"></p-dropdown>
+                                <small *ngIf="hasFieldError('gender')" class="p-error">{{ getFieldError('gender')
+                                    }}</small>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="dateOfBirth" class="font-bold">Data de Nascimento</label>
-                                <p-calendar
-                                    id="dateOfBirth"
-                                    formControlName="dateOfBirth"
-                                    [showIcon]="true"
-                                    dateFormat="dd/mm/yy"
-                                ></p-calendar>
-                                <small class="p-error"
-                                       *ngIf="studentForm.get('personalData.dateOfBirth')?.invalid && studentForm.get('personalData.dateOfBirth')?.touched">
-                                    {{ getFieldError('personalData.dateOfBirth') }}
-                                </small>
+                                <label for="birthdate" class="font-bold">Data de Nascimento</label>
+                                <p-calendar id="birthdate" formControlName="birthdate" [showIcon]="true"
+                                    dateFormat="dd/mm/yy"></p-calendar>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="address" class="font-bold">Morada</label>
-                                <input id="address" type="text" pInputText formControlName="address"/>
-                                <small class="p-error"
-                                       *ngIf="studentForm.get('personalData.address')?.invalid && studentForm.get('personalData.address')?.touched">
-                                    {{ getFieldError('personalData.address') }}
-                                </small>
+                                <label for="email" class="font-bold">E-mail</label>
+                                <input id="email" type="email" pInputText formControlName="email"
+                                    placeholder="ex. user@gmail.com" required />
+                            </div>
+
+                            <div class="col-12 md:col-4 field">
+                                <label for="password" class="font-bold">Senha</label>
+                                <input id="password" type="password" pInputText formControlName="password"
+                                    placeholder="Senha do aluno" />
                             </div>
                             <div class="col-12 md:col-4 field">
                                 <label for="phone" class="font-bold">Telefone</label>
-                                <input id="phone" type="text" pInputText formControlName="phone"/>
+                                <input id="phone" type="text" pInputText formControlName="phone"
+                                    placeholder="ex. 971234567" required />
                             </div>
-                            <div class="col-12 md:col-8 field">
-                                <label for="email" class="font-bold">E-mail</label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    pInputText
-                                    formControlName="email"
-                                    placeholder="ex. user@gmail.com"
-                                    [class.ng-invalid]="studentForm.get('personalData.email')?.invalid && studentForm.get('personalData.email')?.touched"
-                                />
-                                <small class="p-error"
-                                       *ngIf="studentForm.get('personalData.email')?.invalid && studentForm.get('personalData.email')?.touched">
-                                    {{ getFieldError('personalData.email') }}
-                                </small>
+                            <div class="col-12 md:col-4 field">
+                                <label for="province" class="font-bold">Província de morada</label>
+                                <p-dropdown id="province" [options]="provinces" formControlName="province"
+                                    optionLabel="label" optionValue="value" placeholder="Selecione uma província"
+                                    [showClear]="true"></p-dropdown>
+                            </div>
+
+                            <div class="col-12 md:col-6 field">
+                                <label for="municipality" class="font-bold">Município de morada</label>
+                                <p-dropdown id="municipality" [options]="municipalities" formControlName="municipality"
+                                    optionLabel="label" optionValue="value" placeholder="Selecione um município"
+                                    [showClear]="true"></p-dropdown>
+                            </div>
+                            <div class="col-12 md:col-6 field">
+                                <label for="academicBackground" class="font-bold">Formação Acadêmica</label>
+                                <p-dropdown id="academicBackground" [options]="academicBackgrounds"
+                                    formControlName="academicBackground" optionLabel="label" optionValue="value"
+                                    placeholder="Selecione a formação" [showClear]="true"></p-dropdown>
                             </div>
                         </div>
                     </div>
 
-                    <!-- DADOS DA MATRICULA -->
-                    <div formGroupName="enrollmentData">
-                        <h3 class="text-900 font-medium text-xl mb-3">Dados da Matrícula</h3>
+                    <!-- Step 2: DADOS ACADÊMICOS -->
+                    <div *ngIf="activeIndex === 1" class="step-content">
                         <div class="grid p-fluid">
-                            <div class="col-12 md:col-4 field">
-                                <label for="installation" class="font-bold">Centros</label>
-                                <p-dropdown
-                                    id="installation"
-                                    [options]="centers"
-                                    formControlName="centerId"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Selecione"
-                                    [showClear]="true"
-                                ></p-dropdown>
-                            </div>
-
-                            <div class="col-12 md:col-4 field">
-                                <label for="registrationType" class="font-bold">Nível</label>
-                                <p-dropdown
-                                    id="registrationType"
-                                    [options]="levels"
-                                    formControlName="levelId"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Selecione"
-                                    [showClear]="true"
-                                ></p-dropdown>
-                            </div>
-
-                            <div class="col-12 md:col-4 field">
-                                <label for="status" class="font-bold">Estado</label>
-                                <p-dropdown
-                                    id="status"
-                                    [options]="statusOptions"
-                                    formControlName="status"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Selecione"
-                                    [showClear]="true"
-                                ></p-dropdown>
-                            </div>
-
-                            <div class="col-12 field">
-                                <label for="observations" class="font-bold">Observações</label>
-                                <textarea
-                                    id="observations"
-                                    rows="5"
-                                    formControlName="observations"
-                                    placeholder="Observações"
-                                    pInputTextarea
-                                ></textarea>
+                            <div class="col-12 md:col-6 field">
+                                <label for="centerId" class="font-bold">Centro (Instalação)</label>
+                                <p-dropdown id="centerId" [options]="(centersOptions$ | async)!"
+                                    formControlName="centerId" optionLabel="label" optionValue="value"
+                                    placeholder="Selecione um centro" [showClear]="true" [required]="true"></p-dropdown>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Step 3: CONTATO DE EMERGÊNCIA -->
+                    <div *ngIf="activeIndex === 2" class="step-content">
+                        <h3 class="text-900 font-medium text-xl mb-3">Contato de Emergência</h3>
+                        <div class="grid p-fluid">
+                            <div class="col-12 md:col-6 field">
+                                <label for="emergencyName" class="font-bold">Nome</label>
+                                <input id="emergencyName" type="text" pInputText
+                                    formControlName="emergencyContactName" />
+                                <small *ngIf="hasFieldError('emergencyContactName')" class="p-error">{{
+                                    getFieldError('emergencyContactName') }}</small>
+                            </div>
+                            <div class="col-12 md:col-6 field">
+                                <label for="emergencyRelationship" class="font-bold">Relação</label>
+                                <input id="emergencyRelationship" type="text" pInputText
+                                    formControlName="emergencyContactRelationship" />
+                            </div>
+                            <div class="col-12 md:col-6 field">
+                                <label for="emergencyPhone" class="font-bold">Telefone</label>
+                                <input id="emergencyPhone" type="text" pInputText
+                                    formControlName="emergencyContactNumber" />
+                                <small *ngIf="hasFieldError('emergencyContactNumber')" class="p-error">{{
+                                    getFieldError('emergencyContactNumber') }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: OBSERVAÇÕES -->
+                    <div *ngIf="activeIndex === 3" class="step-content">
+                        <h3 class="text-900 font-medium text-xl mb-3">Observações</h3>
+                        <div class="grid p-fluid">
+                            <div class="col-12 field">
+                                <label for="notes" class="font-bold">Observações</label>
+                                <textarea id="notes" rows="5" formControlName="notes"
+                                    placeholder="Observações sobre o aluno" pInputTextarea></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step Navigation Buttons -->
+                    <div class="flex justify-content-between mt-4">
+                        <button pButton label="Anterior" icon="pi pi-arrow-left" class="p-button-secondary"
+                            (click)="prevStep()" [disabled]="activeIndex === 0"></button>
+                        <button *ngIf="activeIndex < 3" pButton label="Próximo" icon="pi pi-arrow-right" iconPos="right"
+                            (click)="nextStep()"></button>
+                        <button *ngIf="activeIndex === 3" pButton type="submit"
+                            [label]="(loading$ | async) ? 'Criando aluno...' : 'Cadastrar aluno'" icon="pi pi-check"
+                            [loading]="(loading$ | async)!" [disabled]="(loading$ | async) || studentForm.invalid"
+                            class="p-button-success"></button>
                     </div>
                 </form>
             </ng-template>
             <ng-template pTemplate="footer">
                 <div class="flex justify-content-end">
-                    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text mr-2"
-                            type="button"></button>
-                    <button
-                        pButton
-                        label="{{(loading$ | async) ? 'Salvando...' : 'Adicionar Estudante'}}"
-                        icon="pi pi-check"
-                        (click)="saveStudent()"
-                        type="button"
-                        [disabled]="studentForm.invalid"
-                    ></button>
+                    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text mr-2"></button>
                 </div>
             </ng-template>
         </p-card>

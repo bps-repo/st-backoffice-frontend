@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { EventType, StudentHistory } from '../models/academic/student-history';
-import { ApiResponse, PageableResponse } from './interfaces/ApiResponseService';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 @Injectable({
   providedIn: 'root',

@@ -6,34 +6,22 @@
 
             <!-- Current Roles -->
             <div class="mb-5">
-                <h6>Funções Atuais</h6>
-                <p-table [value]="employee?.roles || []" [loading]="loading" styleClass="p-datatable-sm"
-                         [tableStyle]="{'min-width': '50rem'}">
+                <h6>Função Atual</h6>
+                <p-table [value]="employee!.allPermissions" [loading]="loading" styleClass="p-datatable-sm"
+                    [tableStyle]="{'min-width': '50rem'}">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Nome</th>
-                            <th>Descrição</th>
-                            <th>Permissões</th>
                             <th>Ações</th>
                         </tr>
                     </ng-template>
-                    <ng-template pTemplate="body" let-role>
+                    <ng-template pTemplate="body" let-permission>
                         <tr>
-                            <td>{{ role.name }}</td>
-                            <td>{{ role.description }}</td>
-                            <td>
-                                <p-tag *ngFor="let permission of role.permissions"
-                                       [value]="permission.name"
-                                       severity="info"
-                                       class="mr-1 mb-1">
-                                </p-tag>
-                                <span *ngIf="role.permissions.length === 0">Nenhuma permissão</span>
-                            </td>
+                            <td>{{ permission.name }}</td>
                             <td>
                                 <button pButton pRipple icon="pi pi-trash"
-                                        class="p-button-rounded p-button-danger p-button-text"
-                                        (click)="removeRole(role)"
-                                        [disabled]="removing"></button>
+                                    class="p-button-rounded p-button-danger p-button-text"
+                                    (click)="removePermission(permission)" [disabled]="removing"></button>
                             </td>
                         </tr>
                     </ng-template>
@@ -41,7 +29,7 @@
                         <tr>
                             <td colspan="4" class="text-center">
                                 <div class="p-4">
-                                    Nenhuma função atribuída a este funcionário.
+                                    Nenhuma permissão atribuída a este funcionário.
                                 </div>
                             </td>
                         </tr>
@@ -51,17 +39,15 @@
 
             <!-- Add Role -->
             <div>
-                <h6>Adicionar Função</h6>
+                <h6>Adicionar Permissão</h6>
                 <div class="grid">
                     <div class="col-12 md:col-6">
-                        <p-dropdown [options]="availableRoles" [(ngModel)]="selectedRole" optionLabel="name"
-                                    placeholder="Selecione uma função" [showClear]="true"
-                                    styleClass="w-full"></p-dropdown>
+                        <p-dropdown [options]="availablePermissions" [(ngModel)]="selectedPermission" optionLabel="name"
+                            placeholder="Selecione uma função" [showClear]="true" styleClass="w-full"></p-dropdown>
                     </div>
                     <div class="col-12 md:col-6">
-                        <button pButton pRipple label="Adicionar Função" icon="pi pi-plus"
-                                (click)="addRole()"
-                                [disabled]="!selectedRole || adding"></button>
+                        <button pButton pRipple label="Adicionar Função" icon="pi pi-plus" (click)="addRole()"
+                            [disabled]="!selectedPermission || adding"></button>
                     </div>
                 </div>
             </div>

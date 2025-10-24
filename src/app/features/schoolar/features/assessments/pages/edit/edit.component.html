@@ -19,22 +19,26 @@
 
                     <div class="col-12 md:col-6 field">
                         <label for="date" class="font-bold">Date</label>
-                        <p-calendar id="date" [(ngModel)]="assessment.date" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                        <p-calendar id="date" [(ngModel)]="assessment.date" [showIcon]="true"
+                            dateFormat="yy-mm-dd"></p-calendar>
                     </div>
 
                     <div class="col-12 md:col-6 field">
                         <label for="totalPoints" class="font-bold">Total Points</label>
-                        <p-inputNumber id="totalPoints" [(ngModel)]="assessment.totalPoints" [min]="0" [max]="1000"></p-inputNumber>
+                        <p-inputNumber id="totalPoints" [(ngModel)]="assessment.totalPoints" [min]="0"
+                            [max]="1000"></p-inputNumber>
                     </div>
 
                     <div class="col-12 md:col-6 field">
                         <label for="passingScore" class="font-bold">Passing Score</label>
-                        <p-inputNumber id="passingScore" [(ngModel)]="assessment.passingScore" [min]="0" [max]="1000"></p-inputNumber>
+                        <p-inputNumber id="passingScore" [(ngModel)]="assessment.passingScore" [min]="0"
+                            [max]="1000"></p-inputNumber>
                     </div>
 
                     <div class="col-12 field">
                         <label for="description" class="font-bold">Description</label>
-                        <textarea id="description" pInputTextarea [(ngModel)]="assessment.description" rows="5"></textarea>
+                        <textarea id="description" pInputTextarea [(ngModel)]="assessment.description"
+                            rows="5"></textarea>
                     </div>
                 </div>
             </ng-template>

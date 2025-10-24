@@ -1,12 +1,218 @@
 <div class="grid">
-    <app-global-table
-        tableLabel="Assessments"
-        [data]="assessments"
-        [entity]="'assessments'"
-        [columns]="columns"
-        [globalFilterFields]="globalFilterFields"
-        [loading]="loading"
-        (createEntity)="createAssessment()"
-        class="w-full"
-    ></app-global-table>
+    <!-- Header -->
+    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Gestão de Avaliações</h2>
+            <span class="text-lg">Sistema de provas, testes e quizzes com análise por competência</span>
+        </div>
+        <p-button label="Nova Avaliação" icon="pi pi-plus" class="p-button-outlined"
+            (click)="createAssessment()"></p-button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="col-12 mb-4">
+        <div class="grid">
+            <div class="col-12 md:col-3">
+                <div class="card text-center">
+                    <div class="text-blue-500 text-2xl mb-2">
+                        <i class="pi pi-file-text"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-900">{{ totalAssessments }}</div>
+                    <div class="text-gray-600">Total de Avaliações</div>
+                </div>
+            </div>
+            <div class="col-12 md:col-3">
+                <div class="card text-center">
+                    <div class="text-green-500 text-2xl mb-2">
+                        <i class="pi pi-chart-line"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-900">{{ activeAssessments }}</div>
+                    <div class="text-gray-600">Ativas</div>
+                </div>
+            </div>
+            <div class="col-12 md:col-3">
+                <div class="card text-center">
+                    <div class="text-purple-500 text-2xl mb-2">
+                        <i class="pi pi-users"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-900">{{ completedAssessments }}</div>
+                    <div class="text-gray-600">Concluídas</div>
+                </div>
+            </div>
+            <div class="col-12 md:col-3">
+                <div class="card text-center">
+                    <div class="text-orange-500 text-2xl mb-2">
+                        <i class="pi pi-download"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-900">{{ gradesReleased }}</div>
+                    <div class="text-gray-600">Notas Lançadas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Selector -->
+    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
+            optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- Lista de Avaliações View -->
+    @if (currentView === 'list') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <!-- Search and Filters -->
+            <div class="flex align-items-center justify-content-between mb-4">
+                <div class="flex align-items-center gap-3">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input type="text" pInputText placeholder="Buscar avaliações..." [(ngModel)]="searchTerm"
+                            class="w-20rem">
+                    </span>
+                    <p-dropdown [options]="typeOptions" [(ngModel)]="typeFilter" placeholder="Todos os Tipos"
+                        class="w-12rem"></p-dropdown>
+                    <p-dropdown [options]="statusOptions" [(ngModel)]="statusFilter" placeholder="Todos os Status"
+                        class="w-12rem"></p-dropdown>
+                </div>
+            </div>
+
+            <!-- Assessment List -->
+            <div class="assessment-list">
+                <h5 class="mb-3">Lista de Avaliações</h5>
+
+                <p-table [value]="sampleAssessments" [loading]="loading" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Unidade</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Competências</th>
+                            <th>Pontuação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-assessment>
+                        <tr>
+                            <td>
+                                <div class="flex align-items-center">
+                                    <i class="pi pi-file text-primary mr-2"></i>
+                                    {{ assessment.name }}
+                                </div>
+                            </td>
+                            <td>{{ assessment.type }}</td>
+                            <td>
+                                <div class="flex align-items-center">
+                                    <i class="pi pi-book text-gray-500 mr-1"></i>
+                                    {{ assessment.unit }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex align-items-center">
+                                    <i class="pi pi-calendar text-gray-500 mr-1"></i>
+                                    {{ assessment.date }}
+                                </div>
+                            </td>
+                            <td>
+                                <p-tag [value]="assessment.status"
+                                    [severity]="getStatusSeverity(assessment.status)"></p-tag>
+                            </td>
+                            <td>
+                                <div class="flex flex-wrap gap-1">
+                                    <span *ngFor="let comp of assessment.competencies"
+                                        class="inline-flex align-items-center px-2 py-1 text-xs rounded-full" [ngClass]="{
+                                            'bg-blue-100 text-blue-800': comp === 'speaking',
+                                            'bg-green-100 text-green-800': comp === 'listening',
+                                            'bg-purple-100 text-purple-800': comp === 'vocabulary',
+                                            'bg-orange-100 text-orange-800': comp === 'grammar',
+                                            'bg-red-100 text-red-800': comp === 'writing'
+                                          }">
+                                        {{ getCompetencyLabel(comp) }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="font-bold">{{ assessment.score }}</span>
+                            </td>
+                            <td>
+                                <div class="flex gap-1">
+                                    <button pButton type="button" icon="pi pi-eye"
+                                        class="p-button-rounded p-button-text p-button-sm" pTooltip="Ver detalhes"
+                                        (click)="viewDetails(assessment)"></button>
+                                    <button pButton type="button" icon="pi pi-users"
+                                        class="p-button-rounded p-button-text p-button-sm"
+                                        pTooltip="Gerenciar alunos"></button>
+                                    <button pButton type="button" icon="pi pi-trash"
+                                        class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                                        pTooltip="Excluir" (click)="deleteAssessment(assessment)"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Calendário View -->
+    @if (currentView === 'calendario') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Calendário de Avaliações</h3>
+            <p>Visualize as avaliações em formato de calendário.</p>
+            <!-- Placeholder content for calendar view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Calendário de avaliações será implementado aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Relatórios View -->
+    @if (currentView === 'relatorios') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Relatórios de Avaliações</h3>
+            <p>Gere relatórios detalhados sobre o desempenho dos alunos.</p>
+            <!-- Placeholder content for reports view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Relatórios de avaliações serão implementados aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Estatísticas View -->
+    @if (currentView === 'estatisticas') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Estatísticas de Avaliações</h3>
+            <p>Análise estatística do desempenho geral.</p>
+            <!-- Placeholder content for statistics view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Estatísticas de avaliações serão implementadas aqui.</p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Nova Avaliação View -->
+    @if (currentView === 'nova-avaliacao') {
+    <div class="col-12 animate-fade">
+        <div class="card">
+            <h3>Nova Avaliação</h3>
+            <p>Formulário para criar nova avaliação.</p>
+            <!-- Placeholder content for new assessment view -->
+            <div class="mt-4 p-4 surface-100 border-round">
+                <p>Formulário de nova avaliação será implementado aqui.</p>
+            </div>
+            <button pButton type="button" label="Voltar à Lista" class="p-button-outlined mt-3"
+                (click)="currentView = 'list'"></button>
+        </div>
+    </div>
+    }
 </div>

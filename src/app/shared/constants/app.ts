@@ -61,3 +61,50 @@ export const DISCOUNTS: SelectItem[] = [
     { label: 'Desconto 20%', value: '20' },
     { label: 'Desconto 30%', value: '30' },
 ];
+
+export const PROVINCES: SelectItem[] = [
+    { label: 'Luanda', value: 'Luanda' },
+    { label: 'Bengo', value: 'Bengo' },
+    { label: 'Benguela', value: 'Benguela' },
+    { label: 'Bié', value: 'Bié' },
+    { label: 'Cabinda', value: 'Cabinda' },
+    { label: 'Cuando Cubango', value: 'Cuando Cubango' },
+    { label: 'Cuanza Norte', value: 'Cuanza Norte' },
+    { label: 'Cuanza Sul', value: 'Cuanza Sul' },
+    { label: 'Cunene', value: 'Cunene' },
+    { label: 'Huambo', value: 'Huambo' },
+    { label: 'Huíla', value: 'Huíla' },
+    { label: 'Lunda Norte', value: 'Lunda Norte' },
+    { label: 'Lunda Sul', value: 'Lunda Sul' },
+    { label: 'Malanje', value: 'Malanje' },
+    { label: 'Moxico', value: 'Moxico' },
+    { label: 'Namibe', value: 'Namibe' },
+    { label: 'Uíge', value: 'Uíge' },
+    { label: 'Zaire', value: 'Zaire' },
+
+];
+
+export const MUNICIPALITIES: SelectItem[] = [
+    // Luanda Province
+    { label: 'Luanda', value: 'Luanda' },
+    { label: 'Belas', value: 'Belas' },
+    { label: 'Cacuaco', value: 'Cacuaco' },
+    { label: 'Cazenga', value: 'Cazenga' },
+    { label: 'Icolo e Bengo', value: 'Icolo e Bengo' },
+    { label: 'Kilamba Kiaxi', value: 'Kilamba Kiaxi' },
+    { label: 'Quiçama', value: 'Quiçama' },
+    { label: 'Talatona', value: 'Talatona' },
+    { label: 'Viana', value: 'Viana' },
+    // Bengo Province
+    // Add more municipalities as needed
+];
+
+export const ACADEMIC_BACKGROUNDS: SelectItem[] = [
+    { label: 'Ensino Primário', value: 'PRIMARY_SCHOOL' },
+    { label: 'Ensino Secundário', value: 'SECONDARY_SCHOOL' },
+    { label: 'Ensino Médio', value: 'HIGH_SCHOOL' },
+    { label: 'Ensino Superior', value: 'UNIVERSITY' },
+    { label: 'Mestrado', value: 'MASTERS' },
+    { label: 'Doutoramento', value: 'DOCTORATE' },
+    { label: 'Outro', value: 'OTHER' },
+];

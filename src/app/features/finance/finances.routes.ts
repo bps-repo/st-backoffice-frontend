@@ -32,6 +32,11 @@ export const FINANCES_ROUTES: Routes = [
                     import('./contracts/contracts.routes').then(m => m.ContractsRoutes),
             },
             {
+                path: 'sales',
+                loadChildren: () =>
+                    import('../finances/features/sales/sales.routes').then(m => m.SalesRoutes),
+            },
+            {
                 path: 'settings',
                 component: FinanceSettingsComponent,
             },

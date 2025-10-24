@@ -1,0 +1,85 @@
+.bulk-booking-container {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+}
+
+.results-container {
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .success-section {
+        margin-bottom: 2rem;
+    }
+
+    .failed-section {
+        margin-bottom: 2rem;
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .bulk-booking-container {
+        padding: 0.5rem;
+    }
+
+    .grid {
+        .col-12 {
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+// Form styling
+.p-multiselect {
+    width: 100%;
+}
+
+.p-card {
+    .p-card-body {
+        padding: 1.5rem;
+    }
+}
+
+// Table styling
+.p-datatable {
+    .p-datatable-thead > tr > th {
+        background-color: var(--surface-50);
+        color: var(--text-color);
+        font-weight: 600;
+    }
+}
+
+// Badge styling
+.p-badge {
+    &.p-badge-success {
+        background-color: var(--green-500);
+    }
+
+    &.p-badge-danger {
+        background-color: var(--red-500);
+    }
+
+    &.p-badge-info {
+        background-color: var(--blue-500);
+    }
+}

@@ -96,6 +96,7 @@ export class CreateCenterDialogComponent implements OnInit {
     resetForm() {
         this.center = {
             name: '',
+            email: '',
             address: '',
             city: '',
             phone: '',

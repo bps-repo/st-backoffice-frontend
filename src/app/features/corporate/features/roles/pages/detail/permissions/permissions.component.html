@@ -2,13 +2,15 @@
     <div class="col-12">
         <div class="card">
             <h5>Gerenciar Permissões</h5>
-            <p>Adicione ou remova permissões para esta função.</p>
+            <p>Adicione ou remova permissões para este perfil.</p>
+
+            <span *ngIf="errors$ | async ">{{errors$ | async}}</span>
 
             <!-- Current Permissions -->
             <div class="mb-5">
                 <h6>Permissões Atuais</h6>
-                <p-table [value]="role?.permissions || []" [loading]="loading" styleClass="p-datatable-sm"
-                         [tableStyle]="{'min-width': '50rem'}">
+                <p-table [value]="(role$ | async)?.permissions || []" [loading]="(loading$ | async)!"
+                    styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Nome</th>
@@ -22,9 +24,8 @@
                             <td>{{ permission.description }}</td>
                             <td>
                                 <button pButton pRipple icon="pi pi-trash"
-                                        class="p-button-rounded p-button-danger p-button-text"
-                                        (click)="removePermission(permission)"
-                                        [disabled]="removing"></button>
+                                    class="p-button-rounded p-button-danger p-button-text"
+                                    (click)="removePermission(permission)"></button>
                             </td>
                         </tr>
                     </ng-template>
@@ -40,19 +41,19 @@
                 </p-table>
             </div>
 
-            <!-- Add Permission -->
+            <!-- Add Permission with Tree View -->
             <div>
                 <h6>Adicionar Permissão</h6>
                 <div class="grid">
-                    <div class="col-12 md:col-6">
-                        <p-dropdown [options]="availablePermissions" [(ngModel)]="selectedPermission" optionLabel="name"
-                                    placeholder="Selecione uma permissão" [showClear]="true"
-                                    styleClass="w-full"></p-dropdown>
+                    <div class="col-12">
+                        <app-permission-tree-select [permissions]="availablePermissions" [loading]="(loading$ | async)!"
+                            [selectedPermissionIds]="selectedPermissionIds"
+                            (permissionSelected)="onPermissionsSelected($event)">
+                        </app-permission-tree-select>
                     </div>
-                    <div class="col-12 md:col-6">
-                        <button pButton pRipple label="Adicionar Permissão" icon="pi pi-plus"
-                                (click)="addPermission()"
-                                [disabled]="!selectedPermission || adding"></button>
+                    <div class="col-12 mt-3 flex justify-content-end">
+                        <button pButton pRipple label="Adicionar Permissões Selecionadas" icon="pi pi-plus"
+                            (click)="addSelectedPermissions()" [disabled]="!hasSelectedPermissions"></button>
                     </div>
                 </div>
             </div>
@@ -61,7 +62,7 @@
 </div>
 
 <!-- Loading Spinner -->
-<div class="grid" *ngIf="loading">
+<div class="grid" *ngIf="(loading$ | async)!">
     <div class="col-12 flex justify-content-center">
         <p-progressSpinner></p-progressSpinner>
     </div>

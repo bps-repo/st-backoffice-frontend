@@ -1,19 +1,45 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
-import {PaymentInstallment, PaymentInstallmentStatus} from "../../../../../core/models/payment/payment.model";
+import {FormsModule} from '@angular/forms';
+import {Installment, InstallmentStatus} from '../../../../../core/models/payment/installment';
+import {ButtonModule} from 'primeng/button';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {TableModule} from 'primeng/table';
+import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
+import {Store} from '@ngrx/store';
+import {InstallmentsActions} from '../../../../../core/store/finance/installments/installments.actions';
+import {
+    selectAllInstallments,
+    selectLoading,
+    selectPage,
+    selectSize,
+    selectTotalElements
+} from '../../../../../core/store/finance/installments/installments.selectors';
+import {Observable, of, Subscription} from 'rxjs';
+import {InstallmentService} from "../../../../../core/services/installment.service";
 
 @Component({
     selector: 'app-general',
     templateUrl: './list.component.html',
     styleUrls: ['./list.component.scss'],
     standalone: true,
-    imports: [CommonModule, RouterModule]
+    imports: [CommonModule, RouterModule, FormsModule, ButtonModule, SelectButtonModule, TableModule, TagModule, TooltipModule]
 })
 export class ListComponent implements OnInit {
-    installments: PaymentInstallment[] = [];
-    filteredInstallments: PaymentInstallment[] = [];
+    installments: Installment[] = [];
+    filteredInstallments: Installment[] = [];
     statusFilter: string = 'all';
+
+    installments$: Observable<Installment[]> = of([]);
+
+    // pagination
+    page: number = 0;
+    size: number = 15;
+    totalRecords: number = 0;
+
+    loading$: Observable<boolean> = of(false);
 
     // Summary counts
     totalInstallments: number = 0;
@@ -21,95 +47,30 @@ export class ListComponent implements OnInit {
     pendingInstallments: number = 0;
     overdueInstallments: number = 0;
 
-    constructor() {
+    constructor(private installmentsService: InstallmentService, private store$: Store,) {
+        this.installments$ = this.store$.select(selectAllInstallments);
+        this.loading$ = this.store$.select(selectLoading);
     }
 
     ngOnInit(): void {
-        // In a real application, these would be fetched from a service
-        this.loadMockData();
-        this.applyFilters();
-        this.updateSummary();
+        this.loadInstallments();
     }
 
-    loadMockData(): void {
-        // Mock data for demonstration
-        this.installments = [
-            {
-                id: 1,
-                payment_id: 1,
-                amount: 300,
-                due_date: new Date('2025-06-01'),
-                payment_date: new Date('2025-05-28'),
-                status: PaymentInstallmentStatus.PAID,
-                number: 1,
-                total_installments: 3
+    loadInstallments(page: number = this.page, size: number = this.size): void {
+        this.store$.dispatch(InstallmentsActions.loadInstallments({page: page, size}))
+        this.installments$.subscribe({
+            next: (res) => {
+                this.installments = res;
+                this.applyFilters();
+                this.updateSummary();
             },
-            {
-                id: 2,
-                payment_id: 1,
-                amount: 300,
-                due_date: new Date('2025-07-01'),
-                status: PaymentInstallmentStatus.PENDING,
-                number: 2,
-                total_installments: 3
-            },
-            {
-                id: 3,
-                payment_id: 1,
-                amount: 300,
-                due_date: new Date('2025-08-01'),
-                status: PaymentInstallmentStatus.PENDING,
-                number: 3,
-                total_installments: 3
-            },
-            {
-                id: 4,
-                payment_id: 2,
-                amount: 450,
-                due_date: new Date('2025-05-15'),
-                status: PaymentInstallmentStatus.OVERDUE,
-                number: 1,
-                total_installments: 2
-            },
-            {
-                id: 5,
-                payment_id: 2,
-                amount: 450,
-                due_date: new Date('2025-06-15'),
-                status: PaymentInstallmentStatus.PENDING,
-                number: 2,
-                total_installments: 2
-            },
-            {
-                id: 6,
-                payment_id: 3,
-                amount: 200,
-                due_date: new Date('2025-04-10'),
-                payment_date: new Date('2025-04-08'),
-                status: PaymentInstallmentStatus.PAID,
-                number: 1,
-                total_installments: 3
-            },
-            {
-                id: 7,
-                payment_id: 3,
-                amount: 200,
-                due_date: new Date('2025-05-10'),
-                payment_date: new Date('2025-05-12'),
-                status: PaymentInstallmentStatus.PAID,
-                number: 2,
-                total_installments: 3
-            },
-            {
-                id: 8,
-                payment_id: 3,
-                amount: 200,
-                due_date: new Date('2025-06-10'),
-                status: PaymentInstallmentStatus.PENDING,
-                number: 3,
-                total_installments: 3
+            error: (err) => {
+                console.error('Failed to load installments', err);
+                this.installments = [];
+                this.filteredInstallments = [];
+                this.totalRecords = 0;
             }
-        ];
+        });
     }
 
     applyFilters(): void {
@@ -125,9 +86,9 @@ export class ListComponent implements OnInit {
 
     updateSummary(): void {
         this.totalInstallments = this.installments.length;
-        this.paidInstallments = this.installments.filter(i => i.status === PaymentInstallmentStatus.PAID).length;
-        this.pendingInstallments = this.installments.filter(i => i.status === PaymentInstallmentStatus.PENDING).length;
-        this.overdueInstallments = this.installments.filter(i => i.status === PaymentInstallmentStatus.OVERDUE).length;
+        this.paidInstallments = this.installments.filter(i => i.status === 'PAID').length;
+        this.pendingInstallments = this.installments.filter(i => i.status === 'PENDING_PAYMENT').length;
+        this.overdueInstallments = this.installments.filter(i => i.status === 'OVERDUE').length;
     }
 
     filterByStatus(status: string): void {
@@ -135,12 +96,51 @@ export class ListComponent implements OnInit {
         this.applyFilters();
     }
 
-    markAsPaid(installment: PaymentInstallment): void {
+    getStatusSeverity(status: InstallmentStatus | string): string {
+        switch (status) {
+            case 'PAID':
+                return 'success';
+            case 'PENDING_PAYMENT':
+                return 'warning';
+            case 'OVERDUE':
+                return 'danger';
+            case 'CANCELLED':
+                return 'info';
+            default:
+                return 'secondary';
+        }
+    }
+
+    markAsPaid(installment: Installment): void {
         const index = this.installments.findIndex(i => i.id === installment.id);
         if (index !== -1) {
-            this.installments[index].status = PaymentInstallmentStatus.PAID;
-            this.installments[index].payment_date = new Date();
+            this.installments[index] = {
+                ...this.installments[index],
+                status: 'PAID',
+                updatedAt: new Date().toISOString()
+            } as Installment;
             this.applyFilters();
+            this.updateSummary();
         }
+
+        const payload = {
+            paymentMethod: "CREDIT_CARD",
+            installmentId: installment.id,
+        }
+
+        this.installmentsService.makePayment(installment.id, payload).subscribe({
+            next: (res) => {
+                console.log('Payment successful', res);
+            },
+            error: (err) => {
+                console.error('Payment failed', err);
+            }
+        })
+    }
+
+    onPageChange(event: any) {
+        const newPage = event.first / event.rows;
+        const newSize = event.rows;
+        this.loadInstallments(newPage, newSize);
     }
 }

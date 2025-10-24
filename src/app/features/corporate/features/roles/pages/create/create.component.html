@@ -1,7 +1,7 @@
 <div class="grid">
+    <h5>Criar Novo perfil</h5>
     <div class="col-12">
         <div class="card">
-            <h5>Criar Nova Função</h5>
             <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
                 <div class="p-fluid p-formgrid grid">
                     <!-- Role Information -->
@@ -9,24 +9,37 @@
                         <div class="field">
                             <label for="name">Nome</label>
                             <input id="name" type="text" pInputText formControlName="name" />
-                            <small *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched" class="p-error">
+                            <small *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched"
+                                class="p-error">
                                 Nome é obrigatório
                             </small>
                         </div>
                         <div class="field">
                             <label for="description">Descrição</label>
                             <textarea id="description" pInputTextarea formControlName="description" rows="3"></textarea>
-                            <small *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched" class="p-error">
+                            <small *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched"
+                                class="p-error">
                                 Descrição é obrigatória
                             </small>
                         </div>
                     </div>
 
+                    <!-- Permission Selection -->
+                    <div class="col-12 mt-4">
+                        <app-permission-tree-select [permissions]="(permissions$ | async)!"
+                            [loading]="(permissionsLoading | async)!" [selectedPermissionIds]="selectedPermissionIds"
+                            (permissionSelected)="onPermissionSelected($event)">
+                        </app-permission-tree-select>
+                    </div>
+
                     <!-- Buttons -->
-                    <div class="col-12">
+                    <div class="col-12 mt-4">
                         <div class="flex justify-content-end">
-                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
-                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="roleForm.invalid || loading"></button>
+                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
+                                (click)="cancel()"></button>
+                            <button pButton pRipple label="{{ (loading$ | async) ? 'Salvando' : 'Salvar' }}"
+                                icon="pi pi-check" class="p-button-primary" type="submit"
+                                [disabled]="roleForm.invalid || (loading$ | async)"></button>
                         </div>
                     </div>
                 </div>

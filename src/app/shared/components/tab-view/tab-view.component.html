@@ -1,0 +1,9 @@
+<p-tabView [(activeIndex)]="activeIndex">
+  <p-tabPanel *ngFor="let tab of tabs" [header]="tab.header" [selected]="activeIndex === 0">
+    <ng-template pTemplate="header">
+      <span *ngIf="tab.icon" class="mr-2"><i [class]="tab.icon"></i></span>
+      <span>{{ tab.header }}</span>
+    </ng-template>
+    <ng-container *ngComponentOutlet="tab.template; injector: getInjector(tab)"></ng-container>
+  </p-tabPanel>
+</p-tabView>

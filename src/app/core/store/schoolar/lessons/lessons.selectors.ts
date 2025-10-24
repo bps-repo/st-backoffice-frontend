@@ -1,5 +1,5 @@
 import {lessonsFeature} from "./lessons.feature";
-import {lessonsAdapter} from "./lesson.state";
+import {lessonsAdapter, lessonsInitialState} from "./lesson.state";
 import {createSelector} from "@ngrx/store";
 
 // Basic selectors from feature
@@ -50,6 +50,10 @@ export const {
     selectLoadingMarkOverdue,
     selectMarkOverdueError,
 
+    // Bulk booking selectors
+    selectLoadingBulkBooking,
+    selectBulkBookingError,
+
     // Specialized data selectors
     selectLessonsByClass,
     selectAvailableLessonsByClass,
@@ -90,6 +94,12 @@ export const selectSelectedLesson = createSelector(
     (entities, selectedId) => selectedId ? entities[selectedId] : null
 );
 
+
+export const selectBookings = createSelector(
+    selectLessonsState,
+    (state) => state.lessonBookings
+)
+
 // Get lesson by ID
 export const selectLessonById = (id: string) => createSelector(
     selectLessonEntities,
@@ -123,11 +133,6 @@ export const selectStudentBookingsTodayByStudentId = (studentId: string) => crea
     (studentBookingsToday) => studentBookingsToday[studentId] || []
 );
 
-// Lesson bookings selectors
-export const selectLessonBookingsByLessonId = (lessonId: string) => createSelector(
-    selectLessonBookings,
-    (lessonBookings) => lessonBookings[lessonId] || []
-);
 
 // Error selectors
 export const selectAnyError = createSelector(
@@ -147,15 +152,16 @@ export const selectAnyError = createSelector(
     selectUpdateScheduleError,
     selectUpdateOnlineStatusError,
     selectMarkOverdueError,
+    selectBulkBookingError,
     (error, createError, updateError, deleteError, byClassError, availableByClassError,
      byCenterError, byDateRangeError, studentBookingsError, studentBookingsTodayError,
      lessonBookingsError, createBookingError, deleteBookingError, updateScheduleError,
-     updateOnlineStatusError, markOverdueError) =>
+     updateOnlineStatusError, markOverdueError, bulkBookingError) =>
         error || createError || updateError || deleteError || byClassError ||
         availableByClassError || byCenterError || byDateRangeError ||
         studentBookingsError || studentBookingsTodayError || lessonBookingsError ||
         createBookingError || deleteBookingError || updateScheduleError ||
-        updateOnlineStatusError || markOverdueError
+        updateOnlineStatusError || markOverdueError || bulkBookingError
 );
 
 // Loading selectors
@@ -176,16 +182,17 @@ export const selectAnyLoading = createSelector(
     selectLoadingUpdateSchedule,
     selectLoadingUpdateOnlineStatus,
     selectLoadingMarkOverdue,
+    selectLoadingBulkBooking,
     (loading, loadingCreate, loadingUpdate, loadingDelete, loadingByClass,
      loadingAvailableByClass, loadingByCenter, loadingByDateRange,
      loadingStudentBookings, loadingStudentBookingsToday, loadingLessonBookings,
      loadingCreateBooking, loadingDeleteBooking, loadingUpdateSchedule,
-     loadingUpdateOnlineStatus, loadingMarkOverdue) =>
+     loadingUpdateOnlineStatus, loadingMarkOverdue, loadingBulkBooking) =>
         loading || loadingCreate || loadingUpdate || loadingDelete || loadingByClass ||
         loadingAvailableByClass || loadingByCenter || loadingByDateRange ||
         loadingStudentBookings || loadingStudentBookingsToday || loadingLessonBookings ||
         loadingCreateBooking || loadingDeleteBooking || loadingUpdateSchedule ||
-        loadingUpdateOnlineStatus || loadingMarkOverdue
+        loadingUpdateOnlineStatus || loadingMarkOverdue || loadingBulkBooking
 );
 
 // Filtered lessons selectors

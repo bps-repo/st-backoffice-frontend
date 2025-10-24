@@ -1,114 +1,277 @@
 <div *ngIf="loading" class="spinner-container">
     <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
-  </div>
+    <div class="mt-3 text-center">
+        <p>Carregando detalhes do nível...</p>
+    </div>
+</div>
 
-  <div class="grid" *ngIf="!loading && editableLevel">
+<div class="grid" *ngIf="!loading && editableLevel">
+    <!-- Header Section -->
     <div class="col-12">
-      <div class="card">
-        <h5>Detalhes do Nível</h5>
-        <div class="p-fluid grid">
-          <div class="field col-12 md:col-6">
-            <label for="name">Nome</label>
-            <input id="name" type="text" pInputText [(ngModel)]="editableLevel.name" />
-          </div>
-
-          <div class="field col-12 md:col-6">
-            <label for="description">Descrição</label>
-            <textarea id="description" pInputTextarea [(ngModel)]="editableLevel.description"></textarea>
-          </div>
-
-          <div class="field col-12 md:col-6">
-            <label for="duration">Duração (horas)</label>
-            <input id="duration" type="number" pInputText [(ngModel)]="editableLevel.duration" />
-          </div>
-
-          <div class="field col-12 md:col-6">
-            <label for="maximumUnits">Unidades Máximas</label>
-            <input id="maximumUnits" type="number" pInputText [(ngModel)]="editableLevel.maximumUnits" />
-          </div>
-
-          <!--
-          <div class="field col-12 md:col-6">
-            <label for="course">Curso</label>
-            <input id="course" type="text" pInputText [value]="level.course.name" readonly />
-          </div>
-          -->
+        <div class="flex justify-content-between align-items-start mb-4">
+            <div class="flex flex-column">
+                <div class="flex align-items-center gap-3 mb-2">
+                    <h1 class="text-3xl font-bold text-900 m-0">{{ editableLevel.name }}</h1>
+                    <div class="w-3 h-3 bg-green-500 border-circle"></div>
+                </div>
+                <p class="text-lg text-600 mb-0">{{ editableLevel.description }}</p>
+            </div>
+            <div class="flex align-items-center gap-3">
+                <p-button label="+ Adicionar Aluno" icon="pi pi-user-plus" class="p-button-primary"></p-button>
+            </div>
         </div>
-
-        <div class="flex justify-content-end gap-2 mt-4">
-          <button
-            pButton
-            pRipple
-            label="Editar"
-            icon="pi pi-pencil"
-            class="p-button-primary"
-            (click)="editLevel()"
-          ></button>
-          <button
-            pButton
-            pRipple
-            label="Descarregar"
-            icon="pi pi-download"
-            class="p-button-secondary"
-            (click)="downloadLevelDetails()"
-          ></button>
-          <button
-            pButton
-            pRipple
-            label="Enviar"
-            icon="pi pi-send"
-            class="p-button-secondary"
-            (click)="sendLevelDetails()"
-          ></button>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Dashboard Charts Section -->
-  <div class="col-12">
-    <div class="card">
-      <h5>Dashboard do Nível</h5>
-
-      <!-- Units Distribution and Completion Rate Charts Row -->
-      <div class="grid">
-        <!-- Units Distribution Chart -->
-        <div class="col-12 md:col-6">
-          <div class="card mb-0">
-            <p-chart
-              type="pie"
-              [data]="unitsChartData"
-              [options]="unitsChartOptions"
-              height="300px">
-            </p-chart>
-          </div>
+    <!-- KPI Cards -->
+    <div class="col-12 mb-4">
+        <div class="grid">
+            <div class="col-12 md:col-6 lg:col-2" *ngFor="let s of headerStats">
+                <div class="card text-center">
+                    <div class="flex align-items-center justify-content-center mb-3">
+                        <i [class]="s.icon + ' text-blue-500 text-2xl mr-2'"></i>
+                        <span class="text-900 font-medium text-xl">{{ s.label }}</span>
+                    </div>
+                    <div class="text-900 font-medium text-xl">{{ s.value }}</div>
+                </div>
+            </div>
         </div>
-
-        <!-- Completion Rate Chart -->
-        <div class="col-12 md:col-6">
-          <div class="card mb-0">
-            <p-chart
-              type="doughnut"
-              [data]="completionRateChartData"
-              [options]="completionRateChartOptions"
-              height="300px">
-            </p-chart>
-          </div>
-        </div>
-      </div>
-
-      <!-- Student Enrollment Chart Row -->
-      <div class="grid mt-3">
-        <div class="col-12">
-          <div class="card mb-0">
-            <p-chart
-              type="bar"
-              [data]="enrollmentChartData"
-              [options]="enrollmentChartOptions"
-              height="300px">
-            </p-chart>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <!-- Navigation Tabs -->
+    <div class="col-12 mb-4">
+        <p-selectButton [options]="viewOptions" [(ngModel)]="currentTab" (onChange)="onViewChange($event)"
+            optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="col-12">
+        <!-- Visão Geral Tab Content -->
+        @if (currentTab === 'overview') {
+        <div class="col-12 animate-fade">
+            <!-- Loading State for Overview -->
+            @if (loadingOverview) {
+            <div class="grid">
+                <div class="col-12 md:col-4" *ngFor="let i of [1,2,3]">
+                    <div class="card text-center skeleton-card">
+                        <p-skeleton height="2rem" width="60%" class="mb-3"></p-skeleton>
+                        <p-skeleton height="3rem" width="40%"></p-skeleton>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <p-skeleton height="2rem" width="30%" class="mb-4"></p-skeleton>
+                        <div class="flex flex-column gap-3">
+                            <div *ngFor="let i of [1,2,3]" class="p-4 border-round surface-border surface-card">
+                                <p-skeleton height="1.5rem" width="40%" class="mb-2"></p-skeleton>
+                                <p-skeleton height="1rem" width="60%"></p-skeleton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            } @else {
+            <!-- Progress Status Cards -->
+            <div class="grid mb-4">
+                <div class="col-12 md:col-4">
+                    <div class="card text-center">
+                        <div class="flex align-items-center justify-content-center mb-3">
+                            <i class="pi pi-check-circle text-green-500 text-2xl mr-2"></i>
+                            <span class="text-900 font-medium text-xl">Concluídos</span>
+                        </div>
+                        <div class="text-green-500 font-bold text-3xl">{{ progressStats.completed }}</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="card text-center">
+                        <div class="flex align-items-center justify-content-center mb-3">
+                            <i class="pi pi-chart-line text-blue-500 text-2xl mr-2"></i>
+                            <span class="text-900 font-medium text-xl">Em Progresso</span>
+                        </div>
+                        <div class="text-blue-500 font-bold text-3xl">{{ progressStats.inProgress }}</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="card text-center">
+                        <div class="flex align-items-center justify-content-center mb-3">
+                            <i class="pi pi-calendar text-gray-500 text-2xl mr-2"></i>
+                            <span class="text-900 font-medium text-xl">Não Iniciados</span>
+                        </div>
+                        <div class="text-gray-500 font-bold text-3xl">{{ progressStats.notStarted }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Units List -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4">Unidades do Nível</h3>
+                <div class="flex flex-column gap-3">
+                    <div class="p-4 border-round surface-border surface-card flex align-items-center justify-content-between" *ngFor="let u of unitsSummary">
+                        <div class="flex align-items-center gap-3">
+                            <div class="border-circle w-3rem h-3rem bg-primary flex align-items-center justify-content-center text-white font-bold">{{ u.idx }}</div>
+                            <div class="flex flex-column">
+                                <span class="font-bold text-lg">{{ u.title }}</span>
+                                <small class="text-color-secondary">{{ u.desc }}</small>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="p-badge p-badge-secondary">{{ u.topics }} tópicos</span>
+                            <span class="p-badge p-badge-info">{{ u.hours }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        }
+
+        <!-- Alunos Tab Content -->
+        @if (currentTab === 'students') {
+        <div class="col-12 animate-fade lazy-loading">
+            <div class="card">
+                <div class="flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-xl font-semibold m-0">Alunos do Nível {{ editableLevel.name }}</h3>
+                    <div class="flex gap-2">
+                        <p-button icon="pi pi-download" label="Exportar" class="p-button-outlined"></p-button>
+                        <p-button icon="pi pi-plus" label="Adicionar Aluno" class="p-button-primary"></p-button>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="flex align-items-center justify-content-between mb-4">
+                    <div class="flex align-items-center gap-3">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input type="text" pInputText placeholder="Buscar alunos..." class="w-20rem" />
+                        </span>
+                        <p-dropdown [options]="[
+                            {label: 'Status', value: 'status'},
+                            {label: 'Progresso', value: 'progress'},
+                            {label: 'Unidade', value: 'unit'}
+                        ]" placeholder="Filtrar por" class="w-12rem"></p-dropdown>
+                    </div>
+                </div>
+
+                <!-- Loading State for Students -->
+                @if (loadingStudents) {
+                <div class="text-center p-4">
+                    <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+                    <p class="mt-3">Carregando alunos...</p>
+                </div>
+                } @else {
+                <!-- Students List -->
+                <div class="flex flex-column gap-3">
+                    <div class="p-4 border-round surface-border surface-card" *ngFor="let s of students">
+                        <div class="flex align-items-center justify-content-between mb-3">
+                            <div class="flex align-items-center gap-3">
+                                <p-avatar [label]="s.initials" shape="circle" size="large" styleClass="mr-2"></p-avatar>
+                                <div class="flex flex-column">
+                                    <span class="font-bold text-lg">{{ s.name }}</span>
+                                    <small class="text-color-secondary">{{ s.unitsInfo }}</small>
+                                </div>
+                                <p-badge *ngIf="s.completed" value="Nível Concluído" severity="success" styleClass="ml-2"></p-badge>
+                            </div>
+                            <div class="flex align-items-center gap-3">
+                                <div class="text-right">
+                                    <div class="font-bold text-2xl">{{ s.progress }}%</div>
+                                    <small class="text-color-secondary">Progresso Geral</small>
+                                </div>
+                                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm"
+                                    pTooltip="Ver detalhes"></button>
+                            </div>
+                        </div>
+                        <p-progressBar [value]="s.progress" [showValue]="false" [style]="{height: '10px'}"></p-progressBar>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Unidades Tab Content -->
+        @if (currentTab === 'units') {
+        <div class="col-12 animate-fade lazy-loading">
+            <div class="card">
+                <div class="flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-xl font-semibold m-0">Unidades do Nível {{ editableLevel.name }}</h3>
+                    <div class="flex gap-2">
+                        <p-button icon="pi pi-download" label="Exportar" class="p-button-outlined"></p-button>
+                        <p-button icon="pi pi-plus" label="Nova Unidade" class="p-button-primary"></p-button>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="flex align-items-center justify-content-between mb-4">
+                    <div class="flex align-items-center gap-3">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input type="text" pInputText placeholder="Buscar unidades..." class="w-20rem" />
+                        </span>
+                        <p-dropdown [options]="[
+                            {label: 'Status', value: 'status'},
+                            {label: 'Progresso', value: 'progress'},
+                            {label: 'Tópicos', value: 'topics'}
+                        ]" placeholder="Filtrar por" class="w-12rem"></p-dropdown>
+                    </div>
+                </div>
+
+                <!-- Loading State for Units -->
+                @if (loadingUnits) {
+                <div class="grid">
+                    <div class="col-12 md:col-6" *ngFor="let i of [1,2,3,4]">
+                        <div class="card skeleton-card">
+                            <p-skeleton height="1.5rem" width="60%" class="mb-3"></p-skeleton>
+                            <p-skeleton height="1rem" width="80%" class="mb-3"></p-skeleton>
+                            <p-skeleton height="1rem" width="40%" class="mb-3"></p-skeleton>
+                            <p-skeleton height="0.5rem" width="100%" class="mb-3"></p-skeleton>
+                            <div class="flex gap-2">
+                                <p-skeleton height="1.5rem" width="4rem"></p-skeleton>
+                                <p-skeleton height="1.5rem" width="4rem"></p-skeleton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                } @else {
+                <!-- Units Grid -->
+                <div class="grid">
+                    <div class="col-12 md:col-6" *ngFor="let card of unitsCards">
+                        <div class="card">
+                            <div class="flex justify-content-between align-items-start mb-3">
+                                <div class="flex flex-column">
+                                    <span class="font-bold text-lg">{{ card.title }}</span>
+                                    <small class="text-color-secondary">{{ card.desc }}</small>
+                                </div>
+                                <div class="flex align-items-center gap-2">
+                                    <div class="text-right">
+                                        <span class="font-bold text-2xl">{{ card.progress }}%</span>
+                                    </div>
+                                    <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm"
+                                        pTooltip="Ver detalhes"></button>
+                                </div>
+                            </div>
+                            <div class="mb-3 text-sm flex gap-4">
+                                <span>Concluídos: <strong>{{ card.done }}</strong></span>
+                                <span>Em progresso: <strong>{{ card.inProgress }}</strong></span>
+                            </div>
+                            <p-progressBar [value]="card.progress" [showValue]="false" styleClass="mb-3"></p-progressBar>
+                            <div class="flex flex-wrap gap-2">
+                                <p-chip *ngFor="let c of card.chips" [label]="c"></p-chip>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="!loading && !editableLevel && levelId" class="col-12">
+    <div class="card text-center p-4">
+        <i class="pi pi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
+        <h3>Nível não encontrado</h3>
+        <p>O nível com ID {{ levelId }} não foi encontrado ou não pôde ser carregado.</p>
+        <p-button label="Voltar" icon="pi pi-arrow-left" class="p-button-outlined mt-3" routerLink="/schoolar/levels"></p-button>
+    </div>
+</div>

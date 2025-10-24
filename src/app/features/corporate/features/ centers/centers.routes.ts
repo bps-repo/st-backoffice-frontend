@@ -9,6 +9,10 @@ const routes: Routes = [
             component: ListComponent,
         },
         {
+            path: 'create',
+            component: ListComponent,
+        },
+        {
             path: ':id',
             component: DetailComponent,
         },

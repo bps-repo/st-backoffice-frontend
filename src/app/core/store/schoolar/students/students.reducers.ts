@@ -11,7 +11,7 @@ export const studentsFeature = createFeature({
         // Load students
         on(StudentsActions.loadStudents, (state) => ({
             ...state,
-            loading: true,
+            loading: state.ids.length > 0 ? false : true,
             error: null,
         })),
 
@@ -82,6 +82,33 @@ export const studentsFeature = createFeature({
             loadingCreate: false,
             createError: error,
             createStudentSuccess: false,
+        })),
+
+        // Create student with request
+        on(StudentsActions.createStudentWithRequest, (state) => ({
+            ...state,
+            loadingCreate: true,
+            createError: null,
+        })),
+
+        on(StudentsActions.createStudentWithRequestSuccess, (state, {student}) =>
+            studentsAdapter.addOne(student, {
+                ...state,
+                loadingCreate: false,
+                createError: null,
+                // Update pagination totals
+                pagination: {
+                    ...state.pagination,
+                    totalItems: state.pagination.totalItems + 1,
+                    totalPages: Math.ceil((state.pagination.totalItems + 1) / state.pagination.pageSize)
+                }
+            })
+        ),
+
+        on(StudentsActions.createStudentWithRequestFailure, (state, {error}) => ({
+            ...state,
+            loadingCreate: false,
+            createError: error,
         })),
 
         // Update student

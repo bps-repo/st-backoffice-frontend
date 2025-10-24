@@ -5,7 +5,7 @@ export const loadServices = createAction('[Service] Load Services');
 
 export const createService = createAction(
     '[Service] Create Service',
-    props<{ service: Partial<Service> }>()
+    props<{ service: Service }>()
 );
 
 export const createServiceSuccess = createAction(
@@ -50,7 +50,7 @@ export const loadPagedServices = createAction(
 
 export const loadPagedServicesSuccess = createAction(
     '[Service] Load Paged Services Success',
-    props<{ services: any }>() // Substitua `any` pelo tipo correto, se disponível
+    props<{ services: Service[] }>()
 );
 
 export const loadPagedServicesFailure = createAction(
@@ -75,7 +75,7 @@ export const deleteServiceFailure = createAction(
 
 export const updateService = createAction(
     '[Service] Update Service',
-    props<{ id: string; service: Partial<Service> }>()
+    props<{ id: string; service: Service }>()
 );
 
 export const updateServiceSuccess = createAction(

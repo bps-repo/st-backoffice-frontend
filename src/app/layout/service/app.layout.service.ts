@@ -1,4 +1,4 @@
-import { Injectable, effect, signal } from '@angular/core';
+import { Injectable, OnDestroy, effect, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
     AppConfig,
@@ -9,7 +9,7 @@ import {
 @Injectable({
     providedIn: 'root',
 })
-export class LayoutService {
+export class LayoutService  implements OnDestroy {
     _config: AppConfig = {
         ripple: false,
         inputStyle: 'outlined',
@@ -162,5 +162,18 @@ export class LayoutService {
 
     changeScale(value: number) {
         document.documentElement.style.fontSize = `${value}px`;
+    }
+
+    ngOnDestroy(): void {
+        this.overlayOpen.complete();
+        this.configUpdate.complete();
+
+        this.state.profileSidebarVisible = false;
+        this.state.configSidebarVisible = false;
+        this.state.staticMenuDesktopInactive = false;
+        this.state.staticMenuMobileActive = false;
+        this.state.menuHoverActive = false;
+        this.state.sidebarActive = false;
+        this.state.anchored = false;
     }
 }

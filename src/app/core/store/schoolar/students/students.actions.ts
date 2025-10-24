@@ -1,6 +1,8 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
 import {Student} from 'src/app/core/models/academic/student';
 import {Update} from "@ngrx/entity";
+import {CreateStudentRequest} from "../../../services/student.service";
+import { Lesson } from 'src/app/core/models/academic/lesson';
 
 export const STUDENT_FEATURE_KEY = 'students';
 
@@ -22,6 +24,11 @@ export const StudentsActions = createActionGroup({
         'Create Student Success': props<{ student: Student }>(),
         'Create Student Failure': props<{ error: string }>(),
 
+        // Create student with request payload
+        'Create Student With Request': props<{ request: CreateStudentRequest }>(),
+        'Create Student With Request Success': props<{ student: Student }>(),
+        'Create Student With Request Failure': props<{ error: string }>(),
+
         // Update student
         'Update Student': props<{ student: Student }>(),
         'Update Student Success': props<{ student: Student }>(),
@@ -36,6 +43,21 @@ export const StudentsActions = createActionGroup({
         'Create Student Photo': props<{ studentId: string, photoData: FormData }>(),
         'Create Student Photo Success': props<{ response: any }>(),
         'Create Student Photo Failure': props<{ error: string }>(),
+
+
+        // Schedule lessons
+        'Load Scheduled Lessons': props<{ studentId: string }>(),
+        'Load Scheduled Lessons Success': props<{ lessons: Lesson[] }>(),
+        'Load Scheduled Lessons Failure': props<{ error: string }>(),
+
+        'Schedule Lessons': props<{ lessonId: string, studentIds: string[] }>(),
+        'Schedule Lessons Success': props<{ response: any }>(),
+        'Schedule Lessons Failure': props<{ error: string }>(),
+
+        // Unschedule lessons
+        'Unschedule Lessons': props<{ lessonId: string, studentIds: string[] }>(),
+        'Unschedule Lessons Success': props<{ response: any }>(),
+        'Unschedule Lessons Failure': props<{ error: string }>(),
 
         // Add student to class
         'Add Student To Class': props<{ studentId: string, classId: string }>(),

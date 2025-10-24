@@ -10,7 +10,7 @@ import {DropdownModule} from 'primeng/dropdown';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
-import {LessonApiService} from '../../../../../../core/services/lesson-api.service';
+import {LessonService} from '../../../../../../core/services/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
 import {Student} from '../../../../../../core/models/academic/student';
@@ -44,7 +44,7 @@ export class BookLessonComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private fb: FormBuilder,
-        private lessonService: LessonApiService,
+        private lessonService: LessonService,
         private studentService: StudentService,
         private messageService: MessageService
     ) {

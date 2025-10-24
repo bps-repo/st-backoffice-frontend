@@ -44,7 +44,7 @@ export class ListComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadUnits();
-        this.store.dispatch(LevelActions.loadLevels());
+        this.store.dispatch(LevelActions.loadLevels({}));
 
         // Carrega níveis e unidades em memória e cruza os dados
         // this.store.select(sel).subscribe(levels => {
@@ -89,6 +89,10 @@ export class ListComponent implements OnInit {
 
     createUnit(): void {
         this.createUnitDialog.show();
+    }
+
+    navigateToCreate(): void {
+        this.router.navigate(['/schoolar/units/create']);
     }
 
     deleteUnit(unit: Unit): void {

@@ -2,14 +2,14 @@ import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map} from 'rxjs/operators';
-import {LessonApiService} from '../../../services/lesson-api.service';
+import {LessonService} from '../../../services/lesson.service';
 import {lessonsActions} from "./lessons.actions";
-import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Injectable()
 export class LessonsEffects {
     private actions$ = inject(Actions);
-    private lessonApiService = inject(LessonApiService);
+    private lessonApiService = inject(LessonService);
 
     // Basic CRUD operations
     loadLessons$ = createEffect(() =>
@@ -19,7 +19,7 @@ export class LessonsEffects {
                 this.lessonApiService.getLessons().pipe(
                     map((lessons) => lessonsActions.loadLessonsSuccess({lessons})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonsFailure({error: error.error.message}))
+                        of(lessonsActions.loadLessonsFailure({error: error.message}))
                     )
                 )
             )
@@ -33,7 +33,7 @@ export class LessonsEffects {
                 this.lessonApiService.getLesson(id).pipe(
                     map((lesson) => lessonsActions.loadLessonSuccess({lesson})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonFailure({error: error.error.message}))
+                        of(lessonsActions.loadLessonFailure({error: error.message}))
                     )
                 )
             )
@@ -46,9 +46,32 @@ export class LessonsEffects {
             exhaustMap(({lesson}) =>
                 this.lessonApiService.createLesson(lesson).pipe(
                     map((createdLesson) => lessonsActions.createLessonSuccess({lesson: createdLesson})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.createLessonFailure({error: error.error.message}))
-                    )
+                    catchError((error: HttpErrorResponse) => {
+                        // Try to extract rich error information from backend
+                        let details: string[] = [];
+                        const errBody: any = error && (error.error ?? null);
+
+                        if (errBody) {
+                            const mainMessage = errBody.message || errBody.error || error.message || 'Failed to create lesson';
+                            if (Array.isArray(errBody.validationErrors) && errBody.validationErrors.length) {
+                                details = errBody.validationErrors.map((ve: any) => {
+                                    const field = ve?.field ? `${ve.field}: ` : '';
+                                    return `${field}${ve?.message || 'Invalid value'}`;
+                                });
+                            } else {
+                                details.push(mainMessage);
+                            }
+                            // Enrich with status-specific info if available
+                            if (errBody.errorCode) {
+                                details = details.map(d => `${d}`); // could prefix codes if desired
+                            }
+                        } else {
+                            details.push(error.message || 'Failed to create lesson');
+                        }
+
+                        const message = details.filter(Boolean).join(' | ');
+                        return of(lessonsActions.createLessonFailure({error: message}));
+                    })
                 )
             )
         )
@@ -61,7 +84,7 @@ export class LessonsEffects {
                 this.lessonApiService.updateLesson(lesson).pipe(
                     map((updatedLesson) => lessonsActions.updateLessonSuccess({lesson: updatedLesson})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.updateLessonFailure({error: error.error.message}))
+                        of(lessonsActions.updateLessonFailure({error: error.message}))
                     )
                 )
             )
@@ -75,36 +98,7 @@ export class LessonsEffects {
                 this.lessonApiService.deleteLesson(id).pipe(
                     map(() => lessonsActions.deleteLessonSuccess({id})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.deleteLessonFailure({error: error.error.message}))
-                    )
-                )
-            )
-        )
-    );
-
-    // Filter endpoints
-    loadLessonsByClass$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(lessonsActions.loadLessonsByClass),
-            exhaustMap(({classId}) =>
-                this.lessonApiService.getLessonsByClass(classId).pipe(
-                    map((lessons) => lessonsActions.loadLessonsByClassSuccess({lessons})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonsByClassFailure({error: error.error.message}))
-                    )
-                )
-            )
-        )
-    );
-
-    loadAvailableLessonsByClass$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(lessonsActions.loadAvailableLessonsByClass),
-            exhaustMap(({classId}) =>
-                this.lessonApiService.getAvailableLessonsByClass(classId).pipe(
-                    map((lessons) => lessonsActions.loadAvailableLessonsByClassSuccess({lessons})),
-                    catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadAvailableLessonsByClassFailure({error: error.error.message}))
+                        of(lessonsActions.deleteLessonFailure({error: error.message}))
                     )
                 )
             )
@@ -118,7 +112,7 @@ export class LessonsEffects {
                 this.lessonApiService.getLessonsByCenter(centerId).pipe(
                     map((lessons) => lessonsActions.loadLessonsByCenterSuccess({lessons})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonsByCenterFailure({error: error.error.message}))
+                        of(lessonsActions.loadLessonsByCenterFailure({error: error.message}))
                     )
                 )
             )
@@ -132,7 +126,7 @@ export class LessonsEffects {
                 this.lessonApiService.getLessonsByDateRange(startDate, endDate).pipe(
                     map((lessons) => lessonsActions.loadLessonsByDateRangeSuccess({lessons})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonsByDateRangeFailure({error: error.error.message}))
+                        of(lessonsActions.loadLessonsByDateRangeFailure({error: error.message}))
                     )
                 )
             )
@@ -147,7 +141,7 @@ export class LessonsEffects {
                 this.lessonApiService.getStudentBookings(studentId).pipe(
                     map((bookings) => lessonsActions.loadStudentBookingsSuccess({bookings})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadStudentBookingsFailure({error: error.error.message}))
+                        of(lessonsActions.loadStudentBookingsFailure({error: error.message}))
                     )
                 )
             )
@@ -161,7 +155,7 @@ export class LessonsEffects {
                 this.lessonApiService.getStudentBookingsToday(studentId).pipe(
                     map((bookings) => lessonsActions.loadStudentBookingsTodaySuccess({bookings})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadStudentBookingsTodayFailure({error: error.error.message}))
+                        of(lessonsActions.loadStudentBookingsTodayFailure({error: error.message}))
                     )
                 )
             )
@@ -190,7 +184,7 @@ export class LessonsEffects {
                 this.lessonApiService.createLessonBooking(lessonId, bookingData).pipe(
                     map((booking) => lessonsActions.createLessonBookingSuccess({booking})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.createLessonBookingFailure({error: error.error.message}))
+                        of(lessonsActions.createLessonBookingFailure({error: error.message}))
                     )
                 )
             )
@@ -204,7 +198,7 @@ export class LessonsEffects {
                 this.lessonApiService.deleteLessonBooking(lessonId, bookingId).pipe(
                     map(() => lessonsActions.deleteLessonBookingSuccess({lessonId, bookingId})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.deleteLessonBookingFailure({error: error.error.message}))
+                        of(lessonsActions.deleteLessonBookingFailure({error: error.message}))
                     )
                 )
             )
@@ -219,7 +213,7 @@ export class LessonsEffects {
                 this.lessonApiService.updateLessonSchedule(lessonId, scheduleData).pipe(
                     map((lesson) => lessonsActions.updateLessonScheduleSuccess({lesson})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.updateLessonScheduleFailure({error: error.error.message}))
+                        of(lessonsActions.updateLessonScheduleFailure({error: error.message}))
                     )
                 )
             )
@@ -233,7 +227,7 @@ export class LessonsEffects {
                 this.lessonApiService.updateLessonOnlineStatus(lessonId, onlineStatus).pipe(
                     map((lesson) => lessonsActions.updateLessonOnlineStatusSuccess({lesson})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.updateLessonOnlineStatusFailure({error: error.error.message}))
+                        of(lessonsActions.updateLessonOnlineStatusFailure({error: error.message}))
                     )
                 )
             )
@@ -247,7 +241,21 @@ export class LessonsEffects {
                 this.lessonApiService.markLessonsOverdue().pipe(
                     map((response) => lessonsActions.markLessonsOverdueSuccess({response})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.markLessonsOverdueFailure({error: error.error.message}))
+                        of(lessonsActions.markLessonsOverdueFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    bulkBookLessons$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.bulkBookLessons),
+            exhaustMap(({bulkBookingRequest}) =>
+                this.lessonApiService.bulkBookLessons(bulkBookingRequest).pipe(
+                    map((response) => lessonsActions.bulkBookLessonsSuccess({response})),
+                    catchError((error: HttpErrorResponse) =>
+                        of(lessonsActions.bulkBookLessonsFailure({error: error.message}))
                     )
                 )
             )

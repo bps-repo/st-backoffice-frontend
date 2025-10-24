@@ -1,12 +1,13 @@
 export const LESSON_COLUMNS = [
-    {field: 'title', header: 'Título'},
-    {field: 'startDatetime', header: 'Data Início', customTemplate: true},
-    {field: 'endDatetime', header: 'Data Fim', customTemplate: true},
-    {field: 'teacherId', header: 'Professor', customTemplate: true},
-    {field: 'centerId', header: 'Centro', customTemplate: true},
-    {field: 'unitId', header: 'Unidade', customTemplate: true},
-    {field: 'status', header: 'Status', customTemplate: true},
-    {field: 'actions', header: 'Acções', customTemplate: true}];
+    { field: 'title', header: 'Aula' },
+    { field: 'online', header: 'Tipo', customTemplate: true },
+    { field: 'startDatetime', header: 'Hora/Data', customTemplate: true },
+    { field: 'teacher', header: 'Professor', customTemplate: true },
+    { field: 'center', header: 'Centro', customTemplate: true },
+    { field: 'unit', header: 'Unidade', customTemplate: true },
+    { field: 'status', header: 'Status', customTemplate: true },
+    { field: 'actions', header: 'Acções', customTemplate: true },
+];
 
 export const LESSONS_GLOBAL_FILTER_FIELDS = [
     'name',
@@ -14,6 +15,6 @@ export const LESSONS_GLOBAL_FILTER_FIELDS = [
     'endDate',
     'teacher.name',
     'center.name',
-    'level.name',
+    'unit.name',
     'status'
 ]

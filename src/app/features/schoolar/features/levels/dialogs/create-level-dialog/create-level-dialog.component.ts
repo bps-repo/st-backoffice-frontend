@@ -1,25 +1,29 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Store} from '@ngrx/store';
-import {filter, Observable, Subject, takeUntil} from 'rxjs';
-import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
-import {DialogModule} from 'primeng/dialog';
+import {Component, OnInit} from '@angular/core';
+import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
+import {DialogModule} from 'primeng/dialog';
+import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextareaModule} from 'primeng/inputtextarea';
-import {MessageService} from "primeng/api";
-import {ToastModule} from "primeng/toast";
+import {Level} from 'src/app/core/models/course/level';
+import {Store} from '@ngrx/store';
+import {Observable, take} from 'rxjs';
+import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {ToastModule} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
+import {Actions, ofType} from '@ngrx/effects';
 
 @Component({
     selector: 'app-create-level-dialog',
     standalone: true,
     imports: [
         CommonModule,
-        ReactiveFormsModule,
+        FormsModule,
         DialogModule,
         ButtonModule,
+        DropdownModule,
         InputTextModule,
         InputTextareaModule,
         ToastModule
@@ -27,42 +31,37 @@ import {ToastModule} from "primeng/toast";
     templateUrl: './create-level-dialog.component.html',
     providers: [MessageService]
 })
-export class CreateLevelDialogComponent implements OnInit, OnDestroy {
-    private destroy$ = new Subject<void>();
+export class CreateLevelDialogComponent implements OnInit {
+
     visible: boolean = false;
-    levelForm!: FormGroup;
 
-    loading$!: Observable<boolean>;
-    error$!: Observable<any>;
+    level: Partial<Level> = {
+        name: '',
+        description: '',
+        duration: 0,
+        maximumUnits: 0,
+        //course: undefined
+    };
 
-    constructor(private store: Store,
-                private fb: FormBuilder,
-                private readonly messageService: MessageService) {
-        this.initObservables();
-        this.subscribeToStateChanges();
+
+    loading$: Observable<boolean>;
+    loadingCreate$: Observable<boolean>;
+    error$: Observable<any>;
+
+    //courseOptions$: Observable<Service[]>;
+
+    constructor(private store: Store, private messageService: MessageService, private actions$: Actions) {
+        this.loading$ = this.store.select(LevelSelectors.selectLoading);
+        this.loadingCreate$ = this.store.select(LevelSelectors.selectLevelCreateLoading);
+        this.error$ = this.store.select(LevelSelectors.selectError);
     }
 
     ngOnInit() {
-        this.initForm();
-
+        // Keep for potential error logging; real feedback handled in saveLevel via actions
         this.error$.subscribe((error) => {
             if (error) {
                 console.error('Erro ao criar o Level:', error);
             }
-        });
-    }
-
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
-
-    private initForm() {
-        this.levelForm = this.fb.group({
-            name: ['', Validators.required],
-            description: [''],
-            duration: [0, [Validators.required, Validators.min(1)]],
-            maximumUnits: [0, [Validators.required, Validators.min(1)]]
         });
     }
 
@@ -74,70 +73,47 @@ export class CreateLevelDialogComponent implements OnInit, OnDestroy {
         this.visible = false;
     }
 
-    private initObservables() {
-        this.loading$ = this.store.select(LevelSelectors.selectLoadingCreate);
-        this.error$ = this.store.select(LevelSelectors.selectLevelCreateError);
-    }
+    saveLevel() {
+        // Basic validation
+        if (!this.level.name || (this.level.name || '').trim().length === 0) {
+            this.messageService.add({severity: 'error', summary: 'Erro', detail: 'O nome do nível é obrigatório'});
+            return;
+        }
 
-    private subscribeToStateChanges() {
-        this.store.select(LevelSelectors.selectCreateLevelSuccess).subscribe(success => {
-            if (success) {
-                this.hide();
-                this.levelForm.reset();
-                this.levelForm.patchValue({duration: 0, maximumUnits: 0});
-                this.showSuccessToast();
+        const payload = {
+            name: this.level.name,
+            description: this.level.description,
+            duration: this.level.duration,
+            maximumUnits: this.level.maximumUnits,
+        } as Partial<Level>;
+
+        this.store.dispatch(LevelActions.createLevel({level: payload}));
+
+        // Wait for success once
+        this.actions$.pipe(ofType(LevelActions.createLevelSuccess), take(1)).subscribe(() => {
+            this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Nível criado com sucesso'});
+            this.hide();
+            this.resetForm();
+        });
+
+        // Handle failure once
+        this.actions$.pipe(ofType(LevelActions.createLevelFailure), take(1)).subscribe(({error}: any) => {
+            const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
+            if (messages.length === 0) {
+                this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Falha ao criar nível'});
+            } else {
+                messages.forEach((msg: string) => this.messageService.add({severity: 'error', summary: 'Erro', detail: msg}));
             }
         });
-
-        this.error$
-            .pipe(
-                takeUntil(this.destroy$),
-                filter(error => !!error)
-            )
-            .subscribe(error => {
-                this.showErrorToast(error);
-            });
     }
 
-    protected saveLevel() {
-        if (this.levelForm.valid) {
-            const payload = this.levelForm.value;
-            this.store.dispatch(LevelActions.createLevel({level: payload}));
-        } else {
-            this.levelForm.markAllAsTouched();
-
-            this.showWarnToast('Por favor, preencha todos os campos obrigatórios.');
-        }
-    }
-
-    private showWarnToast(warn: any) {
-        const errorMessage = warn || 'Tente novamente.';
-
-        this.messageService.add({
-            severity: 'warn',
-            summary: 'Atenção!',
-            detail: errorMessage ?? 'Preencha os campos obrigatórios.',
-            life: 6000
-        });
-    }
-
-    private showErrorToast(error: any) {
-        const errorMessage = error || 'Erro ao criar estudante. Tente novamente.';
-
-        this.messageService.add({
-            severity: 'error',
-            summary: 'Erro!',
-            detail: errorMessage,
-            life: 6000
-        });
-    }
-
-    private showSuccessToast() {
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso!',
-            detail: 'Nível criado com sucesso.',
-            life: 4000
-        });
+    resetForm() {
+        this.level = {
+            name: '',
+            description: '',
+            duration: 0,
+            maximumUnits: 0,
+            //course: undefined
+        };
     }
 }

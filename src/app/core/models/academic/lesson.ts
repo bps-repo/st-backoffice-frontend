@@ -1,59 +1,94 @@
-import {Center} from "../corporate/center";
-import {Student} from "./student";
-import {LessonStatus} from "../../enums/lesson-status";
-import {Attendance} from "./attendance";
-import {Material} from "./material";
-import {Class} from "./class";
+import { Student } from "./student";
+import { LessonStatus } from "../../enums/lesson-status";
+import { Attendance } from "./attendance";
+import { Material } from "./material";
+import { LessonTeacher } from "./lesson-teacher";
+import { LessonUnit } from "./lesson-unit";
+import { LessonCenter } from "./lesson-center";
+import { LessonType } from "../../enums/lesson-type";
 
 export interface Lesson {
     id?: string;
-    teacher: string;
-    level: string;
-    unit?: string,
-    description: string;
-    students: any[];
     title: string;
+    description: string;
     online: boolean;
     onlineLink?: string;
-    startDatetime: Date;
-    endDatetime: Date;
-    center?: Center | string;
-    classEntity?: Class;
+    startDatetime: string | Date;
+    endDatetime: string | Date;
+    status: LessonStatus | string;
+    materialsIds?: string[] | null;
+    assessmentIds?: string[] | null;
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+
+    // New API structure with nested objects
+    teacher: LessonTeacher;
+    unit: LessonUnit;
+    center: LessonCenter;
+
+    type: LessonType
+
+    // Legacy fields for backward compatibility
+    level?: string;
+    students?: any[];
     student?: Student[];
-    status: LessonStatus;
     attendances?: Attendance[];
     materials?: Material[];
-    createdAt?: Date;
-    updatedAt?: Date;
 }
 
-export const mockLesson: Lesson = {
-    id: 'a1b2c3d4-e5f6-7890-abcd-1234567890ef',
-    teacher: 'John Doe',
-    level: 'Intermediate',
-    unit: 'Unit 5',
-    description: 'This lesson will cover grammar essentials for intermediate students.',
-    students: [
-        {id: 's1', name: 'Alice'},
-        {id: 's2', name: 'Bob'}
-    ],
-    title: 'Grammar Essentials',
-    online: true,
-    onlineLink: 'https://zoom.us/j/123456789',
-    startDatetime: new Date('2025-07-01T10:00:00Z'),
-    endDatetime: new Date('2025-07-01T11:30:00Z'),
-    center: {
-        id: 'c1',
-        name: 'Main Campus',
-        email: '<EMAIL>',
-        address: '123 Main St',
-        city: 'Metropolis',
-        phone: '123-456-7890',
-        active: true,
-        createdAt: new Date('2025-01-01T00:00:00Z').toString(),
-        updatedAt: new Date('2025-01-02T00:00:00Z').toString()
-    },
-    status: LessonStatus.SCHEDULED,
-    createdAt: new Date('2025-06-22T14:00:00Z'),
-    updatedAt: new Date('2025-06-23T09:30:00Z')
-};
+export interface LessonBooking {
+    id: string;
+    lesson: Lesson;
+    student: Student;
+    bookingDate: string;
+    status: BookingStatus;
+}
+
+export interface LessonCreate {
+    id?: string;
+    title: string;
+    description: string;
+    online: boolean;
+    onlineLink?: string;
+    startDatetime: string | Date;
+    endDatetime: string | Date;
+    status: LessonStatus | string;
+    materialsIds?: string[] | null;
+    assessmentIds?: string[] | null;
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+
+    // New API structure with nested objects
+    teacherId: string;
+    unitId: string;
+    centerId: string;
+
+    type: LessonType
+
+    // Legacy fields for backward compatibility
+    level?: string;
+    students?: any[];
+    student?: Student[];
+    attendances?: Attendance[];
+    materials?: Material[];
+}
+
+export type BookingStatus = 'BOOKED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+
+export type StudentStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'GRADUATED';
+
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+
+export type RoleName = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'STAFF';
+
+export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+
+export type AcademicBackground =
+    | 'PRIMARY_SCHOOL'
+    | 'SECONDARY_SCHOOL'
+    | 'HIGH_SCHOOL'
+    | 'UNIVERSITY'
+    | 'POSTGRADUATE'
+    | 'OTHER';
+
+export type ProgressStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';

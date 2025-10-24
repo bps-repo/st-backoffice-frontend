@@ -1,225 +1,191 @@
 <p-toast></p-toast>
 
 <div class="grid">
-    <div class="col-12">
-        <div *ngIf="errors$ | async" class="alert alert-danger">
-            {{ errors$ | async }}
+    <div id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header">
+        <div>
+            <h2 class="font-bold text-2xl mb-4">Nova aula</h2>
+            <span class="text-lg">Cadastro completo de aulas</span>
         </div>
+    </div>
+
+    <div class="col-12">
         <div class="card">
-            <h5>Criar aula</h5>
-            <form [formGroup]="lessonForm" (ngSubmit)="saveLesson()">
-                <div class="p-fluid grid">
-                    <!-- Title Field -->
-                    <div class="col-12 field">
-                        <label for="title" class="font-bold">Título *</label>
-                        <input
-                            id="title"
-                            type="text"
-                            pInputText
-                            formControlName="title"
-                            placeholder="Enter lesson title"
-                            [class.ng-invalid]="isFieldInvalid('title')"
-                            [class.ng-dirty]="lessonForm.get('title')?.dirty">
-                        <small class="p-error block" *ngIf="isFieldInvalid('title')">
-                            {{ getFieldError('title') }}
-                        </small>
-                    </div>
+            <form class="p-fluid grid" [formGroup]="form">
+                <div class="col-12 md:col-12  field">
+                    <label for="title" class="font-bold">Nome da aula *</label>
+                    <input id="title" type="text" pInputText formControlName="title" placeholder="Ex. Aula de inglês"
+                        required>
+                </div>
 
-                    <!-- Level Field -->
-                    <div class="col-12 field">
-                        <label for="levelId" class="font-bold">Nível *</label>
-                        <p-dropdown
-                            id="levelId"
-                            [options]="levelOptions"
-                            formControlName="levelId"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Select a level"
-                            [showClear]="true"
-                            [class.ng-invalid]="isFieldInvalid('levelId')"
-                            [class.ng-dirty]="lessonForm.get('levelId')?.dirty">
+                <div class="col-12 md:col-6 field">
+                    <label for="center" class="font-bold">Centro *</label>
+                    <div class="relative">
+                        <p-dropdown id="center" [options]="centerOptions" formControlName="centerId" optionLabel="label"
+                            optionValue="value" placeholder="Selecione o centro" [showClear]="true" [required]="true"
+                            [disabled]="(loadingCenters | async)!">
                         </p-dropdown>
-                        <small class="p-error block" *ngIf="isFieldInvalid('levelId')">
-                            {{ getFieldError('levelId') }}
-                        </small>
+                        <p-progressSpinner *ngIf="(loadingCenters | async)" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuratsion="1s"></p-progressSpinner>
                     </div>
+                </div>
 
-                    <!-- Center Field - Now Required -->
-                    <div class="col-12 field">
-                        <label for="centerId" class="font-bold">Centro *</label>
-                        <p-dropdown
-                            id="centerId"
-                            [options]="centerOptions"
-                            formControlName="centerId"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Select a center"
-                            [showClear]="true"
-                            [class.ng-invalid]="isFieldInvalid('centerId')"
-                            [class.ng-dirty]="lessonForm.get('centerId')?.dirty">
+                <div class="col-12 md:col-6 field">
+                    <label for="level" class="font-bold">Nível *</label>
+                    <div class="relative">
+                        <p-dropdown id="level" [options]="levelOptions" formControlName="levelId" optionLabel="label"
+                            optionValue="value" placeholder="Selecione o nível" [showClear]="true" [required]="true"
+                            [disabled]="(loadingLevels | async)!">
                         </p-dropdown>
-                        <small class="p-error block" *ngIf="isFieldInvalid('centerId')">
-                            {{ getFieldError('centerId') }}
-                        </small>
+                        <p-progressSpinner *ngIf="(loadingLevels | async)" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuration="1s"></p-progressSpinner>
                     </div>
+                </div>
 
-                    <!-- Teacher Field - Depends on Center -->
-                    <div class="col-12 field">
-                        <label for="teacherId" class="font-bold">Professor *</label>
-                        <p-dropdown
-                            id="teacherId"
-                            [options]="teacherOptions"
-                            formControlName="teacherId"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Select a teacher"
-                            [showClear]="true"
-                            [disabled]="!lessonForm.get('centerId')?.value"
-                            [class.ng-invalid]="isFieldInvalid('teacherId')"
-                            [class.ng-dirty]="lessonForm.get('teacherId')?.dirty">
+                <div class="col-12 md:col-6  field">
+                    <label for="unit" class="font-bold">Unidades</label>
+                    <div class="relative">
+                        <p-dropdown id="unit" [options]="unitOptions" formControlName="unitId" optionLabel="label"
+                            optionValue="value" placeholder="Selecione a unidade" [showClear]="true"
+                            [disabled]="loadingUnits">
                         </p-dropdown>
-                        <small class="p-error block" *ngIf="isFieldInvalid('teacherId')">
-                            {{ getFieldError('teacherId') }}
-                        </small>
-                        <small class="text-muted block" *ngIf="!lessonForm.get('centerId')?.value">
-                            Please select a center first to view available teachers
-                        </small>
+                        <p-progressSpinner *ngIf="loadingUnits" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuration="1s"></p-progressSpinner>
                     </div>
+                </div>
+                <div class="col-12 md:col-6  field">
+                    <label for="unit" class="font-bold">Tipo de aula</label>
+                    <p-dropdown id="lessonType" [options]="typeOptions" formControlName="type" optionLabel="label"
+                        optionValue="value" placeholder="Selecione o tipo" [showClear]="true">
+                    </p-dropdown>
+                </div>
 
-                    <!-- Class Field - Depends on Center -->
-                    <div class="col-12 md:col-6 field">
-                        <label for="classId" class="font-bold">Turma</label>
-                        <p-dropdown
-                            id="classId"
-                            [options]="classOptions"
-                            formControlName="classId"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Select a class"
-                            [showClear]="true"
-                            [disabled]="!lessonForm.get('centerId')?.value">
-                        </p-dropdown>
-                        <small class="text-muted block" *ngIf="!lessonForm.get('centerId')?.value">
-                            Please select a center first to view available classes
-                        </small>
-                    </div>
+                <div class="col-12 field">
+                    <label for="weekRange" class="font-bold">Selecione a Semana *</label>
+                    <p-calendar id="weekRange" formControlName="weekRange" [selectionMode]="'range'"
+                        [readonlyInput]="true" [showIcon]="true" placeholder="Selecione entre 1 e 7 dias"
+                        [required]="true" [appendTo]="'body'" (onSelect)="onWeekRangeSelect($event)">
+                    </p-calendar>
+                    <small class="text-600" *ngIf="form.get('weekRange')?.value">
+                        Período selecionado: {{form.get('weekRange')?.value[0] | date:'dd/MM/yyyy'}} -
+                        {{form.get('weekRange')?.value[1] | date:'dd/MM/yyyy'}}
+                    </small>
+                    <small class="text-600 mt-1 block">
+                        <i class="pi pi-info-circle mr-1"></i>
+                        Selecione entre 1 e 7 dias consecutivos (máximo uma semana)
+                    </small>
+                </div>
 
-                    <!-- Unit Field -->
-                    <div class="col-12 md:col-6 field">
-                        <label for="unitId" class="font-bold">Unidade</label>
-                        <p-dropdown
-                            id="unitId"
-                            [options]="unitOptions"
-                            formControlName="unitId"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Select a unit"
-                            [showClear]="true">
-                        </p-dropdown>
-                    </div>
-
-                    <!-- Start Date/Time Field -->
-                    <div class="col-12 md:col-6 field">
-                        <label for="startDatetime" class="font-bold">Inicio *</label>
-                        <p-calendar
-                            id="startDatetime"
-                            formControlName="startDatetime"
-                            [showIcon]="true"
-                            [showTime]="true"
-                            dateFormat="dd/mm/yy"
-                            [class.ng-invalid]="isFieldInvalid('startDatetime')"
-                            [class.ng-dirty]="lessonForm.get('startDatetime')?.dirty">
-                        </p-calendar>
-                        <small class="p-error block" *ngIf="isFieldInvalid('startDatetime')">
-                            {{ getFieldError('startDatetime') }}
-                        </small>
-                    </div>
-
-                    <!-- End Date/Time Field -->
-                    <div class="col-12 md:col-6 field">
-                        <label for="endDatetime" class="font-bold">Fim *</label>
-                        <p-calendar
-                            id="endDatetime"
-                            formControlName="endDatetime"
-                            [showIcon]="true"
-                            [showTime]="true"
-                            dateFormat="dd/mm/yy"
-                            [class.ng-invalid]="isFieldInvalid('endDatetime')"
-                            [class.ng-dirty]="lessonForm.get('endDatetime')?.dirty">
-                        </p-calendar>
-                        <small class="p-error block" *ngIf="isFieldInvalid('endDatetime')">
-                            {{ getFieldError('endDatetime') }}
-                        </small>
-                    </div>
-
-                    <!-- Online Lesson Checkbox -->
-                    <div class="col-12 field">
-                        <div class="flex align-items-center">
-                            <label for="online" class="font-bold mr-2">Online Lesson</label>
-                            <p-checkbox
-                                id="online"
-                                formControlName="online"
-                                [binary]="true">
-                            </p-checkbox>
+                <div class="col-12 field" *ngIf="form.get('weekRange')?.value">
+                    <label class="font-bold mb-3">Dias Disponíveis do Período</label>
+                    <div class="grid">
+                        <div class="col-12 md:col-2" *ngFor="let day of weekDayOptions; let i = index">
+                            <div class="p-3 border-round text-center cursor-pointer transition-colors transition-duration-150 border-1"
+                                [class.bg-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                [class.text-white]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                [class.bg-gray-100]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                [class.text-900]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                [class.border-primary]="form.get('selectedDay')?.value?.getTime() === day.value?.getTime()"
+                                [class.border-gray-300]="form.get('selectedDay')?.value?.getTime() !== day.value?.getTime()"
+                                (click)="form.get('selectedDay')?.setValue(day.value)">
+                                <div class="font-bold text-sm">{{day.value | date:'dd'}}</div>
+                                <div class="text-xs">{{day.label}}</div>
+                            </div>
                         </div>
                     </div>
+                    <small class="text-600 mt-2 block">
+                        Clique em um dia para selecioná-lo como a data da aula.
+                    </small>
+                </div>
 
-                    <!-- Online Link Field (conditional) -->
-                    <div class="col-12 field" *ngIf="lessonForm.get('online')?.value">
-                        <label for="onlineLink" class="font-bold">Online Link</label>
-                        <input
-                            id="onlineLink"
-                            type="text"
-                            pInputText
-                            formControlName="onlineLink"
-                            placeholder="Enter online meeting link">
-                    </div>
+                <div class="col-12 md:col-6 field">
+                    <label for="selectedDay" class="font-bold">Data da Aula *</label>
+                    <p-dropdown id="selectedDay" [options]="weekDayOptions" formControlName="selectedDay"
+                        optionLabel="label" optionValue="value" placeholder="Selecione a data da aula"
+                        [showClear]="true" [required]="true" [disabled]="!form.get('weekRange')?.value">
+                    </p-dropdown>
+                </div>
 
-                    <!-- Status Field -->
-                    <div class="col-12 field">
-                        <label for="status" class="font-bold">Status</label>
-                        <p-dropdown
-                            id="status"
-                            [options]="statusOptions"
-                            formControlName="status"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Select a status">
+                <div class="col-12 md:col-6 field">
+                    <label for="startDatetime" class="font-bold">Hora de Início *</label>
+                    <p-calendar (onChange)="callMethod()" id="startDatetime" formControlName="startDatetime"
+                        [showIcon]="true" [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
+                    </p-calendar>
+                    <small class="text-600 mt-1 block">
+                        <i class="pi pi-clock mr-1"></i>
+                        A hora de fim será calculada automaticamente (+1h)
+                    </small>
+                    <span pTooltip>
+                        <ng-template pTemplate="content">
+                            <p>
+                                {{form.get('startDatetime')?.value | date:'dd/MM/yyyy HH:mm'}}
+                            </p>
+                        </ng-template>
+                    </span>
+                </div>
+
+                <div class="col-12 md:col-6 field">
+                    <label for="endDatetime" class="font-bold">Hora de fim *</label>
+                    <p-calendar (onSelect)="callMethod()" id="endDatetime" formControlName="endDatetime"
+                        [showIcon]="true" [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
+                    </p-calendar>
+                    <small class="text-600 mt-1 block">
+                        <i class="pi pi-info-circle mr-1"></i>
+                        Automaticamente calculado (hora de início + 1h)
+                    </small>
+                    <span pTooltip>
+                        <ng-template pTemplate="content">
+                            <p>
+                                {{form.get('endDatetime')?.value | date:'dd/MM/yyyy HH:mm'}}
+                            </p>
+                        </ng-template>
+                    </span>
+                </div>
+
+                <div class="col-12 md:col-6  field">
+                    <label for="teacher" class="font-bold">Professor responsável *</label>
+                    <div class="relative">
+                        <p-dropdown id="teacher" [options]="teacherOptions" formControlName="teacherId"
+                            optionLabel="label" optionValue="value" placeholder="Selecione o professor"
+                            [showClear]="true" [required]="true" [disabled]="(loadingTeachers | async)!">
                         </p-dropdown>
-                    </div>
-
-                    <!-- Description Field -->
-                    <div class="col-12 field">
-                        <label for="description" class="font-bold">Description</label>
-                        <textarea
-                            id="description"
-                            rows="3"
-                            pInputTextarea
-                            formControlName="description"
-                            placeholder="Enter lesson description">
-                        </textarea>
+                        <p-progressSpinner *ngIf="(loadingTeachers | async)" styleClass="absolute top-50 right-0 mr-2"
+                            [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
+                            animationDuration="1s"></p-progressSpinner>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex justify-content-end gap-2 mt-4">
-                    <button
-                        type="button"
-                        pButton
-                        label="Cancel"
-                        icon="pi pi-times"
-                        class="p-button-text mr-2"
-                        (click)="cancel()">
-                    </button>
-                    <button
-                        type="submit"
-                        pButton
-                        label="{{(loading$ | async) ? 'Salvando...' : 'Salvar'}}"
-                        icon="pi pi-check"
-                        [disabled]="lessonForm.invalid">
-                    </button>
+                <div class="col-12 field">
+                    <div class="flex align-items-center">
+                        <label for="online" class="font-bold mr-2">Aula online?</label>
+                        <p-checkbox id="online" formControlName="online" [binary]="true">
+                        </p-checkbox>
+                    </div>
+                </div>
+
+                <div class="col-12 field" *ngIf="form.get('online')?.value">
+                    <label for="onlineLink" class="font-bold">Link da aula online</label>
+                    <input id="onlineLink" type="text" pInputText formControlName="onlineLink"
+                        placeholder="Enter online meeting link">
+                </div>
+
+                <div class="col-12 field">
+                    <label for="description" class="font-bold">Descrição</label>
+                    <textarea id="description" rows="3" pInputTextarea formControlName="description"
+                        placeholder="Descreva  os objectivos e conteúdos das aulas">
+                    </textarea>
                 </div>
             </form>
+
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button pButton label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-secondary mr-2"
+                    (click)="cancel()">
+                </button>
+                <button pButton label="Criar aula" [loading]="loading" (click)="saveLesson()">
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 import {TableColumn} from "../../../../shared/components/tables/global-table/global-table.component";
 
-export const GLOBAL_FILTERS = ['id', 'code', 'name', 'email', 'department', 'position', 'status', 'hireDate'];
+export const GLOBAL_FILTERS = ['id', 'code', 'name', 'email', 'department', 'position', 'status'];
 export const COLUMNS: TableColumn[] = [
     {
         field: 'name',
@@ -15,27 +15,24 @@ export const COLUMNS: TableColumn[] = [
         customTemplate: true,
     },
     {
-        field: 'role',
+        field: 'position',
         header: 'Cargo',
         filterType: 'text',
-        customTemplate: true
-    },
-    {
-        field: 'centerId',
-        header: 'Centro',
-        filterType: 'text',
+        customTemplate: true,
     },
     {
         field: 'status',
         header: 'Status',
-        filterType: 'text',
+        filterType: 'custom',
+        filterTemplate: true,
         filterOptions: [
             {label: 'Ativo', value: 'ACTIVE'},
             {label: 'Inativo', value: 'INACTIVE'},
             {label: 'De Licença', value: 'ON_LEAVE'},
             {label: 'Terminado', value: 'TERMINATED'}
-        ]
-    },
+        ],
+        customTemplate: true,
+    }
 ];
 
 export const HEADER_ACTIONS = [

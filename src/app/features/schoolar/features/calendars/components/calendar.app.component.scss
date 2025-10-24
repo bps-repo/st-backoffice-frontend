@@ -1,62 +1,142 @@
-
 // Calendar container styles
 .card {
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    margin-bottom: 1.5rem;
 }
 
-// Calendar toolbar styles
-.calendar-toolbar {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+// Sticky header styles
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
 
-    .float-right {
-        float: right;
+.sticky-active {
+    background-color: var(--surface-card);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Animation classes
+.animate-fade {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.animate-scale {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+// For elements that need to stick to the top
+.content-sticky {
+    position: sticky;
+    top: 140px; /* Adjust based on header height */
+    z-index: 90;
+}
+
+// Animation keyframes
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-    .active-filters {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
 
-        .filter-label {
-            font-weight: 600;
-            color: #6c757d;
-        }
+// Animation classes
+.px-fadein {
+    animation: fadeIn 0.3s ease-out forwards;
+}
 
-        .filter-tag {
-            display: inline-flex;
-            align-items: center;
-            background-color: #e9ecef;
-            border-radius: 16px;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
+.px-scalein {
+    animation: scaleIn 0.5s ease-out forwards;
+}
 
-            .tag-color, .color-dot {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                margin-right: 6px;
-            }
+// Deep styles for components
+:host ::ng-deep {
+    // Select button styles
+    p-selectButton {
+        .p-selectbutton {
+            display: flex;
+            flex-wrap: nowrap;
 
-            .tag-name {
-                margin-right: 6px;
-            }
+            .p-button {
+                margin-right: 0.5rem;
+                border: none;
 
-            i.pi-times {
-                cursor: pointer;
-                font-size: 0.75rem;
-
-                &:hover {
-                    color: #dc3545;
+                &:last-child {
+                    margin-right: 0;
                 }
             }
+        }
+    }
+}
 
-            i.pi-user, i.pi-map-marker, i.pi-users {
-                margin-right: 6px;
-                font-size: 0.875rem;
+// Float right utility
+.float-right {
+    float: right;
+}
+
+// Active filters styles
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0.5rem 0;
+
+    .filter-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    .filter-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: #e9ecef;
+        border-radius: 16px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+
+        .tag-color, .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .tag-name {
+            margin-right: 6px;
+        }
+
+        i.pi-times {
+            cursor: pointer;
+            font-size: 0.75rem;
+
+            &:hover {
+                color: #dc3545;
             }
+        }
+
+        i.pi-user, i.pi-map-marker, i.pi-users {
+            margin-right: 6px;
+            font-size: 0.875rem;
         }
     }
 }
@@ -106,6 +186,30 @@
         .fc-daygrid-day-number, .fc-col-header-cell-cushion {
             color: #495057;
             text-decoration: none;
+        }
+
+        // Remove all borders from the calendar except for day cells
+        .fc-col-header-cell,
+        .fc-scrollgrid,
+        .fc-theme-standard td,
+        .fc-theme-standard th,
+        .fc-scrollgrid-section,
+        .fc-scrollgrid-section > td,
+        .fc-scrollgrid-section-header,
+        .fc-scrollgrid-section-body,
+        .fc-scrollgrid-section-footer,
+        .fc-timegrid-axis,
+        .fc-timegrid-slot,
+        .fc-timegrid-slots,
+        .fc-timegrid-divider,
+        .fc-list-table,
+        .fc-list-day-cushion {
+            border: none !important;
+        }
+
+        // Keep only day cell borders
+        .fc-daygrid-day {
+            border: 1px solid #ddd !important;
         }
 
         .fc-day-today {
@@ -293,61 +397,782 @@
     }
 }
 
+// Custom Calendar Styles
+.weekly-calendar .today-card {
+    border: 2px solid var(--primary-color);
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05), rgba(var(--primary-color-rgb), 0.1));
+}
+
+.day-header {
+    margin-bottom: 0.5rem;
+}
+
+.today-date {
+    color: var(--primary-color);
+    background: rgba(var(--primary-color-rgb), 0.1);
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.today-label {
+    margin-top: 0.25rem;
+}
+
+.class-card {
+    background: white;
+    border: 1px solid #e0e4e7;
+    transition: all 0.2s ease;
+}
+
+.class-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.class-title {
+    color: #374151;
+}
+
+.class-details {
+    line-height: 1.3;
+}
+
+.border-success {
+    border-left-color: #10b981 !important;
+}
+
+.border-warning {
+    border-left-color: #f59e0b !important;
+}
+
+.border-danger {
+    border-left-color: #ef4444 !important;
+}
+
+.p-badge-success {
+    background-color: #10b981;
+}
+
+.p-badge-warning {
+    background-color: #f59e0b;
+}
+
+.p-badge-danger {
+    background-color: #ef4444;
+}
+
+/* Monthly Calendar Styles */
+.monthly-calendar .calendar-header {
+    padding: 1rem 0;
+    background: #f8fafc;
+}
+
+.calendar-day {
+    min-height: 12rem;
+    padding: 0.5rem;
+    border-right: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background-color: #f3f4f6;
+}
+
+.calendar-day:last-child {
+    border-right: none;
+}
+
+.calendar-week:last-child .calendar-day {
+    border-bottom: none;
+}
+
+.calendar-day.current-month {
+    background-color: #ffffff;
+}
+
+.calendar-day.today-day {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+.day-number {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.today-number {
+    color: var(--primary-color);
+    background: rgba(var(--primary-color-rgb), 0.1);
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem auto;
+}
+
+.today-indicator {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.monthly-lessons {
+    margin-top: 0.25rem;
+}
+
+.monthly-lesson-card {
+    background: white;
+    border: 1px solid #e0e4e7;
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    margin-bottom: 0.2rem;
+    transition: all 0.2s ease;
+    font-size: 0.7rem;
+}
+
+.monthly-lesson-card:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.lesson-time {
+    color: #6b7280;
+    margin-bottom: 0.1rem;
+}
+
+.lesson-title {
+    color: #374151;
+    font-weight: 500;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.more-lessons {
+    text-align: center;
+    padding: 0.125rem;
+    font-style: italic;
+}
+
+.border-left-2 {
+    border-left-width: 2px;
+}
+
+/* Lesson Details Dialog Styles */
+::ng-deep .lesson-details-dialog {
+    z-index: 9999;
+}
+
+::ng-deep .lesson-details-dialog .p-dialog {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+::ng-deep .lesson-details-dialog .p-dialog-content {
+    padding: 1.25rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+::ng-deep .lesson-details-dialog .p-dialog-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 1.25rem;
+    border-bottom: none;
+}
+
+::ng-deep .lesson-details-dialog .p-dialog-header .p-dialog-title {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+::ng-deep .lesson-details-dialog .p-dialog-header .p-dialog-header-icon {
+    color: white;
+    opacity: 0.9;
+}
+
+::ng-deep .lesson-details-dialog .p-dialog-header .p-dialog-header-icon:hover {
+    opacity: 1;
+}
+
+.lesson-details-content h6 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.lesson-details-content .text-600 {
+    color: var(--text-color-secondary);
+}
+
+/* Smooth hover transitions for lesson cards */
+.class-card {
+    transition: all 0.2s ease, transform 0.2s ease;
+}
+
+.class-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 // Responsive styles
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 992px) {
     :host ::ng-deep {
-        .fc .fc-toolbar {
-            justify-content: center;
-        }
+        // Improve search and filters responsiveness
+        .col-12.flex.justify-content-between.align-content-center {
+            flex-direction: column;
 
-        .fc-header-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            justify-content: center;
-            text-align: center;
-            flex-wrap: wrap;
-
-            .fc-toolbar-chunk:nth-child(2) {
+            .col-8.flex {
                 width: 100%;
-                order: 0;
+                margin-bottom: 1rem;
             }
 
-            .fc-toolbar-chunk:nth-child(1) {
-                order: 1;
-            }
+            .flex.gap-2.h-3rem {
+                width: 100%;
+                justify-content: center;
+                margin-top: 0;
 
-            .fc-toolbar-chunk:nth-child(3) {
-                order: 2;
-
-                .fc-button-group {
-                    .fc-today-button {
-                        margin-left: 2rem;
-                    }
+                .p-button {
+                    width: 100%;
+                    max-width: 200px;
                 }
             }
         }
 
-        .event-container {
-            .event-details {
-                display: none;
+        // Improve view selector responsiveness
+        p-selectButton {
+            .p-selectbutton {
+                width: 100%;
+                justify-content: center;
+
+                .p-button {
+                    flex: 1;
+                    max-width: 150px;
+                    font-size: 0.9rem;
+                    padding: 0.5rem;
+                }
             }
         }
 
-        .show-more-link {
-            font-size: 0.75rem;
-            padding: 1px 6px;
+        // Improve active filters display
+        .active-filters {
+            flex-direction: column;
+            align-items: flex-start;
+
+            .filter-label {
+                margin-bottom: 0.5rem;
+            }
+
+            .filter-tag {
+                margin-bottom: 0.5rem;
+            }
+
+            .p-button-sm {
+                margin-top: 0.5rem;
+                margin-left: 0 !important;
+            }
+        }
+
+        // Adjust calendar container
+        .card {
+            overflow: auto;
+            max-width: 100%;
         }
     }
 
-    .calendar-toolbar {
-        .p-buttonset {
-            display: flex;
-            flex-wrap: wrap;
+    // Custom Calendar Responsive Styles
+    .weekly-calendar {
+        .grid {
+            gap: 0.5rem !important;
+        }
 
-            button {
+        .col-12.md\:col {
+            width: 100% !important;
+            margin-bottom: 0.5rem;
+        }
+
+        .card {
+            min-height: auto;
+            padding: 0.75rem;
+        }
+
+        .day-header {
+            margin-bottom: 0.25rem;
+        }
+
+        .day-name {
+            font-size: 0.8rem;
+        }
+
+        .day-date {
+            font-size: 1rem;
+        }
+
+        .today-date {
+            width: 1.5rem;
+            height: 1.5rem;
+            font-size: 0.8rem;
+        }
+
+        .class-card {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .class-title {
+            font-size: 0.8rem;
+        }
+
+        .class-details {
+            font-size: 0.7rem;
+        }
+
+        .status-badge .p-badge {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.4rem;
+        }
+    }
+
+    .monthly-calendar {
+        .calendar-header {
+            padding: 0.5rem 0;
+            font-size: 0.8rem;
+        }
+
+        .calendar-day {
+            min-height: 8rem;
+            padding: 0.25rem;
+        }
+
+        .day-number {
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .today-number {
+            width: 1.2rem;
+            height: 1.2rem;
+            font-size: 0.7rem;
+        }
+
+        .today-indicator {
+            width: 0.4rem;
+            height: 0.4rem;
+            top: 0.1rem;
+            right: 0.1rem;
+        }
+
+        .monthly-lesson-card {
+            padding: 0.15rem 0.25rem;
+            margin-bottom: 0.15rem;
+            font-size: 0.6rem;
+        }
+
+        .lesson-time {
+            font-size: 0.6rem;
+        }
+
+        .lesson-title {
+            font-size: 0.65rem;
+        }
+
+        .more-lessons {
+            font-size: 0.6rem;
+        }
+    }
+
+    // Adjust calendar toolbar buttons
+    .p-buttonset {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+
+        button {
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.6rem;
+            flex: 1;
+            min-width: 60px;
+            max-width: 100px;
+
+            &:last-child {
+                // "Hoje" button should be full width
+                flex: 100%;
+                max-width: 100%;
+                margin-top: 0.5rem;
+            }
+        }
+    }
+
+    // Adjust navigation and month display
+    .col-12.flex.justify-content-between.align-items-center {
+        flex-direction: column;
+        gap: 1rem;
+
+        > div:first-child {
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+
+            .p-button-rounded {
+                margin: 0 0.5rem;
+            }
+
+            .font-bold.text-xl {
+                font-size: 1.1rem;
+                white-space: nowrap;
+                text-align: center;
+                min-width: 150px;
+            }
+        }
+
+        .p-buttonset {
+            margin-top: 0.5rem;
+        }
+    }
+
+    // Lesson Details Dialog Responsive
+    ::ng-deep .lesson-details-dialog {
+        .p-dialog {
+            width: 90vw !important;
+            max-width: 400px;
+        }
+
+        .p-dialog-content {
+            padding: 1rem;
+            max-height: 60vh;
+        }
+
+        .lesson-details-content {
+            h6 {
+                font-size: 0.8rem;
+            }
+
+            .text-sm {
+                font-size: 0.75rem;
+            }
+        }
+    }
+}
+
+// Additional styles for very small screens
+@media screen and (max-width: 768px) {
+    // Add intermediate breakpoint for tablets
+    :host ::ng-deep {
+        // Adjust KPI cards for tablets
+        app-kpi-indicators {
+            .card {
+                padding: 0.75rem;
+
+                .text-4xl {
+                    font-size: 1.8rem;
+                }
+            }
+        }
+    }
+
+    // Custom Calendar Tablet Styles
+    .weekly-calendar {
+        .grid {
+            gap: 0.25rem !important;
+        }
+
+        .card {
+            padding: 0.5rem;
+        }
+
+        .class-card {
+            padding: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .class-title {
+            font-size: 0.75rem;
+        }
+
+        .class-details {
+            font-size: 0.65rem;
+        }
+    }
+
+    .monthly-calendar {
+        .calendar-day {
+            min-height: 7rem;
+            padding: 0.2rem;
+        }
+
+        .day-number {
+            font-size: 0.75rem;
+        }
+
+        .monthly-lesson-card {
+            padding: 0.12rem 0.2rem;
+            font-size: 0.55rem;
+        }
+
+        .lesson-title {
+            font-size: 0.6rem;
+        }
+    }
+}
+
+@media screen and (max-width: 576px) {
+    :host ::ng-deep {
+        // Further improve view selector for very small screens
+        p-selectButton {
+            .p-selectbutton {
+                flex-wrap: wrap;
+
+                .p-button {
+                    margin-bottom: 0.5rem;
+                    font-size: 0.8rem;
+                    padding: 0.4rem;
+                }
+            }
+        }
+
+        // Adjust main header for very small screens
+        #mainHeader {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+
+            h2 {
+                font-size: 1.5rem;
                 margin-bottom: 0.5rem;
             }
+
+            span.text-lg {
+                font-size: 0.9rem;
+                display: block;
+                margin-bottom: 1rem;
+            }
+
+            p-button {
+                width: 100%;
+
+                button {
+                    width: 100%;
+                }
+            }
+        }
+
+        // Adjust navigation buttons and month/year display
+        .col-12.flex.justify-content-between.align-items-center {
+            > div:first-child {
+                .font-bold.text-xl {
+                    font-size: 1rem;
+                    min-width: 120px;
+                }
+            }
+        }
+
+        // Adjust search and filters
+        .col-12.flex.justify-content-between.align-content-center {
+            .p-input-icon-left {
+                width: 100%;
+            }
+        }
+    }
+
+    // Custom Calendar Mobile Styles
+    .weekly-calendar {
+        .grid {
+            gap: 0.25rem !important;
+        }
+
+        .col-12.md\:col {
+            width: 100% !important;
+        }
+
+        .card {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .day-header {
+            margin-bottom: 0.2rem;
+        }
+
+        .day-name {
+            font-size: 0.7rem;
+        }
+
+        .day-date {
+            font-size: 0.9rem;
+        }
+
+        .today-date {
+            width: 1.3rem;
+            height: 1.3rem;
+            font-size: 0.7rem;
+        }
+
+        .class-card {
+            padding: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .class-title {
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .class-details {
+            font-size: 0.6rem;
+            line-height: 1.1;
+        }
+
+        .status-badge .p-badge {
+            font-size: 0.5rem;
+            padding: 0.15rem 0.3rem;
+        }
+    }
+
+    .monthly-calendar {
+        .calendar-header {
+            padding: 0.3rem 0;
+            font-size: 0.7rem;
+        }
+
+        .calendar-day {
+            min-height: 6rem;
+            padding: 0.15rem;
+        }
+
+        .day-number {
+            font-size: 0.7rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .today-number {
+            width: 1rem;
+            height: 1rem;
+            font-size: 0.6rem;
+        }
+
+        .today-indicator {
+            width: 0.3rem;
+            height: 0.3rem;
+            top: 0.05rem;
+            right: 0.05rem;
+        }
+
+        .monthly-lesson-card {
+            padding: 0.1rem 0.15rem;
+            margin-bottom: 0.1rem;
+            font-size: 0.5rem;
+        }
+
+        .lesson-time {
+            font-size: 0.5rem;
+        }
+
+        .lesson-title {
+            font-size: 0.55rem;
+            line-height: 1.1;
+        }
+
+        .more-lessons {
+            font-size: 0.5rem;
+        }
+    }
+
+    // Lesson Details Dialog Mobile
+    ::ng-deep .lesson-details-dialog {
+        .p-dialog {
+            width: 95vw !important;
+            max-width: none;
+        }
+
+        .p-dialog-content {
+            padding: 0.75rem;
+            max-height: 70vh;
+        }
+
+        .lesson-details-content {
+            h6 {
+                font-size: 0.75rem;
+            }
+
+            .text-sm {
+                font-size: 0.7rem;
+            }
+
+            .mb-3 {
+                margin-bottom: 0.5rem !important;
+            }
+        }
+    }
+
+    // Adjust KPI cards for very small screens
+    .grid .col-12 {
+        padding: 0.3rem;
+    }
+
+    // Optimize KPI cards for mobile
+    app-kpi-indicators {
+        .card {
+            padding: 0.5rem;
+
+            .text-4xl {
+                font-size: 1.5rem;
+            }
+
+            .text-2xl {
+                font-size: 1.2rem;
+            }
+
+            .font-semibold {
+                font-size: 0.9rem;
+            }
+        }
+    }
+
+    // Improve touch targets for mobile
+    .p-button-rounded {
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+    }
+
+    // Better spacing for mobile navigation
+    .col-12.flex.justify-content-between.align-items-center {
+        > div:first-child {
+            .p-button-rounded {
+                margin: 0 0.25rem;
+            }
+
+            .font-bold.text-xl {
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+        }
+    }
+
+    // Improve filter tags for mobile
+    .active-filters {
+        .filter-tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
         }
     }
 }

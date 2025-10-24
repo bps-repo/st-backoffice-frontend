@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, Inject, Optional, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {InputTextModule} from 'primeng/inputtext';
 import {PieChartComponent} from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
@@ -18,6 +18,7 @@ import {Observable, Subscription} from 'rxjs';
 import {Student} from 'src/app/core/models/academic/student';
 import {ActivatedRoute} from '@angular/router';
 import {selectStudentById} from 'src/app/core/store/schoolar/students/students.selectors';
+import {STUDENT_DATA} from 'src/app/shared/tokens/student.token';
 
 @Component({
     selector: 'app-general',
@@ -38,18 +39,17 @@ import {selectStudentById} from 'src/app/core/store/schoolar/students/students.s
     ],
     templateUrl: './general.component.html'
 })
-export class GeneralComponent implements OnInit, OnDestroy {
-    // Make Math available in the template
+export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     Math = Math;
 
     // Student information
     studentInfo: any = {};
-    student$!: Observable<Student | null>;
-    studentId: string | null = null;
+
     private subscriptions = new Subscription();
 
     // Academic progress
     unitProgress: number = 75;
+
     levelProgress: number = 45;
 
     // Scheduled lessons
@@ -61,20 +61,25 @@ export class GeneralComponent implements OnInit, OnDestroy {
     // Notifications
     notifications: any[] = [];
 
+    @Input() student: Student | null = null;
+
     constructor(
         private store: Store,
-        private route: ActivatedRoute
-    ) {
-    }
+        private route: ActivatedRoute,
+        @Optional() @Inject(STUDENT_DATA) private studentData: Student | null
+    ) {}
 
     ngOnInit(): void {
-        this.route.params.subscribe(params => {
-            this.studentId = params['id'];
-            if (this.studentId) {
-                this.student$ = this.store.select(selectStudentById(this.studentId));
-            }
-        })
+        // Use the injected student data
+        if (this.studentData) {
+            this.updateStudentInfo(this.studentData);
+        }
+        // Or use the @Input student if provided
+        if (this.student) {
+            this.updateStudentInfo(this.student);
+        }
 
+        // Mock upcoming lessons (this could be replaced with real data from an API)
         this.upcomingLessons = [
             {
                 id: 'L1001',
@@ -129,14 +134,20 @@ export class GeneralComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['student'] && changes['student'].currentValue) {
+            this.updateStudentInfo(changes['student'].currentValue as Student);
+        }
+    }
+
     updateStudentInfo(student: Student): void {
         this.studentInfo = {
             id: student.id,
             name: student.user?.firstname || 'N/A',
             email: student.user?.email || 'N/A',
-            center: student.centerId || 'N/A',
+            center: student.center.name || 'N/A',
             course: 'English Language', // This could be derived from student.levelId
-            level: student.levelId || 'N/A',
+            level: student.level.name || 'N/A',
             unit: student.currentUnit?.name || 'N/A',
             unitOrder: student.currentUnit?.order || 1,
             totalUnits: 4, // This could be derived from the level
@@ -154,7 +165,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
             },
             {
                 title: 'Tipo de Inscrição',
-                value: student.levelId ? `${student.levelId}` : 'N/A',
+                value: student.level.name ? `${student.level.name}` : 'N/A',
             },
             {
                 title: 'Nº de Identificação',
@@ -162,7 +173,7 @@ export class GeneralComponent implements OnInit, OnDestroy {
             },
             {
                 title: 'Data de Nascimento',
-                value: student.user?.dateOfBirth || 'N/A',
+                value: student.user?.birthdate || 'N/A',
             },
             {
                 title: 'Telefone',
