@@ -4,14 +4,14 @@
             <h2 class="font-bold text-2xl mb-4">Gestão de utilizadores</h2>
             <span class="text-lg">Gestão de utilizadores do backoffice</span>
         </div>
-        <p-button *hasPermission="'employees.creatse'" (onClick)="navigateToCreateEmployee()" label="Novo utilizador"
-            icon="pi pi-plus" class="p-button-outlined"></p-button>
+        <p-button *hasPermission="'users.create'" (onClick)="navigateToCreateEmployee()" label="Novo utilizador"
+                  icon="pi pi-plus" class="p-button-outlined"></p-button>
     </div>
     <!-- Employee Table -->
     <app-global-table tableLabel="Funcionários" [headerActions]="headerActions" [data]="(employees$ | async)!"
-        [entity]="'employees'" [columns]="columns" [globalFilterFields]="globalFilterFields"
-        [loading]="loading$ | async" [columnTemplates]="customTemplates" (rowSelect)="onRowSelect($event)"
-        (createEntity)="navigateToCreateEmployee()" class="w-full"></app-global-table>
+                      [entity]="'employees'" [columns]="columns" [globalFilterFields]="globalFilterFields"
+                      [loading]="loading$ | async" [columnTemplates]="customTemplates" (rowSelect)="onRowSelect($event)"
+                      (createEntity)="navigateToCreateEmployee()" class="w-full"></app-global-table>
 </div>
 
 <!-- Name template field -->

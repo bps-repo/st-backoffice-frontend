@@ -54,6 +54,13 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
                         routerLink: ['/schoolar/dashboards'],
+                        visible: (this.hasPermission('students.view')
+                            || this.hasPermission('lessons.view')
+                            || this.hasPermission('lessons.schedule_with_calendar')
+                            || this.hasPermission('assessments.view')
+                            || this.hasPermission('materials.view')
+                            || this.hasPermission('reports.generate')
+                        ),
                     },
                     {
                         label: 'Alunos',
@@ -65,21 +72,25 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Aulas',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/lessons'],
+                        visible: this.hasPermission('lessons.view')
                     },
                     {
                         label: 'Marcação de Aulas',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/lessons/schedule'],
+                        visible: this.hasPermission('lessons.schedule_with_calendar')
                     },
                     {
                         label: 'Calendário',
                         icon: 'pi pi-fw pi-calendar',
                         routerLink: ['/schoolar/calendar'],
+                        visible: this.hasPermission('lessons.view')
                     },
                     {
                         label: 'Avaliações',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/assessments'],
+                        visible: this.hasPermission('assessments.view')
                     },
                     {
                         label: 'Materiais didáticos',
@@ -97,7 +108,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/schoolar/reports'],
-                        visible: this.hasPermission('schoolar.reports.view')
+                        visible: this.hasPermission('reports.generate')
                     },
                 ],
             },
@@ -114,7 +125,14 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
                         routerLink: ['/finances/dashboards'],
-                        visible: this.hasPermission('finance.dashboard.view')
+                        visible: (this.hasPermission('contracts.view')
+                            || this.hasPermission('finance.dashboard.view')
+                            || this.hasPermission('pos.view_sales')
+                            || this.hasPermission('reports.finance.view')
+                            || this.hasPermission('automation.manage_workflows')
+                            || this.hasPermission('reports.finance.view')
+                            || this.hasPermission('financial.generate_reports')
+                        ),
                     },
                     {
                         label: 'Gestão de Contratos',
@@ -132,31 +150,37 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Vendas Avulsas',
                         icon: 'pi pi-fw pi-shopping-cart',
                         routerLink: ['/finances/sales'],
-                        visible: this.hasPermission('sales.view')
+                        visible: this.hasPermission('pos.view_sales')
+
                     },
                     {
                         label: 'Gestão de Tarefas',
                         icon: 'pi pi-fw pi-check-square',
                         routerLink: ['/settings/tasks'],
+                        visible: this.hasPermission('automation.manage_workflows')
                     },
                     {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/finances/reports'],
-                        visible: this.hasPermission('reports.finance.view')
+                        visible: this.hasPermission('financial.generate_reports')
                     },
                 ],
             },
             {
                 label: 'Empresa',
                 icon: 'pi pi-fw pi-users',
-                //visible: this.hasPermission('settings.corporate.manage'),
+                visible: (this.hasPermission('centers.view')
+                    || this.hasPermission('reports.export')
+                ),
                 items: [
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-th-large',
                         routerLink: ['/corporate/dashboards'],
-                        visible: this.hasPermission('corporate.dashboard.view')
+                        visible: (this.hasPermission('centers.view')
+                            || this.hasPermission('reports.export')
+                        ),
                     },
                     {
                         label: 'Centros',
@@ -168,31 +192,27 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Relatório',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/corporate/reports'],
-                        visible: this.hasPermission('reports.corporate.view')
+                        visible: this.hasPermission('reports.export')
                     },
                     {
                         label: 'Administração',
                         icon: 'pi pi-fw pi-cog',
-                        // visible: this.hasPermission('users.manage'),
+                        visible: (this.hasPermission('hr.view_employees')
+                            || this.hasPermission('roles.view')
+                        ),
                         items: [
                             {
-                                label: 'Usuários',
+                                label: 'Utilizadores do backoffice',
                                 icon: 'pi pi-fw pi-users',
                                 routerLink: ['/corporate/employees'],
-                                // visible: this.hasPermission('users.view')
+                                visible: this.hasPermission('hr.view_employees')
                             },
                             {
-                                label: 'Funções',
+                                label: 'Perfis',
                                 icon: 'pi pi-fw pi-id-card',
                                 routerLink: ['/corporate/roles'],
-                                //visible: this.hasPermission('roles.view')
-                            },
-                            {
-                                label: 'Permissões',
-                                icon: 'pi pi-fw pi-lock',
-                                routerLink: ['/corporate/permissions'],
-                                //visible: this.hasPermission('permissions.view')
-                            },
+                                visible: this.hasPermission('roles.view')
+                            }
                         ]
                     },
                 ],
