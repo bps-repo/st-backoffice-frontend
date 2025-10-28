@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
         })
 
         setInterval(() => {
-            healthService.getHealth()
+            this.healthService.getHealth().subscribe((v) => console.log(v))
             console.log("Health check ok")
         }, 8000)
     }
