@@ -6,6 +6,7 @@ import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ICONS} from "./shared/icons/icons";
 import {ToastModule} from "primeng/toast";
+import {HealthCheckService} from "./core/services/health-check.service";
 
 @Component({
     selector: 'app-root',
@@ -18,7 +19,7 @@ import {ToastModule} from "primeng/toast";
 export class AppComponent implements OnInit {
     ICONS: { name: string, svg: string }[] = ICONS
 
-    constructor(private primengConfig: PrimeNGConfig) {
+    constructor(private primengConfig: PrimeNGConfig, private readonly healthService: HealthCheckService) {
         const iconRegistry = inject(MatIconRegistry)
         const sanitizedSvg = inject(DomSanitizer)
 
@@ -26,6 +27,11 @@ export class AppComponent implements OnInit {
         ICONS.forEach(icon => {
             iconRegistry.addSvgIconLiteral(icon.name, sanitizedSvg.bypassSecurityTrustHtml(icon.svg));
         })
+
+        setInterval(() => {
+            healthService.getHealth()
+            console.log("Health check ok")
+        }, 8000)
     }
 
     ngOnInit(): void {
