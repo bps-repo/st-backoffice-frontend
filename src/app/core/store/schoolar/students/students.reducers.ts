@@ -92,6 +92,8 @@ export const studentsFeature = createFeature({
             ...state,
             loadingCreate: true,
             createError: null,
+            createStudentSuccess: false,
+            selectCreatedStudent: null,
         })),
 
         on(StudentsActions.createStudentWithRequestSuccess, (state, {student}) =>
@@ -99,6 +101,8 @@ export const studentsFeature = createFeature({
                 ...state,
                 loadingCreate: false,
                 createError: null,
+                createStudentSuccess: true,
+                selectCreatedStudent: student,
                 // Update pagination totals
                 pagination: {
                     ...state.pagination,
@@ -112,6 +116,8 @@ export const studentsFeature = createFeature({
             ...state,
             loadingCreate: false,
             createError: error,
+            createStudentSuccess: false,
+            selectCreatedStudent: null,
         })),
 
         // Update student

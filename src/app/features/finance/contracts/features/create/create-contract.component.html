@@ -172,8 +172,9 @@
                     <!-- Step 4: OBSERVAÇÕES -->
                     <div *ngIf="activeIndex === 4" class="step-content">
                         <h3 class="text-900 font-medium text-xl mb-3">Gestão contratual</h3>
-                        <div class="grid p-fluid">
-                            <finance-renew-contract></finance-renew-contract>
+                        <div class="grid p-fluid p-2">
+                            <finance-renew-contract [createdStudentId]="createdStudentId"
+                                                    (contractCompleted)="onContractCompleted()"></finance-renew-contract>
                         </div>
                     </div>
 

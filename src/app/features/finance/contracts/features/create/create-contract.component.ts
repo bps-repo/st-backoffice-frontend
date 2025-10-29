@@ -31,6 +31,7 @@ import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
 import {map, Observable} from 'rxjs';
 import {RenewContractComponent} from "../renew/renew-contract.component";
+import {selectSelectCreatedStudent} from "../../../../../core/store/schoolar/students/students.selectors";
 
 @Component({
     selector: 'app-student-create',
@@ -106,6 +107,16 @@ export class CreateContractComponent implements OnInit, OnDestroy {
 
         // Prevent navigation away if student is created but no contract
         this.setupNavigationGuard();
+
+
+        this.store.select(selectSelectCreatedStudent).subscribe(student => {
+            if (student) {
+                this.isStudentCreated = true;
+                this.createdStudentId = student?.id ?? "";
+
+                this.activeIndex = 4
+            }
+        })
     }
 
     ngOnDestroy() {
@@ -391,7 +402,7 @@ export class CreateContractComponent implements OnInit, OnDestroy {
 
     onFileSelected(event: any) {
         const file = event.files?.[0];
-        
+
         /*if (file) {
             this.studentForm.patchValue({photo: file});
             this.studentForm.get('photo')?.updateValueAndValidity();

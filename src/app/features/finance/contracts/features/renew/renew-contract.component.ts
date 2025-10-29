@@ -1,4 +1,14 @@
-import {Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
+import {
+    Component,
+    Input,
+    OnInit,
+    Output,
+    EventEmitter,
+    OnChanges,
+    SimpleChanges,
+    HostListener,
+    OnDestroy
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -41,10 +51,13 @@ import {Employee} from '../../../../../core/models/corporate/employee';
     ],
     providers: [MessageService]
 })
-export class RenewContractComponent implements OnInit, OnChanges {
+export class RenewContractComponent implements OnInit, OnChanges, OnDestroy {
     @Input() renewContract?: boolean = true;
     @Input() createdStudentId?: string | null = null; // New input for created student
     @Output() contractCompleted = new EventEmitter<void>(); // Emit when contract is created
+
+    // Flag to prevent from closing/reload the browser tab
+    unsavedChanges = true;
 
     students: Student[] = [];
     selectedStudent: Student | null = null;
@@ -95,6 +108,8 @@ export class RenewContractComponent implements OnInit, OnChanges {
         if (this.renewContract === undefined) {
             this.renewContract = true;
         }
+
+        this.unsavedChanges = true;
 
         this.loadStudents();
         this.loadEmployees();
@@ -308,7 +323,7 @@ export class RenewContractComponent implements OnInit, OnChanges {
                 notes: formValue.levelNotes
             },
             includeRegistrationFee: Boolean(formValue.includeRegistrationFee),
-            numberOfLevelsOffered: 1,
+            numberOfLevelsOffered: 0,
             notes: formValue.notes,
             contractType: formValue.contractType,
             numberOfInstallments: formValue.numberOfInstallments
@@ -325,6 +340,8 @@ export class RenewContractComponent implements OnInit, OnChanges {
                 // Emit event to parent component
                 this.contractCompleted.emit();
 
+                this.unsavedChanges = false;
+
                 this.loading = false;
             },
             error: (err) => {
@@ -333,5 +350,19 @@ export class RenewContractComponent implements OnInit, OnChanges {
                 this.loading = false;
             }
         });
+    }
+
+    ngOnDestroy() {
+        if (this.unsavedChanges) {
+
+        }
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    unloadNotification(event: BeforeUnloadEvent): void {
+        if (this.unsavedChanges) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
     }
 }
