@@ -1,20 +1,22 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
-import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { TagModule } from 'primeng/tag';
-import { Contract } from 'src/app/core/models/corporate/contract';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { selectAllContracts, selectContractsLoading } from 'src/app/core/store/corporate/contracts/contracts.selectors';
-import { map } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { ContractActions } from 'src/app/core/store/corporate/contracts/contracts.actions';
+import {Component, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {DropdownModule} from 'primeng/dropdown';
+import {CardModule} from 'primeng/card';
+import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
+import {TagModule} from 'primeng/tag';
+import {Contract} from 'src/app/core/models/corporate/contract';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {selectAllContracts, selectContractsLoading} from 'src/app/core/store/corporate/contracts/contracts.selectors';
+import {map} from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
+import {ContractActions} from 'src/app/core/store/corporate/contracts/contracts.actions';
+import {ConfirmationService} from "primeng/api";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
 
 @Component({
     selector: 'app-contracts-management',
@@ -29,8 +31,10 @@ import { ContractActions } from 'src/app/core/store/corporate/contracts/contract
         CardModule,
         TableModule,
         TooltipModule,
-        TagModule
-    ]
+        TagModule,
+        ConfirmDialogModule
+    ],
+    providers: [ConfirmationService]
 })
 export class ManagementComponent implements OnInit {
     // Estatísticas de contratos
@@ -45,13 +49,14 @@ export class ManagementComponent implements OnInit {
 
     constructor(
         private router: Router,
-        private store: Store
+        private store: Store,
+        private readonly confirmationService: ConfirmationService
     ) {
         this.contracts$ = this.store.select(selectAllContracts).pipe(
             map(contracts => contracts.map(contract => {
-                this.calculateStatistics(contracts);
-                return this.normalizeContract(contract)
-            }
+                    this.calculateStatistics(contracts);
+                    return this.normalizeContract(contract)
+                }
             ))
         );
         this.loading$ = this.store.select(selectContractsLoading);
@@ -64,6 +69,7 @@ export class ManagementComponent implements OnInit {
     loadContracts(): void {
         this.store.dispatch(ContractActions.loadContracts());
     }
+
     private normalizeContract(contract: Contract) {
         const student = contract.student;
         const seller = contract.seller;
@@ -153,12 +159,16 @@ export class ManagementComponent implements OnInit {
         return statusMap[status] || status;
     }
 
-    createNewContract() {
-        this.router.navigate(['/finances/contracts/create']);
+    async createNewContract(newContract: boolean = false): Promise<any> {
+        if (newContract) {
+            return this.router.navigate(['/finances/contracts/create']);
+        }
+
+        return this.router.navigate(['/finances/contracts/renew']);
     }
 
     viewContract(contract: any) {
-        this.router.navigate(['/finances/contracts/details', contract.id]);
+        this.router.navigate(['/finances/contracts/details', contract.id]).then();
     }
 
     editContract(contract: any) {

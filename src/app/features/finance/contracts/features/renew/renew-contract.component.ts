@@ -1,30 +1,31 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { Store } from '@ngrx/store';
-import { Student } from 'src/app/core/models/academic/student';
-import { ContractService, } from 'src/app/core/services/contract.service';
-import { StudentsActions } from "../../../../../core/store/schoolar/students/students.actions";
-import { selectAllStudents } from "../../../../../core/store/schoolar/students/students.selectors";
-import { CreateStudentContractRequest, Installment } from 'src/app/core/models/corporate/contract';
-import { EmployeesActions } from '../../../../../core/store/corporate/employees/employees.actions';
-import { selectAllEmployees } from '../../../../../core/store/corporate/employees/employees.selectors';
-import { LevelActions } from '../../../../../core/store/schoolar/level/level.actions';
-import { selectAllLevels } from '../../../../../core/store/schoolar/level/level.selector';
-import { Level } from '../../../../../core/models/course/level';
-import { Employee } from '../../../../../core/models/corporate/employee';
+import {Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {DropdownModule} from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import {TableModule} from 'primeng/table';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {ToastModule} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
+import {Store} from '@ngrx/store';
+import {Student} from 'src/app/core/models/academic/student';
+import {ContractService,} from 'src/app/core/services/contract.service';
+import {StudentsActions} from "../../../../../core/store/schoolar/students/students.actions";
+import {selectAllStudents} from "../../../../../core/store/schoolar/students/students.selectors";
+import {CreateStudentContractRequest, Installment} from 'src/app/core/models/corporate/contract';
+import {EmployeesActions} from '../../../../../core/store/corporate/employees/employees.actions';
+import {selectAllEmployees} from '../../../../../core/store/corporate/employees/employees.selectors';
+import {LevelActions} from '../../../../../core/store/schoolar/level/level.actions';
+import {selectAllLevels} from '../../../../../core/store/schoolar/level/level.selector';
+import {Level} from '../../../../../core/models/course/level';
+import {Employee} from '../../../../../core/models/corporate/employee';
+
 @Component({
-    selector: 'app-create-contract',
-    templateUrl: './create-contract.component.html',
+    selector: 'finance-renew-contract',
+    templateUrl: './renew-contract.component.html',
     standalone: true,
     imports: [
         CommonModule,
@@ -40,7 +41,11 @@ import { Employee } from '../../../../../core/models/corporate/employee';
     ],
     providers: [MessageService]
 })
-export class CreateContractComponent implements OnInit {
+export class RenewContractComponent implements OnInit, OnChanges {
+    @Input() renewContract?: boolean = true;
+    @Input() createdStudentId?: string | null = null; // New input for created student
+    @Output() contractCompleted = new EventEmitter<void>(); // Emit when contract is created
+
     students: Student[] = [];
     selectedStudent: Student | null = null;
     employees: Employee[] = [];
@@ -48,7 +53,6 @@ export class CreateContractComponent implements OnInit {
     contractForm: FormGroup;
     loading = false;
 
-    // Contract summary properties
     contractSummary = {
         totalAmount: 0,
         totalLevelPrice: 0,
@@ -61,8 +65,8 @@ export class CreateContractComponent implements OnInit {
     installments: Installment[] = [];
 
     contractTypes = [
-        { label: 'Standard', value: 'STANDARD' },
-        { label: 'VIP', value: 'VIP' },
+        {label: 'Standard', value: 'STANDARD'},
+        {label: 'VIP', value: 'VIP'},
     ];
 
     constructor(
@@ -77,7 +81,6 @@ export class CreateContractComponent implements OnInit {
             contractType: ['STANDARD', [Validators.required]],
             numberOfInstallments: [1, [Validators.required, Validators.min(1)]],
             notes: [''],
-            // Contract level fields directly in main form
             levelId: [null, [Validators.required]],
             duration: [0, [Validators.required, Validators.min(1)]],
             levelPrice: [0, [Validators.required, Validators.min(0)]],
@@ -89,16 +92,18 @@ export class CreateContractComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        if (this.renewContract === undefined) {
+            this.renewContract = true;
+        }
+
         this.loadStudents();
         this.loadEmployees();
         this.loadLevels();
 
-        // Sync defaults
         this.contractForm.get('student')?.valueChanges.subscribe((val) => {
             this.selectedStudent = val;
         });
 
-        // Watch for changes to recalculate summary
         this.contractForm.valueChanges.subscribe(() => {
             setTimeout(() => {
                 this.calculateContractSummary();
@@ -106,18 +111,46 @@ export class CreateContractComponent implements OnInit {
             }, 50);
         });
 
-        // Register change handlers for level fields
         this.registerLevelChangeHandlers();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        // When createdStudentId is provided, auto-select the student
+        if (changes['createdStudentId'] && this.createdStudentId) {
+            this.selectCreatedStudent();
+        }
+    }
+
+    private selectCreatedStudent(): void {
+        // Find the created student in the list
+        const student = this.students.find(s => s.id === this.createdStudentId);
+        if (student) {
+            this.selectedStudent = student;
+            this.contractForm.patchValue({student});
+
+            // Disable student selection since it's auto-selected
+            this.contractForm.get('student')?.disable();
+
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Aluno Selecionado',
+                detail: `Criando contrato para ${student.user.firstname} ${student.user.lastname}`
+            });
+        }
     }
 
     loadStudents(): void {
         this.store.dispatch(StudentsActions.loadStudents());
         this.store.select(selectAllStudents).subscribe(students => {
-            // Map to simple dropdown model if needed
             this.students = students.map(s => ({
                 ...s,
                 name: `${s.user.firstname} ${s.user.lastname}`
             } as any));
+
+            // If createdStudentId exists, select it after loading
+            if (this.createdStudentId) {
+                this.selectCreatedStudent();
+            }
         });
     }
 
@@ -139,7 +172,6 @@ export class CreateContractComponent implements OnInit {
         });
     }
 
-    // Register change handlers for level fields
     private registerLevelChangeHandlers() {
         this.contractForm.get('levelId')?.valueChanges.subscribe(levelId => {
             if (levelId) {
@@ -163,12 +195,10 @@ export class CreateContractComponent implements OnInit {
     }
 
     calculateContractSummary(): void {
-        const formValue = this.contractForm.value;
+        const formValue = this.contractForm.getRawValue(); // Use getRawValue to get disabled fields
         let totalLevelPrice = 0;
         let totalMaterialPrice = 0;
 
-
-        // Calculate totals from contract level fields
         const levelPrice = Number(formValue.levelPrice) || 0;
         const materialPrice = Number(formValue.courseMaterialPrice) || 0;
 
@@ -180,7 +210,7 @@ export class CreateContractComponent implements OnInit {
         const totalDiscount = (totalAmount * discountPercent) / 100;
         const finalAmount = totalAmount - totalDiscount;
 
-        const numberOfInstallments = this.contractForm.get('numberOfInstallments')?.value || 1;
+        const numberOfInstallments = formValue.numberOfInstallments || 1;
         const installmentAmount = finalAmount > 0 && numberOfInstallments > 0 ? finalAmount / numberOfInstallments : 0;
 
         this.contractSummary = {
@@ -194,7 +224,7 @@ export class CreateContractComponent implements OnInit {
     }
 
     generateInstallments(): void {
-        const formValue = this.contractForm.value;
+        const formValue = this.contractForm.getRawValue();
         const numberOfInstallments = formValue.numberOfInstallments || 1;
         const finalAmount = this.contractSummary.finalAmount;
 
@@ -205,22 +235,21 @@ export class CreateContractComponent implements OnInit {
 
         const installmentAmount = finalAmount / numberOfInstallments;
         const installments: Installment[] = [];
-        const baseDate = new Date(); // Use current date as base for installments
+        const baseDate = new Date();
 
         for (let i = 0; i < numberOfInstallments; i++) {
             const dueDate = new Date(baseDate);
             dueDate.setMonth(dueDate.getMonth() + i);
 
             installments.push({
-                id: `temp-${i + 1}`, // Temporary ID for display
+                id: `temp-${i + 1}`,
                 installmentNumber: i + 1,
                 dueDate: dueDate.toISOString().split('T')[0],
-                amount: Math.round(installmentAmount * 100) / 100, // Round to 2 decimal places
+                amount: Math.round(installmentAmount * 100) / 100,
                 status: 'PENDING_PAYMENT'
             });
         }
 
-        // Adjust the last installment to account for rounding differences
         if (installments.length > 0) {
             const totalCalculated = installments.reduce((sum, inst) => sum + inst.amount, 0);
             const difference = finalAmount - totalCalculated;
@@ -234,12 +263,10 @@ export class CreateContractComponent implements OnInit {
     onLevelSelected(levelId: string): void {
         const selectedLevel = this.levels.find(level => level.id === levelId);
         if (selectedLevel) {
-            // Auto-populate duration from selected level
             this.contractForm.patchValue({
                 duration: selectedLevel.duration
             });
 
-            // Trigger recalculation
             setTimeout(() => {
                 this.calculateContractSummary();
                 this.generateInstallments();
@@ -247,79 +274,64 @@ export class CreateContractComponent implements OnInit {
         }
     }
 
-    // Manual trigger for debugging
-    manualCalculate(): void {
-        console.log('Manual calculation triggered');
-        this.calculateContractSummary();
-        this.generateInstallments();
-    }
-
     onSubmit(): void {
-        if (this.contractForm.invalid || !this.selectedStudent) {
-            this.contractForm.markAllAsTouched();
+        const formValue = this.contractForm.getRawValue(); // Get all values including disabled
+
+        // Validate
+        if (!formValue.student || !formValue.levelId) {
             this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: 'Please fill all required fields'
+                summary: 'Erro',
+                detail: 'Por favor preencha todos os campos obrigatórios'
             });
             return;
         }
 
         this.loading = true;
 
-        // Build payload according to new backend schema
-        const v = this.contractForm.value;
         const payload: CreateStudentContractRequest = {
-            studentId: this.selectedStudent.id!,
-            sellerId: v.sellerId,
+            studentId: formValue.student.id || this.createdStudentId!,
+            sellerId: formValue.sellerId,
             amount: this.contractSummary.finalAmount || 0,
             enrollmentFee: 0,
             enrollmentFeePaid: true,
-            discountPercent: v.discountPercent ?? 0,
-            unitPrice: Number(v.levelPrice || 0),
+            discountPercent: formValue.discountPercent ?? 0,
+            unitPrice: Number(formValue.levelPrice || 0),
             contractLevel: {
-                levelId: v.levelId,
-                duration: Number(v.duration || 0),
-                levelPrice: Number(v.levelPrice || 0),
-                courseMaterialPrice: Number(v.courseMaterialPrice || 0),
-                finalCourseMaterialPrice: Number(v.courseMaterialPrice || 0),
-                courseMaterialPaid: Boolean(v.courseMaterialPaid),
-                includeRegistrationFee: Boolean(v.includeRegistrationFee),
-                notes: v.levelNotes
+                levelId: formValue.levelId,
+                duration: Number(formValue.duration || 0),
+                levelPrice: Number(formValue.levelPrice || 0),
+                courseMaterialPrice: Number(formValue.courseMaterialPrice || 0),
+                finalCourseMaterialPrice: Number(formValue.courseMaterialPrice || 0),
+                courseMaterialPaid: Boolean(formValue.courseMaterialPaid),
+                includeRegistrationFee: Boolean(formValue.includeRegistrationFee),
+                notes: formValue.levelNotes
             },
-            includeRegistrationFee: Boolean(v.includeRegistrationFee),
+            includeRegistrationFee: Boolean(formValue.includeRegistrationFee),
             numberOfLevelsOffered: 1,
-            notes: v.notes,
-            contractType: v.contractType,
-            numberOfInstallments: v.numberOfInstallments
+            notes: formValue.notes,
+            contractType: formValue.contractType,
+            numberOfInstallments: formValue.numberOfInstallments
         };
-
-        // Add contract summary and installments to payload if needed
-        console.log('Contract Summary:', this.contractSummary);
-        console.log('Generated Installments:', this.installments);
-        console.log('Payload:', payload);
 
         this.contractService.createStudentContract(payload).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Success',
-                    detail: `Contract created for ${this.selectedStudent!.user.firstname}`
+                    summary: 'Sucesso',
+                    detail: 'Contrato criado com sucesso!'
                 });
-                this.contractForm.reset();
-                this.selectedStudent = null;
+
+                // Emit event to parent component
+                this.contractCompleted.emit();
+
                 this.loading = false;
             },
             error: (err) => {
-                const detail = err?.error?.message || err?.message || 'Failed to create contract.';
-                this.messageService.add({ severity: 'error', summary: 'Error', detail });
+                const detail = err?.error?.message || err?.message || 'Falha ao criar contrato.';
+                this.messageService.add({severity: 'error', summary: 'Erro', detail});
                 this.loading = false;
             }
         });
-    }
-
-    private formatDate(date: Date): string {
-        if (!date) return '';
-        return date.toISOString().split('T')[0];
     }
 }
