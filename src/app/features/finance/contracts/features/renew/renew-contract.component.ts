@@ -32,6 +32,8 @@ import {LevelActions} from '../../../../../core/store/schoolar/level/level.actio
 import {selectAllLevels} from '../../../../../core/store/schoolar/level/level.selector';
 import {Level} from '../../../../../core/models/course/level';
 import {Employee} from '../../../../../core/models/corporate/employee';
+import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes.guard";
+import {Observable} from "rxjs";
 
 @Component({
     selector: 'finance-renew-contract',
@@ -51,7 +53,7 @@ import {Employee} from '../../../../../core/models/corporate/employee';
     ],
     providers: [MessageService]
 })
-export class RenewContractComponent implements OnInit, OnChanges, OnDestroy {
+export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, CanComponentDeactivate {
     @Input() renewContract?: boolean = true;
     @Input() createdStudentId?: string | null = null; // New input for created student
     @Output() contractCompleted = new EventEmitter<void>(); // Emit when contract is created
@@ -104,6 +106,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
+
     ngOnInit(): void {
         if (this.renewContract === undefined) {
             this.renewContract = true;
@@ -134,6 +137,13 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy {
         if (changes['createdStudentId'] && this.createdStudentId) {
             this.selectCreatedStudent();
         }
+    }
+
+    canDeactivate(): boolean {
+        if (this.contractForm.dirty) {
+            return confirm('⚠️ Você tem alterações não salvas. Tens a certeza que desejas sair?');
+        }
+        return true;
     }
 
     private selectCreatedStudent(): void {

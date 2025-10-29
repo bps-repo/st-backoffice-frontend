@@ -44,7 +44,7 @@ import {HasPermissionPipe} from 'src/app/shared/pipes';
 import {HasPermissionDirective} from 'src/app/shared/directives';
 
 @Component({
-    selector: 'app-general',
+    selector: 'schoolar-students-list',
     imports: [
         CommonModule,
         RouterModule,

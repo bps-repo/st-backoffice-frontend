@@ -32,9 +32,10 @@ import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.se
 import {map, Observable} from 'rxjs';
 import {RenewContractComponent} from "../renew/renew-contract.component";
 import {selectSelectCreatedStudent} from "../../../../../core/store/schoolar/students/students.selectors";
+import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes.guard";
 
 @Component({
-    selector: 'app-student-create',
+    selector: 'finance-contracts-create',
     imports: [
         CommonModule,
         ReactiveFormsModule,
@@ -58,7 +59,7 @@ import {selectSelectCreatedStudent} from "../../../../../core/store/schoolar/stu
     styleUrls: ['./create-contract.component.scss'],
     providers: [MessageService]
 })
-export class CreateContractComponent implements OnInit, OnDestroy {
+export class CreateContractComponent implements OnInit, OnDestroy, CanComponentDeactivate {
     activeIndex: number = 0;
     studentForm!: FormGroup;
     private destroy$ = new Subject<void>();
@@ -118,6 +119,14 @@ export class CreateContractComponent implements OnInit, OnDestroy {
             }
         })
     }
+
+    canDeactivate(): boolean {
+        if (this.studentForm.dirty) {
+            return confirm('⚠️ You have unsaved changes. Are you sure you want to leave this page?');
+        }
+        return true;
+    }
+
 
     ngOnDestroy() {
         this.destroy$.next();

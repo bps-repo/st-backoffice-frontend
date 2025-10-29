@@ -25,6 +25,12 @@ export class EmployeeService {
         );
     }
 
+    getCurrentEmployee(): Observable<Employee> {
+        return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/me`).pipe(
+            map((response) => response.data as Employee)
+        );
+    }
+
     /**
      * Creates a new employee.
      * @param employeeData The employee data to create following the new structure.
