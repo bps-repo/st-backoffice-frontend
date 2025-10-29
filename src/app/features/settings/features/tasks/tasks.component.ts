@@ -1,18 +1,25 @@
-import {Component, OnInit, ViewChild, TemplateRef, AfterViewInit, ElementRef, HostListener} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {Task} from './models/task.model';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
-import {InputTextModule} from 'primeng/inputtext';
-import {ButtonModule} from 'primeng/button';
-import {BadgeModule} from 'primeng/badge';
-import {TooltipModule} from 'primeng/tooltip';
-import {TableColumn} from 'src/app/shared/components/tables/global-table/global-table.component';
-import {RippleModule} from "primeng/ripple";
+import { Component, OnInit, ViewChild, TemplateRef, AfterViewInit, ElementRef, HostListener, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Task } from './models/task.model';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
+import { TableColumn } from 'src/app/shared/components/tables/global-table/global-table.component';
+import { RippleModule } from "primeng/ripple";
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Store } from '@ngrx/store';
+import { TasksActions } from '../../../../core/store/settings/tasks/tasks.actions';
+import * as TasksSelectors from '../../../../core/store/settings/tasks/tasks.selectors';
+import { TaskItem } from '../../../../core/models/task-item.model';
+import { Subject, takeUntil } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
-    selector: 'app-tasks',
+    selector: 'settings-tasks',
     standalone: true,
     imports: [
         CommonModule,
@@ -23,19 +30,27 @@ import {RippleModule} from "primeng/ripple";
         ButtonModule,
         BadgeModule,
         TooltipModule,
-        RippleModule
+        RippleModule,
+        RouterModule,
+        ProgressSpinnerModule
     ],
     templateUrl: './tasks.component.html',
     styleUrls: ['./tasks.component.scss']
 })
-export class TasksComponent implements OnInit, AfterViewInit {
+export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
     tasks: Task[] = [];
+    pendingRegistrations: TaskItem[] = [];
+    private destroy$ = new Subject<void>();
 
     // Task counts for each category
     contratosTerminadosCount: number = 0;
     parcelasVencerCount: number = 0;
     parcelasVencidasCount: number = 0;
     ausenciasLongasCount: number = 0;
+    inscricoesPendentesCount: number = 0;
+
+    // Loading state from store
+    loading$ = this.store.select(TasksSelectors.selectTasksLoading);
 
     // Make Math available to the template
     protected readonly Math = Math;
@@ -44,32 +59,33 @@ export class TasksComponent implements OnInit, AfterViewInit {
     currentView: string = 'contratos_terminados'; // Default view is terminated contracts
 
     viewOptions = [
-        {label: 'Contratos terminados', value: 'contratos_terminados'},
-        {label: 'Parcelas a vencer', value: 'parcelas_vencer'},
-        {label: 'Parcelas vencidas', value: 'parcelas_vencidas'},
-        {label: 'Ausências longas', value: 'ausencias_longas'}
+        { label: 'Contratos terminados', value: 'contratos_terminados' },
+        { label: 'Parcelas a vencer', value: 'parcelas_vencer' },
+        { label: 'Parcelas vencidas', value: 'parcelas_vencidas' },
+        { label: 'Ausências longas', value: 'ausencias_longas' },
+        { label: 'Inscrições pendentes', value: 'inscricoes_pendentes' },
     ];
 
     // Table columns
     columns: TableColumn[] = [
-        {field: 'id', header: 'ID'},
-        {field: 'title', header: 'Título'},
-        {field: 'description', header: 'Descrição'},
-        {field: 'status', header: 'Status'},
-        {field: 'priority', header: 'Prioridade'},
-        {field: 'dueDate', header: 'Data de Vencimento'},
-        {field: 'assignedTo', header: 'Responsável'},
-        {field: 'category', header: 'Categoria'}
+        { field: 'id', header: 'ID' },
+        { field: 'title', header: 'Título' },
+        { field: 'description', header: 'Descrição' },
+        { field: 'status', header: 'Status' },
+        { field: 'priority', header: 'Prioridade' },
+        { field: 'dueDate', header: 'Data de Vencimento' },
+        { field: 'assignedTo', header: 'Responsável' },
+        { field: 'category', header: 'Categoria' }
     ];
 
     globalFilterFields: string[] = ['title', 'description', 'assignedTo', 'category'];
     customTemplates: Record<string, TemplateRef<any>> = {};
 
     // References to sticky header elements
-    @ViewChild('mainHeader', {static: false})
+    @ViewChild('mainHeader', { static: false })
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', {static: false})
+    @ViewChild('viewSelector', { static: false })
     viewSelector!: ElementRef;
 
     // Sticky state tracking
@@ -77,21 +93,30 @@ export class TasksComponent implements OnInit, AfterViewInit {
     isViewSelectorSticky: boolean = false;
 
     // Status templates
-    @ViewChild('statusTemplate', {static: true})
+    @ViewChild('statusTemplate', { static: true })
     statusTemplate!: TemplateRef<any>;
 
-    @ViewChild('priorityTemplate', {static: true})
+    @ViewChild('priorityTemplate', { static: true })
     priorityTemplate!: TemplateRef<any>;
 
-    @ViewChild('dueDateTemplate', {static: true})
+    @ViewChild('dueDateTemplate', { static: true })
     dueDateTemplate!: TemplateRef<any>;
 
-    @ViewChild('actionsTemplate', {static: true})
+    @ViewChild('actionsTemplate', { static: true })
     actionsTemplate!: TemplateRef<any>;
+
+    constructor(
+        private store: Store,
+        private router: Router
+    ) { }
 
     // Method to handle view selection
     onViewChange(event: any) {
         this.currentView = event.value;
+        // Reload tasks when switching to inscricoes_pendentes
+        if (this.currentView === 'inscricoes_pendentes') {
+            this.store.dispatch(TasksActions.loadDailyTasks());
+        }
     }
 
     // Listen for scroll events
@@ -124,9 +149,24 @@ export class TasksComponent implements OnInit, AfterViewInit {
                 return this.tasks.filter(task => task.category === 'Parcela Vencida');
             case 'ausencias_longas':
                 return this.tasks.filter(task => task.category === 'Ausência Longa');
+            case 'inscricoes_pendentes':
+                return [];
             default:
                 return this.tasks;
         }
+    }
+
+    // Get filtered pending registrations
+    get filteredPendingRegistrations(): TaskItem[] {
+        if (this.currentView !== 'inscricoes_pendentes') {
+            return [];
+        }
+        return this.pendingRegistrations || [];
+    }
+
+    // Check if we should show loading for inscricoes_pendentes
+    get isLoadingPendingRegistrations(): boolean {
+        return this.currentView === 'inscricoes_pendentes';
     }
 
     // Update task counts
@@ -135,111 +175,28 @@ export class TasksComponent implements OnInit, AfterViewInit {
         this.parcelasVencerCount = this.tasks.filter(task => task.category === 'Parcela a Vencer').length;
         this.parcelasVencidasCount = this.tasks.filter(task => task.category === 'Parcela Vencida').length;
         this.ausenciasLongasCount = this.tasks.filter(task => task.category === 'Ausência Longa').length;
+        this.inscricoesPendentesCount = this.pendingRegistrations.length;
     }
 
     ngOnInit() {
-        // Inicializar com algumas tarefas de exemplo
-        this.tasks = [
-            {
-                id: '1',
-                title: 'Contrato de João Silva',
-                description: 'Contrato de curso de inglês terminado em 01/08/2025',
-                status: 'PENDENTE',
-                priority: 'ALTA',
-                dueDate: new Date(new Date().setDate(new Date().getDate() - 5)),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Maria Oliveira',
-                category: 'Contrato Terminado'
-            },
-            {
-                id: '2',
-                title: 'Contrato de Ana Pereira',
-                description: 'Contrato de curso de espanhol terminado em 30/07/2025',
-                status: 'PENDENTE',
-                priority: 'MEDIA',
-                dueDate: new Date(new Date().setDate(new Date().getDate() - 7)),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Carlos Santos',
-                category: 'Contrato Terminado'
-            },
-            {
-                id: '3',
-                title: 'Parcela 3/10 de Pedro Costa',
-                description: 'Terceira parcela do curso de francês com vencimento próximo',
-                status: 'PENDENTE',
-                priority: 'MEDIA',
-                dueDate: new Date(new Date().setDate(new Date().getDate() + 2)),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Lucia Mendes',
-                category: 'Parcela a Vencer'
-            },
-            {
-                id: '4',
-                title: 'Parcela 5/12 de Mariana Souza',
-                description: 'Quinta parcela do curso de alemão com vencimento próximo',
-                status: 'PENDENTE',
-                priority: 'BAIXA',
-                dueDate: new Date(new Date().setDate(new Date().getDate() + 3)),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Roberto Alves',
-                category: 'Parcela a Vencer'
-            },
-            {
-                id: '5',
-                title: 'Parcela 2/8 de Lucas Ferreira',
-                description: 'Segunda parcela do curso de italiano vencida há 10 dias',
-                status: 'PENDENTE',
-                priority: 'ALTA',
-                dueDate: new Date(new Date().setDate(new Date().getDate() - 10)),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Camila Rocha',
-                category: 'Parcela Vencida'
-            },
-            {
-                id: '6',
-                title: 'Parcela 7/10 de Juliana Lima',
-                description: 'Sétima parcela do curso de japonês vencida há 15 dias',
-                status: 'PENDENTE',
-                priority: 'ALTA',
-                dueDate: new Date(new Date().setDate(new Date().getDate() - 15)),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Fernando Silva',
-                category: 'Parcela Vencida'
-            },
-            {
-                id: '7',
-                title: 'Ausência de Rafael Martins',
-                description: 'Aluno ausente há 25 dias nas aulas de inglês avançado',
-                status: 'PENDENTE',
-                priority: 'MEDIA',
-                dueDate: new Date(),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Patricia Gomes',
-                category: 'Ausência Longa'
-            },
-            {
-                id: '8',
-                title: 'Ausência de Carolina Santos',
-                description: 'Aluna ausente há 30 dias nas aulas de espanhol intermediário',
-                status: 'PENDENTE',
-                priority: 'ALTA',
-                dueDate: new Date(),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                assignedTo: 'Marcos Oliveira',
-                category: 'Ausência Longa'
-            }
-        ];
+        // Dispatch action to load daily tasks
+        this.store.dispatch(TasksActions.loadDailyTasks());
+
+        // Subscribe to pending registrations
+        this.store.select(TasksSelectors.selectPendingRegistrations)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(tasks => {
+                this.pendingRegistrations = tasks;
+                this.updateTaskCounts();
+            });
 
         // Update task counts
         this.updateTaskCounts();
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     ngAfterViewInit() {
@@ -267,6 +224,34 @@ export class TasksComponent implements OnInit, AfterViewInit {
 
     completeTask(task: Task) {
         console.log('Complete task:', task);
+    }
+
+    // Action methods for pending registrations
+    handleTaskAction(task: TaskItem, action: string) {
+        switch (action) {
+            case 'proceed':
+                // Navigate to student detail or handle proceed action
+                this.router.navigate(['/finances/contracts/renew'], {
+                    queryParams: { studentId: task.studentId }
+                });
+                break;
+            case 'create_contract':
+                // Navigate to create contract page
+                this.router.navigate(['/finances/contracts/create'], {
+                    queryParams: { studentId: task.studentId }
+                });
+                break;
+            case 'delete':
+                console.log('Delete task:', task);
+                // Implement delete logic
+                break;
+            case 'ignore':
+                console.log('Ignore task:', task);
+                // Implement ignore logic
+                break;
+            default:
+                console.log('Unknown action:', action);
+        }
     }
 
     // Calculate days between a date and today

@@ -61,7 +61,6 @@ import {HasPermissionDirective} from 'src/app/shared/directives';
         FormsModule,
         StudentsDashboardComponent,
         StudentReports,
-        HasPermissionDirective
     ],
     templateUrl: './list.component.html',
 })
