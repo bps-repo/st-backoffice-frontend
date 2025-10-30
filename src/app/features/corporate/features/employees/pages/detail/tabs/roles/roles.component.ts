@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Employee } from 'src/app/core/models/corporate/employee';
-import { EmployeeService } from 'src/app/core/services/employee.service';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +15,7 @@ import { MessageService } from 'primeng/api';
 import { RippleModule } from "primeng/ripple";
 import { Permission } from 'src/app/core/models/auth/permission';
 import { UserManagementService } from 'src/app/core/services/user-management.service';
+import {EmployeeService} from "../../../../../../../../core/services/corporate/employee.service";
 
 @Component({
     selector: 'app-roles',

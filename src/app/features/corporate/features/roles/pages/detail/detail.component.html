@@ -1,15 +1,20 @@
 <div class="grid" *ngIf="role">
+    <div class="grid" *ngIf="loading$ | async">
+        <div class="col-12 flex justify-content-center">
+            <p-progressSpinner></p-progressSpinner>
+        </div>
+    </div>
     <div class="col-12">
         <div class="card">
             <div class="flex justify-content-between align-items-center mb-5">
                 <h5>Detalhes do perfil: {{ role.name }}</h5>
                 <div>
                     <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-outlined mr-2"
-                        (click)="onEditRole(role)"></button>
+                            (click)="onEditRole(role)"></button>
                     <button pButton pRipple label="Excluir" icon="pi pi-trash"
-                        class="p-button-outlined p-button-danger mr-2" (click)="deleteRole()"></button>
+                            class="p-button-outlined p-button-danger mr-2" (click)="deleteRole()"></button>
                     <button pButton pRipple label="Voltar" icon="pi pi-arrow-left" class="p-button-outlined"
-                        (click)="goBack()"></button>
+                            (click)="goBack()"></button>
                 </div>
             </div>
 
@@ -44,12 +49,12 @@
 
 <!-- Edit Role Dialog -->
 <p-dialog [(visible)]="editDialogVisible" [style]="{width: '450px'}" header="Editar Perfil" [modal]="true"
-    styleClass="p-fluid">
+          styleClass="p-fluid">
     <ng-template pTemplate="content">
         <form [formGroup]="roleForm">
             <div class="field">
                 <label for="name">Nome</label>
-                <input type="text" pInputText id="name" formControlName="name" required autofocus />
+                <input type="text" pInputText id="name" formControlName="name" required autofocus/>
                 <small class="p-error" *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched">Nome é
                     obrigatório.</small>
             </div>
@@ -57,7 +62,7 @@
                 <label for="description">Descrição</label>
                 <textarea id="description" pInputTextarea formControlName="description" required rows="3"></textarea>
                 <small class="p-error"
-                    *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched">Descrição é
+                       *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched">Descrição é
                     obrigatória.</small>
             </div>
         </form>
@@ -65,9 +70,9 @@
 
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
-            (click)="hideEditDialog()"></button>
+                (click)="hideEditDialog()"></button>
         <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-text" (click)="editRole()"
-            [disabled]="roleForm.invalid || (loading$ | async)"></button>
+                [disabled]="roleForm.invalid || (loading$ | async)"></button>
     </ng-template>
 </p-dialog>
 
@@ -89,7 +94,7 @@
                 <i class="pi pi-exclamation-triangle text-yellow-500" style="font-size: 3rem"></i>
                 <h5>Perfil não encontrado</h5>
                 <button pButton pRipple label="Voltar para a lista" icon="pi pi-arrow-left" class="p-button-outlined"
-                    (click)="goBack()"></button>
+                        (click)="goBack()"></button>
             </div>
         </div>
     </div>

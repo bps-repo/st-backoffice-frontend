@@ -2,8 +2,8 @@ import {Routes} from '@angular/router';
 import {ScholarSettings} from "./features/settings/scholar-settings.component";
 import {ScholarReports} from "./features/reports/scholar-reports.component";
 import {SchoolarDashboard} from "./features/dashboard/dashboard.component";
-import { PermissionGuard } from 'src/app/core/guards/permission.guard';
-import { ListComponent as PaymentReportsListComponent } from '../finance/reports/payment/list.component';
+import {PermissionGuard} from 'src/app/core/guards/permission.guard';
+import {ListComponent as PaymentReportsListComponent} from '../finance/reports/payment/list.component';
 
 export const ScholarRoutes: Routes = [
     {
@@ -23,22 +23,27 @@ export const ScholarRoutes: Routes = [
                 loadChildren: () =>
                     import('./features/students/students.routes').then((m) => m.StudentsRoutes),
                 canActivate: [PermissionGuard],
-                data: { permission: 'students.view' },
+                data: {permission: 'students.view'},
             },
             {
                 path: 'entities',
                 loadChildren: () =>
                     import('./features/entities/entities.routes').then((m) => m.EntitiesRoutes),
+
             },
             {
                 path: 'lessons',
                 loadChildren: () =>
                     import('./features/lessons/lessons.routes').then((m) => m.LessonsRoutes),
+                canActivate: [PermissionGuard],
+                data: {permission: 'lessons.view'},
             },
             {
                 path: 'calendar',
                 loadChildren: () =>
                     import('./features/calendars/calendar.routes').then((m) => m.CalendarRoutes),
+                canActivate: [PermissionGuard],
+                data: {permission: 'lessons.view'},
             },
             {
                 path: 'assessments',

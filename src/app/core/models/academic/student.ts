@@ -1,5 +1,5 @@
-import { Center } from "../corporate/center";
-import { Level } from "../course/level";
+import {Center} from "../corporate/center";
+import {Level} from "../course/level";
 import {Unit} from "../course/unit";
 import {User} from "../user.model";
 

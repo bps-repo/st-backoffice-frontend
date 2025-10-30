@@ -45,11 +45,10 @@
                 {{ levelName ? ('Materiais - ' + levelName) : 'Gestão de materiais didáticos' }}
             </h2>
             <span class="text-lg">
-                {{ levelName ? 'Listagem de materiais para o nível selecionado' : 'Biblioteca digital com controle de
-                acesso' }}
+                {{ levelName ? 'Listagem de materiais para o nível selecionado' : 'Biblioteca digital com controle de acesso' }}
             </span>
         </div>
-        <p-button label="Novo material" icon="pi pi-plus" class="p-button-outlined"
+        <p-button *hasPermission="'materials.upload'" label="Novo material" icon="pi pi-plus" class="p-button-outlined"
             (onClick)="navigateToCreateMaterial()"></p-button>
     </div>
 

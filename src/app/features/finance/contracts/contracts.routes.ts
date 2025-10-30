@@ -1,7 +1,8 @@
 import {Routes} from "@angular/router";
 import {ManagementComponent} from "./features/management/management.component";
 import {DetailComponent} from "./features/detail/detail.component";
-import {CreateContractComponent} from "./features/create-contract/create-contract.component";
+import {RenewContractComponent} from "./features/renew/renew-contract.component";
+import {CreateContractComponent} from "./features/create/create-contract.component";
 
 export const ContractsRoutes: Routes = [
     {
@@ -11,6 +12,10 @@ export const ContractsRoutes: Routes = [
     {
         path: 'create',
         component: CreateContractComponent
+    },
+    {
+        path: 'renew',
+        component: RenewContractComponent
     },
     {
         path: 'details/:id',

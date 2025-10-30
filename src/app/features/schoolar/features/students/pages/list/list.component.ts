@@ -1,4 +1,13 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ElementRef, HostListener} from '@angular/core';
+import {
+    Component,
+    OnInit,
+    OnDestroy,
+    TemplateRef,
+    ViewChild,
+    AfterViewInit,
+    ElementRef,
+    HostListener
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -31,8 +40,8 @@ import {SelectButtonModule} from "primeng/selectbutton";
 import {FormsModule} from "@angular/forms";
 import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
 import {StudentReports} from "../../../reports/components/student/student-reports.component";
-import { HasPermissionPipe } from 'src/app/shared/pipes';
-import { HasPermissionDirective } from 'src/app/shared/directives';
+import {HasPermissionPipe} from 'src/app/shared/pipes';
+import {HasPermissionDirective} from 'src/app/shared/directives';
 
 @Component({
     selector: 'app-general',
@@ -116,9 +125,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     currentView: string = 'list'; // Default view is list
 
     viewOptions = [
-        { label: 'Lista de alunos', value: 'list' },
-        { label: 'Relatórios', value: 'reports' },
-        { label: 'Dashboard', value: 'dashboard' },
+        {label: 'Lista de alunos', value: 'list'},
+        {label: 'Relatórios', value: 'reports'},
+        {label: 'Dashboard', value: 'dashboard'},
     ];
 
     private destroy$ = new Subject<void>();
@@ -236,7 +245,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             {
                 label: "Adicionar ao Centro",
                 icon: "pi pi-plus",
-                command: () => this.router.navigate(['/schoolar/students/add-to-center']),
+                command: () => this.router.navigate(['/schoolar/students/add-to-center']).then(),
             },
             {
                 label: 'Adicionar à turma',
@@ -246,7 +255,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             {
                 label: "Criar contracto",
                 icon: "pi pi-file",
-                command: () => this.router.navigate(['/schoolar/students/create-contract']),
+                command: () => this.router.navigate(['/schoolar/students/create-contract']).then(),
             },
         )
     }

@@ -1,16 +1,11 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 
 const routes: Routes = [
     {
         path: '',
         loadComponent: () =>
             import('./pages/list/list.component').then(c => c.ListComponent)
-    },
-    {
-        path: 'create',
-        loadComponent: () =>
-            import('./pages/create/create.component').then(c => c.CreateComponent)
     },
     {
         path: 'add-to-center',

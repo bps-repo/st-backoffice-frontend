@@ -2,9 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, exhaustMap, map, mergeMap } from 'rxjs/operators';
-import { EmployeeService } from '../../../services/employee.service';
 import { EmployeesActions } from './employees.actions';
 import { HttpErrorResponse } from '@angular/common/http';
+import {EmployeeService} from "../../../services/corporate/employee.service";
 
 @Injectable()
 export class EmployeesEffects {

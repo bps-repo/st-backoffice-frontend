@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable, of } from 'rxjs';
-import { catchError, map, switchMap, take } from 'rxjs/operators';
-import { AuthorizationService } from '../services/authorization.service';
-import { MessageService } from 'primeng/api';
-import { selectAuthToken } from '../store/auth/auth.selectors';
+import {Injectable} from '@angular/core';
+import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable, of} from 'rxjs';
+import {catchError, map, switchMap, take} from 'rxjs/operators';
+import {AuthorizationService} from '../services/authorization.service';
+import {MessageService} from 'primeng/api';
+import {selectAuthToken} from '../store/auth/auth.selectors';
 
 /**
  * Guard for checking user permissions.
@@ -25,11 +25,12 @@ export class PermissionGuard implements CanActivate {
 
     canActivate(
         route: ActivatedRouteSnapshot,
-        state: RouterStateSnapshot,
     ): Observable<boolean> {
         const requiredPermission = route.data['permission'];
         const requiredPermissions = route.data['permissions']; // Support for multiple permissions
         const requireAll = route.data['requireAll'] || false; // Whether to require all permissions
+
+        console.log("PermissionGuard constructor called", route.data)
 
         // If no permission is required, allow access
         if (!requiredPermission && !requiredPermissions) {

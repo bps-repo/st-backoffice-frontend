@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
-import { Actions, ofType, createEffect } from '@ngrx/effects';
-import { of } from 'rxjs';
-import { catchError, exhaustMap, map, mergeMap, withLatestFrom, filter, tap } from 'rxjs/operators';
-import { LevelService } from 'src/app/core/services/level.service';
-import { Level } from 'src/app/core/models/course/level';
-import { LevelActions } from "./level.actions";
-import { Store } from '@ngrx/store';
-import { selectLevelState } from './level.selectors';
-import { CacheService } from 'src/app/core/services/cache.service';
+import {Injectable} from '@angular/core';
+import {Actions, ofType, createEffect} from '@ngrx/effects';
+import {of} from 'rxjs';
+import {catchError, exhaustMap, map, mergeMap, withLatestFrom, filter, tap} from 'rxjs/operators';
+import {LevelService} from 'src/app/core/services/level.service';
+import {Level} from 'src/app/core/models/course/level';
+import {LevelActions} from "./level.actions";
+import {Store} from '@ngrx/store';
+import {selectLevelState} from './level.selectors';
+import {CacheService} from 'src/app/core/services/cache.service';
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Injectable()
 export class LevelEffects {
@@ -16,15 +17,16 @@ export class LevelEffects {
         private levelService: LevelService,
         private store: Store,
         private cacheService: CacheService
-    ) {}
+    ) {
+    }
 
     createLevel$ = createEffect(() =>
         this.actions$.pipe(
             ofType(LevelActions.createLevel),
-            mergeMap(({ level }) =>
+            mergeMap(({level}) =>
                 this.levelService.createLevel(level).pipe(
-                    map((created: Level) => LevelActions.createLevelSuccess({ level: created })),
-                    catchError(error => of(LevelActions.createLevelFailure({ error })))
+                    map((created: Level) => LevelActions.createLevelSuccess({level: created})),
+                    catchError((error: HttpErrorResponse) => of(LevelActions.createLevelFailure({error: error.error.message})))
                 )
             )
         )
@@ -33,10 +35,10 @@ export class LevelEffects {
     loadLevel$ = createEffect(() =>
         this.actions$.pipe(
             ofType(LevelActions.loadLevel),
-            mergeMap(({ id }) =>
+            mergeMap(({id}) =>
                 this.levelService.getLevelById(id).pipe(
-                    map((loaded: Level) => LevelActions.loadLevelSuccess({ level: loaded })),
-                    catchError(error => of(LevelActions.loadLevelFailure({ error })))
+                    map((loaded: Level) => LevelActions.loadLevelSuccess({level: loaded})),
+                    catchError(error => of(LevelActions.loadLevelFailure({error})))
                 )
             )
         )
@@ -47,7 +49,7 @@ export class LevelEffects {
             ofType(LevelActions.loadLevels),
             withLatestFrom(this.store.select(selectLevelState)),
             filter(([action, state]) => {
-                const { forceRefresh = false } = action;
+                const {forceRefresh = false} = action;
                 return this.cacheService.shouldRefreshCache(
                     state.lastFetch,
                     state.cacheExpired,
@@ -58,10 +60,10 @@ export class LevelEffects {
             exhaustMap(() =>
                 this.levelService.getLevels().pipe(
                     map((levels) =>
-                        LevelActions.loadLevelsSuccess({ levels })
+                        LevelActions.loadLevelsSuccess({levels})
                     ),
                     catchError(error =>
-                        of(LevelActions.loadLevelsFailure({ error }))
+                        of(LevelActions.loadLevelsFailure({error}))
                     )
                 )
             )
@@ -70,11 +72,11 @@ export class LevelEffects {
     deleteLevel$ = createEffect(() =>
         this.actions$.pipe(
             ofType(LevelActions.deleteLevel),
-            mergeMap(({ id }) =>
+            mergeMap(({id}) =>
                 this.levelService.deleteLevel(id).pipe(
-                    map(() => LevelActions.deleteLevelSuccess({ id })),
+                    map(() => LevelActions.deleteLevelSuccess({id})),
                     catchError(error =>
-                        of(LevelActions.deleteLevelFailure({ error }))
+                        of(LevelActions.deleteLevelFailure({error}))
                     )
                 )
             )
@@ -84,10 +86,10 @@ export class LevelEffects {
     updateLevel$ = createEffect(() =>
         this.actions$.pipe(
             ofType(LevelActions.updateLevel),
-            mergeMap(({ id, level }) =>
+            mergeMap(({id, level}) =>
                 this.levelService.updateLevel(id, level).pipe(
-                    map((updated: Level) => LevelActions.updateLevelSuccess({ level: updated })),
-                    catchError(error => of(LevelActions.updateLevelFailure({ error })))
+                    map((updated: Level) => LevelActions.updateLevelSuccess({level: updated})),
+                    catchError(error => of(LevelActions.updateLevelFailure({error})))
                 )
             )
         )
@@ -97,22 +99,22 @@ export class LevelEffects {
     refreshCache$ = createEffect(() =>
         this.actions$.pipe(
             ofType(LevelActions.refreshCache),
-            map(() => LevelActions.loadLevels({ forceRefresh: true }))
+            map(() => LevelActions.loadLevels({forceRefresh: true}))
         )
     );
 
     // Auto-refresh cache when it expires
     autoRefreshCache$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(LevelActions.loadLevelsSuccess),
-            withLatestFrom(this.store.select(selectLevelState)),
-            tap(([action, state]) => {
-                // Set up a timer to mark cache as expired after timeout
-                setTimeout(() => {
-                    this.store.dispatch(LevelActions.setCacheExpired({ expired: true }));
-                }, state.cacheTimeout);
-            })
-        ),
-        { dispatch: false }
+            this.actions$.pipe(
+                ofType(LevelActions.loadLevelsSuccess),
+                withLatestFrom(this.store.select(selectLevelState)),
+                tap(([action, state]) => {
+                    // Set up a timer to mark cache as expired after timeout
+                    setTimeout(() => {
+                        this.store.dispatch(LevelActions.setCacheExpired({expired: true}));
+                    }, state.cacheTimeout);
+                })
+            ),
+        {dispatch: false}
     );
 }

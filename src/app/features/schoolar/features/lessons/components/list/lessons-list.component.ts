@@ -357,7 +357,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         { label: 'Calendário', value: 'calendario' },
         { label: 'Relatórios', value: 'relatorios' },
         { label: 'Estatísticas', value: 'estatisticas' },
-        { label: 'Marcar Aula', value: 'marcar-aula' }
     ];
 
     // References to sticky header elements
@@ -388,7 +387,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Sample lesson data for calendar
     weeklyLessons: any[] = [];
-    monthlyLessons: any[] = [];
     monthlyCalendarDays: any[] = [];
 
     // Dialog state

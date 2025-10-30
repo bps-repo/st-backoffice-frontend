@@ -313,7 +313,7 @@ export class AuthorizationService {
     }
 
     // Direct permission check
-    const hasDirectPermission = permissions.some(p => p.name === permissionName);
+    const hasDirectPermission = permissions.some(p => p.key === permissionName);
     if (hasDirectPermission) {
       return true;
     }

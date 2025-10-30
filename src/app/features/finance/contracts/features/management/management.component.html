@@ -2,8 +2,12 @@
     <div class="col-12">
         <div class="flex justify-content-between align-items-center mb-3">
             <h1>Gestão de Contratos</h1>
-            <button pButton label="Novo Contrato" icon="pi pi-plus" class="p-button-primary"
-                (click)="createNewContract()"></button>
+            <div class="flex gap-2">
+                <button pButton label="Renovar Contrato" icon="pi pi-plus" class="p-button-primary"
+                        (click)="createNewContract()"></button>
+                <button pButton label="Novo Contrato" icon="pi pi-plus" class="p-button-primary"
+                        (click)="createNewContract(true)"></button>
+            </div>
         </div>
 
         <!-- Cards de estatísticas -->
@@ -44,9 +48,9 @@
 
         <!-- Tabela de contratos -->
         <p-table   [value]="(contracts$ | async)!" [paginator]="true" [rows]="10" [loading]="(loading$ | async)!"
-            [showCurrentPageReport]="true" [tableStyle]="{'min-width': '50rem'}"
-            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} contratos"
-            [rowsPerPageOptions]="[5, 10, 25, 50]">
+                 [showCurrentPageReport]="true" [tableStyle]="{'min-width': '50rem'}"
+                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} contratos"
+                 [rowsPerPageOptions]="[5, 10, 25, 50]">
 
             <ng-template pTemplate="header">
                 <tr>
@@ -79,15 +83,15 @@
                     <td>
                         <div class="flex gap-2">
                             <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text"
-                                pTooltip="Visualizar" (click)="viewContract(contract)"></button>
+                                    pTooltip="Visualizar" (click)="viewContract(contract)"></button>
                             <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" pTooltip="Editar"
-                                (click)="editContract(contract)"></button>
+                                    (click)="editContract(contract)"></button>
                             <button *ngIf="contract.status === 'Ativo'" pButton icon="pi pi-refresh"
-                                class="p-button-rounded p-button-text" pTooltip="Renovar"
-                                (click)="renewContract(contract)"></button>
+                                    class="p-button-rounded p-button-text" pTooltip="Renovar"
+                                    (click)="renewContract(contract)"></button>
                             <button *ngIf="contract.status === 'Ativo'" pButton icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger" pTooltip="Cancelar"
-                                (click)="cancelContract(contract)"></button>
+                                    class="p-button-rounded p-button-text p-button-danger" pTooltip="Cancelar"
+                                    (click)="cancelContract(contract)"></button>
                         </div>
                     </td>
                 </tr>
@@ -95,13 +99,15 @@
 
             <ng-template pTemplate="paginatorleft">
                 <button (click)="loadContracts()" pButton type="button" icon="pi pi-refresh"
-                    class="p-button-text"></button>
+                        class="p-button-text"></button>
             </ng-template>
 
             <ng-template pTemplate="paginatorright">
                 <button (click)="loadContracts()" pButton type="button" icon="pi pi-download"
-                    class="p-button-text"></button>
+                        class="p-button-text"></button>
             </ng-template>
         </p-table>
     </div>
 </div>
+
+<p-confirmDialog></p-confirmDialog>
