@@ -11,7 +11,7 @@ export const studentsFeature = createFeature({
         // Load students
         on(StudentsActions.loadStudents, (state) => ({
             ...state,
-            loading: state.ids.length > 0 ? false : true,
+            loading: true,
             error: null,
         })),
 
@@ -60,6 +60,7 @@ export const studentsFeature = createFeature({
             loadingCreate: true,
             createError: null,
             createStudentSuccess: false,
+            selectCreatedStudent: null
         })),
 
         on(StudentsActions.createStudentSuccess, (state, {student}) =>
@@ -68,6 +69,7 @@ export const studentsFeature = createFeature({
                 loadingCreate: false,
                 createError: null,
                 createStudentSuccess: true,
+                selectCreatedStudent: student,
                 // Update pagination totals
                 pagination: {
                     ...state.pagination,
@@ -82,6 +84,7 @@ export const studentsFeature = createFeature({
             loadingCreate: false,
             createError: error,
             createStudentSuccess: false,
+            selectCreatedStudent: null
         })),
 
         // Create student with request
@@ -89,6 +92,8 @@ export const studentsFeature = createFeature({
             ...state,
             loadingCreate: true,
             createError: null,
+            createStudentSuccess: false,
+            selectCreatedStudent: null,
         })),
 
         on(StudentsActions.createStudentWithRequestSuccess, (state, {student}) =>
@@ -96,6 +101,8 @@ export const studentsFeature = createFeature({
                 ...state,
                 loadingCreate: false,
                 createError: null,
+                createStudentSuccess: true,
+                selectCreatedStudent: student,
                 // Update pagination totals
                 pagination: {
                     ...state.pagination,
@@ -109,6 +116,8 @@ export const studentsFeature = createFeature({
             ...state,
             loadingCreate: false,
             createError: error,
+            createStudentSuccess: false,
+            selectCreatedStudent: null,
         })),
 
         // Update student

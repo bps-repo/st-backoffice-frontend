@@ -1,35 +1,37 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Subject, takeUntil, combineLatest, debounceTime, of } from 'rxjs';
-import { MenuItem, SelectItem, MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RippleModule } from 'primeng/ripple';
-import { CalendarModule } from 'primeng/calendar';
-import { StepsModule } from 'primeng/steps';
-import { ToastModule } from 'primeng/toast';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Subject, takeUntil, combineLatest, debounceTime} from 'rxjs';
+import {MenuItem, SelectItem, MessageService} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {CheckboxModule} from 'primeng/checkbox';
+import {DropdownModule} from 'primeng/dropdown';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import {RippleModule} from 'primeng/ripple';
+import {CalendarModule} from 'primeng/calendar';
+import {StepsModule} from 'primeng/steps';
+import {ToastModule} from 'primeng/toast';
 import {
     PROVINCES,
     MUNICIPALITIES,
     ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
-import { CreateStudentRequest } from 'src/app/core/services/student.service';
-import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
-import { studentsFeature } from 'src/app/core/store/schoolar/students/students.reducers';
-import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import {CreateStudentRequest} from 'src/app/core/services/student.service';
+import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
+import {studentsFeature} from 'src/app/core/store/schoolar/students/students.reducers';
+import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
-import { map, Observable } from 'rxjs';
+import {map, Observable} from 'rxjs';
+import {RenewContractComponent} from "../renew/renew-contract.component";
+import {selectSelectCreatedStudent} from "../../../../../core/store/schoolar/students/students.selectors";
 
 @Component({
     selector: 'app-student-create',
@@ -49,16 +51,21 @@ import { map, Observable } from 'rxjs';
         CardModule,
         CalendarModule,
         StepsModule,
-        ToastModule
+        ToastModule,
+        RenewContractComponent
     ],
-    templateUrl: './create.component.html',
-    styleUrls: ['./create.component.scss'],
+    templateUrl: './create-contract.component.html',
+    styleUrls: ['./create-contract.component.scss'],
     providers: [MessageService]
 })
-export class CreateComponent implements OnInit, OnDestroy {
+export class CreateContractComponent implements OnInit, OnDestroy {
     activeIndex: number = 0;
     studentForm!: FormGroup;
     private destroy$ = new Subject<void>();
+
+    // Track if student was successfully created
+    createdStudentId: string | null = null;
+    isStudentCreated: boolean = false;
 
     // Loading and error states from store
     loading$ = this.store.select(studentsFeature.selectLoadingCreate)
@@ -76,33 +83,40 @@ export class CreateComponent implements OnInit, OnDestroy {
     }
 
     steps: MenuItem[] = [
-        { label: 'Dados Pessoais' },
-        { label: 'Dados institucional' },
-        { label: 'Contato de Emergência' },
-        { label: 'Observações' }
+        {label: 'Dados Pessoais'},
+        {label: 'Dados institucional'},
+        {label: 'Contato de Emergência'},
+        {label: 'Observações'},
+        {label: 'Gestão contratual'}
     ];
-
 
     provinces: SelectItem[] = PROVINCES;
     municipalities: SelectItem[] = MUNICIPALITIES;
     academicBackgrounds: SelectItem[] = ACADEMIC_BACKGROUNDS;
 
     genderOptions: SelectItem[] = [
-        { label: 'Masculino', value: 'MALE' },
-        { label: 'Femenino', value: 'FEMALE' }
-    ];
-
-    statusOptions: SelectItem[] = [
-        { label: 'Activo', value: 'ACTIVE' },
-        { label: 'Inactivo', value: 'INACTIVE' }
+        {label: 'Masculino', value: 'MALE'},
+        {label: 'Femenino', value: 'FEMALE'}
     ];
 
     ngOnInit() {
         this.initializeForm();
         this.initializeCentersDropdown();
-        this.subscribeToFormSuccess();
-
+        this.subscribeToStudentCreation();
         this.activeIndex = 0;
+
+        // Prevent navigation away if student is created but no contract
+        this.setupNavigationGuard();
+
+
+        this.store.select(selectSelectCreatedStudent).subscribe(student => {
+            if (student) {
+                this.isStudentCreated = true;
+                this.createdStudentId = student?.id ?? "";
+
+                this.activeIndex = 4
+            }
+        })
     }
 
     ngOnDestroy() {
@@ -140,37 +154,46 @@ export class CreateComponent implements OnInit, OnDestroy {
     }
 
     private initializeCentersDropdown() {
-        // Dispatch load centers and map to dropdown options from the store
         this.store.dispatch(CenterActions.loadCenters());
         this.centersOptions$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
-            map(centers => centers.map(c => ({ label: c.name, value: c.id } as SelectItem)))
+            map(centers => centers.map(c => ({label: c.name, value: c.id} as SelectItem)))
         );
     }
 
-    private subscribeToFormSuccess() {
-        // Track successful creation by combining loading and error states
+    private subscribeToStudentCreation() {
+        // Listen for successful student creation
         combineLatest([
             this.store.select(studentsFeature.selectLoadingCreate),
-            this.store.select(studentsFeature.selectCreateError)
+            this.store.select(studentsFeature.selectCreateError),
+            this.store.select(studentsFeature.selectSelectCreatedStudent) // Assuming you have this selector
         ]).pipe(
-            debounceTime(1000),
+            debounceTime(500),
             takeUntil(this.destroy$)
-        ).subscribe(([loading, error]) => {
+        ).subscribe(([loading, error, createdStudent]) => {
             // If loading finished and form is disabled
             if (!loading && this.studentForm.disabled) {
-                if (!error) {
-                    // Success - show toast and navigate
+                if (!error && createdStudent) {
+                    // Success - student created
+                    this.isStudentCreated = true;
+                    this.createdStudentId = createdStudent?.id ?? "";
+
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Sucesso',
-                        detail: 'Aluno criado com sucesso!'
+                        detail: 'Aluno criado com sucesso! Agora preencha os dados do contrato.'
                     });
-                    this.router.navigate(['/schoolar/students']).then();
-                } else {
-                    // Error occurred during creation
-                    console.error('Student creation error:', error);
 
-                    // Show error toast
+                    // Move to contract step
+                    this.activeIndex = 4;
+
+                    // Re-enable form for contract step
+                    this.studentForm.enable();
+
+                    // Disable all previous step fields to prevent editing
+                    this.disablePreviousStepFields();
+
+                } else if (error) {
+                    // Error occurred during creation
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Erro',
@@ -184,31 +207,71 @@ export class CreateComponent implements OnInit, OnDestroy {
         });
     }
 
+    private disablePreviousStepFields() {
+        // Disable all fields except those needed for contract
+        const fieldsToDisable = [
+            'firstname', 'lastname', 'gender', 'identificationNumber',
+            'birthdate', 'email', 'password', 'photo', 'phone',
+            'province', 'municipality', 'academicBackground', 'centerId',
+            'emergencyContactName', 'emergencyContactRelationship',
+            'emergencyContactNumber', 'notes'
+        ];
+
+        fieldsToDisable.forEach(field => {
+            this.studentForm.get(field)?.disable();
+        });
+    }
+
+    private setupNavigationGuard() {
+        // Warn user if they try to leave after student creation but before contract
+        window.addEventListener('beforeunload', (e) => {
+            if (this.isStudentCreated && this.activeIndex === 4) {
+                e.preventDefault();
+                e.returnValue = 'Você criou um aluno mas não finalizou o contrato. Tem certeza que deseja sair?';
+            }
+        });
+    }
+
     nextStep() {
+        // Don't allow next if student is already created and we're before contract step
+        if (this.isStudentCreated && this.activeIndex < 4) {
+            this.activeIndex = 4;
+            return;
+        }
+
         if (this.validateCurrentStep()) {
             this.activeIndex++;
         }
     }
 
     prevStep() {
+        // Don't allow going back if student is already created
+        if (this.isStudentCreated) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Atenção',
+                detail: 'Aluno já foi criado. Complete o contrato para finalizar.'
+            });
+            return;
+        }
         this.activeIndex--;
     }
 
     validateCurrentStep(): boolean {
         const stepFieldsMap = {
-            0: ['firstname', 'lastname', 'gender', 'birthdate', 'email', 'phone', 'province', 'municipality', 'academicBackground'], // Personal Data
-            1: ['centerId', 'status', 'enrollmentDate'], // Academic Data
-            2: ['emergencyContactName', 'emergencyContactNumber'], // Emergency Contact
-            3: [] // Notes - no required fields
+            0: ['firstname', 'lastname', 'gender', 'birthdate', 'email', 'phone', 'province', 'municipality', 'academicBackground'],
+            1: ['centerId'],
+            2: ['emergencyContactName', 'emergencyContactNumber'],
+            3: []
         };
 
         const currentStepFields = stepFieldsMap[this.activeIndex as keyof typeof stepFieldsMap];
+        if (!currentStepFields) return true;
 
         for (const field of currentStepFields) {
             const control = this.studentForm.get(field);
             if (control && control.invalid) {
                 control.markAsTouched();
-                console.log(`Invalid field: ${field}`, control.errors);
                 return false;
             }
         }
@@ -216,13 +279,11 @@ export class CreateComponent implements OnInit, OnDestroy {
         return true;
     }
 
-    // Helper method to check if a field has errors and is touched
     hasFieldError(fieldName: string): boolean {
         const field = this.studentForm.get(fieldName);
         return !!(field && field.invalid && field.touched);
     }
 
-    // Helper method to get field error message
     getFieldError(fieldName: string): string {
         const field = this.studentForm.get(fieldName);
         if (field && field.errors && field.touched) {
@@ -236,14 +297,22 @@ export class CreateComponent implements OnInit, OnDestroy {
     }
 
     goToStep(index: number) {
-        // Only allow going to a step if all previous steps are valid
+        // Don't allow navigation if student is created
+        if (this.isStudentCreated && index < 4) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Atenção',
+                detail: 'Aluno já foi criado. Complete o contrato para finalizar.'
+            });
+            return;
+        }
+
         if (index < this.activeIndex || this.validateStepsBeforeIndex(index)) {
             this.activeIndex = index;
         }
     }
 
     validateStepsBeforeIndex(targetIndex: number): boolean {
-        // Validate all steps before the target index
         for (let i = 0; i < targetIndex; i++) {
             this.activeIndex = i;
             if (!this.validateCurrentStep()) {
@@ -254,15 +323,12 @@ export class CreateComponent implements OnInit, OnDestroy {
     }
 
     saveStudent() {
-        // Mark all fields as touched to show validation errors
+        // This is called from step 3 (Observações)
         this.studentForm.markAllAsTouched();
 
-        // Validate all steps before saving
-        if (this.studentForm.valid && this.validateStepsBeforeIndex(this.steps.length)) {
-            // Disable form while submitting
+        if (this.studentForm.valid && this.validateStepsBeforeIndex(4)) {
             this.studentForm.disable();
 
-            // Convert form data to API payload format
             const formValue = this.studentForm.value;
             const createStudentRequest: CreateStudentRequest = {
                 identificationNumber: formValue.identificationNumber,
@@ -271,7 +337,7 @@ export class CreateComponent implements OnInit, OnDestroy {
                 gender: formValue.gender,
                 birthdate: this.formatDate(formValue.birthdate),
                 email: formValue.email,
-                password: formValue.password || 'DefaultPassword123', // Default password if not provided
+                password: formValue.password || 'DefaultPassword123',
                 photo: formValue.photo,
                 phone: formValue.phone,
                 centerId: formValue.centerId,
@@ -284,13 +350,8 @@ export class CreateComponent implements OnInit, OnDestroy {
                 notes: formValue.notes
             };
 
-            console.log('Saving student:', createStudentRequest);
-            this.resetForm()
-            // Dispatch action to create student via NgRx
-            this.store.dispatch(StudentsActions.createStudentWithRequest({ request: createStudentRequest }))
+            this.store.dispatch(StudentsActions.createStudentWithRequest({request: createStudentRequest}));
         } else {
-            console.log('Form is invalid', this.studentForm.errors);
-            // Find first invalid step
             const firstInvalidStep = this.findFirstInvalidStep();
             if (firstInvalidStep !== -1) {
                 this.activeIndex = firstInvalidStep;
@@ -298,10 +359,26 @@ export class CreateComponent implements OnInit, OnDestroy {
         }
     }
 
+    onContractCompleted() {
+        // Called when contract is successfully created
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Aluno e contrato criados com sucesso!'
+        });
+
+        // Reset flags
+        this.isStudentCreated = false;
+        this.createdStudentId = null;
+
+        // Navigate away
+        this.router.navigate(['/schoolar/students']).then();
+    }
+
     private findFirstInvalidStep(): number {
         const stepFieldsMap = {
             0: ['firstname', 'lastname', 'gender', 'birthdate', 'identificationNumber', 'email', 'phone', 'province', 'municipality', 'academicBackground'],
-            1: ['centerId', 'status'],
+            1: ['centerId'],
             2: ['emergencyContactName', 'emergencyContactNumber'],
             3: []
         };
@@ -318,15 +395,19 @@ export class CreateComponent implements OnInit, OnDestroy {
         return -1;
     }
 
-    private resetForm() {
-        this.studentForm.reset();
-        this.activeIndex = 0;
-    }
-
-    // Helper method to format dates to YYYY-MM-DD format
     private formatDate(date: Date | null): string {
         if (!date) return '';
-
         return date.toISOString().split('T')[0];
+    }
+
+    onFileSelected(event: any) {
+        const file = event.files?.[0];
+
+        /*if (file) {
+            this.studentForm.patchValue({photo: file});
+            this.studentForm.get('photo')?.updateValueAndValidity();
+        } */
+
+        console.log(file)
     }
 }

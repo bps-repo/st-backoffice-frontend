@@ -13,7 +13,9 @@ export interface StudentState extends EntityState<Student> {
     loadingAddToClass: boolean;
     loadingRemoveFromClass: boolean;
 
+    // Creation
     createStudentSuccess: boolean;
+    selectCreatedStudent: Student | null;
 
     // Error states
     error: string | null;
@@ -85,6 +87,7 @@ export const initialStudentsState: StudentState = studentsAdapter.getInitialStat
 
     // Create student success flag
     createStudentSuccess: false,
+    selectCreatedStudent: null,
 
     // Filters
     filters: {
