@@ -4,10 +4,7 @@
          [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de alunos</h2>
-            <span class="text-lg">Cadastro e acompanhamento completo dos alunos</span>
         </div>
-        <p-button *hasPermission="'students.create'" (onClick)="navigateToCreateStudent()" label="Inscrever Aluno"
-                  icon="pi pi-plus" class="p-button-outlined"></p-button>
     </div>
 
     <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"

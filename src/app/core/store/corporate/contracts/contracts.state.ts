@@ -5,6 +5,11 @@ export interface ContractState extends EntityState<Contract> {
     selectedContract: Contract | null;
     loading: boolean;
 
+    successCreate: boolean;
+    successDelete: boolean;
+    successUpdate: boolean;
+    successDownload: boolean;
+    successLoadContractsByStudent: boolean;
     downloading: boolean;
     error: any;
     errorCreate: any;
@@ -22,6 +27,14 @@ export const initialContractState: ContractState = contractsAdapter.getInitialSt
     selectedContract: null,
     loading: false,
     error: null,
+
+    successCreate: false,
+    successDelete: false,
+    successUpdate: false,
+
+    successDownload: false,
+    successLoadContractsByStudent: false,
+
 
     downloading: false,
     lastUpdated: null,
