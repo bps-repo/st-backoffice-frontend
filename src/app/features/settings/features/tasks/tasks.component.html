@@ -52,7 +52,6 @@
             <h2 class="font-bold text-2xl mb-4">Gestão de Tarefas</h2>
             <span class="text-lg">Acompanhe tarefas que requerem atenção especial</span>
         </div>
-        <button pButton label="Nova tarefa" icon="pi pi-plus" class="p-button-outlined"></button>
     </div>
 
     <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
@@ -100,19 +99,27 @@
             </div>
 
             <div *ngIf="((loading$ | async) ?? false) && isLoadingPendingRegistrations; else tableContent"
-                class="flex align-items-center justify-content-center p-6">
+                 class="flex align-items-center justify-content-center p-6">
                 <div class="flex flex-column align-items-center gap-3">
                     <p-progressSpinner [style]="{'width': '50px', 'height': '50px'}"
                         strokeWidth="4"></p-progressSpinner>
-                    <span class="text-600">Carregando inscrições pendentes...</span>
+                    <span class="text-600">
+                        {{ currentView === 'inscricoes_pendentes' ? 'Carregando inscrições pendentes...' :
+                           currentView === 'parcelas_vencidas' ? 'Carregando parcelas vencidas...' :
+                           'Carregando tarefas...' }}
+                    </span>
                 </div>
             </div>
             <ng-template #tableContent>
-                <p-table [value]="currentView === 'inscricoes_pendentes' ? filteredPendingRegistrations : filteredTasks"
+                <p-table [value]="currentView === 'inscricoes_pendentes' ? filteredPendingRegistrations :
+                                  currentView === 'parcelas_vencidas' ? filteredOverdueInstallments :
+                                  filteredTasks"
                     styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10"
                     [rowsPerPageOptions]="[5,10,25,50]"
                     [loading]="((loading$ | async) ?? false) && isLoadingPendingRegistrations"
-                    [globalFilterFields]="currentView === 'inscricoes_pendentes' ? ['studentName', 'studentCode', 'center.name', 'description'] : globalFilterFields">
+                    [globalFilterFields]="currentView === 'inscricoes_pendentes' ? ['studentName', 'studentCode', 'center.name', 'description'] :
+                                          currentView === 'parcelas_vencidas' ? ['studentName', 'studentCode', 'center.name', 'level.name', 'description'] :
+                                          globalFilterFields">
                     <ng-template pTemplate="header">
                         <tr *ngIf="currentView === 'contratos_terminados'">
                             <th>Aluno</th>
@@ -241,36 +248,65 @@
                     </ng-template>
 
                     <!-- Parcelas Vencidas -->
-                    <ng-template pTemplate="body" let-task *ngIf="currentView === 'parcelas_vencidas'">
+                    <ng-template pTemplate="body" let-taskItem *ngIf="currentView === 'parcelas_vencidas'">
                         <tr>
                             <td>
                                 <div class="flex flex-column">
-                                    <span class="font-medium">{{ task.title }}</span>
-                                    <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
+                                    <span class="font-medium">{{ taskItem.studentName }}</span>
+                                    <span class="text-sm text-gray-500">{{ taskItem.studentCode }}</span>
                                 </div>
                             </td>
-                            <td>Intermediário</td>
-                            <td>Centro Lisboa</td>
-                            <td>{{ task.description.split(' ')[1] }}</td>
-                            <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
+                            <td>{{ getLevelName(taskItem.level) }}</td>
+                            <td>{{ taskItem.center.name }}</td>
                             <td>
-                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">
-                                    {{ Math.abs(getDaysFromNow(task.dueDate)) }} dias
-                                </span>
+                                <div class="flex flex-column" *ngIf="taskItem.installments && taskItem.installments.length > 0">
+                                    <span class="font-medium">Parcela {{ taskItem.installments[0].number }}</span>
+                                    <span class="text-sm text-gray-500">{{ taskItem.installments[0].contractId }}</span>
+                                </div>
+                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0" class="text-sm text-gray-400">-</span>
                             </td>
-                            <td>€350,00</td>
+                            <td>
+                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0">
+                                    {{ taskItem.installments[0].dueDate | date:'dd/MM/yyyy' }}
+                                </span>
+                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0" class="text-sm text-gray-400">-</span>
+                            </td>
+                            <td>
+                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0"
+                                      class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">
+                                    {{ Math.abs(getDaysFromDateString(taskItem.installments[0].dueDate)) }} dias
+                                </span>
+                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
+                                      class="text-sm text-gray-400">-</span>
+                            </td>
+                            <td>
+                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0" class="font-medium">
+                                    {{ formatCurrency(taskItem.installments[0].amount) }}
+                                </span>
+                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0" class="text-sm text-gray-400">-</span>
+                            </td>
                             <td>
                                 <div class="flex gap-2 justify-content-center">
-                                    <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
-                                        pTooltip="Reunião" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-clock" class="p-button-rounded p-button-text"
-                                        pTooltip="Estender" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-times-circle"
-                                        class="p-button-rounded p-button-danger p-button-text" pTooltip="Fechar"
-                                        tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-ban"
-                                        class="p-button-rounded p-button-warning p-button-text" pTooltip="Inativar"
-                                        tooltipPosition="top"></button>
+                                    <button *ngIf="taskItem.actions.includes('remind')"
+                                            pButton pRipple icon="pi pi-bell"
+                                            class="p-button-rounded p-button-text"
+                                            (click)="handleTaskAction(taskItem, 'remind')"
+                                            pTooltip="Lembrar" tooltipPosition="top"></button>
+                                    <button *ngIf="taskItem.actions.includes('billing_call')"
+                                            pButton pRipple icon="pi pi-phone"
+                                            class="p-button-rounded p-button-text p-button-info"
+                                            (click)="handleTaskAction(taskItem, 'billing_call')"
+                                            pTooltip="Ligação de Cobrança" tooltipPosition="top"></button>
+                                    <button *ngIf="taskItem.actions.includes('complete')"
+                                            pButton pRipple icon="pi pi-check"
+                                            class="p-button-rounded p-button-text p-button-success"
+                                            (click)="handleTaskAction(taskItem, 'complete')"
+                                            pTooltip="Concluir" tooltipPosition="top"></button>
+                                    <button *ngIf="taskItem.actions.includes('ignore')"
+                                            pButton pRipple icon="pi pi-times"
+                                            class="p-button-rounded p-button-text p-button-warning"
+                                            (click)="handleTaskAction(taskItem, 'ignore')"
+                                            pTooltip="Ignorar" tooltipPosition="top"></button>
                                 </div>
                             </td>
                         </tr>
@@ -337,10 +373,7 @@
                             <td>{{ taskItem.studentCode }}</td>
                             <td>{{ taskItem.center.name }}</td>
                             <td>
-                                <span *ngIf="taskItem.level; else noLevel" class="text-sm">{{ taskItem.level }}</span>
-                                <ng-template #noLevel>
-                                    <span class="text-sm text-gray-400">-</span>
-                                </ng-template>
+                                <span class="text-sm">{{ getLevelName(taskItem.level) }}</span>
                             </td>
                             <td>
                                 <span [ngClass]="{

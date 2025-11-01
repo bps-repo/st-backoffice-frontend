@@ -31,3 +31,8 @@ export const selectPendingRegistrations = createSelector(
   (tasks) => tasks.filter(task => task.taskType === 'NO_ACTIVE_CONTRACT')
 );
 
+export const selectOverdueInstallments = createSelector(
+  selectAllTasks,
+  (tasks) => tasks.filter(task => task.taskType === 'INSTALLMENT_DUE_SOON')
+);
+

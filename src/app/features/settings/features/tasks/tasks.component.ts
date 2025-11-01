@@ -40,6 +40,7 @@ import { Router, RouterModule } from '@angular/router';
 export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
     tasks: Task[] = [];
     pendingRegistrations: TaskItem[] = [];
+    overdueInstallments: TaskItem[] = [];
     private destroy$ = new Subject<void>();
 
     // Task counts for each category
@@ -113,8 +114,8 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
     // Method to handle view selection
     onViewChange(event: any) {
         this.currentView = event.value;
-        // Reload tasks when switching to inscricoes_pendentes
-        if (this.currentView === 'inscricoes_pendentes') {
+        // Reload tasks when switching to inscricoes_pendentes or parcelas_vencidas
+        if (this.currentView === 'inscricoes_pendentes' || this.currentView === 'parcelas_vencidas') {
             this.store.dispatch(TasksActions.loadDailyTasks());
         }
     }
@@ -146,7 +147,7 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
             case 'parcelas_vencer':
                 return this.tasks.filter(task => task.category === 'Parcela a Vencer');
             case 'parcelas_vencidas':
-                return this.tasks.filter(task => task.category === 'Parcela Vencida');
+                return [];
             case 'ausencias_longas':
                 return this.tasks.filter(task => task.category === 'Ausência Longa');
             case 'inscricoes_pendentes':
@@ -164,16 +165,24 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.pendingRegistrations || [];
     }
 
-    // Check if we should show loading for inscricoes_pendentes
+    // Get filtered overdue installments
+    get filteredOverdueInstallments(): TaskItem[] {
+        if (this.currentView !== 'parcelas_vencidas') {
+            return [];
+        }
+        return this.overdueInstallments || [];
+    }
+
+    // Check if we should show loading for inscricoes_pendentes or parcelas_vencidas
     get isLoadingPendingRegistrations(): boolean {
-        return this.currentView === 'inscricoes_pendentes';
+        return this.currentView === 'inscricoes_pendentes' || this.currentView === 'parcelas_vencidas';
     }
 
     // Update task counts
     updateTaskCounts(): void {
         this.contratosTerminadosCount = this.tasks.filter(task => task.category === 'Contrato Terminado').length;
         this.parcelasVencerCount = this.tasks.filter(task => task.category === 'Parcela a Vencer').length;
-        this.parcelasVencidasCount = this.tasks.filter(task => task.category === 'Parcela Vencida').length;
+        this.parcelasVencidasCount = this.overdueInstallments.length;
         this.ausenciasLongasCount = this.tasks.filter(task => task.category === 'Ausência Longa').length;
         this.inscricoesPendentesCount = this.pendingRegistrations.length;
     }
@@ -187,6 +196,14 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe(tasks => {
                 this.pendingRegistrations = tasks;
+                this.updateTaskCounts();
+            });
+
+        // Subscribe to overdue installments
+        this.store.select(TasksSelectors.selectOverdueInstallments)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(tasks => {
+                this.overdueInstallments = tasks;
                 this.updateTaskCounts();
             });
 
@@ -226,7 +243,7 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('Complete task:', task);
     }
 
-    // Action methods for pending registrations
+    // Action methods for pending registrations and overdue installments
     handleTaskAction(task: TaskItem, action: string) {
         switch (action) {
             case 'proceed':
@@ -241,6 +258,18 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
                     queryParams: { studentId: task.studentId }
                 });
                 break;
+            case 'remind':
+                console.log('Remind about installment:', task);
+                // Implement remind logic
+                break;
+            case 'billing_call':
+                console.log('Billing call for task:', task);
+                // Implement billing call logic
+                break;
+            case 'complete':
+                console.log('Complete task:', task);
+                // Implement complete logic
+                break;
             case 'delete':
                 console.log('Delete task:', task);
                 // Implement delete logic
@@ -252,6 +281,35 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
             default:
                 console.log('Unknown action:', action);
         }
+    }
+
+    // Helper method to get level name
+    getLevelName(level: string | { id: string; name: string } | null): string {
+        if (!level) return '-';
+        if (typeof level === 'string') return level;
+        return level.name;
+    }
+
+    // Helper method to format currency
+    formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('pt-PT', {
+            style: 'currency',
+            currency: 'AOA'
+        }).format(amount);
+    }
+
+    // Calculate days between a date string and today
+    getDaysFromDateString(dateString: string): number {
+        const today = new Date();
+        const targetDate = new Date(dateString);
+
+        // Reset time part for accurate day calculation
+        today.setHours(0, 0, 0, 0);
+        targetDate.setHours(0, 0, 0, 0);
+
+        // Calculate difference in milliseconds and convert to days
+        const diffTime = targetDate.getTime() - today.getTime();
+        return Math.round(diffTime / (1000 * 60 * 60 * 24));
     }
 
     // Calculate days between a date and today

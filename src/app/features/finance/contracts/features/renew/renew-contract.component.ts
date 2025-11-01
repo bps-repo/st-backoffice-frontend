@@ -9,31 +9,33 @@ import {
     HostListener,
     OnDestroy
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {TableModule} from 'primeng/table';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {ToastModule} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
-import {Store} from '@ngrx/store';
-import {Student} from 'src/app/core/models/academic/student';
-import {ContractService,} from 'src/app/core/services/contract.service';
-import {StudentsActions} from "../../../../../core/store/schoolar/students/students.actions";
-import {selectAllStudents} from "../../../../../core/store/schoolar/students/students.selectors";
-import {CreateStudentContractRequest, Installment} from 'src/app/core/models/corporate/contract';
-import {EmployeesActions} from '../../../../../core/store/corporate/employees/employees.actions';
-import {selectAllEmployees} from '../../../../../core/store/corporate/employees/employees.selectors';
-import {LevelActions} from '../../../../../core/store/schoolar/level/level.actions';
-import {selectAllLevels} from '../../../../../core/store/schoolar/level/level.selector';
-import {Level} from '../../../../../core/models/course/level';
-import {Employee} from '../../../../../core/models/corporate/employee';
-import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes.guard";
-import {Observable} from "rxjs";
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { Store } from '@ngrx/store';
+import { Student } from 'src/app/core/models/academic/student';
+import { ContractService, } from 'src/app/core/services/contract.service';
+import { StudentsActions } from "../../../../../core/store/schoolar/students/students.actions";
+import { selectAllStudents } from "../../../../../core/store/schoolar/students/students.selectors";
+import { CreateStudentContractRequest, Installment } from 'src/app/core/models/corporate/contract';
+import { EmployeesActions } from '../../../../../core/store/corporate/employees/employees.actions';
+import { selectAllEmployees } from '../../../../../core/store/corporate/employees/employees.selectors';
+import { LevelActions } from '../../../../../core/store/schoolar/level/level.actions';
+import { selectAllLevels } from '../../../../../core/store/schoolar/level/level.selector';
+import { Level } from '../../../../../core/models/course/level';
+import { Employee } from '../../../../../core/models/corporate/employee';
+import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
+import { Observable, Subject } from "rxjs";
+import { ActivatedRoute } from '@angular/router';
+import { map, takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'finance-renew-contract',
@@ -55,11 +57,12 @@ import {Observable} from "rxjs";
 })
 export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, CanComponentDeactivate {
     @Input() renewContract?: boolean = true;
-    @Input() createdStudentId?: string | null = null; // New input for created student
+    @Input() createdStudentId?: string | null = null; // New input for created student (component input)
     @Output() contractCompleted = new EventEmitter<void>(); // Emit when contract is created
 
     // Flag to prevent from closing/reload the browser tab
     unsavedChanges = true;
+    private destroy$ = new Subject<void>();
 
     students: Student[] = [];
     selectedStudent: Student | null = null;
@@ -80,15 +83,16 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     installments: Installment[] = [];
 
     contractTypes = [
-        {label: 'Standard', value: 'STANDARD'},
-        {label: 'VIP', value: 'VIP'},
+        { label: 'Standard', value: 'STANDARD' },
+        { label: 'VIP', value: 'VIP' },
     ];
 
     constructor(
         private store: Store,
         private fb: FormBuilder,
         private messageService: MessageService,
-        private contractService: ContractService
+        private contractService: ContractService,
+        private route: ActivatedRoute
     ) {
         this.contractForm = this.fb.group({
             student: [null, [Validators.required]],
@@ -114,6 +118,9 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
 
         this.unsavedChanges = true;
 
+        // Load createdStudentId from route (priority: route data > queryParams > @Input)
+        this.loadCreatedStudentIdFromRoute();
+
         this.loadStudents();
         this.loadEmployees();
         this.loadLevels();
@@ -133,10 +140,46 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        // When createdStudentId is provided, auto-select the student
+        // When createdStudentId is provided via @Input, auto-select the student
         if (changes['createdStudentId'] && this.createdStudentId) {
             this.selectCreatedStudent();
         }
+    }
+
+    /**
+     * Load createdStudentId from route data or queryParams
+     * Priority: route.data.createdStudentId > queryParams.createdStudentId > @Input createdStudentId
+     */
+    private loadCreatedStudentIdFromRoute(): void {
+        // First, try to get from route data
+        this.route.data
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(data => {
+                if (data['createdStudentId']) {
+                    this.createdStudentId = data['createdStudentId'];
+                    // Select student if data is available
+                    if (this.createdStudentId && this.students.length > 0) {
+                        this.selectCreatedStudent();
+                    }
+                }
+            });
+
+        // Then, try to get from queryParams if not found in route data
+        this.route.queryParams
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(params => {
+                const studentIdFromQuery = params['createdStudentId'] || params['studentId'];
+
+                // Only use queryParams if route data didn't provide it and @Input doesn't have it
+                if (studentIdFromQuery && !this.createdStudentId) {
+                    this.createdStudentId = studentIdFromQuery;
+                }
+
+                // If we have a createdStudentId from any source, select the student
+                if (this.createdStudentId && this.students.length > 0) {
+                    this.selectCreatedStudent();
+                }
+            });
     }
 
     canDeactivate(): boolean {
@@ -151,7 +194,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         const student = this.students.find(s => s.id === this.createdStudentId);
         if (student) {
             this.selectedStudent = student;
-            this.contractForm.patchValue({student});
+            this.contractForm.patchValue({ student });
 
             // Disable student selection since it's auto-selected
             this.contractForm.get('student')?.disable();
@@ -166,17 +209,19 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
 
     loadStudents(): void {
         this.store.dispatch(StudentsActions.loadStudents());
-        this.store.select(selectAllStudents).subscribe(students => {
-            this.students = students.map(s => ({
-                ...s,
-                name: `${s.user.firstname} ${s.user.lastname}`
-            } as any));
+        this.store.select(selectAllStudents)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(students => {
+                this.students = students.map(s => ({
+                    ...s,
+                    name: `${s.user.firstname} ${s.user.lastname}`
+                } as any));
 
-            // If createdStudentId exists, select it after loading
-            if (this.createdStudentId) {
-                this.selectCreatedStudent();
-            }
-        });
+                // If createdStudentId exists from any source (route data, queryParams, or @Input), select it after loading
+                if (this.createdStudentId) {
+                    this.selectCreatedStudent();
+                }
+            });
     }
 
     loadEmployees(): void {
@@ -356,13 +401,16 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
             },
             error: (err) => {
                 const detail = err?.error?.message || err?.message || 'Falha ao criar contrato.';
-                this.messageService.add({severity: 'error', summary: 'Erro', detail});
+                this.messageService.add({ severity: 'error', summary: 'Erro', detail });
                 this.loading = false;
             }
         });
     }
 
     ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
+
         if (this.unsavedChanges) {
 
         }

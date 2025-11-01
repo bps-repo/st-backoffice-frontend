@@ -1,38 +1,39 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Subject, takeUntil, combineLatest, debounceTime} from 'rxjs';
-import {MenuItem, SelectItem, MessageService} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {CheckboxModule} from 'primeng/checkbox';
-import {DropdownModule} from 'primeng/dropdown';
-import {FileUploadModule} from 'primeng/fileupload';
-import {InputGroupModule} from 'primeng/inputgroup';
-import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {RippleModule} from 'primeng/ripple';
-import {CalendarModule} from 'primeng/calendar';
-import {StepsModule} from 'primeng/steps';
-import {ToastModule} from 'primeng/toast';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Subject, takeUntil, combineLatest, debounceTime } from 'rxjs';
+import { MenuItem, SelectItem, MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadModule } from 'primeng/fileupload';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { RippleModule } from 'primeng/ripple';
+import { CalendarModule } from 'primeng/calendar';
+import { StepsModule } from 'primeng/steps';
+import { ToastModule } from 'primeng/toast';
 import {
     PROVINCES,
     MUNICIPALITIES,
     ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
-import {CreateStudentRequest} from 'src/app/core/services/student.service';
-import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
-import {studentsFeature} from 'src/app/core/store/schoolar/students/students.reducers';
-import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
+import { CreateStudentRequest } from 'src/app/core/services/student.service';
+import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
+import { studentsFeature } from 'src/app/core/store/schoolar/students/students.reducers';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
-import {map, Observable} from 'rxjs';
-import {RenewContractComponent} from "../renew/renew-contract.component";
-import {selectSelectCreatedStudent} from "../../../../../core/store/schoolar/students/students.selectors";
-import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes.guard";
+import { map, Observable } from 'rxjs';
+import { RenewContractComponent } from "../renew/renew-contract.component";
+import { selectSelectCreatedStudent } from "../../../../../core/store/schoolar/students/students.selectors";
+import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
+import { contractsFeature } from 'src/app/core/store/corporate/contracts/contracts.feature';
 
 @Component({
     selector: 'finance-contracts-create',
@@ -68,6 +69,8 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     createdStudentId: string | null = null;
     isStudentCreated: boolean = false;
 
+    successCreate$ = this.store.select(contractsFeature.selectSuccessCreate);
+
     // Loading and error states from store
     loading$ = this.store.select(studentsFeature.selectLoadingCreate)
     createError$ = this.store.select(studentsFeature.selectCreateError);
@@ -81,14 +84,30 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         private router: Router,
         private messageService: MessageService
     ) {
+
+        this.successCreate$.subscribe(success => {
+            if (success) {
+                this.studentForm.reset();
+                this.studentForm.disable();
+                this.activeIndex = 0;
+                this.router.navigate(['/finance/contracts']).then();
+            }
+            else {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Erro ao criar contrato!'
+                });
+            }
+        });
     }
 
     steps: MenuItem[] = [
-        {label: 'Dados Pessoais'},
-        {label: 'Dados institucional'},
-        {label: 'Contato de Emergência'},
-        {label: 'Observações'},
-        {label: 'Gestão contratual'}
+        { label: 'Dados Pessoais' },
+        { label: 'Dados institucional' },
+        { label: 'Contato de Emergência' },
+        { label: 'Observações' },
+        { label: 'Gestão contratual' }
     ];
 
     provinces: SelectItem[] = PROVINCES;
@@ -96,8 +115,8 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     academicBackgrounds: SelectItem[] = ACADEMIC_BACKGROUNDS;
 
     genderOptions: SelectItem[] = [
-        {label: 'Masculino', value: 'MALE'},
-        {label: 'Femenino', value: 'FEMALE'}
+        { label: 'Masculino', value: 'MALE' },
+        { label: 'Femenino', value: 'FEMALE' }
     ];
 
     ngOnInit() {
@@ -165,7 +184,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     private initializeCentersDropdown() {
         this.store.dispatch(CenterActions.loadCenters());
         this.centersOptions$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
-            map(centers => centers.map(c => ({label: c.name, value: c.id} as SelectItem)))
+            map(centers => centers.map(c => ({ label: c.name, value: c.id } as SelectItem)))
         );
     }
 
@@ -359,7 +378,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
                 notes: formValue.notes
             };
 
-            this.store.dispatch(StudentsActions.createStudentWithRequest({request: createStudentRequest}));
+            this.store.dispatch(StudentsActions.createStudentWithRequest({ request: createStudentRequest }));
         } else {
             const firstInvalidStep = this.findFirstInvalidStep();
             if (firstInvalidStep !== -1) {
