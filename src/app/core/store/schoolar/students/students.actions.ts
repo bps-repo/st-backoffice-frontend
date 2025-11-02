@@ -14,6 +14,21 @@ export const StudentsActions = createActionGroup({
         'Load Students Success': props<{ students: Student[], pagination: any }>(),
         'Load Students Failure': props<{ error: string }>(),
 
+        // Search students
+        'Search Students': props<{
+            filters: {
+                status?: string;
+                centerId?: string;
+                levelId?: string;
+                unitId?: string;
+                code?: number;
+                email?: string;
+                username?: string;
+            }
+        }>(),
+        'Search Students Success': props<{ students: Student[] }>(),
+        'Search Students Failure': props<{ error: string }>(),
+
         // Load student
         'Load Student': props<{ id: string }>(),
         'Load Student Success': props<{ student: Student }>(),

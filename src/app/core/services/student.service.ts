@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
@@ -49,8 +49,8 @@ export class StudentService {
             user: apiStudent.user,
             status: apiStudent.status,
             levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
-            center: apiStudent.center ?? apiStudent.center?.id ?? '',
-            level: apiStudent.level?? apiStudent.level?.id ?? '',
+            center: apiStudent.center || (apiStudent.centerId ? { id: apiStudent.centerId } : null),
+            level: apiStudent.level || (apiStudent.levelId ? { id: apiStudent.levelId } : null),
             currentUnit: apiStudent.currentUnit,
             enrollmentDate: apiStudent.enrollmentDate,
             certificates: apiStudent.certificates ?? apiStudent.certificatesIds,
@@ -58,6 +58,10 @@ export class StudentService {
             unitProgresses: apiStudent.unitProgresses ?? apiStudent.unitProgressesIds,
             createdAt: apiStudent.createdAt,
             updatedAt: apiStudent.updatedAt,
+            vip: apiStudent.vip,
+            vipTeacherId: apiStudent.vipTeacherId,
+            directChatEnabled: apiStudent.directChatEnabled,
+            fixedDateClasses: apiStudent.fixedDateClasses,
         } as Student;
     }
 
@@ -120,5 +124,37 @@ export class StudentService {
 
     removeStudentFromCenter(studentId: string, centerId: string): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/remove-from-center/${centerId}`, {studentId});
+    }
+
+    /**
+     * Search and filter students with comprehensive filtering options.
+     * @param filters Search filters (status, centerId, levelId, unitId, code, email, username)
+     * @returns Observable of Student array
+     */
+    searchStudents(filters: {
+        status?: string;
+        centerId?: string;
+        levelId?: string;
+        unitId?: string;
+        code?: number;
+        email?: string;
+        username?: string;
+    }): Observable<Student[]> {
+        let params = new HttpParams();
+
+        Object.entries(filters || {}).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                params = params.set(key, String(value));
+            }
+        });
+
+        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`, { params }).pipe(
+            map((response) => {
+                const data = response.data;
+                // Handle both pageable and non-pageable responses
+                const list = Array.isArray(data) ? data : (data?.content ?? []);
+                return (list as any[]).map((s) => this.normalizeStudent(s));
+            })
+        );
     }
 }

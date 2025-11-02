@@ -32,6 +32,29 @@ export const studentsFeature = createFeature({
             error,
         })),
 
+        // Search students
+        on(StudentsActions.searchStudents, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+
+        on(StudentsActions.searchStudentsSuccess, (state, {students}) =>
+            studentsAdapter.setAll(students, {
+                ...state,
+                loading: false,
+                error: null,
+                lastFetch: Date.now(),
+                cacheExpired: false,
+            })
+        ),
+
+        on(StudentsActions.searchStudentsFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
+
         // Load single student
         on(StudentsActions.loadStudent, (state) => ({
             ...state,
