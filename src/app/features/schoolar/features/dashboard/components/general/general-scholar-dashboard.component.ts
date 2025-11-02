@@ -3,9 +3,12 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {FormsModule} from '@angular/forms';
 import {CalendarModule} from 'primeng/calendar';
+import {ButtonModule} from 'primeng/button';
+import {SkeletonModule} from 'primeng/skeleton';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, takeUntil, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
@@ -19,7 +22,7 @@ interface Alert {
 @Component({
     selector: 'app-general',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule],
+    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, ButtonModule, SkeletonModule],
     templateUrl: './general-scholar-dashboard.component.html',
 })
 export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
@@ -27,9 +30,13 @@ export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
 
     pieDataLevels: any;
     pieLevelOptions: any;
-    barChartData: any;
+    barChartData: any = {
+        labels: [],
+        datasets: []
+    };
     barChartOptions: any;
     dateRange: Date[] | undefined;
+    chartLoading = false;
 
     // Data observables
     students$!: Observable<Student[]>;
@@ -54,7 +61,8 @@ export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
         this.store.dispatch(StudentsActions.loadStudents());
         this.loadData();
         this.initCharts();
-        this.initBarChart();
+        this.initBarChartOptions();
+        this.loadMonthlyTrends();
     }
 
     ngOnDestroy(): void {
@@ -128,7 +136,6 @@ export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
 
     private updateCharts(students: Student[]): void {
         this.updateLevelChart(students);
-        this.updateEnrollmentChart(students);
     }
 
     private updateLevelChart(students: Student[]): void {
@@ -167,57 +174,77 @@ export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
         };
     }
 
-    private updateEnrollmentChart(students: Student[]): void {
-        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-        const currentYear = new Date().getFullYear();
-        const enrollmentData = new Array(6).fill(0);
-        const dropoutData = new Array(6).fill(0);
+    private loadMonthlyTrends(): void {
+        this.chartLoading = true;
 
-        students.forEach(student => {
-            if (student.enrollmentDate || student.createdAt) {
-                const enrollmentDate = new Date(student.enrollmentDate || student.createdAt!);
-                if (enrollmentDate.getFullYear() === currentYear) {
-                    const month = enrollmentDate.getMonth();
-                    if (month < 6) {
-                        enrollmentData[month]++;
-                    }
+        // Calculate date range for last 6 months if no date range is selected
+        const endDate = this.dateRange && this.dateRange[1]
+            ? this.dateRange[1]
+            : new Date();
+        const startDate = this.dateRange && this.dateRange[0]
+            ? this.dateRange[0]
+            : (() => {
+                const date = new Date();
+                date.setMonth(date.getMonth() - 5);
+                date.setDate(1);
+                return date;
+            })();
+
+        this.statisticsService.getMonthlyTrends(startDate, endDate, 'month')
+            .pipe(
+                takeUntil(this.destroy$),
+                catchError(error => {
+                    console.error('Error loading monthly trends:', error);
+                    // Return empty data structure on error
+                    return of({
+                        labels: [],
+                        datasets: []
+                    });
+                })
+            )
+            .subscribe(trendsData => {
+                if (trendsData && trendsData.labels && trendsData.datasets) {
+                    const documentStyle = getComputedStyle(document.documentElement);
+
+                    // Map API datasets to chart format with colors
+                    const datasets = trendsData.datasets.map((dataset: any, index: number) => {
+                        let backgroundColor = '#42A5F5';
+                        if (dataset.label?.toLowerCase().includes('inscrição') || dataset.label?.toLowerCase().includes('enrollment')) {
+                            backgroundColor = documentStyle.getPropertyValue('--primary-800') || '#42A5F5';
+                        } else if (dataset.label?.toLowerCase().includes('ativo') || dataset.label?.toLowerCase().includes('active')) {
+                            backgroundColor = documentStyle.getPropertyValue('--primary-400') || '#66BB6A';
+                        } else if (dataset.label?.toLowerCase().includes('desistência') || dataset.label?.toLowerCase().includes('dropout')) {
+                            backgroundColor = documentStyle.getPropertyValue('--red-400') || '#EF5350';
+                        } else {
+                            // Use default colors based on index
+                            const colors = [
+                                documentStyle.getPropertyValue('--primary-800') || '#42A5F5',
+                                documentStyle.getPropertyValue('--primary-400') || '#66BB6A',
+                                documentStyle.getPropertyValue('--red-400') || '#EF5350'
+                            ];
+                            backgroundColor = colors[index] || '#42A5F5';
+                        }
+
+                        return {
+                            label: dataset.label || `Dataset ${index + 1}`,
+                            backgroundColor: backgroundColor,
+                            data: dataset.data || []
+                        };
+                    });
+
+                    this.barChartData = {
+                        labels: trendsData.labels || [],
+                        datasets: datasets
+                    };
+                } else {
+                    // Fallback empty structure
+                    this.barChartData = {
+                        labels: [],
+                        datasets: []
+                    };
                 }
-            }
-
-            if ((student.status === StudentStatus.DROPPED_OUT || student.status === StudentStatus.QUIT) && student.updatedAt) {
-                const dropoutDate = new Date(student.updatedAt);
-                if (dropoutDate.getFullYear() === currentYear) {
-                    const month = dropoutDate.getMonth();
-                    if (month < 6) {
-                        dropoutData[month]++;
-                    }
-                }
-            }
-        });
-
-        this.barChartData = {
-            labels: months,
-            datasets: [
-                {
-                    label: 'Inscrições',
-                    backgroundColor: '#42A5F5',
-                    data: enrollmentData,
-                },
-                {
-                    label: 'Alunos Ativos',
-                    backgroundColor: '#66BB6A',
-                    data: enrollmentData.map((enrollments, index) => {
-                        // Simple calculation for demonstration
-                        return Math.max(0, enrollments - dropoutData[index]);
-                    }),
-                },
-                {
-                    label: 'Desistências',
-                    backgroundColor: '#EF5350',
-                    data: dropoutData,
-                },
-            ],
-        };
+                this.chartLoading = false;
+            });
     }
 
     initCharts() {
@@ -260,30 +287,9 @@ export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
         };
     }
 
-    initBarChart() {
+    initBarChartOptions() {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
-
-        this.barChartData = {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-            datasets: [
-                {
-                    label: 'Inscrições',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-800'),
-                    data: [150, 200, 180, 220, 240, 250],
-                },
-                {
-                    label: 'Aulas Marcadas',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-400'),
-                    data: [300, 320, 310, 330, 350, 360],
-                },
-                {
-                    label: 'Desistências',
-                    backgroundColor: documentStyle.getPropertyValue('--red-400'),
-                    data: [50, 12, 20, 10, 40, 13],
-                },
-            ],
-        };
 
         this.barChartOptions = {
             responsive: true,
@@ -309,7 +315,7 @@ export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
     }
 
     filtrarDados() {
-        // Simule ou faça uma chamada para API aqui com base na data
-        console.log('Filtrar por:', this.dateRange);
+        // Reload monthly trends with new date range
+        this.loadMonthlyTrends();
     }
 }
