@@ -8,43 +8,47 @@ import {
     ElementRef,
     HostListener
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {Router, RouterModule} from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Student, StudentStatus} from 'src/app/core/models/academic/student';
-import {Store} from '@ngrx/store';
+import { Student, StudentStatus } from 'src/app/core/models/academic/student';
+import { Store } from '@ngrx/store';
 
-import {Observable, Subject, take, map} from 'rxjs';
-import {ChartModule} from 'primeng/chart';
-import {ButtonModule} from 'primeng/button';
-import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
-import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
+import { Observable, Subject, take, map, debounceTime, distinctUntilChanged, takeUntil, BehaviorSubject } from 'rxjs';
+import { ChartModule } from 'primeng/chart';
+import { ButtonModule } from 'primeng/button';
+import { COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS } from "../../constants";
+import { TableHeaderAction } from "../../../../../../shared/components/tables/global-table/table-header.component";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
-import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
-import {StudentState} from "../../../../../../core/store/schoolar/students/student.state";
-import {RippleModule} from "primeng/ripple";
-import {TooltipModule} from "primeng/tooltip";
+import { StudentsActions } from "../../../../../../core/store/schoolar/students/students.actions";
+import { StudentState } from "../../../../../../core/store/schoolar/students/student.state";
+import { RippleModule } from "primeng/ripple";
+import { TooltipModule } from "primeng/tooltip";
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 import * as CenterSelectors from "../../../../../../core/store/corporate/center/centers.selector";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
-import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
-import {BadgeModule} from "primeng/badge";
-import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import {Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import {CalendarModule} from "primeng/calendar";
-import {ChipsModule} from "primeng/chips";
-import {SelectButtonModule} from "primeng/selectbutton";
-import {FormsModule} from "@angular/forms";
-import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
-import {StudentReports} from "../../../reports/components/student/student-reports.component";
-import {HasPermissionPipe} from 'src/app/shared/pipes';
-import {HasPermissionDirective} from 'src/app/shared/directives';
+import { LevelActions } from "../../../../../../core/store/schoolar/level/level.actions";
+import { CenterActions } from "../../../../../../core/store/corporate/center/centers.actions";
+import { BadgeModule } from "primeng/badge";
+import { KpiIndicatorsComponent } from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import { Kpi } from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import { CalendarModule } from "primeng/calendar";
+import { ChipsModule } from "primeng/chips";
+import { SelectButtonModule } from "primeng/selectbutton";
+import { InputTextModule } from "primeng/inputtext";
+import { DropdownModule } from "primeng/dropdown";
+import { FormsModule } from "@angular/forms";
+import { StudentsDashboardComponent } from "../../../dashboard/components/students/student-dashboard.component";
+import { StudentReports } from "../../../reports/components/student/student-reports.component";
+import { HasPermissionPipe } from 'src/app/shared/pipes';
+import { HasPermissionDirective } from 'src/app/shared/directives';
+import { PROVINCES, MUNICIPALITIES } from 'src/app/shared/constants/app';
+import { SelectItem } from 'primeng/api';
 
 @Component({
-    selector: 'app-general',
+    selector: 'schoolar-students-list',
     imports: [
         CommonModule,
         RouterModule,
@@ -58,48 +62,60 @@ import {HasPermissionDirective} from 'src/app/shared/directives';
         CalendarModule,
         ChipsModule,
         SelectButtonModule,
+        InputTextModule,
+        DropdownModule,
         FormsModule,
         StudentsDashboardComponent,
         StudentReports,
-        HasPermissionDirective
     ],
     templateUrl: './list.component.html',
 })
 export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
+    isSearchMode$ = new BehaviorSubject<boolean>(false);
+
     // Custom Templates for the table
-    @ViewChild('nameTemplate', {static: true})
+    @ViewChild('nameTemplate', { static: true })
     nameTemplate!: TemplateRef<any>;
 
-    @ViewChild('dateOfBirthTemplate', {static: true})
+    @ViewChild('dateOfBirthTemplate', { static: true })
     dateOfBirthTemplate!: TemplateRef<any>;
 
-    @ViewChild('emailTemplate', {static: true})
+    @ViewChild('emailTemplate', { static: true })
     emailTemplate!: TemplateRef<any>;
 
-    @ViewChild('phoneTemplate', {static: true})
+    @ViewChild('phoneTemplate', { static: true })
     phoneTemplate!: TemplateRef<any>;
 
-    @ViewChild('actionsTemplate', {static: true})
+    @ViewChild('actionsTemplate', { static: true })
     actionsTemplate!: TemplateRef<any>;
 
-    @ViewChild('centerTemplate', {static: true})
+    @ViewChild('centerTemplate', { static: true })
     centerTemplate!: TemplateRef<any>;
 
-    @ViewChild('levelTemplate', {static: true})
+    @ViewChild('levelTemplate', { static: true })
     levelTemplate!: TemplateRef<any>;
 
-    @ViewChild('statusTemplate', {static: true})
+    @ViewChild('statusTemplate', { static: true })
     statusTemplate!: TemplateRef<any>;
 
-    @ViewChild('typeTemplate', {static: true})
+    @ViewChild('typeTemplate', { static: true })
     typeTemplate!: TemplateRef<any>;
 
+    @ViewChild('statusFilterTemplate', { static: true })
+    statusFilterTemplate!: TemplateRef<any>;
+
+    @ViewChild('centerFilterTemplate', { static: true })
+    centerFilterTemplate!: TemplateRef<any>;
+
+    @ViewChild('levelFilterTemplate', { static: true })
+    levelFilterTemplate!: TemplateRef<any>;
+
     // References to sticky header elements
-    @ViewChild('mainHeader', {static: false})
+    @ViewChild('mainHeader', { static: false })
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', {static: false})
+    @ViewChild('viewSelector', { static: false })
     viewSelector!: ElementRef;
 
     // Sticky state tracking
@@ -108,14 +124,28 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     isViewSelectorSticky: boolean = false;
 
     students$!: Observable<Student[]>;
+    centers$!: Observable<any[]>;
+    levels$!: Observable<any[]>;
 
     loading$: Observable<boolean>;
+
+    // Filter options
+    statusOptions = [
+        { label: 'Ativo', value: 'ACTIVE' },
+        { label: 'Inativo', value: 'INACTIVE' },
+        { label: 'Em renovação', value: 'PENDING_PAYMENT' },
+        { label: 'Desistiu', value: 'DROPPED_OUT' },
+        { label: 'Saiu', value: 'QUIT' },
+    ];
+    provinces: SelectItem[] = PROVINCES;
+    municipalities: SelectItem[] = MUNICIPALITIES;
 
     columns: TableColumn[] = COLUMNS;
 
     globalFilterFields: string[] = GLOBAL_FILTERS;
 
     customTemplates: Record<string, TemplateRef<any>> = {};
+    filterTemplates: Record<string, TemplateRef<any>> = {};
 
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
@@ -125,12 +155,29 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     currentView: string = 'list'; // Default view is list
 
     viewOptions = [
-        {label: 'Lista de alunos', value: 'list'},
-        {label: 'Relatórios', value: 'reports'},
-        {label: 'Dashboard', value: 'dashboard'},
+        { label: 'Lista de alunos', value: 'list' },
+        { label: 'Relatórios', value: 'reports' },
+        { label: 'Dashboard', value: 'dashboard' },
     ];
 
+    // Search form
+    searchTerm: string = '';
+    searchFilters: {
+        status?: string;
+        centerId?: string;
+        levelId?: string;
+        unitId?: string;
+        code?: number;
+        email?: string;
+        username?: string;
+        province?: string;
+        municipality?: string;
+    } = {};
+    selectedProvince: string | null = null;
+    selectedMunicipality: string | null = null;
+
     private destroy$ = new Subject<void>();
+    private searchSubject$ = new Subject<string>();
 
     // KPIs derived from students data
     kpis$!: Observable<Kpi[]>;
@@ -166,7 +213,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         private router: Router
     ) {
         // Use the entity selectors
-        this.students$ = this.store.select(StudentSelectors.selectAllStudents)
+        this.students$ = this.store.select(StudentSelectors.selectAllStudents);
+        this.centers$ = this.store.select(CenterSelectors.selectAllCenters);
+        this.levels$ = this.store.select(LevelSelectors.selectAllLevels);
 
         this.loading$ = this.store.select(StudentSelectors.selectLoading);
 
@@ -202,32 +251,32 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
                     {
                         label: 'Total de Alunos',
                         value: total,
-                        icon: {label: 'users', color: 'text-blue-500', type: 'mat'},
+                        icon: { label: 'users', color: 'text-blue-500', type: 'mat' },
                     },
                     {
                         label: 'Ativos',
                         value: active,
-                        icon: {label: 'user-check', color: 'text-green-500', type: 'mat'},
+                        icon: { label: 'user-check', color: 'text-green-500', type: 'mat' },
                     },
                     {
                         label: 'Inativos',
                         value: inactive,
-                        icon: {label: 'user-cancel', color: 'text-red-500', type: 'mat'},
+                        icon: { label: 'user-cancel', color: 'text-red-500', type: 'mat' },
                     },
                     {
                         label: 'Em renovação',
                         value: renewing,
-                        icon: {label: 'exclamation-circle', color: 'text-orange-500'},
+                        icon: { label: 'exclamation-circle', color: 'text-orange-500' },
                     },
                     {
                         label: 'VIP',
                         value: vip,
-                        icon: {label: 'graduation-cap', color: 'text-purple-500'},
+                        icon: { label: 'graduation-cap', color: 'text-purple-500' },
                     },
                     {
                         label: 'Standard',
                         value: standard,
-                        icon: {label: 'calendar', color: 'text-secondary'},
+                        icon: { label: 'calendar', color: 'text-secondary' },
                     },
                 ];
 
@@ -257,7 +306,27 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
                 icon: "pi pi-file",
                 command: () => this.router.navigate(['/schoolar/students/create-contract']).then(),
             },
-        )
+        );
+
+        // Setup search debounce
+        this.searchSubject$.pipe(
+            debounceTime(500),
+            distinctUntilChanged(),
+            takeUntil(this.destroy$)
+        ).subscribe(searchTerm => {
+            if (searchTerm.trim()) {
+                this.performSearch(searchTerm);
+            } else {
+                this.clearSearch();
+            }
+        });
+
+        // Listen to search results for debugging
+        this.store.select(StudentSelectors.selectAllStudents).pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(students => {
+            console.log("Students in store:", students.length, students);
+        });
     }
 
     ngAfterViewInit() {
@@ -271,6 +340,12 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             levelId: this.levelTemplate,
             status: this.statusTemplate,
             vip: this.typeTemplate,
+        };
+
+        this.filterTemplates = {
+            status: this.statusFilterTemplate,
+            centerId: this.centerFilterTemplate,
+            levelId: this.levelFilterTemplate,
         };
 
         // Initialize sticky state check after view is initialized
@@ -294,6 +369,159 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     navigateToEditStudent(id: string) {
 
+    }
+
+    onSearchInput(event: any): void {
+        const value = event.target?.value || '';
+        this.searchTerm = value;
+        this.searchSubject$.next(value);
+    }
+
+    onSearch(): void {
+        if (this.searchTerm.trim()) {
+            this.performSearch(this.searchTerm);
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    private performSearch(searchTerm: string): void {
+        this.isSearchMode$.next(true);
+
+        // Build search filters
+        const filters: any = {};
+
+        // If search term looks like an email
+        if (searchTerm.includes('@')) {
+            filters.email = searchTerm;
+        }
+        // If search term is numeric, try as code
+        else if (/^\d+$/.test(searchTerm.trim())) {
+            filters.code = parseInt(searchTerm.trim(), 10);
+        }
+        // Otherwise, try as username
+        else {
+            filters.username = searchTerm;
+        }
+
+        // Merge with existing filters
+        const mergedFilters = { ...this.searchFilters, ...filters };
+
+        // Remove empty filters
+        Object.keys(mergedFilters).forEach(key => {
+            if (mergedFilters[key] === undefined || mergedFilters[key] === null || mergedFilters[key] === '') {
+                delete mergedFilters[key];
+            }
+        });
+
+        this.store.dispatch(StudentsActions.searchStudents({ filters: mergedFilters }));
+    }
+
+    clearSearch(): void {
+        this.searchTerm = '';
+        this.searchFilters = {};
+        this.selectedProvince = null;
+        this.selectedMunicipality = null;
+        this.isSearchMode$.next(false);
+        this.store.dispatch(StudentsActions.loadStudents());
+    }
+
+    onColumnFilter(field: string, value: any): void {
+        console.log("onColumnFilter", field, value);
+
+        // Update search filters based on column filter
+        if (value === null || value === undefined || value === '') {
+            delete this.searchFilters[field as keyof typeof this.searchFilters];
+        } else {
+            // Map field names if needed
+            let filterField = field;
+            if (field === 'levelId' || field === 'centerId') {
+                filterField = field;
+            }
+            (this.searchFilters as any)[filterField] = value;
+        }
+
+        // Trigger search with updated filters
+        const hasFilters = Object.keys(this.searchFilters).length > 0;
+        const hasSearchTerm = this.searchTerm.trim().length > 0;
+
+        if (hasFilters || hasSearchTerm) {
+            this.performColumnFilter();
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    onProvinceFilter(value: string | null): void {
+        if (value === null || value === undefined || value === '') {
+            delete this.searchFilters.province;
+            this.selectedProvince = null;
+        } else {
+            this.searchFilters.province = value;
+            this.selectedProvince = value;
+        }
+
+        // Trigger search with updated filters
+        const hasFilters = Object.keys(this.searchFilters).length > 0;
+        const hasSearchTerm = this.searchTerm.trim().length > 0;
+
+        if (hasFilters || hasSearchTerm) {
+            this.performColumnFilter();
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    onMunicipalityFilter(value: string | null): void {
+        if (value === null || value === undefined || value === '') {
+            delete this.searchFilters.municipality;
+            this.selectedMunicipality = null;
+        } else {
+            this.searchFilters.municipality = value;
+            this.selectedMunicipality = value;
+        }
+
+        // Trigger search with updated filters
+        const hasFilters = Object.keys(this.searchFilters).length > 0;
+        const hasSearchTerm = this.searchTerm.trim().length > 0;
+
+        if (hasFilters || hasSearchTerm) {
+            this.performColumnFilter();
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    private performColumnFilter(): void {
+        this.isSearchMode$.next(true);
+
+        const filters: any = { ...this.searchFilters };
+
+        // Add text search if present
+        if (this.searchTerm.trim()) {
+            if (this.searchTerm.includes('@')) {
+                filters.email = this.searchTerm;
+            } else if (/^\d+$/.test(this.searchTerm.trim())) {
+                filters.code = parseInt(this.searchTerm.trim(), 10);
+            } else {
+                filters.username = this.searchTerm;
+            }
+        }
+
+        // Remove empty filters
+        Object.keys(filters).forEach(key => {
+            if (filters[key] === undefined || filters[key] === null || filters[key] === '') {
+                delete filters[key];
+            }
+        });
+
+        console.log("Dispatching search with filters:", filters);
+
+        if (Object.keys(filters).length > 0) {
+            this.store.dispatch(StudentsActions.searchStudents({ filters }));
+        } else {
+            this.clearSearch();
+        }
     }
 
     protected StudentStatus = StudentStatus

@@ -1,8 +1,9 @@
-import {Routes} from "@angular/router";
-import {ManagementComponent} from "./features/management/management.component";
-import {DetailComponent} from "./features/detail/detail.component";
-import {RenewContractComponent} from "./features/renew/renew-contract.component";
-import {CreateContractComponent} from "./features/create/create-contract.component";
+import { Routes } from "@angular/router";
+import { ManagementComponent } from "./features/management/management.component";
+import { DetailComponent } from "./features/detail/detail.component";
+import { RenewContractComponent } from "./features/renew/renew-contract.component";
+import { CreateContractComponent } from "./features/create/create-contract.component";
+import { pendingChangesGuard } from "../../../core/guards/pending-changes.guard";
 
 export const ContractsRoutes: Routes = [
     {
@@ -11,11 +12,13 @@ export const ContractsRoutes: Routes = [
     },
     {
         path: 'create',
-        component: CreateContractComponent
+        component: CreateContractComponent,
+        canDeactivate: [pendingChangesGuard]
     },
     {
         path: 'renew',
-        component: RenewContractComponent
+        component: RenewContractComponent,
+        canDeactivate: [pendingChangesGuard]
     },
     {
         path: 'details/:id',

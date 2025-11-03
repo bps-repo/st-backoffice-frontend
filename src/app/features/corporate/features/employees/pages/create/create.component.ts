@@ -29,7 +29,7 @@ import * as PermissionsActions from 'src/app/core/store/permissions/actions/perm
 import * as PermissionsSelectors from 'src/app/core/store/permissions/selectors/permissions.selectors';
 
 @Component({
-    selector: 'app-create',
+    selector: 'corporate-employees-create',
     templateUrl: './create.component.html',
     standalone: true,
     imports: [

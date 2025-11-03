@@ -38,6 +38,20 @@ export class StudentsEffects {
         )
     );
 
+    searchStudents$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.searchStudents),
+            exhaustMap(({filters}) =>
+                this.studentsService.searchStudents(filters).pipe(
+                    map((students) => StudentsActions.searchStudentsSuccess({students})),
+                    catchError((error) =>
+                        of(StudentsActions.searchStudentsFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
     createStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.createStudent),

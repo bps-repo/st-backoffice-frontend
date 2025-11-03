@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -30,6 +30,29 @@ export class ScholarStatisticsService {
    */
   getStudentStatistics(studentId: string): Observable<any> {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/student/${studentId}`).pipe(
+      map((response) => response.data)
+    );
+  }
+
+  /**
+   * Gets monthly evolution trends data.
+   * @param dateFrom Optional start date (ISO 8601).
+   * @param dateTo Optional end date (ISO 8601).
+   * @param groupBy Optional grouping parameter (day|week|month).
+   * @returns An observable containing the trends data with labels and datasets.
+   */
+  getMonthlyTrends(dateFrom?: Date, dateTo?: Date, groupBy: string = 'month'): Observable<any> {
+    const trendsUrl = `${environment.apiUrl}/dashboards/schoolar/general/trends`;
+    let params = new HttpParams().set('groupBy', groupBy);
+
+    if (dateFrom) {
+      params = params.set('dateFrom', dateFrom.toISOString());
+    }
+    if (dateTo) {
+      params = params.set('dateTo', dateTo.toISOString());
+    }
+
+    return this.http.get<ApiResponse<any>>(trendsUrl, { params }).pipe(
       map((response) => response.data)
     );
   }

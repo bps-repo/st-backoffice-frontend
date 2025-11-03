@@ -59,6 +59,9 @@ export class GlobalTable<T> implements OnInit {
     columnTemplates: Record<string, TemplateRef<any>> = {};
 
     @Input()
+    filterTemplates: Record<string, TemplateRef<any>> = {};
+
+    @Input()
     set data(value: T[] | null) {
         this._data = value || [];
     }

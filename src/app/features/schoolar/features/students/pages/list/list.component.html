@@ -1,65 +1,88 @@
 <section class="grid">
 
     <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
-         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de alunos</h2>
-            <span class="text-lg">Cadastro e acompanhamento completo dos alunos</span>
         </div>
-        <p-button *hasPermission="'students.create'" (onClick)="navigateToCreateStudent()" label="Inscrever Aluno"
-                  icon="pi pi-plus" class="p-button-outlined"></p-button>
     </div>
 
     <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
-         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
         <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-                        optionLabel="label" optionValue="value"></p-selectButton>
+            optionLabel="label" optionValue="value"></p-selectButton>
     </div>
 
     <!-- KPI Cards - only visible in list view with smooth animation -->
     @if (currentView === 'list') {
-        @if (kpis$ | async; as kpis) {
-            @for (k of kpis; track k) {
-                <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)"
-                     class="animate-fade px-fadein">
-                    <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
-                </div>
-            }
-        }
+    @if (kpis$ | async; as kpis) {
+    @for (k of kpis; track k) {
+    <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)" class="animate-fade px-fadein">
+        <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
+    </div>
+    }
+    }
     }
 
     <!-- List View -->
     @if (currentView === 'list') {
-        <div class="col-12 animate-fade px-fadein">
-            <div class="card">
-                <div class="flex gap-2 align-items-center">
-                    <input pInputText type="text" class="w-full" placeholder="Buscar por nome, email, estado"/>
-                    <button pButton type="button" label="Filtrar"></button>
-                </div>
-            </div>
-        </div>
+     <div class="col-12 animate-fade px-fadein">
+         <div class="card">
+             <div class="flex flex-column gap-3">
+                 <div class="flex gap-2 align-items-center">
+                     <input pInputText type="text" class="w-full" placeholder="Buscar por código, email, username"
+                         [(ngModel)]="searchTerm" (input)="onSearchInput($event)" (keyup.enter)="onSearch()" />
+                     <button pButton type="button" label="Buscar" (click)="onSearch()"
+                         [loading]="(loading$ | async)!"></button>
+                     <button *ngIf="(isSearchMode$ | async)!" pButton type="button" label="Limpar" severity="secondary"
+                         (click)="clearSearch()"></button>
+                 </div>
+                 <div class="flex gap-2 align-items-center">
+                     <p-dropdown
+                         [options]="provinces"
+                         [(ngModel)]="selectedProvince"
+                         placeholder="Filtrar por Província"
+                         [showClear]="true"
+                         optionLabel="label"
+                         optionValue="value"
+                         (onChange)="onProvinceFilter($event.value)"
+                         styleClass="w-full"
+                     ></p-dropdown>
+                     <p-dropdown
+                         [options]="municipalities"
+                         [(ngModel)]="selectedMunicipality"
+                         placeholder="Filtrar por Município"
+                         [showClear]="true"
+                         optionLabel="label"
+                         optionValue="value"
+                         (onChange)="onMunicipalityFilter($event.value)"
+                         styleClass="w-full"
+                     ></p-dropdown>
+                 </div>
+             </div>
+         </div>
+     </div>
 
-        <!-- Student Table -->
-        <app-global-table [loading]="loading$ | async" tableLabel="Alunos" [headerActions]="headerActions"
-                          [data]="(students$ | async)!" [entity]="'students'" [columns]="columns"
-                          [globalFilterFields]="globalFilterFields" [columnTemplates]="customTemplates"
-                          (rowSelect)="onRowSelect($event)"
-                          (createEntity)="navigateToCreateStudent()"
-                          class="w-full animate-fade px-fadein"></app-global-table>
+     <!-- Student Table -->
+     <app-global-table [loading]="loading$ | async" tableLabel="Alunos" [headerActions]="headerActions"
+         [data]="(students$ | async)!" [entity]="'students'" [columns]="columns"
+         [globalFilterFields]="globalFilterFields" [columnTemplates]="customTemplates"
+         [filterTemplates]="filterTemplates" (rowSelect)="onRowSelect($event)"
+         (createEntity)="navigateToCreateStudent()" class="w-full animate-fade px-fadein"></app-global-table>
     }
 
     <!-- Dashboard View - appears with scale animation and sticks below headers -->
     @if (currentView === 'dashboard') {
-        <div class="col-12 animate-scale px-scalein content-sticky">
-            <app-students></app-students>
-        </div>
+    <div class="col-12 animate-scale px-scalein content-sticky">
+        <app-students></app-students>
+    </div>
     }
 
     <!-- Reports View - appears with scale animation and sticks below headers -->
     @if (currentView === 'reports') {
-        <div class="col-12 animate-scale px-scalein content-sticky">
-            <app-student-report></app-student-report>
-        </div>
+    <div class="col-12 animate-scale px-scalein content-sticky">
+        <app-student-report></app-student-report>
+    </div>
     }
 </section>
 
@@ -93,17 +116,57 @@
 
 <ng-template #statusTemplate let-rowData>
     <p-badge [value]="rowData.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
-             [severity]="rowData.status === 'ACTIVE' ? 'success' : 'danger'" class="w-full"></p-badge>
+        [severity]="rowData.status === 'ACTIVE' ? 'success' : 'danger'" class="w-full"></p-badge>
 </ng-template>
 
 <ng-template #typeTemplate let-rowData>
     <p-badge [value]="rowData.vip ? 'VIP' : 'STANDARD'" [severity]="rowData.vip ? 'warning' : 'info'"
-             class="w-full"></p-badge>
+        class="w-full"></p-badge>
 </ng-template>
 
 <ng-template #actionsTemplate let-center>
     <div class="flex gap-2 justify-content-center">
         <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
-                (click)="navigateToEditStudent(center)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+            (click)="navigateToEditStudent(center)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
     </div>
+</ng-template>
+
+<!-- Filter Templates -->
+<ng-template #statusFilterTemplate let-value let-filterCallback="filterCallback">
+    <p-dropdown
+        [ngModel]="value"
+        [options]="statusOptions"
+        (onChange)="onColumnFilter('status', $event.value || null)"
+        placeholder="Todos"
+        [showClear]="true"
+        [style]="{ 'min-width': '12rem' }"
+    >
+        <ng-template let-option pTemplate="item">
+            <span [class]="'customer-badge status-' + option.value">{{ option.label }}</span>
+        </ng-template>
+    </p-dropdown>
+</ng-template>
+
+<ng-template #centerFilterTemplate let-value let-filterCallback="filterCallback">
+    <p-dropdown
+        [ngModel]="value"
+        [options]="(centers$ | async) || []"
+        (onChange)="onColumnFilter('centerId', $event.value?.id || null)"
+        placeholder="Todos"
+        [showClear]="true"
+        optionLabel="name"
+        [style]="{ 'min-width': '12rem' }"
+    ></p-dropdown>
+</ng-template>
+
+<ng-template #levelFilterTemplate let-value let-filterCallback="filterCallback">
+    <p-dropdown
+        [ngModel]="value"
+        [options]="(levels$ | async) || []"
+        (onChange)="onColumnFilter('levelId', $event.value?.id || null)"
+        placeholder="Todos"
+        [showClear]="true"
+        optionLabel="name"
+        [style]="{ 'min-width': '12rem' }"
+    ></p-dropdown>
 </ng-template>
