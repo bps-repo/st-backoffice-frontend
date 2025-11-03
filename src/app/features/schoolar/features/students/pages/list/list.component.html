@@ -26,18 +26,42 @@
 
     <!-- List View -->
     @if (currentView === 'list') {
-    <div class="col-12 animate-fade px-fadein">
-        <div class="card">
-            <div class="flex gap-2 align-items-center">
-                <input pInputText type="text" class="w-full" placeholder="Buscar por código, email, username"
-                    [(ngModel)]="searchTerm" (input)="onSearchInput($event)" (keyup.enter)="onSearch()" />
-                <button pButton type="button" label="Buscar" (click)="onSearch()"
-                    [loading]="(loading$ | async)!"></button>
-                <button *ngIf="(isSearchMode$ | async)!" pButton type="button" label="Limpar" severity="secondary"
-                    (click)="clearSearch()"></button>
-            </div>
-        </div>
-    </div>
+     <div class="col-12 animate-fade px-fadein">
+         <div class="card">
+             <div class="flex flex-column gap-3">
+                 <div class="flex gap-2 align-items-center">
+                     <input pInputText type="text" class="w-full" placeholder="Buscar por código, email, username"
+                         [(ngModel)]="searchTerm" (input)="onSearchInput($event)" (keyup.enter)="onSearch()" />
+                     <button pButton type="button" label="Buscar" (click)="onSearch()"
+                         [loading]="(loading$ | async)!"></button>
+                     <button *ngIf="(isSearchMode$ | async)!" pButton type="button" label="Limpar" severity="secondary"
+                         (click)="clearSearch()"></button>
+                 </div>
+                 <div class="flex gap-2 align-items-center">
+                     <p-dropdown
+                         [options]="provinces"
+                         [(ngModel)]="selectedProvince"
+                         placeholder="Filtrar por Província"
+                         [showClear]="true"
+                         optionLabel="label"
+                         optionValue="value"
+                         (onChange)="onProvinceFilter($event.value)"
+                         styleClass="w-full"
+                     ></p-dropdown>
+                     <p-dropdown
+                         [options]="municipalities"
+                         [(ngModel)]="selectedMunicipality"
+                         placeholder="Filtrar por Município"
+                         [showClear]="true"
+                         optionLabel="label"
+                         optionValue="value"
+                         (onChange)="onMunicipalityFilter($event.value)"
+                         styleClass="w-full"
+                     ></p-dropdown>
+                 </div>
+             </div>
+         </div>
+     </div>
 
      <!-- Student Table -->
      <app-global-table [loading]="loading$ | async" tableLabel="Alunos" [headerActions]="headerActions"

@@ -44,6 +44,8 @@ import { StudentsDashboardComponent } from "../../../dashboard/components/studen
 import { StudentReports } from "../../../reports/components/student/student-reports.component";
 import { HasPermissionPipe } from 'src/app/shared/pipes';
 import { HasPermissionDirective } from 'src/app/shared/directives';
+import { PROVINCES, MUNICIPALITIES } from 'src/app/shared/constants/app';
+import { SelectItem } from 'primeng/api';
 
 @Component({
     selector: 'schoolar-students-list',
@@ -135,6 +137,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         { label: 'Desistiu', value: 'DROPPED_OUT' },
         { label: 'Saiu', value: 'QUIT' },
     ];
+    provinces: SelectItem[] = PROVINCES;
+    municipalities: SelectItem[] = MUNICIPALITIES;
 
     columns: TableColumn[] = COLUMNS;
 
@@ -166,7 +170,11 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         code?: number;
         email?: string;
         username?: string;
+        province?: string;
+        municipality?: string;
     } = {};
+    selectedProvince: string | null = null;
+    selectedMunicipality: string | null = null;
 
     private destroy$ = new Subject<void>();
     private searchSubject$ = new Subject<string>();
@@ -412,6 +420,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     clearSearch(): void {
         this.searchTerm = '';
         this.searchFilters = {};
+        this.selectedProvince = null;
+        this.selectedMunicipality = null;
         this.isSearchMode$.next(false);
         this.store.dispatch(StudentsActions.loadStudents());
     }
@@ -429,6 +439,46 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
                 filterField = field;
             }
             (this.searchFilters as any)[filterField] = value;
+        }
+
+        // Trigger search with updated filters
+        const hasFilters = Object.keys(this.searchFilters).length > 0;
+        const hasSearchTerm = this.searchTerm.trim().length > 0;
+
+        if (hasFilters || hasSearchTerm) {
+            this.performColumnFilter();
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    onProvinceFilter(value: string | null): void {
+        if (value === null || value === undefined || value === '') {
+            delete this.searchFilters.province;
+            this.selectedProvince = null;
+        } else {
+            this.searchFilters.province = value;
+            this.selectedProvince = value;
+        }
+
+        // Trigger search with updated filters
+        const hasFilters = Object.keys(this.searchFilters).length > 0;
+        const hasSearchTerm = this.searchTerm.trim().length > 0;
+
+        if (hasFilters || hasSearchTerm) {
+            this.performColumnFilter();
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    onMunicipalityFilter(value: string | null): void {
+        if (value === null || value === undefined || value === '') {
+            delete this.searchFilters.municipality;
+            this.selectedMunicipality = null;
+        } else {
+            this.searchFilters.municipality = value;
+            this.selectedMunicipality = value;
         }
 
         // Trigger search with updated filters

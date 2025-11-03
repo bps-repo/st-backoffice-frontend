@@ -24,6 +24,8 @@ export const StudentsActions = createActionGroup({
                 code?: number;
                 email?: string;
                 username?: string;
+                province?: string;
+                municipality?: string;
             }
         }>(),
         'Search Students Success': props<{ students: Student[] }>(),

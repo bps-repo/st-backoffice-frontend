@@ -128,7 +128,7 @@ export class StudentService {
 
     /**
      * Search and filter students with comprehensive filtering options.
-     * @param filters Search filters (status, centerId, levelId, unitId, code, email, username)
+     * @param filters Search filters (status, centerId, levelId, unitId, code, email, username, province, municipality)
      * @returns Observable of Student array
      */
     searchStudents(filters: {
@@ -139,6 +139,8 @@ export class StudentService {
         code?: number;
         email?: string;
         username?: string;
+        province?: string;
+        municipality?: string;
     }): Observable<Student[]> {
         let params = new HttpParams();
 
