@@ -29,7 +29,11 @@ export const COLUMNS: TableColumn[] = [
     {
         field: 'levelId',
         header: 'Nível',
-        filterType: 'text',
+        filterType: 'custom',
+        filterTemplate: true,
+        filterOptions: {
+            matchMode: 'equals'
+        },
         customTemplate: true,
     },
     {
@@ -41,13 +45,21 @@ export const COLUMNS: TableColumn[] = [
     {
         field: 'centerId',
         header: 'Centro',
-        filterType: 'text',
+        filterType: 'custom',
+        filterTemplate: true,
+        filterOptions: {
+            matchMode: 'equals'
+        },
         customTemplate: true,
     },
     {
         field: 'status',
         header: 'Status',
         filterType: 'custom',
+        filterTemplate: true,
+        filterOptions: {
+            matchMode: 'equals'
+        },
         customTemplate: true,
     },
     {

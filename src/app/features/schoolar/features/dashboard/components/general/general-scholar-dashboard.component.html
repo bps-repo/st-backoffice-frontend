@@ -35,12 +35,17 @@
             <div class="text-xl font-semibold mb-5">
                 Evolução mensal (Últimos 6 meses)
             </div>
-            <p-chart
-                type="bar"
-                [data]="barChartData"
-                [options]="barChartOptions"
-                height="300px"
-            ></p-chart>
+            <div *ngIf="!chartLoading; else chartSkeleton">
+                <p-chart
+                    type="bar"
+                    [data]="barChartData"
+                    [options]="barChartOptions"
+                    height="300px"
+                ></p-chart>
+            </div>
+            <ng-template #chartSkeleton>
+                <p-skeleton height="300px"></p-skeleton>
+            </ng-template>
         </div>
     </div>
 

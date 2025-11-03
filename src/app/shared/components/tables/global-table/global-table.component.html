@@ -15,8 +15,14 @@
                     <th *ngFor="let col of columns" [style.minWidth]="'5rem'">
                         <div class="flex justify-content-between font-semibold">
                             {{ col.header }}
-                            <p-columnFilter *ngIf="col.filterType && !col.filterTemplate" [type]="col.filterType"
+                            <p-columnFilter *ngIf="col.filterType && !col.filterTemplate && !filterTemplates[col.field]" [type]="col.filterType"
                                 [field]="col.field" display="menu"></p-columnFilter>
+                            <p-columnFilter *ngIf="col.filterType && col.filterTemplate && filterTemplates[col.field]"
+                                [field]="col.field" display="menu" [matchMode]="col.filterOptions?.matchMode || 'equals'">
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <ng-container *ngTemplateOutlet="filterTemplates[col.field]; context: { $implicit: value, filterCallback: filter }"></ng-container>
+                                </ng-template>
+                            </p-columnFilter>
                         </div>
                     </th>
                     <th *ngIf="actionsTemplate" [style.minWidth]="'5rem'">Ações</th>
