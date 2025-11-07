@@ -1,9 +1,10 @@
-import {inject, Injectable} from '@angular/core';
-import {Actions, createEffect, ofType} from '@ngrx/effects';
-import {of} from 'rxjs';
-import {catchError, exhaustMap, map} from 'rxjs/operators';
-import {StudentService} from '../../../services/student.service';
-import {StudentsActions} from "./students.actions";
+import { inject, Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { catchError, exhaustMap, map } from 'rxjs/operators';
+import { StudentService } from '../../../services/student.service';
+import { StudentsActions } from "./students.actions";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable()
 export class StudentsEffects {
@@ -15,9 +16,9 @@ export class StudentsEffects {
             ofType(StudentsActions.loadStudents),
             exhaustMap(() =>
                 this.studentsService.getStudents().pipe(
-                    map((students) => StudentsActions.loadStudentsSuccess({students, pagination: null})),
+                    map((students) => StudentsActions.loadStudentsSuccess({ students, pagination: null })),
                     catchError((error) =>
-                        of(StudentsActions.loadStudentsFailure({error: error.message}))
+                        of(StudentsActions.loadStudentsFailure({ error: error.message }))
                     )
                 )
             )
@@ -27,11 +28,11 @@ export class StudentsEffects {
     loadStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.loadStudent),
-            exhaustMap(({id}) =>
+            exhaustMap(({ id }) =>
                 this.studentsService.getStudent(id).pipe(
-                    map((student) => StudentsActions.loadStudentSuccess({student})),
+                    map((student) => StudentsActions.loadStudentSuccess({ student })),
                     catchError((error) =>
-                        of(StudentsActions.loadStudentFailure({error: error.message}))
+                        of(StudentsActions.loadStudentFailure({ error: error.message }))
                     )
                 )
             )
@@ -41,11 +42,11 @@ export class StudentsEffects {
     searchStudents$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.searchStudents),
-            exhaustMap(({filters}) =>
+            exhaustMap(({ filters }) =>
                 this.studentsService.searchStudents(filters).pipe(
-                    map((students) => StudentsActions.searchStudentsSuccess({students})),
+                    map((students) => StudentsActions.searchStudentsSuccess({ students })),
                     catchError((error) =>
-                        of(StudentsActions.searchStudentsFailure({error: error.message}))
+                        of(StudentsActions.searchStudentsFailure({ error: error.message }))
                     )
                 )
             )
@@ -55,12 +56,12 @@ export class StudentsEffects {
     createStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.createStudent),
-            exhaustMap(({student}) =>
+            exhaustMap(({ student }) =>
                 this.studentsService.createStudent(student).pipe(
-                    map((student) => StudentsActions.createStudentSuccess({student})),
-                    catchError((error) => {
-                        const msg = (error && (error.error?.message || error.error?.error || error.message)) || 'Ocorreu um erro ao criar o aluno.';
-                        return of(StudentsActions.createStudentFailure({error: msg}));
+                    map((student) => StudentsActions.createStudentSuccess({ student })),
+                    catchError((error: HttpErrorResponse) => {
+                        console.log(error);
+                        return of(StudentsActions.createStudentFailure({ error: error.error.message }));
                     })
                 )
             )
@@ -70,12 +71,12 @@ export class StudentsEffects {
     createStudentWithRequest$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.createStudentWithRequest),
-            exhaustMap(({request}) =>
+            exhaustMap(({ request }) =>
                 this.studentsService.createStudentWithRequest(request).pipe(
-                    map((student) => StudentsActions.createStudentWithRequestSuccess({student})),
+                    map((student) => StudentsActions.createStudentWithRequestSuccess({ student })),
                     catchError((error) => {
                         const msg = (error && (error.error?.message || error.error?.error || error.message)) || 'Ocorreu um erro ao criar o aluno.';
-                        return of(StudentsActions.createStudentWithRequestFailure({error: msg}));
+                        return of(StudentsActions.createStudentWithRequestFailure({ error: msg }));
                     })
                 )
             )
@@ -86,11 +87,11 @@ export class StudentsEffects {
     updateStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.updateStudent),
-            exhaustMap(({student}) =>
+            exhaustMap(({ student }) =>
                 this.studentsService.updateStudent(student).pipe(
-                    map((student) => StudentsActions.updateStudentSuccess({student})),
+                    map((student) => StudentsActions.updateStudentSuccess({ student })),
                     catchError((error) =>
-                        of(StudentsActions.updateStudentFailure({error: error.message}))
+                        of(StudentsActions.updateStudentFailure({ error: error.message }))
                     )
                 )
             )
@@ -100,11 +101,11 @@ export class StudentsEffects {
     deleteStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.deleteStudent),
-            exhaustMap(({id}) =>
+            exhaustMap(({ id }) =>
                 this.studentsService.deleteStudent(id).pipe(
-                    map(() => StudentsActions.deleteStudentSuccess({id})),
+                    map(() => StudentsActions.deleteStudentSuccess({ id })),
                     catchError((error) =>
-                        of(StudentsActions.deleteStudentFailure({error: error.message}))
+                        of(StudentsActions.deleteStudentFailure({ error: error.message }))
                     )
                 )
             )
@@ -114,11 +115,11 @@ export class StudentsEffects {
     createStudentPhoto$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.createStudentPhoto),
-            exhaustMap(({studentId, photoData}) =>
+            exhaustMap(({ studentId, photoData }) =>
                 this.studentsService.createStudentPhoto(photoData).pipe(
-                    map((response) => StudentsActions.createStudentPhotoSuccess({response})),
+                    map((response) => StudentsActions.createStudentPhotoSuccess({ response })),
                     catchError((error) =>
-                        of(StudentsActions.createStudentPhotoFailure({error: error.message}))
+                        of(StudentsActions.createStudentPhotoFailure({ error: error.message }))
                     )
                 )
             )
@@ -128,11 +129,11 @@ export class StudentsEffects {
     addStudentToClass$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.addStudentToClass),
-            exhaustMap(({studentId, classId}) =>
+            exhaustMap(({ studentId, classId }) =>
                 this.studentsService.addStudentToClass(studentId, classId).pipe(
-                    map((response) => StudentsActions.addStudentToClassSuccess({response})),
+                    map((response) => StudentsActions.addStudentToClassSuccess({ response })),
                     catchError((error) =>
-                        of(StudentsActions.addStudentToClassFailure({error: error.message}))
+                        of(StudentsActions.addStudentToClassFailure({ error: error.message }))
                     )
                 )
             )
@@ -142,11 +143,11 @@ export class StudentsEffects {
     removeStudentFromClass$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.removeStudentFromClass),
-            exhaustMap(({studentId, classId}) =>
+            exhaustMap(({ studentId, classId }) =>
                 this.studentsService.removeStudentFromClass(studentId, classId).pipe(
-                    map((response) => StudentsActions.removeStudentFromClassSuccess({response})),
+                    map((response) => StudentsActions.removeStudentFromClassSuccess({ response })),
                     catchError((error) =>
-                        of(StudentsActions.removeStudentFromClassFailure({error: error.message}))
+                        of(StudentsActions.removeStudentFromClassFailure({ error: error.message }))
                     )
                 )
             )
@@ -156,11 +157,11 @@ export class StudentsEffects {
     addStudentToCenter$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.addStudentToCenter),
-            exhaustMap(({studentId, centerId}) =>
+            exhaustMap(({ studentId, centerId }) =>
                 this.studentsService.addStudentToCenter(studentId, centerId).pipe(
-                    map((response) => StudentsActions.addStudentToCenterSuccess({response})),
+                    map((response) => StudentsActions.addStudentToCenterSuccess({ response })),
                     catchError((error) =>
-                        of(StudentsActions.addStudentToCenterFailure({error: error.message}))
+                        of(StudentsActions.addStudentToCenterFailure({ error: error.message }))
                     )
                 )
             )
@@ -170,11 +171,11 @@ export class StudentsEffects {
     removeStudentFromCenter$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.removeStudentFromCenter),
-            exhaustMap(({studentId, centerId}) =>
+            exhaustMap(({ studentId, centerId }) =>
                 this.studentsService.removeStudentFromCenter(studentId, centerId).pipe(
-                    map((response) => StudentsActions.removeStudentFromCenterSuccess({response})),
+                    map((response) => StudentsActions.removeStudentFromCenterSuccess({ response })),
                     catchError((error) =>
-                        of(StudentsActions.removeStudentFromCenterFailure({error: error.message}))
+                        of(StudentsActions.removeStudentFromCenterFailure({ error: error.message }))
                     )
                 )
             )

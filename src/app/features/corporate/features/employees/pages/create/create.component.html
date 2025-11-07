@@ -1,6 +1,15 @@
 <div class="grid">
     <div class="col-12">
         <h4>Criar Novo utilizador do backoffice</h4>
+
+        <!-- Error Message -->
+        <p-message 
+            *ngIf="createError$ | async as error" 
+            severity="error" 
+            [text]="error"
+            styleClass="mb-3">
+        </p-message>
+
         <div class="card">
             <form class="mt-4" [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
                 <div class="p-fluid p-formgrid grid">
@@ -142,9 +151,24 @@
                     <!-- Buttons -->
                     <div class="col-12">
                         <div class="flex justify-content-end gap-2">
-                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
-                            <button pButton pRipple label="Salvar Funcionário" icon="pi pi-check" class="p-button-primary" type="submit" [disabled]="employeeForm.invalid || (creating$ | async)">
-                                <i class="pi pi-spin pi-spinner" *ngIf="(creating$ | async)"></i>
+                            <button 
+                                pButton 
+                                pRipple 
+                                label="Cancelar" 
+                                icon="pi pi-times" 
+                                class="p-button-text" 
+                                type="button"
+                                [disabled]="loadingCreate$ | async"
+                                (click)="cancel()">
+                            </button>
+                            <button 
+                                pButton 
+                                pRipple 
+                                [label]="(loadingCreate$ | async) ? 'Criando...' : 'Salvar Funcionário'" 
+                                [icon]="(loadingCreate$ | async) ? 'pi pi-spin pi-spinner' : 'pi pi-check'" 
+                                class="p-button-primary" 
+                                type="submit" 
+                                [disabled]="employeeForm.invalid || (loadingCreate$ | async)">
                             </button>
                         </div>
                     </div>

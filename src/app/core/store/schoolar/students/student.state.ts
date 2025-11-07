@@ -15,6 +15,7 @@ export interface StudentState extends EntityState<Student> {
 
     // Creation
     createStudentSuccess: boolean;
+    createdStudentId: string | null;
     selectCreatedStudent: Student | null;
 
     // Error states
@@ -87,6 +88,7 @@ export const initialStudentsState: StudentState = studentsAdapter.getInitialStat
 
     // Create student success flag
     createStudentSuccess: false,
+    createdStudentId: null,
     selectCreatedStudent: null,
 
     // Filters

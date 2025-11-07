@@ -31,9 +31,13 @@ export class EmployeesEffects {
             exhaustMap(({ employeeData }) =>
                 this.employeeService.createEmployee(employeeData).pipe(
                     map((employee) => EmployeesActions.createEmployeeSuccess({ employee })),
-                    catchError((error: HttpErrorResponse | any) =>
-                        of(EmployeesActions.createEmployeeFailure({ error: (error?.message || 'Failed to create employee') }))
-                    )
+                    catchError((error: HttpErrorResponse | any) => {
+                        const errorMessage = error?.error?.message || 
+                                           error?.error?.error || 
+                                           error?.message || 
+                                           'Falha ao criar funcionário';
+                        return of(EmployeesActions.createEmployeeFailure({ error: errorMessage }));
+                    })
                 )
             )
         )
