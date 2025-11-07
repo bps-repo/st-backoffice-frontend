@@ -293,6 +293,13 @@ export const studentsFeature = createFeature({
         on(StudentsActions.clearSelection, (state) => ({
             ...state,
             selectedStudentId: null,
+            selectedStudent: null,
+            createStudentSuccess: false,
+            selectCreatedStudent: null,
+            updateStudentSuccess: false,
+            selectUpdatedStudent: null,
+            deleteStudentSuccess: false,
+            selectDeletedStudent: null,
             selectedStudentIds: [],
         })),
 
