@@ -1,7 +1,7 @@
 <div
     class="layout-sidebar"
     (mouseenter)="onMouseEnter()"
-    (mouseleave)="onMouseLeave()"
+    (mouseleave)="onMouseLeave($event)"
 >
     <div class="sidebar-header">
         <a [routerLink]="['/']" class="app-logo">
@@ -14,7 +14,7 @@
         ></button>
     </div>
 
-    <div #menuContainer class="layout-menu-container">
+    <div #menuContainer class="layout-menu-container" (mouseleave)="onMenuMouseLeave($event)">
         <app-menu></app-menu>
     </div>
 </div>
