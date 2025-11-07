@@ -31,30 +31,33 @@ import { CommonModule } from '@angular/common';
     ]
 })
 export class AppSidebarComponent {
-    timeout: any = null;
-
     @ViewChild('menuContainer') menuContainer!: ElementRef;
-    constructor(public layoutService: LayoutService, public el: ElementRef) {}
+    constructor(
+        public layoutService: LayoutService,
+        public el: ElementRef
+    ) {}
 
+    get isDrawerOrReveal(): boolean {
+        const menuMode = this.layoutService.config().menuMode;
+        return menuMode === 'drawer' || menuMode === 'reveal';
+    }
 
     onMouseEnter() {
-        if (!this.layoutService.state.anchored) {
-            if (this.timeout) {
-                clearTimeout(this.timeout);
-                this.timeout = null;
-            }
+        if (!this.layoutService.state.anchored && this.isDrawerOrReveal) {
+            // Open sidebar
             this.layoutService.state.sidebarActive = true;
-
-
         }
     }
 
-    onMouseLeave() {
-        if (!this.layoutService.state.anchored) {
-            if (!this.timeout) {
-                this.timeout = setTimeout(() => this.layoutService.state.sidebarActive = false, 300);
-            }
+    onMouseLeave(event: MouseEvent) {
+        if (!this.layoutService.state.anchored && this.isDrawerOrReveal) {
+            // Close sidebar immediately when mouse leaves
+            this.layoutService.state.sidebarActive = false;
         }
+    }
+
+    onMenuMouseLeave(event: MouseEvent) {
+        // Don't do anything - let the main sidebar mouseleave handle it
     }
 
     anchor() {
