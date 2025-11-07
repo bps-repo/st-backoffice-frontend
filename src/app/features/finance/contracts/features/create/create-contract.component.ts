@@ -31,7 +31,7 @@ import { CenterActions } from 'src/app/core/store/corporate/center/centers.actio
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
 import { map, Observable } from 'rxjs';
 import { RenewContractComponent } from "../renew/renew-contract.component";
-import { selectSelectCreatedStudent } from "../../../../../core/store/schoolar/students/students.selectors";
+import { selectCreatedStudentId } from "../../../../../core/store/schoolar/students/students.selectors";
 import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
 import { contractsFeature } from 'src/app/core/store/corporate/contracts/contracts.feature';
 
@@ -128,13 +128,13 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         // Prevent navigation away if student is created but no contract
         this.setupNavigationGuard();
 
-
-        this.store.select(selectSelectCreatedStudent).subscribe(student => {
-            if (student) {
+        // Listen for created student ID
+        this.store.select(selectCreatedStudentId).subscribe(studentId => {
+            if (studentId) {
                 this.isStudentCreated = true;
-                this.createdStudentId = student?.id ?? "";
+                this.createdStudentId = studentId;
 
-                this.activeIndex = 4
+                this.activeIndex = 4;
             }
         })
     }
@@ -193,17 +193,17 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         combineLatest([
             this.store.select(studentsFeature.selectLoadingCreate),
             this.store.select(studentsFeature.selectCreateError),
-            this.store.select(studentsFeature.selectSelectCreatedStudent) // Assuming you have this selector
+            this.store.select(selectCreatedStudentId)
         ]).pipe(
             debounceTime(500),
             takeUntil(this.destroy$)
-        ).subscribe(([loading, error, createdStudent]) => {
+        ).subscribe(([loading, error, createdStudentId]) => {
             // If loading finished and form is disabled
             if (!loading && this.studentForm.disabled) {
-                if (!error && createdStudent) {
+                if (!error && createdStudentId) {
                     // Success - student created
                     this.isStudentCreated = true;
-                    this.createdStudentId = createdStudent?.id ?? "";
+                    this.createdStudentId = createdStudentId;
 
                     this.messageService.add({
                         severity: 'success',

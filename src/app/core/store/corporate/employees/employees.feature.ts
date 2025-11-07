@@ -165,9 +165,32 @@ export const employeesFeature = createFeature({
             loading: false,
             error
         })),
+        // Create employee
+        on(EmployeesActions.createEmployee, (state) => ({
+            ...state,
+            loadingCreate: true,
+            createError: null,
+            createdEmployeeId: null,
+        })),
+        on(EmployeesActions.createEmployeeSuccess, (state, { employee }) =>
+            employeesAdapter.addOne(employee, {
+                ...state,
+                loadingCreate: false,
+                createError: null,
+                createdEmployeeId: employee.id,
+            })
+        ),
+        on(EmployeesActions.createEmployeeFailure, (state, { error }) => ({
+            ...state,
+            loadingCreate: false,
+            createError: typeof error === 'string' ? error : error?.message || 'Failed to create employee',
+            createdEmployeeId: null,
+        })),
+
         on(EmployeesActions.clearError, (state) => ({
             ...state,
             error: null,
+            createError: null,
         })),
     )
 });

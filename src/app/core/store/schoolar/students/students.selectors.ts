@@ -26,6 +26,7 @@ export const {
     selectSortBy,
     selectSortDirection,
     selectIds,
+    selectCreatedStudentId,
     selectSelectCreatedStudent
 } = studentsFeature;
 

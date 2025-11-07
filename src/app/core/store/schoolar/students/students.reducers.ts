@@ -83,6 +83,7 @@ export const studentsFeature = createFeature({
             loadingCreate: true,
             createError: null,
             createStudentSuccess: false,
+            createdStudentId: null,
             selectCreatedStudent: null
         })),
 
@@ -92,7 +93,8 @@ export const studentsFeature = createFeature({
                 loadingCreate: false,
                 createError: null,
                 createStudentSuccess: true,
-                selectCreatedStudent: student,
+                createdStudentId: student.id || null,
+                selectCreatedStudent: null,
                 // Update pagination totals
                 pagination: {
                     ...state.pagination,
@@ -107,6 +109,7 @@ export const studentsFeature = createFeature({
             loadingCreate: false,
             createError: error,
             createStudentSuccess: false,
+            createdStudentId: null,
             selectCreatedStudent: null
         })),
 
@@ -116,6 +119,7 @@ export const studentsFeature = createFeature({
             loadingCreate: true,
             createError: null,
             createStudentSuccess: false,
+            createdStudentId: null,
             selectCreatedStudent: null,
         })),
 
@@ -125,7 +129,8 @@ export const studentsFeature = createFeature({
                 loadingCreate: false,
                 createError: null,
                 createStudentSuccess: true,
-                selectCreatedStudent: student,
+                createdStudentId: student.id || null,
+                selectCreatedStudent: null,
                 // Update pagination totals
                 pagination: {
                     ...state.pagination,
@@ -140,6 +145,7 @@ export const studentsFeature = createFeature({
             loadingCreate: false,
             createError: error,
             createStudentSuccess: false,
+            createdStudentId: null,
             selectCreatedStudent: null,
         })),
 
@@ -295,6 +301,7 @@ export const studentsFeature = createFeature({
             selectedStudentId: null,
             selectedStudent: null,
             createStudentSuccess: false,
+            createdStudentId: null,
             selectCreatedStudent: null,
             updateStudentSuccess: false,
             selectUpdatedStudent: null,

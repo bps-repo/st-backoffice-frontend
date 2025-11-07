@@ -7,6 +7,9 @@ export const {
     selectEmployeesState,
     selectLoading,
     selectError,
+    selectLoadingCreate,
+    selectCreateError,
+    selectCreatedEmployeeId,
 } = employeesFeature;
 
 const {

@@ -22,6 +22,7 @@ import { Observable, map } from 'rxjs';
 import { PermissionTreeSelectorComponent } from 'src/app/shared/components/permission-tree-selector/permission-tree-selector.component';
 import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
 import * as EmployeesSelectors from 'src/app/core/store/corporate/employees/employees.selectors';
+import { MessageModule } from 'primeng/message';
 import { Subject } from 'rxjs';
 import * as RolesActions from 'src/app/core/store/roles/roles.actions';
 import * as RolesSelectors from 'src/app/core/store/roles/roles.selectors';
@@ -43,7 +44,8 @@ import * as PermissionsSelectors from 'src/app/core/store/permissions/selectors/
         PasswordModule,
         InputNumberModule,
         RadioButtonModule,
-        PermissionTreeSelectorComponent
+        PermissionTreeSelectorComponent,
+        MessageModule
     ]
 })
 export class CreateComponent implements OnInit, OnDestroy {
@@ -63,10 +65,13 @@ export class CreateComponent implements OnInit, OnDestroy {
     selectedRole: Role | null = null;
     selectedPermissionIds: string[] = [];
     centers$: Observable<{ label: string, value: string }[]>;
-    creating$: Observable<boolean> | undefined;
-    error$: Observable<string | null> | undefined;
+    loadingCreate$: Observable<boolean>;
+    createError$: Observable<string | null>;
     private destroy$ = new Subject<void>();
     loadingRoles = false;
+
+    error$: Observable<string | null>;
+    creating$: Observable<boolean>;
 
     constructor(
         private fb: FormBuilder,
@@ -78,11 +83,26 @@ export class CreateComponent implements OnInit, OnDestroy {
         this.centers$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
             map(centers => centers?.map(center => ({ label: center.name, value: center.id })) || [])
         );
+
+        // Initialize loading and error observables
+        this.loadingCreate$ = this.store.select(EmployeesSelectors.selectLoadingCreate);
+        this.createError$ = this.store.select(EmployeesSelectors.selectCreateError);
+        this.creating$ = this.store.select(EmployeesSelectors.selectLoading);
+        this.error$ = this.store.select(EmployeesSelectors.selectError);
     }
 
     ngOnInit(): void {
         // Dispatch initial loads
         this.store.dispatch(RolesActions.loadRoles());
+
+        // Subscribe to create success
+        this.actions$.pipe(
+            ofType(EmployeesActions.createEmployeeSuccess),
+            takeUntil(this.destroy$)
+        ).subscribe(() => {
+            // Navigate to employees list on success
+            this.router.navigate(['/corporate/employees']);
+        });
         this.store.dispatch(PermissionsActions.loadPermissionTree());
         this.store.dispatch(CenterActions.loadCenters());
 
@@ -185,6 +205,17 @@ export class CreateComponent implements OnInit, OnDestroy {
 
     onSubmit(): void {
         if (this.employeeForm.invalid) {
+            Object.keys(this.employeeForm.controls).forEach(key => {
+                const control = this.employeeForm.get(key);
+                control?.markAsTouched();
+            });
+            // Mark user subgroup controls as touched
+            const userGroup = this.employeeForm.get('user') as FormGroup;
+            if (userGroup) {
+                Object.keys(userGroup.controls).forEach(key => {
+                    userGroup.get(key)?.markAsTouched();
+                });
+            }
             return;
         }
 
