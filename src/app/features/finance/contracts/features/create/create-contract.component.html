@@ -3,9 +3,9 @@
     <div class="col-12">
         <h2>Inscrição de aluno</h2>
         <span>Inscriçãos completo dos alunos</span>
-        <br/>
+        <br />
         @if (createError$ | async) {
-            <span *ngIf="createError$ | async"> class="text-red-500">{{ (createError$ | async) }}</span>
+        <span *ngIf="createError$ | async"> class="text-red-500">{{ (createError$ | async) }}</span>
         }
     </div>
     <div class="col-12">
@@ -21,7 +21,7 @@
                     <!-- Stepper -->
                     <div class="mb-5">
                         <p-steps [model]="steps" [activeIndex]="activeIndex" [readonly]="false"
-                                 (activeIndexChange)="goToStep($event)" styleClass="mt-2"></p-steps>
+                            (activeIndexChange)="goToStep($event)" styleClass="mt-2"></p-steps>
                     </div>
 
                     <!-- Progress indicator -->
@@ -35,82 +35,90 @@
                             <div class="col-12 md:col-12 field">
                                 <label for="photo" class="font-bold">Foto</label>
                                 <p-fileUpload mode="basic" name="photo" url="./upload.php" accept="image/*"
-                                              [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain"
-                                              chooseLabel="Carregue uma imagem"
-                                              (onSelect)="onFileSelected($event)"></p-fileUpload>
+                                    [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain"
+                                    chooseLabel="Carregue uma imagem"
+                                    (onSelect)="onFileSelected($event)"></p-fileUpload>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="identificationNumber" class="font-bold">Bilhete de Identidade</label>
+                                <label for="identificationNumber" class="font-bold">Bilhete de Identidade*</label>
                                 <input id="identificationNumber" type="text" pInputText
-                                       formControlName="identificationNumber"/>
+                                    formControlName="identificationNumber" />
                                 <small *ngIf="hasFieldError('identificationNumber')" class="p-error">{{
-                                        getFieldError('identificationNumber')
+                                    getFieldError('identificationNumber')
                                     }}</small>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="firstname" class="font-bold">Primeiro Nome</label>
-                                <input id="firstname" type="text" pInputText formControlName="firstname"/>
+                                <label for="firstname" class="font-bold">Primeiro Nome*</label>
+                                <input id="firstname" type="text" pInputText formControlName="firstname" />
                                 <small *ngIf="hasFieldError('firstname')" class="p-error">{{
-                                        getFieldError('firstname')
+                                    getFieldError('firstname')
                                     }}</small>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="lastname" class="font-bold">Último Nome</label>
-                                <input id="lastname" type="text" pInputText formControlName="lastname"/>
+                                <label for="lastname" class="font-bold">Último Nome*</label>
+                                <input id="lastname" type="text" pInputText formControlName="lastname" />
                                 <small *ngIf="hasFieldError('lastname')" class="p-error">{{
-                                        getFieldError('lastname')
+                                    getFieldError('lastname')
                                     }}</small>
                             </div>
 
                             <div class="col-12 md:col-4 field">
-                                <label for="gender" class="font-bold">Género</label>
+                                <label for="gender" class="font-bold">Género*</label>
                                 <p-dropdown id="gender" [options]="genderOptions" formControlName="gender"
-                                            optionLabel="label" optionValue="value" placeholder="Selecione"
-                                            [showClear]="true"></p-dropdown>
+                                    optionLabel="label" optionValue="value" placeholder="Selecione"
+                                    [showClear]="true"></p-dropdown>
                                 <small *ngIf="hasFieldError('gender')" class="p-error">{{
-                                        getFieldError('gender')
+                                    getFieldError('gender')
                                     }}</small>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="birthdate" class="font-bold">Data de Nascimento</label>
+                                <label for="birthdate" class="font-bold">Data de Nascimento*</label>
                                 <p-calendar id="birthdate" formControlName="birthdate" [showIcon]="true"
-                                            dateFormat="dd/mm/yy"></p-calendar>
+                                    dateFormat="dd/mm/yy"></p-calendar>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="email" class="font-bold">E-mail</label>
+                                <label for="email" class="font-bold">E-mail*</label>
                                 <input id="email" type="email" pInputText formControlName="email"
-                                       placeholder="ex. user@gmail.com" required/>
-                            </div>
-
-                            <div class="col-12 md:col-4 field">
-                                <label for="password" class="font-bold">Senha</label>
-                                <input id="password" type="password" pInputText formControlName="password"
-                                       placeholder="Senha do aluno"/>
+                                    placeholder="ex. user@gmail.com" required />
+                                <small *ngIf="hasFieldError('email')" class="p-error">{{
+                                    getFieldError('email')
+                                    }}</small>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="phone" class="font-bold">Telefone</label>
+                                <label for="phone" class="font-bold">Telefone*</label>
                                 <input id="phone" type="text" pInputText formControlName="phone"
-                                       placeholder="ex. 971234567" required/>
+                                    placeholder="ex. 971234567" required />
+                                <small *ngIf="hasFieldError('phone')" class="p-error">{{
+                                    getFieldError('phone')
+                                    }}</small>
                             </div>
                             <div class="col-12 md:col-4 field">
-                                <label for="province" class="font-bold">Província de morada</label>
+                                <label for="province" class="font-bold">Província de morada*</label>
                                 <p-dropdown id="province" [options]="provinces" formControlName="province"
-                                            optionLabel="label" optionValue="value"
-                                            placeholder="Selecione uma província"
-                                            [showClear]="true"></p-dropdown>
+                                    optionLabel="label" optionValue="value" placeholder="Selecione uma província"
+                                    [showClear]="true"></p-dropdown>
+                                <small *ngIf="hasFieldError('province')" class="p-error">{{
+                                    getFieldError('province')
+                                    }}</small>
                             </div>
 
                             <div class="col-12 md:col-6 field">
-                                <label for="municipality" class="font-bold">Município de morada</label>
+                                <label for="municipality" class="font-bold">Município de morada*</label>
                                 <p-dropdown id="municipality" [options]="municipalities" formControlName="municipality"
-                                            optionLabel="label" optionValue="value" placeholder="Selecione um município"
-                                            [showClear]="true"></p-dropdown>
+                                    optionLabel="label" optionValue="value" placeholder="Selecione um município"
+                                    [showClear]="true"></p-dropdown>
+                                <small *ngIf="hasFieldError('municipality')" class="p-error">{{
+                                    getFieldError('municipality')
+                                    }}</small>
                             </div>
                             <div class="col-12 md:col-6 field">
-                                <label for="academicBackground" class="font-bold">Formação Acadêmica</label>
+                                <label for="academicBackground" class="font-bold">Formação Acadêmica*</label>
                                 <p-dropdown id="academicBackground" [options]="academicBackgrounds"
-                                            formControlName="academicBackground" optionLabel="label" optionValue="value"
-                                            placeholder="Selecione a formação" [showClear]="true"></p-dropdown>
+                                    formControlName="academicBackground" optionLabel="label" optionValue="value"
+                                    placeholder="Selecione a formação" [showClear]="true"></p-dropdown>
+                                <small *ngIf="hasFieldError('academicBackground')" class="p-error">{{
+                                    getFieldError('academicBackground')
+                                    }}</small>
                             </div>
                         </div>
                     </div>
@@ -119,11 +127,13 @@
                     <div *ngIf="activeIndex === 1" class="step-content">
                         <div class="grid p-fluid">
                             <div class="col-12 md:col-6 field">
-                                <label for="centerId" class="font-bold">Centro (Instalação)</label>
+                                <label for="centerId" class="font-bold">Centro (Instalação)*</label>
                                 <p-dropdown id="centerId" [options]="(centersOptions$ | async)!"
-                                            formControlName="centerId" optionLabel="label" optionValue="value"
-                                            placeholder="Selecione um centro" [showClear]="true"
-                                            [required]="true"></p-dropdown>
+                                    formControlName="centerId" optionLabel="label" optionValue="value"
+                                    placeholder="Selecione um centro" [showClear]="true" [required]="true"></p-dropdown>
+                                <small *ngIf="hasFieldError('centerId')" class="p-error">{{
+                                    getFieldError('centerId')
+                                    }}</small>
                             </div>
                         </div>
                     </div>
@@ -133,24 +143,27 @@
                         <h3 class="text-900 font-medium text-xl mb-3">Contato de Emergência</h3>
                         <div class="grid p-fluid">
                             <div class="col-12 md:col-6 field">
-                                <label for="emergencyName" class="font-bold">Nome</label>
+                                <label for="emergencyName" class="font-bold">Nome*</label>
                                 <input id="emergencyName" type="text" pInputText
-                                       formControlName="emergencyContactName"/>
+                                    formControlName="emergencyContactName" />
                                 <small *ngIf="hasFieldError('emergencyContactName')" class="p-error">{{
-                                        getFieldError('emergencyContactName')
+                                    getFieldError('emergencyContactName')
                                     }}</small>
                             </div>
                             <div class="col-12 md:col-6 field">
-                                <label for="emergencyRelationship" class="font-bold">Relação</label>
+                                <label for="emergencyRelationship" class="font-bold">Relação*</label>
                                 <input id="emergencyRelationship" type="text" pInputText
-                                       formControlName="emergencyContactRelationship"/>
+                                    formControlName="emergencyContactRelationship" />
+                                <small *ngIf="hasFieldError('emergencyContactRelationship')" class="p-error">{{
+                                    getFieldError('emergencyContactRelationship')
+                                    }}</small>
                             </div>
                             <div class="col-12 md:col-6 field">
-                                <label for="emergencyPhone" class="font-bold">Telefone</label>
+                                <label for="emergencyPhone" class="font-bold">Telefone*</label>
                                 <input id="emergencyPhone" type="text" pInputText
-                                       formControlName="emergencyContactNumber"/>
+                                    formControlName="emergencyContactNumber" />
                                 <small *ngIf="hasFieldError('emergencyContactNumber')" class="p-error">{{
-                                        getFieldError('emergencyContactNumber')
+                                    getFieldError('emergencyContactNumber')
                                     }}</small>
                             </div>
                         </div>
@@ -163,7 +176,10 @@
                             <div class="col-12 field">
                                 <label for="notes" class="font-bold">Observações</label>
                                 <textarea id="notes" rows="5" formControlName="notes"
-                                          placeholder="Observações sobre o aluno" pInputTextarea></textarea>
+                                    placeholder="Observações sobre o aluno" pInputTextarea></textarea>
+                                <small *ngIf="hasFieldError('notes')" class="p-error">{{
+                                    getFieldError('notes')
+                                    }}</small>
                             </div>
                         </div>
                     </div>
@@ -174,20 +190,20 @@
                         <h3 class="text-900 font-medium text-xl mb-3">Gestão contratual</h3>
                         <div class="grid p-fluid p-2">
                             <finance-renew-contract [renewContract]="false" [createdStudentId]="createdStudentId"
-                                                    (contractCompleted)="onContractCompleted()"></finance-renew-contract>
+                                (contractCompleted)="onContractCompleted()"></finance-renew-contract>
                         </div>
                     </div>
 
                     <!-- Step Navigation Buttons -->
                     <div class="flex justify-content-between mt-4">
                         <button pButton label="Anterior" icon="pi pi-arrow-left" class="p-button-secondary"
-                                (click)="prevStep()" [disabled]="activeIndex === 0"></button>
+                            (click)="prevStep()" [disabled]="activeIndex === 0"></button>
                         <button *ngIf="activeIndex < 3" pButton label="Próximo" icon="pi pi-arrow-right" iconPos="right"
-                                (click)="nextStep()"></button>
+                            (click)="nextStep()"></button>
                         <button *ngIf="activeIndex === 3" pButton type="submit"
-                                [label]="(loading$ | async) ? 'Validando aluno...' : 'Validar aluno'" icon="pi pi-check"
-                                [loading]="(loading$ | async)!" [disabled]="(loading$ | async) || studentForm.invalid"
-                                class="p-button-success"></button>
+                            [label]="(loading$ | async) ? 'Validando aluno...' : 'Validar aluno'" icon="pi pi-check"
+                            [loading]="(loading$ | async)!" [disabled]="(loading$ | async) || studentForm.invalid"
+                            class="p-button-success"></button>
                     </div>
                 </form>
             </ng-template>

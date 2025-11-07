@@ -60,6 +60,7 @@ export class StudentsEffects {
                 this.studentsService.createStudent(student).pipe(
                     map((student) => StudentsActions.createStudentSuccess({ student })),
                     catchError((error: HttpErrorResponse) => {
+                        console.log(error);
                         return of(StudentsActions.createStudentFailure({ error: error.error.message }));
                     })
                 )
