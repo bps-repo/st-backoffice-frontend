@@ -32,4 +32,16 @@ export class StatisticsEffects {
       )
     )
   );
+
+  loadDashboardStatistics$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(StatisticsActions.loadDashboardStatistics),
+      mergeMap(() =>
+        this.statisticsService.getDashboardStatistics().pipe(
+          map((dashboardStatistics) => StatisticsActions.loadDashboardStatisticsSuccess({ dashboardStatistics })),
+          catchError((error) => of(StatisticsActions.loadDashboardStatisticsFailure({ error: error.message || 'Failed to load dashboard statistics' })))
+        )
+      )
+    )
+  );
 }

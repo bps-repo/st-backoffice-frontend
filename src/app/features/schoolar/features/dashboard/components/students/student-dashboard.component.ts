@@ -6,13 +6,19 @@ import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { SkeletonModule } from 'primeng/skeleton';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
-import { ScholarStatisticsService } from 'src/app/core/services/scholar-statistics.service';
+import { StudentDashboardStatistics } from 'src/app/core/models/academic/student-dashboard-statistics';
+import { StatisticsActions } from 'src/app/core/store/schoolar/statistics/statistics.actions';
+import {
+    selectDashboardStatistics,
+    selectLoadingDashboardStatistics
+} from 'src/app/core/store/schoolar/statistics/statistics.selectors';
 
 @Component({
     selector: 'app-students',
@@ -24,7 +30,8 @@ import { ScholarStatisticsService } from 'src/app/core/services/scholar-statisti
         CalendarModule,
         CardModule,
         ButtonModule,
-        TableModule
+        TableModule,
+        SkeletonModule
     ],
     templateUrl: './student-dashboard.component.html',
 })
@@ -34,13 +41,22 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     // Data observables
     students$!: Observable<Student[]>;
     loading$!: Observable<boolean>;
-    statistics$!: Observable<any>;
+    dashboardStatistics$!: Observable<StudentDashboardStatistics | null>;
+    loadingDashboardStatistics$!: Observable<boolean>;
 
     // Chart data
     pieDataGender: any;
     pieGenderOptions: any;
+    pieDataStatus: any;
+    pieStatusOptions: any;
     pieDataAge: any;
     pieAgeOptions: any;
+    barChartDataProvince: any;
+    barChartProvinceOptions: any;
+    barChartDataMunicipality: any;
+    barChartMunicipalityOptions: any;
+    barChartDataAcademicBackground: any;
+    barChartAcademicBackgroundOptions: any;
     lineChartData: any;
     lineChartOptions: any;
     barChartData: any;
@@ -53,12 +69,13 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
 
     constructor(
         private store: Store,
-        private statisticsService: ScholarStatisticsService,
     ) {}
 
     ngOnInit(): void {
         // Dispatch action to load students if not already loaded
         this.store.dispatch(StudentsActions.loadStudents());
+        // Dispatch action to load dashboard statistics
+        this.store.dispatch(StatisticsActions.loadDashboardStatistics());
         this.loadData();
         this.initCharts();
     }
@@ -73,15 +90,18 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         this.students$ = this.store.select(selectAllStudents);
         this.loading$ = this.store.select(selectLoading);
 
-        // Load statistics
-        this.statistics$ = this.statisticsService.getStatistics();
+        // Load dashboard statistics from store
+        this.dashboardStatistics$ = this.store.select(selectDashboardStatistics);
+        this.loadingDashboardStatistics$ = this.store.select(selectLoadingDashboardStatistics);
 
-        // Build KPIs from real data
-        this.kpis$ = combineLatest([
-            this.students$,
-            this.statistics$
-        ]).pipe(
-            map(([students, stats]) => this.buildKPIs(students, stats))
+        // Build KPIs from dashboard data
+        this.kpis$ = this.dashboardStatistics$.pipe(
+            map(dashboardStats => {
+                if (dashboardStats && Object.keys(dashboardStats).length > 0) {
+                    return this.buildKPIsFromDashboard(dashboardStats);
+                }
+                return [];
+            })
         );
 
         // Build top performers from real data
@@ -89,11 +109,13 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
             map(students => this.buildTopPerformers(students))
         );
 
-        // Update charts when data changes
-        this.students$.pipe(
+        // Update charts when dashboard data changes
+        this.dashboardStatistics$.pipe(
             takeUntil(this.destroy$)
-        ).subscribe(students => {
-            this.updateCharts(students);
+        ).subscribe(dashboardStats => {
+            if (dashboardStats && Object.keys(dashboardStats).length > 0) {
+                this.updateChartsFromDashboard(dashboardStats);
+            }
         });
     }
 
@@ -103,24 +125,22 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
-        // Gender distribution pie chart
+        // Status distribution pie chart (initial empty data)
+        this.pieDataStatus = {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: []
+            }]
+        };
+
+        // Gender distribution pie chart (initial empty data)
         this.pieDataGender = {
-            labels: ['Male', 'Female', 'Other'],
-            datasets: [
-                {
-                    data: [45, 52, 3],
-                    backgroundColor: [
-                        documentStyle.getPropertyValue('--blue-500'),
-                        documentStyle.getPropertyValue('--pink-500'),
-                        documentStyle.getPropertyValue('--green-500'),
-                    ],
-                    hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--blue-400'),
-                        documentStyle.getPropertyValue('--pink-400'),
-                        documentStyle.getPropertyValue('--green-400'),
-                    ],
-                },
-            ],
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: []
+            }]
         };
 
         this.pieGenderOptions = {
@@ -136,35 +156,50 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 },
                 title: {
                     display: true,
-                    text: 'Gender Distribution',
+                    text: 'Distribuição por Género',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
             },
         };
 
-        // Age distribution pie chart
+        // Age distribution pie chart (initial empty data)
         this.pieDataAge = {
-            labels: ['Under 18', '18-24', '25-34', '35-44', '45+'],
-            datasets: [
-                {
-                    data: [15, 30, 25, 20, 10],
-                    backgroundColor: [
-                        documentStyle.getPropertyValue('--indigo-500'),
-                        documentStyle.getPropertyValue('--purple-500'),
-                        documentStyle.getPropertyValue('--teal-500'),
-                        documentStyle.getPropertyValue('--orange-500'),
-                        documentStyle.getPropertyValue('--yellow-500'),
-                    ],
-                    hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--indigo-400'),
-                        documentStyle.getPropertyValue('--purple-400'),
-                        documentStyle.getPropertyValue('--teal-400'),
-                        documentStyle.getPropertyValue('--orange-400'),
-                        documentStyle.getPropertyValue('--yellow-400'),
-                    ],
-                },
-            ],
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: []
+            }]
+        };
+
+        // Province distribution bar chart (initial empty data)
+        this.barChartDataProvince = {
+            labels: [],
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                data: []
+            }]
+        };
+
+        // Municipality distribution bar chart (initial empty data)
+        this.barChartDataMunicipality = {
+            labels: [],
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--cyan-500'),
+                data: []
+            }]
+        };
+
+        // Academic background distribution bar chart (initial empty data)
+        this.barChartDataAcademicBackground = {
+            labels: [],
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--teal-500'),
+                data: []
+            }]
         };
 
         this.pieAgeOptions = {
@@ -180,7 +215,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 },
                 title: {
                     display: true,
-                    text: 'Age Distribution',
+                    text: 'Distribuição por Idade',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
                 }
@@ -293,6 +328,126 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 }
             }
         };
+
+        // Status distribution pie chart options
+        this.pieStatusOptions = {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor,
+                        usePointStyle: true,
+                        font: { weight: 500 },
+                        padding: 20,
+                    },
+                    position: 'bottom',
+                },
+                title: {
+                    display: true,
+                    text: 'Distribuição por Estado',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+        };
+
+        // Province distribution bar chart options
+        this.barChartProvinceOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Estudantes por Província',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
+
+        // Municipality distribution bar chart options
+        this.barChartMunicipalityOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Estudantes por Município',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
+
+        // Academic background distribution bar chart options
+        this.barChartAcademicBackgroundOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Estudantes por Formação Académica',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
     }
 
     filterData() {
@@ -300,40 +455,32 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         console.log('Filtering by date range:', this.dateRange);
     }
 
-    private buildKPIs(students: Student[], stats: any): any[] {
-        const total = students.length;
-        const active = students.filter(s => s.status === StudentStatus.ACTIVE).length;
-        const inactive = students.filter(s => s.status === StudentStatus.INACTIVE).length;
-        const pendingPayment = students.filter(s => s.status === StudentStatus.PENDING_PAYMENT).length;
-
-        // Calculate growth rates (mock data for now, in real app would come from stats)
-        const totalGrowth = stats?.totalStudentsGrowth || 8;
-        const activeGrowth = stats?.activeStudentsGrowth || 5;
-        const newEnrollments = stats?.newEnrollments || Math.floor(total * 0.15);
-        const newEnrollmentsGrowth = stats?.newEnrollmentsGrowth || 15;
-        const completionRate = stats?.completionRate || 85;
-        const completionRateGrowth = stats?.completionRateGrowth || 3;
+    private buildKPIsFromDashboard(dashboardStats: StudentDashboardStatistics): any[] {
+        const total = dashboardStats.totalStudents;
+        const active = dashboardStats.studentsByStatus['ACTIVE'] || 0;
+        const inactive = dashboardStats.studentsByStatus['INACTIVE'] || 0;
+        const pendingPayment = dashboardStats.studentsByStatus['PENDING_PAYMENT'] || 0;
 
         return [
             {
-                label: 'Todos estudantes',
+                label: 'Total de Estudantes',
                 current: total,
-                diff: totalGrowth
+                diff: 0
             },
             {
-                label: 'Novas inscrições',
-                current: newEnrollments,
-                diff: newEnrollmentsGrowth
-            },
-            {
-                label: 'Estudantes activos',
+                label: 'Estudantes Activos',
                 current: active,
-                diff: activeGrowth
+                diff: 0
             },
             {
-                label: 'Completion Rate',
-                current: `${completionRate}%`,
-                diff: completionRateGrowth
+                label: 'Estudantes Inactivos',
+                current: inactive,
+                diff: 0
+            },
+            {
+                label: 'Pendentes de Pagamento',
+                current: pendingPayment,
+                diff: 0
             },
         ];
     }
@@ -386,113 +533,158 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         return 'N/A';
     }
 
-    private updateCharts(students: Student[]): void {
-        this.updateGenderChart(students);
-        this.updateAgeChart(students);
-        this.updateEnrollmentChart(students);
-        this.updateLevelChart(students);
+    private updateChartsFromDashboard(dashboardStats: StudentDashboardStatistics): void {
+        this.updateStatusChart(dashboardStats);
+        this.updateGenderChart(dashboardStats);
+        this.updateAgeChart(dashboardStats);
+        this.updateProvinceChart(dashboardStats);
+        this.updateMunicipalityChart(dashboardStats);
+        this.updateAcademicBackgroundChart(dashboardStats);
     }
 
-    private updateGenderChart(students: Student[]): void {
-        const genderCounts = students.reduce((acc, student) => {
-            const gender = student.user.gender || 'OTHER';
-            acc[gender] = (acc[gender] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
+    private updateStatusChart(dashboardStats: StudentDashboardStatistics): void {
+        const statusLabels = Object.keys(dashboardStats.studentsByStatus).map(status => {
+            const statusMap: Record<string, string> = {
+                'ACTIVE': 'Activo',
+                'INACTIVE': 'Inactivo',
+                'PENDING_PAYMENT': 'Pendente Pagamento',
+                'SUSPENDED': 'Suspenso',
+                'GRADUATED': 'Graduado'
+            };
+            return statusMap[status] || status;
+        });
+        const statusData = Object.values(dashboardStats.studentsByStatus);
 
+        const documentStyle = getComputedStyle(document.documentElement);
+        this.pieDataStatus = {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData,
+                backgroundColor: [
+                    documentStyle.getPropertyValue('--green-500'),
+                    documentStyle.getPropertyValue('--red-500'),
+                    documentStyle.getPropertyValue('--yellow-500'),
+                    documentStyle.getPropertyValue('--orange-500'),
+                    documentStyle.getPropertyValue('--blue-500')
+                ],
+                hoverBackgroundColor: [
+                    documentStyle.getPropertyValue('--green-400'),
+                    documentStyle.getPropertyValue('--red-400'),
+                    documentStyle.getPropertyValue('--yellow-400'),
+                    documentStyle.getPropertyValue('--orange-400'),
+                    documentStyle.getPropertyValue('--blue-400')
+                ]
+            }]
+        };
+    }
+
+    private updateGenderChart(dashboardStats: StudentDashboardStatistics): void {
+        const genderLabels = Object.keys(dashboardStats.studentsByGender).map(gender => {
+            const genderMap: Record<string, string> = {
+                'MALE': 'Masculino',
+                'FEMALE': 'Feminino',
+                'OTHER': 'Outro'
+            };
+            return genderMap[gender] || gender;
+        });
+        const genderData = Object.values(dashboardStats.studentsByGender);
+
+        const documentStyle = getComputedStyle(document.documentElement);
         this.pieDataGender = {
-            labels: Object.keys(genderCounts).map(g =>
-                g === 'MALE' ? 'Masculino' : g === 'FEMALE' ? 'Feminino' : 'Outro'
-            ),
+            labels: genderLabels,
             datasets: [{
-                data: Object.values(genderCounts),
+                data: genderData,
                 backgroundColor: [
-                    '#42A5F5',
-                    '#66BB6A',
-                    '#FFA726'
+                    documentStyle.getPropertyValue('--blue-500'),
+                    documentStyle.getPropertyValue('--pink-500'),
+                    documentStyle.getPropertyValue('--green-500')
+                ],
+                hoverBackgroundColor: [
+                    documentStyle.getPropertyValue('--blue-400'),
+                    documentStyle.getPropertyValue('--pink-400'),
+                    documentStyle.getPropertyValue('--green-400')
                 ]
             }]
         };
     }
 
-    private updateAgeChart(students: Student[]): void {
-        const ageGroups = { '0-18': 0, '19-25': 0, '26-35': 0, '36-50': 0, '50+': 0 };
+    private updateAgeChart(dashboardStats: StudentDashboardStatistics): void {
+        const ageLabels = Object.keys(dashboardStats.studentsByAgeRange);
+        const ageData = Object.values(dashboardStats.studentsByAgeRange);
 
-        students.forEach(student => {
-            if (student.user.birthdate) {
-                const age = new Date().getFullYear() - new Date(student.user.birthdate).getFullYear();
-                if (age <= 18) ageGroups['0-18']++;
-                else if (age <= 25) ageGroups['19-25']++;
-                else if (age <= 35) ageGroups['26-35']++;
-                else if (age <= 50) ageGroups['36-50']++;
-                else ageGroups['50+']++;
-            }
-        });
-
+        const documentStyle = getComputedStyle(document.documentElement);
         this.pieDataAge = {
-            labels: Object.keys(ageGroups),
+            labels: ageLabels,
             datasets: [{
-                data: Object.values(ageGroups),
+                data: ageData,
                 backgroundColor: [
-                    '#FF6384',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#4BC0C0',
-                    '#9966FF'
+                    documentStyle.getPropertyValue('--indigo-500'),
+                    documentStyle.getPropertyValue('--purple-500'),
+                    documentStyle.getPropertyValue('--teal-500'),
+                    documentStyle.getPropertyValue('--orange-500'),
+                    documentStyle.getPropertyValue('--yellow-500')
+                ],
+                hoverBackgroundColor: [
+                    documentStyle.getPropertyValue('--indigo-400'),
+                    documentStyle.getPropertyValue('--purple-400'),
+                    documentStyle.getPropertyValue('--teal-400'),
+                    documentStyle.getPropertyValue('--orange-400'),
+                    documentStyle.getPropertyValue('--yellow-400')
                 ]
             }]
         };
     }
 
-    private updateEnrollmentChart(students: Student[]): void {
-        // Real enrollment data by month based on enrollment date
-        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        const currentYear = new Date().getFullYear();
-        const enrollmentData = new Array(12).fill(0);
+    private updateProvinceChart(dashboardStats: StudentDashboardStatistics): void {
+        const provinceLabels = Object.keys(dashboardStats.studentsByProvince);
+        const provinceData = Object.values(dashboardStats.studentsByProvince);
 
-        students.forEach(student => {
-            if (student.enrollmentDate || student.createdAt) {
-                const enrollmentDate = new Date(student.enrollmentDate || student.createdAt!);
-                if (enrollmentDate.getFullYear() === currentYear) {
-                    const month = enrollmentDate.getMonth();
-                    enrollmentData[month]++;
-                }
-            }
-        });
-
-        this.lineChartData = {
-            labels: months,
+        const documentStyle = getComputedStyle(document.documentElement);
+        this.barChartDataProvince = {
+            labels: provinceLabels,
             datasets: [{
-                label: 'Novos Alunos',
-                data: enrollmentData,
-                borderColor: '#42A5F5',
-                backgroundColor: 'rgba(66, 165, 245, 0.1)',
-                tension: 0.4
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                data: provinceData
             }]
         };
     }
 
-    private updateLevelChart(students: Student[]): void {
-        // Real level distribution based on student levels
-        const levelCounts: {[key: string]: number} = {};
+    private updateMunicipalityChart(dashboardStats: StudentDashboardStatistics): void {
+        const municipalityLabels = Object.keys(dashboardStats.studentsByMunicipality);
+        const municipalityData = Object.values(dashboardStats.studentsByMunicipality);
 
-        students.forEach(student => {
-            let levelName = 'Não Definido';
-            if (student.level && typeof student.level === 'object' && 'name' in student.level) {
-                levelName = student.level.name;
-            }
-            levelCounts[levelName] = (levelCounts[levelName] || 0) + 1;
-        });
-
-        const labels = Object.keys(levelCounts);
-        const data = Object.values(levelCounts);
-
-        this.barChartData = {
-            labels: labels,
+        const documentStyle = getComputedStyle(document.documentElement);
+        this.barChartDataMunicipality = {
+            labels: municipalityLabels,
             datasets: [{
-                label: 'Número de Alunos',
-                data: data,
-                backgroundColor: '#42A5F5'
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--cyan-500'),
+                data: municipalityData
+            }]
+        };
+    }
+
+    private updateAcademicBackgroundChart(dashboardStats: StudentDashboardStatistics): void {
+        const backgroundLabels = Object.keys(dashboardStats.studentsByAcademicBackground).map(bg => {
+            const bgMap: Record<string, string> = {
+                'PRIMARY_SCHOOL': 'Ensino Primário',
+                'SECONDARY_SCHOOL': 'Ensino Secundário',
+                'UNIVERSITY': 'Universidade',
+                'MASTER': 'Mestrado',
+                'DOCTORATE': 'Doutoramento'
+            };
+            return bgMap[bg] || bg;
+        });
+        const backgroundData = Object.values(dashboardStats.studentsByAcademicBackground);
+
+        const documentStyle = getComputedStyle(document.documentElement);
+        this.barChartDataAcademicBackground = {
+            labels: backgroundLabels,
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--teal-500'),
+                data: backgroundData
             }]
         };
     }

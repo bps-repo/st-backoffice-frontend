@@ -50,6 +50,9 @@ import { TasksState } from "./settings/tasks/tasks.state";
 import { LocationEffects } from "./location/location.effects";
 import { locationFeature } from "./location/location.feature";
 import { LocationState } from "./location/location.state";
+import { StatisticsEffects } from "./schoolar/statistics/statistics.effects";
+import { statisticsFeature } from "./schoolar/statistics/statistics.feature";
+import { StatisticsState } from "./schoolar/statistics/statisticsState";
 
 export interface AppState {
     students: StudentState;
@@ -71,6 +74,7 @@ export interface AppState {
     attendances: AttendancesState;
     tasks: TasksState;
     location: LocationState;
+    statistics: StatisticsState;
 }
 
 export const AppEffects = [
@@ -89,7 +93,8 @@ export const AppEffects = [
     AttendancesEffects,
     InstallmentsEffects,
     TasksEffects,
-    LocationEffects
+    LocationEffects,
+    StatisticsEffects
 ]
 
 export const AppFeatures = [
@@ -109,5 +114,6 @@ export const AppFeatures = [
     attendancesFeature,
     installmentsFeature,
     tasksFeature,
-    locationFeature
+    locationFeature,
+    statisticsFeature
 ]

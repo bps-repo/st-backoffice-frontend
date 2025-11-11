@@ -15,6 +15,22 @@ export const {
   selectCacheExpired
 } = statisticsFeature;
 
+// Dashboard statistics selectors
+export const selectLoadingDashboardStatistics = createSelector(
+  selectStatisticsState,
+  (state) => state.loadingDashboardStatistics
+);
+
+export const selectDashboardStatisticsError = createSelector(
+  selectStatisticsState,
+  (state) => state.dashboardStatisticsError
+);
+
+export const selectDashboardStatistics = createSelector(
+  selectStatisticsState,
+  (state) => state.dashboardStatistics
+);
+
 // Get student statistics by ID
 export const selectStudentStatisticsById = (studentId: string) => createSelector(
   selectStudentStatistics,
