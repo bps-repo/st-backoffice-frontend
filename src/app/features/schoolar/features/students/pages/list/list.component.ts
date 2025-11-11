@@ -17,14 +17,13 @@ import {
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { Store } from '@ngrx/store';
 
-import { Observable, Subject, take, map, debounceTime, distinctUntilChanged, takeUntil, BehaviorSubject } from 'rxjs';
+import { Observable, Subject, take, debounceTime, distinctUntilChanged, takeUntil, BehaviorSubject, map, of } from 'rxjs';
 import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
 import { COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS } from "../../constants";
 import { TableHeaderAction } from "../../../../../../shared/components/tables/global-table/table-header.component";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
 import { StudentsActions } from "../../../../../../core/store/schoolar/students/students.actions";
-import { StudentState } from "../../../../../../core/store/schoolar/students/student.state";
 import { RippleModule } from "primeng/ripple";
 import { TooltipModule } from "primeng/tooltip";
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
@@ -42,10 +41,10 @@ import { DropdownModule } from "primeng/dropdown";
 import { FormsModule } from "@angular/forms";
 import { StudentsDashboardComponent } from "../../../dashboard/components/students/student-dashboard.component";
 import { StudentReports } from "../../../reports/components/student/student-reports.component";
-import { HasPermissionPipe } from 'src/app/shared/pipes';
-import { HasPermissionDirective } from 'src/app/shared/directives';
-import { PROVINCES, MUNICIPALITIES } from 'src/app/shared/constants/app';
 import { SelectItem } from 'primeng/api';
+import { LocationActions } from 'src/app/core/store/location/location.actions';
+import * as LocationSelectors from 'src/app/core/store/location/location.selectors';
+import { AppState } from 'src/app/core/store';
 
 @Component({
     selector: 'schoolar-students-list',
@@ -137,8 +136,10 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         { label: 'Desistiu', value: 'DROPPED_OUT' },
         { label: 'Saiu', value: 'QUIT' },
     ];
-    provinces: SelectItem[] = PROVINCES;
-    municipalities: SelectItem[] = MUNICIPALITIES;
+    provinces$!: Observable<SelectItem[]>;
+    municipalities$!: Observable<SelectItem[]>;
+    loadingProvinces$!: Observable<boolean>;
+    loadingMunicipalities$!: Observable<boolean>;
 
     columns: TableColumn[] = COLUMNS;
 
@@ -209,7 +210,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     constructor(
-        private store: Store<StudentState>,
+        private store: Store<AppState>,
         private router: Router
     ) {
         // Use the entity selectors
@@ -290,6 +291,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.store.dispatch(LevelActions.loadLevels({}))
         this.store.dispatch(CenterActions.loadCenters());
         this.store.dispatch(StudentsActions.loadStudents());
+        this.initializeLocationSelectors();
+        this.loadProvinces();
         this.headerActions.push(
             {
                 label: "Adicionar ao Centro",
@@ -422,6 +425,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.searchFilters = {};
         this.selectedProvince = null;
         this.selectedMunicipality = null;
+        this.municipalities$ = of([]);
+        this.loadingMunicipalities$ = of(false);
         this.isSearchMode$.next(false);
         this.store.dispatch(StudentsActions.loadStudents());
     }
@@ -453,12 +458,34 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     onProvinceFilter(value: string | null): void {
+        console.log("onProvinceFilter", value);
+        // Clear municipality when province changes
+        this.selectedMunicipality = null;
+        delete this.searchFilters.municipality;
+
         if (value === null || value === undefined || value === '') {
             delete this.searchFilters.province;
             this.selectedProvince = null;
+            // Reset municipalities when province is cleared
+            this.municipalities$ = of([]);
+            this.loadingMunicipalities$ = of(false);
         } else {
             this.searchFilters.province = value;
             this.selectedProvince = value;
+
+            // Update municipalities selector for the selected province
+            this.municipalities$ = this.store.select(LocationSelectors.selectMunicipalitiesByProvinceId(value)).pipe(
+                map(municipalities => municipalities.map(m => ({
+                    label: m.name,
+                    value: m.name.toLowerCase()
+                } as SelectItem)))
+            );
+
+            // Update loading state for the selected province
+            this.loadingMunicipalities$ = this.store.select(LocationSelectors.selectMunicipalitiesLoadingByProvinceId(value));
+
+            // Load municipalities for selected province
+            this.loadMunicipalities(value);
         }
 
         // Trigger search with updated filters
@@ -522,6 +549,28 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
             this.clearSearch();
         }
+    }
+
+    private initializeLocationSelectors() {
+        // Initialize provinces observable
+        this.provinces$ = this.store.select(LocationSelectors.selectAllProvinces).pipe(
+            map(provinces => provinces.map(p => ({ label: p.name, value: p.name } as SelectItem)))
+        );
+
+        // Initialize loading states
+        this.loadingProvinces$ = this.store.select(LocationSelectors.selectProvincesLoading);
+
+        // Initialize empty municipalities
+        this.municipalities$ = of([]);
+        this.loadingMunicipalities$ = of(false);
+    }
+
+    private loadProvinces() {
+        this.store.dispatch(LocationActions.loadProvinces());
+    }
+
+    private loadMunicipalities(provinceId: string) {
+        this.store.dispatch(LocationActions.loadProvince({ provinceId }));
     }
 
     protected StudentStatus = StudentStatus
