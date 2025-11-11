@@ -66,4 +66,14 @@ export class ScholarStatisticsService {
       map((response) => response.data)
     );
   }
+
+  /**
+   * Gets lessons dashboard statistics.
+   * @returns An observable containing the lessons dashboard statistics data.
+   */
+  getLessonsDashboardStatistics(): Observable<any> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/lessons/dashboard`).pipe(
+      map((response) => response.data)
+    );
+  }
 }

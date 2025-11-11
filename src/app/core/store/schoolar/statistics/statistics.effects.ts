@@ -44,4 +44,16 @@ export class StatisticsEffects {
       )
     )
   );
+
+  loadLessonsDashboardStatistics$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(StatisticsActions.loadLessonsDashboardStatistics),
+      mergeMap(() =>
+        this.statisticsService.getLessonsDashboardStatistics().pipe(
+          map((lessonsDashboardStatistics) => StatisticsActions.loadLessonsDashboardStatisticsSuccess({ lessonsDashboardStatistics })),
+          catchError((error) => of(StatisticsActions.loadLessonsDashboardStatisticsFailure({ error: error.message || 'Failed to load lessons dashboard statistics' })))
+        )
+      )
+    )
+  );
 }
