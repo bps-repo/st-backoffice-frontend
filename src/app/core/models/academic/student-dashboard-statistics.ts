@@ -3,7 +3,7 @@ export interface StudentDashboardStatistics {
   studentsByStatus: Record<string, number>;
   studentsByGender: Record<string, number>;
   studentsByProvince: Record<string, number>;
-  studentsByMunicipality: Record<string, number>;
+  studentsByMunicipality: Record<string, Record<string, number>>;
   studentsByAgeRange: Record<string, number>;
   studentsByAcademicBackground: Record<string, number>;
 }

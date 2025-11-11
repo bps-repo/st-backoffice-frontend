@@ -7,9 +7,10 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
+import { DropdownModule } from 'primeng/dropdown';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, takeUntil, first } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
@@ -31,7 +32,8 @@ import {
         CardModule,
         ButtonModule,
         TableModule,
-        SkeletonModule
+        SkeletonModule,
+        DropdownModule
     ],
     templateUrl: './student-dashboard.component.html',
 })
@@ -66,6 +68,10 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     dateRange: Date[] | undefined;
     kpis$!: Observable<any[]>;
     topPerformers$!: Observable<any[]>;
+    
+    // Municipality chart filter
+    selectedProvinceFilter: string | null = null;
+    provinceFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
 
     constructor(
         private store: Store,
@@ -93,6 +99,23 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         // Load dashboard statistics from store
         this.dashboardStatistics$ = this.store.select(selectDashboardStatistics);
         this.loadingDashboardStatistics$ = this.store.select(selectLoadingDashboardStatistics);
+
+        // Build province filter options
+        this.provinceFilterOptions$ = this.dashboardStatistics$.pipe(
+            map(dashboardStats => {
+                if (!dashboardStats || Object.keys(dashboardStats).length === 0) {
+                    return [];
+                }
+                const options: Array<{ label: string; value: string | null }> = [
+                    { label: 'Todas as Províncias', value: null }
+                ];
+                const provinces = Object.keys(dashboardStats.studentsByProvince || {});
+                provinces.forEach(province => {
+                    options.push({ label: province, value: province });
+                });
+                return options;
+            })
+        );
 
         // Build KPIs from dashboard data
         this.kpis$ = this.dashboardStatistics$.pipe(
@@ -651,8 +674,25 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private updateMunicipalityChart(dashboardStats: StudentDashboardStatistics): void {
-        const municipalityLabels = Object.keys(dashboardStats.studentsByMunicipality);
-        const municipalityData = Object.values(dashboardStats.studentsByMunicipality);
+        // Flatten the nested structure: { "Province": { "Municipality": count } }
+        const municipalityLabels: string[] = [];
+        const municipalityData: number[] = [];
+
+        Object.entries(dashboardStats.studentsByMunicipality).forEach(([province, municipalities]) => {
+            // Filter by selected province if one is selected
+            if (this.selectedProvinceFilter && this.selectedProvinceFilter !== province) {
+                return;
+            }
+
+            Object.entries(municipalities).forEach(([municipality, count]) => {
+                // If filtering by province, show only municipality name, otherwise show "Province - Municipality"
+                const label = this.selectedProvinceFilter 
+                    ? municipality 
+                    : `${province} - ${municipality}`;
+                municipalityLabels.push(label);
+                municipalityData.push(count);
+            });
+        });
 
         const documentStyle = getComputedStyle(document.documentElement);
         this.barChartDataMunicipality = {
@@ -663,6 +703,19 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 data: municipalityData
             }]
         };
+    }
+
+    onProvinceFilterChange(): void {
+        // Update the municipality chart when filter changes
+        // Get current value from observable and update chart immediately
+        this.dashboardStatistics$.pipe(
+            first(),
+            takeUntil(this.destroy$)
+        ).subscribe(dashboardStats => {
+            if (dashboardStats && Object.keys(dashboardStats).length > 0) {
+                this.updateMunicipalityChart(dashboardStats);
+            }
+        });
     }
 
     private updateAcademicBackgroundChart(dashboardStats: StudentDashboardStatistics): void {
