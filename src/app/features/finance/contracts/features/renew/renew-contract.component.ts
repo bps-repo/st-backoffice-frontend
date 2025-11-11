@@ -35,7 +35,7 @@ import { Level } from '../../../../../core/models/course/level';
 import { Employee } from '../../../../../core/models/corporate/employee';
 import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
 import { Observable, Subject } from "rxjs";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map, takeUntil } from 'rxjs/operators';
 
 @Component({
@@ -96,7 +96,8 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         private fb: FormBuilder,
         private messageService: MessageService,
         private contractService: ContractService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private router: Router
     ) {
         this.contractForm = this.fb.group({
             student: [null, [Validators.required]],
@@ -550,12 +551,19 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
                     detail: 'Contrato criado com sucesso!'
                 });
 
-                // Emit event to parent component
+                // Emit event to parent component (if used in create contract flow)
                 this.contractCompleted.emit();
 
                 this.unsavedChanges = false;
 
                 this.loading = false;
+
+                // Navigate to contract list after successful creation
+                // Only navigate if this is a standalone renewal (not part of create contract flow)
+                // The create contract component will handle navigation when renewContract is false
+                if (this.renewContract) {
+                    this.router.navigate(['/finances/contracts']).then();
+                }
             },
             error: (err) => {
                 const detail = err?.error?.message || err?.message || 'Falha ao criar contrato.';
