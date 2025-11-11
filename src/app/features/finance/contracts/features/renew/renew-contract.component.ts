@@ -551,18 +551,18 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
                     detail: 'Contrato criado com sucesso!'
                 });
 
-                // Emit event to parent component (if used in create contract flow)
+                // Emit event to parent component
                 this.contractCompleted.emit();
 
                 this.unsavedChanges = false;
 
                 this.loading = false;
 
-                // Navigate to contract list after successful creation
-                // Only navigate if this is a standalone renewal (not part of create contract flow)
-                // The create contract component will handle navigation when renewContract is false
-                if (this.renewContract) {
-                    this.router.navigate(['/finances/contracts']).then();
+                // Navigate to contract list if this is a standalone renewal (not embedded in create flow)
+                if (this.renewContract && !this.createdStudentId) {
+                    setTimeout(() => {
+                        this.router.navigate(['/finances/contracts']).then();
+                    }, 1500);
                 }
             },
             error: (err) => {
