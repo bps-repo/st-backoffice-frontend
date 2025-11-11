@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {map, Observable} from 'rxjs';
-import {environment} from 'src/environments/environment';
-import {Contract, CreateStudentContractRequest} from '../models/corporate/contract';
-import {ApiResponse} from '../models/ApiResponseService';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { Contract, CreateStudentContractRequest } from '../models/corporate/contract';
+import { ApiResponse } from '../models/ApiResponseService';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class ContractService {
     private apiUrl = `${environment.apiUrl}/contracts`;
 
@@ -13,6 +13,7 @@ export class ContractService {
     }
 
     createStudentContract(payload: CreateStudentContractRequest): Observable<Contract> {
+        console.log("Contract Service: createStudentContract", payload);
         return this.http.post<ApiResponse<Contract>>(`${this.apiUrl}`, payload).pipe(
             map(response => response.data as Contract)
         );

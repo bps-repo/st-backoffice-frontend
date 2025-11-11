@@ -44,7 +44,7 @@
                         <div>
                             <h6 class="mb-0">{{ contract.student.name }}</h6>
                             <p class="text-500 mb-0">{{ contract.student.email }} -
-                                Código: {{ contract.student.code }}</p>
+                                Código: {{ contract.code }}</p>
                         </div>
                     </div>
 
@@ -118,6 +118,14 @@
 
                         <div class="col-6 font-bold">Valor Pendente:</div>
                         <div class="col-6 text-orange-500">{{ formatCurrency(getPendingAmount()) }}</div>
+
+                        <div class="col-6 font-bold">Valor do Material Didático:</div>
+                        <div class="col-6 text-orange-500">{{ formatCurrency(contract.financial.courseMaterialPrice ||
+                            0) }}</div>
+
+                        <div class="col-6 font-bold">Valor do Curso:</div>
+                        <div class="col-6 text-orange-500">{{ formatCurrency(contract.financial.levelPrice || 0) }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,9 +142,6 @@
 
                         <div class="col-4 font-bold">Centro:</div>
                         <div class="col-8">{{ contract.student.center.name }}</div>
-
-                        <div class="col-4 font-bold">Data Contratação:</div>
-                        <div class="col-8">N/A</div>
                     </div>
                 </div>
             </div>

@@ -239,7 +239,7 @@
                                             </tr>
                                         </ng-template>
                                         <ng-template pTemplate="body" let-installment let-i="rowIndex">
-                                            <tr>
+                                            <tr [ngClass]="{'bg-blue-50': isEditingInstallment(i)}">
                                                 <td>
                                                     <div class="flex align-items-center gap-2">
                                                         <i class="pi pi-calendar text-primary"></i>
@@ -249,28 +249,79 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="flex align-items-center gap-2">
+                                                    <!-- View Mode -->
+                                                    <div *ngIf="!isEditingInstallment(i)" class="flex align-items-center gap-2">
                                                         <i class="pi pi-clock text-500"></i>
                                                         <span>{{ installment.dueDate | date:'dd/MM/yyyy' }}</span>
                                                     </div>
+                                                    <!-- Edit Mode -->
+                                                    <div *ngIf="isEditingInstallment(i) && editingInstallment">
+                                                        <p-calendar [(ngModel)]="$any(editingInstallment).dueDateObj"
+                                                                    dateFormat="dd/mm/yy"
+                                                                    [showIcon]="true"
+                                                                    placeholder="Selecione a data"
+                                                                    [style]="{'width': '100%'}">
+                                                        </p-calendar>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <span class="font-semibold text-primary">{{
+                                                    <!-- View Mode -->
+                                                    <span *ngIf="!isEditingInstallment(i)" class="font-semibold text-primary">{{
                                                             installment.amount |
                                                                 number:'1.2-2'
                                                         }} AOA</span>
+                                                    <!-- Edit Mode -->
+                                                    <div *ngIf="isEditingInstallment(i) && editingInstallment">
+                                                        <p-inputNumber [(ngModel)]="editingInstallment!.amount"
+                                                                       mode="decimal"
+                                                                       [minFractionDigits]="2"
+                                                                       [maxFractionDigits]="2"
+                                                                       [min]="0"
+                                                                       suffix=" AOA"
+                                                                       [style]="{'width': '100%'}">
+                                                        </p-inputNumber>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <span class="p-tag p-tag-warning">
+                                                    <span *ngIf="installment.status === 'PAID'" class="p-tag p-tag-success">
+                                                        <i class="pi pi-check mr-1"></i>
+                                                        Pago
+                                                    </span>
+                                                    <span *ngIf="installment.status === 'PENDING_PAYMENT'" class="p-tag p-tag-warning">
                                                         <i class="pi pi-clock mr-1"></i>
                                                         Pendente
                                                     </span>
+                                                    <span *ngIf="installment.status === 'OVERDUE'" class="p-tag p-tag-danger">
+                                                        <i class="pi pi-exclamation-triangle mr-1"></i>
+                                                        Atrasado
+                                                    </span>
+                                                    <span *ngIf="installment.status === 'CANCELLED'" class="p-tag p-tag-secondary">
+                                                        <i class="pi pi-times mr-1"></i>
+                                                        Cancelado
+                                                    </span>
                                                 </td>
                                                 <td>
-                                                    <p-button icon="pi pi-eye"
-                                                              class="p-button-sm p-button-text p-button-info"
-                                                              title="Ver detalhes da parcela {{installment.installmentNumber}}">
+                                                    <!-- View Mode Actions -->
+                                                    <div *ngIf="!isEditingInstallment(i)" class="flex gap-1">
+                                                        <p-button icon="pi pi-pencil"
+                                                                  class="p-button-sm p-button-text p-button-warning"
+                                                                  (onClick)="startEditInstallment(i)"
+                                                                  title="Editar parcela {{installment.installmentNumber}}">
+                                                        </p-button>
+                                                    </div>
+                                                    <!-- Edit Mode Actions -->
+                                                    <div *ngIf="isEditingInstallment(i)" class="flex gap-1">
+                                                        <p-button icon="pi pi-check"
+                                                                  class="p-button-sm p-button-text p-button-success"
+                                                                  (onClick)="saveEditInstallment()"
+                                                                  title="Salvar alterações">
+                                                        </p-button>
+                                                        <p-button icon="pi pi-times"
+                                                                  class="p-button-sm p-button-text p-button-danger"
+                                                                  (onClick)="cancelEditInstallment()"
+                                                                  title="Cancelar edição">
                                                     </p-button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </ng-template>
@@ -289,20 +340,31 @@
 
                             <!-- Installments Summary -->
                             <div class="grid mt-3" *ngIf="installments.length > 0">
-                                <div class="col-12 md:col-6">
+                                <div class="col-12 md:col-4">
                                     <div
                                         class="flex justify-content-between align-items-center p-3 border-round bg-blue-50">
-                                        <span class="font-semibold">Valor Total das Parcelas:</span>
+                                        <span class="font-semibold">Valor do Contrato:</span>
                                         <span class="font-bold text-primary text-lg">
                                             {{ contractSummary.finalAmount | number:'1.2-2' }} AOA
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-12 md:col-6">
+                                <div class="col-12 md:col-4">
                                     <div
-                                        class="flex justify-content-between align-items-center p-3 border-round bg-green-50">
-                                        <span class="font-semibold">Valor por Parcela:</span>
-                                        <span class="font-bold text-green-600 text-lg">
+                                        class="flex justify-content-between align-items-center p-3 border-round"
+                                        [ngClass]="getTotalInstallmentsAmount() === contractSummary.finalAmount ? 'bg-green-50' : 'bg-orange-50'">
+                                        <span class="font-semibold">Soma das Parcelas:</span>
+                                        <span class="font-bold text-lg"
+                                              [ngClass]="getTotalInstallmentsAmount() === contractSummary.finalAmount ? 'text-green-600' : 'text-orange-600'">
+                                            {{ getTotalInstallmentsAmount() | number:'1.2-2' }} AOA
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-4">
+                                    <div
+                                        class="flex justify-content-between align-items-center p-3 border-round bg-indigo-50">
+                                        <span class="font-semibold">Média por Parcela:</span>
+                                        <span class="font-bold text-indigo-600 text-lg">
                                             {{ contractSummary.installmentAmount | number:'1.2-2' }} AOA
                                         </span>
                                     </div>

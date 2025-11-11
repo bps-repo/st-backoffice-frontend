@@ -25,6 +25,8 @@
 .avatar-actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .photo-upload {
@@ -39,23 +41,27 @@
     margin: 0 0 0.5rem 0;
     font-size: 2rem;
     font-weight: 600;
+    word-break: break-word;
 }
 
 .profile-username {
     margin: 0 0 1rem 0;
     color: var(--text-color-secondary);
     font-size: 1.1rem;
+    word-break: break-word;
 }
 
 .profile-badges {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .form-actions {
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
+    flex-wrap: wrap;
 }
 
 .account-info {
@@ -69,16 +75,20 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .info-item label {
     font-weight: 500;
     color: var(--text-color-secondary);
+    word-break: break-word;
 }
 
 .role-name {
     font-weight: 600;
     color: var(--primary-color);
+    word-break: break-word;
 }
 
 .account-actions {
@@ -97,10 +107,55 @@
     margin-bottom: 0.25rem;
 }
 
+/* Form field responsiveness */
+input[pInputText],
+::ng-deep .p-dropdown,
+::ng-deep .p-calendar {
+    width: 100%;
+}
+
+::ng-deep .p-button {
+    width: auto;
+}
+
+/* Ensure labels are visible on all screens */
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+/* Tablet responsiveness */
+@media (max-width: 992px) {
+    .profile-container {
+        padding: 1.5rem;
+    }
+
+    .profile-header {
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .profile-name {
+        font-size: 1.75rem;
+    }
+
+    .profile-username {
+        font-size: 1rem;
+    }
+}
+
+/* Mobile responsiveness */
 @media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem;
+    }
+
     .profile-header {
         flex-direction: column;
         text-align: center;
+        padding: 1rem;
+        gap: 1rem;
     }
 
     .profile-avatar-section {
@@ -109,5 +164,92 @@
 
     .profile-info {
         order: 2;
+        width: 100%;
+    }
+
+    .profile-name {
+        font-size: 1.5rem;
+    }
+
+    .profile-username {
+        font-size: 0.95rem;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .form-actions ::ng-deep .p-button {
+        width: 100%;
+    }
+
+    .account-actions ::ng-deep .p-button {
+        width: 100%;
+    }
+
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+
+/* Small mobile responsiveness */
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 0.5rem;
+    }
+
+    .profile-header {
+        padding: 0.75rem;
+    }
+
+    .profile-name {
+        font-size: 1.25rem;
+    }
+
+    .profile-username {
+        font-size: 0.9rem;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+
+    .profile-badges {
+        justify-content: center;
+    }
+
+    .avatar-actions {
+        width: 100%;
+    }
+
+    .photo-upload {
+        max-width: 100%;
+    }
+
+    ::ng-deep .p-card {
+        font-size: 0.9rem;
+    }
+
+    ::ng-deep .p-card .p-card-title {
+        font-size: 1.1rem;
+    }
+
+    ::ng-deep .p-card .p-card-content {
+        padding: 0.75rem;
+    }
+
+    ::ng-deep .p-card .p-card-header {
+        padding: 0.75rem;
     }
 }

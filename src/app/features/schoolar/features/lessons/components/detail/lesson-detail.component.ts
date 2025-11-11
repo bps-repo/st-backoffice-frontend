@@ -194,7 +194,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                         });
 
                     this.store.select(selectBookings).subscribe((v: any) => {
-                        this.bookings.set(v.bookings)
+                        this.bookings.set(v?.bookings || [])
                     })
 
                     // Load lesson materials using entity LESSON via NgRx
