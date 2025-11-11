@@ -289,7 +289,7 @@
 
                 <div *ngIf="selectedPayment.status === 'PENDING_PAYMENT' || selectedPayment.status === 'OVERDUE'"
                     class="flex justify-content-end mt-3">
-                    <button pButton label="Cobrar Parcela" icon="pi pi-dollar" class="p-button-primary"
+                    <button pButton label="Cobrar Parcela" class="p-button-success"
                         (click)="chargePayment(selectedPayment); showPaymentDetailsDialog = false;"></button>
                 </div>
             </div>

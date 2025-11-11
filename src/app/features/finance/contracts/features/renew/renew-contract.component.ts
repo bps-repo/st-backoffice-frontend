@@ -432,6 +432,37 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         return this.installments.reduce((sum, inst) => sum + inst.amount, 0);
     }
 
+    getInstallmentsDifference(): number {
+        const total = this.getTotalInstallmentsAmount();
+        const contractAmount = this.contractSummary.finalAmount;
+        const difference = contractAmount - total;
+
+        // Round to 2 decimal places to avoid floating point precision issues
+        return Math.round(difference * 100) / 100;
+    }
+
+    autoAdjustLastInstallment(): void {
+        if (this.installments.length === 0) {
+            return;
+        }
+
+        const difference = this.getInstallmentsDifference();
+        const lastIndex = this.installments.length - 1;
+
+        // Add the difference to the last installment
+        this.installments[lastIndex].amount += difference;
+        this.installments[lastIndex].amount = Math.round(this.installments[lastIndex].amount * 100) / 100;
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Ajuste Realizado',
+            detail: `Última parcela ajustada automaticamente. Novo valor: ${this.installments[lastIndex].amount.toFixed(2)} AOA`
+        });
+    }
+
+    // Expose Math.abs to template
+    Math = Math;
+
     onSubmit(): void {
         const formValue = this.contractForm.getRawValue(); // Get all values including disabled
 

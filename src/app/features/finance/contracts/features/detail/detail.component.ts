@@ -1,31 +1,30 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {TabViewModule} from 'primeng/tabview';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {ToastModule} from 'primeng/toast';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {Contract} from 'src/app/core/models/corporate/contract';
-import {ContractService} from 'src/app/core/services/contract.service';
-import {TooltipModule} from 'primeng/tooltip';
-import {DialogModule} from 'primeng/dialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {Store} from "@ngrx/store";
-import {ContractActions} from "../../../../../core/store/corporate/contracts/contracts.actions";
-import {Observable, of} from "rxjs";
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TabViewModule } from 'primeng/tabview';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Contract } from 'src/app/core/models/corporate/contract';
+import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { Store } from "@ngrx/store";
+import { ContractActions } from "../../../../../core/store/corporate/contracts/contracts.actions";
+import { Observable, of } from "rxjs";
 import {
     selectContractsError,
     selectContractsLoading, selectDownloading, selectSelectedContractByID
 } from "../../../../../core/store/corporate/contracts/contracts.selectors";
-import {InstallmentsActions} from "../../../../../core/store/finance/installments/installments.actions";
+import { InstallmentsActions } from "../../../../../core/store/finance/installments/installments.actions";
 
 @Component({
     selector: 'app-contract-detail',
@@ -64,10 +63,10 @@ export class DetailComponent implements OnInit {
     selectedPayment: any = null;
 
     paymentMethods: any[] = [
-        {name: 'Multicaixa', code: 'MULTICAIXA'},
-        {name: 'Transferência Bancária', code: 'BANK_TRANSFER'},
-        {name: 'Dinheiro', code: 'CASH'},
-        {name: 'Cartão de Crédito', code: 'CREDIT_CARD'}
+        { name: 'Multicaixa', code: 'MULTICAIXA' },
+        { name: 'Transferência Bancária', code: 'BANK_TRANSFER' },
+        { name: 'Dinheiro', code: 'CASH' },
+        { name: 'Cartão de Crédito', code: 'CREDIT_CARD' }
     ];
     selectedPaymentMethod: any = null;
     paymentDate: Date = new Date();
@@ -95,7 +94,7 @@ export class DetailComponent implements OnInit {
     }
 
     loadContractDetails(): void {
-        this.store$.dispatch(ContractActions.loadContract({id: this.contractId}))
+        this.store$.dispatch(ContractActions.loadContract({ id: this.contractId }))
     }
 
     getStatusClass(status: string): string {
@@ -201,7 +200,7 @@ export class DetailComponent implements OnInit {
 
         this.store$.dispatch(InstallmentsActions.payInstallment({
             installmentId: this.selectedPayment.id,
-            payload: {paymentMethod: "CREDIT_CARD"}
+            payload: { paymentMethod: "CREDIT_CARD" }
         }))
 
         setTimeout(() => {
@@ -223,6 +222,8 @@ export class DetailComponent implements OnInit {
         this.paymentDate = new Date();
         this.paymentReference = '';
         this.paymentAmount = null;
+
+        location.reload();
     }
 
     // Helper methods for contract statistics
@@ -271,6 +272,6 @@ export class DetailComponent implements OnInit {
     }
 
     downloadContract() {
-        this.store$.dispatch(ContractActions.downloadContract({contractId: this.contractId}))
+        this.store$.dispatch(ContractActions.downloadContract({ contractId: this.contractId }))
     }
 }

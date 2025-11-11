@@ -12,7 +12,7 @@
                     <div *ngIf="renewContract && !createdStudentId" class="field col-12 md:col-5">
                         <label for="student">Aluno *</label>
                         <p-dropdown id="student" formControlName="student" [options]="students" optionLabel="name"
-                            placeholder="Selecione um aluno" [(ngModel)]="selectedStudent" [showClear]="true">
+                            placeholder="Selecione um aluno" [showClear]="true">
                             <ng-template pTemplate="item" let-student>
                                 <div>
                                     <div>{{ student.name }}</div>
@@ -255,6 +255,7 @@
                                                     <!-- Edit Mode -->
                                                     <div *ngIf="isEditingInstallment(i) && editingInstallment">
                                                         <p-calendar [(ngModel)]="$any(editingInstallment).dueDateObj"
+                                                            [ngModelOptions]="{standalone: true}"
                                                             dateFormat="dd/mm/yy" [showIcon]="true"
                                                             placeholder="Selecione a data" [style]="{'width': '100%'}">
                                                         </p-calendar>
@@ -270,6 +271,7 @@
                                                     <!-- Edit Mode -->
                                                     <div *ngIf="isEditingInstallment(i) && editingInstallment">
                                                         <p-inputNumber [(ngModel)]="editingInstallment!.amount"
+                                                            [ngModelOptions]="{standalone: true}"
                                                             mode="decimal" [minFractionDigits]="2"
                                                             [maxFractionDigits]="2" [min]="0" suffix=" AOA"
                                                             [style]="{'width': '100%'}">
@@ -336,7 +338,7 @@
 
                             <!-- Installments Summary -->
                             <div class="grid mt-3" *ngIf="installments.length > 0">
-                                <div class="col-12 md:col-4">
+                                <div class="col-12 md:col-3">
                                     <div
                                         class="flex justify-content-between align-items-center p-3 border-round bg-blue-50">
                                         <span class="font-semibold">Valor do Contrato:</span>
@@ -345,23 +347,70 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-12 md:col-4">
+                                <div class="col-12 md:col-3">
                                     <div class="flex justify-content-between align-items-center p-3 border-round"
-                                        [ngClass]="getTotalInstallmentsAmount() === contractSummary.finalAmount ? 'bg-green-50' : 'bg-orange-50'">
+                                        [ngClass]="getInstallmentsDifference() === 0 ? 'bg-green-50' : 'bg-orange-50'">
                                         <span class="font-semibold">Soma das Parcelas:</span>
                                         <span class="font-bold text-lg"
-                                            [ngClass]="getTotalInstallmentsAmount() === contractSummary.finalAmount ? 'text-green-600' : 'text-orange-600'">
+                                            [ngClass]="getInstallmentsDifference() === 0 ? 'text-green-600' : 'text-orange-600'">
                                             {{ getTotalInstallmentsAmount() | number:'1.2-2' }} AOA
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-12 md:col-4">
+                                <div class="col-12 md:col-3" *ngIf="getInstallmentsDifference() !== 0">
+                                    <div
+                                        class="flex justify-content-between align-items-center p-3 border-round bg-red-50">
+                                        <span class="font-semibold">
+                                            <i class="pi pi-exclamation-triangle mr-1"></i>
+                                            Diferença:
+                                        </span>
+                                        <span class="font-bold text-red-600 text-lg">
+                                            {{ getInstallmentsDifference() > 0 ? '+' : '' }}{{ getInstallmentsDifference() | number:'1.2-2' }} AOA
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-3">
                                     <div
                                         class="flex justify-content-between align-items-center p-3 border-round bg-indigo-50">
                                         <span class="font-semibold">Média por Parcela:</span>
                                         <span class="font-bold text-indigo-600 text-lg">
                                             {{ contractSummary.installmentAmount | number:'1.2-2' }} AOA
                                         </span>
+                                    </div>
+                                </div>
+
+                                <!-- Warning message when there's a difference -->
+                                <div class="col-12" *ngIf="getInstallmentsDifference() !== 0">
+                                    <div class="p-3 border-round bg-orange-100 border-1 border-orange-300">
+                                        <div class="flex align-items-start justify-content-between gap-3">
+                                            <div class="flex align-items-start gap-3 flex-1">
+                                                <i class="pi pi-exclamation-triangle text-orange-600 text-xl mt-1"></i>
+                                                <div class="flex-1">
+                                                    <p class="font-semibold text-orange-900 m-0 mb-2">
+                                                        A soma das parcelas difere do valor total do contrato
+                                                    </p>
+                                                    <p class="text-orange-800 text-sm m-0">
+                                                        <span *ngIf="getInstallmentsDifference() > 0">
+                                                            As parcelas somam <strong>{{ getTotalInstallmentsAmount() | number:'1.2-2' }} AOA</strong>,
+                                                            mas o contrato é de <strong>{{ contractSummary.finalAmount | number:'1.2-2' }} AOA</strong>.
+                                                            <strong class="text-red-600">Faltam {{ getInstallmentsDifference() | number:'1.2-2' }} AOA</strong> para completar o valor do contrato.
+                                                        </span>
+                                                        <span *ngIf="getInstallmentsDifference() < 0">
+                                                            As parcelas somam <strong>{{ getTotalInstallmentsAmount() | number:'1.2-2' }} AOA</strong>,
+                                                            mas o contrato é de <strong>{{ contractSummary.finalAmount | number:'1.2-2' }} AOA</strong>.
+                                                            <strong class="text-red-600">Há um excesso de {{ Math.abs(getInstallmentsDifference()) | number:'1.2-2' }} AOA</strong>.
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <p-button
+                                                label="Ajustar Última Parcela"
+                                                icon="pi pi-wrench"
+                                                class="p-button-sm p-button-warning white-space-nowrap"
+                                                (onClick)="autoAdjustLastInstallment()"
+                                                title="Ajustar automaticamente a última parcela para corrigir a diferença">
+                                            </p-button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
