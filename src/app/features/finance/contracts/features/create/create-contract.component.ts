@@ -20,8 +20,6 @@ import { CalendarModule } from 'primeng/calendar';
 import { StepsModule } from 'primeng/steps';
 import { ToastModule } from 'primeng/toast';
 import {
-    PROVINCES,
-    MUNICIPALITIES,
     ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
 import { CreateStudentRequest } from 'src/app/core/services/student.service';
@@ -29,8 +27,10 @@ import { StudentsActions } from 'src/app/core/store/schoolar/students/students.a
 import { studentsFeature } from 'src/app/core/store/schoolar/students/students.reducers';
 import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { RenewContractComponent } from "../renew/renew-contract.component";
+import { LocationActions } from 'src/app/core/store/location/location.actions';
+import * as LocationSelectors from 'src/app/core/store/location/location.selectors';
 import { selectCreatedStudentId } from "../../../../../core/store/schoolar/students/students.selectors";
 import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
 import { contractsFeature } from 'src/app/core/store/corporate/contracts/contracts.feature';
@@ -110,9 +110,11 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         { label: 'Gestão contratual' }
     ];
 
-    provinces: SelectItem[] = PROVINCES;
-    municipalities: SelectItem[] = MUNICIPALITIES;
+    provinces$!: Observable<SelectItem[]>;
+    municipalities$!: Observable<SelectItem[]>;
     academicBackgrounds: SelectItem[] = ACADEMIC_BACKGROUNDS;
+    loadingProvinces$!: Observable<boolean>;
+    loadingMunicipalities$!: Observable<boolean>;
 
     genderOptions: SelectItem[] = [
         { label: 'Masculino', value: 'MALE' },
@@ -122,6 +124,9 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     ngOnInit() {
         this.initializeForm();
         this.initializeCentersDropdown();
+        this.initializeLocationSelectors();
+        this.loadProvinces();
+        this.subscribeToProvinceChanges();
         this.subscribeToStudentCreation();
         this.activeIndex = 0;
 
@@ -186,6 +191,79 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         this.centersOptions$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
             map(centers => centers.map(c => ({ label: c.name, value: c.id } as SelectItem)))
         );
+    }
+
+    private initializeLocationSelectors() {
+        // Initialize provinces observable
+        this.provinces$ = this.store.select(LocationSelectors.selectAllProvinces).pipe(
+            map(provinces => provinces.map(p => ({ label: p.name, value: p.name } as SelectItem)))
+        );
+
+        // Initialize loading states
+        this.loadingProvinces$ = this.store.select(LocationSelectors.selectProvincesLoading);
+
+        // Subscribe to province errors
+        this.store.select(LocationSelectors.selectProvincesError).pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(error => {
+            if (error) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Erro ao carregar províncias'
+                });
+            }
+        });
+    }
+
+    private loadProvinces() {
+        this.store.dispatch(LocationActions.loadProvinces());
+    }
+
+    private subscribeToProvinceChanges() {
+        this.studentForm.get('province')?.valueChanges.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(provinceName => {
+            // Clear municipality when province changes
+            this.studentForm.patchValue({ municipality: '' });
+
+            if (provinceName) {
+                // Update municipalities selector for the selected province
+                this.municipalities$ = this.store.select(LocationSelectors.selectMunicipalitiesByProvinceId(provinceName)).pipe(
+                    map(municipalities => municipalities.map(m => ({
+                        label: m.name,
+                        value: m.name.toLowerCase()
+                    } as SelectItem)))
+                );
+
+                // Update loading state for the selected province
+                this.loadingMunicipalities$ = this.store.select(LocationSelectors.selectMunicipalitiesLoadingByProvinceId(provinceName));
+
+                // Subscribe to errors for this province
+                this.store.select(LocationSelectors.selectMunicipalitiesErrorByProvinceId(provinceName)).pipe(
+                    takeUntil(this.destroy$)
+                ).subscribe(error => {
+                    if (error) {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Erro',
+                            detail: 'Erro ao carregar municípios'
+                        });
+                    }
+                });
+
+                // Load municipalities
+                this.loadMunicipalities(provinceName);
+            } else {
+                // Reset municipalities when province is cleared
+                this.municipalities$ = of([]);
+                this.loadingMunicipalities$ = of(false);
+            }
+        });
+    }
+
+    private loadMunicipalities(provinceId: string) {
+        this.store.dispatch(LocationActions.loadProvince({ provinceId }));
     }
 
     private subscribeToStudentCreation() {

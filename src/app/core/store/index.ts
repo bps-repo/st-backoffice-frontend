@@ -47,6 +47,9 @@ import { CentersEffects } from "./corporate/center/centers.effects";
 import { TasksEffects } from "./settings/tasks/tasks.effects";
 import { tasksFeature } from "./settings/tasks/tasks.feature";
 import { TasksState } from "./settings/tasks/tasks.state";
+import { LocationEffects } from "./location/location.effects";
+import { locationFeature } from "./location/location.feature";
+import { LocationState } from "./location/location.state";
 
 export interface AppState {
     students: StudentState;
@@ -67,6 +70,7 @@ export interface AppState {
     services: ServiceState;
     attendances: AttendancesState;
     tasks: TasksState;
+    location: LocationState;
 }
 
 export const AppEffects = [
@@ -84,7 +88,8 @@ export const AppEffects = [
     MaterialEffects,
     AttendancesEffects,
     InstallmentsEffects,
-    TasksEffects
+    TasksEffects,
+    LocationEffects
 ]
 
 export const AppFeatures = [
@@ -103,5 +108,6 @@ export const AppFeatures = [
     materialFeature,
     attendancesFeature,
     installmentsFeature,
-    tasksFeature
+    tasksFeature,
+    locationFeature
 ]
