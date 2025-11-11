@@ -48,6 +48,26 @@ export const statisticsFeature = createFeature({
       studentStatisticsError: error,
     })),
 
+    // Load dashboard statistics
+    on(StatisticsActions.loadDashboardStatistics, (state) => ({
+      ...state,
+      loadingDashboardStatistics: true,
+      dashboardStatisticsError: null,
+    })),
+    on(StatisticsActions.loadDashboardStatisticsSuccess, (state, { dashboardStatistics }) => ({
+      ...state,
+      dashboardStatistics,
+      loadingDashboardStatistics: false,
+      dashboardStatisticsError: null,
+      lastFetch: Date.now(),
+      cacheExpired: false,
+    })),
+    on(StatisticsActions.loadDashboardStatisticsFailure, (state, { error }) => ({
+      ...state,
+      loadingDashboardStatistics: false,
+      dashboardStatisticsError: error,
+    })),
+
     // Cache management
     on(StatisticsActions.setLastFetch, (state, { timestamp }) => ({
       ...state,
@@ -65,6 +85,7 @@ export const statisticsFeature = createFeature({
       ...state,
       generalStatistics: null,
       studentStatistics: {},
+      dashboardStatistics: null,
       lastFetch: null,
       cacheExpired: false,
     })),
@@ -75,6 +96,7 @@ export const statisticsFeature = createFeature({
 
       if (errorType === 'general' || !errorType) updates.error = null;
       if (errorType === 'student' || !errorType) updates.studentStatisticsError = null;
+      if (errorType === 'dashboard' || !errorType) updates.dashboardStatisticsError = null;
 
       return { ...state, ...updates };
     }),
@@ -82,6 +104,7 @@ export const statisticsFeature = createFeature({
       ...state,
       error: null,
       studentStatisticsError: null,
+      dashboardStatisticsError: null,
     }))
   ),
 });

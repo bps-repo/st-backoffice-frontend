@@ -1,10 +1,10 @@
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {environment} from 'src/environments/environment';
-import {Student} from 'src/app/core/models/academic/student';
-import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
-import {map} from "rxjs/operators";
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { Student } from 'src/app/core/models/academic/student';
+import { ApiResponse, PageableResponse } from "../models/ApiResponseService";
+import { map } from "rxjs/operators";
 
 // Request payload for creating a student according to backend contract
 export interface CreateStudentRequest {
@@ -84,6 +84,7 @@ export class StudentService {
 
     // Existing method kept for backward compatibility (posts current Student model as-is)
     createStudent(student: Student): Observable<Student> {
+        console.log("createStudent", student);
         return this.http.post<ApiResponse<any>>(this.apiUrl, student).pipe(
             map((response) => this.normalizeStudent(response.data))
         );
@@ -91,6 +92,7 @@ export class StudentService {
 
     // New method that posts the required payload shape to /students
     createStudentWithRequest(payload: CreateStudentRequest): Observable<Student> {
+        console.log("createStudentWithRequest", payload);
         return this.http.post<ApiResponse<any>>(this.apiUrl, payload).pipe(
             map((response) => this.normalizeStudent(response.data))
         );
@@ -111,19 +113,19 @@ export class StudentService {
     }
 
     addStudentToClass(studentId: string, classId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/add-to-class/${classId}`, {studentId});
+        return this.http.post<any>(`${this.apiUrl}/add-to-class/${classId}`, { studentId });
     }
 
     removeStudentFromClass(studentId: string, classId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/remove-from-class/${classId}`, {studentId});
+        return this.http.post<any>(`${this.apiUrl}/remove-from-class/${classId}`, { studentId });
     }
 
     addStudentToCenter(studentId: string, centerId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/add-to-center/${centerId}`, {studentId});
+        return this.http.post<any>(`${this.apiUrl}/add-to-center/${centerId}`, { studentId });
     }
 
     removeStudentFromCenter(studentId: string, centerId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/remove-from-center/${centerId}`, {studentId});
+        return this.http.post<any>(`${this.apiUrl}/remove-from-center/${centerId}`, { studentId });
     }
 
     /**

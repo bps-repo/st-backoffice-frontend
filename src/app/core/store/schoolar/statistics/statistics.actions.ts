@@ -15,6 +15,11 @@ export const StatisticsActions = createActionGroup({
     'Load Student Statistics Success': props<{ studentId: string, statistics: any }>(),
     'Load Student Statistics Failure': props<{ error: string }>(),
 
+    // Load dashboard statistics
+    'Load Dashboard Statistics': emptyProps(),
+    'Load Dashboard Statistics Success': props<{ dashboardStatistics: any }>(),
+    'Load Dashboard Statistics Failure': props<{ error: string }>(),
+
     // Cache management
     'Set Last Fetch': props<{ timestamp: number }>(),
     'Set Cache Expired': props<{ expired: boolean }>(),

@@ -5,14 +5,17 @@ export interface StatisticsState {
   // Loading states
   loading: boolean;
   loadingStudentStatistics: boolean;
+  loadingDashboardStatistics: boolean;
 
   // Error states
   error: string | null;
   studentStatisticsError: string | null;
+  dashboardStatisticsError: string | null;
 
   // Data
   generalStatistics: any | null;
   studentStatistics: { [studentId: string]: any };
+  dashboardStatistics: any | null;
 
   // Cache management
   lastFetch: number | null;
@@ -23,14 +26,17 @@ export const statisticsInitialState: StatisticsState = {
   // Loading states
   loading: false,
   loadingStudentStatistics: false,
+  loadingDashboardStatistics: false,
 
   // Error states
   error: null,
   studentStatisticsError: null,
+  dashboardStatisticsError: null,
 
   // Data
   generalStatistics: null,
   studentStatistics: {},
+  dashboardStatistics: null,
 
   // Cache management
   lastFetch: null,

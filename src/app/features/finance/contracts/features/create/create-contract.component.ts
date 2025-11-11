@@ -433,8 +433,8 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         this.studentForm.markAllAsTouched();
 
         if (this.studentForm.valid && this.validateStepsBeforeIndex(4)) {
-            this.studentForm.disable();
-
+            // Get form value BEFORE disabling the form
+            // When form is disabled, formGroup.value excludes disabled control values
             const formValue = this.studentForm.value;
             const createStudentRequest: CreateStudentRequest = {
                 identificationNumber: formValue.identificationNumber,
@@ -455,6 +455,9 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
                 municipality: formValue.municipality,
                 notes: formValue.notes
             };
+
+            // Disable form after getting the values
+            this.studentForm.disable();
 
             this.store.dispatch(StudentsActions.createStudentWithRequest({ request: createStudentRequest }));
         } else {
