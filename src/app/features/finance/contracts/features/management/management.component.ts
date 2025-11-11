@@ -76,7 +76,7 @@ export class ManagementComponent implements OnInit {
 
         return {
             id: contract.id,
-            studentCode: student?.code || '-',
+            code: contract.code || '-',
             studentName: student?.name || '-',
             studentEmail: student?.email || '-',
             center: student?.center?.name || '-',
