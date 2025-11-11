@@ -74,9 +74,8 @@ export class StudentsEffects {
             exhaustMap(({ request }) =>
                 this.studentsService.createStudentWithRequest(request).pipe(
                     map((student) => StudentsActions.createStudentWithRequestSuccess({ student })),
-                    catchError((error) => {
-                        const msg = (error && (error.error?.message || error.error?.error || error.message)) || 'Ocorreu um erro ao criar o aluno.';
-                        return of(StudentsActions.createStudentWithRequestFailure({ error: msg }));
+                    catchError((error: HttpErrorResponse) => {
+                        return of(StudentsActions.createStudentWithRequestFailure({ error: error.error.message }));
                     })
                 )
             )

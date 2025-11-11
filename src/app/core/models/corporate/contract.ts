@@ -104,7 +104,7 @@ export interface ContractLevel {
 }
 
 export interface Installment {
-    id: string;
+    id?: string;
     installmentNumber: number;
     dueDate: string;
     amount: number;

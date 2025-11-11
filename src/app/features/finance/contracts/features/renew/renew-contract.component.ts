@@ -356,11 +356,12 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         this.editingInstallmentIndex = index;
         // Create a deep copy of the installment for editing
         this.editingInstallment = { ...this.installments[index] };
-        
+
         // Convert string date to Date object for p-calendar
         if (this.editingInstallment.dueDate) {
             (this.editingInstallment as any).dueDateObj = new Date(this.editingInstallment.dueDate);
         }
+        console.log('Editing Installment:', this.editingInstallment);
     }
 
     saveEditInstallment(): void {
@@ -415,7 +416,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     validateInstallmentTotals(): void {
         const totalInstallments = this.installments.reduce((sum, inst) => sum + inst.amount, 0);
         const difference = Math.abs(this.contractSummary.finalAmount - totalInstallments);
-        
+
         // If difference is significant (more than 0.01), show warning
         if (difference > 0.01) {
             this.messageService.add({
@@ -457,14 +458,14 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         // Validate installment totals match contract total
         const totalInstallments = this.getTotalInstallmentsAmount();
         const difference = Math.abs(this.contractSummary.finalAmount - totalInstallments);
-        
+
         if (difference > 0.01) {
             const confirmed = confirm(
                 `ATENÇÃO: A soma das parcelas (${totalInstallments.toFixed(2)} AOA) difere do valor total do contrato (${this.contractSummary.finalAmount.toFixed(2)} AOA).\n\n` +
                 `Diferença: ${difference.toFixed(2)} AOA\n\n` +
                 `Deseja continuar mesmo assim?`
             );
-            
+
             if (!confirmed) {
                 return;
             }
@@ -473,9 +474,8 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         this.loading = true;
 
         // Explicitly map installments to ensure all properties including status are sent
-        const mappedInstallments = this.installments.length > 0 
+        const mappedInstallments = this.installments.length > 0
             ? this.installments.map(inst => ({
-                id: inst.id,
                 installmentNumber: inst.installmentNumber,
                 dueDate: inst.dueDate,
                 amount: inst.amount,
@@ -485,7 +485,6 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
 
         const payload: CreateStudentContractRequest = {
             studentId: formValue.student.id || this.createdStudentId!,
-            sellerId: formValue.sellerId,
             amount: this.contractSummary.finalAmount || 0,
             enrollmentFee: 0,
             enrollmentFeePaid: true,
