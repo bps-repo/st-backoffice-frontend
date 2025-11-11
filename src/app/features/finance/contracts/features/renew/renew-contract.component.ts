@@ -19,6 +19,7 @@ import { TableModule } from 'primeng/table';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
+import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import { Student } from 'src/app/core/models/academic/student';
@@ -52,6 +53,7 @@ import { map, takeUntil } from 'rxjs/operators';
         InputNumberModule,
         InputTextareaModule,
         ToastModule,
+        CalendarModule,
     ],
     providers: [MessageService]
 })
@@ -81,6 +83,8 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     };
 
     installments: Installment[] = [];
+    editingInstallmentIndex: number | null = null;
+    editingInstallment: Installment | null = null;
 
     contractTypes = [
         { label: 'Standard', value: 'STANDARD' },
@@ -275,10 +279,12 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         totalLevelPrice += levelPrice;
         totalMaterialPrice += materialPrice;
 
-        const totalAmount = totalLevelPrice + totalMaterialPrice;
+        // Contract amount includes only the level price (course material is separate)
+        const totalAmount = totalLevelPrice;
         const discountPercent = formValue.discountPercent || 0;
-        const totalDiscount = (totalAmount * discountPercent) / 100;
-        const finalAmount = totalAmount - totalDiscount;
+        // Discount applies only to the level price
+        const totalDiscount = (totalLevelPrice * discountPercent) / 100;
+        const finalAmount = totalLevelPrice - totalDiscount;
 
         const numberOfInstallments = formValue.numberOfInstallments || 1;
         const installmentAmount = finalAmount > 0 && numberOfInstallments > 0 ? finalAmount / numberOfInstallments : 0;
@@ -316,7 +322,8 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
                 installmentNumber: i + 1,
                 dueDate: dueDate.toISOString().split('T')[0],
                 amount: Math.round(installmentAmount * 100) / 100,
-                status: 'PENDING_PAYMENT'
+                // First installment is always PAID since students pay it during contract creation
+                status: i === 0 ? 'PAID' : 'PENDING_PAYMENT'
             });
         }
 
@@ -328,6 +335,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         }
 
         this.installments = installments;
+        console.log('Generated Installments:', this.installments);
     }
 
     onLevelSelected(levelId: string): void {
@@ -344,6 +352,86 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         }
     }
 
+    startEditInstallment(index: number): void {
+        this.editingInstallmentIndex = index;
+        // Create a deep copy of the installment for editing
+        this.editingInstallment = { ...this.installments[index] };
+
+        // Convert string date to Date object for p-calendar
+        if (this.editingInstallment.dueDate) {
+            (this.editingInstallment as any).dueDateObj = new Date(this.editingInstallment.dueDate);
+        }
+        console.log('Editing Installment:', this.editingInstallment);
+    }
+
+    saveEditInstallment(): void {
+        if (this.editingInstallmentIndex !== null && this.editingInstallment) {
+            // Validate amount
+            if (!this.editingInstallment.amount || this.editingInstallment.amount <= 0) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'O valor da parcela deve ser maior que zero'
+                });
+                return;
+            }
+
+            // Convert Date object back to string
+            if ((this.editingInstallment as any).dueDateObj) {
+                const dateObj = (this.editingInstallment as any).dueDateObj;
+                this.editingInstallment.dueDate = dateObj.toISOString().split('T')[0];
+            }
+
+            // Update the installment in the array
+            this.installments[this.editingInstallmentIndex] = {
+                id: this.editingInstallment.id,
+                installmentNumber: this.editingInstallment.installmentNumber,
+                dueDate: this.editingInstallment.dueDate,
+                amount: Math.round(this.editingInstallment.amount * 100) / 100,
+                status: this.editingInstallment.status
+            };
+
+            // Validate total amounts
+            this.validateInstallmentTotals();
+
+            this.cancelEditInstallment();
+
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: 'Parcela atualizada com sucesso'
+            });
+        }
+    }
+
+    cancelEditInstallment(): void {
+        this.editingInstallmentIndex = null;
+        this.editingInstallment = null;
+    }
+
+    isEditingInstallment(index: number): boolean {
+        return this.editingInstallmentIndex === index;
+    }
+
+    validateInstallmentTotals(): void {
+        const totalInstallments = this.installments.reduce((sum, inst) => sum + inst.amount, 0);
+        const difference = Math.abs(this.contractSummary.finalAmount - totalInstallments);
+
+        // If difference is significant (more than 0.01), show warning
+        if (difference > 0.01) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Atenção',
+                detail: `A soma das parcelas (${totalInstallments.toFixed(2)} AOA) difere do valor total do contrato (${this.contractSummary.finalAmount.toFixed(2)} AOA). Diferença: ${difference.toFixed(2)} AOA`,
+                life: 5000
+            });
+        }
+    }
+
+    getTotalInstallmentsAmount(): number {
+        return this.installments.reduce((sum, inst) => sum + inst.amount, 0);
+    }
+
     onSubmit(): void {
         const formValue = this.contractForm.getRawValue(); // Get all values including disabled
 
@@ -357,11 +445,46 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
             return;
         }
 
+        // Check if currently editing an installment
+        if (this.editingInstallmentIndex !== null) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Atenção',
+                detail: 'Por favor, salve ou cancele a edição da parcela antes de criar o contrato'
+            });
+            return;
+        }
+
+        // Validate installment totals match contract total
+        const totalInstallments = this.getTotalInstallmentsAmount();
+        const difference = Math.abs(this.contractSummary.finalAmount - totalInstallments);
+
+        if (difference > 0.01) {
+            const confirmed = confirm(
+                `ATENÇÃO: A soma das parcelas (${totalInstallments.toFixed(2)} AOA) difere do valor total do contrato (${this.contractSummary.finalAmount.toFixed(2)} AOA).\n\n` +
+                `Diferença: ${difference.toFixed(2)} AOA\n\n` +
+                `Deseja continuar mesmo assim?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+        }
+
         this.loading = true;
+
+        // Explicitly map installments to ensure all properties including status are sent
+        const mappedInstallments = this.installments.length > 0
+            ? this.installments.map(inst => ({
+                installmentNumber: inst.installmentNumber,
+                dueDate: inst.dueDate,
+                amount: inst.amount,
+                status: inst.status
+            }))
+            : undefined;
 
         const payload: CreateStudentContractRequest = {
             studentId: formValue.student.id || this.createdStudentId!,
-            sellerId: formValue.sellerId,
             amount: this.contractSummary.finalAmount || 0,
             enrollmentFee: 0,
             enrollmentFeePaid: true,
@@ -381,8 +504,12 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
             numberOfLevelsOffered: 0,
             notes: formValue.notes,
             contractType: formValue.contractType,
-            numberOfInstallments: formValue.numberOfInstallments
+            numberOfInstallments: formValue.numberOfInstallments,
+            firstInstallmentDate: this.installments.length > 0 ? this.installments[0].dueDate : undefined,
+            customInstallments: mappedInstallments
         };
+
+        console.log('Contract Payload:', JSON.stringify(payload, null, 2));
 
         this.contractService.createStudentContract(payload).subscribe({
             next: () => {

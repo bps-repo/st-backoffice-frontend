@@ -1,7 +1,8 @@
 <p-toast></p-toast>
 <div class="grid">
     <div class="col-12">
-        <h5 *ngIf="renewContract">{{ 'Renovar contrato ' + (selectedStudent ? 'de ' + selectedStudent.user.firstname : '') }}</h5>
+        <h5 *ngIf="renewContract">{{ 'Renovar contrato ' + (selectedStudent ? 'de ' + selectedStudent.user.firstname :
+            '') }}</h5>
     </div>
     <div class="col-12">
         <div class="card">
@@ -11,7 +12,7 @@
                     <div *ngIf="renewContract && !createdStudentId" class="field col-12 md:col-5">
                         <label for="student">Aluno *</label>
                         <p-dropdown id="student" formControlName="student" [options]="students" optionLabel="name"
-                                    placeholder="Selecione um aluno" [(ngModel)]="selectedStudent" [showClear]="true">
+                            placeholder="Selecione um aluno" [(ngModel)]="selectedStudent" [showClear]="true">
                             <ng-template pTemplate="item" let-student>
                                 <div>
                                     <div>{{ student.name }}</div>
@@ -21,7 +22,7 @@
                             </ng-template>
                         </p-dropdown>
                         <small *ngIf="contractForm.get('student')?.invalid && contractForm.get('student')?.touched"
-                               class="p-error">
+                            class="p-error">
                             Aluno é obrigatório
                         </small>
                     </div>
@@ -31,8 +32,8 @@
                         <div class="p-3 bg-primary-50 border-round">
                             <div class="flex align-items-center gap-2 mb-2">
                                 <i class="pi pi-user text-primary text-xl"></i>
-                                <span
-                                    class="font-bold text-lg">{{ selectedStudent.user.firstname }} {{ selectedStudent.user.lastname }}</span>
+                                <span class="font-bold text-lg">{{ selectedStudent.user.firstname }} {{
+                                    selectedStudent.user.lastname }}</span>
                             </div>
                             <div class="text-sm text-600">
                                 <div><i class="pi pi-envelope mr-2"></i>{{ selectedStudent.user.email }}</div>
@@ -46,7 +47,7 @@
                     <div class="field col-12 md:col-4">
                         <label for="contractType">Tipo de Contrato *</label>
                         <p-dropdown id="contractType" formControlName="contractType" [options]="contractTypes"
-                                    optionLabel="label" optionValue="value" placeholder="Select contract type">
+                            optionLabel="label" optionValue="value" placeholder="Select contract type">
                         </p-dropdown>
                         <small
                             *ngIf="contractForm.get('contractType')?.invalid && contractForm.get('contractType')?.touched"
@@ -58,7 +59,7 @@
                     <!-- Registration Fee -->
                     <div class="field col-12 md:col-3 mt-6">
                         <div class="flex align-items-center gap-2">
-                            <input type="checkbox" formControlName="includeRegistrationFee"/>
+                            <input type="checkbox" formControlName="includeRegistrationFee" />
                             <label>Incluir Taxa de Registro</label>
                         </div>
                     </div>
@@ -67,7 +68,7 @@
                     <div class="field col-12 md:col-6">
                         <label for="notes">Notas</label>
                         <p-inputTextarea id="notes" formControlName="notes" placeholder="Enter contract notes"
-                                         rows="5"></p-inputTextarea>
+                            rows="5"></p-inputTextarea>
                     </div>
 
                     <!-- Contract Level Section -->
@@ -81,7 +82,7 @@
                                 <div class="field col-12 md:col-8">
                                     <label>Nível *</label>
                                     <p-dropdown formControlName="levelId" [options]="levels" optionLabel="name"
-                                                optionValue="id" placeholder="Select a level" [showClear]="true">
+                                        optionValue="id" placeholder="Select a level" [showClear]="true">
                                         <ng-template pTemplate="item" let-levelOption>
                                             <div>
                                                 <div>{{ levelOption.name }}</div>
@@ -113,8 +114,7 @@
                                 <div class="field col-12 md:col-6">
                                     <label>Preço do Nível *</label>
                                     <p-inputNumber formControlName="levelPrice" [min]="0" mode="decimal"
-                                                   [minFractionDigits]="2" [maxFractionDigits]="2"
-                                                   suffix=" AOA"></p-inputNumber>
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
                                     <small
                                         *ngIf="contractForm.get('levelPrice')?.invalid && contractForm.get('levelPrice')?.touched"
                                         class="p-error">
@@ -126,8 +126,7 @@
                                 <div class="field col-12 md:col-6">
                                     <label>Preço do Material do Curso *</label>
                                     <p-inputNumber formControlName="courseMaterialPrice" [min]="0" mode="decimal"
-                                                   [minFractionDigits]="2" [maxFractionDigits]="2"
-                                                   suffix=" AOA"></p-inputNumber>
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" AOA"></p-inputNumber>
                                     <small
                                         *ngIf="contractForm.get('courseMaterialPrice')?.invalid && contractForm.get('courseMaterialPrice')?.touched"
                                         class="p-error">
@@ -139,7 +138,7 @@
                                 <div class="field col-12 md:col-4">
                                     <label for="numberOfInstallments">Número de Parcelas *</label>
                                     <p-inputNumber id="numberOfInstallments" formControlName="numberOfInstallments"
-                                                   [min]="1"></p-inputNumber>
+                                        [min]="1"></p-inputNumber>
                                     <small
                                         *ngIf="contractForm.get('numberOfInstallments')?.invalid && contractForm.get('numberOfInstallments')?.touched"
                                         class="p-error">
@@ -151,15 +150,14 @@
                                 <div class="field col-12 md:col-6">
                                     <label for="discountPercent">Desconto (%)</label>
                                     <p-inputNumber id="discountPercent" formControlName="discountPercent" [min]="0"
-                                                   [max]="100"></p-inputNumber>
+                                        [max]="100"></p-inputNumber>
                                 </div>
 
                                 <!-- Notes for Level -->
                                 <div class="field col-12 md:col-12">
                                     <label>Notas do Nível</label>
                                     <p-inputTextarea formControlName="levelNotes"
-                                                     placeholder="Enter level-specific notes"
-                                                     rows="5"></p-inputTextarea>
+                                        placeholder="Enter level-specific notes" rows="5"></p-inputTextarea>
                                 </div>
                             </div>
                         </div>
@@ -173,15 +171,15 @@
                                 <div class="col-12 md:col-6">
                                     <div class="flex justify-content-between gap-3 mb-2">
                                         <span>Preço Total dos Nível:</span>
-                                        <span
-                                            class="font-semibold">{{ contractSummary.totalLevelPrice | number:'1.2-2' }}
+                                        <span class="font-semibold">{{ contractSummary.totalLevelPrice | number:'1.2-2'
+                                            }}
                                             AOA</span>
                                     </div>
                                     <div class="flex justify-content-between gap-3 mb-2">
                                         <span>Preço Total dos Material:</span>
                                         <span class="font-semibold">{{
-                                                contractSummary.totalMaterialPrice |
-                                                    number:'1.2-2'
+                                            contractSummary.totalMaterialPrice |
+                                            number:'1.2-2'
                                             }} AOA</span>
                                     </div>
                                     <div class="flex justify-content-between gap-3 mb-2">
@@ -190,27 +188,27 @@
                                             AOA</span>
                                     </div>
                                     <div class="flex justify-content-between gap-3 mb-2"
-                                         *ngIf="contractSummary.totalDiscount > 0">
+                                        *ngIf="contractSummary.totalDiscount > 0">
                                         <span>Desconto ({{ contractForm.get('discountPercent')?.value || 0 }}%):</span>
                                         <span class="font-semibold text-red-500">-{{
-                                                contractSummary.totalDiscount |
-                                                    number:'1.2-2'
+                                            contractSummary.totalDiscount |
+                                            number:'1.2-2'
                                             }} AOA</span>
                                     </div>
                                     <hr>
                                     <div class="flex justify-content-between gap-3 mb-2">
                                         <span class="font-bold text-lg">Total Final:</span>
                                         <span class="font-bold text-lg text-primary">{{
-                                                contractSummary.finalAmount |
-                                                    number:'1.2-2'
+                                            contractSummary.finalAmount |
+                                            number:'1.2-2'
                                             }} AOA</span>
                                     </div>
                                     <div class="flex justify-content-between gap-3"
-                                         *ngIf="contractForm.get('numberOfInstallments')?.value > 1">
+                                        *ngIf="contractForm.get('numberOfInstallments')?.value > 1">
                                         <span class="font-semibold text-blue-600">Valor por Parcela:</span>
                                         <span class="font-semibold text-blue-600">{{
-                                                contractSummary.installmentAmount |
-                                                    number:'1.2-2'
+                                            contractSummary.installmentAmount |
+                                            number:'1.2-2'
                                             }} AOA</span>
                                     </div>
                                 </div>
@@ -228,7 +226,7 @@
                             <div class="grid">
                                 <div class="col-12">
                                     <p-table [value]="installments" [tableStyle]="{'min-width': '50rem'}"
-                                             [paginator]="false" [showCurrentPageReport]="false">
+                                        [paginator]="false" [showCurrentPageReport]="false">
                                         <ng-template pTemplate="header">
                                             <tr>
                                                 <th style="width: 15%">Parcela</th>
@@ -239,38 +237,87 @@
                                             </tr>
                                         </ng-template>
                                         <ng-template pTemplate="body" let-installment let-i="rowIndex">
-                                            <tr>
+                                            <tr [ngClass]="{'bg-blue-50': isEditingInstallment(i)}">
                                                 <td>
                                                     <div class="flex align-items-center gap-2">
                                                         <i class="pi pi-calendar text-primary"></i>
-                                                        <span
-                                                            class="font-semibold">{{ installment.installmentNumber }}
+                                                        <span class="font-semibold">{{ installment.installmentNumber }}
                                                             /{{ installments.length }}</span>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="flex align-items-center gap-2">
+                                                    <!-- View Mode -->
+                                                    <div *ngIf="!isEditingInstallment(i)"
+                                                        class="flex align-items-center gap-2">
                                                         <i class="pi pi-clock text-500"></i>
                                                         <span>{{ installment.dueDate | date:'dd/MM/yyyy' }}</span>
                                                     </div>
+                                                    <!-- Edit Mode -->
+                                                    <div *ngIf="isEditingInstallment(i) && editingInstallment">
+                                                        <p-calendar [(ngModel)]="$any(editingInstallment).dueDateObj"
+                                                            dateFormat="dd/mm/yy" [showIcon]="true"
+                                                            placeholder="Selecione a data" [style]="{'width': '100%'}">
+                                                        </p-calendar>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <span class="font-semibold text-primary">{{
-                                                            installment.amount |
-                                                                number:'1.2-2'
+                                                    <!-- View Mode -->
+                                                    <span *ngIf="!isEditingInstallment(i)"
+                                                        class="font-semibold text-primary">{{
+                                                        installment.amount |
+                                                        number:'1.2-2'
                                                         }} AOA</span>
+                                                    <!-- Edit Mode -->
+                                                    <div *ngIf="isEditingInstallment(i) && editingInstallment">
+                                                        <p-inputNumber [(ngModel)]="editingInstallment!.amount"
+                                                            mode="decimal" [minFractionDigits]="2"
+                                                            [maxFractionDigits]="2" [min]="0" suffix=" AOA"
+                                                            [style]="{'width': '100%'}">
+                                                        </p-inputNumber>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <span class="p-tag p-tag-warning">
+                                                    <span *ngIf="installment.status === 'PAID'"
+                                                        class="p-tag p-tag-success">
+                                                        <i class="pi pi-check mr-1"></i>
+                                                        Pago
+                                                    </span>
+                                                    <span *ngIf="installment.status === 'PENDING_PAYMENT'"
+                                                        class="p-tag p-tag-warning">
                                                         <i class="pi pi-clock mr-1"></i>
                                                         Pendente
                                                     </span>
+                                                    <span *ngIf="installment.status === 'OVERDUE'"
+                                                        class="p-tag p-tag-danger">
+                                                        <i class="pi pi-exclamation-triangle mr-1"></i>
+                                                        Atrasado
+                                                    </span>
+                                                    <span *ngIf="installment.status === 'CANCELLED'"
+                                                        class="p-tag p-tag-secondary">
+                                                        <i class="pi pi-times mr-1"></i>
+                                                        Cancelado
+                                                    </span>
                                                 </td>
                                                 <td>
-                                                    <p-button icon="pi pi-eye"
-                                                              class="p-button-sm p-button-text p-button-info"
-                                                              title="Ver detalhes da parcela {{installment.installmentNumber}}">
-                                                    </p-button>
+                                                    <!-- View Mode Actions -->
+                                                    <div *ngIf="!isEditingInstallment(i)" class="flex gap-1">
+                                                        <p-button icon="pi pi-pencil"
+                                                            class="p-button-sm p-button-text p-button-warning"
+                                                            (onClick)="startEditInstallment(i)"
+                                                            title="Editar parcela {{installment.installmentNumber}}">
+                                                        </p-button>
+                                                    </div>
+                                                    <!-- Edit Mode Actions -->
+                                                    <div *ngIf="isEditingInstallment(i)" class="flex gap-1">
+                                                        <p-button icon="pi pi-check"
+                                                            class="p-button-sm p-button-text p-button-success"
+                                                            (onClick)="saveEditInstallment()" title="Salvar alterações">
+                                                        </p-button>
+                                                        <p-button icon="pi pi-times"
+                                                            class="p-button-sm p-button-text p-button-danger"
+                                                            (onClick)="cancelEditInstallment()" title="Cancelar edição">
+                                                        </p-button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </ng-template>
@@ -289,20 +336,30 @@
 
                             <!-- Installments Summary -->
                             <div class="grid mt-3" *ngIf="installments.length > 0">
-                                <div class="col-12 md:col-6">
+                                <div class="col-12 md:col-4">
                                     <div
                                         class="flex justify-content-between align-items-center p-3 border-round bg-blue-50">
-                                        <span class="font-semibold">Valor Total das Parcelas:</span>
+                                        <span class="font-semibold">Valor do Contrato:</span>
                                         <span class="font-bold text-primary text-lg">
                                             {{ contractSummary.finalAmount | number:'1.2-2' }} AOA
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-12 md:col-6">
+                                <div class="col-12 md:col-4">
+                                    <div class="flex justify-content-between align-items-center p-3 border-round"
+                                        [ngClass]="getTotalInstallmentsAmount() === contractSummary.finalAmount ? 'bg-green-50' : 'bg-orange-50'">
+                                        <span class="font-semibold">Soma das Parcelas:</span>
+                                        <span class="font-bold text-lg"
+                                            [ngClass]="getTotalInstallmentsAmount() === contractSummary.finalAmount ? 'text-green-600' : 'text-orange-600'">
+                                            {{ getTotalInstallmentsAmount() | number:'1.2-2' }} AOA
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-4">
                                     <div
-                                        class="flex justify-content-between align-items-center p-3 border-round bg-green-50">
-                                        <span class="font-semibold">Valor por Parcela:</span>
-                                        <span class="font-bold text-green-600 text-lg">
+                                        class="flex justify-content-between align-items-center p-3 border-round bg-indigo-50">
+                                        <span class="font-semibold">Média por Parcela:</span>
+                                        <span class="font-bold text-indigo-600 text-lg">
                                             {{ contractSummary.installmentAmount | number:'1.2-2' }} AOA
                                         </span>
                                     </div>
@@ -314,7 +371,7 @@
 
                 <div class="flex justify-content-end mt-4">
                     <p-button type="submit" label="Criar Contrato" icon="pi pi-check" [loading]="loading"
-                              [disabled]="contractForm.invalid || loading">
+                        [disabled]="contractForm.invalid || loading">
                     </p-button>
                 </div>
             </form>

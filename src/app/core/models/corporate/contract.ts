@@ -104,7 +104,7 @@ export interface ContractLevel {
 }
 
 export interface Installment {
-    id: string;
+    id?: string;
     installmentNumber: number;
     dueDate: string;
     amount: number;
@@ -118,10 +118,12 @@ export interface ContractFinancialSummary {
     courseMaterialPrice: number | null;
     courseMaterialPaid: boolean;
     currency: string;
+    levelPrice: number;
 }
 
 export interface Contract {
     id: string;
+    code: string;
     student: Student;
     seller: Seller;
     startDate: string;
@@ -132,7 +134,7 @@ export interface Contract {
     discountPercent: number; // Deprecated: use financial.discountPercent
     status: 'ACTIVE' | 'HOLD' | 'CANCELLED' | 'COMPLETED';
     contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
-    contractLevels: ContractLevel[];
+    contractLevel: ContractLevel;
     installments?: Installment[];
     numberOfInstallments: number;
     notes?: string;
@@ -144,13 +146,14 @@ export interface Contract {
 
 export interface CreateStudentContractRequest {
     studentId: string;
-    sellerId: string;
+    sellerId?: string;
     amount: number;
     enrollmentFee: number;
     enrollmentFeePaid: boolean;
     discountPercent: number;
     unitPrice: number;
     contractLevel: {
+        id?: string;
         levelId: string;
         duration: number;
         levelPrice: number;
@@ -165,5 +168,7 @@ export interface CreateStudentContractRequest {
     notes?: string;
     contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
     numberOfInstallments: number;
+    firstInstallmentDate?: string;
+    customInstallments?: Installment[];
 }
 
