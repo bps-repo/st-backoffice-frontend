@@ -68,6 +68,26 @@ export const statisticsFeature = createFeature({
       dashboardStatisticsError: error,
     })),
 
+    // Load lessons dashboard statistics
+    on(StatisticsActions.loadLessonsDashboardStatistics, (state) => ({
+      ...state,
+      loadingLessonsDashboardStatistics: true,
+      lessonsDashboardStatisticsError: null,
+    })),
+    on(StatisticsActions.loadLessonsDashboardStatisticsSuccess, (state, { lessonsDashboardStatistics }) => ({
+      ...state,
+      lessonsDashboardStatistics,
+      loadingLessonsDashboardStatistics: false,
+      lessonsDashboardStatisticsError: null,
+      lastFetch: Date.now(),
+      cacheExpired: false,
+    })),
+    on(StatisticsActions.loadLessonsDashboardStatisticsFailure, (state, { error }) => ({
+      ...state,
+      loadingLessonsDashboardStatistics: false,
+      lessonsDashboardStatisticsError: error,
+    })),
+
     // Cache management
     on(StatisticsActions.setLastFetch, (state, { timestamp }) => ({
       ...state,
@@ -86,6 +106,7 @@ export const statisticsFeature = createFeature({
       generalStatistics: null,
       studentStatistics: {},
       dashboardStatistics: null,
+      lessonsDashboardStatistics: null,
       lastFetch: null,
       cacheExpired: false,
     })),
@@ -97,6 +118,7 @@ export const statisticsFeature = createFeature({
       if (errorType === 'general' || !errorType) updates.error = null;
       if (errorType === 'student' || !errorType) updates.studentStatisticsError = null;
       if (errorType === 'dashboard' || !errorType) updates.dashboardStatisticsError = null;
+      if (errorType === 'lessonsDashboard' || !errorType) updates.lessonsDashboardStatisticsError = null;
 
       return { ...state, ...updates };
     }),
@@ -105,6 +127,7 @@ export const statisticsFeature = createFeature({
       error: null,
       studentStatisticsError: null,
       dashboardStatisticsError: null,
+      lessonsDashboardStatisticsError: null,
     }))
   ),
 });

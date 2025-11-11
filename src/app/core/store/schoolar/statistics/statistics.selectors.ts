@@ -31,6 +31,22 @@ export const selectDashboardStatistics = createSelector(
   (state) => state.dashboardStatistics
 );
 
+// Lessons dashboard statistics selectors
+export const selectLoadingLessonsDashboardStatistics = createSelector(
+  selectStatisticsState,
+  (state) => state.loadingLessonsDashboardStatistics
+);
+
+export const selectLessonsDashboardStatisticsError = createSelector(
+  selectStatisticsState,
+  (state) => state.lessonsDashboardStatisticsError
+);
+
+export const selectLessonsDashboardStatistics = createSelector(
+  selectStatisticsState,
+  (state) => state.lessonsDashboardStatistics
+);
+
 // Get student statistics by ID
 export const selectStudentStatisticsById = (studentId: string) => createSelector(
   selectStudentStatistics,

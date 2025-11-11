@@ -1,8 +1,17 @@
 <div class="grid">
     <!-- KPIs -->
-    <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis$ | async">
-        <div class="card h-full">
-            <div *ngIf="!loading; else kpiSkeleton">
+    <ng-container *ngIf="loadingLessonsDashboardStatistics$ | async; else kpisContent">
+        <div class="col-12 md:col-6 xl:col-3" *ngFor="let i of [1,2,3,4]">
+            <div class="card h-full">
+                <p-skeleton height="2rem" class="mb-2"></p-skeleton>
+                <p-skeleton height="3rem" width="4rem"></p-skeleton>
+                <p-skeleton height="1rem" width="3rem" class="mt-2"></p-skeleton>
+            </div>
+        </div>
+    </ng-container>
+    <ng-template #kpisContent>
+        <div class="col-12 md:col-6 xl:col-3" *ngFor="let kpi of kpis$ | async">
+            <div class="card h-full">
                 <span class="font-semibold text-lg">{{ kpi.label }}</span>
                 <div class="flex justify-content-between align-items-start mt-3">
                     <div class="w-6">
@@ -14,13 +23,8 @@
                     </div>
                 </div>
             </div>
-            <ng-template #kpiSkeleton>
-                <p-skeleton height="2rem" class="mb-2"></p-skeleton>
-                <p-skeleton height="3rem" width="4rem"></p-skeleton>
-                <p-skeleton height="1rem" width="3rem" class="mt-2"></p-skeleton>
-            </ng-template>
         </div>
-    </div>
+    </ng-template>
 
     <!-- Date Range Filter -->
     <div class="col-12">
@@ -38,31 +42,31 @@
         </div>
     </div>
 
-    <!-- Lesson Trends Line Chart -->
-    <div class="col-12">
+    <!-- Status Distribution Pie Chart -->
+    <div class="col-12 md:col-6">
         <div class="card h-full">
-            <div *ngIf="!loading; else chartSkeleton">
+            <div *ngIf="!(loadingLessonsDashboardStatistics$ | async); else chartSkeleton1">
                 <p-chart
-                    type="line"
-                    [data]="lineChartData"
-                    [options]="lineChartOptions"
+                    type="pie"
+                    [data]="pieDataStatus"
+                    [options]="pieStatusOptions"
                     height="300px"
                 ></p-chart>
             </div>
-            <ng-template #chartSkeleton>
+            <ng-template #chartSkeleton1>
                 <p-skeleton height="300px"></p-skeleton>
             </ng-template>
         </div>
     </div>
 
-    <!-- Lesson Ratings Bar Chart -->
-    <div class="col-12">
+    <!-- Type Distribution Pie Chart -->
+    <div class="col-12 md:col-6">
         <div class="card h-full">
-            <div *ngIf="!loading; else chartSkeleton2">
+            <div *ngIf="!(loadingLessonsDashboardStatistics$ | async); else chartSkeleton2">
                 <p-chart
-                    type="bar"
-                    [data]="barChartData"
-                    [options]="barChartOptions"
+                    type="pie"
+                    [data]="pieDataType"
+                    [options]="pieTypeOptions"
                     height="300px"
                 ></p-chart>
             </div>
@@ -72,14 +76,14 @@
         </div>
     </div>
 
-    <!-- Lesson Type Distribution Pie Chart -->
+    <!-- Online/Presencial Distribution Pie Chart -->
     <div class="col-12 md:col-6">
         <div class="card h-full">
-            <div *ngIf="!loading; else chartSkeleton3">
+            <div *ngIf="!(loadingLessonsDashboardStatistics$ | async); else chartSkeleton3">
                 <p-chart
                     type="pie"
-                    [data]="pieDataLessonType"
-                    [options]="pieLessonTypeOptions"
+                    [data]="pieDataOnline"
+                    [options]="pieOnlineOptions"
                     height="300px"
                 ></p-chart>
             </div>
@@ -89,14 +93,14 @@
         </div>
     </div>
 
-    <!-- Subject Distribution Doughnut Chart -->
+    <!-- Center Distribution Bar Chart -->
     <div class="col-12 md:col-6">
         <div class="card h-full">
-            <div *ngIf="!loading; else chartSkeleton4">
+            <div *ngIf="!(loadingLessonsDashboardStatistics$ | async); else chartSkeleton4">
                 <p-chart
-                    type="doughnut"
-                    [data]="doughnutDataSubjects"
-                    [options]="doughnutSubjectsOptions"
+                    type="bar"
+                    [data]="barChartDataCenter"
+                    [options]="barChartCenterOptions"
                     height="300px"
                 ></p-chart>
             </div>
@@ -106,41 +110,71 @@
         </div>
     </div>
 
-    <!-- Top Lessons Table -->
-    <div class="col-12">
-        <div class="card">
-            <h5 class="text-xl font-semibold mb-4">Top Rated Lessons</h5>
-            <div *ngIf="!loading; else tableSkeleton">
-                <p-table [value]="(topLessons$ | async) || []" [tableStyle]="{ 'min-width': '50rem' }">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th>Title</th>
-                            <th>Teacher</th>
-                            <th>Students</th>
-                            <th>Rating</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-lesson>
-                        <tr>
-                            <td>{{ lesson.title }}</td>
-                            <td>{{ lesson.teacher }}</td>
-                            <td>{{ lesson.students }}</td>
-                            <td>{{ lesson.rating }}</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
+    <!-- Level Distribution Bar Chart -->
+    <div class="col-12 md:col-6">
+        <div class="card h-full">
+            <div *ngIf="!(loadingLessonsDashboardStatistics$ | async); else chartSkeleton5">
+                <p-chart
+                    type="bar"
+                    [data]="barChartDataLevel"
+                    [options]="barChartLevelOptions"
+                    height="300px"
+                ></p-chart>
             </div>
-            <ng-template #tableSkeleton>
-                <div class="grid">
-                    <div class="col-12" *ngFor="let item of [1,2,3,4,5]">
-                        <div class="flex gap-3 align-items-center p-3">
-                            <p-skeleton width="30%" height="1.5rem"></p-skeleton>
-                            <p-skeleton width="20%" height="1.5rem"></p-skeleton>
-                            <p-skeleton width="15%" height="1.5rem"></p-skeleton>
-                            <p-skeleton width="15%" height="1.5rem"></p-skeleton>
-                        </div>
-                    </div>
+            <ng-template #chartSkeleton5>
+                <p-skeleton height="300px"></p-skeleton>
+            </ng-template>
+        </div>
+    </div>
+
+    <!-- Unit Distribution Bar Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-center mb-3">
+                <h5 class="text-xl font-semibold m-0">Aulas por Unidade</h5>
+                <div class="flex align-items-center gap-2">
+                    <label for="levelFilter" class="font-medium text-900">Filtrar por Nível:</label>
+                    <p-dropdown
+                        id="levelFilter"
+                        [options]="(levelFilterOptions$ | async) || []"
+                        [(ngModel)]="selectedLevelFilter"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Todos os Níveis"
+                        [showClear]="true"
+                        (onChange)="onLevelFilterChange()"
+                        [disabled]="!!(loadingLessonsDashboardStatistics$ | async)"
+                        styleClass="w-12rem"
+                    ></p-dropdown>
                 </div>
+            </div>
+            <div *ngIf="!(loadingLessonsDashboardStatistics$ | async); else chartSkeleton6">
+                <p-chart
+                    type="bar"
+                    [data]="barChartDataUnit"
+                    [options]="barChartUnitOptions"
+                    height="300px"
+                ></p-chart>
+            </div>
+            <ng-template #chartSkeleton6>
+                <p-skeleton height="300px"></p-skeleton>
+            </ng-template>
+        </div>
+    </div>
+
+    <!-- Attendance Distribution Bar Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <div *ngIf="!(loadingLessonsDashboardStatistics$ | async); else chartSkeleton7">
+                <p-chart
+                    type="bar"
+                    [data]="barChartDataAttendance"
+                    [options]="barChartAttendanceOptions"
+                    height="300px"
+                ></p-chart>
+            </div>
+            <ng-template #chartSkeleton7>
+                <p-skeleton height="300px"></p-skeleton>
             </ng-template>
         </div>
     </div>
