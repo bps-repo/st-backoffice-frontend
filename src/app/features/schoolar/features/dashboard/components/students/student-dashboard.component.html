@@ -162,28 +162,37 @@
         </div>
     </div>
 
-    <!-- Top Performing Students Table -->
+    <!-- Level Distribution Bar Chart -->
     <div class="col-12">
-        <div class="card">
-            <h5 class="text-xl font-semibold mb-4">Top Performing Students</h5>
-            <p-table [value]="(topPerformers$ | async) || []" [tableStyle]="{ 'min-width': '50rem' }">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Name</th>
-                        <th>Level</th>
-                        <th>Attendance</th>
-                        <th>Grade</th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-student>
-                    <tr>
-                        <td>{{ student.name }}</td>
-                        <td>{{ student.level }}</td>
-                        <td>{{ student.attendance }}</td>
-                        <td>{{ student.grade }}</td>
-                    </tr>
-                </ng-template>
-            </p-table>
+        <div class="card h-full">
+            <div *ngIf="!(loadingDashboardStatistics$ | async); else chartSkeleton7">
+                <p-chart
+                    type="bar"
+                    [data]="barChartDataLevel"
+                    [options]="barChartLevelOptions"
+                    height="300px"
+                ></p-chart>
+            </div>
+            <ng-template #chartSkeleton7>
+                <p-skeleton height="300px"></p-skeleton>
+            </ng-template>
+        </div>
+    </div>
+
+    <!-- Center Distribution Bar Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <div *ngIf="!(loadingDashboardStatistics$ | async); else chartSkeleton8">
+                <p-chart
+                    type="bar"
+                    [data]="barChartDataCenter"
+                    [options]="barChartCenterOptions"
+                    height="300px"
+                ></p-chart>
+            </div>
+            <ng-template #chartSkeleton8>
+                <p-skeleton height="300px"></p-skeleton>
+            </ng-template>
         </div>
     </div>
 </div>
