@@ -59,6 +59,10 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     barChartMunicipalityOptions: any;
     barChartDataAcademicBackground: any;
     barChartAcademicBackgroundOptions: any;
+    barChartDataLevel: any;
+    barChartLevelOptions: any;
+    barChartDataCenter: any;
+    barChartCenterOptions: any;
     lineChartData: any;
     lineChartOptions: any;
     barChartData: any;
@@ -221,6 +225,26 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
             datasets: [{
                 label: 'Número de Estudantes',
                 backgroundColor: documentStyle.getPropertyValue('--teal-500'),
+                data: []
+            }]
+        };
+
+        // Level distribution bar chart (initial empty data)
+        this.barChartDataLevel = {
+            labels: [],
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--purple-500'),
+                data: []
+            }]
+        };
+
+        // Center distribution bar chart (initial empty data)
+        this.barChartDataCenter = {
+            labels: [],
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--orange-500'),
                 data: []
             }]
         };
@@ -471,6 +495,72 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 }
             }
         };
+
+        // Level distribution bar chart options
+        this.barChartLevelOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Estudantes por Nível',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
+
+        // Center distribution bar chart options
+        this.barChartCenterOptions = {
+            plugins: {
+                legend: {
+                    labels: { color: textColor }
+                },
+                title: {
+                    display: true,
+                    text: 'Estudantes por Centro',
+                    font: { size: 16, weight: 'bold' },
+                    color: textColor
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                }
+            }
+        };
     }
 
     filterData() {
@@ -563,6 +653,8 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         this.updateProvinceChart(dashboardStats);
         this.updateMunicipalityChart(dashboardStats);
         this.updateAcademicBackgroundChart(dashboardStats);
+        this.updateLevelChart(dashboardStats);
+        this.updateCenterChart(dashboardStats);
     }
 
     private updateStatusChart(dashboardStats: StudentDashboardStatistics): void {
@@ -738,6 +830,44 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 label: 'Número de Estudantes',
                 backgroundColor: documentStyle.getPropertyValue('--teal-500'),
                 data: backgroundData
+            }]
+        };
+    }
+
+    private updateLevelChart(dashboardStats: StudentDashboardStatistics): void {
+        if (!dashboardStats.studentsByLevel) {
+            return;
+        }
+
+        const levelLabels = Object.keys(dashboardStats.studentsByLevel);
+        const levelData = Object.values(dashboardStats.studentsByLevel);
+
+        const documentStyle = getComputedStyle(document.documentElement);
+        this.barChartDataLevel = {
+            labels: levelLabels,
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--purple-500'),
+                data: levelData
+            }]
+        };
+    }
+
+    private updateCenterChart(dashboardStats: StudentDashboardStatistics): void {
+        if (!dashboardStats.studentsByCenter) {
+            return;
+        }
+
+        const centerLabels = Object.keys(dashboardStats.studentsByCenter);
+        const centerData = Object.values(dashboardStats.studentsByCenter);
+
+        const documentStyle = getComputedStyle(document.documentElement);
+        this.barChartDataCenter = {
+            labels: centerLabels,
+            datasets: [{
+                label: 'Número de Estudantes',
+                backgroundColor: documentStyle.getPropertyValue('--orange-500'),
+                data: centerData
             }]
         };
     }

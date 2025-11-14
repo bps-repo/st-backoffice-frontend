@@ -6,5 +6,7 @@ export interface StudentDashboardStatistics {
   studentsByMunicipality: Record<string, Record<string, number>>;
   studentsByAgeRange: Record<string, number>;
   studentsByAcademicBackground: Record<string, number>;
+  studentsByLevel: Record<string, number>;
+  studentsByCenter: Record<string, number>;
 }
 
