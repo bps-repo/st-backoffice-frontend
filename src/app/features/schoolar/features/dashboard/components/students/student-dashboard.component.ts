@@ -72,7 +72,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     dateRange: Date[] | undefined;
     kpis$!: Observable<any[]>;
     topPerformers$!: Observable<any[]>;
-    
+
     // Municipality chart filter
     selectedProvinceFilter: string | null = null;
     provinceFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
@@ -186,8 +186,26 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                     text: 'Distribuição por Género',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 6,
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context: any) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
                 }
             },
+            responsive: true,
+            maintainAspectRatio: false
         };
 
         // Age distribution pie chart (initial empty data)
@@ -197,6 +215,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 data: [],
                 backgroundColor: []
             }]
+
         };
 
         // Province distribution bar chart (initial empty data)
@@ -265,8 +284,26 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                     text: 'Distribuição por Idade',
                     font: { size: 16, weight: 'bold' },
                     color: textColor
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 6,
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context: any) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
                 }
             },
+            responsive: true,
+            maintainAspectRatio: false
         };
 
         // Enrollment trend line chart
@@ -704,6 +741,12 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         });
         const genderData = Object.values(dashboardStats.studentsByGender);
 
+        // Find the index of the largest slice to explode it
+        const maxIndex = genderData.indexOf(Math.max(...genderData));
+
+        // Create offset array - explode the largest slice
+        const offset = genderData.map((_, index) => index === maxIndex ? 10 : 0);
+
         const documentStyle = getComputedStyle(document.documentElement);
         this.pieDataGender = {
             labels: genderLabels,
@@ -718,7 +761,10 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                     documentStyle.getPropertyValue('--blue-400'),
                     documentStyle.getPropertyValue('--pink-400'),
                     documentStyle.getPropertyValue('--green-400')
-                ]
+                ],
+                borderWidth: 2,
+                borderColor: documentStyle.getPropertyValue('--surface-ground'),
+                offset: offset
             }]
         };
     }
@@ -726,6 +772,12 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     private updateAgeChart(dashboardStats: StudentDashboardStatistics): void {
         const ageLabels = Object.keys(dashboardStats.studentsByAgeRange);
         const ageData = Object.values(dashboardStats.studentsByAgeRange);
+
+        // Find the index of the largest slice to explode it
+        const maxIndex = ageData.indexOf(Math.max(...ageData));
+
+        // Create offset array - explode the largest slice
+        const offset = ageData.map((_, index) => index === maxIndex ? 10 : 0);
 
         const documentStyle = getComputedStyle(document.documentElement);
         this.pieDataAge = {
@@ -745,7 +797,10 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                     documentStyle.getPropertyValue('--teal-400'),
                     documentStyle.getPropertyValue('--orange-400'),
                     documentStyle.getPropertyValue('--yellow-400')
-                ]
+                ],
+                borderWidth: 2,
+                borderColor: documentStyle.getPropertyValue('--surface-ground'),
+                offset: offset
             }]
         };
     }
@@ -778,8 +833,8 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
 
             Object.entries(municipalities).forEach(([municipality, count]) => {
                 // If filtering by province, show only municipality name, otherwise show "Province - Municipality"
-                const label = this.selectedProvinceFilter 
-                    ? municipality 
+                const label = this.selectedProvinceFilter
+                    ? municipality
                     : `${province} - ${municipality}`;
                 municipalityLabels.push(label);
                 municipalityData.push(count);
