@@ -12,8 +12,8 @@ import { YouTubePlayerModule } from '@angular/youtube-player';
         <youtube-player
           #youtubePlayer
           [videoId]="videoId"
-          [width]="width"
-          [height]="height"
+          [width]="calculatedWidth"
+          [height]="calculatedHeight"
           [startSeconds]="startTime"
           [endSeconds]="endTime"
           [playerVars]="playerVars"
@@ -36,6 +36,9 @@ import { YouTubePlayerModule } from '@angular/youtube-player';
       position: relative;
       width: 100%;
       max-width: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     .video-wrapper {
@@ -46,15 +49,30 @@ import { YouTubePlayerModule } from '@angular/youtube-player';
       overflow: hidden;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 0;
+      box-sizing: border-box;
     }
 
     .youtube-iframe {
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100% !important;
+      height: 100% !important;
       border-radius: 8px;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ::ng-deep youtube-player {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    ::ng-deep youtube-player iframe {
+      width: 100% !important;
+      max-width: 100% !important;
     }
 
     .no-video-placeholder {
@@ -96,6 +114,8 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
     @ViewChild('youtubePlayer') youtubePlayer: any;
 
     videoId: string = '';
+    calculatedWidth: number = 640;
+    calculatedHeight: number = 360;
     playerVars: any = {
         controls: 1,
         showinfo: 1,
@@ -109,6 +129,7 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
     ngOnInit(): void {
         this.checkYouTubeAPI();
         this.processVideoUrl();
+        this.calculateDimensions();
     }
 
     private checkYouTubeAPI(): void {
@@ -144,6 +165,26 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
                 console.log('Video URL changed, forcing re-render');
                 // The component will re-render automatically due to videoId change
             }
+        }
+
+        if (changes['width'] || changes['height']) {
+            this.calculateDimensions();
+        }
+    }
+
+    private calculateDimensions(): void {
+        // Calculate dimensions based on container width
+        // Use a large default width, the aspect ratio will handle the actual display
+        // The iframe needs numeric values, but CSS will override to 100%
+        if (this.width === '100%') {
+            // Use a large default that will be overridden by CSS
+            this.calculatedWidth = 1920;
+            // Calculate height based on 16:9 aspect ratio
+            this.calculatedHeight = Math.round(this.calculatedWidth * 9 / 16);
+        } else {
+            const widthNum = parseInt(this.width, 10) || 640;
+            this.calculatedWidth = widthNum;
+            this.calculatedHeight = parseInt(this.height, 10) || Math.round(widthNum * 9 / 16);
         }
     }
 

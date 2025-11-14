@@ -136,29 +136,13 @@ export class LevelMaterialsComponent implements OnInit {
     }
 
     playVideo(material: Material): void {
-        console.log('=== PLAY VIDEO CLICKED ===');
-        console.log('Material:', material);
-        console.log('Is video:', this.isVideo(material));
-        console.log('File URL:', material.fileUrl);
-        console.log('File Type:', material.fileType);
 
         if (this.isVideo(material)) {
-            console.log('Setting video data...');
             this.selectedVideoUrl = material.fileUrl;
             this.selectedVideoTitle = material.title;
             this.selectedVideoDescription = material.description;
 
-            console.log('Video data set:');
-            console.log('  URL:', this.selectedVideoUrl);
-            console.log('  Title:', this.selectedVideoTitle);
-            console.log('  Description:', this.selectedVideoDescription);
-
-            console.log('Opening modal...');
             this.showVideoModal = true;
-
-            console.log('Modal state after opening:', this.showVideoModal);
-        } else {
-            console.warn('Material is not a valid video:', material);
         }
     }
 
