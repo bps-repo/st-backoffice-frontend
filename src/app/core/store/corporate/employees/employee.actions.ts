@@ -1,5 +1,5 @@
 import {createActionGroup, emptyProps, props} from "@ngrx/store";
-import {CreateEmployee, Employee} from "../../../models/corporate/employee";
+import {CreateEmployeeRequest, Employee} from "../../../models/corporate/employee";
 
 export const Employee_FEATURE_KEY = 'employees';
 
@@ -15,7 +15,7 @@ export const EmployeeActions = createActionGroup(
             'Load Employee Success': props<{ Employee: Employee }>(),
             'Load Employee Failure': props<{ error: any }>(),
 
-            'Create Employee': props<{ Employee: CreateEmployee }>(),
+            'Create Employee': props<{ Employee: CreateEmployeeRequest }>(),
             'Create Employee Success': props<{ Employee: Employee }>(),
             'Create Employee Failure': props<{ error: any }>(),
 

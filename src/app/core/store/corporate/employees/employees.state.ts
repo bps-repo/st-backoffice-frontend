@@ -10,7 +10,16 @@ export interface EmployeesState extends EntityState<Employee> {
     createError: string | null;
     createdEmployeeId: string | null;
 
-    selectedId: string
+    // Update employee state
+    loadingUpdate: boolean;
+    errorUpdate: string | null;
+
+    // Delete employee state
+    loadingDelete: boolean;
+    errorDelete: string | null;
+
+    selectedId: string;
+    selectedEmployee: Employee | null;
 
     byRole: { [role: string]: string[] }; // store IDs by role
     byCenter: { [centerId: string]: string[] };
@@ -32,6 +41,16 @@ export const employeesInitialState: EmployeesState = employeesAdapter.getInitial
     loadingCreate: false,
     createError: null,
     createdEmployeeId: null,
+
+    // Update employee state
+    loadingUpdate: false,
+    errorUpdate: null,
+
+    // Delete employee state
+    loadingDelete: false,
+    errorDelete: null,
+
+    selectedEmployee: null,
 
     byRole: {},
     byCenter: {},

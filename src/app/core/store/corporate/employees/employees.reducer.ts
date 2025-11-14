@@ -1,12 +1,12 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 
 import {Employee_FEATURE_KEY, EmployeeActions} from "./employee.actions";
-import {EmployeeInitialState, EmployeesAdapter} from "./employees.state";
+import {employeesInitialState, employeesAdapter} from "./employees.state";
 
 export const EmployeeFeature = createFeature({
     name: Employee_FEATURE_KEY,
     reducer: createReducer(
-        EmployeeInitialState,
+        employeesInitialState,
 
         // Create Employee
         on(EmployeeActions.createEmployee, (state) => ({
@@ -14,7 +14,7 @@ export const EmployeeFeature = createFeature({
             loadingCreate: true,
             errorCreate: null
         })),
-        on(EmployeeActions.createEmployeeSuccess, (state, {Employee}) => EmployeesAdapter.addOne(Employee, {
+        on(EmployeeActions.createEmployeeSuccess, (state, {Employee}) => employeesAdapter.addOne(Employee, {
             ...state,
             loadingCreate: false,
             errorCreate: null
@@ -31,7 +31,7 @@ export const EmployeeFeature = createFeature({
             loading: true,
             error: null
         })),
-        on(EmployeeActions.loadEmployeesSuccess, (state, {Employees}) => EmployeesAdapter.setAll(Employees, {
+        on(EmployeeActions.loadEmployeesSuccess, (state, {Employees}) => employeesAdapter.setAll(Employees, {
             ...state,
             loading: false,
             error: null
@@ -69,7 +69,7 @@ export const EmployeeFeature = createFeature({
         })),
 
         on(EmployeeActions.deleteEmployeeSuccess, (state, {id}) =>
-            EmployeesAdapter.removeOne(id, {
+            employeesAdapter.removeOne(id, {
                 ...state,
                 loadingDelete: false,
                 errorDelete: null
@@ -89,7 +89,7 @@ export const EmployeeFeature = createFeature({
             loadingUpdate: true,
             errorUpdate: null
         })),
-        on(EmployeeActions.updateEmployeeSuccess, (state, {Employee}) => EmployeesAdapter.updateOne({
+        on(EmployeeActions.updateEmployeeSuccess, (state, {Employee}) => employeesAdapter.updateOne({
             id: Employee.id,
             changes: Employee
         }, {
@@ -106,7 +106,7 @@ export const EmployeeFeature = createFeature({
         // Clear Employees
         on(EmployeeActions.clearEmployees, (state) => ({
             ...state,
-            ...EmployeeInitialState
+            ...employeesInitialState
         })),
         // Clear Employees errors
         on(EmployeeActions.clearEmployeesErrors, (state) => ({

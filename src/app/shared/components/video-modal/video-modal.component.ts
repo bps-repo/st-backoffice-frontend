@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { YoutubePlayerComponent } from '../youtube-player/youtube-player.component';
 
 @Component({
@@ -11,6 +12,7 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
         CommonModule,
         DialogModule,
         ButtonModule,
+        TooltipModule,
         YoutubePlayerComponent
     ],
     template: `
@@ -20,13 +22,13 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
       [closable]="true"
       [draggable]="false"
       [resizable]="false"
-      [style]="{ width: '90vw', maxWidth: '1200px' }"
+      [styleClass]="'video-modal-dialog'"
       [contentStyle]="{ padding: '0' }"
       (onHide)="onClose()"
     >
       <ng-template pTemplate="header">
-        <div class="flex align-items-center justify-content-between w-full">
-          <h3 class="text-lg font-bold m-0">{{ videoTitle || 'Reproduzir Vídeo' }}</h3>
+        <div class="flex align-items-center justify-content-between w-full video-modal-header">
+          <h3 class="text-lg font-bold m-0 video-modal-title">{{ videoTitle || 'Reproduzir Vídeo' }}</h3>
           <p-button
             icon="pi pi-times"
             [text]="true"
@@ -34,6 +36,7 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
             severity="secondary"
             (onClick)="onClose()"
             pTooltip="Fechar"
+            class="video-modal-close-btn"
           ></p-button>
         </div>
       </ng-template>
@@ -46,7 +49,7 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
           [startTime]="startTime"
           [endTime]="endTime"
           width="100%"
-          height="600"
+          height="400"
           [attr.data-video-key]="videoKey"
         ></app-youtube-player>
 
@@ -56,18 +59,20 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
       </div>
 
       <ng-template pTemplate="footer">
-        <div class="flex justify-content-end gap-2">
+        <div class="flex justify-content-end gap-2 video-modal-footer">
           <p-button
             label="Abrir no YouTube"
             icon="pi pi-external-link"
             [outlined]="true"
             severity="secondary"
             (onClick)="openInYouTube()"
+            class="video-modal-footer-btn"
           ></p-button>
           <p-button
             label="Fechar"
             icon="pi pi-times"
             (onClick)="onClose()"
+            class="video-modal-footer-btn"
           ></p-button>
         </div>
       </ng-template>
@@ -77,6 +82,9 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
     .video-modal-content {
       background: #000;
       border-radius: 0 0 8px 8px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
     }
 
     .video-info {
@@ -84,12 +92,143 @@ import { YoutubePlayerComponent } from '../youtube-player/youtube-player.compone
       border-top: 1px solid var(--surface-border);
     }
 
-    ::ng-deep .p-dialog .p-dialog-content {
-      padding: 0;
+    ::ng-deep .video-modal-dialog {
+      width: 95vw !important;
+      max-width: 1200px !important;
     }
 
-    ::ng-deep .p-dialog .p-dialog-header {
+    ::ng-deep .video-modal-dialog .p-dialog-content {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    ::ng-deep .video-modal-dialog .p-dialog-header {
       border-bottom: 1px solid var(--surface-border);
+      padding: 1rem;
+    }
+
+    ::ng-deep .video-modal-dialog .p-dialog-content .video-modal-content {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    ::ng-deep .video-modal-dialog .p-dialog-content app-youtube-player {
+      display: block;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    ::ng-deep .video-modal-dialog .p-dialog-content .youtube-player-container {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    ::ng-deep .video-modal-dialog .p-dialog-content .video-wrapper {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .video-modal-header {
+      gap: 0.5rem;
+    }
+
+    .video-modal-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .video-modal-close-btn {
+      flex-shrink: 0;
+    }
+
+    .video-modal-footer {
+      flex-wrap: wrap;
+      padding: 0.75rem 1rem;
+    }
+
+    .video-modal-footer-btn {
+      flex: 1 1 auto;
+      min-width: 120px;
+    }
+
+    /* Mobile styles */
+    @media (max-width: 768px) {
+      ::ng-deep .video-modal-dialog {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+      }
+
+      ::ng-deep .video-modal-dialog .p-dialog {
+        border-radius: 0;
+        height: 100vh;
+        max-height: 100vh;
+        margin: 0 !important;
+      }
+
+      ::ng-deep .video-modal-dialog .p-dialog-content {
+        max-height: calc(100vh - 140px);
+        overflow-y: auto;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .video-modal-content {
+        border-radius: 0;
+      }
+
+      ::ng-deep .video-modal-dialog .p-dialog-content .video-wrapper {
+        border-radius: 0 !important;
+      }
+
+      .video-modal-header {
+        padding: 0.75rem;
+      }
+
+      .video-modal-title {
+        font-size: 1rem;
+        padding-right: 0.5rem;
+      }
+
+      .video-modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .video-modal-footer-btn {
+        width: 100%;
+        min-width: unset;
+      }
+    }
+
+    /* Tablet styles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      ::ng-deep .video-modal-dialog {
+        width: 90vw !important;
+        max-width: 900px !important;
+      }
+    }
+
+    /* Small mobile styles */
+    @media (max-width: 480px) {
+      .video-modal-header {
+        padding: 0.5rem;
+      }
+
+      .video-modal-title {
+        font-size: 0.9rem;
+      }
+
+      ::ng-deep .video-modal-dialog .p-dialog-header {
+        padding: 0.75rem;
+      }
+
+      .video-modal-footer {
+        padding: 0.5rem;
+      }
     }
   `]
 })

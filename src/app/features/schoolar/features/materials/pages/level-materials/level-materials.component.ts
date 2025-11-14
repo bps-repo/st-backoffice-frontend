@@ -17,7 +17,7 @@ import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
 import { Level } from 'src/app/core/models/course/level';
 import { selectSelectedLevel } from 'src/app/core/store/schoolar/level/level.selectors';
 import { MaterialActions } from 'src/app/core/store/schoolar/materials/material.actions';
-import { selectAnyLoading, selectMaterialsByEntityValue } from 'src/app/core/store/schoolar/materials/material.selectors';
+import { selectAnyLoading, selectMaterialsByEntityAndId, selectMaterialsByEntityValue } from 'src/app/core/store/schoolar/materials/material.selectors';
 
 @Component({
     selector: 'app-level-materials',
@@ -68,7 +68,7 @@ export class LevelMaterialsComponent implements OnInit {
 
         this.loading$ = this.store$.select(selectAnyLoading)
 
-        this.levelMaterials$ = this.store$.select(selectMaterialsByEntityValue("LEVEL"))
+        this.levelMaterials$ = this.store$.select(selectMaterialsByEntityAndId("LEVEL", this.levelId))
 
         if (this.levelId) {
             this.store$.dispatch(LevelActions.loadLevel({ id: this.levelId }))
@@ -136,29 +136,13 @@ export class LevelMaterialsComponent implements OnInit {
     }
 
     playVideo(material: Material): void {
-        console.log('=== PLAY VIDEO CLICKED ===');
-        console.log('Material:', material);
-        console.log('Is video:', this.isVideo(material));
-        console.log('File URL:', material.fileUrl);
-        console.log('File Type:', material.fileType);
 
         if (this.isVideo(material)) {
-            console.log('Setting video data...');
             this.selectedVideoUrl = material.fileUrl;
             this.selectedVideoTitle = material.title;
             this.selectedVideoDescription = material.description;
 
-            console.log('Video data set:');
-            console.log('  URL:', this.selectedVideoUrl);
-            console.log('  Title:', this.selectedVideoTitle);
-            console.log('  Description:', this.selectedVideoDescription);
-
-            console.log('Opening modal...');
             this.showVideoModal = true;
-
-            console.log('Modal state after opening:', this.showVideoModal);
-        } else {
-            console.warn('Material is not a valid video:', material);
         }
     }
 

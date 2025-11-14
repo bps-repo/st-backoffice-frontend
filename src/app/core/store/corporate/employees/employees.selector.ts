@@ -1,27 +1,52 @@
 import {EmployeeFeature} from "./employees.reducer";
 import {createSelector} from "@ngrx/store";
-import {EmployeesAdapter} from "./employees.state";
+import {employeesAdapter} from "./employees.state";
+import {Employee} from "../../../models/corporate/employee";
 
 
 const {
     selectError,
-    selectErrorCreate,
-    selectErrorDelete,
-    selectErrorUpdate,
     selectLoading,
-    selectSelectedEmployee,
-    selectLoadingUpdate,
-    selectLoadingCreate,
-    selectLoadingDelete
+    selectLoadingCreate
 } = EmployeeFeature
 
+// Custom selectors for state properties
+export const selectErrorCreate = createSelector(
+    EmployeeFeature.selectEmployeesState,
+    (state) => state.createError
+);
+
+export const selectErrorDelete = createSelector(
+    EmployeeFeature.selectEmployeesState,
+    (state) => state.errorDelete
+);
+
+export const selectErrorUpdate = createSelector(
+    EmployeeFeature.selectEmployeesState,
+    (state) => state.errorUpdate
+);
+
+export const selectLoadingUpdate = createSelector(
+    EmployeeFeature.selectEmployeesState,
+    (state) => state.loadingUpdate
+);
+
+export const selectLoadingDelete = createSelector(
+    EmployeeFeature.selectEmployeesState,
+    (state) => state.loadingDelete
+);
+
+export const selectSelectedEmployee = createSelector(
+    EmployeeFeature.selectEmployeesState,
+    (state) => state.selectedEmployee
+);
 
 const {
     selectEntities,
     selectAll,
     selectTotal,
     selectIds
-} = EmployeesAdapter.getSelectors(EmployeeFeature.selectEmployeesState);
+} = employeesAdapter.getSelectors(EmployeeFeature.selectEmployeesState);
 
 
 export const selectAllEmployees = createSelector(
