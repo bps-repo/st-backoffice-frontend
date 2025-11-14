@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router'; // Add ActivatedRoute
 import { MessageService, SelectItem } from 'primeng/api';
@@ -17,30 +17,33 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { ChipModule } from 'primeng/chip';
-import { StudentService } from 'src/app/core/services/student.service';
-import { LessonService } from 'src/app/core/services/lesson.service';
-import { UnitService } from 'src/app/core/services/unit.service';
 import { AssessmentService } from 'src/app/core/services/assessment.service';
-import { LevelService } from 'src/app/core/services/level.service';
-import { CenterService } from 'src/app/core/services/center.service';
-import { ContractService } from 'src/app/core/services/contract.service';
 import { MaterialCreateRequest, MaterialRelation } from 'src/app/core/models/academic/material';
 import { MaterialType } from 'src/app/core/enums/material-type';
 import { MaterialContentType } from 'src/app/core/enums/material-content-type';
 import { RelatedEntityType } from 'src/app/core/enums/related-entity-type';
-import { Student } from 'src/app/core/models/academic/student';
-import { Lesson } from 'src/app/core/models/academic/lesson';
 import { Unit } from 'src/app/core/models/course/unit';
-import { Center } from 'src/app/core/models/corporate/center';
 import { Employee } from 'src/app/core/models/corporate/employee';
-import { Contract } from 'src/app/core/models/corporate/contract';
 import { Store } from '@ngrx/store';
-import { Actions } from '@ngrx/effects';
+import { Actions, ofType } from '@ngrx/effects';
 import { MaterialActions } from 'src/app/core/store/schoolar/materials/material.actions';
 import { materialFeature } from 'src/app/core/store/schoolar/materials/material.feature';
-import { ofType } from '@ngrx/effects';
-import { forkJoin } from 'rxjs';
-import {EmployeeService} from "../../../../../../core/services/corporate/employee.service";
+import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
+import { selectAllStudents } from 'src/app/core/store/schoolar/students/students.selectors';
+import { lessonsActions } from 'src/app/core/store/schoolar/lessons/lessons.actions';
+import { selectAllLessons } from 'src/app/core/store/schoolar/lessons/lessons.selectors';
+import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
+import { selectAllLevels } from 'src/app/core/store/schoolar/level/level.selector';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import { selectAllCenters } from 'src/app/core/store/corporate/center/centers.selector';
+import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
+import { selectAllEmployees } from 'src/app/core/store/corporate/employees/employees.selector';
+import { ContractActions } from 'src/app/core/store/corporate/contracts/contracts.actions';
+import { selectAllContracts } from 'src/app/core/store/corporate/contracts/contracts.selectors';
+import { UnitActions } from 'src/app/core/store/schoolar/units/unit.actions';
+import { selectAllUnits, selectUnitsByLevelId } from 'src/app/core/store/schoolar/units/unit.selectors';
+import { combineLatest, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Component({
     imports: [
@@ -64,8 +67,9 @@ import {EmployeeService} from "../../../../../../core/services/corporate/employe
     providers: [MessageService],
     templateUrl: './materials-create.component.html'
 })
-export class MaterialsCreateComponent implements OnInit {
+export class MaterialsCreateComponent implements OnInit, OnDestroy {
     loading = false;
+    private destroy$ = new Subject<void>();
 
     // Material data
     material: MaterialCreateRequest = {
@@ -148,15 +152,8 @@ export class MaterialsCreateComponent implements OnInit {
     constructor(
         private messageService: MessageService,
         private router: Router,
-        private route: ActivatedRoute, // Add ActivatedRoute
-        private studentService: StudentService,
-        private lessonService: LessonService,
-        private unitService: UnitService,
+        private route: ActivatedRoute,
         private assessmentService: AssessmentService,
-        private levelService: LevelService,
-        private centerService: CenterService,
-        private employeeService: EmployeeService,
-        private contractService: ContractService,
         private store: Store,
         private actions$: Actions,
     ) {
@@ -173,16 +170,23 @@ export class MaterialsCreateComponent implements OnInit {
         this.material.availabilityEndDate = nextYear.toISOString().split('T')[0];
 
         // Mirror loading state from store
-        this.store.select(materialFeature.selectLoadingCreate).subscribe(loading => this.loading = loading);
+        this.store.select(materialFeature.selectLoadingCreate)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(loading => this.loading = loading);
 
         // Get query params
-        this.route.queryParams.subscribe(params => {
-            this.queryParamEntity = params['entity'] || null;
-            this.queryParamEntityId = params['entityId'] || null;
-        });
+        this.route.queryParams
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(params => {
+                this.queryParamEntity = params['entity'] || null;
+                this.queryParamEntityId = params['entityId'] || null;
+            });
 
-        // Load all entity data
+        // Dispatch actions to load all entity data
         this.loadAllEntityData();
+
+        // Subscribe to store data
+        this.subscribeToStoreData();
     }
 
     protected getEntityType(type: RelatedEntityType) {
@@ -209,95 +213,137 @@ export class MaterialsCreateComponent implements OnInit {
     }
 
     loadAllEntityData(): void {
-        // Create an array of observables for all entity loads
-        const loads = [
-            this.studentService.getStudents(),
-            this.lessonService.getLessons(),
-            this.assessmentService.getAssessments(),
-            this.levelService.getLevels(),
-            this.centerService.getAllCenters(),
-            this.employeeService.getEmployees(),
-            this.contractService.getContracts()
-        ];
+        // Dispatch NgRx actions to load all entities
+        this.store.dispatch(StudentsActions.loadStudents());
+        this.store.dispatch(lessonsActions.loadLessons());
+        this.store.dispatch(LevelActions.loadLevels({}));
+        this.store.dispatch(CenterActions.loadCenters());
+        this.store.dispatch(EmployeesActions.loadEmployees());
+        this.store.dispatch(ContractActions.loadContracts());
+        this.store.dispatch(UnitActions.loadUnits());
 
-        // Set all loading states to true
-        this.loadingEntities[RelatedEntityType.STUDENT] = true;
-        this.loadingEntities[RelatedEntityType.LESSON] = true;
+        // Load assessments via service (no NgRx store for all assessments yet)
         this.loadingEntities[RelatedEntityType.ASSESSMENT] = true;
-        this.loadingEntities[RelatedEntityType.LEVEL] = true;
-        this.loadingEntities[RelatedEntityType.CENTER] = true;
-        this.loadingEntities[RelatedEntityType.EMPLOYEE] = true;
-        this.loadingEntities[RelatedEntityType.CONTRACT] = true;
+        this.assessmentService.getAssessments()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (assessments: any[]) => {
+                    this.relatedEntities[RelatedEntityType.ASSESSMENT] = assessments.map(assessment => ({
+                        label: `${assessment.title || 'Assessment'}`,
+                        value: assessment.id || ''
+                    }));
+                    this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
+                },
+                error: (error) => {
+                    console.error('Error loading assessments:', error);
+                    this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Aviso',
+                        detail: 'Erro ao carregar avaliações'
+                    });
+                }
+            });
+    }
 
-        // Use forkJoin to wait for all data to load
-        forkJoin(loads).subscribe({
-            next: ([students, lessons, assessments, levels, centers, employees, contracts]) => {
+    subscribeToStoreData(): void {
+        let queryParamsProcessed = false;
+
+        // Combine all store observables
+        combineLatest([
+            this.store.select(selectAllStudents),
+            this.store.select(selectAllLessons),
+            this.store.select(selectAllLevels),
+            this.store.select(selectAllCenters),
+            this.store.select(selectAllEmployees),
+            this.store.select(selectAllContracts),
+            this.store.select(selectAllUnits)
+        ])
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(([students, lessons, levels, centers, employees, contracts, units]) => {
                 // Process students
-                this.relatedEntities[RelatedEntityType.STUDENT] = (students as Student[]).map(student => ({
-                    label: `${student.user?.firstname || ''} ${student.user?.lastname || ''} (ID: ${student.id})`,
-                    value: student.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.STUDENT] = false;
+                if (students && students.length > 0) {
+                    this.relatedEntities[RelatedEntityType.STUDENT] = students.map(student => ({
+                        label: `${student.user?.firstname || ''} ${student.user?.lastname || ''}`,
+                        value: student.id || ''
+                    }));
+                    this.loadingEntities[RelatedEntityType.STUDENT] = false;
+                }
 
                 // Process lessons
-                this.relatedEntities[RelatedEntityType.LESSON] = (lessons as Lesson[]).map(lesson => ({
-                    label: `${lesson.title} (ID: ${lesson.id})`,
-                    value: lesson.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.LESSON] = false;
-
-                // Process assessments
-                this.relatedEntities[RelatedEntityType.ASSESSMENT] = (assessments as any[]).map(assessment => ({
-                    label: `${assessment.title || 'Assessment'} (ID: ${assessment.id})`,
-                    value: assessment.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
+                if (lessons && lessons.length > 0) {
+                    this.relatedEntities[RelatedEntityType.LESSON] = lessons.map(lesson => ({
+                        label: `${lesson.title}`,
+                        value: lesson.id || ''
+                    }));
+                    this.loadingEntities[RelatedEntityType.LESSON] = false;
+                }
 
                 // Process levels
-                this.levelOptions = (levels as any[]).map(level => ({
-                    label: `${level.name || 'Level'} (ID: ${level.id})`,
-                    value: level.id || ''
-                }));
-                this.relatedEntities[RelatedEntityType.LEVEL] = [...this.levelOptions];
-                this.loadingEntities[RelatedEntityType.LEVEL] = false;
+                if (levels && levels.length > 0) {
+                    this.levelOptions = levels.map(level => ({
+                        label: `${level.name || 'Nível'}`,
+                        value: level.id || ''
+                    }));
+                    this.relatedEntities[RelatedEntityType.LEVEL] = [...this.levelOptions];
+                    this.loadingEntities[RelatedEntityType.LEVEL] = false;
+                }
 
                 // Process centers
-                this.relatedEntities[RelatedEntityType.CENTER] = (centers as Center[]).map(center => ({
-                    label: `${center.name} (ID: ${center.id})`,
-                    value: center.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.CENTER] = false;
+                if (centers && centers.length > 0) {
+                    this.relatedEntities[RelatedEntityType.CENTER] = centers.map(center => ({
+                        label: `${center.name}`,
+                        value: center.id || ''
+                    }));
+                    this.loadingEntities[RelatedEntityType.CENTER] = false;
+                }
 
                 // Process employees
-                this.relatedEntities[RelatedEntityType.EMPLOYEE] = (employees as Employee[]).map(employee => ({
-                    label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''} (ID: ${employee.id})`,
-                    value: employee.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
+                if (employees && Array.isArray(employees) && employees.length > 0) {
+                    this.relatedEntities[RelatedEntityType.EMPLOYEE] = employees.map((employee: Employee) => ({
+                        label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''}`,
+                        value: employee.id || ''
+                    }));
+                    this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
+                }
 
                 // Process contracts
-                this.relatedEntities[RelatedEntityType.CONTRACT] = (contracts as Contract[]).map(contract => ({
-                    label: `Contract ${contract.id} (ID: ${contract.id})`,
-                    value: contract.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.CONTRACT] = false;
+                if (contracts && contracts.length > 0) {
+                    this.relatedEntities[RelatedEntityType.CONTRACT] = contracts.map(contract => ({
+                        label: `Contracto ${contract.code}`,
+                        value: contract.id || ''
+                    }));
+                    this.loadingEntities[RelatedEntityType.CONTRACT] = false;
+                }
 
-                // After all data is loaded, process query params
-                this.processQueryParams();
-            },
-            error: (error) => {
-                console.error('Error loading entity data:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao carregar dados das entidades'
-                });
-                // Reset all loading states
-                Object.keys(this.loadingEntities).forEach(key => {
-                    this.loadingEntities[key] = false;
-                });
-            }
-        });
+                // Process units - store all units for later filtering by level
+                if (units && units.length > 0) {
+                    // Group units by levelId
+                    units.forEach(unit => {
+                        if (unit.levelId) {
+                            if (!this.unitsByLevel[unit.levelId]) {
+                                this.unitsByLevel[unit.levelId] = [];
+                            }
+                            // Avoid duplicates
+                            if (!this.unitsByLevel[unit.levelId].find(u => u.id === unit.id)) {
+                                this.unitsByLevel[unit.levelId].push(unit);
+                            }
+                        }
+                    });
+                }
+
+                // Process query params after all data is loaded (only once)
+                if (!queryParamsProcessed &&
+                    students && Array.isArray(students) && students.length > 0 &&
+                    lessons && Array.isArray(lessons) && lessons.length > 0 &&
+                    levels && Array.isArray(levels) && levels.length > 0 &&
+                    centers && Array.isArray(centers) && centers.length > 0 &&
+                    employees && Array.isArray(employees) && employees.length > 0 &&
+                    contracts && Array.isArray(contracts) && contracts.length > 0) {
+                    queryParamsProcessed = true;
+                    this.processQueryParams();
+                }
+            });
     }
 
     private processQueryParams(): void {
@@ -364,55 +410,6 @@ export class MaterialsCreateComponent implements OnInit {
         }, 500);
     }
 
-    loadStudents(): void {
-        this.loadingEntities[RelatedEntityType.STUDENT] = true;
-        this.studentService.getStudents().subscribe({
-            next: (students: Student[]) => {
-                this.relatedEntities[RelatedEntityType.STUDENT] = students.map(student => ({
-                    label: `${student.user?.firstname || ''} ${student.user?.lastname || ''} (ID: ${student.id})`,
-                    value: student.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.STUDENT] = false;
-            },
-            error: (error) => {
-                console.error('Error loading students:', error);
-                this.loadingEntities[RelatedEntityType.STUDENT] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar estudantes'
-                });
-            }
-        });
-    }
-
-    loadLessons(): void {
-        this.loadingEntities[RelatedEntityType.LESSON] = true;
-        this.lessonService.getLessons().subscribe({
-            next: (lessons: Lesson[]) => {
-                this.relatedEntities[RelatedEntityType.LESSON] = lessons.map(lesson => ({
-                    label: `${lesson.title} (ID: ${lesson.id})`,
-                    value: lesson.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.LESSON] = false;
-            },
-            error: (error) => {
-                console.error('Error loading lessons:', error);
-                this.loadingEntities[RelatedEntityType.LESSON] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar aulas'
-                });
-            }
-        });
-    }
-
-    loadUnits(): void {
-        // Units will be loaded when a level is selected
-        this.loadingEntities[RelatedEntityType.UNIT] = false;
-    }
-
     loadUnitsByLevel(levelId: string): void {
         if (!levelId) {
             this.relatedEntities[RelatedEntityType.UNIT] = [];
@@ -422,151 +419,36 @@ export class MaterialsCreateComponent implements OnInit {
         // Check if units for this level are already cached
         if (this.unitsByLevel[levelId]) {
             this.relatedEntities[RelatedEntityType.UNIT] = this.unitsByLevel[levelId].map(unit => ({
-                label: `${unit.name} (ID: ${unit.id})`,
+                label: `${unit.name}`,
                 value: unit.id || ''
             }));
             return;
         }
 
-        this.loadingEntities[RelatedEntityType.UNIT] = true;
-        this.unitService.loadUnits().subscribe({
-            next: (units: Unit[]) => {
-                // Filter units by level
-                const levelUnits = units.filter(unit => unit.levelId === levelId);
-                this.unitsByLevel[levelId] = levelUnits;
-
-                this.relatedEntities[RelatedEntityType.UNIT] = levelUnits.map(unit => ({
-                    label: `${unit.name} (ID: ${unit.id})`,
-                    value: unit.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.UNIT] = false;
-            },
-            error: (error) => {
-                console.error('Error loading units for level:', error);
-                this.loadingEntities[RelatedEntityType.UNIT] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar unidades do nível'
-                });
-            }
-        });
-    }
-
-    loadAssessments(): void {
-        this.loadingEntities[RelatedEntityType.ASSESSMENT] = true;
-        this.assessmentService.getAssessments().subscribe({
-            next: (assessments: any[]) => {
-                this.relatedEntities[RelatedEntityType.ASSESSMENT] = assessments.map(assessment => ({
-                    label: `${assessment.title || 'Assessment'} (ID: ${assessment.id})`,
-                    value: assessment.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
-            },
-            error: (error) => {
-                console.error('Error loading assessments:', error);
-                this.loadingEntities[RelatedEntityType.ASSESSMENT] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar avaliações'
-                });
-            }
-        });
-    }
-
-    loadLevels(): void {
-        this.loadingEntities[RelatedEntityType.LEVEL] = true;
-        this.levelService.getLevels().subscribe({
-            next: (levels: any[]) => {
-                // Populate both level options and related entities
-                this.levelOptions = levels.map(level => ({
-                    label: `${level.name || 'Level'} (ID: ${level.id})`,
-                    value: level.id || ''
-                }));
-
-                this.relatedEntities[RelatedEntityType.LEVEL] = levels.map(level => ({
-                    label: `${level.name || 'Level'} (ID: ${level.id})`,
-                    value: level.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.LEVEL] = false;
-            },
-            error: (error) => {
-                console.error('Error loading levels:', error);
-                this.loadingEntities[RelatedEntityType.LEVEL] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar níveis'
-                });
-            }
-        });
-    }
-
-    loadCenters(): void {
-        this.loadingEntities[RelatedEntityType.CENTER] = true;
-        this.centerService.getAllCenters().subscribe({
-            next: (centers: Center[]) => {
-                this.relatedEntities[RelatedEntityType.CENTER] = centers.map(center => ({
-                    label: `${center.name} (ID: ${center.id})`,
-                    value: center.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.CENTER] = false;
-            },
-            error: (error) => {
-                console.error('Error loading centers:', error);
-                this.loadingEntities[RelatedEntityType.CENTER] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar centros'
-                });
-            }
-        });
-    }
-
-    loadEmployees(): void {
-        this.loadingEntities[RelatedEntityType.EMPLOYEE] = true;
-        this.employeeService.getEmployees().subscribe({
-            next: (employees: Employee[]) => {
-                this.relatedEntities[RelatedEntityType.EMPLOYEE] = employees.map(employee => ({
-                    label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''} (ID: ${employee.id})`,
-                    value: employee.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
-            },
-            error: (error) => {
-                console.error('Error loading employees:', error);
-                this.loadingEntities[RelatedEntityType.EMPLOYEE] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar funcionários'
-                });
-            }
-        });
-    }
-
-    loadContracts(): void {
-        this.loadingEntities[RelatedEntityType.CONTRACT] = true;
-        this.contractService.getContracts().subscribe({
-            next: (contracts: Contract[]) => {
-                this.relatedEntities[RelatedEntityType.CONTRACT] = contracts.map(contract => ({
-                    label: `Contract ${contract.id} (ID: ${contract.id})`,
-                    value: contract.id || ''
-                }));
-                this.loadingEntities[RelatedEntityType.CONTRACT] = false;
-            },
-            error: (error) => {
-                console.error('Error loading contracts:', error);
-                this.loadingEntities[RelatedEntityType.CONTRACT] = false;
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Aviso',
-                    detail: 'Erro ao carregar contratos'
-                });
-            }
-        });
+        // Use store selector to get units by level
+        this.store.select(selectUnitsByLevelId(levelId))
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (units: Unit[]) => {
+                    if (units && units.length > 0) {
+                        this.unitsByLevel[levelId] = units;
+                        this.relatedEntities[RelatedEntityType.UNIT] = units.map(unit => ({
+                            label: `${unit.name}`,
+                            value: unit.id || ''
+                        }));
+                    }
+                    this.loadingEntities[RelatedEntityType.UNIT] = false;
+                },
+                error: (error) => {
+                    console.error('Error loading units for level:', error);
+                    this.loadingEntities[RelatedEntityType.UNIT] = false;
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Aviso',
+                        detail: 'Erro ao carregar unidades do nível'
+                    });
+                }
+            });
     }
 
     onFileSelect(event: any): void {
@@ -796,7 +678,10 @@ export class MaterialsCreateComponent implements OnInit {
         this.store.dispatch(MaterialActions.createMaterialWithRelations({ request: this.material }));
 
         // Listen for success
-        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsSuccess)).subscribe(({ material }) => {
+        this.actions$.pipe(
+            ofType(MaterialActions.createMaterialWithRelationsSuccess),
+            takeUntil(this.destroy$)
+        ).subscribe(({ material }) => {
             this.messageService.add({
                 severity: 'success',
                 summary: 'Material Criado',
@@ -808,13 +693,21 @@ export class MaterialsCreateComponent implements OnInit {
         });
 
         // Listen for failure
-        this.actions$.pipe(ofType(MaterialActions.createMaterialWithRelationsFailure)).subscribe(({ error }) => {
+        this.actions$.pipe(
+            ofType(MaterialActions.createMaterialWithRelationsFailure),
+            takeUntil(this.destroy$)
+        ).subscribe(({ error }) => {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Erro ao Criar Material',
                 detail: error || 'Erro desconhecido ao criar material'
             });
         });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     cancel(): void {

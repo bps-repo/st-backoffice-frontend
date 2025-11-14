@@ -17,7 +17,7 @@ import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
 import { Level } from 'src/app/core/models/course/level';
 import { selectSelectedLevel } from 'src/app/core/store/schoolar/level/level.selectors';
 import { MaterialActions } from 'src/app/core/store/schoolar/materials/material.actions';
-import { selectAnyLoading, selectMaterialsByEntityValue } from 'src/app/core/store/schoolar/materials/material.selectors';
+import { selectAnyLoading, selectMaterialsByEntityAndId, selectMaterialsByEntityValue } from 'src/app/core/store/schoolar/materials/material.selectors';
 
 @Component({
     selector: 'app-level-materials',
@@ -68,7 +68,7 @@ export class LevelMaterialsComponent implements OnInit {
 
         this.loading$ = this.store$.select(selectAnyLoading)
 
-        this.levelMaterials$ = this.store$.select(selectMaterialsByEntityValue("LEVEL"))
+        this.levelMaterials$ = this.store$.select(selectMaterialsByEntityAndId("LEVEL", this.levelId))
 
         if (this.levelId) {
             this.store$.dispatch(LevelActions.loadLevel({ id: this.levelId }))
