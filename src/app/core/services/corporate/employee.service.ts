@@ -1,10 +1,10 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import {ApiResponse, PageableResponse} from "../../models/ApiResponseService";
-import {CreateEmployeeRequest, Employee, EmployeeStatus} from "../../models/corporate/employee";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { ApiResponse, PageableResponse } from "../../models/ApiResponseService";
+import { CreateEmployeeRequest, Employee, EmployeeStatus } from "../../models/corporate/employee";
 
 @Injectable({
     providedIn: 'root',
@@ -27,7 +27,11 @@ export class EmployeeService {
 
     getCurrentEmployee(): Observable<Employee> {
         return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/me`).pipe(
-            map((response) => response.data as Employee)
+            map((response) => {
+                localStorage.setItem('employeeCenterName', response.data.workInfo.centerName);
+                localStorage.setItem('employeeCenterId', response.data.workInfo.centerId);
+                return response.data as Employee;
+            })
         );
     }
 
@@ -51,13 +55,13 @@ export class EmployeeService {
 
 
     getEmployeesByRole(role: string): Observable<Employee[]> {
-        return this.searchEmployees({roleName: role});
+        return this.searchEmployees({ roleName: role });
     }
 
 
     getEmployeesByCenter(centerId: string): Observable<Employee[]> {
         // Updated to use search endpoint: GET /employees/search?centerId={centerId}
-        return this.searchEmployees({centerId});
+        return this.searchEmployees({ centerId });
     }
 
     /**
