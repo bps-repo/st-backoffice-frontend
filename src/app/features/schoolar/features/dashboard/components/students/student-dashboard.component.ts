@@ -68,6 +68,12 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     barChartData: any;
     barChartOptions: any;
 
+    // Monthly enrollments mixed chart (bar + line) and plugin for % changes
+    monthlyEnrollmentsData: any;
+    monthlyEnrollmentsOptions: any;
+    monthlyChangePlugin: any;
+    private monthlyPctChanges: Array<number | null> = [];
+
     // UI data
     dateRange: Date[] | undefined;
     kpis$!: Observable<any[]>;
@@ -88,6 +94,13 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         this.store.dispatch(StatisticsActions.loadDashboardStatistics());
         this.loadData();
         this.initCharts();
+
+        // Update monthly enrollments chart when students change
+        this.students$.pipe(takeUntil(this.destroy$)).subscribe((students) => {
+            if (students && students.length >= 0) {
+                this.updateMonthlyEnrollmentChart(students);
+            }
+        });
     }
 
     ngOnDestroy(): void {
@@ -151,6 +164,99 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         const textColor = documentStyle.getPropertyValue('--text-color');
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+        // Monthly enrollments chart defaults
+        const monthLabels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        this.monthlyEnrollmentsData = {
+            labels: monthLabels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Matrículas',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    data: new Array(12).fill(0),
+                    borderRadius: 4,
+                    order: 1,
+                },
+                {
+                    type: 'line',
+                    label: 'Tendência',
+                    data: new Array(12).fill(0),
+                    borderColor: documentStyle.getPropertyValue('--cyan-500'),
+                    backgroundColor: documentStyle.getPropertyValue('--cyan-500'),
+                    tension: 0.3,
+                    pointRadius: 3,
+                    fill: false,
+                    order: 0,
+                }
+            ]
+        };
+        this.monthlyEnrollmentsOptions = {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor
+                    },
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Matrículas Mensais',
+                    color: textColor,
+                    font: { size: 16, weight: 'bold' }
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: (ctx: any) => {
+                            const label = ctx.dataset.label || '';
+                            const value = ctx.parsed.y ?? ctx.parsed;
+                            return `${label}: ${value}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColorSecondary },
+                    grid: { color: surfaceBorder }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: textColorSecondary },
+                    grid: { color: surfaceBorder }
+                }
+            }
+        };
+
+        // Plugin to render % change labels between months
+        this.monthlyChangePlugin = {
+            id: 'monthlyChange',
+            afterDatasetsDraw: (chart: any) => {
+                const ctx = chart.ctx;
+                const metaBar = chart.getDatasetMeta(0);
+                if (!metaBar || !metaBar.data) return;
+                const deltas = this.monthlyPctChanges || [];
+                ctx.save();
+                ctx.font = '12px sans-serif';
+                for (let i = 1; i < metaBar.data.length; i++) {
+                    const left = metaBar.data[i - 1];
+                    const right = metaBar.data[i];
+                    if (!left || !right) continue;
+                    const midX = (left.x + right.x) / 2;
+                    const topY = Math.min(left.y, right.y) - 12;
+                    const delta = deltas[i] as number | null;
+                    if (delta === null || delta === undefined) continue;
+                    const color = delta >= 0 ? '#22C55E' /* green-500 */ : '#EF4444' /* red-500 */;
+                    const text = `${delta > 0 ? '+' : ''}${delta.toFixed(0)}%`;
+                    ctx.fillStyle = color;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(text, midX, topY);
+                }
+                ctx.restore();
+            }
+        };
 
         // Status distribution pie chart (initial empty data)
         this.pieDataStatus = {
@@ -681,6 +787,47 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
             return 'C';
         }
         return 'N/A';
+    }
+
+    private updateMonthlyEnrollmentChart(students: Student[]): void {
+        if (!this.monthlyEnrollmentsData || !Array.isArray(students)) return;
+
+        // Aggregate by month for the current year
+        const now = new Date();
+        const year = now.getFullYear();
+        const counts = new Array(12).fill(0);
+
+        for (const s of students) {
+            const d = s.enrollmentDate ? new Date(s.enrollmentDate) : null;
+            if (!d || isNaN(d.getTime())) continue;
+            if (d.getFullYear() !== year) continue;
+            const m = d.getMonth(); // 0..11
+            counts[m] = (counts[m] || 0) + 1;
+        }
+
+        // Compute month-to-month percentage change
+        const pct: Array<number | null> = new Array(12).fill(null);
+        for (let i = 1; i < 12; i++) {
+            const prev = counts[i - 1];
+            const curr = counts[i];
+            if (prev === 0) {
+                pct[i] = null; // undefined change from zero base
+            } else {
+                pct[i] = ((curr - prev) / prev) * 100;
+            }
+        }
+        this.monthlyPctChanges = pct;
+
+        // Update datasets (bar + line)
+        if (this.monthlyEnrollmentsData.datasets && this.monthlyEnrollmentsData.datasets.length >= 2) {
+            this.monthlyEnrollmentsData = {
+                ...this.monthlyEnrollmentsData,
+                datasets: [
+                    { ...this.monthlyEnrollmentsData.datasets[0], data: counts },
+                    { ...this.monthlyEnrollmentsData.datasets[1], data: counts },
+                ]
+            };
+        }
     }
 
     private updateChartsFromDashboard(dashboardStats: StudentDashboardStatistics): void {
