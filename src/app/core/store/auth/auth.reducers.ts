@@ -1,6 +1,6 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 import {authActions} from './auth.actions';
-import { initialState, AuthState } from './auth.state';
+import {initialState, AuthState} from './auth.state';
 
 
 export const authFeature = createFeature({
@@ -139,7 +139,7 @@ export const authFeature = createFeature({
             error: null,
         })),
 
-        on(authActions.loadUserProfileSuccess, (state, { user }) => ({
+        on(authActions.loadUserProfileSuccess, (state, {user}) => ({
             ...state,
             user,
             loadUserProfile: false,
@@ -148,7 +148,7 @@ export const authFeature = createFeature({
             error: null,
         })),
 
-        on(authActions.loadUserProfileFailure, (state, { error }) => ({
+        on(authActions.loadUserProfileFailure, (state, {error}) => ({
             ...state,
             loadUserProfile: false,
             loadUserProfileFailure: true,
@@ -164,7 +164,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.updateUserProfileSuccess, (state, { user }) => ({
+        on(authActions.updateUserProfileSuccess, (state, {user}) => ({
             ...state,
             user,
             loadUserProfile: false,
@@ -173,7 +173,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.updateUserProfileFailure, (state, { error }) => ({
+        on(authActions.updateUserProfileFailure, (state, {error}) => ({
             ...state,
             loadUserProfile: false,
             loadUserProfileFailure: true,
@@ -189,7 +189,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.updateUserPhotoSuccess, (state, { user }) => ({
+        on(authActions.updateUserPhotoSuccess, (state, {user}) => ({
             ...state,
             user,
             loadUserProfile: false,
@@ -198,7 +198,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.updateUserPhotoFailure, (state, { error }) => ({
+        on(authActions.updateUserPhotoFailure, (state, {error}) => ({
             ...state,
             loadUserProfile: false,
             loadUserProfileFailure: true,
@@ -222,7 +222,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.changePasswordFailure, (state, { error }) => ({
+        on(authActions.changePasswordFailure, (state, {error}) => ({
             ...state,
             loadUserProfile: false,
             loadUserProfileFailure: true,
@@ -230,7 +230,7 @@ export const authFeature = createFeature({
             error
         })),
 
-        on(authActions.changeShouldNavigateAfterProfileLoad, (state, { shouldNavigateAfterProfileLoad }) => ({
+        on(authActions.changeShouldNavigateAfterProfileLoad, (state, {shouldNavigateAfterProfileLoad}) => ({
             ...state,
             shouldNavigateAfterProfileLoad
         })),
@@ -242,7 +242,7 @@ export const authFeature = createFeature({
             error: null
         })),
 
-        on(authActions.validateTokenSuccess, (state, { isValid }) => ({
+        on(authActions.validateTokenSuccess, (state, {isValid}) => ({
             ...state,
             isAuthenticated: isValid,
             loading: false,

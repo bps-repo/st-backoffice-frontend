@@ -19,12 +19,15 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {Store} from "@ngrx/store";
 import {ContractActions} from "../../../../../core/store/corporate/contracts/contracts.actions";
-import {Observable, of} from "rxjs";
+import {Observable, of, forkJoin} from "rxjs";
 import {
     selectContractsError,
     selectContractsLoading, selectDownloading, selectSelectedContractByID
 } from "../../../../../core/store/corporate/contracts/contracts.selectors";
 import {InstallmentsActions} from "../../../../../core/store/finance/installments/installments.actions";
+// Use Contract's Installment type for contract.installments
+import { Installment as ContractInstallment } from 'src/app/core/models/corporate/contract';
+import { InstallmentService } from 'src/app/core/services/installment.service';
 
 @Component({
     selector: 'app-contract-detail',
@@ -60,6 +63,15 @@ export class DetailComponent implements OnInit {
     showPaymentDetailsDialog: boolean = false;
     showPaymentChargeDialog: boolean = false;
 
+    // Edit installment dialog state
+    showInstallmentEditDialog: boolean = false;
+    installmentToEdit: ContractInstallment | null = null;
+    editAmount: number | null = null;
+    editDueDate: Date | null = null;
+    // Auto-adjustment planning
+    adjustmentPreview: Array<{ id: string | undefined; installmentNumber: number; oldAmount: number; newAmount: number }> = [];
+    adjustmentError: string | null = null;
+
     selectedPayment: any = null;
 
     paymentMethods: any[] = [
@@ -78,7 +90,8 @@ export class DetailComponent implements OnInit {
         private router: Router,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private store$: Store
+        private store$: Store,
+        private installmentService: InstallmentService
     ) {
         this.store$.select(selectSelectedContractByID).subscribe(contract => {
             this.contract = contract
@@ -186,6 +199,132 @@ export class DetailComponent implements OnInit {
         this.selectedPayment = installment;
         this.paymentAmount = installment.amount;
         this.showPaymentChargeDialog = true;
+    }
+
+    // ===== Installment edit & auto-adjust logic =====
+    canEditInstallment(inst: ContractInstallment): boolean {
+        return inst.status === 'PENDING_PAYMENT' || inst.status === 'OVERDUE';
+    }
+
+    editInstallment(inst: ContractInstallment): void {
+        if (!this.contract) return;
+        if (!this.canEditInstallment(inst)) return;
+        this.installmentToEdit = inst;
+        this.editAmount = inst.amount;
+        this.editDueDate = inst.dueDate ? new Date(inst.dueDate) : new Date();
+        // compute preview with current value (no change) to reset errors
+        this.computeAdjustmentPlan();
+        this.showInstallmentEditDialog = true;
+    }
+
+    onEditAmountChange(): void {
+        this.computeAdjustmentPlan();
+    }
+
+    private computeAdjustmentPlan(): void {
+        this.adjustmentError = null;
+        this.adjustmentPreview = [];
+        if (!this.contract || !this.installmentToEdit || this.editAmount == null) return;
+
+        const edited = this.installmentToEdit;
+        const delta = +(this.editAmount - edited.amount).toFixed(2);
+        if (delta === 0) {
+            // No change, nothing to adjust
+            return;
+        }
+
+        // Build eligible targets from the end to the start, excluding the edited installment.
+        const installments = (this.contract.installments || [])
+            .slice()
+            .sort((a, b) => a.installmentNumber - b.installmentNumber);
+
+        const eligibles = installments
+            .filter(i => i.id !== edited.id)
+            // Prefer to not adjust PAID installments
+            .filter(i => i.status !== 'PAID')
+            .reverse(); // now from last to first
+
+        if (eligibles.length === 0) {
+            this.adjustmentError = 'Não existem parcelas elegíveis para ajustar automaticamente.';
+            return;
+        }
+
+        if (delta > 0) {
+            // Positive delta: add entire delta to the last installment only
+            const last = eligibles[0];
+            const newAmt = +(last.amount + delta).toFixed(2);
+            this.adjustmentPreview.push({ id: last.id, installmentNumber: last.installmentNumber, oldAmount: last.amount, newAmount: newAmt });
+            return;
+        }
+
+        // Negative delta: need to subtract |delta| from the last, and if not enough, move to previous recursively
+        let remaining = -delta; // positive value to subtract in total
+        const MIN_AMOUNT = 0.01;
+
+        for (const target of eligibles) {
+            if (remaining <= 0) break;
+            const capacity = +(Math.max(target.amount - MIN_AMOUNT, 0)).toFixed(2);
+            if (capacity <= 0) continue;
+
+            const take = Math.min(capacity, remaining);
+            const newAmt = +(target.amount - take).toFixed(2);
+            this.adjustmentPreview.push({ id: target.id, installmentNumber: target.installmentNumber, oldAmount: target.amount, newAmount: newAmt });
+            remaining = +(remaining - take).toFixed(2);
+        }
+
+        if (remaining > 0) {
+            this.adjustmentPreview = [];
+            this.adjustmentError = 'Não é possível distribuir a diminuição entre as últimas parcelas sem violar o valor mínimo (0,01). Reduza a alteração.';
+        }
+    }
+
+    saveInstallmentEdit(): void {
+        if (!this.contract || !this.installmentToEdit || this.editAmount == null || !this.editDueDate) return;
+        if (this.adjustmentError) return;
+
+        const requests: Observable<any>[] = [];
+        // Update edited installment
+        requests.push(
+            this.installmentService.updateInstallment(this.installmentToEdit.id!, {
+                amount: +(+this.editAmount).toFixed(2),
+                dueDate: this.toIsoDate(this.editDueDate)
+            })
+        );
+
+        // Add adjustment updates
+        for (const adj of this.adjustmentPreview) {
+            // Skip if no change
+            if (adj.oldAmount === adj.newAmount) continue;
+            requests.push(
+                this.installmentService.updateInstallment(adj.id!, { amount: +adj.newAmount.toFixed(2) })
+            );
+        }
+
+        forkJoin(requests).subscribe({
+            next: () => {
+                this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Parcela atualizada e ajustes aplicados.'});
+                this.showInstallmentEditDialog = false;
+                this.installmentToEdit = null;
+                this.loadContractDetails();
+            },
+            error: (err) => {
+                console.error(err);
+                this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar parcela.'});
+            }
+        });
+    }
+
+    cancelInstallmentEdit(): void {
+        this.showInstallmentEditDialog = false;
+        this.installmentToEdit = null;
+        this.adjustmentPreview = [];
+        this.adjustmentError = null;
+    }
+
+    private toIsoDate(date: Date): string {
+        const d = new Date(date);
+        const tzOffset = d.getTimezoneOffset() * 60000;
+        return new Date(d.getTime() - tzOffset).toISOString().slice(0, 10);
     }
 
     processPayment(): void {

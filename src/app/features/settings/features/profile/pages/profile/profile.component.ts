@@ -54,8 +54,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     genderOptions = [
         { label: 'Male', value: 'MALE' },
-        { label: 'Female', value: 'FEMALE' },
-        { label: 'Other', value: 'OTHER' }
+        { label: 'Female', value: 'FEMALE' }
     ];
 
     constructor(
