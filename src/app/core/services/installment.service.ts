@@ -17,7 +17,11 @@ export class InstallmentService {
         return this.http.post<ApiResponse<Installment>>(`${this.apiUrl}/${installmentId}/pay`, payload);
     }
 
-    updateInstallment(installmentId: string, payload: Partial<Pick<Installment, 'amount' | 'dueDate'>>): Observable<ApiResponse<Installment>> {
+    // Backend expects: { installmentNumber, dueDate, amount }
+    updateInstallment(
+        installmentId: string,
+        payload: Partial<Pick<Installment, 'amount' | 'dueDate' | 'installmentNumber'>>
+    ): Observable<ApiResponse<Installment>> {
         return this.http.put<ApiResponse<Installment>>(`${this.apiUrl}/${installmentId}`, payload);
     }
 

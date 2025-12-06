@@ -286,6 +286,7 @@ export class DetailComponent implements OnInit {
         // Update edited installment
         requests.push(
             this.installmentService.updateInstallment(this.installmentToEdit.id!, {
+                installmentNumber: this.installmentToEdit.installmentNumber,
                 amount: +(+this.editAmount).toFixed(2),
                 dueDate: this.toIsoDate(this.editDueDate)
             })
@@ -296,7 +297,10 @@ export class DetailComponent implements OnInit {
             // Skip if no change
             if (adj.oldAmount === adj.newAmount) continue;
             requests.push(
-                this.installmentService.updateInstallment(adj.id!, { amount: +adj.newAmount.toFixed(2) })
+                this.installmentService.updateInstallment(adj.id!, {
+                    installmentNumber: adj.installmentNumber,
+                    amount: +adj.newAmount.toFixed(2)
+                })
             );
         }
 
