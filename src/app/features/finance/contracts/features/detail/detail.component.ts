@@ -26,8 +26,8 @@ import {
 } from "../../../../../core/store/corporate/contracts/contracts.selectors";
 import {InstallmentsActions} from "../../../../../core/store/finance/installments/installments.actions";
 // Use Contract's Installment type for contract.installments
-import { Installment as ContractInstallment } from 'src/app/core/models/corporate/contract';
-import { InstallmentService } from 'src/app/core/services/installment.service';
+import {Installment as ContractInstallment} from 'src/app/core/models/corporate/contract';
+import {InstallmentService} from 'src/app/core/services/installment.service';
 
 @Component({
     selector: 'app-contract-detail',
@@ -69,7 +69,12 @@ export class DetailComponent implements OnInit {
     editAmount: number | null = null;
     editDueDate: Date | null = null;
     // Auto-adjustment planning
-    adjustmentPreview: Array<{ id: string | undefined; installmentNumber: number; oldAmount: number; newAmount: number }> = [];
+    adjustmentPreview: Array<{
+        id: string | undefined;
+        installmentNumber: number;
+        oldAmount: number;
+        newAmount: number
+    }> = [];
     adjustmentError: string | null = null;
 
     selectedPayment: any = null;
@@ -153,7 +158,7 @@ export class DetailComponent implements OnInit {
     }
 
     editContract(): void {
-        this.router.navigate(['/finances/contracts/edit', this.contractId]);
+        this.router.navigate(['/finances/contracts/edit', this.contractId]).then();
     }
 
     renewContract(): void {
@@ -253,7 +258,12 @@ export class DetailComponent implements OnInit {
             // Positive delta: add entire delta to the last installment only
             const last = eligibles[0];
             const newAmt = +(last.amount + delta).toFixed(2);
-            this.adjustmentPreview.push({ id: last.id, installmentNumber: last.installmentNumber, oldAmount: last.amount, newAmount: newAmt });
+            this.adjustmentPreview.push({
+                id: last.id,
+                installmentNumber: last.installmentNumber,
+                oldAmount: last.amount,
+                newAmount: newAmt
+            });
             return;
         }
 
@@ -268,7 +278,12 @@ export class DetailComponent implements OnInit {
 
             const take = Math.min(capacity, remaining);
             const newAmt = +(target.amount - take).toFixed(2);
-            this.adjustmentPreview.push({ id: target.id, installmentNumber: target.installmentNumber, oldAmount: target.amount, newAmount: newAmt });
+            this.adjustmentPreview.push({
+                id: target.id,
+                installmentNumber: target.installmentNumber,
+                oldAmount: target.amount,
+                newAmount: newAmt
+            });
             remaining = +(remaining - take).toFixed(2);
         }
 
@@ -306,7 +321,11 @@ export class DetailComponent implements OnInit {
 
         forkJoin(requests).subscribe({
             next: () => {
-                this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Parcela atualizada e ajustes aplicados.'});
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Sucesso',
+                    detail: 'Parcela atualizada e ajustes aplicados.'
+                });
                 this.showInstallmentEditDialog = false;
                 this.installmentToEdit = null;
                 this.loadContractDetails();
