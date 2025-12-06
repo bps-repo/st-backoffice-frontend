@@ -126,6 +126,7 @@ export class ListComponent implements OnInit {
         const payload = {
             paymentMethod: "CREDIT_CARD",
             installmentId: installment.id,
+            amount: installment.amount,
         }
 
         this.installmentsService.makePayment(installment.id, payload).subscribe({

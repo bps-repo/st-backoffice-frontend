@@ -1,5 +1,5 @@
-import { Injectable, OnDestroy, effect, signal } from '@angular/core';
-import { Subject } from 'rxjs';
+import {Injectable, OnDestroy, effect, signal} from '@angular/core';
+import {Subject} from 'rxjs';
 import {
     AppConfig,
     LayoutState,
@@ -9,7 +9,7 @@ import {
 @Injectable({
     providedIn: 'root',
 })
-export class LayoutService  implements OnDestroy {
+export class LayoutService implements OnDestroy {
     _config: AppConfig = {
         ripple: false,
         inputStyle: 'outlined',
@@ -118,7 +118,7 @@ export class LayoutService  implements OnDestroy {
     }
 
     onConfigUpdate() {
-        this._config = { ...this.config() };
+        this._config = {...this.config()};
         this.configUpdate.next(this.config());
     }
 
@@ -134,8 +134,8 @@ export class LayoutService  implements OnDestroy {
                 el == this._config.theme
                     ? (el = config.theme)
                     : el == `theme-${this._config.colorScheme}`
-                    ? (el = `theme-${config.colorScheme}`)
-                    : el
+                        ? (el = `theme-${config.colorScheme}`)
+                        : el
             )
             .join('/');
 
