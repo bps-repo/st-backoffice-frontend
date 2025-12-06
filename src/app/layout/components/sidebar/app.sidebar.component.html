@@ -5,13 +5,8 @@
 >
     <div class="sidebar-header">
         <a [routerLink]="['/']" class="app-logo">
-            <img class="logo" src="assets/layout/images/logo.png" alt="logo" />
+            <img class="logo" src="assets/layout/images/logo.png" alt="logo"/>
         </a>
-        <button
-            class="layout-sidebar-anchor p-link z-2 mb-2"
-            type="button"
-            (click)="anchor()"
-        ></button>
     </div>
 
     <div #menuContainer class="layout-menu-container" (mouseleave)="onMenuMouseLeave($event)">
