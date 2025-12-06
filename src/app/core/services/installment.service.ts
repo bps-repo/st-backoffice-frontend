@@ -17,6 +17,10 @@ export class InstallmentService {
         return this.http.post<ApiResponse<Installment>>(`${this.apiUrl}/${installmentId}/pay`, payload);
     }
 
+    updateInstallment(installmentId: string, payload: Partial<Pick<Installment, 'amount' | 'dueDate'>>): Observable<ApiResponse<Installment>> {
+        return this.http.put<ApiResponse<Installment>>(`${this.apiUrl}/${installmentId}`, payload);
+    }
+
     getInstallments(page: number = 0, size: number = 15, sort: string = 'dueDate,asc'):
         Observable<{ content: Installment[]; totalElements: number; page: number; size: number; totalPages: number; }> {
         const params = new HttpParams()

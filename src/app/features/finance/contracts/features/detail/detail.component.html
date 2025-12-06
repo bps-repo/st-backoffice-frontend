@@ -191,6 +191,12 @@
                                             pButton icon="pi pi-dollar"
                                             class="p-button-rounded p-button-outlined p-button-sm"
                                             pTooltip="Fazer pagamento" (click)="chargePayment(installment)"></button>
+                                        <button
+                                            *ngIf="installment.status === 'PENDING_PAYMENT' || installment.status === 'OVERDUE'"
+                                            pButton icon="pi pi-pencil"
+                                            class="p-button-rounded p-button-outlined p-button-sm"
+                                            pTooltip="Editar parcela"
+                                            (click)="editInstallment(installment)"></button>
                                         <button pButton icon="pi pi-eye"
                                                 class="p-button-rounded p-button-outlined p-button-sm"
                                                 pTooltip="Ver detalhes"
@@ -225,6 +231,51 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Installment Dialog -->
+<p-dialog header="Editar Parcela" [(visible)]="showInstallmentEditDialog" [modal]="true" [style]="{width:'30rem'}"
+          [draggable]="false" [resizable]="false" (onHide)="cancelInstallmentEdit()">
+    <div *ngIf="installmentToEdit as inst" class="grid">
+        <div class="col-12">
+            <div class="mb-2 text-600">Parcela {{ inst.installmentNumber }}</div>
+        </div>
+
+        <div class="col-12">
+            <label class="block mb-2">Valor da parcela</label>
+            <p-inputNumber [(ngModel)]="editAmount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+                           [min]="0.01" [step]="0.01" inputId="amount" (onInput)="onEditAmountChange()"></p-inputNumber>
+        </div>
+
+        <div class="col-12 mt-3">
+            <label class="block mb-2">Data de vencimento</label>
+            <p-calendar [(ngModel)]="editDueDate" dateFormat="yy-mm-dd" [showIcon]="true"></p-calendar>
+        </div>
+
+        <div class="col-12 mt-3">
+            <p class="m-0 text-600">
+                Ajuste automático: a diferença será aplicada nas últimas parcelas para preservar o valor total do contrato.
+            </p>
+            <div class="mt-2" *ngIf="adjustmentPreview?.length">
+                <small class="text-600">Pré-visualização dos ajustes:</small>
+                <ul class="mt-2 ml-3">
+                    <li *ngFor="let adj of adjustmentPreview">
+                        Parcela #{{ adj.installmentNumber }}: {{ formatCurrency(adj.oldAmount) }} →
+                        <strong>{{ formatCurrency(adj.newAmount) }}</strong>
+                    </li>
+                </ul>
+            </div>
+            <div class="mt-2" *ngIf="adjustmentError">
+                <small class="text-red-500"><i class="pi pi-exclamation-triangle mr-1"></i>{{ adjustmentError }}</small>
+            </div>
+        </div>
+
+        <div class="col-12 mt-4 flex justify-content-end gap-2">
+            <button pButton label="Cancelar" class="p-button-text" (click)="cancelInstallmentEdit()"></button>
+            <button pButton label="Salvar" [disabled]="!!adjustmentError || !editAmount || !editDueDate"
+                    (click)="saveInstallmentEdit()"></button>
+        </div>
+    </div>
+</p-dialog>
 
 <style>
     .avatar-circle {
