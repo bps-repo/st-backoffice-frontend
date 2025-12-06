@@ -26,6 +26,24 @@
         </div>
     </ng-template>
 
+    <!-- Monthly Enrollments Mixed Chart (Bar + Line with % change) -->
+    <div class="col-12">
+        <div class="card h-full">
+            <div *ngIf="!(loading$ | async); else chartSkeletonMonthly">
+                <p-chart
+                    type="bar"
+                    [data]="monthlyEnrollmentsData"
+                    [options]="monthlyEnrollmentsOptions"
+                    [plugins]="[monthlyChangePlugin]"
+                    height="300px"
+                ></p-chart>
+            </div>
+            <ng-template #chartSkeletonMonthly>
+                <p-skeleton height="300px"></p-skeleton>
+            </ng-template>
+        </div>
+    </div>
+
     <!-- Date Range Filter -->
     <!-- <div class="col-12">
         <div class="card">
