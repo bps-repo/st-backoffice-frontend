@@ -15,31 +15,30 @@ jobs:
             -   name: Setup Node
                 uses: actions/setup-node@v3
                 with:
-                    node-version: '18'
+                    node-version: '20'
 
             -   name: Install & Build
                 run: |
                     npm ci
-                    npm run build -- --configuration production
+                    npm run build -- --configuration production --base-href /backoffice/
 
             -   name: Deploy to Droplet
                 uses: appleboy/scp-action@v0.1.4
                 with:
                     host: ${{ secrets.DROPLET_IP }}
                     username: standrews
-                    key: ${{ secrets.SSH_PRIVATE_KEY }}
                     password: ${{ secrets.DROPLET_PASSWORD }}
                     source: "dist/st-backoffice-frontend/*"
                     target: "/home/standrews/standrews-app/backoffice-dist"
                     strip_components: 2
 
             -   name: Reload Nginx
-                uses: appleboy/ssh-action@v1
+                uses: appleboy/ssh-action@v0.1.10
                 with:
                     host: ${{ secrets.DROPLET_IP }}
                     username: standrews
-                    key: ${{ secrets.SSH_PRIVATE_KEY }}
                     password: ${{ secrets.DROPLET_PASSWORD }}
                     script: |
                         cd /home/standrews/standrews-app
                         docker compose restart nginx
+
