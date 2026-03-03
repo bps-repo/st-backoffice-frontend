@@ -11,7 +11,6 @@ import {FileUploadModule} from 'primeng/fileupload';
 import {InputGroupModule} from 'primeng/inputgroup';
 import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import {RippleModule} from 'primeng/ripple';
 import {ToastModule} from 'primeng/toast';
@@ -37,7 +36,6 @@ import {InvoiceService} from 'src/app/core/services/invoice.service';
         InputTextModule,
         DropdownModule,
         FileUploadModule,
-        InputTextareaModule,
         InputGroupModule,
         InputGroupAddonModule,
         RadioButtonModule,

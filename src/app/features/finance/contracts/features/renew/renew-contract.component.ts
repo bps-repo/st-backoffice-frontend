@@ -9,34 +9,33 @@ import {
     HostListener,
     OnDestroy
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ToastModule } from 'primeng/toast';
-import { CalendarModule } from 'primeng/calendar';
-import { MessageService } from 'primeng/api';
-import { Store } from '@ngrx/store';
-import { Student } from 'src/app/core/models/academic/student';
-import { ContractService, } from 'src/app/core/services/contract.service';
-import { StudentsActions } from "../../../../../core/store/schoolar/students/students.actions";
-import { selectAllStudents } from "../../../../../core/store/schoolar/students/students.selectors";
-import { CreateStudentContractRequest, Installment } from 'src/app/core/models/corporate/contract';
-import { EmployeesActions } from '../../../../../core/store/corporate/employees/employees.actions';
-import { selectAllEmployees } from '../../../../../core/store/corporate/employees/employees.selectors';
-import { LevelActions } from '../../../../../core/store/schoolar/level/level.actions';
-import { selectAllLevels } from '../../../../../core/store/schoolar/level/level.selector';
-import { Level } from '../../../../../core/models/course/level';
-import { Employee } from '../../../../../core/models/corporate/employee';
-import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
-import { Observable, Subject } from "rxjs";
-import { ActivatedRoute, Router } from '@angular/router';
-import { map, takeUntil } from 'rxjs/operators';
+import {CommonModule} from '@angular/common';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {DropdownModule} from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import {TableModule} from 'primeng/table';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {ToastModule} from 'primeng/toast';
+import {CalendarModule} from 'primeng/calendar';
+import {MessageService} from 'primeng/api';
+import {Store} from '@ngrx/store';
+import {Student} from 'src/app/core/models/academic/student';
+import {ContractService,} from 'src/app/core/services/contract.service';
+import {StudentsActions} from "../../../../../core/store/schoolar/students/students.actions";
+import {selectAllStudents} from "../../../../../core/store/schoolar/students/students.selectors";
+import {CreateStudentContractRequest, Installment} from 'src/app/core/models/corporate/contract';
+import {EmployeesActions} from '../../../../../core/store/corporate/employees/employees.actions';
+import {selectAllEmployees} from '../../../../../core/store/corporate/employees/employees.selectors';
+import {LevelActions} from '../../../../../core/store/schoolar/level/level.actions';
+import {selectAllLevels} from '../../../../../core/store/schoolar/level/level.selector';
+import {Level} from '../../../../../core/models/course/level';
+import {Employee} from '../../../../../core/models/corporate/employee';
+import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes.guard";
+import {Subject} from "rxjs";
+import {ActivatedRoute, Router} from '@angular/router';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'finance-renew-contract',
@@ -51,7 +50,6 @@ import { map, takeUntil } from 'rxjs/operators';
         InputTextModule,
         TableModule,
         InputNumberModule,
-        InputTextareaModule,
         ToastModule,
         CalendarModule,
     ],
@@ -87,8 +85,8 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     editingInstallment: Installment | null = null;
 
     contractTypes = [
-        { label: 'Standard', value: 'STANDARD' },
-        { label: 'VIP', value: 'VIP' },
+        {label: 'Standard', value: 'STANDARD'},
+        {label: 'VIP', value: 'VIP'},
     ];
 
     constructor(
@@ -199,7 +197,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         const student = this.students.find(s => s.id === this.createdStudentId);
         if (student) {
             this.selectedStudent = student;
-            this.contractForm.patchValue({ student });
+            this.contractForm.patchValue({student});
 
             // Disable student selection since it's auto-selected
             this.contractForm.get('student')?.disable();
@@ -356,7 +354,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     startEditInstallment(index: number): void {
         this.editingInstallmentIndex = index;
         // Create a deep copy of the installment for editing
-        this.editingInstallment = { ...this.installments[index] };
+        this.editingInstallment = {...this.installments[index]};
 
         // Convert string date to Date object for p-calendar
         if (this.editingInstallment.dueDate) {
@@ -567,7 +565,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
             },
             error: (err) => {
                 const detail = err?.error?.message || err?.message || 'Falha ao criar contrato.';
-                this.messageService.add({ severity: 'error', summary: 'Erro', detail });
+                this.messageService.add({severity: 'error', summary: 'Erro', detail});
                 this.loading = false;
             }
         });

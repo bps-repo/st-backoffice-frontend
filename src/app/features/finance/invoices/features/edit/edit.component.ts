@@ -1,21 +1,20 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { SelectItem, MessageService, ConfirmationService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RippleModule } from 'primeng/ripple';
-import { ToastModule } from 'primeng/toast';
-import { TableCreateInvoice } from 'src/app/shared/components/tables/table-create-invoice/table-create-invoice.component';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {SelectItem, MessageService, ConfirmationService} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {CheckboxModule} from 'primeng/checkbox';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {DropdownModule} from 'primeng/dropdown';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {InputTextModule} from 'primeng/inputtext';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import {RippleModule} from 'primeng/ripple';
+import {ToastModule} from 'primeng/toast';
+import {TableCreateInvoice} from 'src/app/shared/components/tables/table-create-invoice/table-create-invoice.component';
 import {
     COUNTRIES,
     DISCOUNTS,
@@ -23,8 +22,8 @@ import {
     INSTALATIONS,
     LEVELS,
 } from 'src/app/shared/constants/app';
-import { Invoice } from 'src/app/core/models/invoice/invoice.model';
-import { InvoiceService } from 'src/app/core/services/invoice.service';
+import {Invoice} from 'src/app/core/models/invoice/invoice.model';
+import {InvoiceService} from 'src/app/core/services/invoice.service';
 
 @Component({
     selector: 'app-edit',
@@ -37,7 +36,6 @@ import { InvoiceService } from 'src/app/core/services/invoice.service';
         InputTextModule,
         DropdownModule,
         FileUploadModule,
-        InputTextareaModule,
         InputGroupModule,
         InputGroupAddonModule,
         RadioButtonModule,
@@ -83,21 +81,22 @@ export class EditComponent implements OnInit {
         private router: Router,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
-    ) {}
+    ) {
+    }
 
     ngOnInit() {
         this.students = [
-            { label: 'João Mateus Diogo', value: 234234 },
-            { label: 'Guilherme Francisco Mario', value: 234234 },
-            { label: 'Antonio Mendes Pereira', value: 93234 },
-            { label: 'Ana Sampaio', value: 13123 },
+            {label: 'João Mateus Diogo', value: 234234},
+            {label: 'Guilherme Francisco Mario', value: 234234},
+            {label: 'Antonio Mendes Pereira', value: 93234},
+            {label: 'Ana Sampaio', value: 13123},
         ];
 
         this.reviews1 = [
-            { label: 'Mau', value: 12 },
-            { label: 'Mediano', value: 30 },
-            { label: 'Bom', value: 50 },
-            { label: 'Melhor', value: 10 },
+            {label: 'Mau', value: 12},
+            {label: 'Mediano', value: 30},
+            {label: 'Bom', value: 50},
+            {label: 'Melhor', value: 10},
         ];
 
         const id = this.route.snapshot.paramMap.get('id');

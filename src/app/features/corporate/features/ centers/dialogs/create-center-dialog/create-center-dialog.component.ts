@@ -6,7 +6,6 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {Store} from '@ngrx/store';
 import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
 import {Observable} from 'rxjs';
@@ -24,7 +23,7 @@ import {CenterActions} from "../../../../../../core/store/corporate/center/cente
         ButtonModule,
         DropdownModule,
         InputTextModule,
-        InputTextareaModule,
+        InputTextModule
     ],
     templateUrl: './create-center-dialog.component.html'
 })

@@ -1,21 +1,20 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { SkeletonModule } from 'primeng/skeleton';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from "primeng/ripple";
-import { ChartModule } from 'primeng/chart';
-import { CardModule } from 'primeng/card';
-import { Store } from '@ngrx/store';
-import { Observable, Subject, combineLatest } from 'rxjs';
-import { map, takeUntil, switchMap } from 'rxjs/operators';
-import { Student, StudentStatus } from 'src/app/core/models/academic/student';
-import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
-import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
-import { ScholarStatisticsService } from 'src/app/core/services/scholar-statistics.service';
-import { AttendanceService } from 'src/app/core/services/attendance.service';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {SkeletonModule} from 'primeng/skeleton';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from "primeng/ripple";
+import {ChartModule} from 'primeng/chart';
+import {CardModule} from 'primeng/card';
+import {Store} from '@ngrx/store';
+import {Observable, Subject, combineLatest} from 'rxjs';
+import {map, takeUntil} from 'rxjs/operators';
+import {Student, StudentStatus} from 'src/app/core/models/academic/student';
+import {selectAllStudents, selectLoading} from 'src/app/core/store/schoolar/students/students.selectors';
+import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
+import {ScholarStatisticsService} from 'src/app/core/services/scholar-statistics.service';
+import {AttendanceService} from 'src/app/core/services/attendance.service';
 
 interface Report {
     id: string;
@@ -37,7 +36,6 @@ interface Report {
         CommonModule,
         SkeletonModule,
         InputTextModule,
-        InputTextareaModule,
         ButtonModule,
         RippleModule,
         ChartModule,
@@ -80,9 +78,9 @@ export class StudentReports implements OnInit, OnDestroy {
             status: 'Generated',
             description: 'This report shows the performance of students across different levels.',
             parameters: [
-                { name: 'Start Date', value: '2023-01-01' },
-                { name: 'End Date', value: '2023-01-15' },
-                { name: 'Course', value: 'All' }
+                {name: 'Start Date', value: '2023-01-01'},
+                {name: 'End Date', value: '2023-01-15'},
+                {name: 'Course', value: 'All'}
             ],
             data: {
                 labels: ['English', 'Math', 'Science', 'History'],
@@ -103,9 +101,9 @@ export class StudentReports implements OnInit, OnDestroy {
             status: 'Generated',
             description: 'This report shows the attendance of students in different lessons.',
             parameters: [
-                { name: 'Start Date', value: '2023-02-01' },
-                { name: 'End Date', value: '2023-02-20' },
-                { name: 'Class', value: 'All' }
+                {name: 'Start Date', value: '2023-02-01'},
+                {name: 'End Date', value: '2023-02-20'},
+                {name: 'Class', value: 'All'}
             ],
             data: {
                 labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
@@ -126,9 +124,9 @@ export class StudentReports implements OnInit, OnDestroy {
             status: 'Pending',
             description: 'This report shows the financial summary of the school.',
             parameters: [
-                { name: 'Start Date', value: '2023-03-01' },
-                { name: 'End Date', value: '2023-03-10' },
-                { name: 'Department', value: 'All' }
+                {name: 'Start Date', value: '2023-03-01'},
+                {name: 'End Date', value: '2023-03-10'},
+                {name: 'Department', value: 'All'}
             ]
         }
     ];
@@ -138,7 +136,8 @@ export class StudentReports implements OnInit, OnDestroy {
         private store: Store,
         private statisticsService: ScholarStatisticsService,
         private attendanceService: AttendanceService
-    ) {}
+    ) {
+    }
 
     ngOnInit(): void {
         // Dispatch action to load students if not already loaded
@@ -210,12 +209,12 @@ export class StudentReports implements OnInit, OnDestroy {
         this.attendanceByMonthOptions = {
             plugins: {
                 legend: {
-                    labels: { color: textColor }
+                    labels: {color: textColor}
                 },
                 title: {
                     display: true,
                     text: 'Frequência por Mês',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -269,7 +268,7 @@ export class StudentReports implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 500 },
+                        font: {weight: 500},
                         padding: 20
                     },
                     position: 'bottom'
@@ -277,7 +276,7 @@ export class StudentReports implements OnInit, OnDestroy {
                 title: {
                     display: true,
                     text: 'Alunos por Estados',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             }
@@ -298,12 +297,12 @@ export class StudentReports implements OnInit, OnDestroy {
         this.studentsByLevelOptions = {
             plugins: {
                 legend: {
-                    labels: { color: textColor }
+                    labels: {color: textColor}
                 },
                 title: {
                     display: true,
                     text: 'Distribuição por Nível',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -503,7 +502,7 @@ export class StudentReports implements OnInit, OnDestroy {
 
     private updateStudentsByLevelChart(students: Student[]): void {
         // Real level distribution based on student levels
-        const levelCounts: {[key: string]: number} = {};
+        const levelCounts: { [key: string]: number } = {};
 
         students.forEach(student => {
             let levelName = 'Não Definido';

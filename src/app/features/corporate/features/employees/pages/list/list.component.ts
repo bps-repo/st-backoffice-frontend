@@ -104,13 +104,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         return statusMap[status] || '';
     }
 
-    getStatusSeverity(status: EmployeeStatus): "success" | "warning" | "info" | "danger" | null {
-        const severityMap: Record<EmployeeStatus, "success" | "warning" | "info" | "danger" | null> = {
+    getStatusSeverity(status: EmployeeStatus): "success" | "info" | "danger" | "warn" | "secondary" | "contrast" {
+        const severityMap: Record<EmployeeStatus, "success" | "warn" | "info" | "danger" | null> = {
             'ACTIVE': 'success',
-            'INACTIVE': 'warning',
+            'INACTIVE': 'warn',
             'ON_LEAVE': 'info',
             'TERMINATED': 'danger'
         };
-        return severityMap[status] || null;
+        return severityMap[status] || "info";
     }
 }

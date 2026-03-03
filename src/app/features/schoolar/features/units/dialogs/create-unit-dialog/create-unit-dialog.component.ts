@@ -5,11 +5,10 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {Unit} from 'src/app/core/models/course/unit';
 import {Level} from 'src/app/core/models/course/level';
 import {Store} from '@ngrx/store';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 import * as UnitSelectors from "../../../../../../core/store/schoolar/units/unit.selectors";
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
@@ -23,8 +22,7 @@ import * as LevelSelectors from "../../../../../../core/store/schoolar/level/lev
         DialogModule,
         ButtonModule,
         DropdownModule,
-        InputTextModule,
-        InputTextareaModule
+        InputTextModule
     ],
     templateUrl: './create-unit-dialog.component.html'
 })

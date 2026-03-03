@@ -5,7 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -18,7 +17,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
         ButtonModule,
         CardModule,
         InputTextModule,
-        InputTextareaModule,
         DropdownModule,
         CalendarModule,
         InputNumberModule

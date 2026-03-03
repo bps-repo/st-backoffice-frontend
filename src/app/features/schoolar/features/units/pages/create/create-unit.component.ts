@@ -6,7 +6,6 @@ import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
@@ -29,7 +28,6 @@ import {Actions, ofType} from '@ngrx/effects';
         CardModule,
         DropdownModule,
         InputTextModule,
-        InputTextareaModule,
         InputNumberModule,
         ToastModule
     ],
@@ -44,9 +42,9 @@ export class CreateUnitComponent implements OnInit, OnDestroy {
     error$: Observable<any>;
 
     statusOptions = [
-        { label: 'Ativo', value: 'ACTIVE' },
-        { label: 'Inativo', value: 'INACTIVE' },
-        { label: 'Rascunho', value: 'DRAFT' }
+        {label: 'Ativo', value: 'ACTIVE'},
+        {label: 'Inativo', value: 'INACTIVE'},
+        {label: 'Rascunho', value: 'DRAFT'}
     ];
 
     private destroy$ = new Subject<void>();
@@ -75,7 +73,7 @@ export class CreateUnitComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         // ensure levels list is available
-        this.store.dispatch({ type: '[Level] Load Levels' } as any);
+        this.store.dispatch({type: '[Level] Load Levels'} as any);
         this.error$.pipe(takeUntil(this.destroy$)).subscribe((error) => {
             if (error) console.error('Erro ao criar unidade:', error);
         });
@@ -88,7 +86,7 @@ export class CreateUnitComponent implements OnInit, OnDestroy {
 
     saveUnit(): void {
         if (this.unitForm.invalid) {
-            this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Preencha os campos obrigatórios' });
+            this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Preencha os campos obrigatórios'});
             return;
         }
 
@@ -101,19 +99,23 @@ export class CreateUnitComponent implements OnInit, OnDestroy {
             levelId: v.levelId,
         } as any;
 
-        this.store.dispatch(UnitActions.createUnit({ unit: payload }));
+        this.store.dispatch(UnitActions.createUnit({unit: payload}));
 
         this.actions$.pipe(ofType(UnitActions.createUnitSuccess), take(1)).subscribe(() => {
-            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Unidade criada com sucesso' });
+            this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Unidade criada com sucesso'});
             this.router.navigate(['/schoolar/units']);
         });
 
-        this.actions$.pipe(ofType(UnitActions.createUnitFailure), take(1)).subscribe(({ error }: any) => {
+        this.actions$.pipe(ofType(UnitActions.createUnitFailure), take(1)).subscribe(({error}: any) => {
             const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
             if (messages.length === 0) {
-                this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao criar unidade' });
+                this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Falha ao criar unidade'});
             } else {
-                messages.forEach((msg: string) => this.messageService.add({ severity: 'error', summary: 'Erro', detail: msg }));
+                messages.forEach((msg: string) => this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: msg
+                }));
             }
         });
     }

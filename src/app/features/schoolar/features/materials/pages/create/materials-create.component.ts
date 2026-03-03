@@ -1,49 +1,48 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router'; // Add ActivatedRoute
-import { MessageService, SelectItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { RippleModule } from 'primeng/ripple';
-import { ToastModule } from 'primeng/toast';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
-import { ChipModule } from 'primeng/chip';
-import { AssessmentService } from 'src/app/core/services/assessment.service';
-import { MaterialCreateRequest, MaterialRelation } from 'src/app/core/models/academic/material';
-import { MaterialType } from 'src/app/core/enums/material-type';
-import { MaterialContentType } from 'src/app/core/enums/material-content-type';
-import { RelatedEntityType } from 'src/app/core/enums/related-entity-type';
-import { Unit } from 'src/app/core/models/course/unit';
-import { Employee } from 'src/app/core/models/corporate/employee';
-import { Store } from '@ngrx/store';
-import { Actions, ofType } from '@ngrx/effects';
-import { MaterialActions } from 'src/app/core/store/schoolar/materials/material.actions';
-import { materialFeature } from 'src/app/core/store/schoolar/materials/material.feature';
-import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
-import { selectAllStudents } from 'src/app/core/store/schoolar/students/students.selectors';
-import { lessonsActions } from 'src/app/core/store/schoolar/lessons/lessons.actions';
-import { selectAllLessons } from 'src/app/core/store/schoolar/lessons/lessons.selectors';
-import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
-import { selectAllLevels } from 'src/app/core/store/schoolar/level/level.selector';
-import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
-import { selectAllCenters } from 'src/app/core/store/corporate/center/centers.selector';
-import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
-import { selectAllEmployees } from 'src/app/core/store/corporate/employees/employees.selector';
-import { ContractActions } from 'src/app/core/store/corporate/contracts/contracts.actions';
-import { selectAllContracts } from 'src/app/core/store/corporate/contracts/contracts.selectors';
-import { UnitActions } from 'src/app/core/store/schoolar/units/unit.actions';
-import { selectAllUnits, selectUnitsByLevelId } from 'src/app/core/store/schoolar/units/unit.selectors';
-import { combineLatest, takeUntil } from 'rxjs';
-import { Subject } from 'rxjs';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {Router, ActivatedRoute} from '@angular/router'; // Add ActivatedRoute
+import {MessageService, SelectItem} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {CalendarModule} from 'primeng/calendar';
+import {CheckboxModule} from 'primeng/checkbox';
+import {DropdownModule} from 'primeng/dropdown';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputSwitchModule} from 'primeng/inputswitch';
+import {InputTextModule} from 'primeng/inputtext';
+import {RippleModule} from 'primeng/ripple';
+import {ToastModule} from 'primeng/toast';
+import {MultiSelectModule} from 'primeng/multiselect';
+import {CardModule} from 'primeng/card';
+import {DividerModule} from 'primeng/divider';
+import {ChipModule} from 'primeng/chip';
+import {AssessmentService} from 'src/app/core/services/assessment.service';
+import {MaterialCreateRequest, MaterialRelation} from 'src/app/core/models/academic/material';
+import {MaterialType} from 'src/app/core/enums/material-type';
+import {MaterialContentType} from 'src/app/core/enums/material-content-type';
+import {RelatedEntityType} from 'src/app/core/enums/related-entity-type';
+import {Unit} from 'src/app/core/models/course/unit';
+import {Employee} from 'src/app/core/models/corporate/employee';
+import {Store} from '@ngrx/store';
+import {Actions, ofType} from '@ngrx/effects';
+import {MaterialActions} from 'src/app/core/store/schoolar/materials/material.actions';
+import {materialFeature} from 'src/app/core/store/schoolar/materials/material.feature';
+import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
+import {selectAllStudents} from 'src/app/core/store/schoolar/students/students.selectors';
+import {lessonsActions} from 'src/app/core/store/schoolar/lessons/lessons.actions';
+import {selectAllLessons} from 'src/app/core/store/schoolar/lessons/lessons.selectors';
+import {LevelActions} from 'src/app/core/store/schoolar/level/level.actions';
+import {selectAllLevels} from 'src/app/core/store/schoolar/level/level.selector';
+import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
+import {selectAllCenters} from 'src/app/core/store/corporate/center/centers.selector';
+import {EmployeesActions} from 'src/app/core/store/corporate/employees/employees.actions';
+import {selectAllEmployees} from 'src/app/core/store/corporate/employees/employees.selector';
+import {ContractActions} from 'src/app/core/store/corporate/contracts/contracts.actions';
+import {selectAllContracts} from 'src/app/core/store/corporate/contracts/contracts.selectors';
+import {UnitActions} from 'src/app/core/store/schoolar/units/unit.actions';
+import {selectAllUnits, selectUnitsByLevelId} from 'src/app/core/store/schoolar/units/unit.selectors';
+import {combineLatest, takeUntil} from 'rxjs';
+import {Subject} from 'rxjs';
 
 @Component({
     imports: [
@@ -54,7 +53,6 @@ import { Subject } from 'rxjs';
         InputTextModule,
         DropdownModule,
         FileUploadModule,
-        InputTextareaModule,
         CheckboxModule,
         CalendarModule,
         InputSwitchModule,
@@ -405,7 +403,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         setTimeout(() => {
             const relationsSection = document.querySelector('p-card[header="Distribuições"]');
             if (relationsSection) {
-                relationsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                relationsSection.scrollIntoView({behavior: 'smooth', block: 'center'});
             }
         }, 500);
     }
@@ -532,7 +530,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         this.newRelation.orderIndex = this.material.relations.length + 1;
 
         // Add relation to material
-        this.material.relations.push({ ...this.newRelation });
+        this.material.relations.push({...this.newRelation});
 
         // Reset form
         this.newRelation = {
@@ -675,13 +673,13 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         }
 
         // Dispatch NgRx action to create material with relations
-        this.store.dispatch(MaterialActions.createMaterialWithRelations({ request: this.material }));
+        this.store.dispatch(MaterialActions.createMaterialWithRelations({request: this.material}));
 
         // Listen for success
         this.actions$.pipe(
             ofType(MaterialActions.createMaterialWithRelationsSuccess),
             takeUntil(this.destroy$)
-        ).subscribe(({ material }) => {
+        ).subscribe(({material}) => {
             this.messageService.add({
                 severity: 'success',
                 summary: 'Material Criado',
@@ -696,7 +694,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         this.actions$.pipe(
             ofType(MaterialActions.createMaterialWithRelationsFailure),
             takeUntil(this.destroy$)
-        ).subscribe(({ error }) => {
+        ).subscribe(({error}) => {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Erro ao Criar Material',

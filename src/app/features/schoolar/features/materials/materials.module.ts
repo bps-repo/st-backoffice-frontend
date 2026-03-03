@@ -1,17 +1,16 @@
-import {  NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MaterialsRoutes} from './materials.routes';
-import { CalendarModule } from 'primeng/calendar';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { DropdownModule } from 'primeng/dropdown';
-import { ToastModule } from 'primeng/toast'
-import { EventService } from 'src/app/core/services/event.service';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {MaterialsRoutes} from './materials.routes';
+import {CalendarModule} from 'primeng/calendar';
+import {DialogModule} from 'primeng/dialog';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {InputTextModule} from 'primeng/inputtext';
+import {DropdownModule} from 'primeng/dropdown';
+import {ToastModule} from 'primeng/toast'
+import {EventService} from 'src/app/core/services/event.service';
+import {FullCalendarModule} from '@fullcalendar/angular';
 
 
 @NgModule({
@@ -21,7 +20,6 @@ import { FullCalendarModule } from '@fullcalendar/angular';
         MaterialsRoutes,
         FullCalendarModule,
         DialogModule,
-        InputTextareaModule,
         ButtonModule,
         CalendarModule,
         InputTextModule,
@@ -31,4 +29,5 @@ import { FullCalendarModule } from '@fullcalendar/angular';
     ],
     providers: [EventService]
 })
-export class MaterialsModule { }
+export class MaterialsModule {
+}

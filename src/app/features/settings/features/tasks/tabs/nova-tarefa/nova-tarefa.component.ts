@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
@@ -16,7 +15,6 @@ import { TASK_DATA } from 'src/app/shared/tokens/task.token';
     CommonModule,
     ReactiveFormsModule,
     InputTextModule,
-    InputTextareaModule,
     DropdownModule,
     CalendarModule,
     ButtonModule
@@ -26,23 +24,23 @@ import { TASK_DATA } from 'src/app/shared/tokens/task.token';
 export class NovaTarefaComponent implements OnInit {
   taskForm!: FormGroup;
   tasks: Task[] = [];
-  
+
   // Opções para os dropdowns
   statusOptions = [
     { label: 'Pendente', value: 'PENDENTE' },
     { label: 'Em Andamento', value: 'EM_ANDAMENTO' },
     { label: 'Concluída', value: 'CONCLUIDA' }
   ];
-  
+
   priorityOptions = [
     { label: 'Baixa', value: 'BAIXA' },
     { label: 'Média', value: 'MEDIA' },
     { label: 'Alta', value: 'ALTA' }
   ];
-  
+
   // Injetar FormBuilder
   private fb = inject(FormBuilder);
-  
+
   // Injetar os dados da tarefa usando o token
   taskData = inject(TASK_DATA);
 
@@ -56,7 +54,7 @@ export class NovaTarefaComponent implements OnInit {
       assignedTo: [''],
       category: [''],
     });
-    
+
     // Se os dados forem injetados, usá-los
     if (this.taskData) {
       this.tasks = Array.isArray(this.taskData) ? this.taskData : [this.taskData];
@@ -72,7 +70,7 @@ export class NovaTarefaComponent implements OnInit {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
+
       this.tasks.push(newTask);
       this.taskForm.reset({
         priority: 'MEDIA' // Resetar com o valor padrão para prioridade

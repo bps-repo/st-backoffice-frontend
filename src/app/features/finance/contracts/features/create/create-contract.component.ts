@@ -1,39 +1,38 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Subject, takeUntil, combineLatest, debounceTime } from 'rxjs';
-import { MenuItem, SelectItem, MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RippleModule } from 'primeng/ripple';
-import { CalendarModule } from 'primeng/calendar';
-import { StepsModule } from 'primeng/steps';
-import { ToastModule } from 'primeng/toast';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Subject, takeUntil, combineLatest, debounceTime} from 'rxjs';
+import {MenuItem, SelectItem, MessageService} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {CheckboxModule} from 'primeng/checkbox';
+import {DropdownModule} from 'primeng/dropdown';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {InputTextModule} from 'primeng/inputtext';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import {RippleModule} from 'primeng/ripple';
+import {CalendarModule} from 'primeng/calendar';
+import {StepsModule} from 'primeng/steps';
+import {ToastModule} from 'primeng/toast';
 import {
     ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
-import { CreateStudentRequest } from 'src/app/core/services/student.service';
-import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
-import { studentsFeature } from 'src/app/core/store/schoolar/students/students.reducers';
-import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import {CreateStudentRequest} from 'src/app/core/services/student.service';
+import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
+import {studentsFeature} from 'src/app/core/store/schoolar/students/students.reducers';
+import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
 import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
-import { map, Observable, of } from 'rxjs';
-import { RenewContractComponent } from "../renew/renew-contract.component";
-import { LocationActions } from 'src/app/core/store/location/location.actions';
+import {map, Observable, of} from 'rxjs';
+import {RenewContractComponent} from "../renew/renew-contract.component";
+import {LocationActions} from 'src/app/core/store/location/location.actions';
 import * as LocationSelectors from 'src/app/core/store/location/location.selectors';
-import { selectCreatedStudentId } from "../../../../../core/store/schoolar/students/students.selectors";
-import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
-import { contractsFeature } from 'src/app/core/store/corporate/contracts/contracts.feature';
+import {selectCreatedStudentId} from "../../../../../core/store/schoolar/students/students.selectors";
+import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes.guard";
+import {contractsFeature} from 'src/app/core/store/corporate/contracts/contracts.feature';
 
 @Component({
     selector: 'finance-contracts-create',
@@ -45,7 +44,6 @@ import { contractsFeature } from 'src/app/core/store/corporate/contracts/contrac
         InputTextModule,
         DropdownModule,
         FileUploadModule,
-        InputTextareaModule,
         InputGroupModule,
         InputGroupAddonModule,
         RadioButtonModule,
@@ -91,8 +89,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
                 this.studentForm.disable();
                 this.activeIndex = 0;
                 this.router.navigate(['/finance/contracts']).then();
-            }
-            else {
+            } else {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Erro',
@@ -103,11 +100,11 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     }
 
     steps: MenuItem[] = [
-        { label: 'Dados Pessoais' },
-        { label: 'Dados institucional' },
-        { label: 'Contato de Emergência' },
-        { label: 'Observações' },
-        { label: 'Gestão contratual' }
+        {label: 'Dados Pessoais'},
+        {label: 'Dados institucional'},
+        {label: 'Contato de Emergência'},
+        {label: 'Observações'},
+        {label: 'Gestão contratual'}
     ];
 
     provinces$!: Observable<SelectItem[]>;
@@ -117,8 +114,8 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     loadingMunicipalities$!: Observable<boolean>;
 
     genderOptions: SelectItem[] = [
-        { label: 'Masculino', value: 'MALE' },
-        { label: 'Femenino', value: 'FEMALE' }
+        {label: 'Masculino', value: 'MALE'},
+        {label: 'Femenino', value: 'FEMALE'}
     ];
 
     ngOnInit() {
@@ -189,14 +186,14 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     private initializeCentersDropdown() {
         this.store.dispatch(CenterActions.loadCenters());
         this.centersOptions$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
-            map(centers => centers.map(c => ({ label: c.name, value: c.id } as SelectItem)))
+            map(centers => centers.map(c => ({label: c.name, value: c.id} as SelectItem)))
         );
     }
 
     private initializeLocationSelectors() {
         // Initialize provinces observable
         this.provinces$ = this.store.select(LocationSelectors.selectAllProvinces).pipe(
-            map(provinces => provinces.map(p => ({ label: p.name, value: p.name } as SelectItem)))
+            map(provinces => provinces.map(p => ({label: p.name, value: p.name} as SelectItem)))
         );
 
         // Initialize loading states
@@ -225,7 +222,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
             takeUntil(this.destroy$)
         ).subscribe(provinceName => {
             // Clear municipality when province changes
-            this.studentForm.patchValue({ municipality: '' });
+            this.studentForm.patchValue({municipality: ''});
 
             if (provinceName) {
                 // Update municipalities selector for the selected province
@@ -263,7 +260,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     }
 
     private loadMunicipalities(provinceId: string) {
-        this.store.dispatch(LocationActions.loadProvince({ provinceId }));
+        this.store.dispatch(LocationActions.loadProvince({provinceId}));
     }
 
     private subscribeToStudentCreation() {
@@ -459,7 +456,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
             // Disable form after getting the values
             this.studentForm.disable();
 
-            this.store.dispatch(StudentsActions.createStudentWithRequest({ request: createStudentRequest }));
+            this.store.dispatch(StudentsActions.createStudentWithRequest({request: createStudentRequest}));
         } else {
             const firstInvalidStep = this.findFirstInvalidStep();
             if (firstInvalidStep !== -1) {

@@ -7,7 +7,6 @@ import {combineLatest, Observable, of} from 'rxjs';
 import {DropdownModule} from 'primeng/dropdown';
 import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
 import {Center} from 'src/app/core/models/corporate/center';
 import {FormsModule} from '@angular/forms';
@@ -26,7 +25,7 @@ import {ToastModule} from "primeng/toast";
         InputTextModule,
         DropdownModule,
         FormsModule,
-        InputTextareaModule,
+        InputTextModule,
         ButtonModule,
         ProgressSpinnerModule, ToastModule]
 })

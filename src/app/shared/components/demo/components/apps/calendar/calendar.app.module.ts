@@ -8,7 +8,6 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast'
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -20,7 +19,6 @@ import {EventService} from "../../../../../../core/services/event.service";
         CalendarAppRoutingModule,
         FullCalendarModule,
         DialogModule,
-        InputTextareaModule,
         ButtonModule,
         CalendarModule,
         InputTextModule,

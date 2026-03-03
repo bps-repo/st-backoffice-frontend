@@ -1,22 +1,24 @@
-import { Component, effect, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Permission } from 'src/app/core/models/auth/permission';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
+import {Permission} from 'src/app/core/models/auth/permission';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
 import {
     PermissionTreeSelectComponent
 } from "../detail/permissions/permission-tree-select/permission-tree-select.component";
-import { RippleModule } from "primeng/ripple";
-import { Store } from "@ngrx/store";
-import { selectPermissionsLoading, selectPermissionTree } from "../../../../../../core/store/permissions/selectors/permissions.selectors";
-import { combineLatest, filter, map, Observable, of, Subject, takeUntil } from "rxjs";
-import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permissions.actions';
-import { selectRolesError, selectRolesLoading, selectSuccessFlag } from 'src/app/core/store/roles/roles.selectors';
-import { createRoleWithPermissions } from 'src/app/core/store/roles/roles.actions';
-import { MessageService } from 'primeng/api';
+import {RippleModule} from "primeng/ripple";
+import {Store} from "@ngrx/store";
+import {
+    selectPermissionsLoading,
+    selectPermissionTree
+} from "../../../../../../core/store/permissions/selectors/permissions.selectors";
+import {combineLatest, filter, map, Observable, of, Subject, takeUntil} from "rxjs";
+import {loadPermissionTree} from 'src/app/core/store/permissions/actions/permissions.actions';
+import {selectRolesError, selectRolesLoading, selectSuccessFlag} from 'src/app/core/store/roles/roles.selectors';
+import {createRoleWithPermissions} from 'src/app/core/store/roles/roles.actions';
+import {MessageService} from 'primeng/api';
 
 @Component({
     selector: 'app-create-role',
@@ -27,7 +29,6 @@ import { MessageService } from 'primeng/api';
         ReactiveFormsModule,
         ButtonModule,
         InputTextModule,
-        InputTextareaModule,
         PermissionTreeSelectComponent,
         RippleModule
     ]
@@ -122,7 +123,11 @@ export class CreateComponent implements OnInit, OnDestroy {
         console.log("selected permissions", this.selectedPermissionIds);
 
 
-        this.store$.dispatch(createRoleWithPermissions({ name: formValue.name, description: formValue.description, permissionIds: this.selectedPermissionIds }))
+        this.store$.dispatch(createRoleWithPermissions({
+            name: formValue.name,
+            description: formValue.description,
+            permissionIds: this.selectedPermissionIds
+        }))
 
         this.roleForm.reset()
     }

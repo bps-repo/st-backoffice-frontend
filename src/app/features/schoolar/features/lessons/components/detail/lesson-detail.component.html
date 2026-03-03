@@ -1,23 +1,4 @@
 <style>
-    ::ng-deep .p-selectbutton {
-        display: flex;
-        flex-wrap: nowrap;
-    }
-
-    ::ng-deep .p-selectbutton .p-button {
-        margin-right: 0.5rem;
-        border: none;
-    }
-
-    ::ng-deep .p-selectbutton .p-button:last-child {
-        margin-right: 0;
-    }
-
-    /* Animation classes */
-    .animate-fade {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
     .animate-scale {
         transition: opacity 0.5s ease, transform 0.5s ease;
     }
@@ -213,14 +194,13 @@
                     <!-- Online Access Card -->
                     <div class="col-12 md:col-6">
                         <div class="card h-full">
-                            <h3 class="text-xl font-semibold text-900 mb-4">{{ lesson.online ? "Acesso Online":"Sem
-                                acesso online"}}</h3>
+                            <h3 class="text-xl font-semibold text-900 mb-4">{{ lesson.online ? "Acesso Online":"Sem acesso online"}}</h3>
                             <div class="text-center py-4">
                                 <div class="mb-4">
                                     <i class="pi pi-video text-6xl text-300"></i>
                                 </div>
-                                <p class="text-600 mb-4">{{ lesson.online ? 'Link de aula online configurado' : 'Nenhum
-                                    link de aula online configurado' }}</p>
+                                <p class="text-600 mb-4">{{ lesson.online ? 'Link de aula online configurado' :
+                                    'Nenhum link de aula online configurado' }}</p>
                                 <p-button *ngIf="lesson.online && lesson.onlineLink" label="Acessar Aula"
                                     icon="pi pi-external-link" severity="info" (click)="openOnlineLink(lesson)">
                                 </p-button>

@@ -8,7 +8,6 @@ import * as ServiceActions from 'src/app/core/store/corporate/services/service.a
 import {selectSelectedService, selectServiceLoading} from 'src/app/core/store/corporate/services/service.selector';
 import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {Service} from 'src/app/core/models/course/service';
@@ -23,7 +22,6 @@ import {DropdownModule} from 'primeng/dropdown';
         DropdownModule,
         SkeletonModule,
         InputTextModule,
-        InputTextareaModule,
         ButtonModule,
         FormsModule,
         ProgressSpinnerModule]
