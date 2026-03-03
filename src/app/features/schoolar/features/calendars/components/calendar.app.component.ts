@@ -19,7 +19,6 @@ import {DialogModule} from "primeng/dialog";
 import {CalendarModule} from "primeng/calendar";
 import {CommonModule} from "@angular/common";
 import {InputTextModule} from "primeng/inputtext";
-import {InputTextareaModule} from "primeng/inputtextarea";
 import {DropdownModule} from "primeng/dropdown";
 import {ButtonModule} from "primeng/button";
 import {TooltipModule} from "primeng/tooltip";
@@ -29,11 +28,11 @@ import {Router} from "@angular/router";
 import {TabViewModule} from "primeng/tabview";
 import {CardModule} from "primeng/card";
 import {SelectButtonModule} from "primeng/selectbutton";
-import {KpiIndicatorsComponent, Kpi} from "src/app/shared/kpi-indicator/kpi-indicator.component";
+import {KpiIndicatorsComponent} from "src/app/shared/kpi-indicator/kpi-indicator.component";
 import {CalendarReportsComponent} from "./reports/calendar-reports.component";
 import {Store} from '@ngrx/store';
 import {lessonsActions} from 'src/app/core/store/schoolar/lessons/lessons.actions';
-import {selectAllLessons, selectLessonsByDateRange} from 'src/app/core/store/schoolar/lessons/lessons.selectors';
+import {selectAllLessons} from 'src/app/core/store/schoolar/lessons/lessons.selectors';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
 
 @Component({
@@ -48,7 +47,6 @@ import {LessonStatus} from 'src/app/core/enums/lesson-status';
         CalendarModule,
         CommonModule,
         InputTextModule,
-        InputTextareaModule,
         DropdownModule,
         ButtonModule,
         TooltipModule,
@@ -593,7 +591,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     }
 
 
-
     onEventClick(e: any) {
         this.clickedEvent = e.event;
         let plainEvent = e.event.toPlainObject({
@@ -884,7 +881,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
                 const lessonDate = new Date(lesson.startDatetime);
                 return lessonDate.toDateString() === day.date.toDateString();
             }).map(lesson => ({
-                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
                 title: lesson.title,
                 teacher: lesson.teacher.name,
                 group: lesson.level || 'N/A',
@@ -936,11 +933,14 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             const isToday = currentDay.toDateString() === new Date().toDateString();
 
             this.weeklyLessons.push({
-                day: currentDay.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
-                date: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
+                date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
                 isToday,
                 classes: dayLessons.map(lesson => ({
-                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }),
                     title: lesson.title,
                     teacher: lesson.teacher.name,
                     group: lesson.level || 'N/A',
@@ -1008,13 +1008,13 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     }
 
     getFormattedWeekRange(): string {
-        const start = this.currentWeekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const start = this.currentWeekStart.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
         return `Semana de ${start} a ${end}`;
     }
 
     getFormattedMonth(): string {
-        return this.currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        return this.currentDate.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
     }
 
     // Lesson dialog methods
@@ -1076,25 +1076,41 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     getStatusLabel(status: string | LessonStatus): string {
         if (typeof status === 'string') {
             switch (status.toUpperCase()) {
-                case 'AVAILABLE': return 'Disponível';
-                case 'BOOKED': return 'Agendada';
-                case 'COMPLETED': return 'Concluída';
-                case 'CANCELLED': return 'Cancelada';
-                case 'SCHEDULED': return 'Agendada';
-                case 'POSTPONED': return 'Adiada';
-                case 'OVERDUE': return 'Atrasada';
-                default: return status;
+                case 'AVAILABLE':
+                    return 'Disponível';
+                case 'BOOKED':
+                    return 'Agendada';
+                case 'COMPLETED':
+                    return 'Concluída';
+                case 'CANCELLED':
+                    return 'Cancelada';
+                case 'SCHEDULED':
+                    return 'Agendada';
+                case 'POSTPONED':
+                    return 'Adiada';
+                case 'OVERDUE':
+                    return 'Atrasada';
+                default:
+                    return status;
             }
         }
         switch (status) {
-            case LessonStatus.AVAILABLE: return 'Disponível';
-            case LessonStatus.BOOKED: return 'Agendada';
-            case LessonStatus.COMPLETED: return 'Concluída';
-            case LessonStatus.CANCELLED: return 'Cancelada';
-            case LessonStatus.SCHEDULED: return 'Agendada';
-            case LessonStatus.POSTPONED: return 'Adiada';
-            case LessonStatus.OVERDUE: return 'Atrasada';
-            default: return 'Desconhecido';
+            case LessonStatus.AVAILABLE:
+                return 'Disponível';
+            case LessonStatus.BOOKED:
+                return 'Agendada';
+            case LessonStatus.COMPLETED:
+                return 'Concluída';
+            case LessonStatus.CANCELLED:
+                return 'Cancelada';
+            case LessonStatus.SCHEDULED:
+                return 'Agendada';
+            case LessonStatus.POSTPONED:
+                return 'Adiada';
+            case LessonStatus.OVERDUE:
+                return 'Atrasada';
+            default:
+                return 'Desconhecido';
         }
     }
 
@@ -1102,24 +1118,34 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         if (typeof status === 'string') {
             switch (status.toUpperCase()) {
                 case 'AVAILABLE':
-                case 'COMPLETED': return 'success';
+                case 'COMPLETED':
+                    return 'success';
                 case 'BOOKED':
-                case 'SCHEDULED': return 'warning';
+                case 'SCHEDULED':
+                    return 'warning';
                 case 'CANCELLED':
-                case 'OVERDUE': return 'danger';
-                case 'POSTPONED': return 'info';
-                default: return 'secondary';
+                case 'OVERDUE':
+                    return 'danger';
+                case 'POSTPONED':
+                    return 'info';
+                default:
+                    return 'secondary';
             }
         }
         switch (status) {
             case LessonStatus.AVAILABLE:
-            case LessonStatus.COMPLETED: return 'success';
+            case LessonStatus.COMPLETED:
+                return 'success';
             case LessonStatus.BOOKED:
-            case LessonStatus.SCHEDULED: return 'warning';
+            case LessonStatus.SCHEDULED:
+                return 'warning';
             case LessonStatus.CANCELLED:
-            case LessonStatus.OVERDUE: return 'danger';
-            case LessonStatus.POSTPONED: return 'info';
-            default: return 'secondary';
+            case LessonStatus.OVERDUE:
+                return 'danger';
+            case LessonStatus.POSTPONED:
+                return 'info';
+            default:
+                return 'secondary';
         }
     }
 

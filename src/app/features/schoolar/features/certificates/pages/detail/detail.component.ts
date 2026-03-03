@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable} from 'rxjs';
 import * as CertificatesActions from 'src/app/core/store/schoolar/certificates/certificates.actions';
-import { selectSelectedCertificate, selectCertificatesLoading } from 'src/app/core/store/schoolar/certificates/certificates.selectors';
-import { SkeletonModule } from "primeng/skeleton";
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
+import {
+    selectSelectedCertificate,
+    selectCertificatesLoading
+} from 'src/app/core/store/schoolar/certificates/certificates.selectors';
+import {SkeletonModule} from "primeng/skeleton";
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
 
 interface Certificate {
     id: string;
@@ -26,7 +28,7 @@ interface Certificate {
     selector: 'app-student',
     templateUrl: './detail.component.html',
     standalone: true,
-    imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule]
+    imports: [CommonModule, SkeletonModule, InputTextModule, ButtonModule]
 })
 export class DetailComponent implements OnInit {
     certificateId: string = '';
@@ -58,7 +60,7 @@ export class DetailComponent implements OnInit {
 
     loadCertificate(): void {
         // Dispatch loadCertificate action to load the selected certificate
-        this.store.dispatch(CertificatesActions.loadCertificate({ id: this.certificateId }));
+        this.store.dispatch(CertificatesActions.loadCertificate({id: this.certificateId}));
     }
 
     downloadCertificate(): void {

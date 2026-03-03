@@ -5,7 +5,6 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {Level} from 'src/app/core/models/course/level';
 import {Store} from '@ngrx/store';
 import {Observable, take} from 'rxjs';
@@ -25,7 +24,6 @@ import {Actions, ofType} from '@ngrx/effects';
         ButtonModule,
         DropdownModule,
         InputTextModule,
-        InputTextareaModule,
         ToastModule
     ],
     templateUrl: './create-level-dialog.component.html',
@@ -102,7 +100,11 @@ export class CreateLevelDialogComponent implements OnInit {
             if (messages.length === 0) {
                 this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Falha ao criar nível'});
             } else {
-                messages.forEach((msg: string) => this.messageService.add({severity: 'error', summary: 'Erro', detail: msg}));
+                messages.forEach((msg: string) => this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: msg
+                }));
             }
         });
     }

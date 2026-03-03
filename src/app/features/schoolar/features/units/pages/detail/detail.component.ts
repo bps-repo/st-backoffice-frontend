@@ -6,7 +6,6 @@ import {Store} from '@ngrx/store';
 import {Observable, of} from 'rxjs';
 import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
@@ -16,6 +15,7 @@ import {RippleModule} from "primeng/ripple";
 import {ChartModule} from 'primeng/chart';
 import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
 
+
 @Component({
     selector: 'app-unit-student',
     templateUrl: './detail.component.html',
@@ -24,7 +24,6 @@ import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.acti
         CommonModule,
         SkeletonModule,
         InputTextModule,
-        InputTextareaModule,
         ButtonModule,
         FormsModule,
         ProgressSpinnerModule,

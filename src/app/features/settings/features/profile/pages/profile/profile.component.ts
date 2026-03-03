@@ -1,26 +1,26 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { Observable, Subject, takeUntil } from 'rxjs';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { FileUploadModule } from 'primeng/fileupload';
-import { AvatarModule } from 'primeng/avatar';
-import { BadgeModule } from 'primeng/badge';
-import { DividerModule } from 'primeng/divider';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import {Store} from '@ngrx/store';
+import {Observable, Subject, takeUntil} from 'rxjs';
+import {MessageService} from 'primeng/api';
+import {ToastModule} from 'primeng/toast';
+import {CardModule} from 'primeng/card';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
+import {FileUploadModule} from 'primeng/fileupload';
+import {AvatarModule} from 'primeng/avatar';
+import {BadgeModule} from 'primeng/badge';
+import {DividerModule} from 'primeng/divider';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {DropdownModule} from 'primeng/dropdown';
+import {CalendarModule} from 'primeng/calendar';
 
-import { User } from '../../../../../../core/models/auth/user';
-import { authFeature } from '../../../../../../core/store/auth/auth.reducers';
-import { authActions } from '../../../../../../core/store/auth/auth.actions';
-import { UserProfileService } from '../../../../../../core/services/user-profile.service';
+import {User} from '../../../../../../core/models/auth/user';
+import {authFeature} from '../../../../../../core/store/auth/auth.reducers';
+import {authActions} from '../../../../../../core/store/auth/auth.actions';
+import {UserProfileService} from '../../../../../../core/services/user-profile.service';
+import {severtyType} from "../../../../../schoolar/features/lessons/components/bulk-booking/bulk-booking.component";
 
 @Component({
     selector: 'app-profile',
@@ -31,7 +31,6 @@ import { UserProfileService } from '../../../../../../core/services/user-profile
         ToastModule,
         CardModule,
         InputTextModule,
-        InputTextareaModule,
         ButtonModule,
         FileUploadModule,
         AvatarModule,
@@ -53,8 +52,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     genderOptions = [
-        { label: 'Male', value: 'MALE' },
-        { label: 'Female', value: 'FEMALE' }
+        {label: 'Male', value: 'MALE'},
+        {label: 'Female', value: 'FEMALE'}
     ];
 
     constructor(
@@ -129,7 +128,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
                 formValue.birthdate = formValue.birthdate.toISOString();
             }
 
-            this.store.dispatch(authActions.updateUserProfile({ userData: formValue }));
+            this.store.dispatch(authActions.updateUserProfile({userData: formValue}));
 
             this.messageService.add({
                 severity: 'success',
@@ -157,7 +156,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     onPhotoUpload(event: any): void {
         const file = event.files[0];
         if (file) {
-            this.store.dispatch(authActions.updateUserPhoto({ photoFile: file }));
+            this.store.dispatch(authActions.updateUserPhoto({photoFile: file}));
 
             this.messageService.add({
                 severity: 'success',
@@ -167,12 +166,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
     }
 
-    getStatusSeverity(status: string): "success" | "info" | "warning" | "danger" | null {
+    getStatusSeverity(status: string): severtyType {
         switch (status) {
             case 'ACTIVE':
                 return 'success';
             case 'INACTIVE':
-                return 'warning';
+                return 'warn';
             case 'SUSPENDED':
                 return 'danger';
             case 'PENDING':

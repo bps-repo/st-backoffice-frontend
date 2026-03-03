@@ -7,7 +7,6 @@ import {Subject, takeUntil} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {DropdownModule} from 'primeng/dropdown';
 import {TabViewModule} from 'primeng/tabview';
@@ -38,7 +37,6 @@ interface StudentAttempt {
         ButtonModule,
         CardModule,
         InputTextModule,
-        InputTextareaModule,
         InputNumberModule,
         DropdownModule,
         TabViewModule

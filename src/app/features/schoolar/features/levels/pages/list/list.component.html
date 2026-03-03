@@ -145,7 +145,7 @@
                                             <span class="text-sm text-color-secondary">{{ unit.description }}</span>
                                         </div>
                                         <p-badge [value]="unit.status"
-                                                 [severity]="unit.status === 'active' ? 'success' : 'warning'"></p-badge>
+                                                 [severity]="unit.status === 'active' ? 'success' : 'warn'"></p-badge>
                                     </div>
                                 </div>
                                 <div *ngIf="getUnitsForLevel(level.id).length === 0" class="text-center p-3">

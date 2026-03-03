@@ -1,36 +1,34 @@
 // student.component.ts
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable, Subject, takeUntil, combineLatest, of, BehaviorSubject, forkJoin } from 'rxjs';
-import { map, switchMap, catchError, tap, distinctUntilChanged, shareReplay, startWith } from 'rxjs/operators';
-import { SkeletonModule } from 'primeng/skeleton';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { FormsModule } from '@angular/forms';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { Level } from 'src/app/core/models/course/level';
-import { Unit } from 'src/app/core/models/course/unit';
-import { Student } from 'src/app/core/models/academic/student';
-import { UnitProgress } from 'src/app/core/models/academic/unit-progress';
-import { ChartModule } from 'primeng/chart';
-import { RippleModule } from 'primeng/ripple';
-import { TabViewModule } from 'primeng/tabview';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { BadgeModule } from 'primeng/badge';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { ChipModule } from 'primeng/chip';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuItem } from 'primeng/api';
+import {Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Observable, Subject, takeUntil, combineLatest, of, BehaviorSubject, forkJoin} from 'rxjs';
+import {map, catchError, distinctUntilChanged, shareReplay} from 'rxjs/operators';
+import {SkeletonModule} from 'primeng/skeleton';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
+import {DropdownModule} from 'primeng/dropdown';
+import {FormsModule} from '@angular/forms';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {Level} from 'src/app/core/models/course/level';
+import {Unit} from 'src/app/core/models/course/unit';
+import {Student} from 'src/app/core/models/academic/student';
+import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
+import {ChartModule} from 'primeng/chart';
+import {RippleModule} from 'primeng/ripple';
+import {TabViewModule} from 'primeng/tabview';
+import {TabMenuModule} from 'primeng/tabmenu';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {BadgeModule} from 'primeng/badge';
+import {ProgressBarModule} from 'primeng/progressbar';
+import {ChipModule} from 'primeng/chip';
+import {AvatarModule} from 'primeng/avatar';
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
-import { LevelActions } from "../../../../../../core/store/schoolar/level/level.actions";
-import { LevelService } from 'src/app/core/services/level.service';
-import { UnitService } from 'src/app/core/services/unit.service';
-import { StudentService } from 'src/app/core/services/student.service';
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {LevelService} from 'src/app/core/services/level.service';
+import {UnitService} from 'src/app/core/services/unit.service';
+import {StudentService} from 'src/app/core/services/student.service';
 
 // Cache interface for better type safety
 interface LevelDetailCache {
@@ -49,7 +47,6 @@ interface LevelDetailCache {
         CommonModule,
         SkeletonModule,
         InputTextModule,
-        InputTextareaModule,
         ButtonModule,
         DropdownModule,
         FormsModule,
@@ -109,9 +106,9 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     // View options for the select button
     viewOptions = [
-        { label: 'Visão Geral', value: 'overview' },
-        { label: 'Alunos', value: 'students' },
-        { label: 'Unidades', value: 'units' }
+        {label: 'Visão Geral', value: 'overview'},
+        {label: 'Alunos', value: 'students'},
+        {label: 'Unidades', value: 'units'}
     ];
 
     // Cache for related data (5 minutes expiration)
@@ -146,11 +143,11 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     // Header KPI values (calculated from real data)
     headerStats = [
-        { label: 'Total de Alunos', value: 0, icon: 'pi pi-users' },
-        { label: 'Unidades', value: 0, icon: 'pi pi-book' },
-        { label: 'Tópicos', value: 0, icon: 'pi pi-bullseye' },
-        { label: 'Horas Totais', value: '0h', icon: 'pi pi-calendar' },
-        { label: 'Progresso Médio', value: '0%', icon: 'pi pi-chart-line' },
+        {label: 'Total de Alunos', value: 0, icon: 'pi pi-users'},
+        {label: 'Unidades', value: 0, icon: 'pi pi-book'},
+        {label: 'Tópicos', value: 0, icon: 'pi pi-bullseye'},
+        {label: 'Horas Totais', value: '0h', icon: 'pi pi-calendar'},
+        {label: 'Progresso Médio', value: '0%', icon: 'pi pi-chart-line'},
     ];
 
     // Students list (calculated from real data)
@@ -204,7 +201,7 @@ export class DetailComponent implements OnInit, OnDestroy {
             distinctUntilChanged()
         ).subscribe(level => {
             this.level = level;
-            this.editableLevel = level ? { ...level } : null;
+            this.editableLevel = level ? {...level} : null;
 
             if (level) {
                 // Load overview data immediately (most important)
@@ -269,7 +266,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         }).pipe(
             takeUntil(this.destroy$)
         ).subscribe({
-            next: ({ units, students }) => {
+            next: ({units, students}) => {
                 this.unitsSubject.next(units);
 
                 // Load unit progresses in parallel for all units
@@ -278,7 +275,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                     this.calculateStatistics(units, students, unitProgresses);
 
                     // Cache the data
-                    this.cacheData(cacheKey, { units, students, unitProgresses });
+                    this.cacheData(cacheKey, {units, students, unitProgresses});
 
                     this.loadingOverview = false;
                     this.cdr.markForCheck();
@@ -341,7 +338,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         ).subscribe({
             next: (students) => {
                 this.studentsSubject.next(students);
-                this.cacheData(cacheKey, { units: [], students, unitProgresses: [] });
+                this.cacheData(cacheKey, {units: [], students, unitProgresses: []});
                 this.loadingStudents = false;
                 this.cdr.markForCheck();
             },
@@ -380,7 +377,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         ).subscribe({
             next: (units) => {
                 this.unitsSubject.next(units);
-                this.cacheData(cacheKey, { units, students: [], unitProgresses: [] });
+                this.cacheData(cacheKey, {units, students: [], unitProgresses: []});
                 this.loadingUnits = false;
                 this.cdr.markForCheck();
             },
@@ -430,11 +427,11 @@ export class DetailComponent implements OnInit, OnDestroy {
 
         // Update header stats
         this.headerStats = [
-            { label: 'Total de Alunos', value: totalStudents, icon: 'pi pi-users' },
-            { label: 'Unidades', value: totalUnits, icon: 'pi pi-book' },
-            { label: 'Tópicos', value: totalTopics, icon: 'pi pi-bullseye' },
-            { label: 'Horas Totais', value: `${totalHours}h`, icon: 'pi pi-calendar' },
-            { label: 'Progresso Médio', value: `${averageProgress}%`, icon: 'pi pi-chart-line' },
+            {label: 'Total de Alunos', value: totalStudents, icon: 'pi pi-users'},
+            {label: 'Unidades', value: totalUnits, icon: 'pi pi-book'},
+            {label: 'Tópicos', value: totalTopics, icon: 'pi pi-bullseye'},
+            {label: 'Horas Totais', value: `${totalHours}h`, icon: 'pi pi-calendar'},
+            {label: 'Progresso Médio', value: `${averageProgress}%`, icon: 'pi pi-chart-line'},
         ];
 
         // Calculate progress statistics
@@ -450,7 +447,7 @@ export class DetailComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.progressStats = { completed, inProgress, notStarted };
+        this.progressStats = {completed, inProgress, notStarted};
 
         // Build units summary
         this.unitsSummary = units.map((unit, index) => ({
@@ -560,7 +557,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 700 },
+                        font: {weight: 700},
                         padding: 20,
                     },
                     position: 'right',
@@ -615,13 +612,13 @@ export class DetailComponent implements OnInit, OnDestroy {
             },
             scales: {
                 x: {
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                    ticks: {color: textColor},
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') }
+                    ticks: {color: textColor},
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
                 }
             }
         };
@@ -657,7 +654,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 700 },
+                        font: {weight: 700},
                         padding: 20,
                     },
                     position: 'bottom',
@@ -675,7 +672,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     loadLevel(): void {
-        this.store.dispatch(LevelActions.loadLevel({ id: this.levelId }));
+        this.store.dispatch(LevelActions.loadLevel({id: this.levelId}));
     }
 
     editLevel(): void {
@@ -687,7 +684,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                 maximumUnits: this.editableLevel.maximumUnits
             };
 
-            this.store.dispatch(LevelActions.updateLevel({ id: this.levelId, level: updatedLevel }));
+            this.store.dispatch(LevelActions.updateLevel({id: this.levelId, level: updatedLevel}));
         }
     }
 

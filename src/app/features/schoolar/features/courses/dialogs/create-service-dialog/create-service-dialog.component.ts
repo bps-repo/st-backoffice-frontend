@@ -6,7 +6,6 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
-import {InputTextareaModule} from 'primeng/inputtextarea';
 import {Service} from 'src/app/core/models/course/service';
 import {Store} from '@ngrx/store';
 import * as ServiceActions from 'src/app/core/store/corporate/services/service.actions';
@@ -24,8 +23,7 @@ import {ServiceState} from "../../../../../../core/store/corporate/services/serv
         DialogModule,
         ButtonModule,
         DropdownModule,
-        InputTextModule,
-        InputTextareaModule
+        InputTextModule
     ],
     templateUrl: './create-service-dialog.component.html'
 })

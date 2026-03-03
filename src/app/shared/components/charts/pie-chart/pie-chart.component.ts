@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
-import { Subscription, debounceTime } from 'rxjs';
-import { LayoutService } from 'src/app/layout/service/app.layout.service';
+import {CommonModule} from '@angular/common';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChartModule} from 'primeng/chart';
+import {Subscription, debounceTime} from 'rxjs';
+import {LayoutService} from 'src/app/layout/service/app.layout.service';
 
-export type pieType = 'doughnut' | 'pie';
+export type pieType = "doughnut" | "pie" | "bar" | "line" | "scatter" | "bubble" | "polarArea" | "radar" | undefined;
 
 @Component({
     selector: 'app-pie-chart',
@@ -29,9 +29,11 @@ export class PieChartComponent implements OnInit, OnDestroy {
                 this.initPieChart();
             });
     }
+
     ngOnInit(): void {
         this.initPieChart();
     }
+
     ngOnDestroy(): void {
         if (this.subscription) {
             this.subscription.unsubscribe();

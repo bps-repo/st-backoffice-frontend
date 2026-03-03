@@ -1,36 +1,35 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { SelectItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { CalendarModule } from 'primeng/calendar';
-import { Store } from '@ngrx/store';
-import { LessonCreate } from 'src/app/core/models/academic/lesson';
-import { LessonStatus } from 'src/app/core/enums/lesson-status';
-import { Router } from '@angular/router';
-import { Subject, takeUntil, take, Observable, of } from 'rxjs';
-import { MessageService } from 'primeng/api';
-import { Actions, ofType } from '@ngrx/effects';
-import { ToastModule } from 'primeng/toast';
-import { CheckboxModule } from "primeng/checkbox";
-import { CardModule } from 'primeng/card';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import { TooltipModule } from 'primeng/tooltip';
-import { Employee } from 'src/app/core/models/corporate/employee';
-import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
-import { selectAllCenters, selectLoadingCenters } from 'src/app/core/store/corporate/center/centers.selector';
-import { LevelActions } from 'src/app/core/store/schoolar/level/level.actions';
-import { selectAllLevels } from 'src/app/core/store/schoolar/level/level.selector';
-import { EmployeesActions } from 'src/app/core/store/corporate/employees/employees.actions';
-import { selectEmployeeLoading, selectEmployeesByRole } from 'src/app/core/store/corporate/employees/employees.selectors';
-import { selectUnitsByLevelId } from 'src/app/core/store/schoolar/units/unit.selectors';
-import { UnitActions } from 'src/app/core/store/schoolar/units/unit.actions';
-import { Unit } from 'src/app/core/models/course/unit';
-import { LessonType } from 'src/app/core/enums/lesson-type';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {SelectItem} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
+import {DropdownModule} from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import {CalendarModule} from 'primeng/calendar';
+import {Store} from '@ngrx/store';
+import {LessonCreate} from 'src/app/core/models/academic/lesson';
+import {LessonStatus} from 'src/app/core/enums/lesson-status';
+import {Router} from '@angular/router';
+import {Subject, takeUntil, take, Observable, of} from 'rxjs';
+import {MessageService} from 'primeng/api';
+import {Actions, ofType} from '@ngrx/effects';
+import {ToastModule} from 'primeng/toast';
+import {CheckboxModule} from "primeng/checkbox";
+import {CardModule} from 'primeng/card';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
+import {TooltipModule} from 'primeng/tooltip';
+import {Employee} from 'src/app/core/models/corporate/employee';
+import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
+import {selectAllCenters, selectLoadingCenters} from 'src/app/core/store/corporate/center/centers.selector';
+import {LevelActions} from 'src/app/core/store/schoolar/level/level.actions';
+import {selectAllLevels} from 'src/app/core/store/schoolar/level/level.selector';
+import {EmployeesActions} from 'src/app/core/store/corporate/employees/employees.actions';
+import {selectEmployeeLoading, selectEmployeesByRole} from 'src/app/core/store/corporate/employees/employees.selectors';
+import {selectUnitsByLevelId} from 'src/app/core/store/schoolar/units/unit.selectors';
+import {UnitActions} from 'src/app/core/store/schoolar/units/unit.actions';
+import {Unit} from 'src/app/core/models/course/unit';
+import {LessonType} from 'src/app/core/enums/lesson-type';
 
 @Component({
     selector: 'app-create-lesson',
@@ -41,7 +40,6 @@ import { LessonType } from 'src/app/core/enums/lesson-type';
         ButtonModule,
         DropdownModule,
         InputTextModule,
-        InputTextareaModule,
         CalendarModule,
         ToastModule,
         CheckboxModule,
@@ -86,15 +84,15 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
     // Dropdown options
     typeOptions: SelectItem[] = [
-        { label: 'Geral', value: LessonType.GENERAL },
-        { label: 'Gramática', value: LessonType.GRAMMAR },
-        { label: 'Vocabulário', value: LessonType.VOCABULARY },
-        { label: 'Prática', value: LessonType.PRACTICAL },
-        { label: 'Pronúncia', value: LessonType.PRONUNCIATION },
-        { label: 'Escrita', value: LessonType.WRITING },
-        { label: 'Leitura', value: LessonType.READING },
-        { label: 'Conversa', value: LessonType.CONVERSATION },
-        { label: 'Fala', value: LessonType.SPEAKING }
+        {label: 'Geral', value: LessonType.GENERAL},
+        {label: 'Gramática', value: LessonType.GRAMMAR},
+        {label: 'Vocabulário', value: LessonType.VOCABULARY},
+        {label: 'Prática', value: LessonType.PRACTICAL},
+        {label: 'Pronúncia', value: LessonType.PRONUNCIATION},
+        {label: 'Escrita', value: LessonType.WRITING},
+        {label: 'Leitura', value: LessonType.READING},
+        {label: 'Conversa', value: LessonType.CONVERSATION},
+        {label: 'Fala', value: LessonType.SPEAKING}
     ];
     teacherOptions: SelectItem[] = [];
     levelOptions: SelectItem[] = [];
@@ -103,10 +101,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     weekDayOptions: SelectItem[] = [];
     weekRangeOptions: SelectItem[] = [];
     statusOptions: SelectItem[] = [
-        { label: 'Available', value: LessonStatus.AVAILABLE },
-        { label: 'Booked', value: LessonStatus.BOOKED },
-        { label: 'Cancelled', value: LessonStatus.CANCELLED },
-        { label: 'Completed', value: LessonStatus.COMPLETED }
+        {label: 'Available', value: LessonStatus.AVAILABLE},
+        {label: 'Booked', value: LessonStatus.BOOKED},
+        {label: 'Cancelled', value: LessonStatus.CANCELLED},
+        {label: 'Completed', value: LessonStatus.COMPLETED}
     ];
 
     constructor(
@@ -181,7 +179,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: centers => {
-                    this.centerOptions = (centers || []).map(c => ({ label: c.name, value: c.id }));
+                    this.centerOptions = (centers || []).map(c => ({label: c.name, value: c.id}));
                 },
                 error: () => {
                     this.centerOptions = [];
@@ -195,7 +193,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                     const first = e.personalInfo.firstName || '';
                     const last = e.personalInfo.lastName || '';
                     const label = `${first} ${last}`.trim() || e.personalInfo?.email || e.id;
-                    return { label, value: e.id };
+                    return {label, value: e.id};
                 });
             });
 
@@ -204,7 +202,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: levels => {
-                    this.levelOptions = (levels || []).map(l => ({ label: l.name, value: l.id }));
+                    this.levelOptions = (levels || []).map(l => ({label: l.name, value: l.id}));
                 },
                 error: () => {
                     this.levelOptions = [];
@@ -326,17 +324,18 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     private loadUnitsForLevel(levelId: string): void {
         this.store$.select(selectUnitsByLevelId(levelId, false))
             .subscribe((units => {
-                // Filter units by the selected level
-                this.unitOptions = units.map(u => ({ label: u.name, value: u.id }));
+                    // Filter units by the selected level
+                    this.unitOptions = units.map(u => ({label: u.name, value: u.id}));
 
-                // Reset unit selection if current selection is not valid for the new level
-                const currentUnitId = this.form.get('unitId')?.value;
-                if (currentUnitId && !units.some(u => u.id === currentUnitId)) {
-                    this.form.get('unitId')?.setValue(null);
+                    // Reset unit selection if current selection is not valid for the new level
+                    const currentUnitId = this.form.get('unitId')?.value;
+                    if (currentUnitId && !units.some(u => u.id === currentUnitId)) {
+                        this.form.get('unitId')?.setValue(null);
+                    }
                 }
-            }
             ));
     }
+
     cancel() {
         this.router.navigate(['/schoolar/lessons']).then();
     }
@@ -375,17 +374,23 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     saveLesson() {
         if (this.form.invalid) {
             this.form.markAllAsTouched();
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Por favor, preencha todos os campos obrigatórios' });
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Por favor, preencha todos os campos obrigatórios'
+            });
             return;
         }
 
         // Additional validation for selected day
         if (!this.form.get('selectedDay')?.value) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Por favor, selecione um dia da semana' });
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Por favor, selecione um dia da semana'
+            });
             return;
         }
-
-
 
 
         this.loading = true;
@@ -423,7 +428,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         } as LessonCreate;
 
         // Dispatch the create lesson action
-        this.store$.dispatch(lessonsActions.createLesson({ lesson: payload }));
+        this.store$.dispatch(lessonsActions.createLesson({lesson: payload}));
 
         // Wait for success or failure
         this.actions$.pipe(
@@ -439,14 +444,18 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/schoolar/lessons']).then();
             });
         this.actions$.pipe(ofType(lessonsActions.createLessonFailure), takeUntil(this.destroy$), take(1))
-            .subscribe(({ error }: any) => {
+            .subscribe(({error}: any) => {
                 this.loading = false;
                 // Show backend error(s). Split combined message to multiple toasts if needed
                 const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
                 if (messages.length === 0) {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create lesson' });
+                    this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to create lesson'});
                 } else {
-                    messages.forEach((msg: string) => this.messageService.add({ severity: 'error', summary: 'Error', detail: msg }));
+                    messages.forEach((msg: string) => this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: msg
+                    }));
                 }
             });
     }

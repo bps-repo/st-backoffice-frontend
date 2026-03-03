@@ -1,24 +1,23 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Subject, takeUntil } from 'rxjs';
-import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { CalendarModule } from 'primeng/calendar';
-import { FileUploadModule } from 'primeng/fileupload';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { Lesson } from "../../../../../../../../core/models/academic/lesson";
-import { Material } from "../../../../../../../../core/models/academic/material";
-import { LessonService } from "../../../../../../../../core/services/lesson.service";
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {Subject, takeUntil} from 'rxjs';
+import {CardModule} from 'primeng/card';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
+import {DialogModule} from 'primeng/dialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {CalendarModule} from 'primeng/calendar';
+import {FileUploadModule} from 'primeng/fileupload';
+import {MessageService} from 'primeng/api';
+import {ToastModule} from 'primeng/toast';
+import {Lesson} from "../../../../../../../../core/models/academic/lesson";
+import {Material} from "../../../../../../../../core/models/academic/material";
+import {LessonService} from "../../../../../../../../core/services/lesson.service";
 
 @Component({
     selector: 'app-materials-dashboard',
@@ -33,7 +32,6 @@ import { LessonService } from "../../../../../../../../core/services/lesson.serv
         TooltipModule,
         DialogModule,
         InputTextModule,
-        InputTextareaModule,
         CalendarModule,
         FileUploadModule,
         ToastModule
@@ -55,7 +53,8 @@ export class MaterialsComponent implements OnInit, OnDestroy {
         private store: Store,
         private lessonApiService: LessonService,
         private messageService: MessageService
-    ) {}
+    ) {
+    }
 
     ngOnInit(): void {
     }
@@ -144,7 +143,6 @@ export class MaterialsComponent implements OnInit, OnDestroy {
             type: this.newMaterial.type!,
             fileUrl: this.newMaterial.fileUrl!,
             uploadDate: new Date().toISOString(),
-            uploader: { id: '1', name: 'Current User' }, // In a real app, this would be the current user
             active: true,
             availabilityStartDate: this.newMaterial.availabilityStartDate || '',
             availabilityEndDate: this.newMaterial.availabilityEndDate || '',

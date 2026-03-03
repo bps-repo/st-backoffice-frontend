@@ -6,7 +6,6 @@ import { Lesson } from 'src/app/core/models/academic/lesson';
 import { LessonStatus } from 'src/app/core/enums/lesson-status';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { SelectItem } from 'primeng/api';
 import { LEVELS } from 'src/app/shared/constants/app';
 import { FormsModule } from '@angular/forms';
@@ -39,7 +38,6 @@ import { HasPermissionDirective } from 'src/app/shared/directives/has-permission
         CommonModule,
         DropdownModule,
         InputTextModule,
-        InputTextareaModule,
         FormsModule,
         ButtonModule,
         RouterModule,

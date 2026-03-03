@@ -1,23 +1,22 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Role } from 'src/app/core/models/auth/role';
-import { Observable, of, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ButtonModule } from 'primeng/button';
-import { TabViewModule } from 'primeng/tabview';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { RippleModule } from "primeng/ripple";
-import { Store } from "@ngrx/store";
-import { selectRolesLoading, selectSelectedRole } from "../../../../../../core/store/roles/roles.selectors";
-import { loadRole, updateRole, deleteRole } from 'src/app/core/store/roles/roles.actions';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import {Role} from 'src/app/core/models/auth/role';
+import {Observable, of, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {ButtonModule} from 'primeng/button';
+import {TabViewModule} from 'primeng/tabview';
+import {DialogModule} from 'primeng/dialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {ToastModule} from 'primeng/toast';
+import {RippleModule} from "primeng/ripple";
+import {Store} from "@ngrx/store";
+import {selectRolesLoading, selectSelectedRole} from "../../../../../../core/store/roles/roles.selectors";
+import {loadRole, updateRole, deleteRole} from 'src/app/core/store/roles/roles.actions';
 
 @Component({
     selector: 'app-role-detail',
@@ -31,7 +30,6 @@ import { loadRole, updateRole, deleteRole } from 'src/app/core/store/roles/roles
         TabViewModule,
         DialogModule,
         InputTextModule,
-        InputTextareaModule,
         ProgressSpinnerModule,
         ConfirmDialogModule,
         ToastModule,
@@ -57,7 +55,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.role$ = this.store$.select(selectSelectedRole) as Observable<Role | null>;
         this.loading$ = this.store$.select(selectRolesLoading);
 
-        
+
     }
 
     ngOnInit(): void {
@@ -89,7 +87,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     loadRole(id: string): void {
-        this.store$.dispatch(loadRole({ id }));
+        this.store$.dispatch(loadRole({id}));
     }
 
     hideEditDialog(): void {
@@ -120,7 +118,7 @@ export class DetailComponent implements OnInit, OnDestroy {
             description: this.roleForm.value.description
         };
 
-        this.store$.dispatch(updateRole({ role: updatedRole }));
+        this.store$.dispatch(updateRole({role: updatedRole}));
     }
 
     deleteRole(): void {
@@ -131,7 +129,7 @@ export class DetailComponent implements OnInit, OnDestroy {
             header: 'Confirmar Exclusão',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.store$.dispatch(deleteRole({ id: this.role!.id }));
+                this.store$.dispatch(deleteRole({id: this.role!.id}));
             }
         });
     }

@@ -27,7 +27,6 @@ export class SchoolarDashboard {
     viewOptions: ViewOption[] = [
         { label: 'Alunos', value: { key: 'students', component: StudentsDashboardComponent } },
         { label: 'Aulas', value: { key: 'lessons', component: LessonsDashboardComponent } },
-        { label: 'Materiais', value: { key: 'materials', component: MaterialsDashboardComponent } },
         { label: 'Avaliações', value: { key: 'assessments', component: AssessmentsDashboardComponent } },
         { label: 'Níveis', value: { key: 'levels', component: LevelDashboardComponent } },
     ];

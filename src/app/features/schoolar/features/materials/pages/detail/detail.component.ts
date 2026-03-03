@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { SkeletonModule } from 'primeng/skeleton';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {SkeletonModule} from 'primeng/skeleton';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
 
 interface Material {
     id: string;
@@ -22,7 +21,7 @@ interface Material {
     selector: 'app-student',
     templateUrl: './detail.component.html',
     standalone: true,
-    imports: [CommonModule, SkeletonModule, InputTextModule, InputTextareaModule, ButtonModule]
+    imports: [CommonModule, SkeletonModule, InputTextModule, ButtonModule]
 })
 export class DetailComponent implements OnInit {
     materialId: string = '';
@@ -66,7 +65,8 @@ export class DetailComponent implements OnInit {
         }
     ];
 
-    constructor(private route: ActivatedRoute) {}
+    constructor(private route: ActivatedRoute) {
+    }
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {
