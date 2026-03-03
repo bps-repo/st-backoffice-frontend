@@ -1,0 +1,44 @@
+name: Deploy Backoffice
+
+on:
+    push:
+        branches: [ master ]
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        environment: DigitalOcean
+
+        steps:
+            -   uses: actions/checkout@v3
+
+            -   name: Setup Node
+                uses: actions/setup-node@v3
+                with:
+                    node-version: '18'
+
+            -   name: Install & Build
+                run: |
+                    npm ci
+                    npm run build -- --configuration production
+
+            -   name: Deploy to Droplet
+                uses: appleboy/scp-action@v0.1.4
+                with:
+                    host: ${{ secrets.DROPLET_IP }}
+                    username: standrews
+                    key: ${{ secrets.SSH_PRIVATE_KEY }}
+                    source: "dist/st-backoffice-frontend/*"
+                    target: "/home/standrews/standrews-app/backoffice-dist"
+                    strip_components: 2
+
+            -   name: Reload Nginx
+                uses: appleboy/ssh-action@v1
+                with:
+                    host: ${{ secrets.DROPLET_IP }}
+                    username: standrews
+                    key: ${{ secrets.SSH_PRIVATE_KEY }}
+                    password: ${{ secrets.DROPLET_PASSWORD }}
+                    script: |
+                        cd /home/standrews/standrews-app
+                        docker compose restart nginx
