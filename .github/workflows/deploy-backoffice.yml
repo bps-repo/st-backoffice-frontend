@@ -29,7 +29,7 @@ jobs:
                     username: standrews
                     password: ${{ secrets.DROPLET_PASSWORD }}
                     source: "dist/st-backoffice-frontend/browser/*"
-                    target: "/home/standrews/standrews-app/backoffice-dist/browser"
+                    target: "/home/standrews/standrews-app/backoffice-dist"
                     strip_components: 2
 
             -   name: Reload Nginx
