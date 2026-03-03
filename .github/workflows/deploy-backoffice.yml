@@ -28,8 +28,8 @@ jobs:
                     host: ${{ secrets.DROPLET_IP }}
                     username: standrews
                     password: ${{ secrets.DROPLET_PASSWORD }}
-                    source: "dist/st-backoffice-frontend/*"
-                    target: "/home/standrews/standrews-app/backoffice-dist"
+                    source: "dist/st-backoffice-frontend/browser/*"
+                    target: "/home/standrews/standrews-app/backoffice-dist/browser"
                     strip_components: 2
 
             -   name: Reload Nginx
