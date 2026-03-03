@@ -28,6 +28,7 @@ jobs:
                     host: ${{ secrets.DROPLET_IP }}
                     username: standrews
                     key: ${{ secrets.SSH_PRIVATE_KEY }}
+                    password: ${{ secrets.DROPLET_PASSWORD }}
                     source: "dist/st-backoffice-frontend/*"
                     target: "/home/standrews/standrews-app/backoffice-dist"
                     strip_components: 2
