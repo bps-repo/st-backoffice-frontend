@@ -24,6 +24,8 @@ import {Lesson} from '../../../../../../core/models/academic/lesson';
 import {Student} from '../../../../../../core/models/academic/student';
 import {BulkBookingRequest, BulkBookingResult, BulkBookingLesson} from '../../../../../../core/models/academic/bulk-booking';
 
+export type severtyType = "warn" | "success" | "info" | "danger" | "secondary" | "contrast";
+
 @Component({
     selector: 'app-bulk-booking',
     standalone: true,
@@ -175,15 +177,8 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
         this.store.dispatch(lessonsActions.bulkBookLessons({bulkBookingRequest}));
     }
 
-    getLessonDisplayName(lesson: Lesson): string {
-        return `${lesson.title} - ${new Date(lesson.startDatetime).toLocaleDateString()}`;
-    }
 
-    getStudentDisplayName(student: Student): string {
-        return `${student.user.firstname} ${student.user.lastname}`;
-    }
-
-    getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | null | undefined {
+    getStatusSeverity(status: string): severtyType {
         switch (status) {
             case 'BOOKED':
                 return 'success';

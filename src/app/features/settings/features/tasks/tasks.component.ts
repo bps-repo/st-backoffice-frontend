@@ -1,22 +1,31 @@
-import { Component, OnInit, ViewChild, TemplateRef, AfterViewInit, ElementRef, HostListener, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Task } from './models/task.model';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { BadgeModule } from 'primeng/badge';
-import { TooltipModule } from 'primeng/tooltip';
-import { TableColumn } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { RippleModule } from "primeng/ripple";
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { Store } from '@ngrx/store';
-import { TasksActions } from '../../../../core/store/settings/tasks/tasks.actions';
+import {
+    Component,
+    OnInit,
+    ViewChild,
+    TemplateRef,
+    AfterViewInit,
+    ElementRef,
+    HostListener,
+    OnDestroy
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {Task} from './models/task.model';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {TableModule} from 'primeng/table';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
+import {BadgeModule} from 'primeng/badge';
+import {TooltipModule} from 'primeng/tooltip';
+import {TableColumn} from 'src/app/shared/components/tables/global-table/global-table.component';
+import {RippleModule} from "primeng/ripple";
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {Store} from '@ngrx/store';
+import {TasksActions} from '../../../../core/store/settings/tasks/tasks.actions';
 import * as TasksSelectors from '../../../../core/store/settings/tasks/tasks.selectors';
-import { TaskItem } from '../../../../core/models/task-item.model';
-import { Subject, takeUntil } from 'rxjs';
-import { Router, RouterModule } from '@angular/router';
+import {TaskItem} from '../../../../core/models/task-item.model';
+import {Subject, takeUntil} from 'rxjs';
+import {Router, RouterModule} from '@angular/router';
 
 @Component({
     selector: 'settings-tasks',
@@ -38,7 +47,7 @@ import { Router, RouterModule } from '@angular/router';
     styleUrls: ['./tasks.component.scss']
 })
 export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
-    tasks: Task[] = [];
+    tasks: TaskItem[] = [];
     pendingRegistrations: TaskItem[] = [];
     overdueInstallments: TaskItem[] = [];
     private destroy$ = new Subject<void>();
@@ -60,33 +69,33 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
     currentView: string = 'contratos_terminados'; // Default view is terminated contracts
 
     viewOptions = [
-        { label: 'Contratos terminados', value: 'contratos_terminados' },
-        { label: 'Parcelas a vencer', value: 'parcelas_vencer' },
-        { label: 'Parcelas vencidas', value: 'parcelas_vencidas' },
-        { label: 'Ausências longas', value: 'ausencias_longas' },
-        { label: 'Inscrições pendentes', value: 'inscricoes_pendentes' },
+        {label: 'Contratos terminados', value: 'contratos_terminados'},
+        {label: 'Parcelas a vencer', value: 'parcelas_vencer'},
+        {label: 'Parcelas vencidas', value: 'parcelas_vencidas'},
+        {label: 'Ausências longas', value: 'ausencias_longas'},
+        {label: 'Inscrições pendentes', value: 'inscricoes_pendentes'},
     ];
 
     // Table columns
     columns: TableColumn[] = [
-        { field: 'id', header: 'ID' },
-        { field: 'title', header: 'Título' },
-        { field: 'description', header: 'Descrição' },
-        { field: 'status', header: 'Status' },
-        { field: 'priority', header: 'Prioridade' },
-        { field: 'dueDate', header: 'Data de Vencimento' },
-        { field: 'assignedTo', header: 'Responsável' },
-        { field: 'category', header: 'Categoria' }
+        {field: 'id', header: 'ID'},
+        {field: 'title', header: 'Título'},
+        {field: 'description', header: 'Descrição'},
+        {field: 'status', header: 'Status'},
+        {field: 'priority', header: 'Prioridade'},
+        {field: 'dueDate', header: 'Data de Vencimento'},
+        {field: 'assignedTo', header: 'Responsável'},
+        {field: 'category', header: 'Categoria'}
     ];
 
     globalFilterFields: string[] = ['title', 'description', 'assignedTo', 'category'];
     customTemplates: Record<string, TemplateRef<any>> = {};
 
     // References to sticky header elements
-    @ViewChild('mainHeader', { static: false })
+    @ViewChild('mainHeader', {static: false})
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', { static: false })
+    @ViewChild('viewSelector', {static: false})
     viewSelector!: ElementRef;
 
     // Sticky state tracking
@@ -94,22 +103,23 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
     isViewSelectorSticky: boolean = false;
 
     // Status templates
-    @ViewChild('statusTemplate', { static: true })
+    @ViewChild('statusTemplate', {static: true})
     statusTemplate!: TemplateRef<any>;
 
-    @ViewChild('priorityTemplate', { static: true })
+    @ViewChild('priorityTemplate', {static: true})
     priorityTemplate!: TemplateRef<any>;
 
-    @ViewChild('dueDateTemplate', { static: true })
+    @ViewChild('dueDateTemplate', {static: true})
     dueDateTemplate!: TemplateRef<any>;
 
-    @ViewChild('actionsTemplate', { static: true })
+    @ViewChild('actionsTemplate', {static: true})
     actionsTemplate!: TemplateRef<any>;
 
     constructor(
         private store: Store,
         private router: Router
-    ) { }
+    ) {
+    }
 
     // Method to handle view selection
     onViewChange(event: any) {
@@ -140,16 +150,16 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Get filtered tasks based on current view
-    get filteredTasks(): Task[] {
+    get filteredTasks(): TaskItem[] {
         switch (this.currentView) {
             case 'contratos_terminados':
-                return this.tasks.filter(task => task.category === 'Contrato Terminado');
+                return this.tasks.filter(task => task.taskType === 'Contrato Terminado');
             case 'parcelas_vencer':
-                return this.tasks.filter(task => task.category === 'Parcela a Vencer');
+                return this.tasks.filter(task => task.taskType === 'Parcela a Vencer');
             case 'parcelas_vencidas':
                 return [];
             case 'ausencias_longas':
-                return this.tasks.filter(task => task.category === 'Ausência Longa');
+                return this.tasks.filter(task => task.taskType === 'Ausência Longa');
             case 'inscricoes_pendentes':
                 return [];
             default:
@@ -180,10 +190,10 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Update task counts
     updateTaskCounts(): void {
-        this.contratosTerminadosCount = this.tasks.filter(task => task.category === 'Contrato Terminado').length;
-        this.parcelasVencerCount = this.tasks.filter(task => task.category === 'Parcela a Vencer').length;
+        this.contratosTerminadosCount = this.tasks.filter(task => task.taskType === 'Contrato Terminado').length;
+        this.parcelasVencerCount = this.tasks.filter(task => task.taskType === 'Parcela a Vencer').length;
         this.parcelasVencidasCount = this.overdueInstallments.length;
-        this.ausenciasLongasCount = this.tasks.filter(task => task.category === 'Ausência Longa').length;
+        this.ausenciasLongasCount = this.tasks.filter(task => task.taskType === 'Ausência Longa').length;
         this.inscricoesPendentesCount = this.pendingRegistrations.length;
     }
 
@@ -249,13 +259,13 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
             case 'proceed':
                 // Navigate to student detail or handle proceed action
                 this.router.navigate(['/finances/contracts/renew'], {
-                    queryParams: { studentId: task.studentId }
+                    queryParams: {studentId: task.studentId}
                 });
                 break;
             case 'create_contract':
                 // Navigate to create contract page
                 this.router.navigate(['/finances/contracts/create'], {
-                    queryParams: { studentId: task.studentId }
+                    queryParams: {studentId: task.studentId}
                 });
                 break;
             case 'remind':

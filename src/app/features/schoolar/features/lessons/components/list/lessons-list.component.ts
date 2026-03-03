@@ -38,7 +38,6 @@ import { HasPermissionDirective } from 'src/app/shared/directives/has-permission
         CommonModule,
         DropdownModule,
         InputTextModule,
-        InputTextareaModule,
         FormsModule,
         ButtonModule,
         RouterModule,

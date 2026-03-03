@@ -143,7 +143,6 @@ export class MaterialsComponent implements OnInit, OnDestroy {
             type: this.newMaterial.type!,
             fileUrl: this.newMaterial.fileUrl!,
             uploadDate: new Date().toISOString(),
-            uploader: {id: '1', name: 'Current User'}, // In a real app, this would be the current user
             active: true,
             availabilityStartDate: this.newMaterial.availabilityStartDate || '',
             availabilityEndDate: this.newMaterial.availabilityEndDate || '',

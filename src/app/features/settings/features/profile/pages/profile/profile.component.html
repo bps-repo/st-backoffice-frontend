@@ -192,7 +192,7 @@
                         <label>Email Verificado</label>
                         <p-badge
                             [value]="(currentUser$ | async)?.emailVerified ? 'Yes' : 'No'"
-                            [severity]="(currentUser$ | async)?.emailVerified ? 'success' : 'warning'">
+                            [severity]="(currentUser$ | async)?.emailVerified ? 'success' : 'warn'">
                         </p-badge>
                     </div>
 
@@ -200,7 +200,7 @@
                         <label>Telefone Verificado</label>
                         <p-badge
                             [value]="(currentUser$ | async)?.phoneVerified ? 'Yes' : 'No'"
-                            [severity]="(currentUser$ | async)?.phoneVerified ? 'success' : 'warning'">
+                            [severity]="(currentUser$ | async)?.phoneVerified ? 'success' : 'warn'">
                         </p-badge>
                     </div>
 

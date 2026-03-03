@@ -20,6 +20,7 @@ import {User} from '../../../../../../core/models/auth/user';
 import {authFeature} from '../../../../../../core/store/auth/auth.reducers';
 import {authActions} from '../../../../../../core/store/auth/auth.actions';
 import {UserProfileService} from '../../../../../../core/services/user-profile.service';
+import {severtyType} from "../../../../../schoolar/features/lessons/components/bulk-booking/bulk-booking.component";
 
 @Component({
     selector: 'app-profile',
@@ -165,12 +166,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
     }
 
-    getStatusSeverity(status: string): "success" | "info" | "warning" | "danger" | null {
+    getStatusSeverity(status: string): severtyType {
         switch (status) {
             case 'ACTIVE':
                 return 'success';
             case 'INACTIVE':
-                return 'warning';
+                return 'warn';
             case 'SUSPENDED':
                 return 'danger';
             case 'PENDING':

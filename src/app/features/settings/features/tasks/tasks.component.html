@@ -47,7 +47,7 @@
 
 <section class="grid">
     <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
-        [ngClass]="{'sticky-active': isMainHeaderSticky}">
+         [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de Tarefas</h2>
             <span class="text-lg">Acompanhe tarefas que requerem atenção especial</span>
@@ -55,30 +55,30 @@
     </div>
 
     <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
-        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
         <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-            optionLabel="label" optionValue="value">
+                        optionLabel="label" optionValue="value">
             <ng-template let-item pTemplate="item">
                 <div class="flex align-items-center">
                     <span>{{ item.label }}</span>
                     <span *ngIf="item.value === 'contratos_terminados'"
-                        class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 border-round">
+                          class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 border-round">
                         {{ contratosTerminadosCount }}
                     </span>
                     <span *ngIf="item.value === 'parcelas_vencer'"
-                        class="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 border-round">
+                          class="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 border-round">
                         {{ parcelasVencerCount }}
                     </span>
                     <span *ngIf="item.value === 'parcelas_vencidas'"
-                        class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 border-round">
+                          class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 border-round">
                         {{ parcelasVencidasCount }}
                     </span>
                     <span *ngIf="item.value === 'ausencias_longas'"
-                        class="ml-2 px-2 py-1 text-xs bg-purple-100 text-purple-800 border-round">
+                          class="ml-2 px-2 py-1 text-xs bg-purple-100 text-purple-800 border-round">
                         {{ ausenciasLongasCount }}
                     </span>
                     <span *ngIf="item.value === 'inscricoes_pendentes'"
-                        class="ml-2 px-2 py-1 text-xs bg-orange-100 text-orange-800 border-round">
+                          class="ml-2 px-2 py-1 text-xs bg-orange-100 text-orange-800 border-round">
                         {{ inscricoesPendentesCount }}
                     </span>
                 </div>
@@ -92,7 +92,7 @@
             <div class="flex gap-2 align-items-center mb-3">
                 <span class="p-input-icon-left flex-1">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" class="w-full" placeholder="Buscar tarefas..." />
+                    <input pInputText type="text" class="w-full" placeholder="Buscar tarefas..."/>
                 </span>
                 <button pButton type="button" icon="pi pi-filter" label="Filtros" class="p-button-outlined"></button>
                 <button pButton type="button" icon="pi pi-download" label="Exportar" class="p-button-outlined"></button>
@@ -102,11 +102,13 @@
                  class="flex align-items-center justify-content-center p-6">
                 <div class="flex flex-column align-items-center gap-3">
                     <p-progressSpinner [style]="{'width': '50px', 'height': '50px'}"
-                        strokeWidth="4"></p-progressSpinner>
+                                       strokeWidth="4"></p-progressSpinner>
                     <span class="text-600">
-                        {{ currentView === 'inscricoes_pendentes' ? 'Carregando inscrições pendentes...' :
-                           currentView === 'parcelas_vencidas' ? 'Carregando parcelas vencidas...' :
-                           'Carregando tarefas...' }}
+                        {{
+                            currentView === 'inscricoes_pendentes' ? 'Carregando inscrições pendentes...' :
+                                currentView === 'parcelas_vencidas' ? 'Carregando parcelas vencidas...' :
+                                    'Carregando tarefas...'
+                        }}
                     </span>
                 </div>
             </div>
@@ -114,10 +116,11 @@
                 <p-table [value]="currentView === 'inscricoes_pendentes' ? filteredPendingRegistrations :
                                   currentView === 'parcelas_vencidas' ? filteredOverdueInstallments :
                                   filteredTasks"
-                    styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10"
-                    [rowsPerPageOptions]="[5,10,25,50]"
-                    [loading]="((loading$ | async) ?? false) && isLoadingPendingRegistrations"
-                    [globalFilterFields]="currentView === 'inscricoes_pendentes' ? ['studentName', 'studentCode', 'center.name', 'description'] :
+                         styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true"
+                         [rows]="10"
+                         [rowsPerPageOptions]="[5,10,25,50]"
+                         [loading]="((loading$ | async) ?? false) && isLoadingPendingRegistrations"
+                         [globalFilterFields]="currentView === 'inscricoes_pendentes' ? ['studentName', 'studentCode', 'center.name', 'description'] :
                                           currentView === 'parcelas_vencidas' ? ['studentName', 'studentCode', 'center.name', 'level.name', 'description'] :
                                           globalFilterFields">
                     <ng-template pTemplate="header">
@@ -202,14 +205,14 @@
                             <td>
                                 <div class="flex gap-2 justify-content-center">
                                     <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
-                                        pTooltip="Reunião" tooltipPosition="top"></button>
+                                            pTooltip="Reunião" tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-times" class="p-button-rounded p-button-text"
-                                        pTooltip="Ignorar" tooltipPosition="top"></button>
+                                            pTooltip="Ignorar" tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-check"
-                                        class="p-button-rounded p-button-text p-button-success" pTooltip="Renovar"
-                                        tooltipPosition="top"></button>
+                                            class="p-button-rounded p-button-text p-button-success" pTooltip="Renovar"
+                                            tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-text"
-                                        pTooltip="Relatório" tooltipPosition="top"></button>
+                                            pTooltip="Relatório" tooltipPosition="top"></button>
                                 </div>
                             </td>
                         </tr>
@@ -233,15 +236,15 @@
                             <td>
                                 <div class="flex gap-2 justify-content-center">
                                     <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
-                                        pTooltip="Reunião" tooltipPosition="top"></button>
+                                            pTooltip="Reunião" tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-clock" class="p-button-rounded p-button-text"
-                                        pTooltip="Estender" tooltipPosition="top"></button>
+                                            pTooltip="Estender" tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-check-circle"
-                                        class="p-button-rounded p-button-text" pTooltip="Concluir"
-                                        tooltipPosition="top"></button>
+                                            class="p-button-rounded p-button-text" pTooltip="Concluir"
+                                            tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-credit-card"
-                                        class="p-button-rounded p-button-primary p-button-text" pTooltip="Pagar"
-                                        tooltipPosition="top"></button>
+                                            class="p-button-rounded p-button-primary p-button-text" pTooltip="Pagar"
+                                            tooltipPosition="top"></button>
                                 </div>
                             </td>
                         </tr>
@@ -259,17 +262,20 @@
                             <td>{{ getLevelName(taskItem.level) }}</td>
                             <td>{{ taskItem.center.name }}</td>
                             <td>
-                                <div class="flex flex-column" *ngIf="taskItem.installments && taskItem.installments.length > 0">
+                                <div class="flex flex-column"
+                                     *ngIf="taskItem.installments && taskItem.installments.length > 0">
                                     <span class="font-medium">Parcela {{ taskItem.installments[0].number }}</span>
                                     <span class="text-sm text-gray-500">{{ taskItem.installments[0].contractId }}</span>
                                 </div>
-                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0" class="text-sm text-gray-400">-</span>
+                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
+                                      class="text-sm text-gray-400">-</span>
                             </td>
                             <td>
                                 <span *ngIf="taskItem.installments && taskItem.installments.length > 0">
                                     {{ taskItem.installments[0].dueDate | date:'dd/MM/yyyy' }}
                                 </span>
-                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0" class="text-sm text-gray-400">-</span>
+                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
+                                      class="text-sm text-gray-400">-</span>
                             </td>
                             <td>
                                 <span *ngIf="taskItem.installments && taskItem.installments.length > 0"
@@ -280,10 +286,12 @@
                                       class="text-sm text-gray-400">-</span>
                             </td>
                             <td>
-                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0" class="font-medium">
+                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0"
+                                      class="font-medium">
                                     {{ formatCurrency(taskItem.installments[0].amount) }}
                                 </span>
-                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0" class="text-sm text-gray-400">-</span>
+                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
+                                      class="text-sm text-gray-400">-</span>
                             </td>
                             <td>
                                 <div class="flex gap-2 justify-content-center">
@@ -348,14 +356,14 @@
                             <td>
                                 <div class="flex gap-2 justify-content-center">
                                     <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
-                                        pTooltip="Reunião" tooltipPosition="top"></button>
+                                            pTooltip="Reunião" tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-text"
-                                        pTooltip="Relatório" tooltipPosition="top"></button>
+                                            pTooltip="Relatório" tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-exclamation-triangle"
-                                        class="p-button-rounded p-button-danger p-button-text" pTooltip="Alerta"
-                                        tooltipPosition="top"></button>
+                                            class="p-button-rounded p-button-danger p-button-text" pTooltip="Alerta"
+                                            tooltipPosition="top"></button>
                                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
-                                        pTooltip="Nota" tooltipPosition="top"></button>
+                                            pTooltip="Nota" tooltipPosition="top"></button>
                                 </div>
                             </td>
                         </tr>
@@ -390,21 +398,22 @@
                             <td>
                                 <div class="flex gap-2 justify-content-center">
                                     <button *ngIf="taskItem.actions.includes('proceed')" pButton pRipple
-                                        icon="pi pi-arrow-right" class="p-button-rounded p-button-text"
-                                        (click)="handleTaskAction(taskItem, 'proceed')" pTooltip="Prosseguir"
-                                        tooltipPosition="top"></button>
+                                            icon="pi pi-arrow-right" class="p-button-rounded p-button-text"
+                                            (click)="handleTaskAction(taskItem, 'proceed')" pTooltip="Prosseguir"
+                                            tooltipPosition="top"></button>
                                     <button *ngIf="taskItem.actions.includes('create_contract')" pButton pRipple
-                                        icon="pi pi-file-plus" class="p-button-rounded p-button-text p-button-success"
-                                        (click)="handleTaskAction(taskItem, 'create_contract')"
-                                        pTooltip="Criar Contrato" tooltipPosition="top"></button>
+                                            icon="pi pi-file-plus"
+                                            class="p-button-rounded p-button-text p-button-success"
+                                            (click)="handleTaskAction(taskItem, 'create_contract')"
+                                            pTooltip="Criar Contrato" tooltipPosition="top"></button>
                                     <button *ngIf="taskItem.actions.includes('delete')" pButton pRipple
-                                        icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-                                        (click)="handleTaskAction(taskItem, 'delete')" pTooltip="Excluir"
-                                        tooltipPosition="top"></button>
+                                            icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                                            (click)="handleTaskAction(taskItem, 'delete')" pTooltip="Excluir"
+                                            tooltipPosition="top"></button>
                                     <button *ngIf="taskItem.actions.includes('ignore')" pButton pRipple
-                                        icon="pi pi-times" class="p-button-rounded p-button-text p-button-warning"
-                                        (click)="handleTaskAction(taskItem, 'ignore')" pTooltip="Ignorar"
-                                        tooltipPosition="top"></button>
+                                            icon="pi pi-times" class="p-button-rounded p-button-text p-button-warning"
+                                            (click)="handleTaskAction(taskItem, 'ignore')" pTooltip="Ignorar"
+                                            tooltipPosition="top"></button>
                                 </div>
                             </td>
                         </tr>
@@ -440,8 +449,8 @@
     'bg-green-100 text-green-800': task.status === 'CONCLUIDA'
   }" class="px-2 py-1 rounded-full text-xs">
         {{
-        task.status === 'PENDENTE' ? 'Pendente' :
-        task.status === 'EM_ANDAMENTO' ? 'Em Andamento' : 'Concluída'
+            task.status === 'PENDENTE' ? 'Pendente' :
+                task.status === 'EM_ANDAMENTO' ? 'Em Andamento' : 'Concluída'
         }}
     </span>
 </ng-template>
@@ -463,11 +472,11 @@
 <ng-template #actionsTemplate let-task>
     <div class="flex gap-2 justify-content-center">
         <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editTask(task)"
-            pTooltip="Editar" tooltipPosition="top"></button>
+                pTooltip="Editar" tooltipPosition="top"></button>
         <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-            (click)="deleteTask(task)" pTooltip="Excluir" tooltipPosition="top"></button>
+                (click)="deleteTask(task)" pTooltip="Excluir" tooltipPosition="top"></button>
         <button *ngIf="task.status !== 'CONCLUIDA'" pButton pRipple icon="pi pi-check"
-            class="p-button-rounded p-button-text p-button-success" (click)="completeTask(task)" pTooltip="Concluir"
-            tooltipPosition="top"></button>
+                class="p-button-rounded p-button-text p-button-success" (click)="completeTask(task)" pTooltip="Concluir"
+                tooltipPosition="top"></button>
     </div>
 </ng-template>

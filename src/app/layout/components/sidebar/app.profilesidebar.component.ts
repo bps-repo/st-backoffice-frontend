@@ -17,6 +17,7 @@ import { authActions } from 'src/app/core/store/auth/auth.actions';
 import { authFeature } from 'src/app/core/store/auth/auth.reducers';
 import { User } from 'src/app/core/models/auth/user';
 import { UserProfileService } from 'src/app/core/services/user-profile.service';
+import {severtyType} from "../../../features/schoolar/features/lessons/components/bulk-booking/bulk-booking.component";
 
 @Component({
     selector: 'app-profilemenu',
@@ -78,12 +79,12 @@ export class AppProfileSidebarComponent implements OnInit, OnDestroy {
         this.visible = false;
     }
 
-    getStatusSeverity(status: string): "success" | "warning" | "info" | "danger"  | null {
+    getStatusSeverity(status: string): severtyType {
         switch (status) {
             case 'ACTIVE':
                 return 'success';
             case 'INACTIVE':
-                return 'warning';
+                return 'warn';
             case 'SUSPENDED':
                 return 'danger';
             case 'PENDING':
