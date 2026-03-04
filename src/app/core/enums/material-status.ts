@@ -1,3 +1,5 @@
 export enum MaterialStatus {
-    ACTIVE, INACTIVE, OTHER
+    ACTIVE,
+    INACTIVE,
+    OTHER
 }
