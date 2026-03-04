@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://st-backend-api-kdr8.onrender.com/api/v1',
-    enableHealthChecks: true,
+    apiUrl: 'http://45.55.87.103/api/v1',
+    enableHealthChecks: true
 };
