@@ -4,19 +4,19 @@
         <button
             *ngIf="menuMode !== 'drawer'"
             type="button"
-            class=" p-link p-trigger"
+            class=" p-link border-1 border-white cursor-pointer bg-white"
             (click)="menuMode = 'drawer'"
         >
-            <i class="pi pi-bars"></i>
+            <i class="pi pi-bars text-xl"></i>
         </button>
 
         <button
             *ngIf="menuMode != 'static'"
             type="button"
-            class=" p-link p-trigger"
+            class=" p-link border-1 border-white cursor-pointer bg-white"
             (click)="menuMode = 'static'"
         >
-            <i class="pi pi-arrow-right"></i>
+            <i class="pi pi-arrow-right text-xl"></i>
         </button>
 
         <!-- Toggle back to Static when in drawer mode -->
