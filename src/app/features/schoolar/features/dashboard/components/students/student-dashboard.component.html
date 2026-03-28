@@ -46,8 +46,8 @@
 
     <!-- Advanced Student Research Chart -->
     <div class="col-12">
-        <div class="card h-full">
-            <div class="flex justify-content-between align-items-center mb-3">
+        <div class="card h-full p-4">
+            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3 mb-4">
                 <h5 class="text-xl font-semibold m-0">Pesquisa Avancada de Alunos</h5>
                 <div class="flex align-items-center gap-2">
                     <span class="text-600">Resultados: <strong>{{ filteredStudentsCount }}</strong></span>
@@ -61,7 +61,19 @@
                 </div>
             </div>
 
-            <div class="grid mb-2">
+            <div class="flex flex-wrap gap-2 mb-4" *ngIf="activeAdvancedFilterChips.length > 0">
+                <button
+                    type="button"
+                    class="p-button p-component p-button-text p-button-sm border-round-sm surface-100 text-color px-2 py-1"
+                    *ngFor="let chip of activeAdvancedFilterChips"
+                    (click)="removeAdvancedFilter(chip.key)"
+                >
+                    <span>{{ chip.label }}: {{ chip.value }}</span>
+                    <i class="pi pi-times ml-2 text-xs"></i>
+                </button>
+            </div>
+
+            <div class="grid mb-4" style="row-gap: 0.85rem;">
                 <div class="col-12 md:col-6 lg:col-4 xl:col-3">
                     <label class="block mb-2 font-medium">Range de Idade</label>
                     <div class="flex align-items-center gap-2">
@@ -198,12 +210,15 @@
                 </div>
             </div>
 
-            <p-chart
-                type="bar"
-                [data]="advancedSearchChartData"
-                [options]="advancedSearchChartOptions"
-                height="340px"
-            ></p-chart>
+            <div class="pt-2">
+                <p-chart
+                    type="bar"
+                    [data]="advancedSearchChartData"
+                    [options]="advancedSearchChartOptions"
+                    [plugins]="[advancedBarsValuePlugin]"
+                    height="360px"
+                ></p-chart>
+            </div>
         </div>
     </div>
 

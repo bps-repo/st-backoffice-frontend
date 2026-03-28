@@ -26,6 +26,12 @@ interface SelectOption {
     value: string | null;
 }
 
+interface ActiveFilterChip {
+    key: string;
+    label: string;
+    value: string;
+}
+
 @Component({
     selector: 'app-students',
     standalone: true,
@@ -93,7 +99,10 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     // Advanced search chart (multi-filter)
     advancedSearchChartData: any;
     advancedSearchChartOptions: any;
+    advancedBarsValuePlugin: any;
     filteredStudentsCount = 0;
+    private advancedChartRawCounts: number[] = [];
+    private advancedChartRawProgress: number[] = [];
 
     // Advanced filters
     minAgeAdvanced: number | null = null;
@@ -120,6 +129,70 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
     ) {}
+
+    get activeAdvancedFilterChips(): ActiveFilterChip[] {
+        const chips: ActiveFilterChip[] = [];
+
+        if (this.minAgeAdvanced !== null || this.maxAgeAdvanced !== null) {
+            const minAge = this.minAgeAdvanced !== null ? this.minAgeAdvanced : '-';
+            const maxAge = this.maxAgeAdvanced !== null ? this.maxAgeAdvanced : '-';
+            chips.push({ key: 'ageRange', label: 'Idade', value: `${minAge}-${maxAge}` });
+        }
+        if (this.selectedProvinceAdvanced) {
+            chips.push({ key: 'province', label: 'Provincia', value: this.selectedProvinceAdvanced });
+        }
+        if (this.selectedMunicipalityAdvanced) {
+            chips.push({ key: 'municipality', label: 'Municipio', value: this.selectedMunicipalityAdvanced });
+        }
+        if (this.selectedLevelAdvanced) {
+            chips.push({ key: 'level', label: 'Nivel', value: this.selectedLevelAdvanced });
+        }
+        if (this.selectedUnitAdvanced) {
+            chips.push({ key: 'unit', label: 'Unidade', value: this.selectedUnitAdvanced });
+        }
+        if (this.selectedStatusAdvanced) {
+            chips.push({
+                key: 'status',
+                label: 'Estado',
+                value: this.findOptionLabel(this.statusAdvancedOptions, this.selectedStatusAdvanced)
+            });
+        }
+        if (this.selectedAcademicBackgroundAdvanced) {
+            chips.push({
+                key: 'academicBackground',
+                label: 'Formacao',
+                value: this.findOptionLabel(this.academicBackgroundAdvancedOptions, this.selectedAcademicBackgroundAdvanced)
+            });
+        }
+        if (this.selectedCenterAdvanced) {
+            chips.push({ key: 'center', label: 'Centro', value: this.selectedCenterAdvanced });
+        }
+        if (this.selectedGenderAdvanced) {
+            chips.push({
+                key: 'gender',
+                label: 'Genero',
+                value: this.findOptionLabel(this.genderAdvancedOptions, this.selectedGenderAdvanced)
+            });
+        }
+
+        return chips;
+    }
+
+    clearAdvancedFilters(): void {
+        this.minAgeAdvanced = null;
+        this.maxAgeAdvanced = null;
+        this.selectedProvinceAdvanced = null;
+        this.selectedMunicipalityAdvanced = null;
+        this.selectedLevelAdvanced = null;
+        this.selectedUnitAdvanced = null;
+        this.selectedStatusAdvanced = null;
+        this.selectedAcademicBackgroundAdvanced = null;
+        this.selectedCenterAdvanced = null;
+        this.selectedGenderAdvanced = null;
+
+        this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
+        this.applyAdvancedSearchChart();
+    }
 
     ngOnInit(): void {
         // Dispatch action to load students if not already loaded
@@ -754,18 +827,19 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                     type: 'bar',
                     label: 'Quantidade de Alunos',
                     backgroundColor: documentStyle.getPropertyValue('--primary-500'),
-                    data: [],
-                    yAxisID: 'y'
+                    borderRadius: 5,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.72,
+                    data: []
                 },
                 {
-                    type: 'line',
+                    type: 'bar',
                     label: 'Progressao Media (%)',
-                    borderColor: documentStyle.getPropertyValue('--cyan-500'),
                     backgroundColor: documentStyle.getPropertyValue('--cyan-500'),
-                    tension: 0.3,
-                    fill: false,
-                    data: [],
-                    yAxisID: 'y1'
+                    borderRadius: 5,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.72,
+                    data: []
                 }
             ]
         };
@@ -782,6 +856,20 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                     text: 'Pesquisa Avancada de Alunos (por Nivel)',
                     color: textColor,
                     font: { size: 16, weight: 'bold' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context: any) => {
+                            const datasetIndex = context.datasetIndex;
+                            const itemIndex = context.dataIndex;
+                            if (datasetIndex === 0) {
+                                const count = this.advancedChartRawCounts[itemIndex] || 0;
+                                return `Quantidade: ${count}`;
+                            }
+                            const progress = this.advancedChartRawProgress[itemIndex] || 0;
+                            return `Progressao Media: ${progress.toFixed(1)}%`;
+                        }
+                    }
                 }
             },
             scales: {
@@ -791,25 +879,46 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 },
                 y: {
                     beginAtZero: true,
+                    suggestedMax: 100,
                     ticks: { color: textColorSecondary },
                     grid: { color: surfaceBorder },
                     title: {
                         display: true,
-                        text: 'Quantidade',
-                        color: textColor
-                    }
-                },
-                y1: {
-                    beginAtZero: true,
-                    position: 'right',
-                    ticks: { color: textColorSecondary },
-                    grid: { drawOnChartArea: false },
-                    title: {
-                        display: true,
-                        text: 'Progressao Media (%)',
+                        text: 'Escala Normalizada',
                         color: textColor
                     }
                 }
+            }
+        };
+
+        this.advancedBarsValuePlugin = {
+            id: 'advancedBarsValuePlugin',
+            afterDatasetsDraw: (chart: any) => {
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.font = '600 11px sans-serif';
+                ctx.textAlign = 'center';
+
+                chart.data.datasets.forEach((_: any, datasetIndex: number) => {
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    if (!meta || !meta.data) {
+                        return;
+                    }
+
+                    meta.data.forEach((barElement: any, index: number) => {
+                        const rawValue = datasetIndex === 0
+                            ? (this.advancedChartRawCounts[index] ?? 0)
+                            : (this.advancedChartRawProgress[index] ?? 0);
+                        const label = datasetIndex === 0 ? `${rawValue}` : `${Number(rawValue).toFixed(1)}%`;
+
+                        ctx.fillStyle = datasetIndex === 0
+                            ? documentStyle.getPropertyValue('--primary-700') || '#1D4ED8'
+                            : documentStyle.getPropertyValue('--cyan-700') || '#0E7490';
+                        ctx.fillText(label, barElement.x, barElement.y - 8);
+                    });
+                });
+
+                ctx.restore();
             }
         };
     }
@@ -1123,23 +1232,55 @@ private calculateGrade(student: Student): string {
     }
 
     onAdvancedFiltersChange(): void {
+        if (
+            this.minAgeAdvanced !== null &&
+            this.maxAgeAdvanced !== null &&
+            this.minAgeAdvanced > this.maxAgeAdvanced
+        ) {
+            const tmp = this.minAgeAdvanced;
+            this.minAgeAdvanced = this.maxAgeAdvanced;
+            this.maxAgeAdvanced = tmp;
+        }
         this.applyAdvancedSearchChart();
     }
 
-    clearAdvancedFilters(): void {
-        this.minAgeAdvanced = null;
-        this.maxAgeAdvanced = null;
-        this.selectedProvinceAdvanced = null;
-        this.selectedMunicipalityAdvanced = null;
-        this.selectedLevelAdvanced = null;
-        this.selectedUnitAdvanced = null;
-        this.selectedStatusAdvanced = null;
-        this.selectedAcademicBackgroundAdvanced = null;
-        this.selectedCenterAdvanced = null;
-        this.selectedGenderAdvanced = null;
+    removeAdvancedFilter(filterKey: string): void {
+        switch (filterKey) {
+            case 'ageRange':
+                this.minAgeAdvanced = null;
+                this.maxAgeAdvanced = null;
+                break;
+            case 'province':
+                this.selectedProvinceAdvanced = null;
+                this.selectedMunicipalityAdvanced = null;
+                this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
+                break;
+            case 'municipality':
+                this.selectedMunicipalityAdvanced = null;
+                break;
+            case 'level':
+                this.selectedLevelAdvanced = null;
+                break;
+            case 'unit':
+                this.selectedUnitAdvanced = null;
+                break;
+            case 'status':
+                this.selectedStatusAdvanced = null;
+                break;
+            case 'academicBackground':
+                this.selectedAcademicBackgroundAdvanced = null;
+                break;
+            case 'center':
+                this.selectedCenterAdvanced = null;
+                break;
+            case 'gender':
+                this.selectedGenderAdvanced = null;
+                break;
+            default:
+                break;
+        }
 
-        this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
-        this.applyAdvancedSearchChart();
+        this.onAdvancedFiltersChange();
     }
 
     private buildAdvancedFilterOptions(
@@ -1238,12 +1379,18 @@ private calculateGrade(student: Student): string {
             return progressItems > 0 ? Number((progressSum / progressItems).toFixed(1)) : 0;
         });
 
+        this.advancedChartRawCounts = counts;
+        this.advancedChartRawProgress = avgProgress;
+
+        const normalizedCountBars = this.normalizeDatasetForChart(counts);
+        const normalizedProgressBars = this.normalizeDatasetForChart(avgProgress);
+
         this.advancedSearchChartData = {
             ...this.advancedSearchChartData,
             labels,
             datasets: [
-                { ...this.advancedSearchChartData.datasets[0], data: counts },
-                { ...this.advancedSearchChartData.datasets[1], data: avgProgress }
+                { ...this.advancedSearchChartData.datasets[0], data: normalizedCountBars },
+                { ...this.advancedSearchChartData.datasets[1], data: normalizedProgressBars }
             ]
         };
     }
@@ -1292,6 +1439,27 @@ private calculateGrade(student: Student): string {
             DOCTORATE: 'Doutoramento'
         };
         return mapLabel[value] || value;
+    }
+
+    private normalizeDatasetForChart(values: number[]): number[] {
+        const max = Math.max(...values, 0);
+        if (max <= 0) {
+            return values.map(() => 0);
+        }
+
+        return values.map(value => {
+            if (value <= 0) {
+                return 0;
+            }
+            return Math.max(12, Number(((value / max) * 100).toFixed(1)));
+        });
+    }
+
+    private findOptionLabel(options: SelectOption[], value: string | null): string {
+        if (!value) {
+            return '';
+        }
+        return options.find(option => option.value === value)?.label || value;
     }
 
     private filterStudentsByAdvancedCriteria(students: Student[]): Student[] {
