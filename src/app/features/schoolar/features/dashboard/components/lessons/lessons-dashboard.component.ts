@@ -1,18 +1,18 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
-import { FormsModule } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { SkeletonModule } from 'primeng/skeleton';
-import { DropdownModule } from 'primeng/dropdown';
-import { Store } from '@ngrx/store';
-import { Observable, Subject } from 'rxjs';
-import { map, takeUntil, first } from 'rxjs/operators';
-import { LessonsDashboardStatistics } from 'src/app/core/models/academic/lessons-dashboard-statistics';
-import { StatisticsActions } from 'src/app/core/store/schoolar/statistics/statistics.actions';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {ChartModule} from 'primeng/chart';
+import {FormsModule} from '@angular/forms';
+import {CalendarModule} from 'primeng/calendar';
+import {CardModule} from 'primeng/card';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {SkeletonModule} from 'primeng/skeleton';
+import {DropdownModule} from 'primeng/dropdown';
+import {Store} from '@ngrx/store';
+import {Observable, Subject} from 'rxjs';
+import {map, takeUntil, first} from 'rxjs/operators';
+import {LessonsDashboardStatistics} from 'src/app/core/models/academic/lessons-dashboard-statistics';
+import {StatisticsActions} from 'src/app/core/store/schoolar/statistics/statistics.actions';
 import {
     selectLessonsDashboardStatistics,
     selectLoadingLessonsDashboardStatistics
@@ -60,14 +60,15 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
 
     // UI data
     dateRange: Date[] | undefined;
-    
+
     // Unit chart filter
     selectedLevelFilter: string | null = null;
     levelFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
 
     constructor(
         private store: Store,
-    ) {}
+    ) {
+    }
 
     ngOnInit(): void {
         // Dispatch action to load lessons dashboard statistics
@@ -93,11 +94,11 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                     return [];
                 }
                 const options: Array<{ label: string; value: string | null }> = [
-                    { label: 'Todos os Níveis', value: null }
+                    {label: 'Todos os Níveis', value: null}
                 ];
                 const levels = Object.keys(dashboardStats.lessonsByLevel || {});
                 levels.forEach(level => {
-                    options.push({ label: level, value: level });
+                    options.push({label: level, value: level});
                 });
                 return options;
             })
@@ -141,12 +142,12 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                 diff: 0
             },
             {
-                label: 'Reservas',
+                label: 'Aulas com marcações',
                 current: booked,
                 diff: 0
             },
             {
-                label: 'Ausências',
+                label: 'Aulas sem marcações',
                 current: absent,
                 diff: 0
             },
@@ -299,8 +300,8 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
 
             Object.entries(units).forEach(([unit, count]) => {
                 // If filtering by level, show only unit name, otherwise show "Level - Unit"
-                const label = this.selectedLevelFilter 
-                    ? unit 
+                const label = this.selectedLevelFilter
+                    ? unit
                     : `${level} - ${unit}`;
                 unitLabels.push(label);
                 unitData.push(count);
@@ -433,7 +434,7 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 500 },
+                        font: {weight: 500},
                         padding: 20,
                     },
                     position: 'bottom',
@@ -441,7 +442,7 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                 title: {
                     display: true,
                     text: 'Distribuição por Estado',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -454,7 +455,7 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 500 },
+                        font: {weight: 500},
                         padding: 20,
                     },
                     position: 'bottom',
@@ -462,7 +463,7 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                 title: {
                     display: true,
                     text: 'Distribuição por Tipo',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -475,7 +476,7 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: { weight: 500 },
+                        font: {weight: 500},
                         padding: 20,
                     },
                     position: 'bottom',
@@ -483,7 +484,7 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
                 title: {
                     display: true,
                     text: 'Distribuição Online/Presencial',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -493,12 +494,12 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
         this.barChartCenterOptions = {
             plugins: {
                 legend: {
-                    labels: { color: textColor }
+                    labels: {color: textColor}
                 },
                 title: {
                     display: true,
                     text: 'Aulas por Centro',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -526,12 +527,12 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
         this.barChartLevelOptions = {
             plugins: {
                 legend: {
-                    labels: { color: textColor }
+                    labels: {color: textColor}
                 },
                 title: {
                     display: true,
                     text: 'Aulas por Nível',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -559,12 +560,12 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
         this.barChartUnitOptions = {
             plugins: {
                 legend: {
-                    labels: { color: textColor }
+                    labels: {color: textColor}
                 },
                 title: {
                     display: true,
                     text: 'Aulas por Unidade',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
@@ -592,12 +593,12 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
         this.barChartAttendanceOptions = {
             plugins: {
                 legend: {
-                    labels: { color: textColor }
+                    labels: {color: textColor}
                 },
                 title: {
                     display: true,
                     text: 'Aulas por Assiduidade',
-                    font: { size: 16, weight: 'bold' },
+                    font: {size: 16, weight: 'bold'},
                     color: textColor
                 }
             },
