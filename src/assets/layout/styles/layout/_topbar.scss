@@ -46,19 +46,20 @@
             &.topbar-profile {
                 margin-left: 1.5rem;
                 display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                
+                border: none;
+
                 img {
                     width: 2rem;
                     height: 2rem;
                 }
 
                 button {
+                    border: none;
                     border-radius: 50%;
-                    width: 2rem;
-                    height: 2rem;
+                    width: 4rem;
+                    height: 4rem;
                     transition: box-shadow var(--transition-duration);
+                    background-color: var(--primary-500);
 
                     &:focus {
                         box-shadow: var(--focus-ring);
