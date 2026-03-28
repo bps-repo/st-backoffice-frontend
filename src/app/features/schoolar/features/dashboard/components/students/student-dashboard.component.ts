@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DropdownModule } from 'primeng/dropdown';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil, first } from 'rxjs/operators';
@@ -44,7 +45,8 @@ interface ActiveFilterChip {
         ButtonModule,
         TableModule,
         SkeletonModule,
-        DropdownModule
+        DropdownModule,
+        InputSwitchModule
     ],
     templateUrl: './student-dashboard.component.html',
 })
@@ -97,6 +99,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     provinceFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
 
     // Advanced search chart (multi-filter)
+    showAdvancedSearchChart = false;
     advancedSearchChartData: any;
     advancedSearchChartOptions: any;
     advancedBarsValuePlugin: any;
