@@ -706,16 +706,10 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         };
     }
 
-    filterData() {
-        // Implement filtering logic based on date range
-        console.log('Filtering by date range:', this.dateRange);
-    }
-
     private buildKPIsFromDashboard(dashboardStats: StudentDashboardStatistics): any[] {
         const total = dashboardStats.totalStudents;
         const active = dashboardStats.studentsByStatus['ACTIVE'] || 0;
         const inactive = dashboardStats.studentsByStatus['INACTIVE'] || 0;
-        const pendingPayment = dashboardStats.studentsByStatus['PENDING_PAYMENT'] || 0;
 
         return [
             {
@@ -732,12 +726,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 label: 'Estudantes Inactivos',
                 current: inactive,
                 diff: 0
-            },
-            {
-                label: 'Pendentes de Pagamento',
-                current: pendingPayment,
-                diff: 0
-            },
+            }
         ];
     }
 
