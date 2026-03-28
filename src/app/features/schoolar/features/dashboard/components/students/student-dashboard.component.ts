@@ -8,8 +8,9 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DropdownModule } from 'primeng/dropdown';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, combineLatest } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map, takeUntil, first } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
@@ -20,6 +21,17 @@ import {
     selectDashboardStatistics,
     selectLoadingDashboardStatistics
 } from 'src/app/core/store/schoolar/statistics/statistics.selectors';
+
+interface SelectOption {
+    label: string;
+    value: string | null;
+}
+
+interface ActiveFilterChip {
+    key: string;
+    label: string;
+    value: string;
+}
 
 @Component({
     selector: 'app-students',
@@ -33,12 +45,15 @@ import {
         ButtonModule,
         TableModule,
         SkeletonModule,
-        DropdownModule
+        DropdownModule,
+        InputSwitchModule
     ],
     templateUrl: './student-dashboard.component.html',
 })
 export class StudentsDashboardComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
+    private studentsCache: Student[] = [];
+    private dashboardStatisticsSnapshot: StudentDashboardStatistics | null = null;
 
     // Data observables
     students$!: Observable<Student[]>;
@@ -83,9 +98,104 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     selectedProvinceFilter: string | null = null;
     provinceFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
 
+    // Advanced search chart (multi-filter)
+    showAdvancedSearchChart = false;
+    advancedSearchChartData: any;
+    advancedSearchChartOptions: any;
+    advancedBarsValuePlugin: any;
+    filteredStudentsCount = 0;
+    private advancedChartRawCounts: number[] = [];
+    private advancedChartRawProgress: number[] = [];
+
+    // Advanced filters
+    minAgeAdvanced: number | null = null;
+    maxAgeAdvanced: number | null = null;
+    selectedProvinceAdvanced: string | null = null;
+    selectedMunicipalityAdvanced: string | null = null;
+    selectedLevelAdvanced: string | null = null;
+    selectedUnitAdvanced: string | null = null;
+    selectedStatusAdvanced: string | null = null;
+    selectedAcademicBackgroundAdvanced: string | null = null;
+    selectedCenterAdvanced: string | null = null;
+    selectedGenderAdvanced: string | null = null;
+
+    // Advanced filter options
+    provinceAdvancedOptions: SelectOption[] = [];
+    municipalityAdvancedOptions: SelectOption[] = [];
+    levelAdvancedOptions: SelectOption[] = [];
+    unitAdvancedOptions: SelectOption[] = [];
+    statusAdvancedOptions: SelectOption[] = [];
+    academicBackgroundAdvancedOptions: SelectOption[] = [];
+    centerAdvancedOptions: SelectOption[] = [];
+    genderAdvancedOptions: SelectOption[] = [];
+
     constructor(
         private store: Store,
     ) {}
+
+    get activeAdvancedFilterChips(): ActiveFilterChip[] {
+        const chips: ActiveFilterChip[] = [];
+
+        if (this.minAgeAdvanced !== null || this.maxAgeAdvanced !== null) {
+            const minAge = this.minAgeAdvanced !== null ? this.minAgeAdvanced : '-';
+            const maxAge = this.maxAgeAdvanced !== null ? this.maxAgeAdvanced : '-';
+            chips.push({ key: 'ageRange', label: 'Idade', value: `${minAge}-${maxAge}` });
+        }
+        if (this.selectedProvinceAdvanced) {
+            chips.push({ key: 'province', label: 'Provincia', value: this.selectedProvinceAdvanced });
+        }
+        if (this.selectedMunicipalityAdvanced) {
+            chips.push({ key: 'municipality', label: 'Municipio', value: this.selectedMunicipalityAdvanced });
+        }
+        if (this.selectedLevelAdvanced) {
+            chips.push({ key: 'level', label: 'Nivel', value: this.selectedLevelAdvanced });
+        }
+        if (this.selectedUnitAdvanced) {
+            chips.push({ key: 'unit', label: 'Unidade', value: this.selectedUnitAdvanced });
+        }
+        if (this.selectedStatusAdvanced) {
+            chips.push({
+                key: 'status',
+                label: 'Estado',
+                value: this.findOptionLabel(this.statusAdvancedOptions, this.selectedStatusAdvanced)
+            });
+        }
+        if (this.selectedAcademicBackgroundAdvanced) {
+            chips.push({
+                key: 'academicBackground',
+                label: 'Formacao',
+                value: this.findOptionLabel(this.academicBackgroundAdvancedOptions, this.selectedAcademicBackgroundAdvanced)
+            });
+        }
+        if (this.selectedCenterAdvanced) {
+            chips.push({ key: 'center', label: 'Centro', value: this.selectedCenterAdvanced });
+        }
+        if (this.selectedGenderAdvanced) {
+            chips.push({
+                key: 'gender',
+                label: 'Genero',
+                value: this.findOptionLabel(this.genderAdvancedOptions, this.selectedGenderAdvanced)
+            });
+        }
+
+        return chips;
+    }
+
+    clearAdvancedFilters(): void {
+        this.minAgeAdvanced = null;
+        this.maxAgeAdvanced = null;
+        this.selectedProvinceAdvanced = null;
+        this.selectedMunicipalityAdvanced = null;
+        this.selectedLevelAdvanced = null;
+        this.selectedUnitAdvanced = null;
+        this.selectedStatusAdvanced = null;
+        this.selectedAcademicBackgroundAdvanced = null;
+        this.selectedCenterAdvanced = null;
+        this.selectedGenderAdvanced = null;
+
+        this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
+        this.applyAdvancedSearchChart();
+    }
 
     ngOnInit(): void {
         // Dispatch action to load students if not already loaded
@@ -97,9 +207,14 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
 
         // Update monthly enrollments chart when students change
         this.students$.pipe(takeUntil(this.destroy$)).subscribe((students) => {
-            if (students && students.length >= 0) {
-                this.updateMonthlyEnrollmentChart(students);
+            if (!Array.isArray(students)) {
+                return;
             }
+
+            this.studentsCache = students;
+            this.updateMonthlyEnrollmentChart(students);
+            this.buildAdvancedFilterOptions(students, this.dashboardStatisticsSnapshot);
+            this.applyAdvancedSearchChart(students);
         });
     }
 
@@ -128,7 +243,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 ];
                 const provinces = Object.keys(dashboardStats.studentsByProvince || {});
                 provinces.forEach(province => {
-                    options.push({ label: province, value: province });
+                    options.push({ label: province.toUpperCase(), value: province });
                 });
                 return options;
             })
@@ -154,7 +269,9 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$)
         ).subscribe(dashboardStats => {
             if (dashboardStats && Object.keys(dashboardStats).length > 0) {
+                this.dashboardStatisticsSnapshot = dashboardStats;
                 this.updateChartsFromDashboard(dashboardStats);
+                this.buildAdvancedFilterOptions(this.studentsCache, dashboardStats);
             }
         });
     }
@@ -704,18 +821,115 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 }
             }
         };
-    }
 
-    filterData() {
-        // Implement filtering logic based on date range
-        console.log('Filtering by date range:', this.dateRange);
+        // Advanced search chart defaults
+        this.advancedSearchChartData = {
+            labels: [],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Quantidade de Alunos',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    borderRadius: 5,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.72,
+                    data: []
+                },
+                {
+                    type: 'bar',
+                    label: 'Progressao Media (%)',
+                    backgroundColor: documentStyle.getPropertyValue('--cyan-500'),
+                    borderRadius: 5,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.72,
+                    data: []
+                }
+            ]
+        };
+
+        this.advancedSearchChartOptions = {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: textColor },
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Pesquisa Avancada de Alunos (por Nivel)',
+                    color: textColor,
+                    font: { size: 16, weight: 'bold' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context: any) => {
+                            const datasetIndex = context.datasetIndex;
+                            const itemIndex = context.dataIndex;
+                            if (datasetIndex === 0) {
+                                const count = this.advancedChartRawCounts[itemIndex] || 0;
+                                return `Quantidade: ${count}`;
+                            }
+                            const progress = this.advancedChartRawProgress[itemIndex] || 0;
+                            return `Progressao Media: ${progress.toFixed(1)}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColorSecondary },
+                    grid: { color: surfaceBorder }
+                },
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 100,
+                    ticks: { color: textColorSecondary },
+                    grid: { color: surfaceBorder },
+                    title: {
+                        display: true,
+                        text: 'Escala Normalizada',
+                        color: textColor
+                    }
+                }
+            }
+        };
+
+        this.advancedBarsValuePlugin = {
+            id: 'advancedBarsValuePlugin',
+            afterDatasetsDraw: (chart: any) => {
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.font = '600 11px sans-serif';
+                ctx.textAlign = 'center';
+
+                chart.data.datasets.forEach((_: any, datasetIndex: number) => {
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    if (!meta || !meta.data) {
+                        return;
+                    }
+
+                    meta.data.forEach((barElement: any, index: number) => {
+                        const rawValue = datasetIndex === 0
+                            ? (this.advancedChartRawCounts[index] ?? 0)
+                            : (this.advancedChartRawProgress[index] ?? 0);
+                        const label = datasetIndex === 0 ? `${rawValue}` : `${Number(rawValue).toFixed(1)}%`;
+
+                        ctx.fillStyle = datasetIndex === 0
+                            ? documentStyle.getPropertyValue('--primary-700') || '#1D4ED8'
+                            : documentStyle.getPropertyValue('--cyan-700') || '#0E7490';
+                        ctx.fillText(label, barElement.x, barElement.y - 8);
+                    });
+                });
+
+                ctx.restore();
+            }
+        };
     }
 
     private buildKPIsFromDashboard(dashboardStats: StudentDashboardStatistics): any[] {
         const total = dashboardStats.totalStudents;
         const active = dashboardStats.studentsByStatus['ACTIVE'] || 0;
         const inactive = dashboardStats.studentsByStatus['INACTIVE'] || 0;
-        const pendingPayment = dashboardStats.studentsByStatus['PENDING_PAYMENT'] || 0;
 
         return [
             {
@@ -732,12 +946,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 label: 'Estudantes Inactivos',
                 current: inactive,
                 diff: 0
-            },
-            {
-                label: 'Pendentes de Pagamento',
-                current: pendingPayment,
-                diff: 0
-            },
+            }
         ];
     }
 
@@ -751,7 +960,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 name: `${student.user.firstname} ${student.user.lastname}`,
                 level: this.getStudentLevel(student),
                 attendance: this.calculateAttendance(student),
-                grade: this.calculateGrade(student, index)
+                grade: this.calculateGrade(student)
             }));
     }
 
@@ -775,7 +984,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         return 'N/A';
     }
 
-    private calculateGrade(student: Student, index: number): string {
+private calculateGrade(student: Student): string {
         // Calculate grade based on level progress percentage
         if (student.levelProgressPercentage !== undefined) {
             const progress = student.levelProgressPercentage;
@@ -1011,6 +1220,360 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
             }
         });
     }
+
+    onAdvancedProvinceChange(): void {
+        this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
+
+        const municipalityStillValid = this.municipalityAdvancedOptions.some(
+            option => option.value === this.selectedMunicipalityAdvanced
+        );
+        if (!municipalityStillValid) {
+            this.selectedMunicipalityAdvanced = null;
+        }
+
+        this.onAdvancedFiltersChange();
+    }
+
+    onAdvancedFiltersChange(): void {
+        if (
+            this.minAgeAdvanced !== null &&
+            this.maxAgeAdvanced !== null &&
+            this.minAgeAdvanced > this.maxAgeAdvanced
+        ) {
+            const tmp = this.minAgeAdvanced;
+            this.minAgeAdvanced = this.maxAgeAdvanced;
+            this.maxAgeAdvanced = tmp;
+        }
+        this.applyAdvancedSearchChart();
+    }
+
+    removeAdvancedFilter(filterKey: string): void {
+        switch (filterKey) {
+            case 'ageRange':
+                this.minAgeAdvanced = null;
+                this.maxAgeAdvanced = null;
+                break;
+            case 'province':
+                this.selectedProvinceAdvanced = null;
+                this.selectedMunicipalityAdvanced = null;
+                this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
+                break;
+            case 'municipality':
+                this.selectedMunicipalityAdvanced = null;
+                break;
+            case 'level':
+                this.selectedLevelAdvanced = null;
+                break;
+            case 'unit':
+                this.selectedUnitAdvanced = null;
+                break;
+            case 'status':
+                this.selectedStatusAdvanced = null;
+                break;
+            case 'academicBackground':
+                this.selectedAcademicBackgroundAdvanced = null;
+                break;
+            case 'center':
+                this.selectedCenterAdvanced = null;
+                break;
+            case 'gender':
+                this.selectedGenderAdvanced = null;
+                break;
+            default:
+                break;
+        }
+
+        this.onAdvancedFiltersChange();
+    }
+
+    private buildAdvancedFilterOptions(
+        students: Student[],
+        dashboardStats?: StudentDashboardStatistics | null
+    ): void {
+        const provincesFromStudents = this.getUniqueValues(students.map(student => this.extractProvince(student)));
+        const provincesFromStats = Object.keys(dashboardStats?.studentsByProvince || {});
+        this.provinceAdvancedOptions = this.toOptions(this.mergeUniqueValues(provincesFromStudents, provincesFromStats));
+
+        this.levelAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.level?.name))
+        );
+        this.unitAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.currentUnit?.name))
+        );
+        this.statusAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.status)),
+            this.mapStatusLabel
+        );
+
+        const backgroundsFromStudents = this.getUniqueValues(
+            students.map(student => this.extractAcademicBackground(student))
+        );
+        const backgroundsFromStats = Object.keys(dashboardStats?.studentsByAcademicBackground || {});
+        this.academicBackgroundAdvancedOptions = this.toOptions(
+            this.mergeUniqueValues(backgroundsFromStudents, backgroundsFromStats),
+            this.mapAcademicBackgroundLabel
+        );
+
+        this.centerAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.center?.name))
+        );
+        this.genderAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.user?.gender)),
+            this.mapGenderLabel
+        );
+
+        this.rebuildMunicipalityAdvancedOptions(students, dashboardStats);
+    }
+
+    private rebuildMunicipalityAdvancedOptions(
+        students: Student[],
+        dashboardStats?: StudentDashboardStatistics | null
+    ): void {
+        const filteredByProvince = this.selectedProvinceAdvanced
+            ? students.filter(student => this.matchesSelected(this.selectedProvinceAdvanced, this.extractProvince(student)))
+            : students;
+
+        const municipalitiesFromStudents = this.getUniqueValues(
+            filteredByProvince.map(student => this.extractMunicipality(student))
+        );
+
+        const studentsByMunicipality = dashboardStats?.studentsByMunicipality || {};
+        let municipalitiesFromStats: string[] = [];
+
+        if (this.selectedProvinceAdvanced) {
+            const provinceEntry = Object.entries(studentsByMunicipality).find(([province]) =>
+                this.matchesSelected(this.selectedProvinceAdvanced, province)
+            );
+            municipalitiesFromStats = Object.keys(provinceEntry?.[1] || {});
+        } else {
+            municipalitiesFromStats = Object.values(studentsByMunicipality)
+                .flatMap((municipalityMap) => Object.keys(municipalityMap || {}));
+        }
+
+        this.municipalityAdvancedOptions = this.toOptions(
+            this.mergeUniqueValues(municipalitiesFromStudents, municipalitiesFromStats)
+        );
+    }
+
+    private applyAdvancedSearchChart(studentsArg?: Student[]): void {
+        const students = studentsArg ?? this.studentsCache;
+        const filtered = this.filterStudentsByAdvancedCriteria(students);
+        this.filteredStudentsCount = filtered.length;
+
+        const grouped: Record<string, { count: number; progressSum: number; progressItems: number }> = {};
+
+        for (const student of filtered) {
+            const levelLabel = student.level?.name || 'Sem nivel';
+            if (!grouped[levelLabel]) {
+                grouped[levelLabel] = { count: 0, progressSum: 0, progressItems: 0 };
+            }
+
+            grouped[levelLabel].count += 1;
+            if (typeof student.levelProgressPercentage === 'number') {
+                grouped[levelLabel].progressSum += student.levelProgressPercentage;
+                grouped[levelLabel].progressItems += 1;
+            }
+        }
+
+        const labels = Object.keys(grouped);
+        const counts = labels.map(label => grouped[label].count);
+        const avgProgress = labels.map(label => {
+            const { progressSum, progressItems } = grouped[label];
+            return progressItems > 0 ? Number((progressSum / progressItems).toFixed(1)) : 0;
+        });
+
+        this.advancedChartRawCounts = counts;
+        this.advancedChartRawProgress = avgProgress;
+
+        const normalizedCountBars = this.normalizeDatasetForChart(counts);
+        const normalizedProgressBars = this.normalizeDatasetForChart(avgProgress);
+
+        this.advancedSearchChartData = {
+            ...this.advancedSearchChartData,
+            labels,
+            datasets: [
+                { ...this.advancedSearchChartData.datasets[0], data: normalizedCountBars },
+                { ...this.advancedSearchChartData.datasets[1], data: normalizedProgressBars }
+            ]
+        };
+    }
+
+    private getUniqueValues(values: Array<string | null | undefined>): string[] {
+        return Array.from(
+            new Set(values.filter((value): value is string => typeof value === 'string' && value.trim().length > 0))
+        ).sort((a, b) => a.localeCompare(b));
+    }
+
+    private toOptions(values: string[], labelMapper?: (value: string) => string): SelectOption[] {
+        return values.map(value => ({
+            value,
+            label: labelMapper ? labelMapper.call(this, value) : value
+        }));
+    }
+
+    private mapStatusLabel(value: string): string {
+        const statusMap: Record<string, string> = {
+            ACTIVE: 'Activo',
+            INACTIVE: 'Inactivo',
+            PENDING_PAYMENT: 'Pendente Pagamento',
+            SUSPENDED: 'Suspenso',
+            GRADUATED: 'Graduado',
+            DROPPED_OUT: 'Desistente',
+            QUIT: 'Desistiu'
+        };
+        return statusMap[value] || value;
+    }
+
+    private mapGenderLabel(value: string): string {
+        const genderMap: Record<string, string> = {
+            MALE: 'Masculino',
+            FEMALE: 'Feminino',
+            OTHER: 'Outro'
+        };
+        return genderMap[value] || value;
+    }
+
+    private mapAcademicBackgroundLabel(value: string): string {
+        const mapLabel: Record<string, string> = {
+            PRIMARY_SCHOOL: 'Ensino Primario',
+            SECONDARY_SCHOOL: 'Ensino Secundario',
+            UNIVERSITY: 'Universidade',
+            MASTER: 'Mestrado',
+            DOCTORATE: 'Doutoramento'
+        };
+        return mapLabel[value] || value;
+    }
+
+    private normalizeDatasetForChart(values: number[]): number[] {
+        const max = Math.max(...values, 0);
+        if (max <= 0) {
+            return values.map(() => 0);
+        }
+
+        return values.map(value => {
+            if (value <= 0) {
+                return 0;
+            }
+            return Math.max(12, Number(((value / max) * 100).toFixed(1)));
+        });
+    }
+
+    private findOptionLabel(options: SelectOption[], value: string | null): string {
+        if (!value) {
+            return '';
+        }
+        return options.find(option => option.value === value)?.label || value;
+    }
+
+    private filterStudentsByAdvancedCriteria(students: Student[]): Student[] {
+        return students.filter(student => {
+            const age = this.calculateAgeFromBirthdate(student.user?.birthdate);
+            if (this.minAgeAdvanced !== null && (age === null || age < this.minAgeAdvanced)) {
+                return false;
+            }
+            if (this.maxAgeAdvanced !== null && (age === null || age > this.maxAgeAdvanced)) {
+                return false;
+            }
+
+            if (this.selectedProvinceAdvanced && !this.matchesSelected(this.selectedProvinceAdvanced, this.extractProvince(student))) {
+                return false;
+            }
+            if (this.selectedMunicipalityAdvanced && !this.matchesSelected(this.selectedMunicipalityAdvanced, this.extractMunicipality(student))) {
+                return false;
+            }
+            if (this.selectedLevelAdvanced && student.level?.name !== this.selectedLevelAdvanced) {
+                return false;
+            }
+            if (this.selectedUnitAdvanced && student.currentUnit?.name !== this.selectedUnitAdvanced) {
+                return false;
+            }
+            if (this.selectedStatusAdvanced && student.status !== this.selectedStatusAdvanced) {
+                return false;
+            }
+            if (
+                this.selectedAcademicBackgroundAdvanced &&
+                !this.matchesSelected(this.selectedAcademicBackgroundAdvanced, this.extractAcademicBackground(student))
+            ) {
+                return false;
+            }
+            if (this.selectedCenterAdvanced && student.center?.name !== this.selectedCenterAdvanced) {
+                return false;
+            }
+            if (this.selectedGenderAdvanced && !this.matchesSelected(this.selectedGenderAdvanced, student.user?.gender)) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    private mergeUniqueValues(...valueLists: string[][]): string[] {
+        return Array.from(new Set(valueLists.flat().map(value => value.trim()).filter(Boolean))).sort((a, b) =>
+            a.localeCompare(b)
+        );
+    }
+
+    private extractProvince(student: Student): string | null {
+        const studentAny = student as any;
+        return this.firstNonEmpty([
+            student.province,
+            studentAny.user?.province,
+            studentAny.address?.province,
+            studentAny.user?.address?.province
+        ]);
+    }
+
+    private extractMunicipality(student: Student): string | null {
+        const studentAny = student as any;
+        return this.firstNonEmpty([
+            student.municipality,
+            studentAny.user?.municipality,
+            studentAny.address?.municipality,
+            studentAny.user?.address?.municipality
+        ]);
+    }
+
+    private extractAcademicBackground(student: Student): string | null {
+        const studentAny = student as any;
+        return this.firstNonEmpty([
+            student.academicBackground,
+            studentAny.user?.academicBackground
+        ]);
+    }
+
+    private firstNonEmpty(values: Array<string | null | undefined>): string | null {
+        const found = values.find((value): value is string => typeof value === 'string' && value.trim().length > 0);
+        return found ? found.trim() : null;
+    }
+
+    private normalizeForCompare(value: string | null | undefined): string {
+        return (value || '').trim().toUpperCase();
+    }
+
+    private matchesSelected(selected: string | null | undefined, current: string | null | undefined): boolean {
+        return this.normalizeForCompare(selected) === this.normalizeForCompare(current);
+    }
+
+    private calculateAgeFromBirthdate(birthdate: string | undefined): number | null {
+        if (!birthdate) {
+            return null;
+        }
+
+        const dob = new Date(birthdate);
+        if (Number.isNaN(dob.getTime())) {
+            return null;
+        }
+
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+
+        return age;
+    }
+
 
     private updateAcademicBackgroundChart(dashboardStats: StudentDashboardStatistics): void {
         const backgroundLabels = Object.keys(dashboardStats.studentsByAcademicBackground).map(bg => {
