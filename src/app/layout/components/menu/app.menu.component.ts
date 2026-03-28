@@ -197,7 +197,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                     {
                         label: 'Administração',
                         icon: 'pi pi-fw pi-cog',
-                        visible: (this.hasPermission('hr.view_employees')
+                        visible: (this.hasPermission('users.view')
                             || this.hasPermission('roles.view')
                         ),
                         items: [
@@ -205,7 +205,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                                 label: 'Utilizadores do backoffice',
                                 icon: 'pi pi-fw pi-users',
                                 routerLink: ['/corporate/employees'],
-                                visible: this.hasPermission('hr.view_employees')
+                                visible: this.hasPermission('users.view')
                             },
                             {
                                 label: 'Perfis',
