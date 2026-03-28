@@ -44,6 +44,169 @@
         </div>
     </div>
 
+    <!-- Advanced Student Research Chart -->
+    <div class="col-12">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-center mb-3">
+                <h5 class="text-xl font-semibold m-0">Pesquisa Avancada de Alunos</h5>
+                <div class="flex align-items-center gap-2">
+                    <span class="text-600">Resultados: <strong>{{ filteredStudentsCount }}</strong></span>
+                    <button
+                        pButton
+                        type="button"
+                        label="Limpar filtros"
+                        class="p-button-sm p-button-outlined"
+                        (click)="clearAdvancedFilters()"
+                    ></button>
+                </div>
+            </div>
+
+            <div class="grid mb-2">
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Range de Idade</label>
+                    <div class="flex align-items-center gap-2">
+                        <input
+                            type="number"
+                            min="0"
+                            class="w-full p-inputtext p-component"
+                            placeholder="Min (ex: 15)"
+                            [(ngModel)]="minAgeAdvanced"
+                            (ngModelChange)="onAdvancedFiltersChange()"
+                        />
+                        <span class="text-500">-</span>
+                        <input
+                            type="number"
+                            min="0"
+                            class="w-full p-inputtext p-component"
+                            placeholder="Max (ex: 50)"
+                            [(ngModel)]="maxAgeAdvanced"
+                            (ngModelChange)="onAdvancedFiltersChange()"
+                        />
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Provincia</label>
+                    <p-dropdown
+                        [options]="provinceAdvancedOptions"
+                        [(ngModel)]="selectedProvinceAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todas"
+                        (onChange)="onAdvancedProvinceChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Municipio</label>
+                    <p-dropdown
+                        [options]="municipalityAdvancedOptions"
+                        [(ngModel)]="selectedMunicipalityAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todos"
+                        (onChange)="onAdvancedFiltersChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Nivel</label>
+                    <p-dropdown
+                        [options]="levelAdvancedOptions"
+                        [(ngModel)]="selectedLevelAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todos"
+                        (onChange)="onAdvancedFiltersChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Unidade</label>
+                    <p-dropdown
+                        [options]="unitAdvancedOptions"
+                        [(ngModel)]="selectedUnitAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todas"
+                        (onChange)="onAdvancedFiltersChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Estado</label>
+                    <p-dropdown
+                        [options]="statusAdvancedOptions"
+                        [(ngModel)]="selectedStatusAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todos"
+                        (onChange)="onAdvancedFiltersChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Formacao Academica</label>
+                    <p-dropdown
+                        [options]="academicBackgroundAdvancedOptions"
+                        [(ngModel)]="selectedAcademicBackgroundAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todas"
+                        (onChange)="onAdvancedFiltersChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Centro</label>
+                    <p-dropdown
+                        [options]="centerAdvancedOptions"
+                        [(ngModel)]="selectedCenterAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todos"
+                        (onChange)="onAdvancedFiltersChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                    <label class="block mb-2 font-medium">Genero</label>
+                    <p-dropdown
+                        [options]="genderAdvancedOptions"
+                        [(ngModel)]="selectedGenderAdvanced"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        placeholder="Todos"
+                        (onChange)="onAdvancedFiltersChange()"
+                        styleClass="w-full"
+                    ></p-dropdown>
+                </div>
+            </div>
+
+            <p-chart
+                type="bar"
+                [data]="advancedSearchChartData"
+                [options]="advancedSearchChartOptions"
+                height="340px"
+            ></p-chart>
+        </div>
+    </div>
+
     <!-- Students Status Distribution Pie Chart -->
     <div class="col-12 md:col-4">
         <div class="card h-full">

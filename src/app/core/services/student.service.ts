@@ -1,10 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { Student } from 'src/app/core/models/academic/student';
-import { ApiResponse, PageableResponse } from "../models/ApiResponseService";
-import { map } from "rxjs/operators";
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {Student} from 'src/app/core/models/academic/student';
+import {ApiResponse} from "../models/ApiResponseService";
+import {map} from "rxjs/operators";
 
 // Request payload for creating a student according to backend contract
 export interface CreateStudentRequest {
@@ -49,8 +49,8 @@ export class StudentService {
             user: apiStudent.user,
             status: apiStudent.status,
             levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
-            center: apiStudent.center || (apiStudent.centerId ? { id: apiStudent.centerId } : null),
-            level: apiStudent.level || (apiStudent.levelId ? { id: apiStudent.levelId } : null),
+            center: apiStudent.center || (apiStudent.centerId ? {id: apiStudent.centerId} : null),
+            level: apiStudent.level || (apiStudent.levelId ? {id: apiStudent.levelId} : null),
             currentUnit: apiStudent.currentUnit,
             enrollmentDate: apiStudent.enrollmentDate,
             certificates: apiStudent.certificates ?? apiStudent.certificatesIds,
@@ -62,6 +62,13 @@ export class StudentService {
             vipTeacherId: apiStudent.vipTeacherId,
             directChatEnabled: apiStudent.directChatEnabled,
             fixedDateClasses: apiStudent.fixedDateClasses,
+            emergencyContactNumber: apiStudent.emergencyContactNumber ?? apiStudent.user?.emergencyContactNumber ?? null,
+            emergencyContactName: apiStudent.emergencyContactName ?? apiStudent.user?.emergencyContactName ?? null,
+            emergencyContactRelationship: apiStudent.emergencyContactRelationship ?? apiStudent.user?.emergencyContactRelationship ?? null,
+            academicBackground: apiStudent.academicBackground ?? apiStudent.user?.academicBackground ?? null,
+            province: apiStudent.province ?? apiStudent.user?.province ?? apiStudent.user?.address?.province ?? null,
+            municipality: apiStudent.municipality ?? apiStudent.user?.municipality ?? apiStudent.user?.address?.municipality ?? null,
+            notes: apiStudent.notes ?? null,
         } as Student;
     }
 
@@ -113,28 +120,43 @@ export class StudentService {
     }
 
     addStudentToClass(studentId: string, classId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/add-to-class/${classId}`, { studentId });
+        return this.http.post<any>(`${this.apiUrl}/add-to-class/${classId}`, {studentId});
     }
 
     removeStudentFromClass(studentId: string, classId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/remove-from-class/${classId}`, { studentId });
+        return this.http.post<any>(`${this.apiUrl}/remove-from-class/${classId}`, {studentId});
     }
 
     addStudentToCenter(studentId: string, centerId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/add-to-center/${centerId}`, { studentId });
+        return this.http.post<any>(`${this.apiUrl}/add-to-center/${centerId}`, {studentId});
     }
 
     removeStudentFromCenter(studentId: string, centerId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/remove-from-center/${centerId}`, { studentId });
+        return this.http.post<any>(`${this.apiUrl}/remove-from-center/${centerId}`, {studentId});
     }
 
     /**
      * Search and filter students with comprehensive filtering options.
-     * @param filters Search filters (status, centerId, levelId, unitId, code, email, username, province, municipality)
+     * @param filters Search filters (
+     * status,
+     * gender,
+     * ageRange ex.: 18-25
+     * academicBackground,
+     * centerId,
+     * levelId,
+     * unitId,
+     * code,
+     * email,
+     * username,
+     * province,
+     * municipality)
      * @returns Observable of Student array
      */
     searchStudents(filters: {
         status?: string;
+        academicBackground?: string;
+        ageRange?:string;
+        gender?: string;
         centerId?: string;
         levelId?: string;
         unitId?: string;
@@ -152,7 +174,7 @@ export class StudentService {
             }
         });
 
-        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`, { params }).pipe(
+        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`, {params}).pipe(
             map((response) => {
                 const data = response.data;
                 // Handle both pageable and non-pageable responses

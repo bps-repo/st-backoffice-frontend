@@ -21,6 +21,11 @@ import {
     selectLoadingDashboardStatistics
 } from 'src/app/core/store/schoolar/statistics/statistics.selectors';
 
+interface SelectOption {
+    label: string;
+    value: string | null;
+}
+
 @Component({
     selector: 'app-students',
     standalone: true,
@@ -39,6 +44,8 @@ import {
 })
 export class StudentsDashboardComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
+    private studentsCache: Student[] = [];
+    private dashboardStatisticsSnapshot: StudentDashboardStatistics | null = null;
 
     // Data observables
     students$!: Observable<Student[]>;
@@ -83,6 +90,33 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     selectedProvinceFilter: string | null = null;
     provinceFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
 
+    // Advanced search chart (multi-filter)
+    advancedSearchChartData: any;
+    advancedSearchChartOptions: any;
+    filteredStudentsCount = 0;
+
+    // Advanced filters
+    minAgeAdvanced: number | null = null;
+    maxAgeAdvanced: number | null = null;
+    selectedProvinceAdvanced: string | null = null;
+    selectedMunicipalityAdvanced: string | null = null;
+    selectedLevelAdvanced: string | null = null;
+    selectedUnitAdvanced: string | null = null;
+    selectedStatusAdvanced: string | null = null;
+    selectedAcademicBackgroundAdvanced: string | null = null;
+    selectedCenterAdvanced: string | null = null;
+    selectedGenderAdvanced: string | null = null;
+
+    // Advanced filter options
+    provinceAdvancedOptions: SelectOption[] = [];
+    municipalityAdvancedOptions: SelectOption[] = [];
+    levelAdvancedOptions: SelectOption[] = [];
+    unitAdvancedOptions: SelectOption[] = [];
+    statusAdvancedOptions: SelectOption[] = [];
+    academicBackgroundAdvancedOptions: SelectOption[] = [];
+    centerAdvancedOptions: SelectOption[] = [];
+    genderAdvancedOptions: SelectOption[] = [];
+
     constructor(
         private store: Store,
     ) {}
@@ -97,9 +131,14 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
 
         // Update monthly enrollments chart when students change
         this.students$.pipe(takeUntil(this.destroy$)).subscribe((students) => {
-            if (students && students.length >= 0) {
-                this.updateMonthlyEnrollmentChart(students);
+            if (!Array.isArray(students)) {
+                return;
             }
+
+            this.studentsCache = students;
+            this.updateMonthlyEnrollmentChart(students);
+            this.buildAdvancedFilterOptions(students, this.dashboardStatisticsSnapshot);
+            this.applyAdvancedSearchChart(students);
         });
     }
 
@@ -128,7 +167,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 ];
                 const provinces = Object.keys(dashboardStats.studentsByProvince || {});
                 provinces.forEach(province => {
-                    options.push({ label: province, value: province });
+                    options.push({ label: province.toUpperCase(), value: province });
                 });
                 return options;
             })
@@ -154,7 +193,9 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$)
         ).subscribe(dashboardStats => {
             if (dashboardStats && Object.keys(dashboardStats).length > 0) {
+                this.dashboardStatisticsSnapshot = dashboardStats;
                 this.updateChartsFromDashboard(dashboardStats);
+                this.buildAdvancedFilterOptions(this.studentsCache, dashboardStats);
             }
         });
     }
@@ -704,6 +745,73 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 }
             }
         };
+
+        // Advanced search chart defaults
+        this.advancedSearchChartData = {
+            labels: [],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Quantidade de Alunos',
+                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                    data: [],
+                    yAxisID: 'y'
+                },
+                {
+                    type: 'line',
+                    label: 'Progressao Media (%)',
+                    borderColor: documentStyle.getPropertyValue('--cyan-500'),
+                    backgroundColor: documentStyle.getPropertyValue('--cyan-500'),
+                    tension: 0.3,
+                    fill: false,
+                    data: [],
+                    yAxisID: 'y1'
+                }
+            ]
+        };
+
+        this.advancedSearchChartOptions = {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: textColor },
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Pesquisa Avancada de Alunos (por Nivel)',
+                    color: textColor,
+                    font: { size: 16, weight: 'bold' }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColorSecondary },
+                    grid: { color: surfaceBorder }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: textColorSecondary },
+                    grid: { color: surfaceBorder },
+                    title: {
+                        display: true,
+                        text: 'Quantidade',
+                        color: textColor
+                    }
+                },
+                y1: {
+                    beginAtZero: true,
+                    position: 'right',
+                    ticks: { color: textColorSecondary },
+                    grid: { drawOnChartArea: false },
+                    title: {
+                        display: true,
+                        text: 'Progressao Media (%)',
+                        color: textColor
+                    }
+                }
+            }
+        };
     }
 
     private buildKPIsFromDashboard(dashboardStats: StudentDashboardStatistics): any[] {
@@ -1000,6 +1108,301 @@ private calculateGrade(student: Student): string {
             }
         });
     }
+
+    onAdvancedProvinceChange(): void {
+        this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
+
+        const municipalityStillValid = this.municipalityAdvancedOptions.some(
+            option => option.value === this.selectedMunicipalityAdvanced
+        );
+        if (!municipalityStillValid) {
+            this.selectedMunicipalityAdvanced = null;
+        }
+
+        this.onAdvancedFiltersChange();
+    }
+
+    onAdvancedFiltersChange(): void {
+        this.applyAdvancedSearchChart();
+    }
+
+    clearAdvancedFilters(): void {
+        this.minAgeAdvanced = null;
+        this.maxAgeAdvanced = null;
+        this.selectedProvinceAdvanced = null;
+        this.selectedMunicipalityAdvanced = null;
+        this.selectedLevelAdvanced = null;
+        this.selectedUnitAdvanced = null;
+        this.selectedStatusAdvanced = null;
+        this.selectedAcademicBackgroundAdvanced = null;
+        this.selectedCenterAdvanced = null;
+        this.selectedGenderAdvanced = null;
+
+        this.rebuildMunicipalityAdvancedOptions(this.studentsCache, this.dashboardStatisticsSnapshot);
+        this.applyAdvancedSearchChart();
+    }
+
+    private buildAdvancedFilterOptions(
+        students: Student[],
+        dashboardStats?: StudentDashboardStatistics | null
+    ): void {
+        const provincesFromStudents = this.getUniqueValues(students.map(student => this.extractProvince(student)));
+        const provincesFromStats = Object.keys(dashboardStats?.studentsByProvince || {});
+        this.provinceAdvancedOptions = this.toOptions(this.mergeUniqueValues(provincesFromStudents, provincesFromStats));
+
+        this.levelAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.level?.name))
+        );
+        this.unitAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.currentUnit?.name))
+        );
+        this.statusAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.status)),
+            this.mapStatusLabel
+        );
+
+        const backgroundsFromStudents = this.getUniqueValues(
+            students.map(student => this.extractAcademicBackground(student))
+        );
+        const backgroundsFromStats = Object.keys(dashboardStats?.studentsByAcademicBackground || {});
+        this.academicBackgroundAdvancedOptions = this.toOptions(
+            this.mergeUniqueValues(backgroundsFromStudents, backgroundsFromStats),
+            this.mapAcademicBackgroundLabel
+        );
+
+        this.centerAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.center?.name))
+        );
+        this.genderAdvancedOptions = this.toOptions(
+            this.getUniqueValues(students.map(student => student.user?.gender)),
+            this.mapGenderLabel
+        );
+
+        this.rebuildMunicipalityAdvancedOptions(students, dashboardStats);
+    }
+
+    private rebuildMunicipalityAdvancedOptions(
+        students: Student[],
+        dashboardStats?: StudentDashboardStatistics | null
+    ): void {
+        const filteredByProvince = this.selectedProvinceAdvanced
+            ? students.filter(student => this.matchesSelected(this.selectedProvinceAdvanced, this.extractProvince(student)))
+            : students;
+
+        const municipalitiesFromStudents = this.getUniqueValues(
+            filteredByProvince.map(student => this.extractMunicipality(student))
+        );
+
+        const studentsByMunicipality = dashboardStats?.studentsByMunicipality || {};
+        let municipalitiesFromStats: string[] = [];
+
+        if (this.selectedProvinceAdvanced) {
+            const provinceEntry = Object.entries(studentsByMunicipality).find(([province]) =>
+                this.matchesSelected(this.selectedProvinceAdvanced, province)
+            );
+            municipalitiesFromStats = Object.keys(provinceEntry?.[1] || {});
+        } else {
+            municipalitiesFromStats = Object.values(studentsByMunicipality)
+                .flatMap((municipalityMap) => Object.keys(municipalityMap || {}));
+        }
+
+        this.municipalityAdvancedOptions = this.toOptions(
+            this.mergeUniqueValues(municipalitiesFromStudents, municipalitiesFromStats)
+        );
+    }
+
+    private applyAdvancedSearchChart(studentsArg?: Student[]): void {
+        const students = studentsArg ?? this.studentsCache;
+        const filtered = this.filterStudentsByAdvancedCriteria(students);
+        this.filteredStudentsCount = filtered.length;
+
+        const grouped: Record<string, { count: number; progressSum: number; progressItems: number }> = {};
+
+        for (const student of filtered) {
+            const levelLabel = student.level?.name || 'Sem nivel';
+            if (!grouped[levelLabel]) {
+                grouped[levelLabel] = { count: 0, progressSum: 0, progressItems: 0 };
+            }
+
+            grouped[levelLabel].count += 1;
+            if (typeof student.levelProgressPercentage === 'number') {
+                grouped[levelLabel].progressSum += student.levelProgressPercentage;
+                grouped[levelLabel].progressItems += 1;
+            }
+        }
+
+        const labels = Object.keys(grouped);
+        const counts = labels.map(label => grouped[label].count);
+        const avgProgress = labels.map(label => {
+            const { progressSum, progressItems } = grouped[label];
+            return progressItems > 0 ? Number((progressSum / progressItems).toFixed(1)) : 0;
+        });
+
+        this.advancedSearchChartData = {
+            ...this.advancedSearchChartData,
+            labels,
+            datasets: [
+                { ...this.advancedSearchChartData.datasets[0], data: counts },
+                { ...this.advancedSearchChartData.datasets[1], data: avgProgress }
+            ]
+        };
+    }
+
+    private getUniqueValues(values: Array<string | null | undefined>): string[] {
+        return Array.from(
+            new Set(values.filter((value): value is string => typeof value === 'string' && value.trim().length > 0))
+        ).sort((a, b) => a.localeCompare(b));
+    }
+
+    private toOptions(values: string[], labelMapper?: (value: string) => string): SelectOption[] {
+        return values.map(value => ({
+            value,
+            label: labelMapper ? labelMapper.call(this, value) : value
+        }));
+    }
+
+    private mapStatusLabel(value: string): string {
+        const statusMap: Record<string, string> = {
+            ACTIVE: 'Activo',
+            INACTIVE: 'Inactivo',
+            PENDING_PAYMENT: 'Pendente Pagamento',
+            SUSPENDED: 'Suspenso',
+            GRADUATED: 'Graduado',
+            DROPPED_OUT: 'Desistente',
+            QUIT: 'Desistiu'
+        };
+        return statusMap[value] || value;
+    }
+
+    private mapGenderLabel(value: string): string {
+        const genderMap: Record<string, string> = {
+            MALE: 'Masculino',
+            FEMALE: 'Feminino',
+            OTHER: 'Outro'
+        };
+        return genderMap[value] || value;
+    }
+
+    private mapAcademicBackgroundLabel(value: string): string {
+        const mapLabel: Record<string, string> = {
+            PRIMARY_SCHOOL: 'Ensino Primario',
+            SECONDARY_SCHOOL: 'Ensino Secundario',
+            UNIVERSITY: 'Universidade',
+            MASTER: 'Mestrado',
+            DOCTORATE: 'Doutoramento'
+        };
+        return mapLabel[value] || value;
+    }
+
+    private filterStudentsByAdvancedCriteria(students: Student[]): Student[] {
+        return students.filter(student => {
+            const age = this.calculateAgeFromBirthdate(student.user?.birthdate);
+            if (this.minAgeAdvanced !== null && (age === null || age < this.minAgeAdvanced)) {
+                return false;
+            }
+            if (this.maxAgeAdvanced !== null && (age === null || age > this.maxAgeAdvanced)) {
+                return false;
+            }
+
+            if (this.selectedProvinceAdvanced && !this.matchesSelected(this.selectedProvinceAdvanced, this.extractProvince(student))) {
+                return false;
+            }
+            if (this.selectedMunicipalityAdvanced && !this.matchesSelected(this.selectedMunicipalityAdvanced, this.extractMunicipality(student))) {
+                return false;
+            }
+            if (this.selectedLevelAdvanced && student.level?.name !== this.selectedLevelAdvanced) {
+                return false;
+            }
+            if (this.selectedUnitAdvanced && student.currentUnit?.name !== this.selectedUnitAdvanced) {
+                return false;
+            }
+            if (this.selectedStatusAdvanced && student.status !== this.selectedStatusAdvanced) {
+                return false;
+            }
+            if (
+                this.selectedAcademicBackgroundAdvanced &&
+                !this.matchesSelected(this.selectedAcademicBackgroundAdvanced, this.extractAcademicBackground(student))
+            ) {
+                return false;
+            }
+            if (this.selectedCenterAdvanced && student.center?.name !== this.selectedCenterAdvanced) {
+                return false;
+            }
+            if (this.selectedGenderAdvanced && !this.matchesSelected(this.selectedGenderAdvanced, student.user?.gender)) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    private mergeUniqueValues(...valueLists: string[][]): string[] {
+        return Array.from(new Set(valueLists.flat().map(value => value.trim()).filter(Boolean))).sort((a, b) =>
+            a.localeCompare(b)
+        );
+    }
+
+    private extractProvince(student: Student): string | null {
+        const studentAny = student as any;
+        return this.firstNonEmpty([
+            student.province,
+            studentAny.user?.province,
+            studentAny.address?.province,
+            studentAny.user?.address?.province
+        ]);
+    }
+
+    private extractMunicipality(student: Student): string | null {
+        const studentAny = student as any;
+        return this.firstNonEmpty([
+            student.municipality,
+            studentAny.user?.municipality,
+            studentAny.address?.municipality,
+            studentAny.user?.address?.municipality
+        ]);
+    }
+
+    private extractAcademicBackground(student: Student): string | null {
+        const studentAny = student as any;
+        return this.firstNonEmpty([
+            student.academicBackground,
+            studentAny.user?.academicBackground
+        ]);
+    }
+
+    private firstNonEmpty(values: Array<string | null | undefined>): string | null {
+        const found = values.find((value): value is string => typeof value === 'string' && value.trim().length > 0);
+        return found ? found.trim() : null;
+    }
+
+    private normalizeForCompare(value: string | null | undefined): string {
+        return (value || '').trim().toUpperCase();
+    }
+
+    private matchesSelected(selected: string | null | undefined, current: string | null | undefined): boolean {
+        return this.normalizeForCompare(selected) === this.normalizeForCompare(current);
+    }
+
+    private calculateAgeFromBirthdate(birthdate: string | undefined): number | null {
+        if (!birthdate) {
+            return null;
+        }
+
+        const dob = new Date(birthdate);
+        if (Number.isNaN(dob.getTime())) {
+            return null;
+        }
+
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+
+        return age;
+    }
+
 
     private updateAcademicBackgroundChart(dashboardStats: StudentDashboardStatistics): void {
         const backgroundLabels = Object.keys(dashboardStats.studentsByAcademicBackground).map(bg => {
