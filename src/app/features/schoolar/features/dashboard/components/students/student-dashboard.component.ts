@@ -9,7 +9,7 @@ import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DropdownModule } from 'primeng/dropdown';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, combineLatest } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map, takeUntil, first } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
@@ -740,7 +740,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
                 name: `${student.user.firstname} ${student.user.lastname}`,
                 level: this.getStudentLevel(student),
                 attendance: this.calculateAttendance(student),
-                grade: this.calculateGrade(student, index)
+                grade: this.calculateGrade(student)
             }));
     }
 
@@ -764,7 +764,7 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         return 'N/A';
     }
 
-    private calculateGrade(student: Student, index: number): string {
+private calculateGrade(student: Student): string {
         // Calculate grade based on level progress percentage
         if (student.levelProgressPercentage !== undefined) {
             const progress = student.levelProgressPercentage;
