@@ -1,18 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../models/ApiResponseService';
-import { Province, Municipality } from '../models/location/location';
+import { Province } from '../models/location/location';
 
 @Injectable({
     providedIn: 'root',
 })
 export class LocationService {
-    private apiUrl = `${environment.apiUrl}/locations`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {}
+    private apiUrl = `${environment.apiUrl}/locations`;
 
     /**
      * Gets all provinces.

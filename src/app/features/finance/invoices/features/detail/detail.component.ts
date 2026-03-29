@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
@@ -28,20 +28,17 @@ import {mockInvoice} from "../invoice.contants";
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit {
+    private invoiceService = inject(InvoiceService);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+    private confirmationService = inject(ConfirmationService);
+
     invoice: Invoice | null = null;
     loading = true;
     showPrintDialog = false;
     showEmailDialog = false;
     emailAddress = '';
-
-    constructor(
-        private invoiceService: InvoiceService,
-        private route: ActivatedRoute,
-        private router: Router,
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService
-    ) {
-    }
 
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');

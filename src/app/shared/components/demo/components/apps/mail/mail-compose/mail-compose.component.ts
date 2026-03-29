@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Location } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
@@ -9,6 +9,11 @@ import { MailService } from '../service/mail.service';
     templateUrl: './mail-compose.component.html'
 })
 export class MailComposeComponent {
+    private messageService = inject(MessageService);
+    private location = inject(Location);
+    private router = inject(Router);
+    private mailService = inject(MailService);
+
 
     newMail: Mail = {
         id: '',
@@ -25,8 +30,6 @@ export class MailComposeComponent {
         archived: false,
         sent: true
     };
-
-    constructor(private messageService: MessageService, private location: Location, private router: Router, private mailService: MailService) { }
 
     sendMail() {
         if (this.newMail.message) {

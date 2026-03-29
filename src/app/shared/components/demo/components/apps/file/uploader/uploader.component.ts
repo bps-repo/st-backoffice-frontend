@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -24,11 +24,11 @@ interface Image {
     providers: [MessageService]
 })
 export class UploaderComponent {
+    private messageService = inject(MessageService);
+
     uploadedFiles: any[] = [];
 
     @ViewChildren('buttonEl') buttonEl!: QueryList<ElementRef>;
-
-    constructor(private messageService: MessageService) {}
 
     onUpload(event: any) {
         for (let file of event.files) {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -24,6 +24,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
     templateUrl: './edit.component.html'
 })
 export class EditComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+
     evaluationId: string | null = null;
     evaluation: any = {
         id: 1,
@@ -59,8 +61,6 @@ export class EditComponent implements OnInit {
         { label: 'Completed', value: 'Completed' },
         { label: 'Cancelled', value: 'Cancelled' }
     ];
-
-    constructor(private route: ActivatedRoute) {}
 
     ngOnInit(): void {
         this.evaluationId = this.route.snapshot.paramMap.get('id');

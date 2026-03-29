@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { Task } from 'src/app/demo/api/task';
@@ -10,6 +10,8 @@ import { TaskService } from '../service/task.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskListComponent implements OnInit {
+    private taskService = inject(TaskService);
+
 
     @Input() taskList!: Task[];
 
@@ -20,8 +22,6 @@ export class TaskListComponent implements OnInit {
     menuItems: MenuItem[] = [];
 
     clickedTask!: Task;
-
-    constructor(private taskService: TaskService) { }
 
     ngOnInit(): void {
         this.menuItems = [

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy, Inject, Optional, Input, OnChanges, SimpleChanges} from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {InputTextModule} from 'primeng/inputtext';
 import {PieChartComponent} from 'src/app/shared/components/charts/pie-chart/pie-chart.component';
@@ -40,6 +40,10 @@ import {STUDENT_DATA} from 'src/app/shared/tokens/student.token';
     templateUrl: './general.component.html'
 })
 export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
+    private store = inject(Store);
+    private route = inject(ActivatedRoute);
+    private studentData = inject<Student | null>(STUDENT_DATA, { optional: true });
+
     Math = Math;
 
     // Student information
@@ -62,12 +66,6 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     notifications: any[] = [];
 
     @Input() student: Student | null = null;
-
-    constructor(
-        private store: Store,
-        private route: ActivatedRoute,
-        @Optional() @Inject(STUDENT_DATA) private studentData: Student | null
-    ) {}
 
     ngOnInit(): void {
         // Use the injected student data

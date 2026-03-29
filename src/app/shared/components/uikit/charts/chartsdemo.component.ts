@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Subscription, debounceTime } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
 
@@ -6,6 +6,8 @@ import { LayoutService } from 'src/app/layout/service/app.layout.service';
     templateUrl: './chartsdemo.component.html',
 })
 export class ChartsDemoComponent implements OnInit, OnDestroy {
+    layoutService = inject(LayoutService);
+
     lineData: any;
 
     barData: any;
@@ -28,7 +30,7 @@ export class ChartsDemoComponent implements OnInit, OnDestroy {
 
     subscription: Subscription;
 
-    constructor(public layoutService: LayoutService) {
+    constructor() {
         this.subscription = this.layoutService.configUpdate$
             .pipe(debounceTime(25))
             .subscribe((config) => {

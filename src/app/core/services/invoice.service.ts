@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Invoice, InvoiceItem } from '../models/invoice/invoice.model';
@@ -8,9 +8,9 @@ import { Invoice, InvoiceItem } from '../models/invoice/invoice.model';
   providedIn: 'root',
 })
 export class InvoiceService {
-  private apiUrl = `${environment.apiUrl}/invoices`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiUrl}/invoices`;
 
   // Invoice CRUD operations
   getInvoices(): Observable<Invoice[]> {

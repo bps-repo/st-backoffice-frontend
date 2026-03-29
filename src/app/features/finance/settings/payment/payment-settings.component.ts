@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {PaymentSettings} from "../../../../core/models/payment/payment.model";
@@ -10,6 +10,8 @@ import {PaymentSettings} from "../../../../core/models/payment/payment.model";
     imports: [CommonModule, ReactiveFormsModule]
 })
 export class PaymentSettingsComponent implements OnInit {
+    private fb = inject(FormBuilder);
+
     settingsForm: FormGroup;
     loading: boolean = true;
     saving: boolean = false;
@@ -25,7 +27,7 @@ export class PaymentSettingsComponent implements OnInit {
         'Other'
     ];
 
-    constructor(private fb: FormBuilder) {
+    constructor() {
         this.settingsForm = this.fb.group({
             max_installments: [3, [Validators.required, Validators.min(1), Validators.max(24)]],
             default_payment_method: ['Credit Card', Validators.required],

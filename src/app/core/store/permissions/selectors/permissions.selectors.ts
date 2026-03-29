@@ -5,7 +5,6 @@ export const selectPermissionsState = createFeatureSelector<PermissionsState>('p
 
 // Get the selectors
 const {
-  selectIds,
   selectEntities,
   selectAll,
   selectTotal,

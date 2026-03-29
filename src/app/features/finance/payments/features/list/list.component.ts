@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -28,6 +28,9 @@ import {InstallmentService} from "../../../../../core/services/installment.servi
     imports: [CommonModule, RouterModule, FormsModule, ButtonModule, SelectButtonModule, TableModule, TagModule, TooltipModule]
 })
 export class ListComponent implements OnInit {
+    private installmentsService = inject(InstallmentService);
+    private store$ = inject(Store);
+
     installments: Installment[] = [];
     filteredInstallments: Installment[] = [];
     statusFilter: string = 'all';
@@ -47,7 +50,7 @@ export class ListComponent implements OnInit {
     pendingInstallments: number = 0;
     overdueInstallments: number = 0;
 
-    constructor(private installmentsService: InstallmentService, private store$: Store,) {
+    constructor() {
         this.installments$ = this.store$.select(selectAllInstallments);
         this.loading$ = this.store$.select(selectLoading);
     }

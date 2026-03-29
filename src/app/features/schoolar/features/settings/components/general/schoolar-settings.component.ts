@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -35,6 +35,8 @@ interface NotificationType {
     providers: [MessageService]
 })
 export class GeneralScholarSettingComponent implements OnInit {
+    private messageService = inject(MessageService);
+
     // student Settings
     schoolName: string = 'My School';
     schoolEmail: string = 'contact@myschool.com';
@@ -61,9 +63,6 @@ export class GeneralScholarSettingComponent implements OnInit {
     defaultLanguage: string = 'Portuguese';
     timezone: string = 'UTC+0';
     dateFormat: string = 'dd/mm/yyyy';
-
-    constructor(private messageService: MessageService) {
-    }
 
     ngOnInit(): void {
         // In a real application, these settings would be loaded from a service

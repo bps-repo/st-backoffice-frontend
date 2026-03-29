@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule, ActivatedRoute} from '@angular/router';
 import {
@@ -15,6 +15,8 @@ import {
     imports: [CommonModule, RouterModule]
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+
     payment: Payment | null = null;
     paymentId: number = 0;
     loading: boolean = true;
@@ -26,9 +28,6 @@ export class DetailComponent implements OnInit {
     progressPercentage: number = 0;
     paidAmount: number = 0;
     pendingAmount: number = 0;
-
-    constructor(private route: ActivatedRoute) {
-    }
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {

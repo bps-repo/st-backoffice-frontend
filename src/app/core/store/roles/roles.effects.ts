@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
@@ -8,10 +8,9 @@ import { HttpErrorResponse } from '@angular/common/module.d-CnjH8Dlt';
 
 @Injectable()
 export class RolesEffects {
-    constructor(
-        private actions$: Actions,
-        private roleService: RoleService
-    ) { }
+    private actions$ = inject(Actions);
+    private roleService = inject(RoleService);
+
 
     loadRoles$ = createEffect(() => this.actions$.pipe(
         ofType(RolesActions.loadRoles),

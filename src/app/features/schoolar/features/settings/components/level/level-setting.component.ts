@@ -1,5 +1,5 @@
 // general.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -36,6 +36,8 @@ interface NotificationType {
     providers: [MessageService]
 })
 export class LevelSettingComponent implements OnInit {
+    private messageService = inject(MessageService);
+
     // student Settings
     enableDashboard: boolean = true;
     enableReports: boolean = true;
@@ -58,8 +60,6 @@ export class LevelSettingComponent implements OnInit {
     // Chart Settings
     enableCharts: boolean = true;
     chartHeight: number = 300;
-
-    constructor(private messageService: MessageService) { }
 
     ngOnInit(): void {
         // In a real application, these settings would be loaded from a service

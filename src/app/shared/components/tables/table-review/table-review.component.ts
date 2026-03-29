@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    Input,
-    OnInit,
-    signal,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, Input, OnInit, signal, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SelectItem } from 'primeng/api';
@@ -55,6 +48,8 @@ interface expandedRows {
     styleUrl: './table-review.component.scss'
 })
 export class TableReviewComponent implements OnInit {
+    private router = inject(Router);
+
     @Input() tableLable = '';
 
     @Input() entity = '';
@@ -77,8 +72,6 @@ export class TableReviewComponent implements OnInit {
 
     selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
-
-    constructor(private router: Router) {}
     ngOnInit(): void {
         this.options = [
             {

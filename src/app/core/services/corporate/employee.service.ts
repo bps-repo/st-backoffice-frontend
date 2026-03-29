@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -10,10 +10,9 @@ import { CreateEmployeeRequest, Employee, EmployeeStatus } from "../../models/co
     providedIn: 'root',
 })
 export class EmployeeService {
-    private apiUrl = `${environment.apiUrl}/employees`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {
-    }
+    private apiUrl = `${environment.apiUrl}/employees`;
 
     /**
      * Gets all employees.

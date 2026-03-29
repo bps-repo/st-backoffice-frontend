@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
@@ -7,10 +7,9 @@ import * as PermissionsActions from '../actions/permissions.actions';
 
 @Injectable()
 export class PermissionsEffects {
-    constructor(
-        private actions$: Actions,
-        private permissionService: PermissionService
-    ) { }
+    private actions$ = inject(Actions);
+    private permissionService = inject(PermissionService);
+
 
     loadPermissions$ = createEffect(() => this.actions$.pipe(
         ofType(PermissionsActions.loadPermissions),

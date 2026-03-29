@@ -1,4 +1,4 @@
-import {Component, OnInit, signal} from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -37,6 +37,10 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
     providers: [ConfirmationService]
 })
 export class ManagementComponent implements OnInit {
+    private router = inject(Router);
+    private store = inject(Store);
+    private readonly confirmationService = inject(ConfirmationService);
+
     // Estatísticas de contratos
     totalContracts = signal(0 as number);
     activeContracts = signal(0 as number);
@@ -47,11 +51,7 @@ export class ManagementComponent implements OnInit {
     contracts$: Observable<any[]>;
     loading$: Observable<boolean> = of(false);
 
-    constructor(
-        private router: Router,
-        private store: Store,
-        private readonly confirmationService: ConfirmationService
-    ) {
+    constructor() {
         this.contracts$ = this.store.select(selectAllContracts).pipe(
             map(contracts => contracts.map(contract => {
                     this.calculateStatistics(contracts);

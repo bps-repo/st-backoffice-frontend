@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -11,9 +11,9 @@ import { Service } from '../models/course/service';
     providedIn: 'root',
 })
 export class ServiceService {
-    private apiUrl = `${environment.apiUrl}/services`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) { }
+    private apiUrl = `${environment.apiUrl}/services`;
 
     /**
      * Gets all services.

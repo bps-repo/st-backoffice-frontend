@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -18,10 +18,10 @@ import { TagModule } from 'primeng/tag';
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+
     attendanceId: string | null = null;
     attendance: any
-
-    constructor(private route: ActivatedRoute) { }
 
     ngOnInit(): void {
         this.attendanceId = this.route.snapshot.paramMap.get('id')

@@ -1,13 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessageService, SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -43,6 +35,8 @@ import {RippleModule} from "primeng/ripple";
     templateUrl: './table-create-invoice.component.html'
 })
 export class TableCreateInvoice implements OnInit {
+    private messageService = inject(MessageService);
+
     @Input() items: InvoiceItem[] = [];
     @Output() itemsChange = new EventEmitter<InvoiceItem[]>();
 
@@ -57,8 +51,6 @@ export class TableCreateInvoice implements OnInit {
     showItemDialog = false;
     submitted = false;
     isEditing = false;
-
-    constructor(private messageService: MessageService) {}
 
     ngOnInit(): void {
         // Initialize products from LEVELS

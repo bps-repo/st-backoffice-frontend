@@ -1,17 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import * as ServiceActions from './service.actions';
 import { ServiceService } from 'src/app/core/services/service.service';
-import { ApiResponse, PageableResponse } from 'src/app/core/models/ApiResponseService';
-import { Service } from 'src/app/core/models/course/service';
-import { Product } from 'src/app/core/models/corporate/product';
 
 @Injectable()
 export class ServiceEffects {
-    constructor(private actions$: Actions, private serviceService: ServiceService) {
-    }
+    private actions$ = inject(Actions);
+    private serviceService = inject(ServiceService);
+
 
     loadServices$ = createEffect(() =>
         this.actions$.pipe(

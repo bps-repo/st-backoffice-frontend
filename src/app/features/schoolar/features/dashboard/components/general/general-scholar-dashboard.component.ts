@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {FormsModule} from '@angular/forms';
 import {CalendarModule} from 'primeng/calendar';
@@ -26,6 +26,9 @@ interface Alert {
     templateUrl: './general-scholar-dashboard.component.html',
 })
 export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
+    private store = inject(Store);
+    private statisticsService = inject(ScholarStatisticsService);
+
     private destroy$ = new Subject<void>();
 
     pieDataLevels: any;
@@ -49,12 +52,6 @@ export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {
         {label: 'Agendamento de aulas', description: 'Usernamer8374 acabou de agendar uma aula para as 12h'},
         {label: 'Matrícula', description: '15 novos estudantes matriculados pela user2'},
     ];
-
-    constructor(
-        private store: Store,
-        private statisticsService: ScholarStatisticsService
-    ) {
-    }
 
     ngOnInit(): void {
         // Dispatch action to load students if not already loaded

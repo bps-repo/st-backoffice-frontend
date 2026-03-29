@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -10,6 +10,10 @@ import { StudentsActions } from '../../schoolar/students/students.actions';
 
 @Injectable()
 export class ContractEffects {
+    private actions$ = inject(Actions);
+    private store$ = inject<Store<AppState>>(Store);
+    private contractService = inject(ContractService);
+
 
     // Load all contracts
     loadContracts$ = createEffect(() =>
@@ -112,12 +116,4 @@ export class ContractEffects {
             )
         )
     );
-
-
-    constructor(
-        private actions$: Actions,
-        private store$: Store<AppState>,
-        private contractService: ContractService
-    ) {
-    }
 }

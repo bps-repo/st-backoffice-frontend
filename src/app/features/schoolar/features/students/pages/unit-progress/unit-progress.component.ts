@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -31,16 +31,13 @@ import {StudentsActions} from "../../../../../../core/store/schoolar/students/st
     providers: [MessageService]
 })
 export class UnitProgressComponent implements OnInit {
+    private store = inject(Store);
+    private messageService = inject(MessageService);
+
     students: Student[] = [];
     selectedStudent: Student | null = null;
     unitProgressList: UnitProgress[] = [];
     loading = false;
-
-    constructor(
-        private store: Store,
-        private messageService: MessageService
-    ) {
-    }
 
     ngOnInit(): void {
         this.loadStudents();

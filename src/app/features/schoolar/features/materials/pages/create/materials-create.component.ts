@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy, signal} from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router'; // Add ActivatedRoute
 import {MessageService, SelectItem} from 'primeng/api';
@@ -66,6 +66,13 @@ import {Subject} from 'rxjs';
     templateUrl: './materials-create.component.html'
 })
 export class MaterialsCreateComponent implements OnInit, OnDestroy {
+    private messageService = inject(MessageService);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private assessmentService = inject(AssessmentService);
+    private store = inject(Store);
+    private actions$ = inject(Actions);
+
     loading = false;
     private destroy$ = new Subject<void>();
 
@@ -146,16 +153,6 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
     selectedLevelId: string = '';
     levelOptions: SelectItem[] = [];
     unitsByLevel: { [levelId: string]: Unit[] } = {};
-
-    constructor(
-        private messageService: MessageService,
-        private router: Router,
-        private route: ActivatedRoute,
-        private assessmentService: AssessmentService,
-        private store: Store,
-        private actions$: Actions,
-    ) {
-    }
 
     ngOnInit() {
         // Set default uploader ID (in real app, get from auth service)

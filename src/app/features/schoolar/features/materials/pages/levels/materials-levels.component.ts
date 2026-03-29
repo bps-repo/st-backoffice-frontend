@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -72,13 +72,14 @@ import { MaterialService } from 'src/app/core/services/material.service';
     `,
 })
 export class MaterialsLevelsComponent implements OnInit {
+    private router = inject(Router);
+    private store = inject(Store);
+
 
     levels$: Observable<Level[]> = this.store.select(selectAllLevels);
     loading$: Observable<boolean> = this.store.select(selectLevelsLoading);
 
     private backgroundPath: string = 'assets/background_login.png';
-
-    constructor(private router: Router, private store: Store) { }
 
     ngOnInit(): void {
         this.store.dispatch(LevelActions.loadLevels({}));

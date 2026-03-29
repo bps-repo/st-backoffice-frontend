@@ -1,4 +1,4 @@
-import { Component, OnDestroy, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnDestroy, Renderer2, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -53,6 +53,11 @@ import { ToastModule } from 'primeng/toast';
     templateUrl: './app.layout.component.html'
 })
 export class AppLayoutComponent implements OnDestroy {
+    private menuService = inject(MenuService);
+    layoutService = inject(LayoutService);
+    renderer = inject(Renderer2);
+    router = inject(Router);
+
     overlayMenuOpenSubscription: Subscription;
 
     menuOutsideClickListener: any;
@@ -61,12 +66,7 @@ export class AppLayoutComponent implements OnDestroy {
     @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
     @ViewChild(AppTopbarComponent) appTopbar!: AppTopbarComponent;
 
-    constructor(
-        private menuService: MenuService,
-        public layoutService: LayoutService,
-        public renderer: Renderer2,
-        public router: Router
-    ) {
+    constructor() {
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
                 this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {

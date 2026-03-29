@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -34,6 +34,11 @@ import {MessageService} from 'primeng/api';
     ]
 })
 export class CreateComponent implements OnInit, OnDestroy {
+    private fb = inject(FormBuilder);
+    private router = inject(Router);
+    private readonly store$ = inject(Store);
+    private messageService = inject(MessageService);
+
     private destroy$ = new Subject<void>();
 
     roleForm!: FormGroup;
@@ -45,12 +50,9 @@ export class CreateComponent implements OnInit, OnDestroy {
 
     successFlag$: Observable<boolean> = of(false)
 
-    constructor(
-        private fb: FormBuilder,
-        private router: Router,
-        private readonly store$: Store,
-        private messageService: MessageService
-    ) {
+    constructor() {
+        const store$ = this.store$;
+
         this.loading$ = combineLatest([
             this.store$.select(selectPermissionsLoading),
             this.store$.select(selectRolesLoading)

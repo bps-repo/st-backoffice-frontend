@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -191,6 +191,10 @@ interface UnitWithMaterials {
   `
 })
 export class UnitsMaterialsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private materialService = inject(MaterialService);
+
   levelId: string = '';
   levelName: string = '';
   unitsWithMaterials: UnitWithMaterials[] = [];
@@ -201,12 +205,6 @@ export class UnitsMaterialsComponent implements OnInit {
   selectedVideoUrl: string = '';
   selectedVideoTitle: string = '';
   selectedVideoDescription: string = '';
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private materialService: MaterialService
-  ) {}
 
   ngOnInit(): void {
     this.levelId = this.route.snapshot.paramMap.get('levelId') || '';

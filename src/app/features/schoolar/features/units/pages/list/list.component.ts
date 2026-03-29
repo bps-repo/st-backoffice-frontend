@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -22,6 +22,10 @@ import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.acti
     providers: [ConfirmationService]
 })
 export class ListComponent implements OnInit {
+    private router = inject(Router);
+    private store = inject(Store);
+    private confirmationService = inject(ConfirmationService);
+
 
     @ViewChild(CreateUnitDialogComponent) createUnitDialog!: CreateUnitDialogComponent;
 
@@ -33,11 +37,7 @@ export class ListComponent implements OnInit {
     columns: TableColumn[] = [];
     size = 10;
 
-    constructor(
-        private router: Router,
-        private store: Store,
-        private confirmationService: ConfirmationService
-    ) {
+    constructor() {
         this.units$ = this.store.select(selectAllUnits);
         //this.loading$ = this.store.select(selectUnitLoading);
     }

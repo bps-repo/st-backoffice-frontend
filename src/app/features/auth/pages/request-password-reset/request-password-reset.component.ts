@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -10,10 +10,13 @@ import { Router, RouterModule } from '@angular/router';
     imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule]
 })
 export class RequestPasswordResetComponent {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+
   resetForm: FormGroup;
   isSubmitting = false;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor() {
     this.resetForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
     });

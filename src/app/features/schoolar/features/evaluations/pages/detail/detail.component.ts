@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TabViewModule } from 'primeng/tabview';
@@ -20,6 +20,8 @@ import { TagModule } from 'primeng/tag';
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+
     evaluationId: string | null = null;
     evaluation: any = {
         id: 1,
@@ -43,8 +45,6 @@ export class DetailComponent implements OnInit {
             { id: 3, text: 'Complete the dialogue with appropriate phrases', type: 'Fill in the blanks', points: 15 }
         ]
     };
-
-    constructor(private route: ActivatedRoute) {}
 
     ngOnInit(): void {
         this.evaluationId = this.route.snapshot.paramMap.get('id');

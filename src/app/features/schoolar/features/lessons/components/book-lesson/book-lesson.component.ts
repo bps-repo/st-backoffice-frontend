@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -32,6 +32,13 @@ import {Student} from '../../../../../../core/models/academic/student';
     templateUrl: './book-lesson.component.html',
 })
 export class BookLessonComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private fb = inject(FormBuilder);
+    private lessonService = inject(LessonService);
+    private studentService = inject(StudentService);
+    private messageService = inject(MessageService);
+
     lessonId: string | null = null;
     studentId: string | null = null;
     lesson: Lesson | null = null;
@@ -40,14 +47,7 @@ export class BookLessonComponent implements OnInit, OnDestroy {
     loading = false;
     private destroy$ = new Subject<void>();
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private fb: FormBuilder,
-        private lessonService: LessonService,
-        private studentService: StudentService,
-        private messageService: MessageService
-    ) {
+    constructor() {
         this.bookingForm = this.fb.group({
             selectedStudents: [[], Validators.required]
         });

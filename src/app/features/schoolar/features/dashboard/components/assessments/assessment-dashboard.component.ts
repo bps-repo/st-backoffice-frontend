@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
@@ -27,6 +27,8 @@ import { AssessmentService } from 'src/app/core/services/assessment.service';
     templateUrl: './assessment-dashboard.component.html',
 })
 export class AssessmentsDashboardComponent implements OnInit, OnDestroy {
+    private assessmentService = inject(AssessmentService);
+
     private destroy$ = new Subject<void>();
 
     // Data observables
@@ -45,8 +47,6 @@ export class AssessmentsDashboardComponent implements OnInit, OnDestroy {
     // UI data
     dateRange: Date[] | undefined;
     loading = true;
-
-    constructor(private assessmentService: AssessmentService) {}
 
     ngOnInit(): void {
         this.loadData();

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { TreeNode } from 'primeng/api';
 
@@ -7,7 +7,8 @@ import { TreeNode } from 'primeng/api';
     providedIn: 'root',
 })
 export class NodeService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
+
 
     getFiles() {
         return this.http

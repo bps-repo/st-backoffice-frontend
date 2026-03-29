@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, signal, TemplateRef, ViewChild, inject } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/academic/lesson';
@@ -29,6 +29,23 @@ import { CalendarModule } from 'primeng/calendar';
 import { BadgeModule } from 'primeng/badge';
 import { HasPermissionDirective } from 'src/app/shared/directives/has-permission.directive';
 
+interface WeeklyLessonCard {
+    time: string;
+    title: string;
+    teacher: string;
+    group: string;
+    status: string;
+    statusClass: string;
+    lesson: Lesson;
+}
+
+interface WeeklyLessonDay {
+    day: string;
+    date: string;
+    isToday: boolean;
+    classes: WeeklyLessonCard[];
+}
+
 @Component({
     selector: 'app-lessons',
     imports: [
@@ -53,43 +70,6 @@ import { HasPermissionDirective } from 'src/app/shared/directives/has-permission
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`
-        ::ng-deep .p-selectbutton {
-            display: flex;
-            flex-wrap: nowrap;
-        }
-
-        ::ng-deep .p-selectbutton .p-button {
-            margin-right: 0.5rem;
-            border: none;
-        }
-
-        ::ng-deep .p-selectbutton .p-button:last-child {
-            margin-right: 0;
-        }
-
-        .sticky-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .sticky-active {
-            background-color: var(--surface-card);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .animate-fade {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .content-sticky {
-            position: sticky;
-            top: 140px;
-            z-index: 90;
-        }
 
         /* Calendar Styles */
         .weekly-calendar .today-card {
@@ -327,6 +307,9 @@ import { HasPermissionDirective } from 'src/app/shared/directives/has-permission
     `]
 })
 export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
+    private store = inject<Store<LessonState>>(Store);
+    private router = inject(Router);
+
     lesson: Lesson = {} as Lesson;
 
     lessons$: Observable<Lesson[]>;
@@ -384,7 +367,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     currentWeekEnd: Date = new Date();
 
     // Sample lesson data for calendar
-    weeklyLessons: any[] = [];
+    weeklyLessons: WeeklyLessonDay[] = [];
     monthlyCalendarDays: any[] = [];
 
     // Dialog state
@@ -433,16 +416,18 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.loadMonthlyLessons();
     }
 
-    setCurrentWeek() {
-        const today = new Date();
-        const currentDay = today.getDay();
+    setCurrentWeek(referenceDate: Date = this.currentDate) {
+        const baseDate = new Date(referenceDate);
+        const currentDay = baseDate.getDay();
         const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days
 
-        this.currentWeekStart = new Date(today);
-        this.currentWeekStart.setDate(today.getDate() + mondayOffset);
+        this.currentWeekStart = new Date(baseDate);
+        this.currentWeekStart.setDate(baseDate.getDate() + mondayOffset);
+        this.currentWeekStart = this.getStartOfDay(this.currentWeekStart);
 
         this.currentWeekEnd = new Date(this.currentWeekStart);
         this.currentWeekEnd.setDate(this.currentWeekStart.getDate() + 6);
+        this.currentWeekEnd = this.getEndOfDay(this.currentWeekEnd);
     }
 
     loadMonthlyLessons() {
@@ -525,9 +510,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         const year = this.currentDate.getFullYear();
         const month = this.currentDate.getMonth();
 
-        // Get first and last day of the month
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
+        // Get first and last day of the month with full-day boundaries.
+        const firstDay = this.getStartOfDay(new Date(year, month, 1));
+        const lastDay = this.getEndOfDay(new Date(year, month + 1, 0));
 
         // Filter lessons for current month
         const monthLessons = lessons.filter(lesson => {
@@ -540,15 +525,16 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             day.lessons = monthLessons.filter(lesson => {
                 const lessonDate = new Date(lesson.startDatetime);
                 return lessonDate.toDateString() === day.date.toDateString();
-            }).map(lesson => ({
-                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                title: lesson.title,
-                teacher: lesson.teacher.name,
-                group: lesson.level || 'N/A',
-                status: this.getStatusLabel(lesson.status),
-                statusClass: this.getStatusClass(lesson.status),
-                lesson: lesson
-            }));
+            }).sort((a, b) => new Date(a.startDatetime).getTime() - new Date(b.startDatetime).getTime())
+                .map(lesson => ({
+                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    title: lesson.title,
+                    teacher: lesson.teacher.name,
+                    group: lesson.level || 'N/A',
+                    status: this.getStatusLabel(lesson.status),
+                    statusClass: this.getStatusClass(lesson.status),
+                    lesson: lesson
+                }));
         });
     }
 
@@ -575,6 +561,10 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     switchCalendarView(view: 'week' | 'month') {
         this.calendarView = view;
 
+        if (view === 'month') {
+            this.generateMonthlyCalendar();
+        }
+
         // Load appropriate data for the selected view
         if (this.classes?.length > 0) {
             if (view === 'week') {
@@ -587,15 +577,22 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     navigatePrevious() {
         if (this.calendarView === 'week') {
+            this.currentWeekStart = new Date(this.currentWeekStart);
+            this.currentWeekEnd = new Date(this.currentWeekEnd);
             this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
             this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() - 7);
-            // Load real data for new period
+            this.currentWeekStart = this.getStartOfDay(this.currentWeekStart);
+            this.currentWeekEnd = this.getEndOfDay(this.currentWeekEnd);
+
             if (this.classes?.length > 0) {
                 this.loadWeeklyLessonsFromData(this.classes);
             }
         } else {
-            this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-            // Load real data for new period
+            const newDate = new Date(this.currentDate);
+            newDate.setMonth(newDate.getMonth() - 1);
+            this.currentDate = newDate;
+
+            this.generateMonthlyCalendar();
             if (this.classes?.length > 0) {
                 this.loadMonthlyLessonsFromData(this.classes);
             }
@@ -604,15 +601,22 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     navigateNext() {
         if (this.calendarView === 'week') {
+            this.currentWeekStart = new Date(this.currentWeekStart);
+            this.currentWeekEnd = new Date(this.currentWeekEnd);
             this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
             this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() + 7);
-            // Load real data for new period
+            this.currentWeekStart = this.getStartOfDay(this.currentWeekStart);
+            this.currentWeekEnd = this.getEndOfDay(this.currentWeekEnd);
+
             if (this.classes?.length > 0) {
                 this.loadWeeklyLessonsFromData(this.classes);
             }
         } else {
-            this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-            // Load real data for new period
+            const newDate = new Date(this.currentDate);
+            newDate.setMonth(newDate.getMonth() + 1);
+            this.currentDate = newDate;
+
+            this.generateMonthlyCalendar();
             if (this.classes?.length > 0) {
                 this.loadMonthlyLessonsFromData(this.classes);
             }
@@ -621,7 +625,12 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     navigateToday() {
         this.currentDate = new Date();
-        this.setCurrentWeek();
+        this.setCurrentWeek(this.currentDate);
+
+        if (this.calendarView === 'month') {
+            this.generateMonthlyCalendar();
+        }
+
         // Load real data for today
         if (this.classes?.length > 0) {
             if (this.calendarView === 'week') {
@@ -663,10 +672,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    constructor(
-        private store: Store<LessonState>,
-        private router: Router
-    ) {
+    constructor() {
         this.lessons$ = this.store.select(selectAllLessons);
         this.loading$ = this.store.select(selectAnyLoading);
         this.error$ = this.store.select(selectAnyError);
@@ -882,8 +888,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
      * Load weekly lessons from real data
      */
     loadWeeklyLessonsFromData(lessons: Lesson[]) {
-        const weekStart = new Date(this.currentWeekStart);
-        const weekEnd = new Date(this.currentWeekEnd);
+        const weekStart = this.getStartOfDay(new Date(this.currentWeekStart));
+        const weekEnd = this.getEndOfDay(new Date(this.currentWeekEnd));
 
         // Filter lessons for current week
         const weekLessons = lessons.filter(lesson => {
@@ -900,23 +906,25 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             const dayLessons = weekLessons.filter(lesson => {
                 const lessonDate = new Date(lesson.startDatetime);
                 return lessonDate.toDateString() === currentDay.toDateString();
-            });
+            }).sort((a, b) => new Date(a.startDatetime).getTime() - new Date(b.startDatetime).getTime());
 
             const isToday = currentDay.toDateString() === new Date().toDateString();
+
+            const classes: WeeklyLessonCard[] = dayLessons.map(lesson => ({
+                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                title: lesson.title,
+                teacher: lesson.teacher.name,
+                group: lesson.level || 'N/A',
+                status: this.getStatusLabel(lesson.status),
+                statusClass: this.getStatusClass(lesson.status),
+                lesson: lesson // Include the full lesson object for the dialog
+            }));
 
             this.weeklyLessons.push({
                 day: currentDay.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
                 date: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
                 isToday,
-                classes: dayLessons.map(lesson => ({
-                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    title: lesson.title,
-                    teacher: lesson.teacher.name,
-                    group: lesson.level || 'N/A',
-                    status: this.getStatusLabel(lesson.status),
-                    statusClass: this.getStatusClass(lesson.status),
-                    lesson: lesson // Include the full lesson object for the dialog
-                }))
+                classes
             });
         }
     }
@@ -948,6 +956,18 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             case LessonStatus.POSTPONED: return 'info';
             default: return 'secondary';
         }
+    }
+
+    private getStartOfDay(date: Date): Date {
+        const normalized = new Date(date);
+        normalized.setHours(0, 0, 0, 0);
+        return normalized;
+    }
+
+    private getEndOfDay(date: Date): Date {
+        const normalized = new Date(date);
+        normalized.setHours(23, 59, 59, 999);
+        return normalized;
     }
 
     /**

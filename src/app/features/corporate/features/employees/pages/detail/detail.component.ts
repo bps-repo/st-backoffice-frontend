@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { EmployeeStatus, Employee } from 'src/app/core/models/corporate/employee';
@@ -30,18 +30,16 @@ import { EmployeesActions } from 'src/app/core/store/corporate/employees/employe
     ]
 })
 export class DetailComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private store$ = inject(Store);
+
     employeeDetails: Employee | null = null;
 
     employee$!: Observable<Employee | null>;
 
     loading$: Observable<boolean> = of(false)
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store$: Store
-    ) { }
 
     ngOnInit(): void {
         // Subscribe to loading state

@@ -1,5 +1,5 @@
-import { EntityState, createEntityAdapter } from '@ngrx/entity';
-import { Employee } from 'src/app/core/models/corporate/employee';
+import {EntityState, createEntityAdapter} from '@ngrx/entity';
+import {Employee} from 'src/app/core/models/corporate/employee';
 
 export interface EmployeesState extends EntityState<Employee> {
     loading: boolean;
@@ -21,9 +21,9 @@ export interface EmployeesState extends EntityState<Employee> {
     selectedId: string;
     selectedEmployee: Employee | null;
 
-    byRole: { [role: string]: string[] }; // store IDs by role
-    byCenter: { [centerId: string]: string[] };
-    byStatus: { [status: string]: string[] };
+    byRole: Record<string, string[]>; // store IDs by role
+    byCenter: Record<string, string[]>;
+    byStatus: Record<string, string[]>;
     searchIds: string[]; // last search (non-paginated)
     searchPage: any | null; // last paginated search page object
 }

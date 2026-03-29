@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/auth/user';
@@ -11,9 +11,10 @@ import { UserProfileService } from './user-profile.service';
     providedIn: 'root',
 })
 export class UserManagementService {
-    private apiUrl = `${environment.apiUrl}/users`;
+    private http = inject(HttpClient);
+    private userProfileService = inject(UserProfileService);
 
-    constructor(private http: HttpClient, private userProfileService: UserProfileService) { }
+    private apiUrl = `${environment.apiUrl}/users`;
 
     getUsers(): Observable<User[]> {
         return this.http.get<User[]>(this.apiUrl);

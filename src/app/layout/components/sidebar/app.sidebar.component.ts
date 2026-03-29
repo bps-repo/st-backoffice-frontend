@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { LayoutService } from '../../service/app.layout.service';
 import { AppMenuComponent } from "../menu/app.menu.component";
 import { InputTextModule } from 'primeng/inputtext';
@@ -31,11 +31,10 @@ import { CommonModule } from '@angular/common';
     ]
 })
 export class AppSidebarComponent {
+    layoutService = inject(LayoutService);
+    el = inject(ElementRef);
+
     @ViewChild('menuContainer') menuContainer!: ElementRef;
-    constructor(
-        public layoutService: LayoutService,
-        public el: ElementRef
-    ) {}
 
     get isDrawerOrReveal(): boolean {
         const menuMode = this.layoutService.config().menuMode;

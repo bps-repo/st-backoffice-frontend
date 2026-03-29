@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
 import { Tab } from 'src/app/shared/@types/tab';
@@ -35,18 +35,15 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private store = inject(Store);
+
     tabs!: Tab[];
     items!: MenuItem[];
     tabItems!: MenuItem[];
     assessment: Exam | null = null;
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store: Store
-    ) {
-    }
 
     ngOnInit() {
         this.tabs = ASSESSMENTS_TABS;

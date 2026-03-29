@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { Task } from 'src/app/demo/api/task';
 import { TaskService } from './service/task.service';
 import { Subscription } from 'rxjs';
@@ -7,6 +7,8 @@ import { Subscription } from 'rxjs';
     templateUrl: './tasklist.app.component.html'
 })
 export class TaskListAppComponent implements OnDestroy {
+    private taskService = inject(TaskService);
+
 
     subscription: Subscription;
 
@@ -14,7 +16,7 @@ export class TaskListAppComponent implements OnDestroy {
 
     completed: Task[] = [];
 
-    constructor(private taskService: TaskService) {
+    constructor() {
         this.subscription = this.taskService.taskSource$.subscribe(data => this.categorize(data));
     }
 

@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay, map, catchError } from 'rxjs/operators';
-import { Sale, SaleFilter, SaleStatistics } from '../models/finance/sale.model';
-import { environment } from '../../../environments/environment';
+import {Injectable, inject} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable, of} from 'rxjs';
+import {delay, map, catchError} from 'rxjs/operators';
+import {Sale, SaleFilter, SaleStatistics} from '../models/finance/sale.model';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SalesService {
-    private apiUrl = `${environment.apiUrl}/sales`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {}
+    private apiUrl = `${environment.apiUrl}/sales`;
 
     // Get all sales with optional filtering
     getSales(filter?: SaleFilter): Observable<Sale[]> {
@@ -67,44 +67,6 @@ export class SalesService {
             }),
             delay(500)
         );
-    }
-
-    // Delete a sale
-    deleteSale(id: string): Observable<boolean> {
-        return of(true).pipe(delay(500));
-    }
-
-    // Get sales statistics
-    getSalesStatistics(): Observable<SaleStatistics> {
-        const sales = this.getMockSales();
-        const totalSales = sales.length;
-        const totalRevenue = sales.reduce((sum, sale) => sum + sale.product.total, 0);
-        const averageSaleValue = totalSales > 0 ? totalRevenue / totalSales : 0;
-
-        const salesByType: { [key: string]: number } = {};
-        const salesByStatus: { [key: string]: number } = {};
-        const salesByMonth: { [key: string]: number } = {};
-
-        sales.forEach(sale => {
-            // Count by type
-            salesByType[sale.product.type] = (salesByType[sale.product.type] || 0) + 1;
-
-            // Count by status
-            salesByStatus[sale.payment.status] = (salesByStatus[sale.payment.status] || 0) + 1;
-
-            // Count by month
-            const month = new Date(sale.dates.created).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            salesByMonth[month] = (salesByMonth[month] || 0) + 1;
-        });
-
-        return of({
-            totalSales,
-            totalRevenue,
-            averageSaleValue,
-            salesByType,
-            salesByStatus,
-            salesByMonth
-        }).pipe(delay(800));
     }
 
     // Filter sales based on criteria

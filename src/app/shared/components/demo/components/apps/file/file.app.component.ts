@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Folder } from 'src/app/demo/api/folder';
 import { File } from 'src/app/demo/api/file';
 import { Metric } from 'src/app/demo/api/metric';
@@ -12,6 +12,9 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./file.app.component.scss']
 })
 export class FileAppComponent implements OnInit {
+    private fileService = inject(FileAppService);
+    private layoutService = inject(LayoutService);
+
 
     fileChart: any;
 
@@ -29,7 +32,7 @@ export class FileAppComponent implements OnInit {
 
     subscription: Subscription;
 
-    constructor(private fileService: FileAppService, private layoutService: LayoutService) { 
+    constructor() { 
         this.subscription = this.layoutService.configUpdate$.subscribe(config => {
             this.initChart();
         });

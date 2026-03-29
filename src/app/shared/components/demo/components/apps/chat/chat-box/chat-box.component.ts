@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Message } from 'src/app/demo/api/message';
 import { User } from 'src/app/demo/api/user';
 import { ChatService } from '../service/chat.service';
@@ -9,6 +9,8 @@ import { ChatService } from '../service/chat.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatBoxComponent implements OnInit {
+    private chatService = inject(ChatService);
+
 
     defaultUserId: number = 123;
 
@@ -25,8 +27,6 @@ export class ChatBoxComponent implements OnInit {
     ];
 
     @Input() user!: User;
-
-    constructor(private chatService: ChatService) { }
 
     setMessage() {
         if (this.user) {

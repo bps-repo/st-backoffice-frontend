@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -30,6 +30,8 @@ interface Ticket {
   templateUrl: './support.component.html',
 })
 export class SupportComponent {
+  private fb = inject(FormBuilder);
+
   supportForm = this.fb.group({
     title: ['', Validators.required],
     message: ['', Validators.required]
@@ -58,8 +60,6 @@ export class SupportComponent {
       updatedAt: new Date(new Date().setDate(new Date().getDate() - 1))
     }
   ];
-
-  constructor(private fb: FormBuilder) {}
 
   enviarSolicitacao() {
     if (this.supportForm.valid) {

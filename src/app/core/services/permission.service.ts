@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Permission} from '../models/auth/permission';
@@ -14,13 +14,10 @@ import {AppState} from '../store';
     providedIn: 'root',
 })
 export class PermissionService {
-    public apiUrl = `${environment.apiUrl}/permissions`;
+    http = inject(HttpClient);
+    private store = inject<Store<AppState>>(Store);
 
-    constructor(
-        public http: HttpClient,
-        private store: Store<AppState>
-    ) {
-    }
+    public apiUrl = `${environment.apiUrl}/permissions`;
 
     // Original HTTP method for effects to use
     getPermissionTree(): Observable<Permission[]> {

@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Mail } from 'src/app/demo/api/mail';
 import { MailService } from 'src/app/shared/components/demo/components/apps/mail/service/mail.service';
@@ -8,11 +8,13 @@ import { MailService } from 'src/app/shared/components/demo/components/apps/mail
     templateUrl: './mail-important.component.html',
 })
 export class MailImportantComponent implements OnDestroy {
+    private mailService = inject(MailService);
+
     importantMails: Mail[] = [];
 
     subscription: Subscription;
 
-    constructor(private mailService: MailService) {
+    constructor() {
         this.subscription = this.mailService.mails$.subscribe((data) => {
             this.importantMails = data.filter(
                 (d) => d.important && !d.spam && !d.trash && !d.archived

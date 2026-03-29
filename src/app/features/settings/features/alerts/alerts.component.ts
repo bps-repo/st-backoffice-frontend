@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -30,6 +30,8 @@ interface Alert {
   templateUrl: './alerts.component.html',
 })
 export class AlertsComponent {
+  private fb = inject(FormBuilder);
+
   alertForm = this.fb.group({
     type: ['', Validators.required],
     title: ['', Validators.required],
@@ -54,8 +56,6 @@ export class AlertsComponent {
       read: false
     }
   ];
-
-  constructor(private fb: FormBuilder) {}
 
   addAlert() {
     if (this.alertForm.valid) {

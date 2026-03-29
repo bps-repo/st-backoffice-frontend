@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -24,18 +24,16 @@ import { Sale } from 'src/app/core/models/finance/sale.model';
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private salesService = inject(SalesService);
+
     saleId: string | null = null;
     loading = false;
     sale: Sale | null = null;
     error: string | null = null;
 
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private salesService: SalesService
-    ) {}
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {

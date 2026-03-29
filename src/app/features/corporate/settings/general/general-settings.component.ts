@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 
@@ -9,9 +9,9 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
     imports: [CommonModule, ReactiveFormsModule]
 })
 export class GeneralSettingsComponent implements OnInit {
-    settingsForm!: FormGroup;
+    private fb = inject(FormBuilder);
 
-    constructor(private fb: FormBuilder) {}
+    settingsForm!: FormGroup;
 
     ngOnInit() {
         this.settingsForm = this.fb.group({

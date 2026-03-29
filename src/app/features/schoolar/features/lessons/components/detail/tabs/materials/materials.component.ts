@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -40,21 +40,18 @@ import {LessonService} from "../../../../../../../../core/services/lesson.servic
     templateUrl: './materials.component.html'
 })
 export class MaterialsComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private store = inject(Store);
+    private lessonApiService = inject(LessonService);
+    private messageService = inject(MessageService);
+
     lessonItem: Lesson | null = null;
     materials: Material[] = [];
     displayAddDialog: boolean = false;
     newMaterial: Partial<Material> = {};
 
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store: Store,
-        private lessonApiService: LessonService,
-        private messageService: MessageService
-    ) {
-    }
 
     ngOnInit(): void {
     }

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
@@ -30,6 +30,10 @@ import {Actions, ofType} from '@ngrx/effects';
     providers: [MessageService]
 })
 export class CreateLevelDialogComponent implements OnInit {
+    private store = inject(Store);
+    private messageService = inject(MessageService);
+    private actions$ = inject(Actions);
+
 
     visible: boolean = false;
 
@@ -48,7 +52,7 @@ export class CreateLevelDialogComponent implements OnInit {
 
     //courseOptions$: Observable<Service[]>;
 
-    constructor(private store: Store, private messageService: MessageService, private actions$: Actions) {
+    constructor() {
         this.loading$ = this.store.select(LevelSelectors.selectLoading);
         this.loadingCreate$ = this.store.select(LevelSelectors.selectLevelCreateLoading);
         this.error$ = this.store.select(LevelSelectors.selectError);

@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    Input,
-    OnInit,
-    signal,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, Input, OnInit, signal, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -48,6 +41,8 @@ import { CustomerService } from 'src/app/core/services/customer.service';
     styleUrl: './table-classes.component.scss'
 })
 export class TableClassesComponent implements OnInit {
+    private customerService = inject(CustomerService);
+
     @Input() tableLable = '';
 
     customers1: Customer[] = [];
@@ -70,8 +65,6 @@ export class TableClassesComponent implements OnInit {
 
     selectedDrop: SelectItem = { value: '' };
     @ViewChild('filter') filter!: ElementRef;
-
-    constructor(private customerService: CustomerService) {}
     ngOnInit(): void {
         this.customerService.getCustomersLarge().then((customers) => {
             this.customers1 = customers;

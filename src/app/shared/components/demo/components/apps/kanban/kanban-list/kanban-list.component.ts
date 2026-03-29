@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { KanbanCard, KanbanList } from 'src/app/demo/api/kanban';
 import { KanbanAppComponent } from '../kanban.app.component';
@@ -11,6 +11,9 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
     styleUrls: ['./kanban-list.component.scss']
 })
 export class KanbanListComponent implements OnInit {
+    parent = inject(KanbanAppComponent);
+    private kanbanService = inject(KanbanService);
+
 
     @Input() list!: KanbanList;
 
@@ -27,8 +30,6 @@ export class KanbanListComponent implements OnInit {
     @ViewChild('inputEl') inputEl!: ElementRef;
 
     @ViewChild('listEl') listEl!: ElementRef;
-
-    constructor(public parent: KanbanAppComponent, private kanbanService: KanbanService) { }
 
     ngOnInit(): void {
         this.isMobileDevice = this.kanbanService.isMobileDevice();

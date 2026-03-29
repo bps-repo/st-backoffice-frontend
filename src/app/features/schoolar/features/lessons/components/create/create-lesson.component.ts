@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -51,6 +51,12 @@ import {LessonType} from 'src/app/core/enums/lesson-type';
     templateUrl: './create-lesson.component.html'
 })
 export class CreateLessonComponent implements OnInit, OnDestroy {
+    private fb = inject(FormBuilder);
+    private store$ = inject(Store);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+    private actions$ = inject(Actions);
+
     loading: boolean = false;
     form!: FormGroup;
     private destroy$ = new Subject<void>();
@@ -107,13 +113,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         {label: 'Completed', value: LessonStatus.COMPLETED}
     ];
 
-    constructor(
-        private fb: FormBuilder,
-        private store$: Store,
-        private router: Router,
-        private messageService: MessageService,
-        private actions$: Actions,
-    ) {
+    constructor() {
+        const store$ = this.store$;
+
         this.store$.dispatch(CenterActions.loadCenters())
         this.store$.dispatch(UnitActions.loadUnits())
         this.store$.dispatch(LevelActions.loadLevels({}))

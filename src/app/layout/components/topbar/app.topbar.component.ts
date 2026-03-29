@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
@@ -38,17 +38,17 @@ import { UserProfileService } from 'src/app/core/services/user-profile.service';
     ]
 })
 export class AppTopbarComponent implements OnInit, OnDestroy {
+    layoutService = inject(LayoutService);
+    menuService = inject(MenuService);
+    private store = inject(Store);
+    userProfileService = inject(UserProfileService);
+
     @ViewChild('menubutton') menuButton!: ElementRef;
 
     currentUser$: Observable<User | null>;
     private destroy$ = new Subject<void>();
 
-    constructor(
-        public layoutService: LayoutService,
-        public menuService: MenuService,
-        private store: Store,
-        public userProfileService: UserProfileService
-    ) {
+    constructor() {
         this.currentUser$ = this.store.select(authFeature.selectUser);
     }
 

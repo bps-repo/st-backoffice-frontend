@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
@@ -113,14 +113,14 @@ import { CacheService } from 'src/app/core/services/cache.service';
   `]
 })
 export class CacheManagerComponent implements OnInit {
+  private store = inject(Store);
+  private cacheService = inject(CacheService);
+
   levelCacheStatus$: Observable<any>;
   unitState$: Observable<any>;
   materialState$: Observable<any>;
 
-  constructor(
-    private store: Store,
-    private cacheService: CacheService
-  ) {
+  constructor() {
     this.levelCacheStatus$ = this.store.select(selectLevelCacheStatus);
     this.unitState$ = this.store.select(selectUnitsState);
     this.materialState$ = this.store.select(selectMaterialState);

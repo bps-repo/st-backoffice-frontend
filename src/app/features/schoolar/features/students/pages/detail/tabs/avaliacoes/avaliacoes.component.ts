@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
 import { TableService } from 'src/app/shared/services/table.service';
@@ -9,6 +9,8 @@ import { TableService } from 'src/app/shared/services/table.service';
     templateUrl: './avaliacoes.component.html'
 })
 export class AvaliacoesComponent implements OnInit {
+    private tableService = inject<TableService<any>>(TableService);
+
     evaluations: any[] = [
         {
             id: 1,
@@ -44,8 +46,6 @@ export class AvaliacoesComponent implements OnInit {
 
     columns: any[] = [];
     globalFilterFields: string[] = [];
-
-    constructor(private tableService: TableService<any>) {}
 
     ngOnInit(): void {
         // Define custom column templates for different filter types

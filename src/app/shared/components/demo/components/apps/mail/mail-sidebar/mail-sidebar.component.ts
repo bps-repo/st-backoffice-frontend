@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { NavigationEnd, Router } from '@angular/router';
 import { Mail } from 'src/app/demo/api/mail';
@@ -10,6 +10,9 @@ import { filter, Subscription } from 'rxjs';
     templateUrl: './mail-sidebar.component.html'
 })
 export class MailSidebarComponent implements OnDestroy {
+    private router = inject(Router);
+    private mailService = inject(MailService);
+
 
     items: MenuItem[] = [];
 
@@ -21,7 +24,7 @@ export class MailSidebarComponent implements OnDestroy {
 
     url: string = '';
 
-    constructor(private router: Router, private mailService: MailService) {
+    constructor() {
         this.mailSubscription = this.mailService.mails$.subscribe(data => this.getBadgeValues(data));
 
         this.routeSubscription = this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((params: any) => {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthorizationService } from '../../../core/services/authorization.service';
 import { Permission } from '../../../core/models/auth/permission';
@@ -167,6 +167,8 @@ import { Permission } from '../../../core/models/auth/permission';
   `]
 })
 export class AuthorizationExamplesComponent implements OnInit {
+  private authorizationService = inject(AuthorizationService);
+
   // Observable properties for permission checks
   hasStudentsView$: Observable<boolean>;
   hasStudentsManage$: Observable<boolean>;
@@ -175,8 +177,6 @@ export class AuthorizationExamplesComponent implements OnInit {
   studentsPermissions$: Observable<Permission[]>;
   canManageStudents$: Observable<boolean>;
   canViewStudents$: Observable<boolean>;
-
-  constructor(private authorizationService: AuthorizationService) {}
 
   ngOnInit(): void {
     // Initialize permission observables

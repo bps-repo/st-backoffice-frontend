@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable, Subject, takeUntil, of } from 'rxjs';
@@ -70,6 +70,9 @@ import { Sale, SaleFilter } from 'src/app/core/models/finance/sale.model';
     `]
 })
 export class ListComponent implements OnInit, OnDestroy {
+    private router = inject(Router);
+    private salesService = inject(SalesService);
+
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
 
@@ -117,11 +120,6 @@ export class ListComponent implements OnInit, OnDestroy {
     ];
 
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private router: Router,
-        private salesService: SalesService
-    ) {}
 
     ngOnInit(): void {
         this.loadSales();

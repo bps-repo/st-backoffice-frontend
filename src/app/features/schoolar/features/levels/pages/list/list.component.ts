@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, ElementRef, HostListener, AfterViewInit} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener, AfterViewInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -120,6 +120,10 @@ import {CreateUnitDialogComponent} from "../../../units/dialogs/create-unit-dial
     `]
 })
 export class ListComponent implements OnInit, AfterViewInit {
+    private router = inject(Router);
+    private store = inject(Store);
+    private confirmationService = inject(ConfirmationService);
+
 
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
@@ -165,11 +169,7 @@ export class ListComponent implements OnInit, AfterViewInit {
         '#F97316', // orange
     ];
 
-    constructor(
-        private router: Router,
-        private store: Store,
-        private confirmationService: ConfirmationService
-    ) {
+    constructor() {
         // Initialize observables
         this.levels$ = this.store.select(LevelSelectors.selectAllLevels);
         this.units$ = this.store.select(UnitSelectors.selectAllUnits);

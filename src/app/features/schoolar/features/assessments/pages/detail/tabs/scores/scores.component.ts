@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -16,6 +16,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
     templateUrl: './scores.component.html'
 })
 export class ScoresComponent implements OnInit {
+    private store = inject(Store);
+
     exam$: Observable<Exam | null>;
 
     // Chart data
@@ -31,7 +33,7 @@ export class ScoresComponent implements OnInit {
     strongAreas: string[] = [];
     weakAreas: string[] = [];
 
-    constructor(private store: Store) {
+    constructor() {
         this.exam$ = this.store.select(selectSelectedExam);
     }
 

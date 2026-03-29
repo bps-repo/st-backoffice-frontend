@@ -1,13 +1,4 @@
-import {
-    Component,
-    OnInit,
-    OnDestroy,
-    TemplateRef,
-    ViewChild,
-    AfterViewInit,
-    ElementRef,
-    HostListener
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, ElementRef, HostListener, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -70,6 +61,9 @@ import {AppState} from 'src/app/core/store';
     templateUrl: './list.component.html',
 })
 export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
+    private store = inject<Store<AppState>>(Store);
+    private router = inject(Router);
+
 
     isSearchMode$ = new BehaviorSubject<boolean>(false);
 
@@ -209,10 +203,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    constructor(
-        private store: Store<AppState>,
-        private router: Router
-    ) {
+    constructor() {
         // Use the entity selectors
         this.students$ = this.store.select(StudentSelectors.selectAllStudents);
         this.centers$ = this.store.select(CenterSelectors.selectAllCenters);

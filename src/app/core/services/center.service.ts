@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
@@ -10,11 +10,10 @@ import {map} from "rxjs/operators";
     providedIn: 'root'
 })
 export class CenterService {
+    private http = inject(HttpClient);
+
 
     private apiUrl = `${environment.apiUrl}/centers`;
-
-    constructor(private http: HttpClient) {
-    }
 
     createCenter(center: CreateCenter): Observable<Center> {
         return this.http.post<ApiResponse<Center>>(this.apiUrl, center).pipe(

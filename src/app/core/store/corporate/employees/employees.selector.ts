@@ -1,7 +1,6 @@
 import {EmployeeFeature} from "./employees.reducer";
 import {createSelector} from "@ngrx/store";
 import {employeesAdapter} from "./employees.state";
-import {Employee} from "../../../models/corporate/employee";
 
 
 const {

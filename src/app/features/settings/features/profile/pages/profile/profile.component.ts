@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
 import {Store} from '@ngrx/store';
@@ -54,6 +54,11 @@ type PermissionCategory = 'read' | 'write' | 'delete' | 'manage';
     styleUrl: 'profile.component.css'
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+    private fb = inject(FormBuilder);
+    private store = inject(Store);
+    private messageService = inject(MessageService);
+    userProfileService = inject(UserProfileService);
+
     profileForm: FormGroup;
     currentUser$: Observable<User | null>;
     loading$: Observable<boolean>;
@@ -80,12 +85,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     };
     private readonly permissionGroupOrder: PermissionCategory[] = ['read', 'write', 'delete', 'manage'];
 
-    constructor(
-        private fb: FormBuilder,
-        private store: Store,
-        private messageService: MessageService,
-        public userProfileService: UserProfileService
-    ) {
+    constructor() {
         this.profileForm = this.createForm();
         this.currentUser$ = this.store.select(authFeature.selectUser);
         this.loading$ = this.store.select(authFeature.selectLoading);

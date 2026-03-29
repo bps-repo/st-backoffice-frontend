@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -33,6 +33,12 @@ import {selectAllStudents} from "../../../../../../core/store/schoolar/students/
     providers: [MessageService]
 })
 export class AddToCenterComponent implements OnInit {
+    private store = inject(Store);
+    private fb = inject(FormBuilder);
+    private centerService = inject(CenterService);
+    private studentsService = inject(StudentService);
+    private messageService = inject(MessageService);
+
     students: Student[] = [];
     centers: Center[] = [];
     selectedStudents: Student[] = [];
@@ -40,13 +46,7 @@ export class AddToCenterComponent implements OnInit {
     form: FormGroup;
     loading = false;
 
-    constructor(
-        private store: Store,
-        private fb: FormBuilder,
-        private centerService: CenterService,
-        private studentsService: StudentService,
-        private messageService: MessageService
-    ) {
+    constructor() {
         this.form = this.fb.group({
             center: [null, Validators.required]
         });

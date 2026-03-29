@@ -1,5 +1,5 @@
 // student.component.ts
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -27,6 +27,9 @@ import {DropdownModule} from 'primeng/dropdown';
         ProgressSpinnerModule]
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+
 
     serviceId: string = '';
     service$: Observable<Service | null>;
@@ -35,7 +38,7 @@ export class DetailComponent implements OnInit {
     loading$: Observable<boolean>;
     loading: boolean = true;
 
-    constructor(private route: ActivatedRoute, private store: Store) {
+    constructor() {
         this.service$ = this.store.select(selectSelectedService);
         this.loading$ = this.store.select(selectServiceLoading);
     }

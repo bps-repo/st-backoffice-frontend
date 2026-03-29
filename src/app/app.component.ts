@@ -18,9 +18,12 @@ import {PrimeNG} from "primeng/config";
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {
+    private primengConfig = inject(PrimeNG);
+    private readonly healthService = inject(HealthCheckService);
+
     private readonly enableHealthCheck = environment.enableHealthChecks;
 
-    constructor(private primengConfig: PrimeNG, private readonly healthService: HealthCheckService) {
+    constructor() {
         const iconRegistry = inject(MatIconRegistry)
         const sanitizedSvg = inject(DomSanitizer)
 

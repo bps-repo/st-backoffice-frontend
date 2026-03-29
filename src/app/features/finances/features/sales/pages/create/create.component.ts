@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -30,6 +30,10 @@ import { Sale } from 'src/app/core/models/finance/sale.model';
     templateUrl: './create.component.html'
 })
 export class CreateComponent implements OnInit, OnDestroy {
+    private router = inject(Router);
+    private formBuilder = inject(FormBuilder);
+    private salesService = inject(SalesService);
+
     saleForm!: FormGroup;
     loading = false;
     error: string | null = null;
@@ -76,12 +80,6 @@ export class CreateComponent implements OnInit, OnDestroy {
     availableProducts: any[] = [];
 
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private router: Router,
-        private formBuilder: FormBuilder,
-        private salesService: SalesService
-    ) {}
 
     ngOnInit(): void {
         this.initForm();

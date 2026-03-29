@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -19,10 +19,12 @@ import { TooltipModule } from 'primeng/tooltip';
     templateUrl: './students.component.html'
 })
 export class StudentsComponent implements OnInit {
+    private store = inject(Store);
+
     exam$: Observable<Exam | null>;
     students: any[] = []; // This would be populated with actual student data
 
-    constructor(private store: Store) {
+    constructor() {
         this.exam$ = this.store.select(selectSelectedExam);
     }
 

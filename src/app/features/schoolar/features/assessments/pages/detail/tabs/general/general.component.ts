@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -12,9 +12,11 @@ import { selectSelectedExam } from 'src/app/core/store/schoolar/assessments/exam
     templateUrl: './general.component.html'
 })
 export class GeneralComponent implements OnInit {
+    private store = inject(Store);
+
     exam$: Observable<Exam | null>;
 
-    constructor(private store: Store) {
+    constructor() {
         this.exam$ = this.store.select(selectSelectedExam);
     }
 

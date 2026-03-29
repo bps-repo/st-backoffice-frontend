@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -35,6 +35,10 @@ import {MessageService} from 'primeng/api';
     templateUrl: './create.component.html'
 })
 export class CreateComponent {
+    private assessmentService = inject(AssessmentService);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+
     assessment: any = {
         name: '',
         type: null,
@@ -54,13 +58,6 @@ export class CreateComponent {
     };
 
     loading = false;
-
-    constructor(
-        private assessmentService: AssessmentService,
-        private router: Router,
-        private messageService: MessageService
-    ) {
-    }
 
     assessmentTypes = [
         {label: 'Prova Oral', value: 'oral'},

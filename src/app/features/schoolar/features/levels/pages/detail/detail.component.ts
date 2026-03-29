@@ -1,5 +1,5 @@
 // student.component.ts
-import {Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -91,6 +91,13 @@ interface LevelDetailCache {
     `]
 })
 export class DetailComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+    private levelService = inject(LevelService);
+    private unitService = inject(UnitService);
+    private studentService = inject(StudentService);
+    private cdr = inject(ChangeDetectorRef);
+
 
     levelId: string = '';
     level$: Observable<Level | null>;
@@ -172,14 +179,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     completionRateChartData: any;
     completionRateChartOptions: any;
 
-    constructor(
-        private route: ActivatedRoute,
-        private store: Store,
-        private levelService: LevelService,
-        private unitService: UnitService,
-        private studentService: StudentService,
-        private cdr: ChangeDetectorRef
-    ) {
+    constructor() {
         this.level$ = this.store.select(LevelSelectors.selectSelectedLevel);
         this.loading$ = this.store.select(LevelSelectors.selectLoading);
     }

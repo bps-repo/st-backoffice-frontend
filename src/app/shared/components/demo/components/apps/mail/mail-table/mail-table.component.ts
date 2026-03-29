@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
@@ -10,6 +10,10 @@ import { MailService } from 'src/app/shared/components/demo/components/apps/mail
     templateUrl: './mail-table.component.html'
 })
 export class MailTableComponent implements OnInit {
+    private router = inject(Router);
+    private mailService = inject(MailService);
+    private messageService = inject(MessageService);
+
 
     @Input() mails!: Mail[];
 
@@ -20,8 +24,6 @@ export class MailTableComponent implements OnInit {
     mail: Mail = {};
 
     dialogVisible: boolean = false;
-
-    constructor(private router: Router, private mailService: MailService, private messageService: MessageService) { }
 
     ngOnInit(): void {
 

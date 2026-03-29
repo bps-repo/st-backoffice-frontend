@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { SelectItem } from 'primeng/api';
 import { DataView } from 'primeng/dataview';
 import { Product } from 'src/app/demo/api/product';
@@ -8,6 +8,8 @@ import { ProductService } from 'src/app/demo/service/product.service';
     templateUrl: './listdemo.component.html'
 })
 export class ListDemoComponent implements OnInit {
+    private productService = inject(ProductService);
+
 
     products: Product[] = [];
 
@@ -22,8 +24,6 @@ export class ListDemoComponent implements OnInit {
     targetCities: any[] = [];
 
     orderCities: any[] = [];
-
-    constructor(private productService: ProductService) { }
 
     ngOnInit() {
         this.productService.getProducts().then(data => this.products = data);

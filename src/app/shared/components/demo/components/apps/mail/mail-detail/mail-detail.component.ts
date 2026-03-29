@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -11,6 +11,12 @@ import { MessageService } from 'primeng/api';
     templateUrl: './mail-detail.component.html'
 })
 export class MailDetailComponent implements OnDestroy {
+    private route = inject(ActivatedRoute);
+    private mailService = inject(MailService);
+    private location = inject(Location);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+
 
     newMail: Mail = {
         id: '',
@@ -34,7 +40,7 @@ export class MailDetailComponent implements OnDestroy {
 
     id: any;
 
-    constructor(private route: ActivatedRoute, private mailService: MailService, private location: Location, private router: Router, private messageService: MessageService) {
+    constructor() {
         this.subscription = this.route.params.pipe(
             switchMap(params => {
                 this.id = params['id'];

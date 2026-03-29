@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Mail } from 'src/app/demo/api/mail';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class MailService {
+    private http = inject(HttpClient);
+
 
     private _mails: Mail[] = [];
 
@@ -12,7 +14,7 @@ export class MailService {
 
     mails$ = this.mails.asObservable();
 
-    constructor(private http: HttpClient) {
+    constructor() {
         this.http.get<any>('assets/demo/data/mail.json')
             .toPromise()
             .then(res => res.data as Mail[])

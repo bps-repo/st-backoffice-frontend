@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -28,6 +28,8 @@ import {CenterActions} from "../../../../../../core/store/corporate/center/cente
     templateUrl: './create-center-dialog.component.html'
 })
 export class CreateCenterDialogComponent implements OnInit {
+    private store = inject<Store<CenterState>>(Store);
+
 
     visible: boolean = false;
 
@@ -50,7 +52,7 @@ export class CreateCenterDialogComponent implements OnInit {
 
     error$: Observable<any>;
 
-    constructor(private store: Store<CenterState>) {
+    constructor() {
         this.loading$ = this.store.select(CenterSeletors.selectLoadingCreateCenter);
         this.error$ = this.store.select(CenterSeletors.selectErrorCreateCenter);
     }

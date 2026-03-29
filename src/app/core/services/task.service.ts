@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -10,9 +10,9 @@ import { TaskItem } from '../models/task-item.model';
   providedIn: 'root'
 })
 export class TaskService {
-  private apiUrl = `${environment.apiUrl}/tasks`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiUrl}/tasks`;
 
   getDailyTasks(): Observable<TaskItem[]> {
     return this.http.get<ApiResponse<TaskItem[]>>(`${this.apiUrl}/daily`).pipe(

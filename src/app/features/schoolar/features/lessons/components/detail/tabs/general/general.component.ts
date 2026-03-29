@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -15,14 +15,11 @@ import {LessonStatus} from "../../../../../../../../core/enums/lesson-status";
     templateUrl: './general.component.html'
 })
 export class GeneralComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+
     lessonItem: Lesson | null = null;
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private route: ActivatedRoute,
-        private store: Store
-    ) {
-    }
 
     ngOnInit(): void {
     }

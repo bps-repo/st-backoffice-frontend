@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 
@@ -9,9 +9,9 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
     imports: [CommonModule, ReactiveFormsModule]
 })
 export class CenterSettingsComponent implements OnInit {
-    centerForm!: FormGroup;
+    private fb = inject(FormBuilder);
 
-    constructor(private fb: FormBuilder) {}
+    centerForm!: FormGroup;
 
     ngOnInit() {
         this.centerForm = this.fb.group({

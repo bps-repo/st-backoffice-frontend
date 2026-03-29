@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -26,6 +26,8 @@ import {SelectButtonModule} from 'primeng/selectbutton';
     templateUrl: './edit-attendence.component.html'
 })
 export class EditAttendenceComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+
     attendanceId: string | null = null;
     date: Date = new Date();
     selectedClass: any = {name: 'English Intermediate', code: 'ENG201'};
@@ -49,9 +51,6 @@ export class EditAttendenceComponent implements OnInit {
         {label: 'Late', value: 'Late'},
         {label: 'Excused', value: 'Excused'}
     ];
-
-    constructor(private route: ActivatedRoute) {
-    }
 
     ngOnInit(): void {
         this.attendanceId = this.route.snapshot.paramMap.get('id');

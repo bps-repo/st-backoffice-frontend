@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Role } from '../models/auth/role';
@@ -20,13 +20,10 @@ interface CreateRoleWithPermissionsRequest {
     providedIn: 'root',
 })
 export class RoleService {
-    public apiUrl = `${environment.apiUrl}/roles`;
+    http = inject(HttpClient);
+    private store = inject<Store<AppState>>(Store);
 
-    constructor(
-        public http: HttpClient,
-        private store: Store<AppState>
-    ) {
-    }
+    public apiUrl = `${environment.apiUrl}/roles`;
 
     getAllRoles(): Observable<Role[]> {
         return this.http.get<ApiResponse<PageableResponse<Role[]>>>(this.apiUrl).pipe(

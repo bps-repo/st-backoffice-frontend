@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Subject, takeUntil} from 'rxjs';
@@ -48,6 +48,13 @@ export type severtyType = "warn" | "success" | "info" | "danger" | "secondary" |
     styleUrls: ['./bulk-booking.component.scss']
 })
 export class BulkBookingComponent implements OnInit, OnDestroy {
+    private fb = inject(FormBuilder);
+    private lessonService = inject(LessonService);
+    private studentService = inject(StudentService);
+    private messageService = inject(MessageService);
+    private store = inject<Store<AppState>>(Store);
+    private actions$ = inject(Actions);
+
     bulkBookingForm: FormGroup;
     lessons: Lesson[] = [];
     students: Student[] = [];
@@ -56,14 +63,7 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
     showResultsDialog = false;
     private destroy$ = new Subject<void>();
 
-    constructor(
-        private fb: FormBuilder,
-        private lessonService: LessonService,
-        private studentService: StudentService,
-        private messageService: MessageService,
-        private store: Store<AppState>,
-        private actions$: Actions
-    ) {
+    constructor() {
         this.bulkBookingForm = this.fb.group({
             selectedLessons: [[], Validators.required],
             selectedStudents: [[], Validators.required]

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
@@ -33,6 +33,9 @@ import { loadPermissionTree } from 'src/app/core/store/permissions/actions/permi
     standalone: true
 })
 export class ListComponent implements OnInit {
+    private router = inject(Router);
+    private readonly store$ = inject(Store);
+
 
     // Custom Templates for the table
     permissions$: Observable<Permission[]> = of([]);
@@ -43,10 +46,9 @@ export class ListComponent implements OnInit {
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
 
-    constructor(
-        private router: Router,
-        private readonly store$: Store
-    ) {
+    constructor() {
+        const store$ = this.store$;
+
         this.loading$ = this.store$.select(selectPermissionsLoading)
         this.permissions$ = store$.select(selectPermissionTree)
     }

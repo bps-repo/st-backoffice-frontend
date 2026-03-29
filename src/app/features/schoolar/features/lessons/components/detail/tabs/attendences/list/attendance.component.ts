@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TableColumn,
@@ -12,12 +12,12 @@ import { TableService } from 'src/app/shared/services/table.service';
     templateUrl: './attendance.component.html'
 })
 export class AttendanceComponent implements OnInit {
+    private tableService = inject<TableService<any>>(TableService);
+
     attendanceRecords: any[] = []; // This would be populated from a service
     columns: TableColumn[] = [];
     globalFilterFields: string[] = [];
     loading = false;
-
-    constructor(private tableService: TableService<any>) {}
 
     ngOnInit(): void {
         // Mock data for attendance records

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, map, mergeMap} from 'rxjs/operators';
@@ -8,8 +8,9 @@ import {HttpErrorResponse} from "@angular/common/http";
 
 @Injectable()
 export class CentersEffects {
-    constructor(private actions$: Actions, private centerService: CenterService) {
-    }
+    private actions$ = inject(Actions);
+    private centerService = inject(CenterService);
+
 
     loadCenter$ = createEffect(() =>
         this.actions$.pipe(

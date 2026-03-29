@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
@@ -26,17 +26,14 @@ import {StudentsActions} from "../../../../../../../../core/store/schoolar/stude
     providers: [MessageService]
 })
 export class UnitProgressTabComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+    private messageService = inject(MessageService);
+
     student: Student | null = null;
     studentId: string | null = null;
     unitProgressList: UnitProgress[] = [];
     loading = false;
-
-    constructor(
-        private route: ActivatedRoute,
-        private store: Store,
-        private messageService: MessageService
-    ) {
-    }
 
     ngOnInit(): void {
         // Get the student ID from the parent route

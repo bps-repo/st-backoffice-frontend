@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SelectItem, MessageService, ConfirmationService} from 'primeng/api';
@@ -48,6 +48,12 @@ import {InvoiceService} from 'src/app/core/services/invoice.service';
     templateUrl: './edit.component.html'
 })
 export class EditComponent implements OnInit {
+    private invoiceService = inject(InvoiceService);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+    private confirmationService = inject(ConfirmationService);
+
     invoice: Invoice | null = null;
     loading = true;
 
@@ -74,15 +80,6 @@ export class EditComponent implements OnInit {
     dueDate: Date | null = null;
     retention: number = 0;
     notes: string = '';
-
-    constructor(
-        private invoiceService: InvoiceService,
-        private route: ActivatedRoute,
-        private router: Router,
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService
-    ) {
-    }
 
     ngOnInit() {
         this.students = [

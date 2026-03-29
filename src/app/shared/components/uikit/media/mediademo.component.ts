@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ProductService } from 'src/app/demo/service/product.service';
 import { PhotoService } from 'src/app/demo/service/photo.service';
 import { Product } from 'src/app/demo/api/product';
@@ -7,6 +7,9 @@ import { Product } from 'src/app/demo/api/product';
     templateUrl: './mediademo.component.html'
 })
 export class MediaDemoComponent implements OnInit {
+    private productService = inject(ProductService);
+    private photoService = inject(PhotoService);
+
 
     products!: Product[];
 
@@ -48,8 +51,6 @@ export class MediaDemoComponent implements OnInit {
             numScroll: 1
         }
     ];
-
-    constructor(private productService: ProductService, private photoService: PhotoService) { }
 
     ngOnInit() {
         this.productService.getProductsSmall().then(products => {

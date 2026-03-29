@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
 import { KanbanCard, Comment, ListName, Task } from 'src/app/demo/api/kanban';
 import { Member } from 'src/app/demo/api/member';
 import { KanbanAppComponent } from '../kanban.app.component';
@@ -13,6 +13,10 @@ import { KanbanService } from '../service/kanban.service';
     styleUrls: ['./kanban-sidebar.component.scss']
 })
 export class KanbanSidebarComponent implements OnDestroy {
+    parent = inject(KanbanAppComponent);
+    private memberService = inject(MemberService);
+    private kanbanService = inject(KanbanService);
+
 
     card: KanbanCard = {id:'' ,taskList: {title: 'Untitled Task List', tasks: []}};
 
@@ -50,7 +54,7 @@ export class KanbanSidebarComponent implements OnDestroy {
 
     @ViewChild('inputTaskListTitle') inputTaskListTitle!: ElementRef;
 
-    constructor(public parent: KanbanAppComponent, private memberService: MemberService, private kanbanService: KanbanService) {
+    constructor() {
         this.memberService.getMembers().then(members => this.assignees = members);
 
         this.cardSubscription = this.kanbanService.selectedCard$.subscribe(data => {

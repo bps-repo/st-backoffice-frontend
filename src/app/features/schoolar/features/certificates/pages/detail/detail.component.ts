@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -31,13 +31,16 @@ interface Certificate {
     imports: [CommonModule, SkeletonModule, InputTextModule, ButtonModule]
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+
     certificateId: string = '';
     certificate$: Observable<any>;
     certificate: any = null;
     loading$: Observable<boolean>;
     loading: boolean = true;
 
-    constructor(private route: ActivatedRoute, private store: Store) {
+    constructor() {
         this.certificate$ = this.store.select(selectSelectedCertificate);
         this.loading$ = this.store.select(selectCertificatesLoading);
     }

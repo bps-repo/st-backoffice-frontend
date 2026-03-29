@@ -1,13 +1,4 @@
-import {
-    Component,
-    OnInit,
-    ViewChild,
-    TemplateRef,
-    AfterViewInit,
-    ElementRef,
-    HostListener,
-    OnDestroy
-} from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, AfterViewInit, ElementRef, HostListener, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Task} from './models/task.model';
@@ -47,6 +38,9 @@ import {Router, RouterModule} from '@angular/router';
     styleUrls: ['./tasks.component.scss']
 })
 export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
+    private store = inject(Store);
+    private router = inject(Router);
+
     tasks: TaskItem[] = [];
     pendingRegistrations: TaskItem[] = [];
     overdueInstallments: TaskItem[] = [];
@@ -114,12 +108,6 @@ export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ViewChild('actionsTemplate', {static: true})
     actionsTemplate!: TemplateRef<any>;
-
-    constructor(
-        private store: Store,
-        private router: Router
-    ) {
-    }
 
     // Method to handle view selection
     onViewChange(event: any) {

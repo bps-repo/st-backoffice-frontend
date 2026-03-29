@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -10,11 +10,13 @@ import { RouterModule } from '@angular/router';
     imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule]
 })
 export class PasswordResetComponent {
+  private fb = inject(FormBuilder);
+
   resetForm: FormGroup;
   isSubmitting = false;
   hidePassword = true;
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.resetForm = this.fb.group({
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(6)]]

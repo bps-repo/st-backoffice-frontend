@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild, signal} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, signal, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LevelService} from 'src/app/core/services/level.service';
@@ -34,6 +34,10 @@ import {HasPermissionDirective} from "../../../../../../shared/directives";
     templateUrl: './list.component.html'
 })
 export class ListComponent implements OnInit {
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private levelService = inject(LevelService);
+
     materials: Partial<Material>[] = [];
 
     loading: boolean = false;
@@ -54,9 +58,6 @@ export class ListComponent implements OnInit {
     isMainHeaderSticky: boolean = false;
 
     @ViewChild('filter') filter!: ElementRef;
-
-    constructor(private router: Router, private route: ActivatedRoute, private levelService: LevelService) {
-    }
 
     levelName: string | null = null;
 
