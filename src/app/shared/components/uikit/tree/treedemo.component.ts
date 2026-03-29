@@ -1,8 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { NodeService } from 'src/app/demo/service/node.service';
 import { TreeNode} from 'primeng/api';
+import {TreeTableModule} from "primeng/treetable";
 
 @Component({
+    imports: [
+        TreeTableModule
+    ],
     templateUrl: './treedemo.component.html'
 })
 export class TreeDemoComponent implements OnInit {

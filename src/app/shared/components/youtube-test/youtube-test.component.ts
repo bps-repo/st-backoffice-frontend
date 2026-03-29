@@ -8,44 +8,45 @@ import { YouTubePlayerModule } from '@angular/youtube-player';
   standalone: true,
   imports: [CommonModule, FormsModule, YouTubePlayerModule],
   template: `
-    <div class="p-4">
-      <h3>YouTube Player Test</h3>
-      <p>Testing YouTube player with a known working video ID</p>
+      <div class="p-4">
+          <h3>YouTube Player Test</h3>
+          <p>Testing YouTube player with a known working video ID</p>
 
-      <div class="mb-3">
-        <label>Video ID:</label>
-        <input
-          type="text"
-          [(ngModel)]="testVideoId"
-          class="w-full p-2 border border-gray-300 rounded"
-          placeholder="Enter YouTube video ID"
-        />
-        <button
-          (click)="loadVideo()"
-          class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Load Video
-        </button>
-      </div>
+          <div class="mb-3">
+              <label for="testVideoId">Video ID:</label>
+              <input
+                  type="text"
+                  [(ngModel)]="testVideoId"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  placeholder="Enter YouTube video ID"
+              />
+              <button
+                  (click)="loadVideo()"
+                  class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                  Load Video
+              </button>
+          </div>
+          @if (videoId) {
+              <div class="video-container">
+                  <h4>Video Player:</h4>
+                  <youtube-player
+                      #youtubePlayer
+                      [videoId]="videoId"
+                      [width]="640"
+                      [height]="360"
+                      [playerVars]="playerVars"
+                      (ready)="onPlayerReady($event)"
+                      (stateChange)="onPlayerStateChange($event)"
+                  ></youtube-player>
+              </div>
+          }
 
-      <div *ngIf="videoId" class="video-container">
-        <h4>Video Player:</h4>
-        <youtube-player
-          #youtubePlayer
-          [videoId]="videoId"
-          [width]="640"
-          [height]="360"
-          [playerVars]="playerVars"
-          (ready)="onPlayerReady($event)"
-          (stateChange)="onPlayerStateChange($event)"
-        ></youtube-player>
+          <div class="mt-4">
+              <h4>Debug Info:</h4>
+              <pre>{{ debugInfo | json }}</pre>
+          </div>
       </div>
-
-      <div class="mt-4">
-        <h4>Debug Info:</h4>
-        <pre>{{ debugInfo | json }}</pre>
-      </div>
-    </div>
   `,
   styles: [`
     .video-container {

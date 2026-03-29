@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
     providedIn: 'root',
 })
-export class TableService<T extends Object> {
+export class TableService<T extends object> {
     protected filterTypeMap = new Map<
         string,
         string | ((value: any) => string)

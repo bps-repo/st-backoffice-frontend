@@ -29,7 +29,7 @@
                             class="p-button-outlined mb-2"
                             icon="pi pi-filter-slash"
                             (click)="clear(dt1)"
-                        ></button>
+                        >empty</button>
                         <span class="p-input-icon-left mb-2">
                             <i class="pi pi-search"></i>
                             <input
@@ -87,7 +87,7 @@
                                     <ng-template pTemplate="header">
                                         <div class="px-3 pt-3 pb-0">
                                             <span class="font-bold"
-                                                >Agent Picker</span
+                                            >Agent Picker</span
                                             >
                                         </div>
                                     </ng-template>
@@ -121,8 +121,8 @@
                                                         "
                                                     />
                                                     <span class="ml-2">{{
-                                                        option.name
-                                                    }}</span>
+                                                            option.name
+                                                        }}</span>
                                                 </div>
                                             </ng-template>
                                         </p-multiSelect>
@@ -187,7 +187,7 @@
                                                         'customer-badge status-' +
                                                         option.value
                                                     "
-                                                    >{{ option.label }}</span
+                                                >{{ option.label }}</span
                                                 >
                                             </ng-template>
                                         </p-dropdown>
@@ -253,10 +253,11 @@
                                 src="assets/demo/images/flag/flag_placeholder.png"
                                 [class]="'flag flag-' + customer.country.code"
                                 width="30"
+                                alt="flag""
                             />
                             <span class="image-text ml-2">{{
-                                customer.country.name
-                            }}</span>
+                                    customer.country.name
+                                }}</span>
                         </td>
                         <td>
                             <img
@@ -268,8 +269,8 @@
                                 style="vertical-align: middle"
                             />
                             <span class="image-text ml-2">{{
-                                customer.representative.name
-                            }}</span>
+                                    customer.representative.name
+                                }}</span>
                         </td>
                         <td>
                             {{ customer.date | date : "MM/dd/yyyy" }}
@@ -282,7 +283,7 @@
                                 [class]="
                                     'customer-badge status-' + customer.status
                                 "
-                                >{{ customer.status }}</span
+                            >{{ customer.status }}</span
                             >
                         </td>
                         <td>
@@ -390,10 +391,11 @@
                                 src="assets/demo/images/flag/flag_placeholder.png"
                                 [class]="'flag flag-' + customer.country.code"
                                 width="30"
+                                alt="flag"
                             />
                             <span class="image-text ml-2">{{
-                                customer.country.name
-                            }}</span>
+                                    customer.country.name
+                                }}</span>
                         </td>
                         <td style="width: 200px">{{ customer.date }}</td>
                         <td style="width: 200px">{{ customer.company }}</td>
@@ -402,7 +404,7 @@
                                 [class]="
                                     'customer-badge status-' + customer.status
                                 "
-                                >{{ customer.status }}</span
+                            >{{ customer.status }}</span
                             >
                         </td>
                         <td style="width: 200px">{{ customer.activity }}</td>
@@ -416,8 +418,8 @@
                                 style="vertical-align: middle"
                             />
                             <span class="image-text ml-2">{{
-                                customer.representative.name
-                            }}</span>
+                                    customer.representative.name
+                                }}</span>
                         </td>
                         <td
                             style="width: 200px"
@@ -458,17 +460,21 @@
                     <tr>
                         <th style="width: 3rem"></th>
                         <th pSortableColumn="name">
-                            Name <p-sortIcon field="name"></p-sortIcon>
+                            Name
+                            <p-sortIcon field="name"></p-sortIcon>
                         </th>
                         <th>Image</th>
                         <th pSortableColumn="price">
-                            Price <p-sortIcon field="price"></p-sortIcon>
+                            Price
+                            <p-sortIcon field="price"></p-sortIcon>
                         </th>
                         <th pSortableColumn="category">
-                            Category <p-sortIcon field="category"></p-sortIcon>
+                            Category
+                            <p-sortIcon field="category"></p-sortIcon>
                         </th>
                         <th pSortableColumn="rating">
-                            Reviews <p-sortIcon field="rating"></p-sortIcon>
+                            Reviews
+                            <p-sortIcon field="rating"></p-sortIcon>
                         </th>
                         <th pSortableColumn="inventoryStatus">
                             Status
@@ -516,7 +522,6 @@
                             <p-rating
                                 [ngModel]="product.rating"
                                 [readonly]="true"
-                                [cancel]="false"
                             ></p-rating>
                         </td>
                         <td>
@@ -525,7 +530,7 @@
                                     'product-badge status-' +
                                     product.inventoryStatus.toLowerCase()
                                 "
-                                >{{ product.inventoryStatus }}</span
+                            >{{ product.inventoryStatus }}</span
                             >
                         </td>
                     </tr>
@@ -591,7 +596,7 @@
                                                         'order-badge order-' +
                                                         order.status.toLowerCase()
                                                     "
-                                                    >{{ order.status }}</span
+                                                >{{ order.status }}</span
                                                 >
                                             </td>
                                             <td>
@@ -664,8 +669,8 @@
                                 style="vertical-align: middle"
                             />
                             <span class="font-bold ml-2">{{
-                                customer.representative.name
-                            }}</span>
+                                    customer.representative.name
+                                }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -677,11 +682,12 @@
                                 src="assets/demo/images/flag/flag_placeholder.png"
                                 [class]="'flag flag-' + customer.country.code"
                                 width="30"
+                                alt="flag"
                             />
                             <span
                                 class="image-text"
                                 style="margin-left: 0.5em"
-                                >{{ customer.country.name }}</span
+                            >{{ customer.country.name }}</span
                             >
                         </td>
                         <td style="min-width: 200px">
@@ -692,7 +698,7 @@
                                 [class]="
                                     'customer-badge status-' + customer.status
                                 "
-                                >{{ customer.status }}</span
+                            >{{ customer.status }}</span
                             >
                         </td>
                         <td style="min-width: 200px">

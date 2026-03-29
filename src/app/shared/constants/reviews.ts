@@ -1,5 +1,4 @@
 import {Tab} from '../@types/tab';
-import {Observable, of} from 'rxjs';
 import {GeneralComponent} from "../../features/schoolar/features/lessons/components/detail/tabs/general/general.component";
 import {
     StudentsComponent
