@@ -74,10 +74,6 @@ export class AppProfileSidebarComponent implements OnInit, OnDestroy {
         this.visible = false;
     }
 
-    navigateToSettings() {
-        this.router.navigate(['/settings']);
-        this.visible = false;
-    }
 
     getStatusSeverity(status: string): severtyType {
         switch (status) {
