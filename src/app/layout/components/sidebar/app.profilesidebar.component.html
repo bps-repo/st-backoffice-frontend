@@ -1,5 +1,7 @@
-<p-sidebar [(visible)]="visible" position="right" [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'"
+<p-sidebar [showCloseIcon]="false" [(visible)]="visible" position="right"
+           [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'"
            styleClass="layout-profile-sidebar w-full sm:w-25rem">
+
     <div class="flex flex-column mx-auto md:mx-0">
         <!-- User Profile Header -->
         <div class="profile-header mb-4" *ngIf="currentUser$ | async as user">
@@ -32,21 +34,6 @@
                     <div class="ml-3">
                         <span class="mb-2 font-semibold">Perfil</span>
                         <p class="text-color-secondary m-0">Visualizar e editar perfil</p>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a
-                    class="cursor-pointer flex surface-border mb-3 p-3 align-items-center border-1 surface-border border-round hover:surface-hover transition-colors transition-duration-150"
-                    (click)="navigateToSettings()">
-                    <span>
-                        <i class="pi pi-cog text-xl text-primary"></i>
-                    </span>
-                    <div class="ml-3">
-                        <span class="mb-2 font-semibold">Configurações</span>
-                        <p class="text-color-secondary m-0">
-                            Configurações da conta
-                        </p>
                     </div>
                 </a>
             </li>
