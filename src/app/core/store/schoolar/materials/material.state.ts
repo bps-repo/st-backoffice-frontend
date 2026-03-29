@@ -1,5 +1,5 @@
-import { EntityState, createEntityAdapter } from '@ngrx/entity';
-import { Material } from 'src/app/core/models/academic/material';
+import {EntityState, createEntityAdapter} from '@ngrx/entity';
+import {Material} from 'src/app/core/models/academic/material';
 
 export interface MaterialState extends EntityState<Material> {
     // Loading states
@@ -21,7 +21,7 @@ export interface MaterialState extends EntityState<Material> {
 
     // Specialized data
     materialsByActive: { [active: string]: Material[] };
-    materialsByEntity: { [entity: string]: { [entityId: string]: Material[] } };
+    materialsByEntity: Record<string, Record<string, Material[]>>;
     materialsByUploader: { [uploaderId: string]: Material[] };
 
     // Cache management

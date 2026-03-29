@@ -1,5 +1,5 @@
-import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { Province, Municipality } from '../../models/location/location';
+import {createActionGroup, emptyProps, props} from '@ngrx/store';
+import {Province} from '../../models/location/location';
 
 export const LOCATION_FEATURE_KEY = 'Location';
 

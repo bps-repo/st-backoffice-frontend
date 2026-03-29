@@ -1,22 +1,12 @@
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { serviceAdapter, ServiceState } from "./services.state";
-import { serviceFeature } from './service.reducer';
+import {createSelector} from '@ngrx/store';
+import {serviceAdapter} from "./services.state";
+import {serviceFeature} from './service.reducer';
 
 
-const {
-    selectError,
-    selectLoading,
-    selectLoadingCreate,
-    selectLoadingDelete,
-    selectLoadingUpdate,
-    selectSelectedServiceId,
-} = serviceFeature;
+const {} = serviceFeature;
 
 const {
-    selectEntities,
     selectAll,
-    selectTotal,
-    selectIds
 } = serviceAdapter.getSelectors(serviceFeature.selectServiceState);
 
 
@@ -24,10 +14,6 @@ export const selectServiceState = createSelector(
     serviceFeature.selectServiceState,
     (state) => state
 );
-
-
-export const selectAllServices = selectAll;
-
 
 export const selectSelectedService = createSelector(
     selectServiceState,

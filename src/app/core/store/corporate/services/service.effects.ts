@@ -4,9 +4,6 @@ import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import * as ServiceActions from './service.actions';
 import { ServiceService } from 'src/app/core/services/service.service';
-import { ApiResponse, PageableResponse } from 'src/app/core/models/ApiResponseService';
-import { Service } from 'src/app/core/models/course/service';
-import { Product } from 'src/app/core/models/corporate/product';
 
 @Injectable()
 export class ServiceEffects {

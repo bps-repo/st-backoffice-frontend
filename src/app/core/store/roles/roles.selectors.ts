@@ -5,7 +5,6 @@ export const selectRolesState = createFeatureSelector<RolesState>('roles');
 
 // Get the selectors
 const {
-    selectIds,
     selectEntities,
     selectAll,
     selectTotal,

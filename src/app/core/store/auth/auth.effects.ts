@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map, take, tap} from 'rxjs/operators';
@@ -70,7 +70,7 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.loadUserProfileSuccess),
-                tap((action) => {
+                tap(() => {
                     // Only navigate if we're in a login context
                     this.store.select(state => (state as any).auth.shouldNavigateAfterProfileLoad).pipe(
                         take(1),

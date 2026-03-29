@@ -1,6 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import {Store} from '@ngrx/store';
-import {authActions} from '../store/auth/auth.actions';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 

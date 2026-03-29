@@ -1,7 +1,6 @@
 import { CenterFeature } from "./centers.reducer";
 import { centersAdapter } from "./center.state";
 import { createSelector } from "@ngrx/store";
-import { selectAllLevelEntities } from "../../schoolar/level/level.selector";
 
 
 const {

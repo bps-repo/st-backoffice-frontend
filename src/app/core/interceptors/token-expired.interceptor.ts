@@ -9,7 +9,6 @@ import {catchError} from 'rxjs/operators';
 import {throwError} from 'rxjs';
 
 export const tokenExpiredInterceptor: HttpInterceptorFn = (req, next) => {
-    const tokenService = inject(JwtTokenService);
     const messageService = inject(MessageService);
     const store = inject(Store);
     const router = inject(Router);

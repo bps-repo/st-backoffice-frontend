@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../models/ApiResponseService';
-import { Province, Municipality } from '../models/location/location';
+import { Province } from '../models/location/location';
 
 @Injectable({
     providedIn: 'root',

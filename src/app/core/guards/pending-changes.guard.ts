@@ -6,6 +6,6 @@ export interface CanComponentDeactivate {
     canDeactivate: () => boolean | Observable<boolean>;
 }
 
-export const pendingChangesGuard: CanDeactivateFn<CanComponentDeactivate> = (component, currentRoute, currentState, nextState) => {
+export const pendingChangesGuard: CanDeactivateFn<CanComponentDeactivate> = (component) => {
     return !!component.canDeactivate();
 };
