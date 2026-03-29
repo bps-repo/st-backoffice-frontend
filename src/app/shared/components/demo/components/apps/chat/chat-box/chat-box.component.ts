@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, inject } from '@angular/core';
-import { Message } from 'src/app/demo/api/message';
-import { User } from 'src/app/demo/api/user';
 import { ChatService } from '../service/chat.service';
+import {User} from "../../../../../../../core/models/auth/user";
 
 @Component({
     selector: 'app-chat-box',
@@ -14,7 +13,7 @@ export class ChatBoxComponent implements OnInit {
 
     defaultUserId: number = 123;
 
-    message!: Message;
+    message!: any;
 
     textContent: string = '';
 
@@ -26,13 +25,10 @@ export class ChatBoxComponent implements OnInit {
         '😟', '😠', '😡', '🤬', '😔', '😕', '🙁', '😬', '🥺', '😣', '😖', '😫', '😩', '🥱', '😤', '😮', '😱', '😨', '😰', '😯', '😦', '😧', '😢', '😥', '😪', '🤤'
     ];
 
-    @Input() user!: User;
+    @Input() user!: any;
 
     setMessage() {
-        if (this.user) {
-            let filteredMessages = this.user.messages.filter(m => m.ownerId !== this.defaultUserId);
-            this.message = filteredMessages[filteredMessages.length - 1];
-        }
+
     }
 
     ngOnInit(): void {

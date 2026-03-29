@@ -1,121 +1,120 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, ElementRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { YouTubePlayerModule } from '@angular/youtube-player';
+import {Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {YouTubePlayerModule} from '@angular/youtube-player';
 
 @Component({
     selector: 'app-youtube-player',
     standalone: true,
     imports: [CommonModule, YouTubePlayerModule],
     template: `
-    <div class="youtube-player-container" [class.fullscreen]="fullscreen">
-      <div *ngIf="videoId; else noVideo" class="video-wrapper">
-        <youtube-player
-          #youtubePlayer
-          [videoId]="videoId"
-          [width]="calculatedWidth"
-          [height]="calculatedHeight"
-          [startSeconds]="startTime"
-          [endSeconds]="endTime"
-          [playerVars]="playerVars"
-          (ready)="onPlayerReady($event)"
-          (stateChange)="onPlayerStateChange($event)"
-          class="youtube-iframe"
-        ></youtube-player>
-      </div>
-
-      <ng-template #noVideo>
-        <div class="no-video-placeholder">
-          <i class="pi pi-video text-4xl text-gray-400 mb-3"></i>
-          <p class="text-gray-600">URL de vídeo inválida</p>
+        <div class="youtube-player-container" [class.fullscreen]="fullscreen">
+            <div *ngIf="videoId; else noVideo" class="video-wrapper">
+                <youtube-player
+                    #youtubePlayer
+                    [videoId]="videoId"
+                    [width]="calculatedWidth"
+                    [height]="calculatedHeight"
+                    [startSeconds]="startTime"
+                    [endSeconds]="endTime"
+                    [playerVars]="playerVars"
+                    (ready)="onPlayerReady($event)"
+                    (stateChange)="onPlayerStateChange($event)"
+                    class="youtube-iframe"
+                ></youtube-player>
+            </div>
+            <ng-template #noVideo>
+                <div class="no-video-placeholder">
+                    <i class="pi pi-video text-4xl text-gray-400 mb-3"></i>
+                    <p class="text-gray-600">URL de vídeo inválida</p>
+                </div>
+            </ng-template>
         </div>
-      </ng-template>
-    </div>
-  `,
+    `,
     styles: [`
-    .youtube-player-container {
-      position: relative;
-      width: 100%;
-      max-width: 100%;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        .youtube-player-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .video-wrapper {
-      position: relative;
-      width: 100%;
-      height: 0;
-      padding-bottom: 56.25%; /* 16:9 aspect ratio */
-      overflow: hidden;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      margin: 0;
-      box-sizing: border-box;
-    }
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0;
+            box-sizing: border-box;
+        }
 
-    .youtube-iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100% !important;
-      height: 100% !important;
-      border-radius: 8px;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        .youtube-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 8px;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    ::ng-deep youtube-player {
-      width: 100% !important;
-      max-width: 100% !important;
-    }
+        ::ng-deep youtube-player {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
 
-    ::ng-deep youtube-player iframe {
-      width: 100% !important;
-      max-width: 100% !important;
-    }
+        ::ng-deep youtube-player iframe {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
 
-    .no-video-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      background-color: var(--surface-100);
-      border-radius: 8px;
-      border: 2px dashed var(--surface-300);
-    }
+        .no-video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-color: var(--surface-100);
+            border-radius: 8px;
+            border: 2px dashed var(--surface-300);
+        }
 
-    .fullscreen .video-wrapper {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      padding-bottom: 0;
-      z-index: 9999;
-      background: black;
-    }
+        .fullscreen .video-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            padding-bottom: 0;
+            z-index: 9999;
+            background: black;
+        }
 
-    .fullscreen .youtube-iframe {
-      border-radius: 0;
-    }
-  `]
+        .fullscreen .youtube-iframe {
+            border-radius: 0;
+        }
+    `]
 })
 export class YoutubePlayerComponent implements OnInit, OnChanges {
     @Input() videoUrl: string = '';
-    @Input() width: string = '100%';
-    @Input() height: string = '315';
-    @Input() autoplay: boolean = false;
-    @Input() fullscreen: boolean = false;
-    @Input() startTime: number = 0;
+    @Input() width = '100%';
+    @Input() height = '315';
+    @Input() autoplay = false;
+    @Input() fullscreen = false;
+    @Input() startTime = 0;
     @Input() endTime?: number;
 
     @ViewChild('youtubePlayer') youtubePlayer: any;
 
     videoId: string = '';
-    calculatedWidth: number = 640;
-    calculatedHeight: number = 360;
+    calculatedWidth = 640;
+    calculatedHeight = 360;
     playerVars: any = {
         controls: 1,
         showinfo: 1,
@@ -124,7 +123,8 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
         autoplay: 0
     };
 
-    constructor() { }
+    constructor() {
+    }
 
     ngOnInit(): void {
         this.checkYouTubeAPI();
@@ -206,7 +206,7 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
             enablejsapi: 1,
             origin: window.location.origin
         };
-    } 
+    }
 
     private extractVideoId(url: string): string {
         console.log('Extracting video ID from URL:', url);

@@ -5,8 +5,6 @@ import {
 
 import {Tab} from '../@types/tab';
 
-import {Observable, of} from 'rxjs';
-
 import {
     MaterialsComponent
 } from "../../features/schoolar/features/lessons/components/detail/tabs/materials/materials.component";

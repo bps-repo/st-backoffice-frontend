@@ -1,12 +1,23 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ScrollingModule } from '@angular/cdk/scrolling';
-import { Observable, Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnInit,
+    OnDestroy,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    inject
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ScrollingModule} from '@angular/cdk/scrolling';
+import {Subject, takeUntil, debounceTime, distinctUntilChanged} from 'rxjs';
+import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 export interface VirtualListItem {
     id: string;
+
     [key: string]: any;
 }
 
@@ -22,97 +33,97 @@ export interface VirtualListConfig {
     standalone: true,
     imports: [CommonModule, ScrollingModule, ReactiveFormsModule, ProgressSpinnerModule],
     template: `
-    <div class="virtual-list-container">
-      <!-- Search Input -->
-      <div class="search-container mb-3" *ngIf="showSearch">
-        <input
-          type="text"
-          [formControl]="searchControl"
-          placeholder="Buscar..."
-          class="w-full p-2 border-round"
-        />
-      </div>
+        <div class="virtual-list-container">
+            <!-- Search Input -->
+            <div class="search-container mb-3" *ngIf="showSearch">
+                <input
+                    type="text"
+                    [formControl]="searchControl"
+                    placeholder="Buscar..."
+                    class="w-full p-2 border-round"
+                />
+            </div>
 
-      <!-- Virtual Scroll Viewport -->
-      <cdk-virtual-scroll-viewport
-        [itemSize]="config.itemHeight"
-        [minBufferPx]="config.minBufferPx"
-        [maxBufferPx]="config.maxBufferPx"
-        class="virtual-scroll-viewport"
-        (scrolledIndexChange)="onScrollIndexChange($event)"
-      >
-        <div
-          *cdkVirtualFor="let item of filteredItems; trackBy: trackByFn"
-          class="virtual-list-item"
-          [style.height.px]="config.itemHeight"
-          (click)="onItemClick(item)"
-        >
-          <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
-          </ng-container>
+            <!-- Virtual Scroll Viewport -->
+            <cdk-virtual-scroll-viewport
+                [itemSize]="config.itemHeight"
+                [minBufferPx]="config.minBufferPx"
+                [maxBufferPx]="config.maxBufferPx"
+                class="virtual-scroll-viewport"
+                (scrolledIndexChange)="onScrollIndexChange($event)"
+            >
+                <div
+                    *cdkVirtualFor="let item of filteredItems; trackBy: trackByFn"
+                    class="virtual-list-item"
+                    [style.height.px]="config.itemHeight"
+                    (click)="onItemClick(item)"
+                >
+                    <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
+                    </ng-container>
+                </div>
+            </cdk-virtual-scroll-viewport>
+
+            <!-- Loading Indicator -->
+            <div *ngIf="loading" class="loading-indicator text-center p-3">
+                <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+                <p class="mt-2">Carregando mais itens...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading && filteredItems.length === 0" class="empty-state text-center p-4">
+                <i class="pi pi-inbox text-4xl text-500 mb-3"></i>
+                <p class="text-500">Nenhum item encontrado</p>
+            </div>
         </div>
-      </cdk-virtual-scroll-viewport>
-
-      <!-- Loading Indicator -->
-      <div *ngIf="loading" class="loading-indicator text-center p-3">
-        <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
-        <p class="mt-2">Carregando mais itens...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="!loading && filteredItems.length === 0" class="empty-state text-center p-4">
-        <i class="pi pi-inbox text-4xl text-500 mb-3"></i>
-        <p class="text-500">Nenhum item encontrado</p>
-      </div>
-    </div>
-  `,
+    `,
     styles: [`
-    .virtual-list-container {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
+        .virtual-list-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .virtual-scroll-viewport {
-      height: 400px;
-      border: 1px solid var(--surface-border);
-      border-radius: var(--border-radius);
-    }
+        .virtual-scroll-viewport {
+            height: 400px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--border-radius);
+        }
 
-    .virtual-list-item {
-      padding: 0.75rem;
-      border-bottom: 1px solid var(--surface-border);
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
+        .virtual-list-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--surface-border);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
 
-    .virtual-list-item:hover {
-      background-color: var(--surface-hover);
-    }
+        .virtual-list-item:hover {
+            background-color: var(--surface-hover);
+        }
 
-    .virtual-list-item:last-child {
-      border-bottom: none;
-    }
+        .virtual-list-item:last-child {
+            border-bottom: none;
+        }
 
-    .search-container input {
-      border: 1px solid var(--surface-border);
-      background-color: var(--surface-card);
-      color: var(--text-color);
-    }
+        .search-container input {
+            border: 1px solid var(--surface-border);
+            background-color: var(--surface-card);
+            color: var(--text-color);
+        }
 
-    .search-container input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px var(--primary-color-alpha-20);
-    }
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-color-alpha-20);
+        }
 
-    .loading-indicator {
-      border-top: 1px solid var(--surface-border);
-    }
+        .loading-indicator {
+            border-top: 1px solid var(--surface-border);
+        }
 
-    .empty-state {
-      color: var(--text-color-secondary);
-    }
-  `],
+        .empty-state {
+            color: var(--text-color-secondary);
+        }
+    `],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VirtualListComponent<T extends VirtualListItem> implements OnInit, OnDestroy {

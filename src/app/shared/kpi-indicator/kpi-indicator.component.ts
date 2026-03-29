@@ -1,9 +1,13 @@
 import {Component, Input} from '@angular/core';
-import {NgClass, NgIf} from "@angular/common";
-import {MatIcon, MatIconModule} from "@angular/material/icon";
+import {NgClass} from "@angular/common";
+import {MatIconModule} from "@angular/material/icon";
 
 
-export type Kpi = { label: string; value: number, icon: { label: string, color: string, type?: string } };
+export interface Kpi {
+    label: string;
+    value: number,
+    icon: { label: string, color: string, type?: string }
+}
 
 @Component({
     selector: 'app-kpi-indicators',
