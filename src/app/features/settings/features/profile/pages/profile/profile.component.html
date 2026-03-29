@@ -1,7 +1,7 @@
 <div class="profile-container">
     <p-toast></p-toast>
 
-    <div class="grid">
+    <div class="grid" *ngIf="currentUser$ | async as currentUser">
         <!-- Profile Header -->
         <div class="col-12">
             <p-card>
@@ -16,7 +16,7 @@
                                 class="profile-avatar">
                             </p-avatar>
                             <div class="avatar-actions">
-                                <p-fileUpload
+                                <p-fileupload
                                     mode="basic"
                                     name="photo"
                                     accept="image/*"
@@ -26,20 +26,18 @@
                                     chooseLabel="Alterar Foto"
                                     chooseIcon="pi pi-camera"
                                     class="photo-upload">
-                                </p-fileUpload>
+                                </p-fileupload>
                             </div>
                         </div>
                         <div class="profile-info">
                             <h1 class="profile-name">{{ userProfileService.getFullName() }}</h1>
-                            <p class="profile-username">{{ (currentUser$ | async)?.username }}</p>
+                            <p class="profile-username">{{ currentUser.username }}</p>
                             <div class="profile-badges">
+                                <p-badge [value]="currentUser.role ? currentUser.role.name : ''"
+                                         severity="info"></p-badge>
                                 <p-badge
-                                    [value]="(currentUser$ | async)?.role?.name || ''"
-                                    severity="info">
-                                </p-badge>
-                                <p-badge
-                                    [value]="(currentUser$ | async)?.accountStatus || ''"
-                                    [severity]="getStatusSeverity((currentUser$ | async)?.accountStatus || '')">
+                                    [value]="currentUser.accountStatus || ''"
+                                    [severity]="getStatusSeverity(currentUser.accountStatus || '')">
                                 </p-badge>
                             </div>
                         </div>
@@ -50,41 +48,37 @@
 
         <!-- Profile Form -->
         <div class="col-12 md:col-8">
-            <p-card header="Informações do Perfil">
-                <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-                    <div class="grid">
+            <p-card header="Informacoes do perfil">
+                <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+                    <div class="grid compact-grid">
                         <div class="col-12 md:col-6">
-                            <label for="firstName">Primeiro Nome</label>
+                            <label class="field-label" for="firstName">Primeiro nome</label>
                             <input
                                 pInputText
                                 id="firstName"
                                 formControlName="firstName"
                                 placeholder="Digite o primeiro nome"
                                 [class.ng-invalid]="isFieldInvalid('firstName')">
-                            <small
-                                class="p-error"
-                                *ngIf="isFieldInvalid('firstName')">
-                                Primeiro nome é obrigatório
+                            <small class="p-error" *ngIf="isFieldInvalid('firstName')">
+                                Primeiro nome e obrigatorio
                             </small>
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label for="lastName">Último Nome</label>
+                            <label class="field-label" for="lastName">Ultimo nome</label>
                             <input
                                 pInputText
                                 id="lastName"
                                 formControlName="lastName"
-                                placeholder="Digite o último nome"
+                                placeholder="Digite o ultimo nome"
                                 [class.ng-invalid]="isFieldInvalid('lastName')">
-                            <small
-                                class="p-error"
-                                *ngIf="isFieldInvalid('lastName')">
-                                Último nome é obrigatório
+                            <small class="p-error" *ngIf="isFieldInvalid('lastName')">
+                                Ultimo nome e obrigatorio
                             </small>
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label for="email">Email</label>
+                            <label class="field-label" for="email">Email</label>
                             <input
                                 pInputText
                                 id="email"
@@ -92,15 +86,13 @@
                                 placeholder="Digite o email"
                                 type="email"
                                 [class.ng-invalid]="isFieldInvalid('email')">
-                            <small
-                                class="p-error"
-                                *ngIf="isFieldInvalid('email')">
-                                Email é obrigatório
+                            <small class="p-error" *ngIf="isFieldInvalid('email')">
+                                Email e obrigatorio
                             </small>
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label for="phone">Telefone</label>
+                            <label class="field-label" for="phone">Telefone</label>
                             <input
                                 pInputText
                                 id="phone"
@@ -109,57 +101,44 @@
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label for="username">Nome de Usuário</label>
+                            <label class="field-label" for="username">Nome de utilizador</label>
                             <input
                                 pInputText
                                 id="username"
                                 formControlName="username"
-                                placeholder="Digite o nome de usuário"
+                                placeholder="Digite o nome de utilizador"
                                 [class.ng-invalid]="isFieldInvalid('username')">
-                            <small
-                                class="p-error"
-                                *ngIf="isFieldInvalid('username')">
-                                Nome de usuário é obrigatório
+                            <small class="p-error" *ngIf="isFieldInvalid('username')">
+                                Nome de utilizador e obrigatorio
                             </small>
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label for="identificationNumber">Número de Identificação</label>
+                            <label class="field-label" for="identificationNumber">Numero de identificacao</label>
                             <input
                                 pInputText
                                 id="identificationNumber"
                                 formControlName="identificationNumber"
-                                placeholder="Digite o número de identificação">
+                                placeholder="Digite o numero de identificacao">
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label for="gender">Gênero</label>
-                            <p-dropdown
-                                id="gender"
-                                formControlName="gender"
-                                [options]="genderOptions"
-                                placeholder="Selecione o gênero"
-                                optionLabel="label"
-                                optionValue="value">
-                            </p-dropdown>
+                            <label class="field-label" for="gender">Genero</label>
+                            <br>
+                            <span class="text-black">{{ currentUser.gender ?? 'Masculino' }}</span>
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label for="birthdate">Data de Nascimento</label>
-                            <p-calendar
-                                id="birthdate"
-                                formControlName="birthdate"
-                                placeholder="Selecione a data de nascimento"
-                                [showIcon]="true"
-                                dateFormat="dd/mm/yy">
-                            </p-calendar>
+                            <label class="field-label" for="birthdate">Data de nascimento</label>
+                            <br>
+                            <span class="text-black">{{ currentUser.birthdate ?? '18/04/2004' }}</span>
                         </div>
                     </div>
 
                     <div class="form-actions">
                         <p-button
                             type="submit"
-                            label="Atualizar Perfil"
+                            label="Atualizar perfil"
                             icon="pi pi-save"
                             [loading]="(loading$ | async) || false"
                             [disabled]="profileForm.invalid">
@@ -178,67 +157,108 @@
 
         <!-- Account Information -->
         <div class="col-12 md:col-4">
-            <p-card header="Informações da Conta">
+            <p-card header="Conta">
+                <div class="sidebar-profile">
+                    <p-avatar
+                        [label]="userProfileService.getInitials()"
+                        shape="circle"
+                        size="large"
+                        class="identity-avatar">
+                    </p-avatar>
+                    <div>
+                        <div class="sidebar-name">{{ userProfileService.getFullName() }}</div>
+                        <div class="sidebar-email">{{ currentUser.email }}</div>
+                    </div>
+                </div>
+
                 <div class="account-info">
                     <div class="info-item">
-                        <label>Status da Conta</label>
+                        <label>Status da conta</label>
                         <p-badge
-                            [value]="(currentUser$ | async)?.accountStatus || ''"
-                            [severity]="getStatusSeverity((currentUser$ | async)?.accountStatus || '')">
+                            [value]="currentUser.accountStatus || ''"
+                            [severity]="getStatusSeverity(currentUser.accountStatus || '')">
                         </p-badge>
                     </div>
 
                     <div class="info-item">
-                        <label>Email Verificado</label>
-                        <p-badge
-                            [value]="(currentUser$ | async)?.emailVerified ? 'Yes' : 'No'"
-                            [severity]="(currentUser$ | async)?.emailVerified ? 'success' : 'warn'">
-                        </p-badge>
+                        <label>Email verificado</label>
+                        <span class="status-pill text-green-700" [class.success]="currentUser.emailVerified"
+                              [class.danger]="!currentUser.emailVerified">
+                            {{ getVerificationLabel(currentUser.emailVerified) }}
+                        </span>
                     </div>
 
                     <div class="info-item">
-                        <label>Telefone Verificado</label>
-                        <p-badge
-                            [value]="(currentUser$ | async)?.phoneVerified ? 'Yes' : 'No'"
-                            [severity]="(currentUser$ | async)?.phoneVerified ? 'success' : 'warn'">
-                        </p-badge>
+                        <label>Telefone verificado</label>
+                        <span class="status-pill text-red-700" [class.success]="currentUser.phoneVerified"
+                              [class.danger]="!currentUser.phoneVerified">
+                            {{ getVerificationLabel(currentUser.phoneVerified) }}
+                        </span>
                     </div>
 
                     <div class="info-item">
                         <label>Role</label>
-                        <span class="role-name">{{ (currentUser$ | async)?.role?.name || 'N/A' }}</span>
+                        <span class="role-name">{{ currentUser.role ? currentUser.role.name : 'N/A' }}</span>
                     </div>
 
                     <div class="info-item">
-                        <label>Membro Desde</label>
-                        <span>{{ (currentUser$ | async)?.createdAt | date:'medium' }}</span>
+                        <label>Membro desde</label>
+                        <span>{{ currentUser.createdAt | date:'medium' }}</span>
                     </div>
                 </div>
 
-                <p-divider></p-divider>
-
-                <div class="account-actions">
-                    <p-button
-                        label="Alterar Senha"
-                        icon="pi pi-key"
-                        severity="secondary"
-                        (click)="showChangePasswordDialog = true">
-                    </p-button>
-                </div>
+                <button
+                    type="button"
+                    class="change-password-link"
+                    (click)="showChangePasswordDialog = true">
+                    Alterar senha
+                </button>
             </p-card>
         </div>
 
         <!-- User Permissions -->
         <div class="col-12">
-            <p-card header="Permissões do Usuário">
-                <div class="permissions-list"
-                     *ngIf="(currentUser$ | async)?.allPermissions?.length; else noPermissions">
-                    <div class="permission-item" *ngFor="let perm of (currentUser$ | async)?.allPermissions">
-                        <p-badge [value]="perm.name" severity="info"></p-badge>
+            <p-card>
+                <ng-template pTemplate="header">
+                    <div class="permissions-header">
+                        <div class="permissions-title-row">
+                            <h3>Permissões do utilizador</h3>
+                            <span class="permissions-count">{{ visiblePermissionsCount }}
+                                / {{ totalPermissionsCount }}</span>
+                        </div>
+                        <input
+                            pInputText
+                            type="text"
+                            [value]="permissionSearch"
+                            (input)="onPermissionSearch($any($event.target).value)"
+                            placeholder="Pesquisar permissao..."
+                            class="permissions-search">
                     </div>
-                </div>
+                </ng-template>
+
+                <ng-container *ngIf="totalPermissionsCount; else noPermissions">
+                    <div *ngIf="visiblePermissionsCount; else noPermissionResults">
+                        <div class="permission-group"
+                             *ngFor="let group of filteredPermissionGroups; trackBy: trackByPermissionGroup">
+                            <div class="permission-group-title">{{ group.label }}</div>
+                            <div class="permissions-list">
+                                <span
+                                    class="permission-pill font-bold"
+                                    [ngClass]="group.colorClass"
+                                    *ngFor="let perm of group.permissions; trackBy: trackByPermission">
+                                    {{ perm.name }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-template #noPermissionResults>
+                    <span>Nenhuma permissao encontrada para o filtro informado.</span>
+                </ng-template>
+
                 <ng-template #noPermissions>
-                    <span>Nenhuma permissão atribuída.</span>
+                    <span>Nenhuma permissao atribuida.</span>
                 </ng-template>
             </p-card>
         </div>
