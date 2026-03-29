@@ -8,43 +8,43 @@ import {
     ElementRef,
     HostListener
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
 import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { Student, StudentStatus } from 'src/app/core/models/academic/student';
-import { Store } from '@ngrx/store';
+import {Student, StudentStatus} from 'src/app/core/models/academic/student';
+import {Store} from '@ngrx/store';
 
-import { Observable, Subject, take, debounceTime, distinctUntilChanged, takeUntil, BehaviorSubject, map, of } from 'rxjs';
-import { ChartModule } from 'primeng/chart';
-import { ButtonModule } from 'primeng/button';
-import { COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS } from "../../constants";
-import { TableHeaderAction } from "../../../../../../shared/components/tables/global-table/table-header.component";
+import {Observable, Subject, take, debounceTime, distinctUntilChanged, takeUntil, BehaviorSubject, map, of} from 'rxjs';
+import {ChartModule} from 'primeng/chart';
+import {ButtonModule} from 'primeng/button';
+import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
+import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
-import { StudentsActions } from "../../../../../../core/store/schoolar/students/students.actions";
-import { RippleModule } from "primeng/ripple";
-import { TooltipModule } from "primeng/tooltip";
+import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
+import {RippleModule} from "primeng/ripple";
+import {TooltipModule} from "primeng/tooltip";
 import * as LevelSelectors from "../../../../../../core/store/schoolar/level/level.selector";
 import * as CenterSelectors from "../../../../../../core/store/corporate/center/centers.selector";
-import { LevelActions } from "../../../../../../core/store/schoolar/level/level.actions";
-import { CenterActions } from "../../../../../../core/store/corporate/center/centers.actions";
-import { BadgeModule } from "primeng/badge";
-import { KpiIndicatorsComponent } from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import { Kpi } from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import { CalendarModule } from "primeng/calendar";
-import { ChipsModule } from "primeng/chips";
-import { SelectButtonModule } from "primeng/selectbutton";
-import { InputTextModule } from "primeng/inputtext";
-import { DropdownModule } from "primeng/dropdown";
-import { FormsModule } from "@angular/forms";
-import { StudentsDashboardComponent } from "../../../dashboard/components/students/student-dashboard.component";
-import { StudentReports } from "../../../reports/components/student/student-reports.component";
-import { SelectItem } from 'primeng/api';
-import { LocationActions } from 'src/app/core/store/location/location.actions';
+import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
+import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
+import {BadgeModule} from "primeng/badge";
+import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {CalendarModule} from "primeng/calendar";
+import {ChipsModule} from "primeng/chips";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {InputTextModule} from "primeng/inputtext";
+import {DropdownModule} from "primeng/dropdown";
+import {FormsModule} from "@angular/forms";
+import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
+import {StudentReports} from "../../../reports/components/student/student-reports.component";
+import {SelectItem} from 'primeng/api';
+import {LocationActions} from 'src/app/core/store/location/location.actions';
 import * as LocationSelectors from 'src/app/core/store/location/location.selectors';
-import { AppState } from 'src/app/core/store';
+import {AppState} from 'src/app/core/store';
 
 @Component({
     selector: 'schoolar-students-list',
@@ -74,47 +74,47 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     isSearchMode$ = new BehaviorSubject<boolean>(false);
 
     // Custom Templates for the table
-    @ViewChild('nameTemplate', { static: true })
+    @ViewChild('nameTemplate', {static: true})
     nameTemplate!: TemplateRef<any>;
 
-    @ViewChild('dateOfBirthTemplate', { static: true })
+    @ViewChild('dateOfBirthTemplate', {static: true})
     dateOfBirthTemplate!: TemplateRef<any>;
 
-    @ViewChild('emailTemplate', { static: true })
+    @ViewChild('emailTemplate', {static: true})
     emailTemplate!: TemplateRef<any>;
 
-    @ViewChild('phoneTemplate', { static: true })
+    @ViewChild('phoneTemplate', {static: true})
     phoneTemplate!: TemplateRef<any>;
 
-    @ViewChild('actionsTemplate', { static: true })
+    @ViewChild('actionsTemplate', {static: true})
     actionsTemplate!: TemplateRef<any>;
 
-    @ViewChild('centerTemplate', { static: true })
+    @ViewChild('centerTemplate', {static: true})
     centerTemplate!: TemplateRef<any>;
 
-    @ViewChild('levelTemplate', { static: true })
+    @ViewChild('levelTemplate', {static: true})
     levelTemplate!: TemplateRef<any>;
 
-    @ViewChild('statusTemplate', { static: true })
+    @ViewChild('statusTemplate', {static: true})
     statusTemplate!: TemplateRef<any>;
 
-    @ViewChild('typeTemplate', { static: true })
+    @ViewChild('typeTemplate', {static: true})
     typeTemplate!: TemplateRef<any>;
 
-    @ViewChild('statusFilterTemplate', { static: true })
+    @ViewChild('statusFilterTemplate', {static: true})
     statusFilterTemplate!: TemplateRef<any>;
 
-    @ViewChild('centerFilterTemplate', { static: true })
+    @ViewChild('centerFilterTemplate', {static: true})
     centerFilterTemplate!: TemplateRef<any>;
 
-    @ViewChild('levelFilterTemplate', { static: true })
+    @ViewChild('levelFilterTemplate', {static: true})
     levelFilterTemplate!: TemplateRef<any>;
 
     // References to sticky header elements
-    @ViewChild('mainHeader', { static: false })
+    @ViewChild('mainHeader', {static: false})
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', { static: false })
+    @ViewChild('viewSelector', {static: false})
     viewSelector!: ElementRef;
 
     // Sticky state tracking
@@ -130,11 +130,11 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Filter options
     statusOptions = [
-        { label: 'Ativo', value: 'ACTIVE' },
-        { label: 'Inativo', value: 'INACTIVE' },
-        { label: 'Em renovação', value: 'PENDING_PAYMENT' },
-        { label: 'Desistiu', value: 'DROPPED_OUT' },
-        { label: 'Saiu', value: 'QUIT' },
+        {label: 'Ativo', value: 'ACTIVE'},
+        {label: 'Inativo', value: 'INACTIVE'},
+        {label: 'Em renovação', value: 'PENDING_PAYMENT'},
+        {label: 'Desistiu', value: 'DROPPED_OUT'},
+        {label: 'Saiu', value: 'QUIT'},
     ];
     provinces$!: Observable<SelectItem[]>;
     municipalities$!: Observable<SelectItem[]>;
@@ -156,9 +156,9 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     currentView: string = 'list'; // Default view is list
 
     viewOptions = [
-        { label: 'Lista de alunos', value: 'list' },
-        { label: 'Relatórios', value: 'reports' },
-        { label: 'Dashboard', value: 'dashboard' },
+        {label: 'Lista de alunos', value: 'list'},
+        //  { label: 'Relatórios', value: 'reports' },
+        {label: 'Dashboard', value: 'dashboard'},
     ];
 
     // Search form
@@ -252,32 +252,32 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
                     {
                         label: 'Total de Alunos',
                         value: total,
-                        icon: { label: 'users', color: 'text-blue-500', type: 'mat' },
+                        icon: {label: 'users', color: 'text-blue-500', type: 'mat'},
                     },
                     {
                         label: 'Ativos',
                         value: active,
-                        icon: { label: 'user-check', color: 'text-green-500', type: 'mat' },
+                        icon: {label: 'user-check', color: 'text-green-500', type: 'mat'},
                     },
                     {
                         label: 'Inativos',
                         value: inactive,
-                        icon: { label: 'user-cancel', color: 'text-red-500', type: 'mat' },
+                        icon: {label: 'user-cancel', color: 'text-red-500', type: 'mat'},
                     },
                     {
                         label: 'Em renovação',
                         value: renewing,
-                        icon: { label: 'exclamation-circle', color: 'text-orange-500' },
+                        icon: {label: 'exclamation-circle', color: 'text-orange-500'},
                     },
                     {
                         label: 'VIP',
                         value: vip,
-                        icon: { label: 'graduation-cap', color: 'text-purple-500' },
+                        icon: {label: 'graduation-cap', color: 'text-purple-500'},
                     },
                     {
                         label: 'Standard',
                         value: standard,
-                        icon: { label: 'calendar', color: 'text-secondary' },
+                        icon: {label: 'calendar', color: 'text-secondary'},
                     },
                 ];
 
@@ -408,7 +408,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         // Merge with existing filters
-        const mergedFilters = { ...this.searchFilters, ...filters };
+        const mergedFilters = {...this.searchFilters, ...filters};
 
         // Remove empty filters
         Object.keys(mergedFilters).forEach(key => {
@@ -417,7 +417,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             }
         });
 
-        this.store.dispatch(StudentsActions.searchStudents({ filters: mergedFilters }));
+        this.store.dispatch(StudentsActions.searchStudents({filters: mergedFilters}));
     }
 
     clearSearch(): void {
@@ -522,7 +522,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private performColumnFilter(): void {
         this.isSearchMode$.next(true);
 
-        const filters: any = { ...this.searchFilters };
+        const filters: any = {...this.searchFilters};
 
         // Add text search if present
         if (this.searchTerm.trim()) {
@@ -545,7 +545,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log("Dispatching search with filters:", filters);
 
         if (Object.keys(filters).length > 0) {
-            this.store.dispatch(StudentsActions.searchStudents({ filters }));
+            this.store.dispatch(StudentsActions.searchStudents({filters}));
         } else {
             this.clearSearch();
         }
@@ -554,7 +554,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private initializeLocationSelectors() {
         // Initialize provinces observable
         this.provinces$ = this.store.select(LocationSelectors.selectAllProvinces).pipe(
-            map(provinces => provinces.map(p => ({ label: p.name, value: p.name } as SelectItem)))
+            map(provinces => provinces.map(p => ({label: p.name, value: p.name} as SelectItem)))
         );
 
         // Initialize loading states
@@ -570,7 +570,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     private loadMunicipalities(provinceId: string) {
-        this.store.dispatch(LocationActions.loadProvince({ provinceId }));
+        this.store.dispatch(LocationActions.loadProvince({provinceId}));
     }
 
     protected StudentStatus = StudentStatus

@@ -70,7 +70,7 @@ export class AppProfileSidebarComponent implements OnInit, OnDestroy {
     }
 
     navigateToProfile() {
-        this.router.navigate(['/settings/profile']);
+        this.router.navigate(['/settings/profile']).then();
         this.visible = false;
     }
 

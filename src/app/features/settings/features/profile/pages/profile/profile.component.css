@@ -1,32 +1,31 @@
 .profile-container {
-    padding: 2rem;
+    padding: 1.5rem;
 }
 
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 2rem;
-    padding: 2rem;
+    gap: 1.5rem;
+    padding: 1.5rem;
 }
 
 .profile-avatar-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .profile-avatar {
-    width: 120px;
-    height: 120px;
-    font-size: 3rem;
+    width: 108px;
+    height: 108px;
+    font-size: 2.5rem;
 }
 
 .avatar-actions {
     display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
 }
 
 .photo-upload {
@@ -38,218 +37,280 @@
 }
 
 .profile-name {
-    margin: 0 0 0.5rem 0;
-    font-size: 2rem;
+    margin: 0;
+    font-size: 1.65rem;
     font-weight: 600;
     word-break: break-word;
 }
 
 .profile-username {
-    margin: 0 0 1rem 0;
+    margin: 0.35rem 0 0.8rem;
     color: var(--text-color-secondary);
-    font-size: 1.1rem;
-    word-break: break-word;
+    font-size: 0.95rem;
 }
 
 .profile-badges {
     display: flex;
-    gap: 0.5rem;
     flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.profile-form {
+    font-size: 13px;
+}
+
+.compact-grid {
+    margin-top: 0.1rem;
+}
+
+.field-label {
+    display: inline-flex;
+    margin-bottom: 0.35rem;
+    font-size: 0.67rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-color-secondary);
+    font-weight: 600;
 }
 
 .form-actions {
     display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
+    gap: 0.75rem;
+    margin-top: 1.1rem;
     flex-wrap: wrap;
 }
 
 .account-info {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.7rem;
+    margin-top: 1rem;
+}
+
+.sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.identity-avatar {
+    min-width: 44px;
+}
+
+.sidebar-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.sidebar-email {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    word-break: break-all;
 }
 
 .info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.12rem 0;
 }
 
 .info-item label {
-    font-weight: 500;
+    margin: 0;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--text-color-secondary);
-    word-break: break-word;
+    font-weight: 600;
 }
 
 .role-name {
     font-weight: 600;
     color: var(--primary-color);
-    word-break: break-word;
 }
 
-.account-actions {
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.74rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.status-pill.success {
+    background: rgba(34, 197, 94, 0.16);
+    color: #86efac;
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+.status-pill.danger {
+    background: rgba(239, 68, 68, 0.16);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.change-password-link {
+    margin-top: 1rem;
+    border: 0;
+    background: transparent;
+    color: var(--primary-color);
+    padding: 0;
+    font-size: 0.82rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.change-password-link:hover {
+    opacity: 0.85;
+}
+
+.permissions-header {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.7rem;
+    padding: 1rem 1rem 0;
+}
+
+.permissions-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+}
+
+.permissions-title-row h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.permissions-count {
+    border-radius: 999px;
+    border: 1px solid var(--surface-border);
+    padding: 0.15rem 0.55rem;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+}
+
+.permissions-search {
+    width: 100%;
+}
+
+.permission-group {
+    margin-bottom: 1rem;
+}
+
+.permission-group:last-child {
+    margin-bottom: 0;
+}
+
+.permission-group-title {
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-color-secondary);
+    margin-bottom: 0.55rem;
+    font-weight: 600;
 }
 
 .permissions-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
-.permission-item {
-    margin-bottom: 0.25rem;
+.permission-pill {
+    border-radius: 999px;
+    border: 1px solid transparent;
+    padding: 0.22rem 0.62rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.1;
 }
 
-/* Form field responsiveness */
-input[pInputText],
-::ng-deep .p-dropdown,
-::ng-deep .p-calendar {
+.permission-pill.perm-read {
+    background: var(--green-100);
+    color: var(--green-700);
+    border-color: var(--green-100);
+}
+
+.permission-pill.perm-write {
+    background: var(--blue-200);
+    color: var(--blue-700);
+    border-color: var(--blue-200);
+}
+
+.permission-pill.perm-delete {
+    background: var(--red-100);
+    color: var(--red-700);
+    border-color: var(--red-100);
+}
+
+.permission-pill.perm-manage {
+    background: var(--purple-100);
+    color: var(--purple-700);
+    border-color: var(--purple-100);
+}
+
+/* PrimeNG controls with consistent compact 13px sizing */
+:host ::ng-deep .profile-form .p-inputtext,
+:host ::ng-deep .profile-form .p-dropdown,
+:host ::ng-deep .profile-form .p-calendar,
+:host ::ng-deep .permissions-search {
     width: 100%;
+    font-size: 13px;
 }
 
-::ng-deep .p-button {
-    width: auto;
+:host ::ng-deep .profile-form .p-inputtext,
+:host ::ng-deep .profile-form .p-dropdown .p-dropdown-label,
+:host ::ng-deep .profile-form .p-calendar .p-inputtext,
+:host ::ng-deep .permissions-search {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
 }
 
-/* Ensure labels are visible on all screens */
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-/* Tablet responsiveness */
 @media (max-width: 992px) {
-    .profile-container {
-        padding: 1.5rem;
-    }
-
-    .profile-header {
-        padding: 1.5rem;
-        gap: 1.5rem;
-    }
-
-    .profile-name {
-        font-size: 1.75rem;
-    }
-
-    .profile-username {
-        font-size: 1rem;
-    }
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
     .profile-container {
         padding: 1rem;
     }
 
+    .profile-header {
+        padding: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
     .profile-header {
         flex-direction: column;
         text-align: center;
-        padding: 1rem;
-        gap: 1rem;
-    }
-
-    .profile-avatar-section {
-        order: 1;
     }
 
     .profile-info {
-        order: 2;
         width: 100%;
-    }
-
-    .profile-name {
-        font-size: 1.5rem;
-    }
-
-    .profile-username {
-        font-size: 0.95rem;
-    }
-
-    .profile-avatar {
-        width: 100px;
-        height: 100px;
-        font-size: 2.5rem;
-    }
-
-    .form-actions {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .form-actions ::ng-deep .p-button {
-        width: 100%;
-    }
-
-    .account-actions ::ng-deep .p-button {
-        width: 100%;
-    }
-
-    .info-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-    }
-}
-
-/* Small mobile responsiveness */
-@media (max-width: 480px) {
-    .profile-container {
-        padding: 0.5rem;
-    }
-
-    .profile-header {
-        padding: 0.75rem;
-    }
-
-    .profile-name {
-        font-size: 1.25rem;
-    }
-
-    .profile-username {
-        font-size: 0.9rem;
-    }
-
-    .profile-avatar {
-        width: 80px;
-        height: 80px;
-        font-size: 2rem;
     }
 
     .profile-badges {
         justify-content: center;
     }
 
-    .avatar-actions {
+    .form-actions {
+        flex-direction: column;
+    }
+
+    :host ::ng-deep .form-actions .p-button {
         width: 100%;
     }
 
-    .photo-upload {
-        max-width: 100%;
-    }
-
-    ::ng-deep .p-card {
-        font-size: 0.9rem;
-    }
-
-    ::ng-deep .p-card .p-card-title {
-        font-size: 1.1rem;
-    }
-
-    ::ng-deep .p-card .p-card-content {
-        padding: 0.75rem;
-    }
-
-    ::ng-deep .p-card .p-card-header {
-        padding: 0.75rem;
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
