@@ -15,21 +15,14 @@
                         optionLabel="label" optionValue="value"></p-selectButton>
     </div>
 
-    <!-- Lista de aulas View -->
+    <!-- Lesson list View -->
     @if (currentView === 'list') {
         <div class="col-12 animate-fade">
             <div class="flex justify-content-between align-items-center mb-3">
                 <div class="flex align-items-center">
                 <span class="p-input-icon-left mr-2">
-                    <i class="pi pi-search"></i>
                     <input type="text" pInputText placeholder="Buscar aulas"/>
                 </span>
-                    <p-dropdown [options]="[
-                        {label: 'Status', value: 'status'},
-                        {label: 'Data', value: 'date'},
-                        {label: 'Nível', value: 'level'},
-                        {label: 'Tipo', value: 'type'}
-                    ]" placeholder="Filtrar por" class="mr-2"></p-dropdown>
                 </div>
                 <div class="flex">
                     <p-button icon="pi pi-table" class="mr-2" pTooltip="Visualização em tabela"></p-button>
@@ -72,12 +65,12 @@
         </div>
     }
 
-    <!-- Relatorios View -->
+    <!-- Reports View   -->
     @if (currentView === 'relatorios') {
         <app-lesson-reports></app-lesson-reports>
     }
 
-    <!-- Calendario View -->
+    <!-- Calendar View -->
     @if (currentView === 'calendario') {
         <div class="col-12 animate-fade">
             <!-- Error message for calendar -->
@@ -170,6 +163,30 @@
                                             </div>
                                         }
                                     </div>
+
+                                    @if ((dayData.classes?.length ?? 0) > 0) {
+                                        <div class="flex flex-column gap-2">
+                                            @for (classData of (dayData.classes || []); track classData.lesson.id) {
+                                                <div class="class-card border-left-2 cursor-pointer"
+                                                     [class]="'class-card border-left-2 border-' + classData.statusClass"
+                                                     (mouseenter)="showLessonDetails(classData.lesson)"
+                                                     (mouseleave)="hideLessonDetails()"
+                                                     (click)="viewLesson(classData.lesson.id!)">
+                                                    <div class="p-2">
+                                                        <div
+                                                            class="flex justify-content-between align-items-center mb-1">
+                                                            <span
+                                                                class="class-title font-semibold text-sm">{{ classData.title }}</span>
+                                                            <span class="text-xs text-600">{{ classData.time }}</span>
+                                                        </div>
+                                                        <div class="class-details text-xs text-600">
+                                                            {{ classData.teacher }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         }
@@ -303,13 +320,6 @@
 <ng-template #startDatetime let-row>
     <span>
         {{ getFormattedDateTime(row.startDatetime, row.endDatetime) }}
-    </span>
-</ng-template>
-
-
-<ng-template #actionsTemplate let-row>
-    <span>
-        ver
     </span>
 </ng-template>
 
