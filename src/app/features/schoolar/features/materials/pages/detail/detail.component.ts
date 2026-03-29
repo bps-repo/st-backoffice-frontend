@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {SkeletonModule} from 'primeng/skeleton';
@@ -24,6 +24,8 @@ interface Material {
     imports: [CommonModule, SkeletonModule, InputTextModule, ButtonModule]
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+
     materialId: string = '';
     material: Material | null = null;
     loading: boolean = true;
@@ -64,9 +66,6 @@ export class DetailComponent implements OnInit {
             downloads: 210
         }
     ];
-
-    constructor(private route: ActivatedRoute) {
-    }
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {

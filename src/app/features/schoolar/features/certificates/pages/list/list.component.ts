@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -26,6 +26,9 @@ interface Certificate {
     standalone: true
 })
 export class ListComponent implements OnInit {
+    private router = inject(Router);
+    private store = inject(Store);
+
     certificates$: Observable<any[]>;
     certificates: any[] = [];
     loading$: Observable<boolean>;
@@ -34,7 +37,7 @@ export class ListComponent implements OnInit {
     columns: TableColumn[] = [];
     globalFilterFields: string[] = ['id', 'name', 'student', 'course', 'issueDate', 'status'];
 
-    constructor(private router: Router, private store: Store) {
+    constructor() {
         this.certificates$ = this.store.select(selectAllCertificates);
         this.loading$ = this.store.select(selectCertificatesLoading);
     }

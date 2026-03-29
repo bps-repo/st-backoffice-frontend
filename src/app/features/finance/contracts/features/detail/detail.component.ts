@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
@@ -54,6 +54,13 @@ import {InstallmentService} from 'src/app/core/services/installment.service';
     providers: [MessageService, ConfirmationService]
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+    private confirmationService = inject(ConfirmationService);
+    private store$ = inject(Store);
+    private installmentService = inject(InstallmentService);
+
     contractId: string = '';
     contract: Contract | null = null;
     loading$: Observable<boolean> = of(false);
@@ -90,14 +97,7 @@ export class DetailComponent implements OnInit {
     paymentReference: string = '';
     paymentAmount: number | null = null;
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService,
-        private store$: Store,
-        private installmentService: InstallmentService
-    ) {
+    constructor() {
         this.store$.select(selectSelectedContractByID).subscribe(contract => {
             this.contract = contract
         })

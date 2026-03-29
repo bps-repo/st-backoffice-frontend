@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TableColumn,
@@ -70,6 +70,10 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     `]
 })
 export class ListComponent implements OnInit, AfterViewInit {
+    private tableService = inject<TableService<any>>(TableService);
+    private router = inject(Router);
+    private assessmentService = inject(AssessmentService);
+
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
 
@@ -141,12 +145,6 @@ export class ListComponent implements OnInit, AfterViewInit {
             score: 50
         }
     ];
-
-    constructor(
-        private tableService: TableService<any>,
-        private router: Router,
-        private assessmentService: AssessmentService
-    ) { }
 
     ngOnInit(): void {
         // Initialize with sample data - in real app, load from service

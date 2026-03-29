@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +36,11 @@ import { LessonStatus } from '../../../../../../core/enums/lesson-status';
     providers: [MessageService]
 })
 export class LessonReports implements OnInit {
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+    private lessonApiService = inject(LessonService);
+    private studentService = inject(StudentService);
+
     dateRange: Date[] | undefined;
     reportGenerated: boolean = true; // Set to true to show report by default
 
@@ -59,13 +64,6 @@ export class LessonReports implements OnInit {
 
     lineChartParticipation: any;
     lineChartParticipationOptions: any;
-
-    constructor(
-        private router: Router,
-        private messageService: MessageService,
-        private lessonApiService: LessonService,
-        private studentService: StudentService
-    ) {}
 
     ngOnInit(): void {
         this.initCharts();

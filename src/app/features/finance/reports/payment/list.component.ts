@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
@@ -11,11 +11,13 @@ import {PaymentReport, PaymentReportFrequency, PaymentReportType} from "../../..
     imports: [CommonModule, RouterModule, ReactiveFormsModule]
 })
 export class ListComponent implements OnInit {
+    private fb = inject(FormBuilder);
+
     reports: PaymentReport[] = [];
     filterForm: FormGroup;
     loading: boolean = true;
 
-    constructor(private fb: FormBuilder) {
+    constructor() {
         this.filterForm = this.fb.group({
             reportType: ['all'],
             dateRange: ['all']

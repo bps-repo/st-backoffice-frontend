@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { Image } from 'src/app/core/models/mocks/image';
 
@@ -7,8 +7,8 @@ import { Image } from 'src/app/core/models/mocks/image';
 	providedIn: 'root',
 })
 export class PhotoService {
+	private http = inject(HttpClient);
 
-	constructor(private http: HttpClient) { }
 
 	getImages() {
 		return this.http.get<any>('assets/demo/data/photos.json')

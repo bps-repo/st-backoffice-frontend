@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { map, tap, catchError, finalize, shareReplay } from 'rxjs/operators';
@@ -11,12 +11,14 @@ import { ApiResponse } from '../models/ApiResponseService';
     providedIn: 'root'
 })
 export class UserProfileService {
+    private http = inject(HttpClient);
+
     private apiUrl = `${environment.apiUrl}/users`;
     private currentUserSubject = new BehaviorSubject<User | null>(null);
     public currentUser$ = this.currentUserSubject.asObservable();
     private currentUserRequest$: Observable<User> | null = null;
 
-    constructor(private http: HttpClient) {
+    constructor() {
         const stored = localStorage.getItem('currentUser');
         if (stored) {
             try {

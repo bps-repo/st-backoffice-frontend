@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
@@ -35,6 +35,12 @@ import {Actions, ofType} from '@ngrx/effects';
     providers: [MessageService]
 })
 export class CreateUnitComponent implements OnInit, OnDestroy {
+    private fb = inject(FormBuilder);
+    private router = inject(Router);
+    private store = inject(Store);
+    private messageService = inject(MessageService);
+    private actions$ = inject(Actions);
+
     unitForm: FormGroup;
 
     levels$: Observable<Level[]>;
@@ -49,13 +55,7 @@ export class CreateUnitComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    constructor(
-        private fb: FormBuilder,
-        private router: Router,
-        private store: Store,
-        private messageService: MessageService,
-        private actions$: Actions
-    ) {
+    constructor() {
         this.unitForm = this.fb.group({
             levelId: [null, Validators.required],
             orderUnit: [1, [Validators.required, Validators.min(1)]],

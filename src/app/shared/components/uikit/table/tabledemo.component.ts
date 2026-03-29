@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { Customer, Representative } from 'src/app/demo/api/customer';
 import { CustomerService } from 'src/app/demo/service/customer.service';
 import { Product } from 'src/app/demo/api/product';
@@ -15,6 +15,9 @@ interface expandedRows {
     providers: [MessageService, ConfirmationService]
 })
 export class TableDemoComponent implements OnInit {
+    private customerService = inject(CustomerService);
+    private productService = inject(ProductService);
+
 
     customers1: Customer[] = [];
 
@@ -45,8 +48,6 @@ export class TableDemoComponent implements OnInit {
     loading: boolean = true;
 
     @ViewChild('filter') filter!: ElementRef;
-
-    constructor(private customerService: CustomerService, private productService: ProductService) { }
 
     ngOnInit() {
         this.customerService.getCustomersLarge().then(customers => {

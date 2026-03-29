@@ -1,5 +1,5 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Student} from 'src/app/core/models/academic/student';
@@ -36,10 +36,9 @@ export interface CreateStudentRequest {
     providedIn: 'root',
 })
 export class StudentService {
-    private apiUrl = `${environment.apiUrl}/students`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {
-    }
+    private apiUrl = `${environment.apiUrl}/students`;
 
     // Normalize API student object into front-end Student model
     private normalizeStudent(apiStudent: any): Student {

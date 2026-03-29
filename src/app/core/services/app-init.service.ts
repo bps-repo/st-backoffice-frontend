@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { authActions } from '../store/auth/auth.actions';
 
@@ -6,7 +6,8 @@ import { authActions } from '../store/auth/auth.actions';
     providedIn: 'root'
 })
 export class AppInitService {
-    constructor(private store: Store) {}
+    private store = inject(Store);
+
 
     initializeApp(): Promise<any> {
         return new Promise((resolve) => {

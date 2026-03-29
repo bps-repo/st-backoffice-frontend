@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { Product } from 'src/app/core/models/mocks/product';
 
@@ -7,8 +7,8 @@ import { Product } from 'src/app/core/models/mocks/product';
     providedIn: 'root',
 })
 export class ProductService {
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) { }
 
     getProductsSmall() {
         return this.http.get<any>('assets/demo/data/products-small.json')

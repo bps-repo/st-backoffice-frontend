@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -22,6 +22,10 @@ import {CreateServiceDialogComponent} from '../../dialogs/create-service-dialog/
 
 })
 export class ListComponent implements OnInit {
+    private router = inject(Router);
+    private store = inject(Store);
+    private confirmationService = inject(ConfirmationService);
+
 
     @ViewChild(CreateServiceDialogComponent) createServiceDialog!: CreateServiceDialogComponent;
 
@@ -30,14 +34,6 @@ export class ListComponent implements OnInit {
 
     columns: TableColumn[] = [];
     size = 10;
-
-    constructor(private router: Router,
-                private store: Store,
-                private confirmationService: ConfirmationService) {
-
-        // this.services$ = this.store.select(selectAllServices)
-        //this.loading$ = this.store.select(selectServiceLoading);
-    }
 
     ngOnInit(): void {
         this.loadServices();

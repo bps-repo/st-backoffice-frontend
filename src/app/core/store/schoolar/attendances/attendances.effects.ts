@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -7,10 +7,9 @@ import { attendancesActions } from './attendances.actions';
 
 @Injectable()
 export class AttendancesEffects {
-    constructor(
-        private actions$: Actions,
-        private attendanceService: AttendanceService
-    ) {}
+    private actions$ = inject(Actions);
+    private attendanceService = inject(AttendanceService);
+
 
     // Load all attendances
     loadAttendances$ = createEffect(() =>

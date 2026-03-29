@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Member } from 'src/app/demo/api/member';
 import { DialogConfig, Task } from 'src/app/demo/api/task';
@@ -12,6 +12,10 @@ import { Subscription } from 'rxjs';
     providers: [MessageService]
 })
 export class CreateTaskComponent implements OnInit, OnDestroy {
+    private memberService = inject(MemberService);
+    private messageService = inject(MessageService);
+    private taskService = inject(TaskService);
+
 
     task!: Task;
 
@@ -25,7 +29,7 @@ export class CreateTaskComponent implements OnInit, OnDestroy {
 
     dialogSubscription: Subscription;
 
-    constructor(private memberService: MemberService, private messageService: MessageService, private taskService: TaskService) {
+    constructor() {
         this.subscription = this.taskService.selectedTask$.subscribe(data => this.task = data);
         this.dialogSubscription = this.taskService.dialogSource$.subscribe(data => {
             this.dialogConfig = data;

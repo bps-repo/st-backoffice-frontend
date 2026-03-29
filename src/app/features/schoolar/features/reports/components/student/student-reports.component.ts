@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {SkeletonModule} from 'primeng/skeleton';
@@ -43,6 +43,11 @@ interface Report {
     ]
 })
 export class StudentReports implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+    private statisticsService = inject(ScholarStatisticsService);
+    private attendanceService = inject(AttendanceService);
+
     private destroy$ = new Subject<void>();
 
     reportId: string = '';
@@ -130,14 +135,6 @@ export class StudentReports implements OnInit, OnDestroy {
             ]
         }
     ];
-
-    constructor(
-        private route: ActivatedRoute,
-        private store: Store,
-        private statisticsService: ScholarStatisticsService,
-        private attendanceService: AttendanceService
-    ) {
-    }
 
     ngOnInit(): void {
         // Dispatch action to load students if not already loaded

@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild, signal} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, signal, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {SelectItem} from 'primeng/api';
@@ -27,6 +27,9 @@ import {GLOBAL_FILTERS, INVOICE_COLUMNS} from "../invoice.contants";
     templateUrl: './list.component.html'
 })
 export class ListComponent implements OnInit {
+    private customerService = inject(CustomerService);
+    private router = inject(Router);
+
     customers: Customer[] = [];
     loading: boolean = true;
 
@@ -44,11 +47,6 @@ export class ListComponent implements OnInit {
     selectedDrop: SelectItem = {value: ''};
 
     @ViewChild('filter') filter!: ElementRef;
-
-    constructor(
-        private customerService: CustomerService,
-        private router: Router
-    ) {}
 
     ngOnInit(): void {
         this.items = [

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -65,6 +65,11 @@ interface AttendanceTableData {
     templateUrl: './lesson-detail.component.html'
 })
 export class LessonDetailComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private store = inject(Store);
+    private location = inject(Location);
+
     quickActions: any[] = []
     lesson$!: Observable<Lesson | null>;
     error$: Observable<string | null>;
@@ -105,12 +110,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store: Store,
-        private location: Location,
-    ) {
+    constructor() {
         // Initialize observables from store
 
         // Errors states

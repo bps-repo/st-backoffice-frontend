@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CountryService } from 'src/app/demo/service/country.service';
 
 @Component({
     templateUrl: './invalidstatedemo.component.html'
 })
 export class InvalidStateDemoComponent implements OnInit {
+    private countryService = inject(CountryService);
+
 
     countries: any[] = [];
 
@@ -32,7 +34,7 @@ export class InvalidStateDemoComponent implements OnInit {
 
     value10: any;
 
-    constructor(private countryService: CountryService) {
+    constructor() {
         this.cities = [
             { name: 'New York', code: 'NY' },
             { name: 'Rome', code: 'RM' },

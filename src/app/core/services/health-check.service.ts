@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Store} from '@ngrx/store';
 import {authActions} from '../store/auth/auth.actions';
 import {HttpClient} from "@angular/common/http";
@@ -8,10 +8,9 @@ import {Observable} from "rxjs";
     providedIn: 'root'
 })
 export class HealthCheckService {
-    private readonly apiUrl = 'https://st-backend-api-kdr8.onrender.com/api/v1/swagger-ui/index.html';
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {
-    }
+    private readonly apiUrl = 'https://st-backend-api-kdr8.onrender.com/api/v1/swagger-ui/index.html';
 
     getHealth(): Observable<any> {
         return this.http.get<any>(this.apiUrl);

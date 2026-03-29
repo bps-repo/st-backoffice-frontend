@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
@@ -28,6 +28,8 @@ import { Material } from 'src/app/core/models/academic/material';
     templateUrl: './materials-dashboard.component.html',
 })
 export class MaterialsDashboardComponent implements OnInit, OnDestroy {
+    private materialService = inject(MaterialService);
+
     private destroy$ = new Subject<void>();
 
     // Data observables
@@ -46,8 +48,6 @@ export class MaterialsDashboardComponent implements OnInit, OnDestroy {
     // UI data
     dateRange: Date[] | undefined;
     loading = true;
-
-    constructor(private materialService: MaterialService) {}
 
     ngOnInit(): void {
         this.loadData();

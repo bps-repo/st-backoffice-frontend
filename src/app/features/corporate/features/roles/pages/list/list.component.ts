@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {
@@ -31,6 +31,9 @@ import {loadRoles, setSelectedRole} from "../../../../../../core/store/roles/rol
     standalone: true
 })
 export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
+    private router = inject(Router);
+    private store$ = inject(Store);
+
 
     // Custom Templates for the table
     @ViewChild('permissionsTemplate', {static: true})
@@ -45,10 +48,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     private destroy$ = new Subject<void>();
 
-    constructor(
-        private router: Router,
-        private store$: Store,
-    ) {
+    constructor() {
         this.loading$ = this.store$.select(selectRolesLoading)
         this.roles$ = this.store$.select(selectAllRoles)
     }

@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -44,6 +44,11 @@ interface StudentAttempt {
     templateUrl: './attempt.component.html'
 })
 export class AttemptComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private store = inject(Store);
+    private assessmentService = inject(AssessmentService);
+
     exam: Exam | null = null;
     students: any[] = []; // This would be populated from a service
     selectedStudent: any = null;
@@ -65,14 +70,6 @@ export class AttemptComponent implements OnInit, OnDestroy {
         }));
 
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store: Store,
-        private assessmentService: AssessmentService
-    ) {
-    }
 
     ngOnInit(): void {
         // Initialize empty skill evaluations for each skill category

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { Unit } from '../models/course/unit';
@@ -9,11 +9,10 @@ import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
     providedIn: 'root',
 })
 export class UnitService {
+    private http = inject(HttpClient);
+
 
     private apiUrl = `${environment.apiUrl}/units`;
-
-    constructor(private http: HttpClient) {
-    }
 
     createUnit(unit: Partial<Unit>): Observable<ApiResponse<Unit>> {
         return this.http.post<ApiResponse<Unit>>(this.apiUrl, unit);

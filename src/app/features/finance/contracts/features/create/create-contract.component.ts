@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -59,6 +59,11 @@ import {contractsFeature} from 'src/app/core/store/corporate/contracts/contracts
     providers: [MessageService]
 })
 export class CreateContractComponent implements OnInit, OnDestroy, CanComponentDeactivate {
+    private fb = inject(FormBuilder);
+    private store = inject(Store);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+
     activeIndex: number = 0;
     studentForm!: FormGroup;
     private destroy$ = new Subject<void>();
@@ -76,12 +81,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     // Real centers options (as SelectItem[]) derived from the centers store
     centersOptions$!: Observable<SelectItem[]>;
 
-    constructor(
-        private fb: FormBuilder,
-        private store: Store,
-        private router: Router,
-        private messageService: MessageService
-    ) {
+    constructor() {
 
         this.successCreate$.subscribe(success => {
             if (success) {

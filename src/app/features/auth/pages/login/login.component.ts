@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    OnDestroy,
-    ElementRef,
-    Renderer2,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, ElementRef, Renderer2, inject } from '@angular/core';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule} from '@angular/forms';
 import {Store} from '@ngrx/store';
 import {combineLatest, map, Observable, of, Subject, takeUntil} from 'rxjs';
@@ -30,6 +23,13 @@ import {ErrorMessageService, ApiError} from '../../../../core/services/error-mes
     imports: [ReactiveFormsModule, FormsModule, CommonModule, RouterModule]
 })
 export class LoginComponent implements OnDestroy {
+    private store = inject<Store<AuthState>>(Store);
+    private fb = inject(FormBuilder);
+    private detectChange = inject(ChangeDetectorRef);
+    private renderer = inject(Renderer2);
+    private el = inject(ElementRef);
+    private errorMessageService = inject(ErrorMessageService);
+
     loginForm: FormGroup;
     hidePassword = true;
     isSubmitting : Observable<boolean> = of(false);
@@ -43,14 +43,7 @@ export class LoginComponent implements OnDestroy {
     private unsubscribe$ = new Subject<void>();
     private retryTimer?: number;
 
-    constructor(
-        private store: Store<AuthState>,
-        private fb: FormBuilder,
-        private detectChange: ChangeDetectorRef,
-        private renderer: Renderer2,
-        private el: ElementRef,
-        private errorMessageService: ErrorMessageService
-    ) {
+    constructor() {
         this.isSubmitting = combineLatest([
             this.store.select(authSelectors.selectAuthLoading),
             this.store.select(authSelectors.selectAuthLoadUserProfile)

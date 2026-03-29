@@ -1,13 +1,4 @@
-import {
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    HostBinding,
-    Input,
-    OnDestroy,
-    OnInit,
-    ViewChild,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { SidebarModule } from 'primeng/sidebar';
@@ -154,6 +145,12 @@ import { LayoutService } from '../../service/app.layout.service';
     ]
 })
 export class AppMenuitemComponent implements OnInit, OnDestroy {
+    layoutService = inject(LayoutService);
+    private cd = inject(ChangeDetectorRef);
+    router = inject(Router);
+    private appSidebar = inject(AppSidebarComponent);
+    private menuService = inject(MenuService);
+
     @Input() item: any;
 
     @Input() index!: number;
@@ -172,13 +169,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
 
     key: string = '';
 
-    constructor(
-        public layoutService: LayoutService,
-        private cd: ChangeDetectorRef,
-        public router: Router,
-        private appSidebar: AppSidebarComponent,
-        private menuService: MenuService
-    ) {
+    constructor() {
         this.menuSourceSubscription = this.menuService.menuSource$.subscribe(
             (value) => {
                 Promise.resolve(null).then(() => {

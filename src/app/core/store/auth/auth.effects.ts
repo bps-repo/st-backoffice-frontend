@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map, take, tap} from 'rxjs/operators';
@@ -14,14 +14,12 @@ import {ApiError} from '../../services/error-message.service';
 
 @Injectable()
 export class AuthEffects {
-    constructor(
-        private store: Store,
-        private actions$: Actions,
-        private authService: AuthService,
-        private userProfileService: UserProfileService,
-        private router: Router
-    ) {
-    }
+    private store = inject(Store);
+    private actions$ = inject(Actions);
+    private authService = inject(AuthService);
+    private userProfileService = inject(UserProfileService);
+    private router = inject(Router);
+
 
     login$ = createEffect(() =>
         this.actions$.pipe(

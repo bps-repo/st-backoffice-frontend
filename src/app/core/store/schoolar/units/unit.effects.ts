@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {exhaustMap, of} from 'rxjs';
 import {catchError, map, mergeMap, withLatestFrom, filter, tap} from 'rxjs/operators';
@@ -11,13 +11,11 @@ import {UnitState} from './unit.state';
 
 @Injectable()
 export class UnitEffects {
-    constructor(
-        private actions$: Actions,
-        private unitService: UnitService,
-        private store: Store,
-        private cacheService: CacheService
-    ) {
-    }
+    private actions$ = inject(Actions);
+    private unitService = inject(UnitService);
+    private store = inject(Store);
+    private cacheService = inject(CacheService);
+
 
     // Basic CRUD operations
 

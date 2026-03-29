@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
+import { Injectable, inject } from '@angular/core';
+import {ActivatedRouteSnapshot, CanActivate, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {Observable, of} from 'rxjs';
 import {catchError, map, switchMap, take} from 'rxjs/operators';
@@ -15,13 +15,11 @@ import {selectAuthToken} from '../store/auth/auth.selectors';
     providedIn: 'root',
 })
 export class PermissionGuard implements CanActivate {
-    constructor(
-        private store: Store,
-        private router: Router,
-        private authorizationService: AuthorizationService,
-        private messageService: MessageService
-    ) {
-    }
+    private store = inject(Store);
+    private router = inject(Router);
+    private authorizationService = inject(AuthorizationService);
+    private messageService = inject(MessageService);
+
 
     canActivate(
         route: ActivatedRouteSnapshot,

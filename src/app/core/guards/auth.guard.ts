@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     CanActivate,
     Router,
@@ -16,9 +16,9 @@ import { JwtTokenService } from '../services/jwtToken.service';
     providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
+    private store = inject(Store);
+    private router = inject(Router);
 
-    constructor(private store: Store, private router: Router) {
-    }
 
     canActivate(): Observable<boolean> {
         return this.store.select(authFeature.selectIsAuthenticated).pipe(

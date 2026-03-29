@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {FormsModule} from '@angular/forms';
 import {CalendarModule} from 'primeng/calendar';
@@ -35,6 +35,8 @@ import {
     templateUrl: './lessons-dashboard.component.html',
 })
 export class LessonsDashboardComponent implements OnInit, OnDestroy {
+    private store = inject(Store);
+
     private destroy$ = new Subject<void>();
 
     // Data observables
@@ -64,11 +66,6 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
     // Unit chart filter
     selectedLevelFilter: string | null = null;
     levelFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
-
-    constructor(
-        private store: Store,
-    ) {
-    }
 
     ngOnInit(): void {
         // Dispatch action to load lessons dashboard statistics

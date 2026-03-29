@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -28,6 +28,8 @@ import {ServiceState} from "../../../../../../core/store/corporate/services/serv
     templateUrl: './create-service-dialog.component.html'
 })
 export class CreateServiceDialogComponent implements OnInit {
+    private store = inject<Store<ServiceState>>(Store);
+
 
     visible: boolean = false;
 
@@ -56,7 +58,7 @@ export class CreateServiceDialogComponent implements OnInit {
     error$: Observable<any>;
 
 
-    constructor(private store: Store<ServiceState>) {
+    constructor() {
         this.loading$ = this.store.select(selectServiceLoading);
         this.error$ = this.store.select(selectServiceError);
     }

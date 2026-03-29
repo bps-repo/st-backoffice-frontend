@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, signal, TemplateRef, ViewChild, inject } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Lesson } from 'src/app/core/models/academic/lesson';
@@ -307,6 +307,9 @@ interface WeeklyLessonDay {
     `]
 })
 export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
+    private store = inject<Store<LessonState>>(Store);
+    private router = inject(Router);
+
     lesson: Lesson = {} as Lesson;
 
     lessons$: Observable<Lesson[]>;
@@ -669,10 +672,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    constructor(
-        private store: Store<LessonState>,
-        private router: Router
-    ) {
+    constructor() {
         this.lessons$ = this.store.select(selectAllLessons);
         this.loading$ = this.store.select(selectAnyLoading);
         this.error$ = this.store.select(selectAnyError);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, withLatestFrom, filter, tap } from 'rxjs/operators';
@@ -10,10 +10,9 @@ import { HttpErrorResponse } from '@angular/common/module.d-CnjH8Dlt';
 
 @Injectable()
 export class MaterialEffects {
-    constructor(
-        private actions$: Actions,
-        private materialService: MaterialService,
-    ) { }
+    private actions$ = inject(Actions);
+    private materialService = inject(MaterialService);
+
 
     createMaterial$ = createEffect(() =>
         this.actions$.pipe(

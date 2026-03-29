@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    Input,
-    OnInit,
-    signal,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, Input, OnInit, signal, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SelectItem } from 'primeng/api';
@@ -61,6 +54,9 @@ interface SelectItems {
     styleUrl: './table-material.component.scss'
 })
 export class TableMaterialComponent implements OnInit {
+    private customerService = inject(CustomerService);
+    private router = inject(Router);
+
     @Input() tableLable = '';
     @Input() entity = '';
 
@@ -76,11 +72,6 @@ export class TableMaterialComponent implements OnInit {
     selectedDrop: SelectItem = { value: '' };
 
     @ViewChild('filter') filter!: ElementRef;
-
-    constructor(
-        private customerService: CustomerService,
-        private router: Router
-    ) {}
     ngOnInit(): void {
         this.customerService.getCustomersLarge().then((customers) => {
             this.customers1 = customers;

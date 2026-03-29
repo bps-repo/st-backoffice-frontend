@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -6,10 +6,10 @@ import { MessageService } from 'primeng/api';
     providers: [MessageService]
 })
 export class FileDemoComponent {
+    private messageService = inject(MessageService);
+
 
     uploadedFiles: any[] = [];
-
-    constructor(private messageService: MessageService) {}
 
     onUpload(event: any) {
         for (const file of event.files) {

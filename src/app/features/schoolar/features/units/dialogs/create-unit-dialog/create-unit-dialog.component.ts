@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
@@ -27,6 +27,8 @@ import * as LevelSelectors from "../../../../../../core/store/schoolar/level/lev
     templateUrl: './create-unit-dialog.component.html'
 })
 export class CreateUnitDialogComponent implements OnInit {
+    private store = inject(Store);
+
 
     visible: boolean = false;
 
@@ -43,7 +45,7 @@ export class CreateUnitDialogComponent implements OnInit {
     error$: Observable<any>;
     levelOptions$: Observable<Level[]>;
 
-    constructor(private store: Store) {
+    constructor() {
         this.loading$ = this.store.select(UnitSelectors.selectLoading);
         this.error$ = this.store.select(UnitSelectors.selectError);
         this.levelOptions$ = this.store.select(LevelSelectors.selectAllLevels);

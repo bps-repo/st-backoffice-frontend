@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {Subscription, debounceTime} from 'rxjs';
 import {LayoutService} from 'src/app/layout/service/app.layout.service';
@@ -13,6 +13,8 @@ export type pieType = "doughnut" | "pie" | "bar" | "line" | "scatter" | "bubble"
     styleUrl: './pie-chart.component.scss'
 })
 export class PieChartComponent implements OnInit, OnDestroy {
+    layoutService = inject(LayoutService);
+
     pieData: any;
     pieOptions: any;
 
@@ -22,7 +24,7 @@ export class PieChartComponent implements OnInit, OnDestroy {
     @Input() title: string = 'Pie Chart';
     @Input() pieChartType: pieType = 'pie';
 
-    constructor(public layoutService: LayoutService) {
+    constructor() {
         this.subscription = this.layoutService.configUpdate$
             .pipe(debounceTime(25))
             .subscribe((config) => {

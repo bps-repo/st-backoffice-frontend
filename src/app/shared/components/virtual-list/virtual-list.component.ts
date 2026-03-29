@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { Observable, Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -116,6 +116,8 @@ export interface VirtualListConfig {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VirtualListComponent<T extends VirtualListItem> implements OnInit, OnDestroy {
+    private cdr = inject(ChangeDetectorRef);
+
     @Input() items: T[] = [];
     @Input() loading = false;
     @Input() showSearch = true;
@@ -134,8 +136,6 @@ export class VirtualListComponent<T extends VirtualListItem> implements OnInit, 
     searchControl = new FormControl('');
     filteredItems: T[] = [];
     private destroy$ = new Subject<void>();
-
-    constructor(private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
         this.setupSearch();

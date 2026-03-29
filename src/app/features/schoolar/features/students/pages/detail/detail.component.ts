@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {TabMenuModule} from 'primeng/tabmenu';
 import {TabViewModule} from 'primeng/tabview';
 import {Observable, Subscription} from 'rxjs';
@@ -42,6 +42,10 @@ import {GeneralComponent} from "./tabs/general/general.component";
     templateUrl: './detail.component.html'
 })
 export class DetailComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private store$ = inject(Store);
+    private datePipe = inject(DatePipe);
+
     studentId!: string;
     student$?: Observable<Student | null>;
     private subscriptions = new Subscription();
@@ -58,13 +62,6 @@ export class DetailComponent implements OnInit, OnDestroy {
     // Method to handle view selection
     onViewChange(event: any) {
         this.currentView = event.value;
-    }
-
-    constructor(
-        private route: ActivatedRoute,
-        private store$: Store,
-        private datePipe: DatePipe
-    ) {
     }
 
     ngOnInit() {

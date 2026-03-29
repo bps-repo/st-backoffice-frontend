@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay, map, catchError } from 'rxjs/operators';
@@ -9,9 +9,9 @@ import { environment } from '../../../environments/environment';
     providedIn: 'root'
 })
 export class SalesService {
-    private apiUrl = `${environment.apiUrl}/sales`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {}
+    private apiUrl = `${environment.apiUrl}/sales`;
 
     // Get all sales with optional filtering
     getSales(filter?: SaleFilter): Observable<Sale[]> {

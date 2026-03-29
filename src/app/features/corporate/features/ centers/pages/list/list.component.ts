@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -24,6 +24,11 @@ import {BadgeModule} from "primeng/badge";
     providers: [ConfirmationService]
 })
 export class ListComponent implements OnInit, AfterViewInit {
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+    private confirmationService = inject(ConfirmationService);
+
     @ViewChild(CreateCenterDialogComponent) createCenterDialog!:
         CreateCenterDialogComponent;
 
@@ -37,12 +42,7 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     size = 15;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private store: Store,
-        private confirmationService: ConfirmationService
-    ) {
+    constructor() {
         this.centers$ = this.store.select(CenterSelectors.selectAllCenters)
         this.loading$ = this.store.select(CenterSelectors.selectLoadingCenters);
     }

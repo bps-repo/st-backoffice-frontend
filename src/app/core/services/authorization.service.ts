@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, of, BehaviorSubject, combineLatest } from 'rxjs';
 import { map, switchMap, take, tap, catchError, shareReplay } from 'rxjs/operators';
@@ -12,15 +12,15 @@ import { User } from '../models/auth/user';
   providedIn: 'root'
 })
 export class AuthorizationService {
+  private store = inject<Store<AppState>>(Store);
+  private userManagementService = inject(UserManagementService);
+
   private permissionCache = new Map<string, Permission[]>();
   private currentUserPermissions$ = new BehaviorSubject<Permission[]>([]);
   private cacheExpiry = new Map<string, number>();
   private readonly CACHE_DURATION = 5 * 60 * 1000;
 
-  constructor(
-    private store: Store<AppState>,
-    private userManagementService: UserManagementService
-  ) {
+  constructor() {
     this.initializeUserPermissions();
   }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Lesson } from 'src/app/core/models/academic/lesson';
 import { Student } from 'src/app/core/models/academic/student';
@@ -31,6 +31,13 @@ import { SelectItem } from 'primeng/api';
     templateUrl: './schedule-lessons.component.html'
 })
 export class ScheduleLessonsComponent implements OnInit, OnDestroy {
+    private readonly fb = inject(FormBuilder);
+    private readonly lessonApi = inject(LessonService);
+    private readonly studentApi = inject(StudentService);
+    private readonly levelService = inject(LevelService);
+    private readonly store = inject(Store);
+    private readonly messageService = inject(MessageService);
+
     lessons: Lesson[] = [];
     filteredLessons: Lesson[] = [];
     selectedLesson: Lesson | null = null;
@@ -57,14 +64,7 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    constructor(
-        private readonly fb: FormBuilder,
-        private readonly lessonApi: LessonService,
-        private readonly studentApi: StudentService,
-        private readonly levelService: LevelService,
-        private readonly store: Store,
-        private readonly messageService: MessageService
-    ) {
+    constructor() {
         this.store.dispatch(LessonActions.lessonsActions.loadLessons());
         this.store.dispatch(StudentActions.StudentsActions.loadStudents());
     }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -35,6 +35,11 @@ import {EmployeeService} from "../../../../../../../../core/services/corporate/e
     providers: [MessageService]
 })
 export class RolesComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private userManagementService = inject(UserManagementService);
+    private messageService = inject(MessageService);
+    private employeeService = inject(EmployeeService);
+
     employee?: Employee;
     availablePermissions: Permission[] = [];
     selectedPermission: Permission | null = null;
@@ -43,13 +48,6 @@ export class RolesComponent implements OnInit, OnDestroy {
     removing = false;
     private destroy$ = new Subject<void>();
     private employeeId: string | null = null;
-
-    constructor(
-        private route: ActivatedRoute,
-        private userManagementService: UserManagementService,
-        private messageService: MessageService,
-        private employeeService: EmployeeService
-    ) {}
 
     ngOnInit(): void {
         this.route.parent?.paramMap.pipe(

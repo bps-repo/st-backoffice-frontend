@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 @Injectable()
 export class EventService {
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) { }
 
     getEvents() {
         return this.http.get<any>('assets/demo/data/scheduleevents.json')

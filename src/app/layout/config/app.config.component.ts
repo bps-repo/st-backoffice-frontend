@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { LayoutService } from '../service/app.layout.service';
 import {
     ColorScheme,
@@ -13,16 +13,14 @@ import { MenuService } from '../components/menu/app.menu.service';
     standalone: false
 })
 export class AppConfigComponent implements OnInit {
+    layoutService = inject(LayoutService);
+    menuService = inject(MenuService);
+
     @Input() minimal: boolean = false;
 
     componentThemes: any[] = [];
 
     scales: number[] = [12, 13, 14, 15, 16];
-
-    constructor(
-        public layoutService: LayoutService,
-        public menuService: MenuService
-    ) {}
 
     get visible(): boolean {
         return this.layoutService.state.configSidebarVisible;

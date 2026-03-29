@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
@@ -51,6 +51,8 @@ interface ActiveFilterChip {
     templateUrl: './student-dashboard.component.html',
 })
 export class StudentsDashboardComponent implements OnInit, OnDestroy {
+    private store = inject(Store);
+
     private destroy$ = new Subject<void>();
     private studentsCache: Student[] = [];
     private dashboardStatisticsSnapshot: StudentDashboardStatistics | null = null;
@@ -128,10 +130,6 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     academicBackgroundAdvancedOptions: SelectOption[] = [];
     centerAdvancedOptions: SelectOption[] = [];
     genderAdvancedOptions: SelectOption[] = [];
-
-    constructor(
-        private store: Store,
-    ) {}
 
     get activeAdvancedFilterChips(): ActiveFilterChip[] {
         const chips: ActiveFilterChip[] = [];

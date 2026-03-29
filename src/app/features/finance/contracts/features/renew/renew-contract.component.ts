@@ -1,14 +1,4 @@
-import {
-    Component,
-    Input,
-    OnInit,
-    Output,
-    EventEmitter,
-    OnChanges,
-    SimpleChanges,
-    HostListener,
-    OnDestroy
-} from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges, HostListener, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -56,6 +46,13 @@ import {takeUntil} from 'rxjs/operators';
     providers: [MessageService]
 })
 export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, CanComponentDeactivate {
+    private store = inject(Store);
+    private fb = inject(FormBuilder);
+    private messageService = inject(MessageService);
+    private contractService = inject(ContractService);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+
     @Input() renewContract?: boolean = true;
     @Input() createdStudentId?: string | null = null; // New input for created student (component input)
     @Output() contractCompleted = new EventEmitter<void>(); // Emit when contract is created
@@ -89,14 +86,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         {label: 'VIP', value: 'VIP'},
     ];
 
-    constructor(
-        private store: Store,
-        private fb: FormBuilder,
-        private messageService: MessageService,
-        private contractService: ContractService,
-        private route: ActivatedRoute,
-        private router: Router
-    ) {
+    constructor() {
         this.contractForm = this.fb.group({
             student: [null, [Validators.required]],
             discountPercent: [0, [Validators.min(0), Validators.max(100)]],

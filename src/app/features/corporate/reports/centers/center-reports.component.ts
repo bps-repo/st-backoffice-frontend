@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -11,9 +11,9 @@ import {CheckboxModule} from "primeng/checkbox";
     imports: [CommonModule, RouterModule, ReactiveFormsModule, CheckboxModule]
 })
 export class CenterReports implements OnInit {
-    reportForm!: FormGroup;
+    private fb = inject(FormBuilder);
 
-    constructor(private fb: FormBuilder) {}
+    reportForm!: FormGroup;
 
     ngOnInit() {
         this.reportForm = this.fb.group({

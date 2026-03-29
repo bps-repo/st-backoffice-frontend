@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Company } from 'src/app/core/models/mocks/company';
@@ -13,14 +13,14 @@ import { ButtonModule } from 'primeng/button';
     standalone: true
 })
 export class ListComponent implements OnInit {
+    private router = inject(Router);
+
     tableLabel = 'Entidades';
     columns: TableColumn[] = [];
     entities: Company[] = COMPANIES;
     loading: boolean = false;
 
     globalFilterFields: string[] = ['id', 'name', 'phone', 'address', 'students'];
-
-    constructor(private router: Router) {}
 
     ngOnInit(): void {
         // Simulate loading

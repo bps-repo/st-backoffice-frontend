@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -7,6 +7,8 @@ import { delay } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class CertificatesApiService {
+  private http = inject(HttpClient);
+
   // Mock data - in a real app, this would come from an API
   private certificates = [
     {
@@ -43,8 +45,6 @@ export class CertificatesApiService {
       issuedBy: 'Science Institute'
     }
   ];
-
-  constructor(private http: HttpClient) {}
 
   // In a real app, these methods would make HTTP requests to an API
   getCertificates(): Observable<any[]> {

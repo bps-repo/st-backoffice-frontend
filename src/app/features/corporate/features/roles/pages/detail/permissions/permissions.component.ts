@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -40,6 +40,10 @@ import { loadPermissions, loadPermissionTree } from 'src/app/core/store/permissi
     providers: [MessageService]
 })
 export class PermissionsComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private messageService = inject(MessageService);
+    private readonly store$ = inject(Store);
+
     role$!: Observable<Role | null>;
     permissions$: Observable<Permission[]> = of([])
     availablePermissions: Permission[] = [];
@@ -51,11 +55,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
     private roleId: string | null = null;
 
-    constructor(
-        private route: ActivatedRoute,
-        private messageService: MessageService,
-        private readonly store$: Store,
-    ) {
+    constructor() {
         this.loading$ = this.store$.select(selectPermissionsLoading) || this.store$.select(selectRolesLoading)
         this.role$ = this.store$.select(selectSelectedRole) as Observable<Role | null>
         this.permissions$ = this.store$.select(selectPermissionTree)

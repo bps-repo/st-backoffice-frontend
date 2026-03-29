@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthorizationService } from '../../core/services/authorization.service';
 
@@ -24,7 +24,8 @@ import { AuthorizationService } from '../../core/services/authorization.service'
   pure: false // Make it impure to react to permission changes
 })
 export class HasPermissionPipe implements PipeTransform {
-  constructor(private authorizationService: AuthorizationService) {}
+  private authorizationService = inject(AuthorizationService);
+
 
   transform(
     permission: string | string[],

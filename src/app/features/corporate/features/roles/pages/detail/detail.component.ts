@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
@@ -38,6 +38,12 @@ import {loadRole, updateRole, deleteRole} from 'src/app/core/store/roles/roles.a
     providers: [ConfirmationService, MessageService]
 })
 export class DetailComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private fb = inject(FormBuilder);
+    private confirmationService = inject(ConfirmationService);
+    private readonly store$ = inject(Store);
+
     role: Role | null = null;
     role$!: Observable<Role | null>;
     loading$: Observable<boolean> = of(false);
@@ -45,13 +51,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     roleForm!: FormGroup;
     private destroy$ = new Subject<void>();
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private fb: FormBuilder,
-        private confirmationService: ConfirmationService,
-        private readonly store$: Store
-    ) {
+    constructor() {
         this.role$ = this.store$.select(selectSelectedRole) as Observable<Role | null>;
         this.loading$ = this.store$.select(selectRolesLoading);
 

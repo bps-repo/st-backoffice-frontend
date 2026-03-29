@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Blog } from 'src/app/demo/api/blog';
 
@@ -7,9 +7,9 @@ import { Blog } from 'src/app/demo/api/blog';
     templateUrl: './blog-list-card.component.html',
 })
 export class BlogListCardComponent {
-    @Input() blog!: Blog;
+    private router = inject(Router);
 
-    constructor(private router: Router) {}
+    @Input() blog!: Blog;
 
     navigateToDetail(): void {
         this.router.navigateByUrl('/apps/blog/detail');

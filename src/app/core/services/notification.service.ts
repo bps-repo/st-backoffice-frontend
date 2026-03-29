@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -9,9 +9,9 @@ import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
   providedIn: 'root',
 })
 export class NotificationService {
-  private apiUrl = `${environment.apiUrl}/notifications`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiUrl}/notifications`;
 
   /**
    * Gets all notifications.

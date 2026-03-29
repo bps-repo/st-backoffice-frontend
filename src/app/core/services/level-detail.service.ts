@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, forkJoin, combineLatest } from 'rxjs';
 import { map, catchError, shareReplay, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
@@ -38,6 +38,8 @@ export interface LevelDetailCache {
   providedIn: 'root'
 })
 export class LevelDetailService {
+  private http = inject(HttpClient);
+
   private apiUrl = environment.apiUrl;
   private cache = new Map<string, LevelDetailCache>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -48,8 +50,6 @@ export class LevelDetailService {
     shareReplay(1),
     distinctUntilChanged()
   );
-
-  constructor(private http: HttpClient) {}
 
   /**
    * Loads complete level details with all related data in optimized batches

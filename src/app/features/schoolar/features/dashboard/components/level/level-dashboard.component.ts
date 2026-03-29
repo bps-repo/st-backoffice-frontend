@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
@@ -20,6 +20,8 @@ interface Alert {
     templateUrl: './level-dashboard.component.html',
 })
 export class LevelDashboardComponent implements OnInit, OnDestroy {
+    private levelService = inject(LevelService);
+
     private destroy$ = new Subject<void>();
 
     // Data observables
@@ -41,8 +43,6 @@ export class LevelDashboardComponent implements OnInit, OnDestroy {
         { label: 'Atualização', description: 'Curso de Programação Avançada atualizado com novos módulos' },
         { label: 'Curso Removido', description: 'Curso de Fotografia Básica foi arquivado' },
     ];
-
-    constructor(private levelService: LevelService) {}
 
     ngOnInit(): void {
         this.loadData();

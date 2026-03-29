@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { DropdownModule } from 'primeng/dropdown';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { INSTALATIONS } from '../../../constants/representatives';
@@ -51,6 +51,8 @@ export interface TableHeaderAction {
         </div>`
 })
 export class TableHeaderComponent implements OnInit {
+    private router = inject(Router);
+
     installations: any[] = INSTALATIONS;
 
     @Input()
@@ -62,9 +64,6 @@ export class TableHeaderComponent implements OnInit {
     @Input() entity = 'students';
 
     @Output() createEntity = new EventEmitter<void>();
-
-    constructor(private router: Router) {
-    }
 
     navigateToCreateEntity() {
         this.router.navigate([`/schoolar/${this.entity}/create`]);

@@ -1,5 +1,5 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {environment} from 'src/environments/environment';
 import {Lesson, LessonCreate} from "../models/academic/lesson";
 import {Observable, of} from 'rxjs';
@@ -12,10 +12,9 @@ import {AvailableStudent} from "../models/academic/available-student";
     providedIn: 'root',
 })
 export class LessonService {
-    private apiUrl = `${environment.apiUrl}/lessons`;
+    private readonly http = inject(HttpClient);
 
-    constructor(private readonly http: HttpClient) {
-    }
+    private apiUrl = `${environment.apiUrl}/lessons`;
 
     getLessons(): Observable<Lesson[]> {
         return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`).pipe(

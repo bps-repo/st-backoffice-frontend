@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -10,9 +10,9 @@ import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
   providedIn: 'root',
 })
 export class StudentHistoryService {
-  private apiUrl = `${environment.apiUrl}/student-histories`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiUrl}/student-histories`;
 
   /**
    * Gets all student histories.

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +38,9 @@ interface ReportType {
     providers: [MessageService]
 })
 export class GeneralScholarReport implements OnInit {
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+
     reportTypes: ReportType[] = [
         { name: 'Desempenho dos Alunos', code: 'student-performance' },
         { name: 'Frequência nas Aulas', code: 'class-attendance' },
@@ -50,8 +53,6 @@ export class GeneralScholarReport implements OnInit {
     reportData: any;
     reportOptions: any;
     reportGenerated: boolean = false;
-
-    constructor(private router: Router, private messageService: MessageService) {}
 
     ngOnInit(): void {
     }

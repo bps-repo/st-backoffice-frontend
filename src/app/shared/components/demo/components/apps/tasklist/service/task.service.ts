@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { DialogConfig, Task } from 'src/app/demo/api/task';
 
 @Injectable()
 export class TaskService {
+    private http = inject(HttpClient);
+
 
     dialogConfig: DialogConfig = {
         visible: false,
@@ -26,7 +28,7 @@ export class TaskService {
 
     dialogSource$ = this.dialogSource.asObservable();
 
-    constructor(private http: HttpClient) {
+    constructor() {
         this.http.get<any>('assets/demo/data/tasks.json')
             .toPromise()
             .then(res => res.data as Task[])

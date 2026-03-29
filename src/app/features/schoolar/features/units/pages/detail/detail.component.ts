@@ -1,5 +1,5 @@
 // student.component.ts
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -32,6 +32,9 @@ import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.acti
     ]
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+
 
     unitId: string = '';
     unit$: Observable<Unit | null> = of();
@@ -48,12 +51,6 @@ export class DetailComponent implements OnInit {
     assessmentChartOptions: any;
     lessonDistributionData: any;
     lessonDistributionOptions: any;
-
-
-    constructor(private route: ActivatedRoute, private store: Store) {
-        // this.unit$ = this.store.select(selectSelectedUnit);
-        //this.loading$ = this.store.select(selectUnitLoading);
-    }
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {

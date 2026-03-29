@@ -1,14 +1,4 @@
-import {
-    Component,
-    ComponentRef,
-    OnInit,
-    ViewContainerRef,
-    ViewChild,
-    ElementRef,
-    HostListener,
-    AfterViewInit,
-    signal
-} from '@angular/core';
+import { Component, ComponentRef, OnInit, ViewContainerRef, ViewChild, ElementRef, HostListener, AfterViewInit, signal, inject } from '@angular/core';
 import {EventTooltipComponent} from 'src/app/shared/components/event-tooltip/event-tooltip.component';
 import {LessonService} from 'src/app/core/services/lesson.service';
 import {Lesson} from 'src/app/core/models/academic/lesson';
@@ -61,6 +51,11 @@ import {LessonStatus} from 'src/app/core/enums/lesson-status';
     styleUrls: ['./calendar.app.component.scss']
 })
 export class CalendarAppComponent implements OnInit, AfterViewInit {
+    private viewContainerRef = inject(ViewContainerRef);
+    private router = inject(Router);
+    private lessonApiService = inject(LessonService);
+    private store = inject(Store);
+
     @ViewChild('mainHeader', {static: false}) mainHeader!: ElementRef;
     @ViewChild('viewSelector', {static: false}) viewSelector!: ElementRef;
 
@@ -170,14 +165,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     // Method to handle view selection
     onViewChange(event: any) {
         this.currentView = event.value;
-    }
-
-    constructor(
-        private viewContainerRef: ViewContainerRef,
-        private router: Router,
-        private lessonApiService: LessonService,
-        private store: Store
-    ) {
     }
 
     ngOnInit(): void {

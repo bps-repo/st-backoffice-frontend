@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Message } from 'src/app/demo/api/message';
 import { User } from 'src/app/demo/api/user';
 
 @Injectable()
 export class ChatService {
+    private http = inject(HttpClient);
+
 
     _activeUser: User = {
         "id": 1,
@@ -35,8 +37,6 @@ export class ChatService {
     private activeUser = new BehaviorSubject<User>(this._activeUser);
 
     activeUser$ = this.activeUser.asObservable();
-
-    constructor(private http: HttpClient) { }
 
     getChatData() {
         return this.http.get<any>('assets/demo/data/chat.json')

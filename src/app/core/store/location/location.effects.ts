@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
@@ -8,10 +8,9 @@ import { LocationActions } from './location.actions';
 
 @Injectable()
 export class LocationEffects {
-    constructor(
-        private actions$: Actions,
-        private locationService: LocationService
-    ) {}
+    private actions$ = inject(Actions);
+    private locationService = inject(LocationService);
+
 
     loadProvinces$ = createEffect(() =>
         this.actions$.pipe(

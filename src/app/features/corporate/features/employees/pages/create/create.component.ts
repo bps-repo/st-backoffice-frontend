@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -49,6 +49,11 @@ import * as PermissionsSelectors from 'src/app/core/store/permissions/selectors/
     ]
 })
 export class CreateComponent implements OnInit, OnDestroy {
+    private fb = inject(FormBuilder);
+    private router = inject(Router);
+    private store = inject(Store);
+    private actions$ = inject(Actions);
+
     employeeForm!: FormGroup;
     statusOptions = [
         { label: 'Ativo', value: 'ACTIVE' },
@@ -73,12 +78,7 @@ export class CreateComponent implements OnInit, OnDestroy {
     error$: Observable<string | null>;
     creating$: Observable<boolean>;
 
-    constructor(
-        private fb: FormBuilder,
-        private router: Router,
-        private store: Store,
-        private actions$: Actions
-    ) {
+    constructor() {
         // Initialize centers dropdown
         this.centers$ = this.store.select(CenterSelectors.selectAllCenters).pipe(
             map(centers => centers?.map(center => ({ label: center.name, value: center.id })) || [])

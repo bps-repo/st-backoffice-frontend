@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { KanbanCard } from 'src/app/demo/api/kanban';
 import { KanbanService } from '../service/kanban.service';
@@ -9,6 +9,8 @@ import { Subscription } from 'rxjs';
     templateUrl: './kanban-card.component.html'
 })
 export class KanbanCardComponent implements OnDestroy {
+    private kanbanService = inject(KanbanService);
+
 
     @Input() card!: KanbanCard;
 
@@ -18,7 +20,7 @@ export class KanbanCardComponent implements OnDestroy {
 
     subscription: Subscription;
 
-    constructor(private kanbanService: KanbanService) {
+    constructor() {
         this.subscription = this.kanbanService.lists$.subscribe(data => {
             let subMenu = data.map(d => ({ id: d.listId, label: d.title, command: () => this.onMove(d.listId) }));
             this.generateMenu(subMenu);

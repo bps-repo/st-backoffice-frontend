@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class CountryService {
+	private http = inject(HttpClient);
 
-	constructor(private http: HttpClient) { }
 
 	getCountries() {
 		return this.http.get<any>('assets/demo/data/countries.json')

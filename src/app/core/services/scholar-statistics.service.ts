@@ -1,5 +1,5 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
@@ -9,10 +9,9 @@ import {ApiResponse} from '../models/ApiResponseService';
     providedIn: 'root',
 })
 export class ScholarStatisticsService {
-    private apiUrl = `${environment.apiUrl}/scholar/statistics`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {
-    }
+    private apiUrl = `${environment.apiUrl}/scholar/statistics`;
 
     getStatistics(): Observable<any> {
         return this.http.get<ApiResponse<any>>(this.apiUrl).pipe(

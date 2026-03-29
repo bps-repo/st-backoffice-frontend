@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -9,10 +9,10 @@ import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
   providedIn: 'root',
 })
 export class RolesPermissionsService {
+  private http = inject(HttpClient);
+
   private rolesApiUrl = `${environment.apiUrl}/roles`;
   private permissionsApiUrl = `${environment.apiUrl}/permissions`;
-
-  constructor(private http: HttpClient) {}
 
   // Role methods
 

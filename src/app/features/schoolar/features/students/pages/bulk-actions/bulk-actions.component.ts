@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -36,6 +36,12 @@ import {StudentState} from "../../../../../../core/store/schoolar/students/stude
     providers: [MessageService]
 })
 export class BulkActionsComponent implements OnInit {
+    private store$ = inject<Store<StudentState>>(Store);
+    private fb = inject(FormBuilder);
+    private centerService = inject(CenterService);
+    private studentsService = inject(StudentService);
+    private messageService = inject(MessageService);
+
     students: Student[] = [];
     centers: Center[] = [];
     selectedStudents: Student[] = [];
@@ -50,13 +56,7 @@ export class BulkActionsComponent implements OnInit {
 
     selectedActionType: string = 'ADD_TO_CENTER';
 
-    constructor(
-        private store$: Store<StudentState>,
-        private fb: FormBuilder,
-        private centerService: CenterService,
-        private studentsService: StudentService,
-        private messageService: MessageService
-    ) {
+    constructor() {
         this.form = this.fb.group({
             actionType: ['ADD_TO_CENTER', Validators.required],
             center: [null],

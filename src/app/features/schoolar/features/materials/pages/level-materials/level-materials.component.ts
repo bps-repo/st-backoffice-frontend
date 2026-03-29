@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -35,6 +35,10 @@ import { selectAnyLoading, selectMaterialsByEntityAndId, selectMaterialsByEntity
     styleUrl: 'level-materials.component.css'
 })
 export class LevelMaterialsComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private store$ = inject(Store);
+
     levelId: string = '';
     levelName: string = '';
     levelMaterials$: Observable<Material[]> = of([]);
@@ -54,12 +58,6 @@ export class LevelMaterialsComponent implements OnInit {
     selectedVideoUrl: string = '';
     selectedVideoTitle: string = '';
     selectedVideoDescription: string = '';
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store$: Store,
-    ) { }
 
     ngOnInit(): void {
         this.levelId = this.route.snapshot.paramMap.get('levelId') || '';

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -36,15 +36,15 @@ import {severtyType} from "../../../features/schoolar/features/lessons/component
     ]
 })
 export class AppProfileSidebarComponent implements OnInit, OnDestroy {
+    layoutService = inject(LayoutService);
+    private readonly store = inject(Store);
+    private router = inject(Router);
+    userProfileService = inject(UserProfileService);
+
     currentUser$: Observable<User | null>;
     private destroy$ = new Subject<void>();
 
-    constructor(
-        public layoutService: LayoutService,
-        private readonly store: Store,
-        private router: Router,
-        public userProfileService: UserProfileService
-    ) {
+    constructor() {
         this.currentUser$ = this.store.select(authFeature.selectUser);
     }
 

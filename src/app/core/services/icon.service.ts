@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
@@ -6,8 +6,8 @@ import { map } from 'rxjs/operators';
     providedIn: 'root',
 })
 export class IconService {
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) { }
 
     icons: any[] = [];
 

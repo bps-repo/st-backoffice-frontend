@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -30,6 +30,9 @@ import {ToastModule} from "primeng/toast";
         ProgressSpinnerModule, ToastModule]
 })
 export class DetailComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private store = inject(Store);
+
 
     centerId: string = '';
     editableCenter: Center | null = null;
@@ -43,7 +46,7 @@ export class DetailComponent implements OnInit {
         {label: 'No', value: false}
     ];
 
-    constructor(private route: ActivatedRoute, private store: Store) {
+    constructor() {
         this.center$ = this.store.select(CenterSelectors.selectSelectedCenterId);
 
         this.error$ = this.store.select(CenterSelectors.selectErrorUpdateCenter);

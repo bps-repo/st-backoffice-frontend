@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -9,10 +9,10 @@ import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
   providedIn: 'root',
 })
 export class AssessmentService {
+  private http = inject(HttpClient);
+
   private unitsApiUrl = `${environment.apiUrl}/units`;
   private assessmentsApiUrl = `${environment.apiUrl}/assessments`;
-
-  constructor(private http: HttpClient) {}
 
   /**
    * Gets assessments for a specific unit.

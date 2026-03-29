@@ -1,4 +1,4 @@
-import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, OnDestroy } from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, OnDestroy, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthorizationService } from '../../core/services/authorization.service';
@@ -27,6 +27,10 @@ import { AuthorizationService } from '../../core/services/authorization.service'
   selector: '[hasPermission]'
 })
 export class HasPermissionDirective implements OnInit, OnDestroy {
+  private templateRef = inject<TemplateRef<any>>(TemplateRef);
+  private viewContainer = inject(ViewContainerRef);
+  private authorizationService = inject(AuthorizationService);
+
   private destroy$ = new Subject<void>();
   private hasView = false;
 
@@ -34,12 +38,6 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
   @Input() requireAll = false;
   @Input() module = false;
   @Input() action = 'view';
-
-  constructor(
-    private templateRef: TemplateRef<any>,
-    private viewContainer: ViewContainerRef,
-    private authorizationService: AuthorizationService
-  ) {}
 
   ngOnInit(): void {
     this.checkPermission();

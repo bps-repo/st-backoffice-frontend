@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { KanbanList } from 'src/app/demo/api/kanban';
 import { Subscription } from 'rxjs';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -9,6 +9,8 @@ import { KanbanService } from './service/kanban.service';
     styleUrls: ['./kanban.app.component.scss']
 })
 export class KanbanAppComponent implements OnInit, OnDestroy {
+    private kanbanService = inject(KanbanService);
+
 
     sidebarVisible: boolean = false;
 
@@ -22,7 +24,7 @@ export class KanbanAppComponent implements OnInit, OnDestroy {
 
     isMobileDevice: boolean = false;
 
-    constructor(private kanbanService: KanbanService) {
+    constructor() {
         this.subscription = this.kanbanService.lists$.subscribe(data => {
             this.lists = data;
             this.listIds = this.lists.map(l => l.listId || '');

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -32,6 +32,11 @@ import { Sale } from 'src/app/core/models/finance/sale.model';
     templateUrl: './edit.component.html'
 })
 export class EditComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private formBuilder = inject(FormBuilder);
+    private salesService = inject(SalesService);
+
     saleId: string | null = null;
     saleForm!: FormGroup;
     loading = false;
@@ -81,13 +86,6 @@ export class EditComponent implements OnInit, OnDestroy {
     availableProducts: any[] = [];
 
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private formBuilder: FormBuilder,
-        private salesService: SalesService
-    ) {}
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {

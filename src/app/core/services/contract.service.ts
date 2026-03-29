@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -7,10 +7,9 @@ import { ApiResponse } from '../models/ApiResponseService';
 
 @Injectable({ providedIn: 'root' })
 export class ContractService {
-    private apiUrl = `${environment.apiUrl}/contracts`;
+    private http = inject(HttpClient);
 
-    constructor(private http: HttpClient) {
-    }
+    private apiUrl = `${environment.apiUrl}/contracts`;
 
     createStudentContract(payload: CreateStudentContractRequest): Observable<Contract> {
         console.log("Contract Service: createStudentContract", payload);

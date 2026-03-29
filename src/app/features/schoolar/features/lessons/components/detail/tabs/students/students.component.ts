@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable, of, Subject, takeUntil } from 'rxjs';
@@ -16,18 +16,16 @@ import { ActivatedRoute, Router } from "@angular/router";
     templateUrl: './students.component.html'
 })
 export class StudentsComponent implements OnInit, OnDestroy {
+    private store = inject(Store);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+
     lessonItem?: Lesson;
 
     bookings: Observable<Lesson[]> = of([])
 
     lessonId!: string;
     private destroy$ = new Subject<void>();
-
-    constructor(
-        private store: Store,
-        private router: Router,
-        private route: ActivatedRoute
-    ) { }
 
     ngOnInit(): void {
         this.route.parent?.params

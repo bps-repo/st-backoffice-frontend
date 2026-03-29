@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { User } from 'src/app/demo/api/user';
 import { ChatService } from '../service/chat.service';
 
@@ -7,14 +7,14 @@ import { ChatService } from '../service/chat.service';
     templateUrl: './chat-sidebar.component.html'
 })
 export class ChatSidebarComponent implements OnInit {
+    private chatService = inject(ChatService);
+
 
     searchValue: string = '';
 
     users: User[] = [];
 
     filteredUsers: User[] = [];
-
-    constructor(private chatService: ChatService) { }
 
     ngOnInit(): void {
         this.chatService.getChatData().then(data => {

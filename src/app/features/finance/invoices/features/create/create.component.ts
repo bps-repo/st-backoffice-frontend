@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {SelectItem, MessageService, ConfirmationService} from 'primeng/api';
@@ -48,6 +48,12 @@ import {InvoiceService} from 'src/app/core/services/invoice.service';
     templateUrl: './create.component.html'
 })
 export class CreateComponent implements OnInit {
+    private fb = inject(FormBuilder);
+    private invoiceService = inject(InvoiceService);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+    private confirmationService = inject(ConfirmationService);
+
     invoiceForm!: FormGroup;
     loading = false;
     invoiceItems: InvoiceItem[] = [];
@@ -61,15 +67,6 @@ export class CreateComponent implements OnInit {
     entities: SelectItem[] = ENTITIES;
     discounts: SelectItem[] = DISCOUNTS;
     instalations: any[] = INSTALATIONS;
-
-    constructor(
-        private fb: FormBuilder,
-        private invoiceService: InvoiceService,
-        private router: Router,
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService
-    ) {
-    }
 
     ngOnInit() {
         this.initForm();

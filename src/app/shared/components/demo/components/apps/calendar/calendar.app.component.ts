@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -9,6 +9,8 @@ import {EventService} from "../../../../../../core/services/event.service";
     styleUrls: ['./calendar.app.component.scss']
 })
 export class CalendarAppComponent implements OnInit {
+    private eventService = inject(EventService);
+
 
     events: any[] = [];
 
@@ -31,8 +33,6 @@ export class CalendarAppComponent implements OnInit {
     view: string = '';
 
     changedEvent: any;
-
-    constructor(private eventService: EventService) { }
 
     ngOnInit(): void {
         this.today = '2022-05-11';

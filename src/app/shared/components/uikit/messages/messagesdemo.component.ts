@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Message, MessageService } from 'primeng/api';
 
 @Component({
@@ -6,10 +6,10 @@ import { Message, MessageService } from 'primeng/api';
     providers: [MessageService]
 })
 export class MessagesDemoComponent {
+    private service = inject(MessageService);
+
 
     msgs: Message[] = [];
-
-    constructor(private service: MessageService) { }
 
     showInfoViaToast() {
         this.service.add({ key: 'tst', severity: 'info', summary: 'Info Message', detail: 'PrimeNG rocks' });

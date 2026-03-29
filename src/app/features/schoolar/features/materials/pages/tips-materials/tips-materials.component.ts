@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -127,6 +127,9 @@ import { isValidYouTubeUrl } from 'src/app/shared/utils/youtube.utils';
   `
 })
 export class TipsMaterialsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   levelId: string = '';
   levelName: string = '';
   tipsMaterials: Material[] = [];
@@ -136,11 +139,6 @@ export class TipsMaterialsComponent implements OnInit {
   selectedVideoUrl: string = '';
   selectedVideoTitle: string = '';
   selectedVideoDescription: string = '';
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     this.levelId = this.route.snapshot.paramMap.get('levelId') || '';

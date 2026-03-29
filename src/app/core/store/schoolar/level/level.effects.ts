@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Actions, ofType, createEffect} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map, mergeMap, withLatestFrom, filter, tap} from 'rxjs/operators';
@@ -12,13 +12,11 @@ import {HttpErrorResponse} from "@angular/common/http";
 
 @Injectable()
 export class LevelEffects {
-    constructor(
-        private actions$: Actions,
-        private levelService: LevelService,
-        private store: Store,
-        private cacheService: CacheService
-    ) {
-    }
+    private actions$ = inject(Actions);
+    private levelService = inject(LevelService);
+    private store = inject(Store);
+    private cacheService = inject(CacheService);
+
 
     createLevel$ = createEffect(() =>
         this.actions$.pipe(

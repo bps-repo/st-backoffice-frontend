@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule} from '@angular/forms';
@@ -12,11 +12,13 @@ import {Payment, PaymentInstallmentStatus, PaymentStatus} from "../../../../../c
     imports: [CommonModule, RouterModule, ReactiveFormsModule]
 })
 export class CreateComponent implements OnInit {
+    private fb = inject(FormBuilder);
+
     paymentForm: FormGroup;
     invoices: any[] = []; // In a real app, this would be fetched from a service
     paymentMethods: string[] = ['Credit Card', 'Bank Transfer', 'Cash', 'PayPal', 'Other'];
 
-    constructor(private fb: FormBuilder) {
+    constructor() {
         this.paymentForm = this.fb.group({
             invoice_id: ['', Validators.required],
             amount: ['', [Validators.required, Validators.min(0)]],

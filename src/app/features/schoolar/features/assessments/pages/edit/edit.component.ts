@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,6 +25,10 @@ import { AssessmentService } from 'src/app/core/services/assessment.service';
     templateUrl: './edit.component.html'
 })
 export class EditComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private assessmentService = inject(AssessmentService);
+
     assessmentId: string | null = null;
     assessment: any = {
         title: '',
@@ -42,12 +46,6 @@ export class EditComponent implements OnInit {
         { label: 'Assignment', value: 'Assignment' },
         { label: 'Project', value: 'Project' }
     ];
-
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private assessmentService: AssessmentService
-    ) {}
 
     ngOnInit(): void {
         this.assessmentId = this.route.snapshot.paramMap.get('id');
