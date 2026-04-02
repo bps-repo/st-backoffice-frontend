@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, ElementRef, Renderer2, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnDestroy,
+    ElementRef,
+    Renderer2,
+    inject
+} from '@angular/core';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule} from '@angular/forms';
 import {Store} from '@ngrx/store';
 import {combineLatest, map, Observable, of, Subject, takeUntil} from 'rxjs';
@@ -12,7 +20,8 @@ import {authActions} from '../../../../core/store/auth/auth.actions';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import * as authSelectors from '../../../../core/store/auth/auth.selectors';
-import {ErrorMessageService, ApiError} from '../../../../core/services/error-message.service';
+import {ErrorMessageService} from '../../../../core/services/error-message.service';
+import {ApiError} from "../../../../core/models/ApiError";
 
 @Component({
     selector: 'app-login',
@@ -32,7 +41,7 @@ export class LoginComponent implements OnDestroy {
 
     loginForm: FormGroup;
     hidePassword = true;
-    isSubmitting : Observable<boolean> = of(false);
+    isSubmitting: Observable<boolean> = of(false);
     showAlert = false;
     errorMessage: string = '';
     errorSeverity: 'error' | 'warning' | 'info' = 'error';
@@ -96,9 +105,9 @@ export class LoginComponent implements OnDestroy {
 
         this.detectChange.detectChanges();
 
-        const { email, password } = this.loginForm.value;
+        const {email, password} = this.loginForm.value;
 
-        this.store.dispatch(authActions.login({ email, password }));
+        this.store.dispatch(authActions.login({email, password}));
     }
 
     dismissError() {

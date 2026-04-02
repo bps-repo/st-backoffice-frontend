@@ -5,7 +5,7 @@ import {
     TableColumn,
     GlobalTable,
 } from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Student, StudentStatus} from 'src/app/core/models/academic/student';
+import {Student, StudentStatus} from 'src/app/core/models/academic/students/student';
 import {Store} from '@ngrx/store';
 
 import {Observable, Subject, take, debounceTime, distinctUntilChanged, takeUntil, BehaviorSubject, map, of} from 'rxjs';

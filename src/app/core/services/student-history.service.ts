@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { EventType, StudentHistory } from '../models/academic/student-history';
+import { EventType, StudentHistory } from '../models/academic/students/student-history';
 import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 @Injectable({

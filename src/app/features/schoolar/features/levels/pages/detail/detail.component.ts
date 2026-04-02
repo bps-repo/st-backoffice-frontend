@@ -13,7 +13,7 @@ import {FormsModule} from '@angular/forms';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {Level} from 'src/app/core/models/course/level';
 import {Unit} from 'src/app/core/models/course/unit';
-import {Student} from 'src/app/core/models/academic/student';
+import {Student} from 'src/app/core/models/academic/students/student';
 import {UnitProgress} from 'src/app/core/models/academic/unit-progress';
 import {ChartModule} from 'primeng/chart';
 import {RippleModule} from 'primeng/ripple';

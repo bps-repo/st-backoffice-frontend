@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import {Component, OnInit, OnDestroy, inject} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -21,7 +21,6 @@ import {ToastModule} from 'primeng/toast';
 import {
     ACADEMIC_BACKGROUNDS,
 } from 'src/app/shared/constants/app';
-import {CreateStudentRequest} from 'src/app/core/services/student.service';
 import {StudentsActions} from 'src/app/core/store/schoolar/students/students.actions';
 import {studentsFeature} from 'src/app/core/store/schoolar/students/students.reducers';
 import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
@@ -33,6 +32,8 @@ import * as LocationSelectors from 'src/app/core/store/location/location.selecto
 import {selectCreatedStudentId} from "../../../../../core/store/schoolar/students/students.selectors";
 import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes.guard";
 import {contractsFeature} from 'src/app/core/store/corporate/contracts/contracts.feature';
+import {CreateStudentRequest} from "../../../../../core/models/academic/students/create-student-request";
+import {ShowToastErrorService} from "../../../../../shared/services/show-toast-error-service";
 
 @Component({
     selector: 'finance-contracts-create',
@@ -81,24 +82,6 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     // Real centers options (as SelectItem[]) derived from the centers store
     centersOptions$!: Observable<SelectItem[]>;
 
-    constructor() {
-
-        this.successCreate$.subscribe(success => {
-            if (success) {
-                this.studentForm.reset();
-                this.studentForm.disable();
-                this.activeIndex = 0;
-                this.router.navigate(['/finance/contracts']).then();
-            } else {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao criar contrato!'
-                });
-            }
-        });
-    }
-
     steps: MenuItem[] = [
         {label: 'Dados Pessoais'},
         {label: 'Dados institucional'},
@@ -118,6 +101,24 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         {label: 'Femenino', value: 'FEMALE'}
     ];
 
+    constructor() {
+        this.successCreate$.subscribe(success => {
+            if (success) {
+                this.studentForm.reset();
+                this.studentForm.disable();
+                this.activeIndex = 0;
+                this.router.navigate(['/finance/contracts']).then();
+            } else {
+                ShowToastErrorService.showToastError("Erro ao criar contrato", {message: "Ocorreu um erro, tente novamente"}, this.messageService)
+            }
+        });
+
+        this.createError$.subscribe(error => {
+            this.studentForm.enable();
+            ShowToastErrorService.showToastError("Erro ao criar contrato", error, this.messageService)
+        })
+    }
+
     ngOnInit() {
         this.initializeForm();
         this.initializeCentersDropdown();
@@ -135,7 +136,6 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
             if (studentId) {
                 this.isStudentCreated = true;
                 this.createdStudentId = studentId;
-
                 this.activeIndex = 4;
             }
         })
@@ -426,12 +426,10 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     }
 
     saveStudent() {
-        // This is called from step 3 (Observações)
         this.studentForm.markAllAsTouched();
+        console.log('Student Form:', this.studentForm.value);
 
         if (this.studentForm.valid && this.validateStepsBeforeIndex(4)) {
-            // Get form value BEFORE disabling the form
-            // When form is disabled, formGroup.value excludes disabled control values
             const formValue = this.studentForm.value;
             const createStudentRequest: CreateStudentRequest = {
                 identificationNumber: formValue.identificationNumber,

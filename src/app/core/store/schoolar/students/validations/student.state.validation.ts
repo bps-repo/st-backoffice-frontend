@@ -1,5 +1,5 @@
 import {createEntityAdapter} from "@ngrx/entity";
-import {Student} from "../../../../models/academic/student";
+import {Student} from "../../../../models/academic/students/student";
 
 export const createValidatedStudentAdapter = () => {
     return createEntityAdapter<Student>({

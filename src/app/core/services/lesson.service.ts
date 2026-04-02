@@ -1,5 +1,5 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {environment} from 'src/environments/environment';
 import {Lesson, LessonCreate} from "../models/academic/lesson";
 import {Observable, of} from 'rxjs';
@@ -22,11 +22,8 @@ export class LessonService {
         )
     }
 
-    /**
-     * Get all lessons without pagination for calendar and list views
-     */
     getAllLessons(): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<PageableResponse<Lesson[]>>>(`${this.apiUrl}?page=0&size=1000`).pipe(
+        return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}?page=0&size=1000`).pipe(
             map((response) => response.data.content as Lesson[])
         )
     }
@@ -53,18 +50,6 @@ export class LessonService {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
-    // Filter endpoints
-    getLessonsByClass(classId: string): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/filter/class/${classId}`).pipe(
-            map((response) => response.data as Lesson[])
-        );
-    }
-
-    getAvailableLessonsByClass(classId: string): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/filter/class/${classId}/available`).pipe(
-            map((response) => response.data as Lesson[])
-        );
-    }
 
     getLessonsByCenter(centerId: string): Observable<Lesson[]> {
         return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/filter/center/${centerId}`).pipe(
@@ -72,24 +57,16 @@ export class LessonService {
         );
     }
 
-    /**
-     * Search lessons by date range (and optionally other criteria) using the unified /lessons/search endpoint.
-     * This is a backward-compatible helper for date-range only queries.
-     */
     getLessonsByDateRange(startDate: string, endDate: string): Observable<Lesson[]> {
         const params = new HttpParams()
             .set('startDate', startDate)
             .set('endDate', endDate);
 
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, { params }).pipe(
+        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, {params}).pipe(
             map((response) => response.data as Lesson[])
         );
     }
 
-    /**
-     * Generic search for lessons with all supported filters.
-     * queryparams: [unitId, startDate, endDate, centerId, online, status, teacherId, titleContains]
-     */
     searchLessons(filters: {
         unitId?: string;
         startDate?: string;
@@ -108,7 +85,7 @@ export class LessonService {
                 params = params.set(key, String(value));
             }
         });
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, { params }).pipe(
+        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, {params}).pipe(
             map((response) => response.data as Lesson[])
         );
     }

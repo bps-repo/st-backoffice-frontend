@@ -11,7 +11,7 @@ import {ToastModule} from 'primeng/toast';
 import {CalendarModule} from 'primeng/calendar';
 import {MessageService} from 'primeng/api';
 import {Store} from '@ngrx/store';
-import {Student} from 'src/app/core/models/academic/student';
+import {Student} from 'src/app/core/models/academic/students/student';
 import {ContractService,} from 'src/app/core/services/contract.service';
 import {StudentsActions} from "../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../core/store/schoolar/students/students.selectors";

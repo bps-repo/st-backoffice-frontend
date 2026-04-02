@@ -1,5 +1,5 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
-import {StudentHistory, EventType} from 'src/app/core/models/academic/student-history';
+import {StudentHistory, EventType} from 'src/app/core/models/academic/students/student-history';
 
 export const STUDENT_HISTORY_FEATURE_KEY = 'studentHistories';
 

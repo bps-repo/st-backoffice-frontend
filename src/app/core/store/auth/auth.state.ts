@@ -1,6 +1,6 @@
-import { User } from "../../models/auth/user";
-import { JwtTokenService } from "../../services/jwtToken.service";
-import { ApiError } from "../../services/error-message.service";
+import {User} from "../../models/auth/user";
+import {JwtTokenService} from "../../services/jwtToken.service";
+import {ApiError} from "../../models/ApiError";
 
 export interface AuthState {
     isAuthenticated: boolean;

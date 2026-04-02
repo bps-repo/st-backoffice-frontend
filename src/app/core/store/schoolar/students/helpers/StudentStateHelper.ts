@@ -1,5 +1,5 @@
 import {createEntityAdapter, EntityAdapter} from "@ngrx/entity";
-import {Student} from "../../../../models/academic/student";
+import {Student} from "../../../../models/academic/students/student";
 import {StudentState} from "../student.state";
 
 export class StudentEntityOperations {

@@ -21,7 +21,7 @@ import {Actions, ofType} from '@ngrx/effects';
 import {LessonService} from '../../../../../../core/services/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
-import {Student} from '../../../../../../core/models/academic/student';
+import {Student} from '../../../../../../core/models/academic/students/student';
 import {BulkBookingRequest, BulkBookingResult, BulkBookingLesson} from '../../../../../../core/models/academic/bulk-booking';
 
 export type severtyType = "warn" | "success" | "info" | "danger" | "secondary" | "contrast";

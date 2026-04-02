@@ -23,24 +23,6 @@ export class JwtTokenService {
     }
 
     /**
-     * Retrieves the decoded token.
-     * @returns The decoded token object or null if no token is decoded.
-     */
-    static DecodedToken(): any {
-        return this.decodedToken;
-    }
-
-    /**
-     * Retrieves a specific claim from the decoded token.
-     * @param claim The claim to retrieve (e.g., 'sub', 'email').
-     * @returns The value of the claim or null if not found.
-     */
-
-    static getClaim(claim: string): any {
-        return this.decodedToken ? this.decodedToken[claim] : null;
-    }
-
-    /**
      * Checks if the token is expired.
      * @returns True if the token is expired, false otherwise.
      */
@@ -51,18 +33,5 @@ export class JwtTokenService {
 
         const currentTime = Math.floor(Date.now() / 1000);
         return currentTime > this.decodedToken.exp;
-    }
-
-    static getUser(): Partial<User> | null {
-        const token = localStorage.getItem('accessToken');
-
-        if (!token) {
-            return null;
-        }
-
-        return {
-            id: this.decodedToken['id'],
-            email: this.decodedToken['name'],
-        }
     }
 }

@@ -1,4 +1,4 @@
-import { Student } from "./student";
+import { Student } from "./students/student";
 import { LessonStatus } from "../../enums/lesson-status";
 import { Attendance } from "./attendance";
 import { Material } from "./material";

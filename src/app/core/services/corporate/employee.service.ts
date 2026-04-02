@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { ApiResponse, PageableResponse } from "../../models/ApiResponseService";
-import { CreateEmployeeRequest, Employee, EmployeeStatus } from "../../models/corporate/employee";
+import {HttpClient} from '@angular/common/http';
+import {Injectable, inject} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
+import {ApiResponse, PageableResponse} from "../../models/ApiResponseService";
+import {CreateEmployeeRequest, Employee, EmployeeStatus} from "../../models/corporate/employee";
 
 @Injectable({
     providedIn: 'root',
@@ -14,37 +14,17 @@ export class EmployeeService {
 
     private apiUrl = `${environment.apiUrl}/employees`;
 
-    /**
-     * Gets all employees.
-     * @returns An observable containing an array of Employee objects.
-     */
     getEmployees(): Observable<Employee[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(this.apiUrl).pipe(
-            map((response) => response.data.content as Employee[])
+        return this.http.get<ApiResponse<PageableResponse<Employee>>>(this.apiUrl).pipe(
+            map((response) => response.data.content)
         );
     }
 
-    getCurrentEmployee(): Observable<Employee> {
-        return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/me`).pipe(
-            map((response) => {
-                localStorage.setItem('employeeCenterName', response.data.workInfo.centerName);
-                localStorage.setItem('employeeCenterId', response.data.workInfo.centerId);
-                return response.data as Employee;
-            })
-        );
-    }
-
-    /**
-     * Creates a new employee.
-     * @param employeeData The employee data to create following the new structure.
-     * @returns An observable containing the created Employee object.
-     */
     createEmployee(employeeData: CreateEmployeeRequest): Observable<Employee> {
         return this.http.post<ApiResponse<Employee>>(this.apiUrl, employeeData).pipe(
             map((response) => response.data)
         );
     }
-
 
     getEmployeeById(id: string): Observable<Employee> {
         return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/${id}`).pipe(
@@ -52,79 +32,40 @@ export class EmployeeService {
         );
     }
 
-
     getEmployeesByRole(role: string): Observable<Employee[]> {
-        return this.searchEmployees({ roleName: role });
+        return this.searchEmployees({roleName: role});
     }
 
 
     getEmployeesByCenter(centerId: string): Observable<Employee[]> {
         // Updated to use search endpoint: GET /employees/search?centerId={centerId}
-        return this.searchEmployees({ centerId });
+        return this.searchEmployees({centerId});
     }
 
-    /**
-     * Updates an employee.
-     * @param id The ID of the employee.
-     * @param employeeData The updated employee data.
-     * @returns An observable containing the updated Employee object.
-     */
     updateEmployee(id: string, employeeData: Employee): Observable<Employee> {
         return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/${id}`, employeeData).pipe(
             map((response) => response.data as Employee)
         );
     }
 
-    /**
-     * Updates an employee's status.
-     * @param id The ID of the employee.
-     * @param status The new status.
-     * @returns An observable containing the updated Employee object.
-     */
     updateEmployeeStatus(id: string, status: EmployeeStatus): Observable<Employee> {
         return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/${id}/status`, status).pipe(
             map((response) => response.data as Employee)
         );
     }
 
-    /**
-     * Deletes an employee.
-     * @param id The ID of the employee to delete.
-     * @returns An observable containing the response.
-     */
     deleteEmployee(id: string): Observable<Employee> {
         return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(
             map((response) => response.data as Employee)
         );
     }
 
-    getEmployee(employeeId: string) {
-        return undefined;
-    }
-
-    assignRoleToEmployee(employeeId: string, id: string): Observable<Employee> {
-        return of()
-    }
-
-    removeRoleFromEmployee(employeeId: string, id: string): Observable<Employee> {
-        return of()
-    }
-
-    /**
-     * Gets employees by status.
-     * @param status The status to filter by (e.g., ACTIVE).
-     */
     getEmployeesByStatus(status: string): Observable<Employee[]> {
-        // New endpoint: GET /employees/status/{status}
         return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/status/${status}`).pipe(
             map((response) => response.data as Employee[])
         );
     }
 
-    /**
-     * Search employees with flexible filters (non-paginated).
-     * Example: status=ACTIVE&centerId=uuid&roleName=TEACHER&minWage=1000
-     */
     searchEmployees(filters: {
         status?: string;
         centerId?: string;
@@ -143,10 +84,6 @@ export class EmployeeService {
         );
     }
 
-    /**
-     * Search employees with pagination.
-     * Example: /employees/search/paginated?emailContains=john&page=0&size=10&sort=hiringDate
-     */
     searchEmployeesPaginated(
         filters: { [key: string]: any },
         page: number,

@@ -158,13 +158,13 @@
                                         @if (dayData.isToday) {
                                             <div class="today-label text-xs text-primary font-bold">Hoje</div>
                                         }
-                                        @if (!dayData.classes?.length) {
+                                        @if (!dayData.classes.length) {
                                             <div class="no-lessons text-xs text-gray-500 mt-2">Nenhuma aula agendada
                                             </div>
                                         }
                                     </div>
 
-                                    @if ((dayData.classes?.length ?? 0) > 0) {
+                                    @if ((dayData.classes.length) > 0) {
                                         <div class="flex flex-column gap-2">
                                             @for (classData of (dayData.classes || []); track classData.lesson.id) {
                                                 <div class="class-card border-left-2 cursor-pointer"

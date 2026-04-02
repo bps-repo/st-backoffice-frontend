@@ -1,7 +1,7 @@
 import { createSelector } from '@ngrx/store';
 import { studentHistoriesFeature } from './studentHistories.feature';
 import { studentHistoriesAdapter } from './studentHistoryState';
-import { EventType } from '../../../models/academic/student-history';
+import { EventType } from '../../../models/academic/students/student-history';
 
 // Basic selectors from feature
 export const {

@@ -12,10 +12,10 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil, first } from 'rxjs/operators';
-import { Student, StudentStatus } from 'src/app/core/models/academic/student';
+import { Student, StudentStatus } from 'src/app/core/models/academic/students/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
-import { StudentDashboardStatistics } from 'src/app/core/models/academic/student-dashboard-statistics';
+import { StudentDashboardStatistics } from 'src/app/core/models/academic/students/student-dashboard-statistics';
 import { StatisticsActions } from 'src/app/core/store/schoolar/statistics/statistics.actions';
 import {
     selectDashboardStatistics,

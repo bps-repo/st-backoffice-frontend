@@ -13,7 +13,7 @@ import {MessageService} from 'primeng/api';
 import {LessonService} from '../../../../../../core/services/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
-import {Student} from '../../../../../../core/models/academic/student';
+import {Student} from '../../../../../../core/models/academic/students/student';
 
 @Component({
     selector: 'app-book-lesson',

@@ -8,7 +8,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Store} from "@ngrx/store";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectStudentById} from "../../../../../../core/store/schoolar/students/students.selectors";
-import {Student} from "../../../../../../core/models/academic/student";
+import {Student} from "../../../../../../core/models/academic/students/student";
 import {StyleClassModule} from "primeng/styleclass";
 import {CardModule} from 'primeng/card';
 import {ProgressBarModule} from 'primeng/progressbar';

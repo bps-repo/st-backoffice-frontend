@@ -1,8 +1,10 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
-import {Student} from 'src/app/core/models/academic/student';
+import {Student} from 'src/app/core/models/academic/students/student';
 import {Update} from "@ngrx/entity";
-import {CreateStudentRequest} from "../../../services/student.service";
-import { Lesson } from 'src/app/core/models/academic/lesson';
+import {Lesson} from 'src/app/core/models/academic/lesson';
+import {CreateStudentRequest} from "../../../models/academic/students/create-student-request";
+import {ApiResponse} from "../../../models/ApiResponseService";
+import {ApiError} from "../../../models/ApiError";
 
 export const STUDENT_FEATURE_KEY = 'students';
 
@@ -39,22 +41,22 @@ export const StudentsActions = createActionGroup({
         // Create student
         'Create Student': props<{ student: Student }>(),
         'Create Student Success': props<{ student: Student }>(),
-        'Create Student Failure': props<{ error: string }>(),
+        'Create Student Failure': props<{ error: ApiError }>(),
 
         // Create student with request payload
         'Create Student With Request': props<{ request: CreateStudentRequest }>(),
         'Create Student With Request Success': props<{ student: Student }>(),
-        'Create Student With Request Failure': props<{ error: string }>(),
+        'Create Student With Request Failure': props<{ error: ApiError }>(),
 
         // Update student
         'Update Student': props<{ student: Student }>(),
         'Update Student Success': props<{ student: Student }>(),
-        'Update Student Failure': props<{ error: string }>(),
+        'Update Student Failure': props<{ error: ApiError }>(),
 
         // Delete student
         'Delete Student': props<{ id: string }>(),
         'Delete Student Success': props<{ id: string }>(),
-        'Delete Student Failure': props<{ error: string }>(),
+        'Delete Student Failure': props<{ error: ApiError }>(),
 
         // Create student photo
         'Create Student Photo': props<{ studentId: string, photoData: FormData }>(),
