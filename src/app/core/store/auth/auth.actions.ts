@@ -1,6 +1,6 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
 import {User} from '../../models/auth/user';
-import {ApiError} from '../../services/error-message.service';
+import {ApiError} from "../../models/ApiError";
 
 export const authActions = createActionGroup({
     source: 'auth',

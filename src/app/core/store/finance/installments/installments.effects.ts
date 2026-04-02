@@ -14,13 +14,7 @@ export class InstallmentsEffects {
             ofType(InstallmentsActions.loadInstallments),
             mergeMap(({page, size, sort}) =>
                 this.service.getInstallments(page, size, sort).pipe(
-                    map((res) => InstallmentsActions.loadInstallmentsSuccess({
-                        content: res.content,
-                        totalElements: res.totalElements,
-                        page: res.page,
-                        size: res.size,
-                        totalPages: res.totalPages,
-                    })),
+                    map((res) => InstallmentsActions.loadInstallmentsSuccess(res)),
                     catchError((error) => of(InstallmentsActions.loadInstallmentsFailure({error})))
                 )
             )

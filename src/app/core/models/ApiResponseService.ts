@@ -7,7 +7,7 @@ export interface ApiResponse<T> {
 }
 
 export interface PageableResponse<T> {
-    content: T;
+    content: T[];
     paged: boolean;
     first: boolean;
     last: boolean;
@@ -17,6 +17,7 @@ export interface PageableResponse<T> {
     empty: boolean;
     totalElements: number;
     totalPages: number;
+    page: number;
     pageable: {
         sort: {
             unsorted: boolean;
@@ -30,8 +31,5 @@ export interface PageableResponse<T> {
         unpaged: boolean;
     };
     sort: { unsorted: boolean, sorted: boolean, empty: boolean }[];
-}
-
-export interface SortableResponse<T> {
 }
 

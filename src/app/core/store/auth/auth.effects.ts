@@ -8,7 +8,7 @@ import {authActions} from './auth.actions';
 import {Router} from '@angular/router';
 import {JwtTokenService} from "../../services/jwtToken.service";
 import {Store} from '@ngrx/store';
-import {ApiError} from '../../services/error-message.service';
+import {ApiError} from "../../models/ApiError";
 
 // import * as authSelectors from './auth.selectors';
 

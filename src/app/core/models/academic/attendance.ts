@@ -1,6 +1,6 @@
 import { AttendanceStatus } from "../../enums/attendance-status";
 import {Lesson} from "./lesson";
-import {Student} from "./student";
+import {Student} from "./students/student";
 
 export interface Attendance {
     id: string;

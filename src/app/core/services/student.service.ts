@@ -1,36 +1,12 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
-import {Student} from 'src/app/core/models/academic/student';
+import {Student} from 'src/app/core/models/academic/students/student';
 import {ApiResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
+import {CreateStudentRequest} from "../models/academic/students/create-student-request";
 
-// Request payload for creating a student according to backend contract
-export interface CreateStudentRequest {
-    identificationNumber: string
-    firstname: string;
-    lastname: string;
-    gender: string; // 'MALE' or 'FEMALE'
-    birthdate: string; // YYYY-MM-DD
-    email: string;
-    password: string;
-    photo?: string;
-    phone: string;
-    centerId: string;
-    emergencyContactNumber?: string;
-    emergencyContactName?: string;
-    emergencyContactRelationship?: string;
-    academicBackground: string; // e.g., 'SECONDARY_SCHOOL'
-    province: string;
-    municipality: string;
-    notes?: string;
-    // VIP fields are set during creation but not required in initial request
-    vip?: boolean;
-    vipTeacherId?: string;
-    directChatEnabled?: boolean;
-    fixedDateClasses?: boolean;
-}
 
 @Injectable({
     providedIn: 'root',
@@ -39,37 +15,6 @@ export class StudentService {
     private http = inject(HttpClient);
 
     private apiUrl = `${environment.apiUrl}/students`;
-
-    // Normalize API student object into front-end Student model
-    private normalizeStudent(apiStudent: any): Student {
-        return {
-            id: apiStudent.id,
-            code: apiStudent.code,
-            user: apiStudent.user,
-            status: apiStudent.status,
-            levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
-            center: apiStudent.center || (apiStudent.centerId ? {id: apiStudent.centerId} : null),
-            level: apiStudent.level || (apiStudent.levelId ? {id: apiStudent.levelId} : null),
-            currentUnit: apiStudent.currentUnit,
-            enrollmentDate: apiStudent.enrollmentDate,
-            certificates: apiStudent.certificates ?? apiStudent.certificatesIds,
-            attendances: apiStudent.attendances ?? apiStudent.attendancesIds,
-            unitProgresses: apiStudent.unitProgresses ?? apiStudent.unitProgressesIds,
-            createdAt: apiStudent.createdAt,
-            updatedAt: apiStudent.updatedAt,
-            vip: apiStudent.vip,
-            vipTeacherId: apiStudent.vipTeacherId,
-            directChatEnabled: apiStudent.directChatEnabled,
-            fixedDateClasses: apiStudent.fixedDateClasses,
-            emergencyContactNumber: apiStudent.emergencyContactNumber ?? apiStudent.user?.emergencyContactNumber ?? null,
-            emergencyContactName: apiStudent.emergencyContactName ?? apiStudent.user?.emergencyContactName ?? null,
-            emergencyContactRelationship: apiStudent.emergencyContactRelationship ?? apiStudent.user?.emergencyContactRelationship ?? null,
-            academicBackground: apiStudent.academicBackground ?? apiStudent.user?.academicBackground ?? null,
-            province: apiStudent.province ?? apiStudent.user?.province ?? apiStudent.user?.address?.province ?? null,
-            municipality: apiStudent.municipality ?? apiStudent.user?.municipality ?? apiStudent.user?.address?.municipality ?? null,
-            notes: apiStudent.notes ?? null,
-        } as Student;
-    }
 
     getStudents(): Observable<Student[]> {
         return this.http.get<ApiResponse<any>>(this.apiUrl).pipe(
@@ -90,7 +35,6 @@ export class StudentService {
 
     // Existing method kept for backward compatibility (posts current Student model as-is)
     createStudent(student: Student): Observable<Student> {
-        console.log("createStudent", student);
         return this.http.post<ApiResponse<any>>(this.apiUrl, student).pipe(
             map((response) => this.normalizeStudent(response.data))
         );
@@ -154,7 +98,7 @@ export class StudentService {
     searchStudents(filters: {
         status?: string;
         academicBackground?: string;
-        ageRange?:string;
+        ageRange?: string;
         gender?: string;
         centerId?: string;
         levelId?: string;
@@ -181,5 +125,37 @@ export class StudentService {
                 return (list as any[]).map((s) => this.normalizeStudent(s));
             })
         );
+    }
+
+
+    // Normalize API student object into front-end Student model
+    private normalizeStudent(apiStudent: any): Student {
+        return {
+            id: apiStudent.id,
+            code: apiStudent.code,
+            user: apiStudent.user,
+            status: apiStudent.status,
+            levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
+            center: apiStudent.center || (apiStudent.centerId ? {id: apiStudent.centerId} : null),
+            level: apiStudent.level || (apiStudent.levelId ? {id: apiStudent.levelId} : null),
+            currentUnit: apiStudent.currentUnit,
+            enrollmentDate: apiStudent.enrollmentDate,
+            certificates: apiStudent.certificates ?? apiStudent.certificatesIds,
+            attendances: apiStudent.attendances ?? apiStudent.attendancesIds,
+            unitProgresses: apiStudent.unitProgresses ?? apiStudent.unitProgressesIds,
+            createdAt: apiStudent.createdAt,
+            updatedAt: apiStudent.updatedAt,
+            vip: apiStudent.vip,
+            vipTeacherId: apiStudent.vipTeacherId,
+            directChatEnabled: apiStudent.directChatEnabled,
+            fixedDateClasses: apiStudent.fixedDateClasses,
+            emergencyContactNumber: apiStudent.emergencyContactNumber ?? apiStudent.user?.emergencyContactNumber ?? null,
+            emergencyContactName: apiStudent.emergencyContactName ?? apiStudent.user?.emergencyContactName ?? null,
+            emergencyContactRelationship: apiStudent.emergencyContactRelationship ?? apiStudent.user?.emergencyContactRelationship ?? null,
+            academicBackground: apiStudent.academicBackground ?? apiStudent.user?.academicBackground ?? null,
+            province: apiStudent.province ?? apiStudent.user?.province ?? apiStudent.user?.address?.province ?? null,
+            municipality: apiStudent.municipality ?? apiStudent.user?.municipality ?? apiStudent.user?.address?.municipality ?? null,
+            notes: apiStudent.notes ?? null,
+        } as Student;
     }
 }

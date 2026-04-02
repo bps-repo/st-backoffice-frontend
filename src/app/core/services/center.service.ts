@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
@@ -11,8 +11,6 @@ import {map} from "rxjs/operators";
 })
 export class CenterService {
     private http = inject(HttpClient);
-
-
     private apiUrl = `${environment.apiUrl}/centers`;
 
     createCenter(center: CreateCenter): Observable<Center> {
@@ -28,17 +26,11 @@ export class CenterService {
     }
 
     getAllCenters(): Observable<Center[]> {
-        return this.http.get<ApiResponse<PageableResponse<Center[]>>>(`${this.apiUrl}`).pipe(
+        return this.http.get<ApiResponse<PageableResponse<Center>>>(`${this.apiUrl}`).pipe(
             map(response => response.data.content)
         );
     }
 
-   
-    getCentersByActive(active: boolean): Observable<Center[]> {
-        return this.http.get<ApiResponse<PageableResponse<Center[]>>>(`${this.apiUrl}/by-active/${active}`).pipe(
-            map(response => response.data.content)
-        );
-    }
 
     deleteCenter(id: string): Observable<void> {
         return this.http.delete<any>(`${this.apiUrl}/${id}`);

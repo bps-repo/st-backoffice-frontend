@@ -21,8 +21,9 @@ import {Actions, ofType} from '@ngrx/effects';
 import {LessonService} from '../../../../../../core/services/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
-import {Student} from '../../../../../../core/models/academic/student';
+import {Student} from '../../../../../../core/models/academic/students/student';
 import {BulkBookingRequest, BulkBookingResult, BulkBookingLesson} from '../../../../../../core/models/academic/bulk-booking';
+import {ShowToastErrorService} from '../../../../../../shared/services/show-toast-error-service';
 
 export type severtyType = "warn" | "success" | "info" | "danger" | "secondary" | "contrast";
 
@@ -85,11 +86,7 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe(error => {
                 if (error) {
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: error
-                    });
+                    ShowToastErrorService.showToastError('Error', error, this.messageService);
                 }
             });
 
@@ -124,11 +121,7 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     console.error('Error loading lessons:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load lessons'
-                    });
+                    ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to load lessons');
                 }
             });
     }
@@ -142,11 +135,7 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     console.error('Error loading students:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load students'
-                    });
+                    ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to load students');
                 }
             });
     }

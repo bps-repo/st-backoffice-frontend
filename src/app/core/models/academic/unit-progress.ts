@@ -1,4 +1,4 @@
-import {Student} from "./student";
+import {Student} from "./students/student";
 import {Unit} from "../course/unit";
 
 export interface UnitProgress {

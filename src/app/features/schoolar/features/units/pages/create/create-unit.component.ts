@@ -17,6 +17,7 @@ import * as LevelSelectors from '../../../../../../core/store/schoolar/level/lev
 import * as UnitSelectors from '../../../../../../core/store/schoolar/units/unit.selectors';
 import {UnitActions} from '../../../../../../core/store/schoolar/units/unit.actions';
 import {Actions, ofType} from '@ngrx/effects';
+import {ShowToastErrorService} from '../../../../../../shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-create-unit',
@@ -107,16 +108,7 @@ export class CreateUnitComponent implements OnInit, OnDestroy {
         });
 
         this.actions$.pipe(ofType(UnitActions.createUnitFailure), take(1)).subscribe(({error}: any) => {
-            const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
-            if (messages.length === 0) {
-                this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Falha ao criar unidade'});
-            } else {
-                messages.forEach((msg: string) => this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: msg
-                }));
-            }
+            ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Falha ao criar unidade');
         });
     }
 

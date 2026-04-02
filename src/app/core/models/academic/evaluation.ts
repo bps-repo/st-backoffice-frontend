@@ -1,4 +1,4 @@
-import { Student } from "./student";
+import { Student } from "./students/student";
 import { Assessment } from "./assessment";
 import { EvaluationDetail } from "./evaluation-detail";
 import { Employee } from "../corporate/employee";

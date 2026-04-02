@@ -43,6 +43,7 @@ import {UnitActions} from 'src/app/core/store/schoolar/units/unit.actions';
 import {selectAllUnits, selectUnitsByLevelId} from 'src/app/core/store/schoolar/units/unit.selectors';
 import {combineLatest, takeUntil} from 'rxjs';
 import {Subject} from 'rxjs';
+import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     imports: [
@@ -692,11 +693,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             ofType(MaterialActions.createMaterialWithRelationsFailure),
             takeUntil(this.destroy$)
         ).subscribe(({error}) => {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erro ao Criar Material',
-                detail: error || 'Erro desconhecido ao criar material'
-            });
+            ShowToastErrorService.showToastError('Erro ao Criar Material', error, this.messageService, 'Erro desconhecido ao criar material');
         });
     }
 

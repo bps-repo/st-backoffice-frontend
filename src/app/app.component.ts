@@ -5,7 +5,6 @@ import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ICONS} from "./shared/icons/icons";
 import {ToastModule} from "primeng/toast";
-import {HealthCheckService} from "./core/services/health-check.service";
 import {environment} from "../environments/environment";
 import {PrimeNG} from "primeng/config";
 
@@ -19,7 +18,6 @@ import {PrimeNG} from "primeng/config";
 })
 export class AppComponent implements OnInit {
     private primengConfig = inject(PrimeNG);
-    private readonly healthService = inject(HealthCheckService);
 
     private readonly enableHealthCheck = environment.enableHealthChecks;
 
@@ -31,11 +29,6 @@ export class AppComponent implements OnInit {
         ICONS.forEach(icon => {
             iconRegistry.addSvgIconLiteral(icon.name, sanitizedSvg.bypassSecurityTrustHtml(icon.svg));
         })
-
-        setInterval(() => {
-            if (this.enableHealthCheck) this.healthService.getHealth().subscribe((v) => console.log(v))
-            console.log("Health check ok")
-        }, 8000)
     }
 
     ngOnInit(): void {

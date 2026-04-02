@@ -9,7 +9,7 @@ import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { Student, StudentStatus } from 'src/app/core/models/academic/student';
+import { Student, StudentStatus } from 'src/app/core/models/academic/students/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
 import { ScholarStatisticsService } from 'src/app/core/services/scholar-statistics.service';

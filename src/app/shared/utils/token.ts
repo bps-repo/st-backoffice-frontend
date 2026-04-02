@@ -1,5 +1,5 @@
 import {InjectionToken, Injector} from "@angular/core";
-import {Student} from "../../core/models/academic/student";
+import {Student} from "../../core/models/academic/students/student";
 
 
 export function createTabDataToken<T>(description: string) {

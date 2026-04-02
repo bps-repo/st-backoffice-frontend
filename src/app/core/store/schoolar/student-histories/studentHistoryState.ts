@@ -1,5 +1,5 @@
 import {createEntityAdapter, EntityAdapter, EntityState} from "@ngrx/entity";
-import {StudentHistory} from "../../../models/academic/student-history";
+import {StudentHistory} from "../../../models/academic/students/student-history";
 
 export interface StudentHistoryState extends EntityState<StudentHistory> {
     // Loading states

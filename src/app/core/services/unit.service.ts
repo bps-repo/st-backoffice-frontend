@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
-import { Unit } from '../models/course/unit';
-import { environment } from 'src/environments/environment';
-import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
+import {Injectable, inject} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {map, Observable} from 'rxjs';
+import {Unit} from '../models/course/unit';
+import {environment} from 'src/environments/environment';
+import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
 
 @Injectable({
     providedIn: 'root',
@@ -27,7 +27,7 @@ export class UnitService {
     }
 
     loadUnits(): Observable<Unit[]> {
-        return this.http.get<ApiResponse<PageableResponse<Unit[]>>>(`${this.apiUrl}`).pipe(
+        return this.http.get<ApiResponse<PageableResponse<Unit>>>(`${this.apiUrl}`).pipe(
             map(response => response.data.content)
         );
     }

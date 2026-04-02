@@ -1,14 +1,14 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { Role } from '../models/auth/role';
-import { ApiResponse, PageableResponse } from "../models/ApiResponseService";
-import { filter, map } from "rxjs/operators";
-import { Store } from '@ngrx/store';
+import {HttpClient} from '@angular/common/http';
+import {Injectable, inject} from '@angular/core';
+import {Observable} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {Role} from '../models/auth/role';
+import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
+import {filter, map} from "rxjs/operators";
+import {Store} from '@ngrx/store';
 import * as RolesActions from '../store/roles/roles.actions';
 import * as RolesSelectors from '../store/roles/roles.selectors';
-import { AppState } from '../store';
+import {AppState} from '../store';
 
 interface CreateRoleWithPermissionsRequest {
     name: string;
@@ -26,7 +26,7 @@ export class RoleService {
     public apiUrl = `${environment.apiUrl}/roles`;
 
     getAllRoles(): Observable<Role[]> {
-        return this.http.get<ApiResponse<PageableResponse<Role[]>>>(this.apiUrl).pipe(
+        return this.http.get<ApiResponse<PageableResponse<Role>>>(this.apiUrl).pipe(
             map(response => {
                 const roles = response.data.content as Role[];
                 // Ensure permissions array is initialized for each role
@@ -66,7 +66,6 @@ export class RoleService {
     }
 
 
-
     updateRole(role: Role): Observable<Role> {
         return this.http.patch<ApiResponse<Role>>(`${this.apiUrl}/${role.id}`, role).pipe(
             map(response => {
@@ -85,7 +84,7 @@ export class RoleService {
 
     addPermissionToRole(roleId: string, permissionId: string): Observable<Role> {
         // Dispatch the addPermissionToRole action
-        this.store.dispatch(RolesActions.addPermissionToRole({ roleId, permissionId }));
+        this.store.dispatch(RolesActions.addPermissionToRole({roleId, permissionId}));
         // Return the role from the store, filtering out undefined values
         return this.store.select(RolesSelectors.selectRoleById(roleId)).pipe(
             filter((role): role is Role => !!role)

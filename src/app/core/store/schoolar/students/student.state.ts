@@ -1,6 +1,7 @@
 import {createEntityAdapter, EntityAdapter, EntityState} from "@ngrx/entity";
-import {Student} from "../../../models/academic/student";
+import {Student} from "../../../models/academic/students/student";
 import {PaginationState, StudentFilters} from "./@types/students.state.interface";
+import {ApiError} from "../../../models/ApiError";
 
 export interface StudentState extends EntityState<Student> {
     // Loading states
@@ -20,9 +21,9 @@ export interface StudentState extends EntityState<Student> {
 
     // Error states
     error: string | null;
-    createError: string | null;
-    updateError: string | null;
-    deleteError: string | null;
+    createError: ApiError | null;
+    updateError: ApiError | null;
+    deleteError: ApiError | null;
     bulkError: string | null;
     photoError: string | null;
     addToClassError: string | null;

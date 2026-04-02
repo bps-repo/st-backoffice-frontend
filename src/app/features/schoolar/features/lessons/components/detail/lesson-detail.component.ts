@@ -19,7 +19,7 @@ import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/le
 import { selectSelectedLesson, selectLoadingLessons, selectError, selectLessonBookings, selectBookings } from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
 import { attendancesActions } from "../../../../../../core/store/schoolar/attendances/attendances.actions";
 import { selectAttendancesByLesson, selectAttendancesLoading, selectAttendancesError } from "../../../../../../core/store/schoolar/attendances/attendances.selectors";
-import { Student } from "../../../../../../core/models/academic/student";
+import { Student } from "../../../../../../core/models/academic/students/student";
 import { Attendance } from "../../../../../../core/models/academic/attendance";
 import { AttendanceStatusUpdate } from "../../../../../../core/models/academic/attendance-update";
 import { Material } from "../../../../../../core/models/academic/material";

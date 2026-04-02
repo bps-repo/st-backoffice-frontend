@@ -13,7 +13,8 @@ import {MessageService} from 'primeng/api';
 import {LessonService} from '../../../../../../core/services/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
-import {Student} from '../../../../../../core/models/academic/student';
+import {Student} from '../../../../../../core/models/academic/students/student';
+import {ShowToastErrorService} from '../../../../../../shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-book-lesson',
@@ -92,11 +93,7 @@ export class BookLessonComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     console.error('Error loading lesson:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load lesson details'
-                    });
+                    ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to load lesson details');
                     this.loading = false;
                 }
             });
@@ -113,11 +110,7 @@ export class BookLessonComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     console.error('Error loading students:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load students'
-                    });
+                    ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to load students');
                     this.loading = false;
                 }
             });
@@ -177,11 +170,7 @@ export class BookLessonComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     console.error('Error booking lesson:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to book students for the lesson'
-                    });
+                    ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to book students for the lesson');
                     this.loading = false;
                 }
             });

@@ -15,6 +15,7 @@ import {Level} from 'src/app/core/models/course/level';
 import * as LevelSelectors from '../../../../../../core/store/schoolar/level/level.selector';
 import {LevelActions} from '../../../../../../core/store/schoolar/level/level.actions';
 import {Actions, ofType} from '@ngrx/effects';
+import {ShowToastErrorService} from '../../../../../../shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-create-level',
@@ -126,20 +127,7 @@ export class CreateLevelComponent implements OnInit, OnDestroy {
 
         // Handle failure
         this.actions$.pipe(ofType(LevelActions.createLevelFailure), take(1)).subscribe(({error}: any) => {
-            const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
-            if (messages.length === 0) {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Falha ao criar nível'
-                });
-            } else {
-                messages.forEach((msg: string) => this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: msg
-                }));
-            }
+            ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Falha ao criar nível');
         });
     }
 

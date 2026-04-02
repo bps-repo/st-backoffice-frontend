@@ -13,6 +13,7 @@ import {LevelActions} from "../../../../../../core/store/schoolar/level/level.ac
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {Actions, ofType} from '@ngrx/effects';
+import {ShowToastErrorService} from '../../../../../../shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-create-level-dialog',
@@ -100,16 +101,7 @@ export class CreateLevelDialogComponent implements OnInit {
 
         // Handle failure once
         this.actions$.pipe(ofType(LevelActions.createLevelFailure), take(1)).subscribe(({error}: any) => {
-            const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
-            if (messages.length === 0) {
-                this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Falha ao criar nível'});
-            } else {
-                messages.forEach((msg: string) => this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: msg
-                }));
-            }
+            ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Falha ao criar nível');
         });
     }
 

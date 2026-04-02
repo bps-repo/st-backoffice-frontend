@@ -15,7 +15,7 @@ import {TimelineModule} from 'primeng/timeline';
 import {TableModule} from 'primeng/table';
 import {Store} from '@ngrx/store';
 import {Observable, Subscription} from 'rxjs';
-import {Student} from 'src/app/core/models/academic/student';
+import {Student} from 'src/app/core/models/academic/students/student';
 import {ActivatedRoute} from '@angular/router';
 import {selectStudentById} from 'src/app/core/store/schoolar/students/students.selectors';
 import {STUDENT_DATA} from 'src/app/shared/tokens/student.token';
