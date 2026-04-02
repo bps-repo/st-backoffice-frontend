@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import {Component, OnInit, OnDestroy, inject} from '@angular/core';
 import {ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';

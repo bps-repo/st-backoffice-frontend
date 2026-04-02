@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import {Component, OnInit, OnDestroy, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -92,11 +92,6 @@ export class ListComponent implements OnInit {
         this.paidInstallments = this.installments.filter(i => i.status === 'PAID').length;
         this.pendingInstallments = this.installments.filter(i => i.status === 'PENDING_PAYMENT').length;
         this.overdueInstallments = this.installments.filter(i => i.status === 'OVERDUE').length;
-    }
-
-    filterByStatus(status: string): void {
-        this.statusFilter = status;
-        this.applyFilters();
     }
 
     getStatusSeverity(status: InstallmentStatus | string): string {

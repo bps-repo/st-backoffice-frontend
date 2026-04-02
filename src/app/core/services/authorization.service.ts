@@ -31,7 +31,6 @@ export class AuthorizationService {
     const stored = localStorage.getItem('currentUser');
     if (stored) {
       const user = JSON.parse(stored) as User;
-      console.log('user', user.allPermissions);
       this.currentUserPermissions$.next(user.allPermissions || []);
     }
     this.store.select(authFeature.selectUser).pipe(
@@ -86,7 +85,6 @@ export class AuthorizationService {
    * @returns Observable<boolean>
    */
   hasPermission(permissionName: string, userId?: string): Observable<boolean> {
-    console.log('permissionName', permissionName);
     if (!permissionName) {
       return of(false);
     }

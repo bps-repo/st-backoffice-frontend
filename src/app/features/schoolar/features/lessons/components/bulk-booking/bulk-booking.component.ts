@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {Component, OnDestroy, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Subject, takeUntil} from 'rxjs';
@@ -16,13 +16,20 @@ import {DialogModule} from 'primeng/dialog';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../../../../core/store';
 import {lessonsActions} from '../../../../../../core/store/schoolar/lessons/lessons.actions';
-import {selectLoadingBulkBooking, selectBulkBookingError} from '../../../../../../core/store/schoolar/lessons/lessons.selectors';
+import {
+    selectLoadingBulkBooking,
+    selectBulkBookingError
+} from '../../../../../../core/store/schoolar/lessons/lessons.selectors';
 import {Actions, ofType} from '@ngrx/effects';
 import {LessonService} from '../../../../../../core/services/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
 import {Student} from '../../../../../../core/models/academic/students/student';
-import {BulkBookingRequest, BulkBookingResult, BulkBookingLesson} from '../../../../../../core/models/academic/bulk-booking';
+import {
+    BulkBookingRequest,
+    BulkBookingResult,
+    BulkBookingLesson
+} from '../../../../../../core/models/academic/bulk-booking';
 import {ShowToastErrorService} from '../../../../../../shared/services/show-toast-error-service';
 
 export type severtyType = "warn" | "success" | "info" | "danger" | "secondary" | "contrast";

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, signal, inject } from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild, signal, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LevelService} from 'src/app/core/services/level.service';
@@ -50,14 +50,14 @@ export class ListComponent implements OnInit {
     // Pagination properties
     first: number = 0;
     rows: number = 10;
-    totalRecords: number = 100;
 
     materialTypes: SelectItem[] = [];
     installations: SelectItem[] = [];
 
     isMainHeaderSticky: boolean = false;
 
-    @ViewChild('filter') filter!: ElementRef;
+    @ViewChild('filter')
+    filter!: ElementRef;
 
     levelName: string | null = null;
 
@@ -159,25 +159,22 @@ export class ListComponent implements OnInit {
     }
 
     viewDetails(material: Partial<Material>): void {
-        this.router.navigate(['/schoolar/materials', material.id]);
+        this.router.navigate(['/schoolar/materials', material.id]).then();
     }
 
     // Action methods
     downloadMaterial(material: Partial<Material>): void {
         // In a real application, this would trigger a download
-        console.log('Downloading material:', material.title);
         window.open(material.fileUrl, '_blank');
     }
 
     editMaterial(material: Partial<Material>): void {
-        this.router.navigate(['/schoolar/materials/edit', material.id]);
+        this.router.navigate(['/schoolar/materials/edit', material.id]).then();
     }
 
     // Pagination handler
     onPageChange(event: any): void {
         this.first = event.first;
         this.rows = event.rows;
-        // In a real application, this would trigger a reload of the data
-        console.log('Page changed:', event);
     }
 }

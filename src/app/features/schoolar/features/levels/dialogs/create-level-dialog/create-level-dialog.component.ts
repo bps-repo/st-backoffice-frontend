@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
@@ -34,16 +34,12 @@ export class CreateLevelDialogComponent implements OnInit {
     private store = inject(Store);
     private messageService = inject(MessageService);
     private actions$ = inject(Actions);
-
-
     visible: boolean = false;
-
     level: Partial<Level> = {
         name: '',
         description: '',
         duration: 0,
         maximumUnits: 0,
-        //course: undefined
     };
 
 

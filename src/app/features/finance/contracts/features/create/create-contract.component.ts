@@ -34,6 +34,7 @@ import {CanComponentDeactivate} from "../../../../../core/guards/pending-changes
 import {contractsFeature} from 'src/app/core/store/corporate/contracts/contracts.feature';
 import {CreateStudentRequest} from "../../../../../core/models/academic/students/create-student-request";
 import {ShowToastErrorService} from "../../../../../shared/services/show-toast-error-service";
+import {Textarea} from "primeng/textarea";
 
 @Component({
     selector: 'finance-contracts-create',
@@ -53,7 +54,8 @@ import {ShowToastErrorService} from "../../../../../shared/services/show-toast-e
         CalendarModule,
         StepsModule,
         ToastModule,
-        RenewContractComponent
+        RenewContractComponent,
+        Textarea
     ],
     templateUrl: './create-contract.component.html',
     styleUrls: ['./create-contract.component.scss'],

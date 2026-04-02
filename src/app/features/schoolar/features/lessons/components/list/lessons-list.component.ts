@@ -1,33 +1,48 @@
-import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, signal, TemplateRef, ViewChild, inject } from '@angular/core';
-import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
-import { Lesson } from 'src/app/core/models/academic/lesson';
-import { LessonStatus } from 'src/app/core/enums/lesson-status';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectItem } from 'primeng/api';
-import { LEVELS } from 'src/app/shared/constants/app';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { Store } from '@ngrx/store';
-import { Observable, Subject } from 'rxjs';
-import { Router, RouterModule } from '@angular/router';
-import { ChartModule } from 'primeng/chart';
-import { CardModule } from 'primeng/card';
-import { RippleModule } from "primeng/ripple";
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { TooltipModule } from 'primeng/tooltip';
-import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import { selectAllLessons, selectAnyLoading, selectAnyError } from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
-import { takeUntil } from 'rxjs/operators';
-import { LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS } from "./lessons.constants";
-import { LessonState } from "../../../../../../core/store/schoolar/lessons/lesson.state";
-import { LessonReports } from "../../../reports/components/lessons/lesson-reports.component";
-import { CalendarModule } from 'primeng/calendar';
-import { BadgeModule } from 'primeng/badge';
-import { HasPermissionDirective } from 'src/app/shared/directives/has-permission.directive';
+import {CommonModule} from '@angular/common';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    HostListener,
+    OnDestroy,
+    OnInit,
+    signal,
+    TemplateRef,
+    ViewChild,
+    inject
+} from '@angular/core';
+import {DialogModule} from 'primeng/dialog';
+import {ToastModule} from 'primeng/toast';
+import {Lesson} from 'src/app/core/models/academic/lesson';
+import {LessonStatus} from 'src/app/core/enums/lesson-status';
+import {DropdownModule} from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import {SelectItem} from 'primeng/api';
+import {LEVELS} from 'src/app/shared/constants/app';
+import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
+import {Store} from '@ngrx/store';
+import {Observable, Subject} from 'rxjs';
+import {Router, RouterModule} from '@angular/router';
+import {ChartModule} from 'primeng/chart';
+import {CardModule} from 'primeng/card';
+import {RippleModule} from "primeng/ripple";
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {TooltipModule} from 'primeng/tooltip';
+import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
+import {
+    selectAllLessons,
+    selectAnyLoading,
+    selectAnyError
+} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import {takeUntil} from 'rxjs/operators';
+import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
+import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
+import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
+import {CalendarModule} from 'primeng/calendar';
+import {BadgeModule} from 'primeng/badge';
+import {HasPermissionDirective} from 'src/app/shared/directives/has-permission.directive';
 
 interface WeeklyLessonCard {
     time: string;
@@ -334,26 +349,26 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     currentView: string = 'list'; // Default view is list
 
     viewOptions = [
-        { label: 'Lista de Aulas', value: 'list' },
-        { label: 'Calendário', value: 'calendario' },
-        { label: 'Relatórios', value: 'relatorios' },
-        { label: 'Estatísticas', value: 'estatisticas' },
+        {label: 'Lista de Aulas', value: 'list'},
+        {label: 'Calendário', value: 'calendario'},
+        {label: 'Relatórios', value: 'relatorios'},
+        {label: 'Estatísticas', value: 'estatisticas'},
     ];
 
     // References to sticky header elements
-    @ViewChild('mainHeader', { static: false })
+    @ViewChild('mainHeader', {static: false})
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', { static: false })
+    @ViewChild('viewSelector', {static: false})
     viewSelector!: ElementRef;
 
-    @ViewChild('teacherTemplate', { static: true })
+    @ViewChild('teacherTemplate', {static: true})
     teacherTemplate!: TemplateRef<any>;
 
-    @ViewChild('centerTemplate', { static: true })
+    @ViewChild('centerTemplate', {static: true})
     centerTemplate!: TemplateRef<any>;
 
-    @ViewChild('unitTemplate', { static: true })
+    @ViewChild('unitTemplate', {static: true})
     unitTemplate!: TemplateRef<any>;
 
     // Sticky state tracking
@@ -377,17 +392,17 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     private dialogHoverTimeout: any = null;
     private isDialogHovered: boolean = false;
 
-    @ViewChild("startDatetime", { static: true })
+    @ViewChild("startDatetime", {static: true})
     startDatetimeTemplate?: TemplateRef<any>;
 
-    @ViewChild("actionsTemplate", { static: true })
+    @ViewChild("actionsTemplate", {static: true})
     actionsTemplate?: TemplateRef<any>;
 
 
-    @ViewChild("statusTemplate", { static: true })
+    @ViewChild("statusTemplate", {static: true})
     statusTemplate?: TemplateRef<any>;
 
-    @ViewChild("onlineTemplate", { static: true })
+    @ViewChild("onlineTemplate", {static: true})
     onlineTemplate?: TemplateRef<any>;
 
     columnTemplates: Record<string, TemplateRef<any>> = {}
@@ -527,7 +542,10 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 return lessonDate.toDateString() === day.date.toDateString();
             }).sort((a, b) => new Date(a.startDatetime).getTime() - new Date(b.startDatetime).getTime())
                 .map(lesson => ({
-                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }),
                     title: lesson.title,
                     teacher: lesson.teacher.name,
                     group: lesson.level || 'N/A',
@@ -642,13 +660,13 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     getFormattedWeekRange(): string {
-        const start = this.currentWeekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const start = this.currentWeekStart.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
         return `Semana de ${start} a ${end}`;
     }
 
     getFormattedMonth(): string {
-        return this.currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        return this.currentDate.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
     }
 
     // Listen for scroll events
@@ -752,8 +770,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         // Show dialog after a short delay
         this.hoverTimeout = setTimeout(() => {
             this.selectedLesson = lesson;
-            console.log("lesson", lesson);
-            console.log("lesson.status", lesson.status);
             this.lessonDialogVisible.set(true);
         }, 300); // 300ms delay
     }
@@ -861,26 +877,42 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     getStatusLabel(status: string | LessonStatus): string {
         if (typeof status === 'string') {
             switch (status.toUpperCase()) {
-                case 'AVAILABLE': return 'Disponível';
-                case 'BOOKED': return 'Agendada';
-                case 'COMPLETED': return 'Concluída';
-                case 'CANCELLED': return 'Cancelada';
-                case 'SCHEDULED': return 'Agendada';
-                case 'POSTPONED': return 'Adiada';
-                case 'OVERDUE': return 'Lecionada';
-                default: return status;
+                case 'AVAILABLE':
+                    return 'Disponível';
+                case 'BOOKED':
+                    return 'Agendada';
+                case 'COMPLETED':
+                    return 'Concluída';
+                case 'CANCELLED':
+                    return 'Cancelada';
+                case 'SCHEDULED':
+                    return 'Agendada';
+                case 'POSTPONED':
+                    return 'Adiada';
+                case 'OVERDUE':
+                    return 'Lecionada';
+                default:
+                    return status;
             }
         }
         // Handle enum values
         switch (status) {
-            case LessonStatus.AVAILABLE: return 'Disponível';
-            case LessonStatus.BOOKED: return 'Agendada';
-            case LessonStatus.COMPLETED: return 'Concluída';
-            case LessonStatus.CANCELLED: return 'Cancelada';
-            case LessonStatus.SCHEDULED: return 'Agendada';
-            case LessonStatus.POSTPONED: return 'Adiada';
-            case LessonStatus.OVERDUE: return 'Lecionada';
-            default: return 'Desconhecido';
+            case LessonStatus.AVAILABLE:
+                return 'Disponível';
+            case LessonStatus.BOOKED:
+                return 'Agendada';
+            case LessonStatus.COMPLETED:
+                return 'Concluída';
+            case LessonStatus.CANCELLED:
+                return 'Cancelada';
+            case LessonStatus.SCHEDULED:
+                return 'Agendada';
+            case LessonStatus.POSTPONED:
+                return 'Adiada';
+            case LessonStatus.OVERDUE:
+                return 'Lecionada';
+            default:
+                return 'Desconhecido';
         }
     }
 
@@ -911,7 +943,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             const isToday = currentDay.toDateString() === new Date().toDateString();
 
             const classes: WeeklyLessonCard[] = dayLessons.map(lesson => ({
-                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
                 title: lesson.title,
                 teacher: lesson.teacher.name,
                 group: lesson.level || 'N/A',
@@ -921,8 +953,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             }));
 
             this.weeklyLessons.push({
-                day: currentDay.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
-                date: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
+                date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
                 isToday,
                 classes
             });
@@ -936,25 +968,35 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         if (typeof status === 'string') {
             switch (status.toUpperCase()) {
                 case 'AVAILABLE':
-                case 'COMPLETED': return 'success';
+                case 'COMPLETED':
+                    return 'success';
                 case 'BOOKED':
-                case 'SCHEDULED': return 'warning';
+                case 'SCHEDULED':
+                    return 'warning';
                 case 'CANCELLED':
-                case 'OVERDUE': return 'info';
-                case 'POSTPONED': return 'info';
-                default: return 'secondary';
+                case 'OVERDUE':
+                    return 'info';
+                case 'POSTPONED':
+                    return 'info';
+                default:
+                    return 'secondary';
             }
         }
         // Handle enum values
         switch (status) {
             case LessonStatus.AVAILABLE:
-            case LessonStatus.COMPLETED: return 'success';
+            case LessonStatus.COMPLETED:
+                return 'success';
             case LessonStatus.BOOKED:
-            case LessonStatus.SCHEDULED: return 'warning';
+            case LessonStatus.SCHEDULED:
+                return 'warning';
             case LessonStatus.CANCELLED:
-            case LessonStatus.OVERDUE: return 'info';
-            case LessonStatus.POSTPONED: return 'info';
-            default: return 'secondary';
+            case LessonStatus.OVERDUE:
+                return 'info';
+            case LessonStatus.POSTPONED:
+                return 'info';
+            default:
+                return 'secondary';
         }
     }
 
@@ -989,6 +1031,12 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     getFormattedDateTime(startDatetime: string | Date, endDatetime: string | Date): string {
         const start = new Date(startDatetime);
         const end = new Date(endDatetime);
-        return `${start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} | ${start.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+        return `${start.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        })} - ${end.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        })} | ${start.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
     }
 }

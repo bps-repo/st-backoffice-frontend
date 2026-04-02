@@ -33,7 +33,6 @@ export class AppMenuComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$)
         ).subscribe(permissionNames => {
             this.permissionSet = new Set(permissionNames);
-            console.log('permissionSet from NgRx', this.permissionSet);
             this.model = this.buildMenu();
         });
     }
