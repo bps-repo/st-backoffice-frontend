@@ -48,7 +48,6 @@ const {
 // Basic entity selectors
 export const selectAllUnits = selectAll;
 export const selectUnitEntities = selectEntities;
-export const selectUnitIds = selectIds;
 export const selectTotalUnits = selectTotal;
 
 // Selected unit selector
@@ -64,18 +63,6 @@ export const selectUnitById = (id: string) => createSelector(
     (entities) => entities[id] || null
 );
 
-
-// Get unit materials by unit ID
-export const selectUnitMaterialsByUnitId = (unitId: string) => createSelector(
-    selectUnitMaterials,
-    (unitMaterials) => unitMaterials[unitId] || []
-);
-
-// Get unit progresses by unit ID
-export const selectUnitProgressesByUnitId = (unitId: string) => createSelector(
-    selectUnitProgresses,
-    (unitProgresses) => unitProgresses[unitId] || []
-);
 
 // Error selectors
 export const selectAnyError = createSelector(

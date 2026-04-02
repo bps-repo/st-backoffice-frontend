@@ -27,8 +27,8 @@ export class UnitService {
     }
 
     loadUnits(): Observable<Unit[]> {
-        return this.http.get<ApiResponse<PageableResponse<Unit>>>(`${this.apiUrl}`).pipe(
-            map(response => response.data.content)
+        return this.http.get<ApiResponse<Unit[]>>(`${this.apiUrl}/search`).pipe(
+            map(response => response.data)
         );
     }
 
