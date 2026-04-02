@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, HostListener, AfterViewInit, inject } from '@angular/core';
+import {Component, OnInit, ViewChild, ElementRef, HostListener, AfterViewInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -231,7 +231,6 @@ export class ListComponent implements OnInit, AfterViewInit {
             this.totalLevels$,
             this.totalUnits$,
             this.activeStudents$,
-            // For average completion, we would need additional data
             // This is a placeholder value
             this.levels$.pipe(map(() => 75)) // 75% average completion
         ]).subscribe(([totalLevels, totalUnits, activeStudents, avgCompletion]) => {
@@ -306,12 +305,12 @@ export class ListComponent implements OnInit, AfterViewInit {
     }
 
     navigateToCreateLevel(): void {
-        this.router.navigate(['/schoolar/levels/create']);
+        this.router.navigate(['/schoolar/levels/create']).then();
     }
 
 
     navigateToCreateUnit(): void {
-        this.router.navigate(['/schoolar/units/create']);
+        this.router.navigate(['/schoolar/units/create']).then();
     }
 
     deleteLevel(level: Level): void {

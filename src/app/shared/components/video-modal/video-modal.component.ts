@@ -250,21 +250,11 @@ export class VideoModalComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
-        console.log('Video Modal initialized');
-        console.log('Video URL:', this.videoUrl);
-        console.log('Video Title:', this.videoTitle);
-        console.log('Autoplay:', this.autoplay);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        console.log('Video Modal changes detected:', changes);
-
         // Check if video URL changed and modal is visible
         if (changes['videoUrl'] && this.visible) {
-            console.log('Video URL changed and modal is visible');
-            console.log('New video URL:', this.videoUrl);
-            console.log('Video Title:', this.videoTitle);
-            console.log('Autoplay:', this.autoplay);
 
             // Generate new key to force re-render
             this.videoKey = this.videoUrl + '_' + Date.now();
@@ -272,14 +262,7 @@ export class VideoModalComponent implements OnInit, OnChanges {
 
         // Check if modal visibility changed
         if (changes['visible']) {
-            console.log('Modal visibility changed:', this.visible);
             if (this.visible) {
-                console.log('Modal opened with video data:');
-                console.log('Video URL:', this.videoUrl);
-                console.log('Video Title:', this.videoTitle);
-                console.log('Video Description:', this.videoDescription);
-                console.log('Autoplay:', this.autoplay);
-
                 // Generate new key to force re-render
                 this.videoKey = this.videoUrl + '_' + Date.now();
             }
