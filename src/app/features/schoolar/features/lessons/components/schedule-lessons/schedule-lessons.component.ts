@@ -24,6 +24,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LessonStatus } from 'src/app/core/enums/lesson-status';
 import { SelectItem } from 'primeng/api';
+import { ShowToastErrorService } from 'src/app/shared/services/show-toast-error-service';
 @Component({
     selector: 'app-schedule-lessons',
     standalone: true,
@@ -298,11 +299,7 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
             },
             error: (error: any) => {
                 this.savingChanges.set(false);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: error.message || 'Erro de conexão. Tente novamente.'
-                });
+                ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Erro de conexao. Tente novamente.');
                 console.error('Bulk booking error:', error);
             }
         });

@@ -24,6 +24,7 @@ import {
 } from 'src/app/shared/constants/app';
 import {InvoiceItem} from 'src/app/core/models/invoice/invoice.model';
 import {InvoiceService} from 'src/app/core/services/invoice.service';
+import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     standalone: true,
@@ -138,11 +139,7 @@ export class CreateComponent implements OnInit {
                 }, 1500);
             },
             error: (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao criar fatura: ' + error.message
-                });
+                ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Erro ao criar fatura');
                 this.loading = false;
             }
         });

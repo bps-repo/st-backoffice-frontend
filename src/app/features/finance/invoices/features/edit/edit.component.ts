@@ -24,6 +24,7 @@ import {
 } from 'src/app/shared/constants/app';
 import {Invoice} from 'src/app/core/models/invoice/invoice.model';
 import {InvoiceService} from 'src/app/core/services/invoice.service';
+import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-edit',
@@ -118,11 +119,7 @@ export class EditComponent implements OnInit {
                 this.loading = false;
             },
             error: (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao carregar a fatura: ' + error.message
-                });
+                ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Erro ao carregar a fatura');
                 this.loading = false;
             }
         });
@@ -167,11 +164,7 @@ export class EditComponent implements OnInit {
                 }, 1500);
             },
             error: (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao atualizar a fatura: ' + error.message
-                });
+                ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Erro ao atualizar a fatura');
             }
         });
     }

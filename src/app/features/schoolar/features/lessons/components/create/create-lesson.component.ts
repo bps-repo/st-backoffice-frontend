@@ -30,6 +30,7 @@ import {selectUnitsByLevelId} from 'src/app/core/store/schoolar/units/unit.selec
 import {UnitActions} from 'src/app/core/store/schoolar/units/unit.actions';
 import {Unit} from 'src/app/core/models/course/unit';
 import {LessonType} from 'src/app/core/enums/lesson-type';
+import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-create-lesson',
@@ -448,17 +449,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.actions$.pipe(ofType(lessonsActions.createLessonFailure), takeUntil(this.destroy$), take(1))
             .subscribe(({error}: any) => {
                 this.loading = false;
-                // Show backend error(s). Split combined message to multiple toasts if needed
-                const messages = (error || '').toString().split(' | ').filter((m: string) => !!m);
-                if (messages.length === 0) {
-                    this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to create lesson'});
-                } else {
-                    messages.forEach((msg: string) => this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: msg
-                    }));
-                }
+                ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to create lesson');
             });
     }
 

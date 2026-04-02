@@ -18,6 +18,7 @@ import {ToastModule} from 'primeng/toast';
 import {Lesson} from "../../../../../../../../core/models/academic/lesson";
 import {Material} from "../../../../../../../../core/models/academic/material";
 import {LessonService} from "../../../../../../../../core/services/lesson.service";
+import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-materials-dashboard',
@@ -170,11 +171,7 @@ export class MaterialsComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     console.error('Error adding material:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to add material'
-                    });
+                    ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to add material');
                 }
             });
     }
@@ -204,11 +201,7 @@ export class MaterialsComponent implements OnInit, OnDestroy {
     }
 
     onFileUploadError(event: any): void {
-        this.messageService.add({
-            severity: 'error',
-            summary: 'Upload Failed',
-            detail: event.error ? event.error.message : 'File upload failed'
-        });
+        ShowToastErrorService.showToastError('Upload Failed', event?.error, this.messageService, 'File upload failed');
     }
 
     navigateToAddMaterial(): void {

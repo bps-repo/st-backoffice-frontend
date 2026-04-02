@@ -11,6 +11,7 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {Invoice, InvoiceStatus} from 'src/app/core/models/invoice/invoice.model';
 import {InvoiceService} from 'src/app/core/services/invoice.service';
 import {mockInvoice} from "../invoice.contants";
+import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-student',
@@ -62,11 +63,7 @@ export class DetailComponent implements OnInit {
                 this.loading = false;
             },
             error: (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao carregar a fatura: ' + error.message
-                });
+                ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Erro ao carregar a fatura');
                 this.loading = false;
             }
         });
@@ -117,11 +114,7 @@ export class DetailComponent implements OnInit {
                 });
             },
             error: (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao atualizar o status da fatura: ' + error.message
-                });
+                ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Erro ao atualizar o status da fatura');
             }
         });
     }
@@ -150,11 +143,7 @@ export class DetailComponent implements OnInit {
                 });
             },
             error: (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Erro ao cancelar a fatura: ' + error.message
-                });
+                ShowToastErrorService.showToastError('Erro', error, this.messageService, 'Erro ao cancelar a fatura');
             }
         });
     }

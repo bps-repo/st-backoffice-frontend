@@ -15,6 +15,7 @@ import {CenterService} from 'src/app/core/services/center.service';
 import {StudentService} from 'src/app/core/services/student.service';
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectAllStudents} from "../../../../../../core/store/schoolar/students/students.selectors";
+import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-add-to-center',
@@ -96,11 +97,7 @@ export class AddToCenterComponent implements OnInit {
                 this.loadStudents(); // Refresh the general
             })
             .catch(error => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to add students to center'
-                });
+                ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to add students to center');
                 console.error('Error adding students to center:', error);
             })
             .finally(() => {
