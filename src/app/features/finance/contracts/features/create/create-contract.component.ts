@@ -86,8 +86,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
 
     steps: MenuItem[] = [
         {label: 'Dados Pessoais'},
-        {label: 'Contato de Emergência'},
-        {label: 'Observações'},
+        {label: 'Contato de Emergência e Observações'},
         {label: 'Gestão contratual'}
     ];
 
@@ -101,6 +100,8 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         {label: 'Masculino', value: 'MALE'},
         {label: 'Femenino', value: 'FEMALE'}
     ];
+
+    private readonly LAST_STEP_INDEX = 2;
 
     constructor() {
         this.successCreate$.subscribe(success => {
@@ -137,14 +138,14 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
             if (studentId) {
                 this.isStudentCreated = true;
                 this.createdStudentId = studentId;
-                this.activeIndex = 4;
+                this.activeIndex = 2;
             }
         })
     }
 
     canDeactivate(): boolean {
         if (this.studentForm.dirty) {
-            return confirm('⚠️ You have unsaved changes. Are you sure you want to leave this page?');
+            return confirm('⚠️ Tens mudanças não salvados. Tens certeza que queres sair?');
         }
         return true;
     }
@@ -288,7 +289,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
                     });
 
                     // Move to contract step
-                    this.activeIndex = 4;
+                    this.activeIndex = this.LAST_STEP_INDEX;
 
                     // Re-enable form for contract step
                     this.studentForm.enable();
@@ -329,7 +330,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     private setupNavigationGuard() {
         // Warn user if they try to leave after student creation but before contract
         window.addEventListener('beforeunload', (e) => {
-            if (this.isStudentCreated && this.activeIndex === 4) {
+            if (this.isStudentCreated && this.activeIndex === 2) {
                 e.preventDefault();
                 e.returnValue = 'Você criou um aluno mas não finalizou o contrato. Tem certeza que deseja sair?';
             }
@@ -338,13 +339,13 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
 
     nextStep() {
         // Don't allow next if student is already created and we're before contract step
-        if (this.isStudentCreated && this.activeIndex < 4) {
-            this.activeIndex = 4;
+        if (this.isStudentCreated && this.activeIndex < 2) {
+            this.activeIndex = this.LAST_STEP_INDEX;
             return;
         }
 
         if (this.validateCurrentStep()) {
-            this.activeIndex++;
+            this.activeIndex = this.clampStepIndex(this.activeIndex + 1);
         }
     }
 
@@ -358,15 +359,13 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
             });
             return;
         }
-        this.activeIndex--;
+        this.activeIndex = this.clampStepIndex(this.activeIndex - 1);
     }
 
     validateCurrentStep(): boolean {
         const stepFieldsMap = {
-            0: ['firstname', 'lastname', 'gender', 'birthdate', 'email', 'phone', 'province', 'municipality', 'academicBackground'],
-            1: ['centerId'],
-            2: ['emergencyContactName', 'emergencyContactNumber'],
-            3: []
+            0: ['firstname', 'lastname', 'gender', 'birthdate', 'email', 'phone', 'province', 'municipality', 'academicBackground', 'centerId'],
+            1: ['emergencyContactName', 'emergencyContactNumber']
         };
 
         const currentStepFields = stepFieldsMap[this.activeIndex as keyof typeof stepFieldsMap];
@@ -401,8 +400,10 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     }
 
     goToStep(index: number) {
+        const targetIndex = this.clampStepIndex(index);
+
         // Don't allow navigation if student is created
-        if (this.isStudentCreated && index < 4) {
+        if (this.isStudentCreated && targetIndex < this.LAST_STEP_INDEX) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Atenção',
@@ -411,16 +412,30 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
             return;
         }
 
-        if (index < this.activeIndex || this.validateStepsBeforeIndex(index)) {
-            this.activeIndex = index;
+        if (targetIndex < this.activeIndex || this.validateStepsBeforeIndex(targetIndex)) {
+            this.activeIndex = targetIndex;
         }
     }
 
     validateStepsBeforeIndex(targetIndex: number): boolean {
-        for (let i = 0; i < targetIndex; i++) {
-            this.activeIndex = i;
-            if (!this.validateCurrentStep()) {
-                return false;
+        const stepFieldsMap = {
+            0: ['firstname', 'lastname', 'gender', 'birthdate', 'email', 'phone', 'province', 'municipality', 'academicBackground', 'centerId'],
+            1: ['emergencyContactName', 'emergencyContactNumber']
+        };
+
+        const boundedTarget = this.clampStepIndex(targetIndex);
+        for (let step = 0; step < boundedTarget; step++) {
+            const fields = stepFieldsMap[step as keyof typeof stepFieldsMap];
+            if (!fields) {
+                continue;
+            }
+
+            for (const field of fields) {
+                const control = this.studentForm.get(field);
+                if (control && control.invalid) {
+                    control.markAsTouched();
+                    return false;
+                }
             }
         }
         return true;
@@ -430,7 +445,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         this.studentForm.markAllAsTouched();
         console.log('Student Form:', this.studentForm.value);
 
-        if (this.studentForm.valid && this.validateStepsBeforeIndex(4)) {
+        if (this.studentForm.valid && this.validateStepsBeforeIndex(this.LAST_STEP_INDEX)) {
             const formValue = this.studentForm.value;
             const createStudentRequest: CreateStudentRequest = {
                 identificationNumber: formValue.identificationNumber,
@@ -482,13 +497,11 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
 
     private findFirstInvalidStep(): number {
         const stepFieldsMap = {
-            0: ['firstname', 'lastname', 'gender', 'birthdate', 'identificationNumber', 'email', 'phone', 'province', 'municipality', 'academicBackground'],
-            1: ['centerId'],
-            2: ['emergencyContactName', 'emergencyContactNumber'],
-            3: []
+            0: ['firstname', 'lastname', 'gender', 'birthdate', 'identificationNumber', 'email', 'phone', 'province', 'municipality', 'academicBackground', 'centerId'],
+            1: ['emergencyContactName', 'emergencyContactNumber']
         };
 
-        for (let step = 0; step < 4; step++) {
+        for (let step = 0; step < 2; step++) {
             const fields = stepFieldsMap[step as keyof typeof stepFieldsMap];
             for (const field of fields) {
                 const control = this.studentForm.get(field);
@@ -507,12 +520,10 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
 
     onFileSelected(event: any) {
         const file = event.files?.[0];
-
-        /*if (file) {
-            this.studentForm.patchValue({photo: file});
-            this.studentForm.get('photo')?.updateValueAndValidity();
-        } */
-
         console.log(file)
+    }
+
+    private clampStepIndex(index: number): number {
+        return Math.max(0, Math.min(index, this.LAST_STEP_INDEX));
     }
 }
