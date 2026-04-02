@@ -31,12 +31,12 @@
                         <div class="grid p-fluid">
                             <div class="col-12 md:col-12 field">
                                 <label for="photo" class="font-bold">Foto</label>
-                                <p-fileUpload mode="basic" name="photo" url="./upload.php" accept="image/*"
+                                <p-fileupload mode="basic" name="photo" url="./upload.php" accept="image/*"
                                               [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain"
                                               chooseLabel="Carregue uma imagem"
-                                              (onSelect)="onFileSelected($event)"></p-fileUpload>
+                                              (onSelect)="onFileSelected($event)"></p-fileupload>
                             </div>
-                            <div class="col-12 md:col-4 field">
+                            <div class="flex flex-column col-12 md:col-4">
                                 <label for="identificationNumber" class="font-bold">Bilhete de Identidade*</label>
                                 <input id="identificationNumber" type="text" pInputText
                                        formControlName="identificationNumber"/>
@@ -44,14 +44,14 @@
                                         getFieldError('identificationNumber')
                                     }}</small>
                             </div>
-                            <div class="col-12 md:col-4 field">
+                            <div class="flex flex-column col-12 md:col-4">
                                 <label for="firstname" class="font-bold">Primeiro Nome*</label>
                                 <input id="firstname" type="text" pInputText formControlName="firstname"/>
                                 <small *ngIf="hasFieldError('firstname')" class="p-error">{{
                                         getFieldError('firstname')
                                     }}</small>
                             </div>
-                            <div class="col-12 md:col-4 field">
+                            <div class="flex flex-column col-12 md:col-4 ">
                                 <label for="lastname" class="font-bold">Último Nome*</label>
                                 <input id="lastname" type="text" pInputText formControlName="lastname"/>
                                 <small *ngIf="hasFieldError('lastname')" class="p-error">{{
@@ -59,7 +59,7 @@
                                     }}</small>
                             </div>
 
-                            <div class="col-12 md:col-5 field">
+                            <div class="flex flex-column col-12 md:col-4">
                                 <label for="gender" class="font-bold">Género*</label>
                                 <p-dropdown id="gender" [options]="genderOptions" formControlName="gender"
                                             optionLabel="label" optionValue="value" placeholder="Selecione"
@@ -68,28 +68,14 @@
                                         getFieldError('gender')
                                     }}</small>
                             </div>
-                            <div class="col-12 md:col-7 field">
+                            <div class="flex flex-column col-12 md:col-4">
                                 <label for="birthdate" class="font-bold">Data de Nascimento*</label>
-                                <p-calendar id="birthdate" formControlName="birthdate" [showIcon]="true"
-                                            dateFormat="dd/mm/yy"></p-calendar>
+                                <p-calendar class="w-full" id="birthdate" formControlName="birthdate"
+                                            [showIcon]="true"
+                                            dateFormat="dd/mm/yy" styleClass="w-full"
+                                            inputStyleClass="py-1 text-sm"></p-calendar>
                             </div>
-                            <div class="col-12 md:col-8 field">
-                                <label for="email" class="font-bold">E-mail*</label>
-                                <input id="email" type="email" pInputText formControlName="email"
-                                       placeholder="ex. user@gmail.com" required/>
-                                <small *ngIf="hasFieldError('email')" class="p-error">{{
-                                        getFieldError('email')
-                                    }}</small>
-                            </div>
-                            <div class="col-12 md:col-4 field">
-                                <label for="phone" class="font-bold">Telefone*</label>
-                                <input id="phone" type="text" pInputText formControlName="phone"
-                                       placeholder="ex. 971234567" required/>
-                                <small *ngIf="hasFieldError('phone')" class="p-error">{{
-                                        getFieldError('phone')
-                                    }}</small>
-                            </div>
-                            <div class="col-12 md:col-4 field">
+                            <div class="flex flex-column col-12 md:col-4">
                                 <label for="academicBackground" class="font-bold">Formação Acadêmica*</label>
                                 <p-dropdown id="academicBackground" [options]="academicBackgrounds"
                                             formControlName="academicBackground" optionLabel="label" optionValue="value"
@@ -98,7 +84,7 @@
                                         getFieldError('academicBackground')
                                     }}</small>
                             </div>
-                            <div class="col-12 md:col-4 field">
+                            <div class="flex flex-column col-12 md:col-4">
                                 <label for="province" class="font-bold">Província de morada*</label>
                                 <p-dropdown id="province" [options]="(provinces$ | async)!" formControlName="province"
                                             optionLabel="label" optionValue="value"
@@ -109,7 +95,7 @@
                                     }}</small>
                             </div>
 
-                            <div class="col-12 md:col-4 field">
+                            <div class="flex flex-column col-12 md:col-4">
                                 <label for="municipality" class="font-bold">Município de morada*</label>
                                 <p-dropdown id="municipality" [options]="(municipalities$ | async)!"
                                             formControlName="municipality" optionLabel="label" optionValue="value"
@@ -119,13 +105,23 @@
                                         getFieldError('municipality')
                                     }}</small>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: DADOS ACADÊMICOS -->
-                    <div *ngIf="activeIndex === 1" class="step-content">
-                        <div class="grid p-fluid">
-                            <div class="col-12 md:col-6 field">
+                            <div class="flex flex-column col-12 md:col-4">
+                                <label for="phone" class="font-bold">Telefone*</label>
+                                <input id="phone" type="text" pInputText formControlName="phone"
+                                       placeholder="ex. 971234567" required/>
+                                <small *ngIf="hasFieldError('phone')" class="p-error">{{
+                                        getFieldError('phone')
+                                    }}</small>
+                            </div>
+                            <div class="flex flex-column col-12 md:col-6">
+                                <label for="email" class="font-bold">E-mail*</label>
+                                <input id="email" type="email" pInputText formControlName="email"
+                                       placeholder="ex. user@gmail.com" required/>
+                                <small *ngIf="hasFieldError('email')" class="p-error">{{
+                                        getFieldError('email')
+                                    }}</small>
+                            </div>
+                            <div class="flex flex-column col-12 md:col-6">
                                 <label for="centerId" class="font-bold">Centro (Instalação)*</label>
                                 <p-dropdown id="centerId" [options]="(centersOptions$ | async)!"
                                             formControlName="centerId" optionLabel="label" optionValue="value"
@@ -138,8 +134,8 @@
                         </div>
                     </div>
 
-                    <!-- Step 3: CONTATO DE EMERGÊNCIA -->
-                    <div *ngIf="activeIndex === 2" class="step-content">
+                    <!-- Step 2: CONTATO DE EMERGÊNCIA -->
+                    <div *ngIf="activeIndex === 1" class="step-content">
                         <h3 class="text-900 font-medium text-xl mb-3">Contato de Emergência</h3>
                         <div class="grid p-fluid">
                             <div class="col-12 md:col-6 field">
@@ -169,8 +165,8 @@
                         </div>
                     </div>
 
-                    <!-- Step 4: OBSERVAÇÕES -->
-                    <div *ngIf="activeIndex === 3" class="step-content">
+                    <!-- Step 3: OBSERVAÇÕES -->
+                    <div *ngIf="activeIndex === 2" class="step-content">
                         <h3 class="text-900 font-medium text-xl mb-3">Observações</h3>
                         <div class="grid p-fluid">
                             <div class="col-12 field">
@@ -186,7 +182,7 @@
 
 
                     <!-- Step 4: OBSERVAÇÕES -->
-                    <div *ngIf="activeIndex === 4" class="step-content">
+                    <div *ngIf="activeIndex === 3" class="step-content">
                         <h3 class="text-900 font-medium text-xl mb-3">Gestão contratual</h3>
                         <div class="grid p-fluid p-2">
                             <finance-renew-contract [renewContract]="false" [createdStudentId]="createdStudentId"

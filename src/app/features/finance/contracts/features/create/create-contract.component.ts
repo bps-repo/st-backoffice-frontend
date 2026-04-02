@@ -86,7 +86,6 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
 
     steps: MenuItem[] = [
         {label: 'Dados Pessoais'},
-        {label: 'Dados institucional'},
         {label: 'Contato de Emergência'},
         {label: 'Observações'},
         {label: 'Gestão contratual'}
