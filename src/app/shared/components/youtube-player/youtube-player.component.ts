@@ -134,7 +134,6 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
 
     private checkYouTubeAPI(): void {
         if (typeof (window as any).YT === 'undefined') {
-            console.warn('YouTube API not loaded. Loading now...');
             this.loadYouTubeAPI();
         } else {
             console.log('YouTube API is loaded');
@@ -154,16 +153,12 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        console.log('YouTube Player changes detected:', changes);
-
         if (changes['videoUrl'] || changes['autoplay'] || changes['startTime'] || changes['endTime']) {
-            console.log('Processing video URL changes...');
             this.processVideoUrl();
 
             // Force re-render if video URL changed
             if (changes['videoUrl']) {
                 console.log('Video URL changed, forcing re-render');
-                // The component will re-render automatically due to videoId change
             }
         }
 
@@ -209,7 +204,6 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
     }
 
     private extractVideoId(url: string): string {
-        console.log('Extracting video ID from URL:', url);
         if (!url) return '';
 
         const cleanUrl = url.trim();
@@ -234,28 +228,20 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
 
             if (match && match[1]) {
                 const videoId = match[1];
-                console.log(`Video ID found with pattern ${i + 1}:`, videoId);
 
                 // YouTube video IDs are typically 11 characters long
                 if (videoId.length === 11) {
                     return videoId;
                 } else {
-                    console.warn(`Unusual video ID length (${videoId.length}):`, videoId);
                     return videoId; // Return anyway, might still be valid
                 }
             }
         }
-
-        console.log('No video ID found', cleanUrl);
-
         return '';
     }
 
     // YouTube Player event handlers
     onPlayerReady(event: any): void {
-        console.log('YouTube player is ready', event);
-        console.log('Video ID:', this.videoId);
-        console.log('Player Vars:', this.playerVars);
 
         // If autoplay is enabled, try to play the video
         if (this.autoplay && this.youtubePlayer) {
@@ -268,8 +254,7 @@ export class YoutubePlayerComponent implements OnInit, OnChanges {
     }
 
     onPlayerStateChange(event: any): void {
-        console.log('YouTube player state changed', event);
-        console.log('State:', event.data);
+        console.log('onPlayerStateChange:', event.data);
     }
 
     // Method to programmatically play/pause the video

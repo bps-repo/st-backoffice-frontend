@@ -118,8 +118,6 @@ export class RoleService {
     }
 
     addPermissionsBulkToRole(roleId: string, permissionIds: string[]): Observable<Role> {
-        console.log("permissiont To ADD", permissionIds);
-
         return this.http.post<ApiResponse<Role>>(`${this.apiUrl}/permissions/add-bulk/${roleId}`, permissionIds).pipe(
             map(response => {
                 const role = response.data as Role;

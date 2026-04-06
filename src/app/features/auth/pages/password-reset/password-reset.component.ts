@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {Component, inject} from '@angular/core';
+import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
 
 @Component({
     selector: 'app-reset-password',
@@ -10,47 +10,46 @@ import { RouterModule } from '@angular/router';
     imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule]
 })
 export class PasswordResetComponent {
-  private fb = inject(FormBuilder);
+    private fb = inject(FormBuilder);
 
-  resetForm: FormGroup;
-  isSubmitting = false;
-  hidePassword = true;
+    resetForm: FormGroup;
+    isSubmitting = false;
+    hidePassword = true;
 
-  constructor() {
-    this.resetForm = this.fb.group({
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
-    }, {
-      validator: this.passwordsMatch
-    });
-  }
-
-  togglePasswordVisibility() {
-    this.hidePassword = !this.hidePassword;
-  }
-
-
-  passwordsMatch(group: FormGroup) {
-    const password = group.get('password')?.value;
-    const confirmPassword = group.get('confirmPassword')?.value;
-
-    return password === confirmPassword ? null : { passwordsMismatch: true };
-  }
-
-  onSubmit() {
-    if (this.resetForm.invalid) {
-      this.resetForm.markAllAsTouched();
-      return;
+    constructor() {
+        this.resetForm = this.fb.group({
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
+        }, {
+            validator: this.passwordsMatch
+        });
     }
 
-    this.isSubmitting = true;
-    const password = this.resetForm.value.password;
+    togglePasswordVisibility() {
+        this.hidePassword = !this.hidePassword;
+    }
 
-    // Simulação da requisição
-    setTimeout(() => {
-      console.log('Nova senha:', password);
-      this.isSubmitting = false;
-      alert('Sua palavra-passe foi redefinida com sucesso!');
-    }, 2000);
-  }
+
+    passwordsMatch(group: FormGroup) {
+        const password = group.get('password')?.value;
+        const confirmPassword = group.get('confirmPassword')?.value;
+
+        return password === confirmPassword ? null : {passwordsMismatch: true};
+    }
+
+    onSubmit() {
+        if (this.resetForm.invalid) {
+            this.resetForm.markAllAsTouched();
+            return;
+        }
+
+        this.isSubmitting = true;
+        const password = this.resetForm.value.password;
+
+        // Simulação da requisição
+        setTimeout(() => {
+            this.isSubmitting = false;
+            alert('Sua palavra-passe foi redefinida com sucesso!');
+        }, 2000);
+    }
 }

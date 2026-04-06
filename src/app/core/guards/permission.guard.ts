@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {Observable, of} from 'rxjs';
@@ -27,8 +27,6 @@ export class PermissionGuard implements CanActivate {
         const requiredPermission = route.data['permission'];
         const requiredPermissions = route.data['permissions']; // Support for multiple permissions
         const requireAll = route.data['requireAll'] || false; // Whether to require all permissions
-
-        console.log("PermissionGuard constructor called", route.data)
 
         // If no permission is required, allow access
         if (!requiredPermission && !requiredPermissions) {

@@ -71,7 +71,6 @@ export class PaymentSettingsComponent implements OnInit {
 
         // In a real app, this would save to a service
         setTimeout(() => {
-            console.log('Settings saved:', this.settingsForm.value);
             this.saving = false;
             this.saveSuccess = true;
 

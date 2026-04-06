@@ -42,7 +42,6 @@ export class StudentService {
 
     // New method that posts the required payload shape to /students
     createStudentWithRequest(payload: CreateStudentRequest): Observable<Student> {
-        console.log("createStudentWithRequest", payload);
         return this.http.post<ApiResponse<any>>(this.apiUrl, payload).pipe(
             map((response) => this.normalizeStudent(response.data))
         );
