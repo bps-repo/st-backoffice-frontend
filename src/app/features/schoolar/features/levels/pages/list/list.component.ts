@@ -1,9 +1,18 @@
-import {Component, OnInit, ViewChild, ElementRef, HostListener, AfterViewInit, inject} from '@angular/core';
+import {
+    Component,
+    OnInit,
+    ViewChild,
+    ElementRef,
+    HostListener,
+    AfterViewInit,
+    inject,
+    signal,
+    input
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {Observable, startWith, map, combineLatest} from 'rxjs';
-import {CreateLevelDialogComponent} from '../../dialogs/create-level-dialog/create-level-dialog.component';
+import {Observable, map, combineLatest, of, startWith} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmationService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
@@ -27,7 +36,7 @@ import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicato
 import {ProgressBarModule} from 'primeng/progressbar';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ChipModule} from 'primeng/chip';
-import {CreateUnitDialogComponent} from "../../../units/dialogs/create-unit-dialog/create-unit-dialog.component";
+import {toObservable} from "@angular/core/rxjs-interop";
 
 @Component({
     selector: 'app-level-general',
@@ -121,41 +130,27 @@ import {CreateUnitDialogComponent} from "../../../units/dialogs/create-unit-dial
 })
 export class ListComponent implements OnInit, AfterViewInit {
     private router = inject(Router);
-    private store = inject(Store);
+    private store$ = inject(Store);
     private confirmationService = inject(ConfirmationService);
-
 
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
 
     // Data observables
-    levels$: Observable<Level[]>;
-    units$: Observable<Unit[]>;
-    loading$: Observable<boolean>;
-    totalLevels$: Observable<number>;
-    totalUnits$: Observable<number>;
-    activeStudents$: Observable<number>;
+    levels$ = this.store$.select(LevelSelectors.selectAllLevels)
+    units$ = this.store$.select(UnitSelectors.selectAllUnits);
+    loading$ = this.store$.select(LevelSelectors.selectLevelsLoading);
+    unitsByLevel$?: Observable<Record<string, Unit[]>>
 
     // Local state
-    levels: Level[] = [];
-    units: Unit[] = [];
     expandedLevels: Set<string> = new Set();
-    loading = false;
-    searchTerm = '';
-    selectedLevelId = '';
+    selectedLevelId = signal<string | null>(null);
     currentTab = 0;
     isMainHeaderSticky = false;
     isViewSelectorSticky = false;
 
     // KPI indicators
     kpis: Kpi[] = [];
-
-    // Tab view options
-    tabOptions = [
-        {label: 'Hierarquia', value: 0},
-        {label: 'Progresso', value: 1},
-        {label: 'Relatórios', value: 2}
-    ];
 
     // Level colors for indicators
     levelColors = [
@@ -169,36 +164,28 @@ export class ListComponent implements OnInit, AfterViewInit {
         '#F97316', // orange
     ];
 
-    constructor() {
-        // Initialize observables
-        this.levels$ = this.store.select(LevelSelectors.selectAllLevels);
-        this.units$ = this.store.select(UnitSelectors.selectAllUnits);
-        this.loading$ = this.store.select(LevelSelectors.selectLevelsLoading);
-        this.totalLevels$ = this.store.select(LevelSelectors.selectTotalLevels);
-        this.totalUnits$ = this.store.select(UnitSelectors.selectTotalUnits);
-
-        // For active students, we need to filter the students by status
-        this.activeStudents$ = this.store.select(StudentSelectors.selectAllStudents).pipe(
-            map(students => students.filter(student => student.status === 'ACTIVE').length)
-        );
-    }
+    filteredLevels$ = combineLatest([
+        this.levels$,
+        toObservable(this.selectedLevelId)
+    ]).pipe(
+        map(([levels, levelId]) => levels.filter(l => (!levelId || l.id === levelId)))
+    );
 
     ngOnInit(): void {
-        // Load data
-        this.store.dispatch(LevelActions.loadLevels({}));
-        this.store.dispatch(UnitActions.loadUnits());
-
-        // Initialize KPIs
+        this.store$.dispatch(LevelActions.loadLevels({}));
+        this.store$.dispatch(UnitActions.loadUnits());
         this.initializeKpis();
 
-        // Subscribe to levels and units
-        this.levels$.subscribe(levels => {
-            this.levels = levels;
-        });
+        this.unitsByLevel$ = this.units$.pipe(
+            map(units => {
+                const filtered = units.filter(u => !u.generic);
 
-        this.units$.subscribe(units => {
-            this.units = units;
-        });
+                return filtered.reduce((acc, u) => {
+                    (acc[u.levelId] ??= []).push(u);
+                    return acc;
+                }, {} as Record<string, Unit[]>);
+            })
+        );
     }
 
     ngAfterViewInit(): void {
@@ -228,27 +215,19 @@ export class ListComponent implements OnInit, AfterViewInit {
     initializeKpis(): void {
         // Combine observables to create KPIs
         combineLatest([
-            this.totalLevels$,
-            this.totalUnits$,
-            this.activeStudents$,
-            // This is a placeholder value
-            this.levels$.pipe(map(() => 75)) // 75% average completion
-        ]).subscribe(([totalLevels, totalUnits, activeStudents, avgCompletion]) => {
+            this.levels$,
+            this.units$,
+        ]).subscribe(([totalLevels, totalUnits]) => {
             this.kpis = [
                 {
                     label: 'Total de níveis',
-                    value: totalLevels,
+                    value: totalLevels.length,
                     icon: {label: 'layers', color: 'text-blue-500', type: 'mat'}
                 },
                 {
                     label: 'Total de unidades',
-                    value: totalUnits,
+                    value: totalUnits.length,
                     icon: {label: 'book', color: 'text-green-500', type: 'mat'}
-                },
-                {
-                    label: 'Alunos ativos',
-                    value: activeStudents,
-                    icon: {label: 'person', color: 'text-orange-500', type: 'mat'}
                 }
             ];
         });
@@ -280,20 +259,13 @@ export class ListComponent implements OnInit, AfterViewInit {
     }
 
     getUnitsForLevel(levelId: string): Unit[] {
-        return this.units.filter(unit => unit.levelId === levelId);
-    }
+        let units: Unit[] = [];
 
-    // Computed list applying filters
-    get filteredLevels(): Level[] {
-        const term = (this.searchTerm || '').toLowerCase().trim();
-        const byTerm = (l: Level) => {
-            if (!term) return true;
-            const name = (l.name || '').toLowerCase();
-            const desc = (l.description || '').toLowerCase();
-            return name.includes(term) || desc.includes(term);
-        };
-        const bySelected = (l: Level) => !this.selectedLevelId || l.id === this.selectedLevelId;
-        return (this.levels || []).filter(l => byTerm(l) && bySelected(l));
+        this.store$.select(UnitSelectors.selectUnitsByLevelId(levelId)).subscribe(u => {
+            units = u;
+        })
+        console.log(`${levelId} - `, units)
+        return units;
     }
 
     getLevelColor(index: number): string {
@@ -323,7 +295,7 @@ export class ListComponent implements OnInit, AfterViewInit {
             acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => {
-                this.store.dispatch(LevelActions.deleteLevel({id: level.id}));
+                this.store$.dispatch(LevelActions.deleteLevel({id: level.id}));
             },
             reject: () => {
                 console.log('Ação de exclusão cancelada.');
