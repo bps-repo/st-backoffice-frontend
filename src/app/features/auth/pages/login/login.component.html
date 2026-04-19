@@ -1,21 +1,53 @@
-<!-- Tela inteira com fundo verde -->
-<div class="login-container">
-    <!-- Painel central com dois lados -->
-    <div class="login-box">
-        <!-- Painel esquerdo -->
-        <div class="left-panel">
-            <img src="assets/st_andrews.jpeg" alt="Logo" />
-            <h1>ST. Andrews English School</h1>
-        </div>
+<div class="login-page">
+    <div class="pattern-layer" aria-hidden="true">
+        <span class="pattern-item p1">St.</span>
+        <span class="pattern-item p2">St. Andrews</span>
+        <span class="pattern-item p3">English School</span>
+        <span class="pattern-item p4">St.</span>
+        <span class="pattern-item p5">St. Andrews</span>
+        <span class="pattern-item p6">English School</span>
+        <span class="pattern-item p7">St.</span>
+        <span class="pattern-item p8">St. Andrews</span>
+        <span class="pattern-sans s1">ST. ANDREWS</span>
+        <span class="pattern-sans s2">ENGLISH SCHOOL</span>
+        <span class="pattern-sans s3">ST.</span>
+    </div>
 
-        <!-- Painel direito -->
-        <div class="right-panel">
-            <div class="form-wrapper">
-                <div class="text-center">
-                    <img class="logo" src="assets/st-andrews-logo.png" alt="Security Icon" />
+    <div class="login-inner">
+        <div class="login-inner-body">
+            <section class="login-marketing">
+                <h1 class="marketing-title">Aprende Inglês com os Melhores</h1>
+                <p class="marketing-sub">
+                    A escola de inglês número 1 de Angola. 8 centros de formação em Luanda, com metodologia CEFR
+                    internacional.
+                </p>
+                <div class="stats-row">
+                    <div class="stat">
+                        <span class="stat-value">8+</span>
+                        <span class="stat-label">Centros em Luanda</span>
+                    </div>
+                    <div class="stat-divider" aria-hidden="true"></div>
+                    <div class="stat">
+                        <span class="stat-value">14</span>
+                        <span class="stat-label">Níveis CEFR</span>
+                    </div>
+                    <div class="stat-divider" aria-hidden="true"></div>
+                    <div class="stat">
+                        <span class="stat-value">A1–C2</span>
+                        <span class="stat-label">Certificação</span>
+                    </div>
                 </div>
+            </section>
 
-                <!-- Error Alert -->
+            <div class="login-card">
+                <div class="card-brand">
+                    <img class="card-logo" src="assets/st-andrews-logo.png" width="180" height="58" alt="" />
+                </div>
+                <header class="card-header">
+                    <h2 class="card-title text-white">Login</h2>
+                    <p class="card-subtitle">Bem-vindo de volta! Entra na tua conta.</p>
+                </header>
+
                 <div *ngIf="showAlert" class="error-alert" [ngClass]="'alert-' + errorSeverity">
                     <div class="alert-content">
                         <div class="alert-icon">
@@ -31,7 +63,7 @@
                                     Tente novamente em {{ retryDelay }} segundos
                                 </p>
                                 <button type="button" class="retry-btn" (click)="retryLogin()"
-                                        [disabled]="retryDelay > 0">
+                                    [disabled]="retryDelay > 0">
                                     <i class="pi pi-refresh"></i>
                                     Tentar Novamente
                                 </button>
@@ -43,35 +75,50 @@
                     </div>
                 </div>
 
-                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                    <div>
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+                    <div class="field">
                         <label for="email">Email</label>
-                        <input id="email" type="text" formControlName="email" placeholder="Email" />
+                        <div class="input-wrap">
+                            <i class="pi pi-envelope input-icon" aria-hidden="true"></i>
+                            <input id="email" type="text" formControlName="email" placeholder="Insere o teu Email"
+                                autocomplete="email" />
+                        </div>
                     </div>
 
-                    <div>
+                    <div class="field">
                         <label for="password">Password</label>
-                        <div class="relative">
+                        <div class="input-wrap">
+                            <i class="pi pi-lock input-icon" aria-hidden="true"></i>
                             <input id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password"
-                                placeholder="••••••••" />
-                            <button type="button" (click)="togglePasswordVisibility()" class="eye-button">
-                                <i [ngClass]="hidePassword ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                                    style="color: #1e2e6d"></i>
+                                placeholder="Insere a tua password" autocomplete="current-password" />
+                            <button type="button" (click)="togglePasswordVisibility()" class="eye-button"
+                                aria-label="Mostrar ou ocultar password">
+                                <i [ngClass]="hidePassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
                             </button>
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-btn" [disabled]="isSubmitting | async">
-                        <i *ngIf="!(isSubmitting | async)" class="pi pi-sign-in mr-2"></i>
-                        <i *ngIf="isSubmitting | async" class="pi pi-spin pi-spinner mr-2"></i>
-                        {{ (isSubmitting | async) ? 'Entrando...' : 'Entrar' }}
-                    </button>
-
-                    <div class="forgot">
-                        <a routerLink="/auth/request-password-reset">Esqueci a palavra-passe</a>
+                    <div class="forgot-row">
+                        <a routerLink="/auth/request-password-reset">Esqueceste a password?</a>
                     </div>
+
+                    <div class="divider">
+                        <span class="divider-line"></span>
+                        <span class="divider-text">Faça login com o seu email e password</span>
+                        <span class="divider-line"></span>
+                    </div>
+
+                    <button type="submit" class="submit-btn" [disabled]="isSubmitting | async">
+                        <span>{{ (isSubmitting | async) ? 'A entrar...' : 'Login' }}</span>
+                        <i *ngIf="!(isSubmitting | async)" class="pi pi-arrow-right"></i>
+                        <i *ngIf="isSubmitting | async" class="pi pi-spin pi-spinner"></i>
+                    </button>
                 </form>
             </div>
         </div>
+
+        <footer class="login-page-footer">
+            <p class="copyright">© {{ currentYear }} St. Andrews English School, Angola</p>
+        </footer>
     </div>
 </div>
