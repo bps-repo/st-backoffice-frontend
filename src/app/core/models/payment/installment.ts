@@ -11,9 +11,13 @@ export interface Installment {
     updatedAt: string; // ISO datetime
 }
 
-export type InstallmentStatus =
-    | 'PENDING_PAYMENT'
-    | 'PAID'
-    | 'OVERDUE'
-    | 'CANCELLED';
 
+export type CreateInstallment = Omit<Installment, 'id' | 'contract' | 'createdAt' | 'updatedAt'>;
+
+export enum InstallmentStatus {
+    PENDING_PAYMENT = 'PENDING_PAYMENT',
+    PAID = 'PAID',
+    OVERDUE = 'OVERDUE',
+    CANCELLED = 'CANCELLED',
+    EXTENDED_PAYMENT = 'EXTENDED_PAYMENT',
+}

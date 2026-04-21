@@ -1,76 +1,154 @@
-<p-card header="Histórico de Pagamentos" styleClass="mb-4">
-    <p class="text-sm text-color-secondary mb-4">
-        Acompanhe todos os pagamentos e pendências financeiras
-    </p>
+<ng-container *ngIf="(loading$ | async) as loading">
+    <div *ngIf="loading" class="flex justify-content-center py-5">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    </div>
+</ng-container>
 
-    <!-- Summary Stats -->
-    <div class="grid mb-4">
-        <div
-            *ngFor="let stat of stats"
-            class="col-12 md:col-3 p-2"
-        >
-            <div class="p-3 border-round text-center shadow-1 surface-card">
-                <div class="text-xs text-color-secondary mb-2 font-medium">
-                    {{ stat.label }}
-                </div>
-                <div class="text-lg font-bold {{ stat.color }}">
-                    {{ stat.value }}
+<ng-container *ngIf="(error$ | async) as error">
+    <div class="card text-center">
+        <i class="pi pi-exclamation-triangle text-red-500" style="font-size: 2.5rem"></i>
+        <h4 class="mt-3">Erro ao carregar contratos</h4>
+        <p class="text-500">{{ error?.message || error }}</p>
+        <button pButton label="Tentar novamente" icon="pi pi-refresh" class="p-button-outlined"
+            (click)="reload()"></button>
+    </div>
+</ng-container>
+
+<ng-container *ngIf="(contracts$ | async) as contracts">
+    <div *ngIf="!(loading$ | async) && !(error$ | async) && contracts.length === 0" class="card text-center">
+        <i class="pi pi-file text-400" style="font-size: 2.5rem"></i>
+        <h4 class="mt-3">Nenhum contrato encontrado</h4>
+        <p class="text-500 m-0">Este aluno ainda não possui contratos registados.</p>
+    </div>
+
+    <p-card *ngFor="let contract of contracts; trackBy: trackByContract" [header]="'Contrato ' + contract.code"
+        styleClass="mb-4">
+
+        <ng-template pTemplate="subtitle">
+            <div class="flex flex-wrap gap-3 align-items-center">
+                <p-tag [value]="getContractStatusLabel(contract.status)"
+                    [severity]="getContractStatusSeverity(contract.status)"></p-tag>
+                <span class="text-sm text-color-secondary">
+                    <strong>Tipo:</strong> {{ contract.contractType }}
+                </span>
+                <span class="text-sm text-color-secondary">
+                    <strong>Período:</strong> {{ formatDate(contract.startDate) }} - {{ formatDate(contract.endDate) }}
+                </span>
+                <span *ngIf="contract.seller && contract.seller.name" class="text-sm text-color-secondary">
+                    <strong>Vendedor:</strong> {{ contract.seller.name }}
+                </span>
+            </div>
+        </ng-template>
+
+        <div class="grid mb-3">
+            <div *ngFor="let stat of getContractStats(contract)" class="col-12 md:col-3 p-2">
+                <div class="p-3 border-round text-center shadow-1 surface-card">
+                    <div class="text-xs text-color-secondary mb-2 font-medium">
+                        {{ stat.label }}
+                    </div>
+                    <div class="text-lg font-bold {{ stat.color }}">
+                        {{ stat.value }}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <p-divider></p-divider>
-
-    <!-- Pagamentos -->
-    <div *ngFor="let pag of payments"
-         class="flex flex-column justify-content-between gap-2 mb-4 pb-3 border-bottom-1 surface-border">
-        <div class="flex justify-content-between w-full">
-            <div class="flex flex-column gap-3">
-                <div class="flex justify-content-between align-items-center gap-3 mb-2">
-                    <span class="text-sm font-semibold text-color">{{ pag.mes }}</span>
-                    <p-tag [value]="pag.estado" [severity]="pag.cor"></p-tag>
-                </div>
-                <div class="text-xs text-color-secondary mb-1">
-                    <strong>Vencimento:</strong> <br/> {{ pag.vencimento }}
-                </div>
+        <div class="mb-4">
+            <div class="flex justify-content-between align-items-center mb-2">
+                <span class="text-sm font-semibold">Progresso de Pagamento</span>
+                <span class="text-sm text-color-secondary">
+                    {{ getPaidInstallmentsCount(contract) }}/{{ getTotalInstallmentsCount(contract) }} parcelas pagas
+                </span>
             </div>
+            <p-progressBar [value]="getPaymentProgress(contract)"></p-progressBar>
+        </div>
 
-            <div class="flex flex-column justify-content-between gap-3">
-                <div></div>
-                <div *ngIf="pag.pagamento" class="text-xs text-color-secondary mb-1">
-                    <strong>Data Pagamento:</strong> <br/> {{ pag.pagamento }}
-                </div>
-            </div>
+        <p-divider></p-divider>
 
-            <div class="flex flex-column justify-content-between gap-3">
-                <span></span>
-                <div *ngIf="pag.metodo"
-                     class="text-xs text-color-secondary mb-1">
-                    <strong>Método:</strong> <br/> {{ pag.metodo }}
-                </div>
-            </div>
-
-            <div class="flex flex-column justify-content-between gap-3">
-                <span></span>
-                <div *ngIf="pag.recibo" class="text-xs text-color-secondary mb-1">
-                    <strong>Recibo:</strong> <br/>
-                    <div class="flex align-content-center gap-2"><span>{{ pag.recibo }}</span> <i class="pi pi-eye"></i>
+        <div class="grid mb-3">
+            <div class="col-12 md:col-6">
+                <h5 class="mt-0">Informações Financeiras</h5>
+                <div class="grid text-sm">
+                    <div class="col-6 font-medium">Valor Total:</div>
+                    <div class="col-6">
+                        {{ formatCurrency(contract.financial.totalAmount, contract.financial.currency) }}
                     </div>
 
+                    <div class="col-6 font-medium">Desconto:</div>
+                    <div class="col-6">{{ contract.financial.discountPercent || 0 }}%</div>
+
+                    <div class="col-6 font-medium">Valor Final:</div>
+                    <div class="col-6">
+                        {{ formatCurrency(contract.financial.finalAmount, contract.financial.currency) }}
+                    </div>
+
+                    <div class="col-6 font-medium">Valor do Curso:</div>
+                    <div class="col-6">
+                        {{ formatCurrency(contract.financial.levelPrice, contract.financial.currency) }}
+                    </div>
+
+                    <div class="col-6 font-medium">Material Didático:</div>
+                    <div class="col-6">
+                        {{ formatCurrency(contract.financial.courseMaterialPrice, contract.financial.currency) }}
+                        <p-tag *ngIf="contract.financial.courseMaterialPaid" value="Pago" severity="success"
+                            styleClass="ml-2"></p-tag>
+                        <p-tag *ngIf="!contract.financial.courseMaterialPaid" value="Por Pagar" severity="warning"
+                            styleClass="ml-2"></p-tag>
+                    </div>
                 </div>
             </div>
-            <div>
-            <span class="text-base font-semibold text-color">
-                {{ pag.valor }}
-            </span>
+
+            <div class="col-12 md:col-6">
+                <h5 class="mt-0">Observações</h5>
+                <p class="text-sm text-color-secondary m-0">
+                    {{ contract.notes || 'Sem observações registadas.' }}
+                </p>
             </div>
         </div>
-        <div *ngIf="pag.atrasoDias" class="flex justify-content-between border-black-alpha-10 border-top-1 pb-2">
-            <div class="mt-2 text-xs text-red-500 font-medium pt-3">
-                Pagamento em atraso há {{ pag.atrasoDias }} dias
-            </div>
-            <button *ngIf="pag.acao" pButton [label]="pag.acao" class="mt-3"></button>
+
+        <p-divider></p-divider>
+
+        <div class="flex justify-content-between align-items-center mb-3">
+            <h5 class="m-0">Mapa de Parcelas</h5>
+            <button pButton icon="pi pi-download" label="Exportar contrato" class="p-button-outlined p-button-sm"
+                (click)="downloadContract(contract.id)"></button>
         </div>
-    </div>
-</p-card>
+
+        <p-table [value]="contract.installments || []" [paginator]="(contract.installments?.length || 0) > 5" [rows]="5"
+            [rowTrackBy]="trackByInstallment" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Parcela</th>
+                    <th>Vencimento</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Observação</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-installment>
+                <tr>
+                    <td>{{ installment.installmentNumber }}/{{ getTotalInstallmentsCount(contract) }}</td>
+                    <td>{{ formatDate(installment.dueDate) }}</td>
+                    <td>{{ formatCurrency(installment.amount, contract.financial.currency) }}</td>
+                    <td>
+                        <p-tag [value]="getInstallmentStatusLabel(installment.status)"
+                            [severity]="getInstallmentStatusSeverity(installment.status)"></p-tag>
+                    </td>
+                    <td>
+                        <span *ngIf="installment.status === 'OVERDUE'" class="text-red-500 text-xs">
+                            Em atraso há {{ getOverdueDays(installment) }} dias
+                        </span>
+                        <span *ngIf="installment.status !== 'OVERDUE'" class="text-color-secondary text-xs">-</span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5" class="text-center text-color-secondary py-3">
+                        Nenhuma parcela registada para este contrato.
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+</ng-container>

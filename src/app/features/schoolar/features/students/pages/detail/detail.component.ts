@@ -39,7 +39,7 @@ import {GeneralComponent} from "./tabs/general/general.component";
         GeneralComponent
     ],
     providers: [DatePipe],
-    templateUrl: './detail.component.html'
+    templateUrl: './detail.component.html',
 })
 export class DetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);

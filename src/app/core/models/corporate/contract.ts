@@ -1,3 +1,4 @@
+import { CreateInstallment, Installment } from "../payment/installment";
 
 export interface User {
     id: string;
@@ -103,14 +104,6 @@ export interface ContractLevel {
     notes?: string;
 }
 
-export interface Installment {
-    id?: string;
-    installmentNumber: number;
-    dueDate: string;
-    amount: number;
-    status: 'PENDING_PAYMENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
-}
-
 export interface ContractFinancialSummary {
     totalAmount: number;
     discountPercent: number;
@@ -119,6 +112,22 @@ export interface ContractFinancialSummary {
     courseMaterialPaid: boolean;
     currency: string;
     levelPrice: number;
+}
+
+
+export enum ContractStatus {
+    ACTIVE = 'ACTIVE',
+    HOLD = 'HOLD',
+    CANCELLED = 'CANCELLED',
+    COMPLETED = 'COMPLETED',
+    PENDING_PAYMENT = 'PENDING_PAYMENT',
+    OVERDUE = 'OVERDUE',
+    EXTENDED_PAYMENT = 'EXTENDED_PAYMENT',
+}
+
+export enum ContractType {
+    STANDARD = 'STANDARD',
+    VIP = 'VIP',
 }
 
 export interface Contract {
@@ -132,8 +141,8 @@ export interface Contract {
     financial: ContractFinancialSummary;
     amount?: number; // Deprecated: use financial.totalAmount
     discountPercent: number; // Deprecated: use financial.discountPercent
-    status: 'ACTIVE' | 'HOLD' | 'CANCELLED' | 'COMPLETED';
-    contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
+    status: ContractStatus;
+    contractType: ContractType;
     contractLevel: ContractLevel;
     installments?: Installment[];
     numberOfInstallments: number;
@@ -143,6 +152,7 @@ export interface Contract {
     // Legacy support - these might still be returned by the API for backward compatibility
     levels?: ContractLevel[]; // Alias for contractLevels
 }
+
 
 export interface CreateStudentContractRequest {
     studentId: string;
@@ -166,9 +176,9 @@ export interface CreateStudentContractRequest {
     includeRegistrationFee: boolean;
     numberOfLevelsOffered: number;
     notes?: string;
-    contractType: 'STANDARD' | 'VIP' | 'PROMOTIONAL' | 'CUSTOM';
+    contractType: ContractType;
     numberOfInstallments: number;
     firstInstallmentDate?: string;
-    customInstallments?: Installment[];
+    customInstallments?: CreateInstallment[];
 }
 

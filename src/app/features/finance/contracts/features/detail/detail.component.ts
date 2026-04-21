@@ -1,33 +1,33 @@
 import { Component, OnInit, inject } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {TabViewModule} from 'primeng/tabview';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {ToastModule} from 'primeng/toast';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {Contract} from 'src/app/core/models/corporate/contract';
-import {TooltipModule} from 'primeng/tooltip';
-import {DialogModule} from 'primeng/dialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {Store} from "@ngrx/store";
-import {ContractActions} from "../../../../../core/store/corporate/contracts/contracts.actions";
-import {Observable, of, forkJoin} from "rxjs";
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TabViewModule } from 'primeng/tabview';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Contract } from 'src/app/core/models/corporate/contract';
+import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { Store } from "@ngrx/store";
+import { ContractActions } from "../../../../../core/store/corporate/contracts/contracts.actions";
+import { Observable, of, forkJoin } from "rxjs";
 import {
     selectContractsError,
     selectContractsLoading, selectDownloading, selectSelectedContractByID
 } from "../../../../../core/store/corporate/contracts/contracts.selectors";
-import {InstallmentsActions} from "../../../../../core/store/finance/installments/installments.actions";
+import { InstallmentsActions } from "../../../../../core/store/finance/installments/installments.actions";
 // Use Contract's Installment type for contract.installments
-import {Installment as ContractInstallment} from 'src/app/core/models/corporate/contract';
-import {InstallmentService} from 'src/app/core/services/installment.service';
+import { Installment, InstallmentStatus } from 'src/app/core/models/payment/installment';
+import { InstallmentService } from 'src/app/core/services/installment.service';
 
 @Component({
     selector: 'app-contract-detail',
@@ -72,7 +72,7 @@ export class DetailComponent implements OnInit {
 
     // Edit installment dialog state
     showInstallmentEditDialog: boolean = false;
-    installmentToEdit: ContractInstallment | null = null;
+    installmentToEdit: Installment | null = null;
     editAmount: number | null = null;
     editDueDate: Date | null = null;
     // Auto-adjustment planning
@@ -87,10 +87,10 @@ export class DetailComponent implements OnInit {
     selectedPayment: any = null;
 
     paymentMethods: any[] = [
-        {name: 'Multicaixa', code: 'MULTICAIXA'},
-        {name: 'Transferência Bancária', code: 'BANK_TRANSFER'},
-        {name: 'Dinheiro', code: 'CASH'},
-        {name: 'Cartão de Crédito', code: 'CREDIT_CARD'}
+        { name: 'Multicaixa', code: 'MULTICAIXA' },
+        { name: 'Transferência Bancária', code: 'BANK_TRANSFER' },
+        { name: 'Dinheiro', code: 'CASH' },
+        { name: 'Cartão de Crédito', code: 'CREDIT_CARD' }
     ];
     selectedPaymentMethod: any = null;
     paymentDate: Date = new Date();
@@ -112,7 +112,7 @@ export class DetailComponent implements OnInit {
     }
 
     loadContractDetails(): void {
-        this.store$.dispatch(ContractActions.loadContract({id: this.contractId}))
+        this.store$.dispatch(ContractActions.loadContract({ id: this.contractId }))
     }
 
     getStatusClass(status: string): string {
@@ -207,11 +207,11 @@ export class DetailComponent implements OnInit {
     }
 
     // ===== Installment edit & auto-adjust logic =====
-    canEditInstallment(inst: ContractInstallment): boolean {
-        return inst.status === 'PENDING_PAYMENT' || inst.status === 'OVERDUE';
+    canEditInstallment(inst: Installment): boolean {
+        return inst.status === InstallmentStatus.PENDING_PAYMENT || inst.status === InstallmentStatus.OVERDUE;
     }
 
-    editInstallment(inst: ContractInstallment): void {
+    editInstallment(inst: Installment): void {
         if (!this.contract) return;
         if (!this.canEditInstallment(inst)) return;
         this.installmentToEdit = inst;
@@ -246,7 +246,7 @@ export class DetailComponent implements OnInit {
         const eligibles = installments
             .filter(i => i.id !== edited.id)
             // Prefer to not adjust PAID installments
-            .filter(i => i.status !== 'PAID')
+            .filter(i => i.status !== InstallmentStatus.PAID)
             .reverse(); // now from last to first
 
         if (eligibles.length === 0) {
@@ -332,7 +332,7 @@ export class DetailComponent implements OnInit {
             },
             error: (err) => {
                 console.error(err);
-                this.messageService.add({severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar parcela.'});
+                this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar parcela.' });
             }
         });
     }
@@ -362,7 +362,7 @@ export class DetailComponent implements OnInit {
 
         this.store$.dispatch(InstallmentsActions.payInstallment({
             installmentId: this.selectedPayment.id,
-            payload: {paymentMethod: "CREDIT_CARD", amount: this.paymentAmount}
+            payload: { paymentMethod: "CREDIT_CARD", amount: this.paymentAmount }
         }))
 
         setTimeout(() => {
@@ -434,6 +434,6 @@ export class DetailComponent implements OnInit {
     }
 
     downloadContract() {
-        this.store$.dispatch(ContractActions.downloadContract({contractId: this.contractId}))
+        this.store$.dispatch(ContractActions.downloadContract({ contractId: this.contractId }))
     }
 }
