@@ -1,20 +1,21 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-request-password-reset',
     templateUrl: './request-password-reset.component.html',
-    styleUrls: ['./request-password-reset.component.scss'],
+    styleUrls: ['./request-password-reset.component.scss', '../login/login.component.scss'],
+    standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule]
 })
 export class RequestPasswordResetComponent {
   private fb = inject(FormBuilder);
-  private router = inject(Router);
 
   resetForm: FormGroup;
   isSubmitting = false;
+  currentYear = new Date().getFullYear();
 
   constructor() {
     this.resetForm = this.fb.group({
