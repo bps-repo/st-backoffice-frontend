@@ -164,4 +164,14 @@ export class LessonService {
             map((response) => response.data as AvailableStudent[])
         );
     }
+
+    // Get available lessons for a specific student
+    getAvailableLessonsForStudent(studentId: string, startDate?: string, endDate?: string): Observable<Lesson[]> {
+        let params = new HttpParams();
+        params = params.set('startDate', startDate ?? '1900-01-01T00:00:00.000Z');
+        params = params.set('endDate', endDate ?? '2100-01-01T00:00:00.000Z');
+        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/students/${studentId}/available`, {params}).pipe(
+            map((response) => response.data as Lesson[])
+        );
+    }
 }
