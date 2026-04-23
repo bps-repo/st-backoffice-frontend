@@ -183,7 +183,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Listen for scroll events
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll() {
         this.checkStickyState();
     }
@@ -363,6 +363,10 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     navigateToEditStudent(id: string) {
 
+    }
+
+    navigateToScheduleLesson(studentId: string) {
+        this.router.navigate(['/schoolar/lessons/schedule'], {queryParams: {studentId}}).then();
     }
 
     onSearchInput(event: any): void {

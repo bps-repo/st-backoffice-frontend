@@ -4,7 +4,7 @@ import {TabMenuModule} from 'primeng/tabmenu';
 import {TabViewModule} from 'primeng/tabview';
 import {Observable, Subscription} from 'rxjs';
 import {SplitButtonModule} from 'primeng/splitbutton';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from "@ngrx/store";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
 import {selectStudentById} from "../../../../../../core/store/schoolar/students/students.selectors";
@@ -43,6 +43,7 @@ import {GeneralComponent} from "./tabs/general/general.component";
 })
 export class DetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
+    protected router = inject(Router);
     private store$ = inject(Store);
     private datePipe = inject(DatePipe);
 
@@ -86,6 +87,10 @@ export class DetailComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
         this.store$.dispatch(StudentsActions.clearSelection());
+    }
+
+    navigateToScheduleLesson(): void {
+        this.router.navigate(['/schoolar/lessons/schedule'], {queryParams: {studentId: this.studentId}}).then();
     }
 
     /**

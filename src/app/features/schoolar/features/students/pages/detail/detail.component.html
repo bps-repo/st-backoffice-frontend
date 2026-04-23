@@ -1,12 +1,16 @@
 <div class="grid">
-    <div class="col-12 flex justify-content-start align-content-center gap-4">
-        <button pButton icon="pi pi-arrow-left" class="p-button-secondary p-button-outlined h-3rem mt-2 "
-            label="Voltar"></button>
-        <div class="flex flex-column text-sm">
-            <h1 class="text-2xl" *ngIf="student$ | async as student">{{ student.user.firstname + " " +
-                student.user.lastname }}</h1>
-            <span *ngIf="student$ | async as student">{{ student.user.email }}</span>
+    <div class="col-12 flex justify-content-between align-items-center gap-4">
+        <div class="flex align-content-center gap-4">
+            <button pButton icon="pi pi-arrow-left" class="p-button-secondary p-button-outlined h-3rem mt-2"
+                label="Voltar" (click)="router.navigate(['/schoolar/students'])"></button>
+            <div class="flex flex-column text-sm">
+                <h1 class="text-2xl" *ngIf="student$ | async as student">{{ student.user.firstname + " " +
+                    student.user.lastname }}</h1>
+                <span *ngIf="student$ | async as student">{{ student.user.email }}</span>
+            </div>
         </div>
+        <button pButton icon="pi pi-calendar-plus" label="Marcar Aula" severity="success"
+            class="p-button-outlined" (click)="navigateToScheduleLesson()"></button>
     </div>
 
     <!-- KPI Cards -->

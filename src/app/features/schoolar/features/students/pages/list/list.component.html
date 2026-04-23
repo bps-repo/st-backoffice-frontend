@@ -116,10 +116,12 @@
              class="w-full"></p-badge>
 </ng-template>
 
-<ng-template #actionsTemplate let-center>
+<ng-template #actionsTemplate let-rowData>
     <div class="flex gap-2 justify-content-center">
         <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
-                (click)="navigateToEditStudent(center)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                (click)="navigateToEditStudent(rowData)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+        <button pButton pRipple icon="pi pi-calendar-plus" class="p-button-rounded p-button-text p-button-success"
+                (click)="navigateToScheduleLesson(rowData.id)" pTooltip="Marcar aula" tooltipPosition="top"></button>
     </div>
 </ng-template>
 
