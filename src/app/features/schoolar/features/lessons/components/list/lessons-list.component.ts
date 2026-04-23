@@ -34,7 +34,8 @@ import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/less
 import {
     selectAllLessons,
     selectAnyLoading,
-    selectAnyError
+    selectAnyError,
+    selectTotalElements,
 } from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
 import {takeUntil} from 'rxjs/operators';
 import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
@@ -334,6 +335,13 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     loading$: Observable<boolean>;
 
     error$: Observable<string | null>;
+
+    totalElements$: Observable<number>;
+
+    readonly DEFAULT_PAGE_SIZE = 10;
+    readonly DEFAULT_SORT = 'startDatetime,desc';
+
+    private currentSort = this.DEFAULT_SORT;
 
     selected: SelectItem[] = [];
 
@@ -670,7 +678,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Listen for scroll events
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll() {
         this.checkStickyState();
     }
@@ -694,10 +702,10 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.lessons$ = this.store.select(selectAllLessons);
         this.loading$ = this.store.select(selectAnyLoading);
         this.error$ = this.store.select(selectAnyError);
+        this.totalElements$ = this.store.select(selectTotalElements);
     }
 
     ngOnInit(): void {
-        this.store.dispatch(lessonsActions.loadLessons());
         this.initializeCalendarData();
 
         // Subscribe to lessons for calendar view
@@ -751,11 +759,26 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.router.navigate(['/schoolar/lessons/create']).then();
     }
 
+    onPageChange(event: { page: number; rows: number; sort?: string }): void {
+        if (event.sort) {
+            this.currentSort = event.sort;
+        }
+        this.store.dispatch(lessonsActions.loadLessonsPaginated({
+            page: event.page,
+            size: event.rows,
+            sort: this.currentSort,
+        }));
+    }
+
     /**
      * Retry loading lessons
      */
     retryLoadLessons() {
-        this.store.dispatch(lessonsActions.loadLessons());
+        this.store.dispatch(lessonsActions.loadLessonsPaginated({
+            page: 0,
+            size: this.DEFAULT_PAGE_SIZE,
+            sort: this.currentSort,
+        }));
     }
 
     /**

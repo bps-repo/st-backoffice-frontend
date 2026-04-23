@@ -6,35 +6,37 @@ export const selectAttendancesState = createFeatureSelector<AttendancesState>(AT
 
 export const selectAllAttendances = createSelector(
     selectAttendancesState,
-    (state: AttendancesState) => state.attendances
+    (state) => state.attendances
 );
 
 export const selectSelectedAttendance = createSelector(
     selectAttendancesState,
-    (state: AttendancesState) => state.selectedAttendance
+    (state) => state.selectedAttendance
 );
 
 export const selectAttendancesLoading = createSelector(
     selectAttendancesState,
-    (state: AttendancesState) => state.loading
+    (state) => state.loading
 );
 
 export const selectAttendancesError = createSelector(
     selectAttendancesState,
-    (state: AttendancesState) => state.error
+    (state) => state.error
 );
 
+/** Returns attendances for a specific lesson from the scoped cache. */
 export const selectAttendancesByLesson = (lessonId: string) => createSelector(
-    selectAllAttendances,
-    (attendances) => attendances.filter(attendance => attendance.lessonId === lessonId)
+    selectAttendancesState,
+    (state) => state.byLessonId[lessonId] ?? []
 );
 
+/** Returns attendances for a specific student from the scoped cache. */
 export const selectAttendancesByStudent = (studentId: string) => createSelector(
-    selectAllAttendances,
-    (attendances) => attendances.filter(attendance => attendance.studentId === studentId)
+    selectAttendancesState,
+    (state) => state.byStudentId[studentId] ?? []
 );
 
 export const selectAttendanceById = (id: string) => createSelector(
     selectAllAttendances,
-    (attendances) => attendances.find(attendance => attendance.id === id)
+    (attendances) => attendances.find((a) => a.id === id)
 );

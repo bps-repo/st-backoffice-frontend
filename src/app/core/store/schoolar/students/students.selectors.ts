@@ -6,6 +6,7 @@ export const {
     name,
     reducer,
     selectLoading,
+    selectLoadingDetail,
     selectCreateStudentSuccess,
     selectLoadingCreate,
     selectLoadingUpdate,

@@ -58,7 +58,9 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.loginSuccess),
-                tap(({token}) => {
+                tap(({token, refreshToken}) => {
+                    localStorage.setItem('accessToken', token);
+                    localStorage.setItem('refreshToken', refreshToken);
                     JwtTokenService.decodeToken(token);
                     this.store.dispatch(authActions.loadUserProfile());
                 })
@@ -145,9 +147,23 @@ export class AuthEffects {
         () =>
             this.actions$.pipe(
                 ofType(authActions.refreshTokenSuccess),
-                tap(({token}) => {
-                    this.store.dispatch(authActions.loadUserProfile());
+                tap(({token, refreshToken}) => {
+                    localStorage.setItem('accessToken', token);
+                    localStorage.setItem('refreshToken', refreshToken);
                     JwtTokenService.decodeToken(token);
+                    this.store.dispatch(authActions.loadUserProfile());
+                })
+            ),
+        {dispatch: false}
+    );
+
+    refreshTokenFailure$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(authActions.refreshTokenFailure),
+                tap(() => {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
                 })
             ),
         {dispatch: false}

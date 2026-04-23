@@ -6,6 +6,8 @@ import {ApiError} from "../../../models/ApiError";
 export interface StudentState extends EntityState<Student> {
     // Loading states
     loading: boolean;
+    /** Separate flag for loading a single student detail — avoids blocking list UI. */
+    loadingDetail: boolean;
     loadingCreate: boolean;
     loadingUpdate: boolean;
     loadingDelete: boolean;
@@ -66,6 +68,7 @@ export const studentsAdapter: EntityAdapter<Student> = createEntityAdapter<Stude
 export const initialStudentsState: StudentState = studentsAdapter.getInitialState({
     // Loading states
     loading: false,
+    loadingDetail: false,
     loadingCreate: false,
     loadingUpdate: false,
     loadingDelete: false,

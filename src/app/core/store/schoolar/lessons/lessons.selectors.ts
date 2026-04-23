@@ -18,6 +18,12 @@ export const {
     selectCacheExpired,
     selectCreateLessonSuccess,
 
+    // Pagination selectors
+    selectPage,
+    selectSize,
+    selectTotalElements,
+    selectTotalPages,
+
     // Filter endpoints loading and error selectors
     selectLoadingByClass,
     selectByClassError,

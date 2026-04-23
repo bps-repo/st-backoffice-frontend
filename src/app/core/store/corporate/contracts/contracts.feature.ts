@@ -134,18 +134,26 @@ export const contractsFeature = createFeature({
         })),
 
         // Load Contracts By Student
+        // Uses upsertMany so the global entity map is enriched, not replaced.
+        // The id list for this student is stored separately in contractsByStudentId.
         on(ContractActions.loadContractsByStudent, (state) => ({
             ...state,
             loading: true,
             error: null,
             successLoadContractsByStudent: false,
         })),
-        on(ContractActions.loadContractsByStudentSuccess, (state, { contracts }) => contractsAdapter.setAll(contracts, {
-            ...state,
-            loading: false,
-            error: null,
-            lastUpdated: new Date().toISOString()
-        })),
+        on(ContractActions.loadContractsByStudentSuccess, (state, { contracts, studentId }) =>
+            contractsAdapter.upsertMany(contracts, {
+                ...state,
+                contractsByStudentId: {
+                    ...state.contractsByStudentId,
+                    [studentId]: contracts.map((c) => c.id),
+                },
+                loading: false,
+                error: null,
+                lastUpdated: new Date().toISOString(),
+            })
+        ),
         on(ContractActions.loadContractsByStudentFailure, (state, { error }) => ({
             ...state,
             loading: false,
@@ -153,11 +161,17 @@ export const contractsFeature = createFeature({
         })),
 
         // Clear actions
-        on(ContractActions.clearContracts, (state) => ({
+        on(ContractActions.clearContracts, (state) =>
+            contractsAdapter.removeAll({
+                ...state,
+                contractsByStudentId: {},
+                selectedContract: null,
+                lastUpdated: null,
+            })
+        ),
+        on(ContractActions.clearSelectedContract, (state) => ({
             ...state,
-            contracts: contractsAdapter.removeAll(state),
             selectedContract: null,
-            lastUpdated: null
         })),
         on(ContractActions.clearContractsErrors, (state) => ({
             ...state,

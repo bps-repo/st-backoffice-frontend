@@ -173,6 +173,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         })
     }
 
+    private currentLessonId: string | null = null;
+
     ngOnInit() {
         // Get the lesson ID from the route
         this.route.params
@@ -180,6 +182,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             .subscribe(params => {
                 const id = params['id'];
                 if (id) {
+                    this.currentLessonId = id;
                     // Dispatch action to load the lesson
                     this.store.dispatch(lessonsActions.loadLesson({ id }));
                     this.store.dispatch(lessonsActions.loadLessonBookings({ lessonId: id }));
@@ -194,7 +197,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                         });
 
                     this.store.select(selectBookings).subscribe((v: any) => {
-                        this.bookings.set(v?.bookings || [])
+                        this.bookings.set(v?.[id] || [])
                     })
 
                     // Load lesson materials using entity LESSON via NgRx
@@ -209,6 +212,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this.store.dispatch(lessonsActions.clearSelectedLesson());
+        if (this.currentLessonId) {
+            this.store.dispatch(attendancesActions.clearAttendancesByLesson({ lessonId: this.currentLessonId }));
+        }
         this.destroy$.next();
         this.destroy$.complete();
     }

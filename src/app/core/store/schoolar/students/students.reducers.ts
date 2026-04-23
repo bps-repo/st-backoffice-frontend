@@ -55,10 +55,10 @@ export const studentsFeature = createFeature({
             error,
         })),
 
-        // Load single student
+        // Load single student — uses loadingDetail so list loading state is unaffected
         on(StudentsActions.loadStudent, (state) => ({
             ...state,
-            loading: true,
+            loadingDetail: true,
             error: null,
         })),
 
@@ -66,14 +66,14 @@ export const studentsFeature = createFeature({
             studentsAdapter.upsertOne(student, {
                 ...state,
                 selectedStudentId: student.id || null,
-                loading: false,
+                loadingDetail: false,
                 error: null,
             })
         ),
 
         on(StudentsActions.loadStudentFailure, (state, {error}) => ({
             ...state,
-            loading: false,
+            loadingDetail: false,
             error,
         })),
 

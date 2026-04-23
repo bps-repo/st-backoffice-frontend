@@ -14,13 +14,17 @@ export const attendancesActions = createActionGroup({
 
         // Load attendances by lesson
         'Load Attendances By Lesson': props<{ lessonId: string }>(),
-        'Load Attendances By Lesson Success': props<{ attendances: Attendance[] }>(),
+        'Load Attendances By Lesson Success': props<{ lessonId: string; attendances: Attendance[] }>(),
         'Load Attendances By Lesson Failure': props<{ error: string }>(),
 
         // Load attendances by student
         'Load Attendances By Student': props<{ studentId: string }>(),
-        'Load Attendances By Student Success': props<{ attendances: Attendance[] }>(),
+        'Load Attendances By Student Success': props<{ studentId: string; attendances: Attendance[] }>(),
         'Load Attendances By Student Failure': props<{ error: string }>(),
+
+        // Clear scoped caches
+        'Clear Attendances By Lesson': props<{ lessonId: string }>(),
+        'Clear Attendances By Student': props<{ studentId: string }>(),
 
         // Load single attendance
         'Load Attendance': props<{ id: string }>(),

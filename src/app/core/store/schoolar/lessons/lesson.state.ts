@@ -55,6 +55,12 @@ export interface LessonState extends EntityState<Lesson> {
     studentBookingsToday: { [studentId: string]: any[] };
     lessonBookings: { [lessonId: string]: any[] };
 
+    // Pagination
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+
     // Cache management
     lastFetch: number | null;
     cacheExpired: boolean;
@@ -121,6 +127,12 @@ export const lessonsInitialState: LessonState = lessonsAdapter.getInitialState({
     studentBookings: {},
     studentBookingsToday: {},
     lessonBookings: {},
+
+    // Pagination
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 0,
 
     // Cache management
     lastFetch: null,

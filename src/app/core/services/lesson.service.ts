@@ -22,6 +22,17 @@ export class LessonService {
         )
     }
 
+    getLessonsPaginated(page: number, size: number, sort?: string, status?: string): Observable<PageableResponse<Lesson>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+        if (sort) params = params.set('sort', sort);
+        if (status) params = params.set('status', status);
+        return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}/search/paginated`, {params}).pipe(
+            map((response) => response.data)
+        );
+    }
+
     getAllLessons(): Observable<Lesson[]> {
         return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}?page=0&size=1000`).pipe(
             map((response) => response.data.content as Lesson[])

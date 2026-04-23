@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
-import {catchError, exhaustMap, map} from 'rxjs/operators';
+import {catchError, exhaustMap, map, switchMap} from 'rxjs/operators';
 import {LessonService} from '../../../services/lesson.service';
 import {lessonsActions} from "./lessons.actions";
 import {HttpErrorResponse} from "@angular/common/http";
@@ -10,6 +10,20 @@ import {HttpErrorResponse} from "@angular/common/http";
 export class LessonsEffects {
     private actions$ = inject(Actions);
     private lessonApiService = inject(LessonService);
+
+    loadLessonsPaginated$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadLessonsPaginated),
+            switchMap(({page, size, sort, status}) =>
+                this.lessonApiService.getLessonsPaginated(page, size, sort, status).pipe(
+                    map((response) => lessonsActions.loadLessonsPaginatedSuccess(response)),
+                    catchError((error: HttpErrorResponse) =>
+                        of(lessonsActions.loadLessonsPaginatedFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
 
     // Basic CRUD operations
     loadLessons$ = createEffect(() =>
@@ -168,9 +182,9 @@ export class LessonsEffects {
             ofType(lessonsActions.loadLessonBookings),
             exhaustMap(({lessonId}) =>
                 this.lessonApiService.getLessonBookings(lessonId).pipe(
-                    map((bookings) => lessonsActions.loadLessonBookingsSuccess({bookings})),
+                    map((bookings) => lessonsActions.loadLessonBookingsSuccess({lessonId, bookings})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonBookingsFailure({error: error.error.message}))
+                        of(lessonsActions.loadLessonBookingsFailure({error: error.error?.message ?? error.message}))
                     )
                 )
             )

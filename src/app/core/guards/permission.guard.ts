@@ -28,9 +28,7 @@ export class PermissionGuard implements CanActivate {
         const requiredPermissions = route.data['permissions']; // Support for multiple permissions
         const requireAll = route.data['requireAll'] || false; // Whether to require all permissions
 
-        // If no permission is required, allow access
         if (!requiredPermission && !requiredPermissions) {
-            console.log('No permission required, allowing access');
             return of(true);
         }
 

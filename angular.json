@@ -20,7 +20,6 @@
                         "outputPath": {
                             "base": "dist/st-backoffice-frontend"
                         },
-                        "sourceMap": false,
                         "index": "src/index.html",
                         "polyfills": [
                             "zone.js"

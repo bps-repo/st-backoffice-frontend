@@ -60,6 +60,10 @@
             <app-global-table tableLabel="Aulas" [columnTemplates]="columnTemplates" [data]="lessons$ | async"
                               [loading]="loading$ | async" [entity]="'lessons'" [columns]="columns"
                               [globalFilterFields]="globalFilterFields" class="w-full"
+                              [lazy]="true"
+                              [totalRecords]="(totalElements$ | async) ?? 0"
+                              [pageSize]="DEFAULT_PAGE_SIZE"
+                              (pageChange)="onPageChange($event)"
                               (rowSelect)="viewLesson($event.id!)"
                               (createEntity)="navigateToCreateLesson()"></app-global-table>
         </div>

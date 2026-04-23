@@ -40,5 +40,6 @@ export const EmployeesActions = createActionGroup({
         'Load Employees By Status Failure': props<{ error: any }>(),
 
         'Clear Error': emptyProps(),
+        'Clear Selected Employee': emptyProps(),
     }
 });

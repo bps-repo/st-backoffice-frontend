@@ -192,5 +192,10 @@ export const employeesFeature = createFeature({
             error: null,
             createError: null,
         })),
+
+        on(EmployeesActions.clearSelectedEmployee, (state) => ({
+            ...state,
+            selectedId: null,
+        })),
     )
 });

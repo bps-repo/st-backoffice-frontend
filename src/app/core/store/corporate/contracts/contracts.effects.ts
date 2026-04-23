@@ -6,7 +6,6 @@ import { ContractService } from '../../../services/contract.service';
 import { ContractActions } from './contracts.actions';
 import { Store } from '@ngrx/store';
 import { AppState } from '../..';
-import { StudentsActions } from '../../schoolar/students/students.actions';
 
 @Injectable()
 export class ContractEffects {
@@ -64,21 +63,20 @@ export class ContractEffects {
         this.actions$.pipe(
             ofType(ContractActions.createContractSuccess),
             tap(() => {
-                this.store$.dispatch(StudentsActions.clearSelection());
                 this.store$.dispatch(ContractActions.clearContractsErrors());
             })
         )
     );
 
-    // Load contracts by student
+    // Load contracts by student — studentId is passed through to success for reducer namespacing
     loadContractsByStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ContractActions.loadContractsByStudent),
             switchMap(({ studentId }) =>
                 this.contractService.getContractsByStudent(studentId).pipe(
-                    map(contracts => {
-                        return ContractActions.loadContractsByStudentSuccess({ contracts });
-                    }),
+                    map(contracts =>
+                        ContractActions.loadContractsByStudentSuccess({ studentId, contracts })
+                    ),
                     catchError(error => of(ContractActions.loadContractsByStudentFailure({ error })))
                 )
             )

@@ -85,6 +85,7 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
+        this.store$.dispatch(StudentsActions.clearSelection());
     }
 
     /**

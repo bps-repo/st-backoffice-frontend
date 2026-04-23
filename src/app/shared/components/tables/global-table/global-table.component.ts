@@ -9,7 +9,7 @@ import {
     OnInit,
     Output,
     TemplateRef,
-    ViewChild
+    ViewChild,
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
@@ -29,6 +29,7 @@ export interface TableColumn {
     filterOptions?: any;
     filterTemplate?: boolean;
     customTemplate?: boolean;
+    sortable?: boolean;
 }
 
 @Component({
@@ -84,11 +85,23 @@ export class GlobalTable<T> implements OnInit {
     @Input()
     childrenField: string = 'children';
 
+    @Input({transform: booleanAttribute})
+    lazy: boolean = false;
+
+    @Input()
+    totalRecords: number = 0;
+
+    @Input()
+    pageSize: number = 10;
+
     @Output()
     createEntity = new EventEmitter<void>();
 
     @Output()
     rowSelect = new EventEmitter<T>();
+
+    @Output()
+    pageChange = new EventEmitter<{ page: number; rows: number; sort?: string }>();
 
     @Output()
     rowExpand = new EventEmitter<any>();
@@ -114,6 +127,18 @@ export class GlobalTable<T> implements OnInit {
     }
 
     ngOnInit(): void {}
+
+    onLazyLoad(event: any): void {
+        if (!this.lazy) return;
+        const rows = event.rows ?? this.pageSize;
+        const page = Math.floor((event.first ?? 0) / rows);
+        let sort: string | undefined;
+        if (event.sortField) {
+            const direction = event.sortOrder === -1 ? 'desc' : 'asc';
+            sort = `${event.sortField},${direction}`;
+        }
+        this.pageChange.emit({page, rows, sort});
+    }
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');

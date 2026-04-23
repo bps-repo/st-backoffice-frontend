@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {InstallmentsActions} from './installments.actions';
 import {InstallmentService} from 'src/app/core/services/installment.service';
-import {catchError, map, mergeMap, of} from 'rxjs';
+import {catchError, map, mergeMap, of, switchMap} from 'rxjs';
 
 @Injectable()
 export class InstallmentsEffects {
@@ -12,7 +12,7 @@ export class InstallmentsEffects {
     load$ = createEffect(() =>
         this.actions$.pipe(
             ofType(InstallmentsActions.loadInstallments),
-            mergeMap(({page, size, sort}) =>
+            switchMap(({page, size, sort}) =>
                 this.service.getInstallments(page, size, sort).pipe(
                     map((res) => InstallmentsActions.loadInstallmentsSuccess(res)),
                     catchError((error) => of(InstallmentsActions.loadInstallmentsFailure({error})))

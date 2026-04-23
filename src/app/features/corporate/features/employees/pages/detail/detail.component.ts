@@ -68,6 +68,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+        this.store$.dispatch(EmployeesActions.clearSelectedEmployee());
     }
 
     loadEmployee(id: string): void {

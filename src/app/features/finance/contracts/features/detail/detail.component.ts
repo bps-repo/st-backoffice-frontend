@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -53,7 +53,7 @@ import { InstallmentService } from 'src/app/core/services/installment.service';
     ],
     providers: [MessageService, ConfirmationService]
 })
-export class DetailComponent implements OnInit {
+export class DetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private messageService = inject(MessageService);
@@ -109,6 +109,10 @@ export class DetailComponent implements OnInit {
     ngOnInit(): void {
         this.contractId = this.route.snapshot.paramMap.get('id') || '';
         this.loadContractDetails();
+    }
+
+    ngOnDestroy(): void {
+        this.store$.dispatch(ContractActions.clearSelectedContract());
     }
 
     loadContractDetails(): void {

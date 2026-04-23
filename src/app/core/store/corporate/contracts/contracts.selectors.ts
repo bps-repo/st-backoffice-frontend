@@ -48,9 +48,18 @@ export const selectContractById = (id: string) => createSelector(
     (contracts) => contracts.find((contract: Contract) => contract.id === id)
 );
 
+/** Returns contracts for a specific student using the scoped id map, falling back to entity filter. */
 export const selectContractsByStudent = (studentId: string) => createSelector(
+    contractsFeature.selectContractState,
     selectAllContracts,
-    (contracts) => contracts.filter((contract: Contract) => contract.student.id === studentId)
+    (state, allContracts) => {
+        const ids = state.contractsByStudentId[studentId];
+        if (ids) {
+            const entityMap = state.entities;
+            return ids.map((id) => entityMap[id]).filter((c): c is Contract => !!c);
+        }
+        return allContracts.filter((c) => c.student?.id === studentId);
+    }
 )
 
 export const selectContractsByStatus = (status: string) => createSelector(

@@ -28,14 +28,14 @@ export class AttendancesEffects {
         )
     );
 
-    // Load attendances by lesson
+    // Load attendances by lesson — passes lessonId to success so reducer can namespace it
     loadAttendancesByLesson$ = createEffect(() =>
         this.actions$.pipe(
             ofType(attendancesActions.loadAttendancesByLesson),
             switchMap(({ lessonId }) =>
                 this.attendanceService.getAttendancesByLessonId(lessonId).pipe(
                     map((attendances) =>
-                        attendancesActions.loadAttendancesByLessonSuccess({ attendances })
+                        attendancesActions.loadAttendancesByLessonSuccess({ lessonId, attendances })
                     ),
                     catchError((error) =>
                         of(attendancesActions.loadAttendancesByLessonFailure({ error: error.message }))
@@ -45,14 +45,14 @@ export class AttendancesEffects {
         )
     );
 
-    // Load attendances by student
+    // Load attendances by student — passes studentId to success so reducer can namespace it
     loadAttendancesByStudent$ = createEffect(() =>
         this.actions$.pipe(
             ofType(attendancesActions.loadAttendancesByStudent),
             switchMap(({ studentId }) =>
                 this.attendanceService.getAttendancesByStudent(studentId).pipe(
                     map((attendances) =>
-                        attendancesActions.loadAttendancesByStudentSuccess({ attendances })
+                        attendancesActions.loadAttendancesByStudentSuccess({ studentId, attendances })
                     ),
                     catchError((error) =>
                         of(attendancesActions.loadAttendancesByStudentFailure({ error: error.message }))
