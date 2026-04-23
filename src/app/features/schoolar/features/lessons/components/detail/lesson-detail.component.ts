@@ -128,6 +128,13 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.lesson$.subscribe((v) => {
             this.quickActions = [
                 {
+                    label: 'Marcar Aula',
+                    icon: 'pi-calendar-plus',
+                    iconColor: 'text-green-600',
+                    bgColor: 'bg-green-100',
+                    handler: () => v && this.scheduleLesson(v)
+                },
+                {
                     label: 'Marcar Presença',
                     icon: 'pi-check',
                     iconColor: 'text-blue-600',
@@ -392,6 +399,12 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     public editLesson(lesson: Lesson): void {
         if (lesson?.id) {
             this.router.navigate(['/schoolar/lessons/edit', lesson.id]);
+        }
+    }
+
+    public scheduleLesson(lesson: Lesson): void {
+        if (lesson?.id) {
+            this.router.navigate(['/schoolar/lessons/schedule'], {queryParams: {lessonId: lesson.id}});
         }
     }
 

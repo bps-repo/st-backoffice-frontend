@@ -51,7 +51,6 @@
             <div class="grid mb-3">
                 <div class="col-12 md:col-8">
                     <span class="p-input-icon-left w-full">
-                        <i class="pi pi-search"></i>
                         <input pInputText type="text" class="w-full" placeholder="Buscar aulas..."
                             [formControl]="searchLessonsCtrl" />
                     </span>
@@ -121,7 +120,6 @@
 
             <ng-container *ngIf="selectedLesson; else selectLessonHint">
                 <span class="p-input-icon-left w-full mb-3">
-                    <i class="pi pi-search"></i>
                     <input pInputText type="text" class="w-full" placeholder="Buscar alunos..."
                         [formControl]="searchStudentsCtrl" />
                 </span>

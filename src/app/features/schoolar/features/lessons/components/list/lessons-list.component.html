@@ -314,6 +314,8 @@
                   (click)="viewLesson(row.id)"></p-button>
         <p-button icon="pi pi-pencil" size="small" severity="secondary" [outlined]="true" pTooltip="Editar"
                   (click)="editLesson(row.id)"></p-button>
+        <p-button icon="pi pi-calendar-plus" size="small" severity="success" [outlined]="true" pTooltip="Marcar aula"
+                  (click)="scheduleLesson(row.id)"></p-button>
         @if (row.online && row.onlineLink) {
             <p-button icon="pi pi-external-link" size="small" severity="help" [outlined]="true"
                       pTooltip="Abrir link da aula" (click)="openOnlineLink(row.onlineLink)"></p-button>

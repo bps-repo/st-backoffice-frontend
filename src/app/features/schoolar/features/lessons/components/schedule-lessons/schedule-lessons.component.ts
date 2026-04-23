@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Lesson } from 'src/app/core/models/academic/lesson';
 import { Student } from 'src/app/core/models/academic/students/student';
 import { AvailableStudent } from 'src/app/core/models/academic/available-student';
@@ -38,6 +39,7 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     private readonly levelService = inject(LevelService);
     private readonly store = inject(Store);
     private readonly messageService = inject(MessageService);
+    private readonly route = inject(ActivatedRoute);
 
     lessons: Lesson[] = [];
     filteredLessons: Lesson[] = [];
@@ -78,6 +80,19 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
         this.searchLessonsCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((term) => this.applyLessonFilter(String(term || '')));
         this.searchStudentsCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((term) => this.applyStudentsFilter(String(term || '')));
         this.levelFilterCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((levelId) => this.applyLevelFilter(levelId));
+
+        // Auto-select lesson from query param
+        const preselectedId = this.route.snapshot.queryParamMap.get('lessonId');
+        if (preselectedId) {
+            this.store.select(selectAllLessons).pipe(
+                takeUntil(this.destroy$),
+                filter((lessons) => lessons != null && lessons.length > 0),
+                map((lessons) => lessons!.find(l => l.id === preselectedId) ?? null),
+                filter((lesson): lesson is Lesson => lesson !== null),
+            ).subscribe((lesson) => {
+                this.selectLesson(lesson);
+            });
+        }
     }
 
     ngOnDestroy(): void {

@@ -888,6 +888,13 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
+     * Navigate to schedule page with the lesson pre-selected
+     */
+    scheduleLesson(lessonId: string) {
+        this.router.navigate(['/schoolar/lessons/schedule'], {queryParams: {lessonId}}).then();
+    }
+
+    /**
      * Open online lesson link
      */
     openOnlineLink(link: string) {
