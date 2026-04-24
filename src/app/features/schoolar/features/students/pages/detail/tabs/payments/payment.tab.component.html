@@ -5,9 +5,9 @@
     <ng-template pTemplate="header">
         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3 p-4 pb-0">
             <div>
-                <h3 class="m-0 text-xl font-semibold">Histórico de Pagamentos</h3>
+                <h3 class="m-0 text-xl font-semibold">Histórico de contratos</h3>
                 <p class="mt-1 mb-0 text-sm text-color-secondary">
-                    Acompanhe todos os pagamentos e pendências financeiras
+                    Acompanhe todos os contratos do aluno
                 </p>
             </div>
 
@@ -140,7 +140,8 @@
                                     <div class="text-sm text-color">{{ formatDate(installment.dueDate) }}</div>
                                 </div>
 
-                                <div *ngIf="getPaymentDate(installment) as paymentDate" class="col-12 sm:col-6 md:col-3">
+                                <div *ngIf="getPaymentDate(installment) as paymentDate"
+                                    class="col-12 sm:col-6 md:col-3">
                                     <div class="text-xs text-color-secondary">Data Pagamento:</div>
                                     <div class="text-sm text-color">{{ formatDate(paymentDate) }}</div>
                                 </div>
@@ -169,7 +170,8 @@
                         </div>
                     </div>
 
-                    <div *ngIf="installment.payments?.length" class="installment-payments mt-3 pt-3 border-top-1 surface-border">
+                    <div *ngIf="installment.payments?.length"
+                        class="installment-payments mt-3 pt-3 border-top-1 surface-border">
                         <div class="flex align-items-center gap-2 mb-2">
                             <i class="pi pi-wallet text-primary"></i>
                             <span class="text-sm font-semibold">Pagamentos registados</span>

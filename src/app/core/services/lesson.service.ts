@@ -7,6 +7,7 @@ import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 import {BulkBookingRequest, BulkBookingResult} from "../models/academic/bulk-booking";
 import {AvailableStudent} from "../models/academic/available-student";
+import {StudentBooking} from "../models/academic/student-booking";
 
 @Injectable({
     providedIn: 'root',
@@ -102,15 +103,22 @@ export class LessonService {
     }
 
     // Student bookings endpoints
-    getStudentBookings(studentId: string): Observable<any[]> {
-        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/students/${studentId}/bookings`).pipe(
-            map((response) => response.data as any[])
+    getStudentBookings(
+        studentId: string,
+        filters?: { startDate?: string; endDate?: string; status?: string }
+    ): Observable<StudentBooking[]> {
+        let params = new HttpParams();
+        if (filters?.startDate) params = params.set('startDate', filters.startDate);
+        if (filters?.endDate) params = params.set('endDate', filters.endDate);
+        if (filters?.status && filters.status !== 'ALL') params = params.set('status', filters.status);
+        return this.http.get<ApiResponse<StudentBooking[]>>(`${this.apiUrl}/students/${studentId}/bookings`, {params}).pipe(
+            map((response) => response.data as StudentBooking[])
         );
     }
 
-    getStudentBookingsToday(studentId: string): Observable<any[]> {
-        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/students/${studentId}/bookings/today`).pipe(
-            map((response) => response.data as any[])
+    getStudentBookingsToday(studentId: string): Observable<StudentBooking[]> {
+        return this.http.get<ApiResponse<StudentBooking[]>>(`${this.apiUrl}/students/${studentId}/bookings/today`).pipe(
+            map((response) => response.data as StudentBooking[])
         );
     }
 
