@@ -6,31 +6,18 @@
 
         <div class="flex align-items-center gap-2">
             <!-- Lesson selector -->
-            <p-dropdown
-                [options]="lessonOptions"
-                [(ngModel)]="selectedLessonId"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecione a Aula"
-                [showClear]="true"
-                styleClass="w-12rem text-sm">
+            <p-dropdown [options]="lessonOptions" [(ngModel)]="selectedLessonId" optionLabel="label" optionValue="value"
+                placeholder="Selecione a Aula" [showClear]="true" styleClass="w-12rem text-sm">
             </p-dropdown>
 
             <!-- Filter toggle -->
-            <button pButton
-                    icon="pi pi-filter"
-                    label="Filtros"
-                    class="p-button-outlined p-button-secondary p-button-sm"
-                    (click)="filterPanel.toggle($event)">
+            <button pButton icon="pi pi-filter" label="Filtros" class="p-button-outlined p-button-secondary p-button-sm"
+                (click)="filterPanel.toggle($event)">
             </button>
 
             <!-- Export -->
-            <button pButton
-                    icon="pi pi-download"
-                    label="Exportar"
-                    class="p-button-sm"
-                    (click)="exportBookings()"
-                    [disabled]="filteredBookings.length === 0">
+            <button pButton icon="pi pi-download" label="Exportar" class="p-button-sm" (click)="exportBookings()"
+                [disabled]="filteredBookings.length === 0">
             </button>
         </div>
     </div>
@@ -42,39 +29,25 @@
 
             <div class="flex flex-column gap-1">
                 <label class="text-sm text-color-secondary">Período</label>
-                <p-calendar [(ngModel)]="dateRange"
-                            selectionMode="range"
-                            [readonlyInput]="true"
-                            dateFormat="dd/mm/yy"
-                            placeholder="Selecionar período"
-                            [showIcon]="true"
-                            styleClass="w-full">
+                <p-calendar [(ngModel)]="dateRange" selectionMode="range" [readonlyInput]="true" dateFormat="dd/mm/yy"
+                    placeholder="Selecionar período" [showIcon]="true" styleClass="w-full">
                 </p-calendar>
             </div>
 
             <div class="flex flex-column gap-1">
                 <label class="text-sm text-color-secondary">Estado</label>
-                <p-dropdown [options]="statusOptions"
-                            [(ngModel)]="selectedStatus"
-                            optionLabel="label"
-                            optionValue="value"
-                            styleClass="w-full">
+                <p-dropdown [options]="statusOptions" [(ngModel)]="selectedStatus" optionLabel="label"
+                    optionValue="value" styleClass="w-full">
                 </p-dropdown>
             </div>
 
             <div class="flex gap-2 justify-content-end">
-                <button pButton
-                        icon="pi pi-times"
-                        label="Limpar"
-                        class="p-button-outlined p-button-secondary p-button-sm"
-                        (click)="clearFilters(); filterPanel.hide()">
+                <button pButton icon="pi pi-times" label="Limpar"
+                    class="p-button-outlined p-button-secondary p-button-sm"
+                    (click)="clearFilters(); filterPanel.hide()">
                 </button>
-                <button pButton
-                        icon="pi pi-search"
-                        label="Aplicar"
-                        class="p-button-sm"
-                        (click)="loadBookings(); filterPanel.hide()"
-                        [loading]="loading">
+                <button pButton icon="pi pi-search" label="Aplicar" class="p-button-sm"
+                    (click)="loadBookings(); filterPanel.hide()" [loading]="loading">
                 </button>
             </div>
         </div>
@@ -82,66 +55,78 @@
 
     <!-- Error -->
     @if (error) {
-        <div class="px-4 py-3 bg-red-50 text-red-700 flex align-items-center gap-2">
-            <i class="pi pi-exclamation-triangle"></i>
-            <span>{{ error }}</span>
-            <button pButton icon="pi pi-refresh" class="p-button-text p-button-sm ml-auto"
-                    (click)="loadBookings()"></button>
-        </div>
+    <div class="px-4 py-3 bg-red-50 text-red-700 flex align-items-center gap-2">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>{{ error }}</span>
+        <button pButton icon="pi pi-refresh" class="p-button-text p-button-sm ml-auto"
+            (click)="loadBookings()"></button>
+    </div>
     }
 
     <!-- Loading -->
     @if (loading) {
-        <div class="flex justify-content-center align-items-center p-6">
-            <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
-        </div>
+    <div class="flex justify-content-center align-items-center p-6">
+        <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
+    </div>
     }
 
     <!-- Empty state -->
     @else if (filteredBookings.length === 0 && !loading) {
-        <div class="flex flex-column align-items-center justify-content-center p-6 text-color-secondary">
-            <i class="pi pi-calendar-times text-5xl mb-3"></i>
-            <div class="font-medium">Nenhuma aula encontrada</div>
-            <div class="text-sm mt-1">Use os filtros para refinar a pesquisa</div>
-        </div>
+    <div class="flex flex-column align-items-center justify-content-center p-6 text-color-secondary">
+        <i class="pi pi-calendar-times text-5xl mb-3"></i>
+        <div class="font-medium">Nenhuma aula encontrada</div>
+        <div class="text-sm mt-1">Use os filtros para refinar a pesquisa</div>
+    </div>
     }
 
     <!-- LIST VIEW -->
     @else {
-        <div class="flex flex-column">
-            @for (booking of filteredBookings; track trackByBookingId($index, booking)) {
-                <div class="flex justify-content-between align-items-center px-4 py-3 border-bottom-1 surface-border hover:surface-hover transition-colors transition-duration-150">
+    <div class="flex flex-column">
+        @for (booking of filteredBookings; track trackByBookingId($index, booking)) {
+        <div
+            class="flex justify-content-between align-items-center px-4 py-3 border-bottom-1 surface-border hover:surface-hover transition-colors transition-duration-150">
 
-                    <!-- Left: title + date -->
-                    <div class="flex flex-column gap-1">
-                        <span class="font-semibold text-base">{{ booking.lesson.title }}</span>
-                        <span class="text-sm text-color-secondary">
-                            {{ formatDate(booking.lesson.startDatetime) }}
-                        </span>
-                    </div>
+            <!-- Left: title + date -->
+            <div class="flex flex-column gap-3">
+                <span class="font-semibold text-base">{{ booking.lesson.title }} - {{ booking.lesson.unit?.name || 'N/A'
+                    }} - {{ booking.lesson.center?.name }}</span>
+                <span class="text-sm text-color-secondary">
+                    {{ formatDate(booking.lesson.startDatetime) }} - {{ formatTime(booking.lesson.startDatetime,
+                    booking.lesson.endDatetime) }}
+                </span>
+                <span class="text-sm text-color-secondary">
+                    <strong>Professor:</strong> {{ booking.lesson.teacher.name }}
+                </span>
+            </div>
 
-                    <!-- Right: status + grade -->
-                    <div class="flex align-items-center gap-3">
-                        @if (booking.attendance) {
-                            <p-tag
-                                [value]="booking.attendance.present ? 'Presente' : 'Ausente'"
-                                [severity]="booking.attendance.present ? 'success' : 'danger'">
-                            </p-tag>
-                            @if (booking.attendance.grade != null) {
-                                <span class="text-sm font-medium text-color-secondary">
-                                    Nota: {{ booking.attendance.grade }}
-                                </span>
-                            }
-                        } @else {
-                            <p-tag
-                                [value]="getBookingStatusLabel(booking.status)"
-                                [severity]="getBookingStatusSeverity(booking.status)">
-                            </p-tag>
-                        }
-                    </div>
-                </div>
-            }
+            <!-- Right: status + grade -->
+            <div class="flex align-items-center gap-3">
+
+                <span class="text-sm text-color-secondary">
+                    {{ booking.lesson.online ? 'Online' : 'Presencial' }}
+                </span>
+                @if (booking.attendance) {
+                <p-tag [value]="booking.attendance.present ? 'Presente' : 'Ausente'"
+                    [severity]="booking.attendance.present ? 'success' : 'danger'">
+                </p-tag>
+                @if (booking.attendance.grade != null) {
+                <span class="text-sm font-medium text-color-secondary">
+                    Nota: {{ booking.attendance.grade }}
+                </span>
+                }
+                } @else {
+                <p-tag [value]="getBookingStatusLabel(booking.status)"
+                    [severity]="getBookingStatusSeverity(booking.status)">
+                </p-tag>
+                }
+
+                <button pButton icon="pi pi-eye" pTooltip="Ver detalhes da aula" class="p-button-sm"
+                    (click)="viewLesson(booking.lesson.id)"></button>
+
+            </div>
         </div>
+        }
+    </div>
     }
 
 </div>

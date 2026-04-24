@@ -14,6 +14,7 @@ import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {Subject, takeUntil, switchMap, of, catchError} from 'rxjs';
 import {LessonService} from 'src/app/core/services/lesson.service';
 import {StudentBooking, BookingStatus} from 'src/app/core/models/academic/student-booking';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'scholar-student-lessons-tab',
@@ -41,7 +42,7 @@ export class StudentLessonsTabComponent implements OnInit, OnChanges, OnDestroy 
     private loadTrigger$ = new Subject<{startDate?: string; endDate?: string; status?: string}>();
     private lessonService = inject(LessonService);
     private cdr = inject(ChangeDetectorRef);
-
+    private router = inject(Router);
     // View
     currentView: string = 'list';
     viewOptions = [
@@ -299,5 +300,9 @@ export class StudentLessonsTabComponent implements OnInit, OnChanges, OnDestroy 
 
     trackByBookingId(_: number, b: StudentBooking): string {
         return b.id;
+    }
+
+    viewLesson(lessonId: string): void {
+        this.router.navigate(['/schoolar/lessons', lessonId]);
     }
 }

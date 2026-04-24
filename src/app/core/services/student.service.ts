@@ -3,6 +3,7 @@ import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Student} from 'src/app/core/models/academic/students/student';
+import {StudentUnitProgress} from 'src/app/core/models/academic/students/student-unit-progress';
 import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 import {CreateStudentRequest} from "../models/academic/students/create-student-request";
@@ -156,6 +157,32 @@ export class StudentService {
         );
     }
 
+
+    getStudentUnitProgresses(studentId: string): Observable<StudentUnitProgress[]> {
+        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/${studentId}/unit-progresses`).pipe(
+            map(res => {
+                const items: any[] = res.data ?? [];
+                return items
+                    .map(item => {
+                        // lessonProgress / assessmentProgress / status live inside the
+                        // embedded student.unitProgresses array; find the matching entry by id.
+                        const embedded: any[] = item.student?.unitProgresses ?? [];
+                        const extra = embedded.find((up: any) => up.id === item.id) ?? {};
+                        return {
+                            id: item.id,
+                            unit: item.unit,
+                            completed: item.completed ?? false,
+                            assessmentsPassed: item.assessmentsPassed ?? 0,
+                            assessmentsFailed: item.assessmentsFailed ?? 0,
+                            lessonProgress: extra.lessonProgress ?? 0,
+                            assessmentProgress: extra.assessmentProgress ?? 0,
+                            status: extra.status ?? (item.completed ? 'COMPLETED' : 'PENDING'),
+                        } as StudentUnitProgress;
+                    })
+                    .sort((a, b) => Number(a.unit.orderUnit) - Number(b.unit.orderUnit));
+            })
+        );
+    }
 
     // Normalize API student object into front-end Student model
     private normalizeStudent(apiStudent: any): Student {

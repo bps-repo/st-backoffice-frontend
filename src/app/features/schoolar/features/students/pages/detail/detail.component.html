@@ -87,7 +87,7 @@
 
         <!-- Visão geral Tab Content -->
         @if (currentView === 'overview') {
-        <app-general [student]="student$ | async"></app-general>
+        <app-general [student]="student$ | async" [studentId]="studentId"></app-general>
         }
 
         <!-- Historico de aulas Tab Content -->
