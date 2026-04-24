@@ -20,6 +20,7 @@ export const {
     selectSelectedStudentId,
     selectFilters,
     selectPagination,
+    selectTotalElements,
     selectLastFetch,
     selectCacheExpired,
     selectBulkOperationInProgress,

@@ -32,6 +32,38 @@ export const studentsFeature = createFeature({
             error,
         })),
 
+        // Load students paginated
+        on(StudentsActions.loadStudentsPaginated, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+
+        on(StudentsActions.loadStudentsPaginatedSuccess, (state, {content, totalElements, totalPages, number, size}) =>
+            studentsAdapter.setAll(content, {
+                ...state,
+                loading: false,
+                error: null,
+                lastFetch: Date.now(),
+                cacheExpired: false,
+                totalElements,
+                pagination: {
+                    ...state.pagination,
+                    currentPage: number,
+                    pageIndex: number,
+                    pageSize: size,
+                    totalItems: totalElements,
+                    totalPages,
+                },
+            })
+        ),
+
+        on(StudentsActions.loadStudentsPaginatedFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
+
         // Search students
         on(StudentsActions.searchStudents, (state) => ({
             ...state,

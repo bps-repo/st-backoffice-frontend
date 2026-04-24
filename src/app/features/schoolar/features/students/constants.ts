@@ -35,12 +35,15 @@ export const COLUMNS: TableColumn[] = [
             matchMode: 'equals'
         },
         customTemplate: true,
+        sortable: true,
+        sortField: 'level.name',
     },
     {
         field: 'vip',
         header: 'Tipo',
         filterType: 'text',
         customTemplate: true,
+        sortable: true,
     },
     {
         field: 'centerId',
@@ -61,6 +64,7 @@ export const COLUMNS: TableColumn[] = [
             matchMode: 'equals'
         },
         customTemplate: true,
+        sortable: true,
     },
     {
         field: 'actions',

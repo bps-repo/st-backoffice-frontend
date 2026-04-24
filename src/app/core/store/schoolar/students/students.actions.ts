@@ -3,7 +3,7 @@ import {Student} from 'src/app/core/models/academic/students/student';
 import {Update} from "@ngrx/entity";
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {CreateStudentRequest} from "../../../models/academic/students/create-student-request";
-import {ApiResponse} from "../../../models/ApiResponseService";
+import {ApiResponse, PageableResponse} from "../../../models/ApiResponseService";
 import {ApiError} from "../../../models/ApiError";
 
 export const STUDENT_FEATURE_KEY = 'students';
@@ -15,6 +15,29 @@ export const StudentsActions = createActionGroup({
         'Load Students': emptyProps(),
         'Load Students Success': props<{ students: Student[], pagination: any }>(),
         'Load Students Failure': props<{ error: string }>(),
+
+        // Load students paginated (server-side pagination + sorting)
+        'Load Students Paginated': props<{
+            page: number;
+            size: number;
+            sort?: string;
+            filters?: {
+                status?: string;
+                academicBackground?: string;
+                ageRange?: string;
+                gender?: string;
+                centerId?: string;
+                levelId?: string;
+                unitId?: string;
+                code?: number;
+                email?: string;
+                username?: string;
+                province?: string;
+                municipality?: string;
+            };
+        }>(),
+        'Load Students Paginated Success': props<PageableResponse<Student>>(),
+        'Load Students Paginated Failure': props<{ error: string }>(),
 
         // Search students
         'Search Students': props<{

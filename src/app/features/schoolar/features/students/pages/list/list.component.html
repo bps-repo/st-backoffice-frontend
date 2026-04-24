@@ -60,6 +60,10 @@
                           [globalFilterFields]="globalFilterFields" [columnTemplates]="customTemplates"
                           [filterTemplates]="filterTemplates" (rowSelect)="onRowSelect($event)"
                           (createEntity)="navigateToCreateStudent()"
+                          [lazy]="true"
+                          [totalRecords]="(totalElements$ | async) ?? 0"
+                          [pageSize]="DEFAULT_PAGE_SIZE"
+                          (pageChange)="onPageChange($event)"
                           class="w-full animate-fade px-fadein"></app-global-table>
     }
 

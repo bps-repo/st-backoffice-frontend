@@ -117,10 +117,15 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     isViewSelectorSticky: boolean = false;
 
     students$!: Observable<Student[]>;
+    totalElements$!: Observable<number>;
     centers$!: Observable<any[]>;
     levels$!: Observable<any[]>;
 
     loading$: Observable<boolean>;
+
+    readonly DEFAULT_PAGE_SIZE = 100;
+    readonly DEFAULT_SORT = 'code,asc';
+    private currentSort = this.DEFAULT_SORT;
 
     // Filter options
     statusOptions = [
@@ -204,8 +209,8 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     constructor() {
-        // Use the entity selectors
         this.students$ = this.store.select(StudentSelectors.selectAllStudents);
+        this.totalElements$ = this.store.select(StudentSelectors.selectTotalElements);
         this.centers$ = this.store.select(CenterSelectors.selectAllCenters);
         this.levels$ = this.store.select(LevelSelectors.selectAllLevels);
 
@@ -278,10 +283,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnInit(): void {
-        // Dispatch action to load students
         this.store.dispatch(LevelActions.loadLevels({}))
         this.store.dispatch(CenterActions.loadCenters());
-        this.store.dispatch(StudentsActions.loadStudents());
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: 0,
+            size: this.DEFAULT_PAGE_SIZE,
+            sort: this.DEFAULT_SORT,
+        }));
         this.initializeLocationSelectors();
         this.loadProvinces();
         this.headerActions.push(
@@ -353,6 +361,18 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.destroy$.complete();
     }
 
+    onPageChange(event: { page: number; rows: number; sort?: string }): void {
+        if (event.sort) {
+            this.currentSort = event.sort;
+        }
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: event.page,
+            size: event.rows,
+            sort: this.currentSort,
+            filters: Object.keys(this.searchFilters).length > 0 ? this.searchFilters : undefined,
+        }));
+    }
+
     onRowSelect($event: Student) {
         this.router.navigate(['/schoolar/students', $event.id]).then();
     }
@@ -386,33 +406,30 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private performSearch(searchTerm: string): void {
         this.isSearchMode$.next(true);
 
-        // Build search filters
         const filters: any = {};
 
-        // If search term looks like an email
         if (searchTerm.includes('@')) {
             filters.email = searchTerm;
-        }
-        // If search term is numeric, try as code
-        else if (/^\d+$/.test(searchTerm.trim())) {
+        } else if (/^\d+$/.test(searchTerm.trim())) {
             filters.code = parseInt(searchTerm.trim(), 10);
-        }
-        // Otherwise, try as username
-        else {
+        } else {
             filters.username = searchTerm;
         }
 
-        // Merge with existing filters
         const mergedFilters = {...this.searchFilters, ...filters};
 
-        // Remove empty filters
         Object.keys(mergedFilters).forEach(key => {
             if (mergedFilters[key] === undefined || mergedFilters[key] === null || mergedFilters[key] === '') {
                 delete mergedFilters[key];
             }
         });
 
-        this.store.dispatch(StudentsActions.searchStudents({filters: mergedFilters}));
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: 0,
+            size: this.DEFAULT_PAGE_SIZE,
+            sort: this.currentSort,
+            filters: mergedFilters,
+        }));
     }
 
     clearSearch(): void {
@@ -422,8 +439,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.selectedMunicipality = null;
         this.municipalities$ = of([]);
         this.loadingMunicipalities$ = of(false);
+        this.currentSort = this.DEFAULT_SORT;
         this.isSearchMode$.next(false);
-        this.store.dispatch(StudentsActions.loadStudents());
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: 0,
+            size: this.DEFAULT_PAGE_SIZE,
+            sort: this.DEFAULT_SORT,
+        }));
     }
 
     onColumnFilter(field: string, value: any): void {
@@ -537,10 +559,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             }
         });
 
-        console.log("Dispatching search with filters:", filters);
-
         if (Object.keys(filters).length > 0) {
-            this.store.dispatch(StudentsActions.searchStudents({filters}));
+            this.store.dispatch(StudentsActions.loadStudentsPaginated({
+                page: 0,
+                size: this.DEFAULT_PAGE_SIZE,
+                sort: this.currentSort,
+                filters,
+            }));
         } else {
             this.clearSearch();
         }

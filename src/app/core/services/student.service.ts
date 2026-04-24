@@ -3,7 +3,7 @@ import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Student} from 'src/app/core/models/academic/students/student';
-import {ApiResponse} from "../models/ApiResponseService";
+import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 import {CreateStudentRequest} from "../models/academic/students/create-student-request";
 
@@ -79,20 +79,6 @@ export class StudentService {
 
     /**
      * Search and filter students with comprehensive filtering options.
-     * @param filters Search filters (
-     * status,
-     * gender,
-     * ageRange ex.: 18-25
-     * academicBackground,
-     * centerId,
-     * levelId,
-     * unitId,
-     * code,
-     * email,
-     * username,
-     * province,
-     * municipality)
-     * @returns Observable of Student array
      */
     searchStudents(filters: {
         status?: string;
@@ -119,9 +105,53 @@ export class StudentService {
         return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`, {params}).pipe(
             map((response) => {
                 const data = response.data;
-                // Handle both pageable and non-pageable responses
                 const list = Array.isArray(data) ? data : (data?.content ?? []);
                 return (list as any[]).map((s) => this.normalizeStudent(s));
+            })
+        );
+    }
+
+    /**
+     * Paginated search — used by the student list with server-side pagination and sorting.
+     */
+    searchStudentsPaginated(
+        filters: {
+            status?: string;
+            academicBackground?: string;
+            ageRange?: string;
+            gender?: string;
+            centerId?: string;
+            levelId?: string;
+            unitId?: string;
+            code?: number;
+            email?: string;
+            username?: string;
+            province?: string;
+            municipality?: string;
+        },
+        page: number,
+        size: number,
+        sort?: string
+    ): Observable<PageableResponse<Student>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        if (sort) params = params.set('sort', sort);
+
+        Object.entries(filters || {}).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                params = params.set(key, String(value));
+            }
+        });
+
+        return this.http.get<ApiResponse<PageableResponse<any>>>(`${this.apiUrl}/search`, {params}).pipe(
+            map((response) => {
+                const data = response.data as PageableResponse<any>;
+                return {
+                    ...data,
+                    content: (data.content ?? []).map((s: any) => this.normalizeStudent(s)),
+                } as PageableResponse<Student>;
             })
         );
     }

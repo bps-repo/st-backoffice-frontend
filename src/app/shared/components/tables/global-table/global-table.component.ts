@@ -30,6 +30,8 @@ export interface TableColumn {
     filterTemplate?: boolean;
     customTemplate?: boolean;
     sortable?: boolean;
+    /** Override the sort parameter sent to the server (defaults to `field` when not set). */
+    sortField?: string;
 }
 
 @Component({
