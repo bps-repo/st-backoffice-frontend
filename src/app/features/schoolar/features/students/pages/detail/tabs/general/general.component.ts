@@ -1,16 +1,16 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, inject, ChangeDetectorRef} from '@angular/core';
-import {CardModule} from 'primeng/card';
-import {AvatarModule} from 'primeng/avatar';
-import {BadgeModule} from 'primeng/badge';
-import {DividerModule} from 'primeng/divider';
-import {TagModule} from 'primeng/tag';
-import {ButtonModule} from 'primeng/button';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {Subject, takeUntil} from 'rxjs';
-import {Student} from 'src/app/core/models/academic/students/student';
-import {StudentUnitProgress} from 'src/app/core/models/academic/students/student-unit-progress';
-import {StudentService} from 'src/app/core/services/student.service';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, inject, ChangeDetectorRef } from '@angular/core';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { BadgeModule } from 'primeng/badge';
+import { DividerModule } from 'primeng/divider';
+import { TagModule } from 'primeng/tag';
+import { ButtonModule } from 'primeng/button';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { Subject, takeUntil } from 'rxjs';
+import { Student } from 'src/app/core/models/academic/students/student';
+import { StudentUnitProgress } from 'src/app/core/models/academic/students/student-unit-progress';
+import { StudentService } from 'src/app/core/services/student.service';
 
 @Component({
     selector: 'app-general',
@@ -38,7 +38,7 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     unitProgresses: StudentUnitProgress[] = [];
     loadingProgresses = false;
 
-    personalInfo: {title: string; value: string | number}[] = [];
+    personalInfo: { title: string; value: string | number }[] = [];
 
     ngOnInit(): void {
         if (this.student) {
@@ -83,16 +83,27 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
 
     private buildPersonalInfo(student: Student): void {
         this.personalInfo = [
-            {title: 'Nº Utente', value: student.code ?? 'N/A'},
-            {title: 'Nível', value: student.level?.name ?? 'N/A'},
-            {title: 'Nº de Identificação', value: student.user?.identificationNumber ?? 'N/A'},
-            {title: 'Data de Nascimento', value: student.user?.birthdate ?? 'N/A'},
-            {title: 'Telefone', value: student.user?.phone ?? 'N/A'},
-            {title: 'Género', value: student.user?.gender ?? 'N/A'},
-            {title: 'Background académico', value: student.academicBackground ?? 'N/A'},
-            {title: 'Contacto de emergência', value: student.emergencyContactName ?? 'N/A'},
-            {title: 'Tel. emergência', value: student.emergencyContactNumber ?? 'N/A'},
+            { title: 'Nº Utente', value: student.code ?? 'N/A' },
+            { title: 'Nível', value: student.level?.name ?? 'N/A' },
+            { title: 'Nº de Identificação', value: student.user?.identificationNumber ?? 'N/A' },
+            { title: 'Data de Nascimento', value: student.user?.birthdate ?? 'N/A' },
+            { title: 'Idade', value: this.getAge(student.user?.birthdate) ?? 'N/A' },
+            { title: 'Telefone', value: student.user?.phone ?? 'N/A' },
+            { title: 'Género', value: this.getGenderLabel(student.user?.gender ?? 'N/A') },
+            { title: 'Background académico', value: student.academicBackground ?? 'N/A' },
+            { title: 'Contacto de emergência', value: student.emergencyContactName ?? 'N/A' },
+            { title: 'Relação com o contacto de emergência', value: student.emergencyContactRelationship ?? 'N/A' },
+            { title: 'Tel. emergência', value: student.emergencyContactNumber ?? 'N/A' },
         ];
+    }
+    getGenderLabel(gender: string): string {
+        const genderMap: Record<string, string> = {
+            'MALE': 'Masculino',
+            'FEMALE': 'Feminino',
+            'OTHER': 'Outro',
+            'PREFER_NOT_TO_SAY': 'Prefere não dizer'
+        };
+        return genderMap[gender] || gender;
     }
 
     getUnitStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
@@ -123,5 +134,20 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     get photoUrl(): string {
         return this.student?.user?.photo ||
             'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg';
+    }
+
+    getAge(birthdate: string | null | undefined): string {
+        if (!birthdate) return 'N/A';
+        const dob = new Date(birthdate);
+        if (Number.isNaN(dob.getTime())) {
+            return 'N/A';
+        }
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age.toString();
     }
 }
