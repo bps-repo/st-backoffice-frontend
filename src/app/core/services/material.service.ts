@@ -1,10 +1,10 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable, inject} from '@angular/core';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import {Material, MaterialCreateRequest} from '../models/academic/material';
-import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { Material, MaterialCreateRequest } from '../models/academic/material';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
 
 @Injectable({
     providedIn: 'root',
@@ -49,7 +49,7 @@ export class MaterialService {
     }
 
     getMaterialsByEntity(entityType: string, entityId: string): Observable<Material[]> {
-        return this.http.get<ApiResponse<Material[]>>(`${environment.apiUrl}/material-relations/entity/${entityType}/${entityId}`).pipe(
+        return this.http.get<ApiResponse<Material[]>>(`${this.apiUrl}/materials/entity/${entityType}/${entityId}`).pipe(
             map((response) => response.data as Material[])
         );
     }
