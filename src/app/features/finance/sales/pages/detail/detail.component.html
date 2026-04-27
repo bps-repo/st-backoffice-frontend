@@ -16,7 +16,7 @@
                 <button pButton icon="pi pi-arrow-left" class="p-button-text" (click)="goBack()"></button>
                 <div>
                     <h1 class="text-3xl font-bold text-900 mb-1">Detalhes da Venda</h1>
-                    <p class="text-lg text-600 mb-0">Venda #{{ sale.id }} • {{ formatDate(sale.dates.created) }}</p>
+                    <p class="text-lg text-600 mb-0">Fatura #{{ sale.invoiceNumber }} • {{ formatDate(sale.issueDate) }}</p>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -39,20 +39,20 @@
                         <div class="col-12 md:col-6">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Nome</label>
-                                <span class="text-900">{{ sale.client.name }}</span>
+                                <span class="text-900">{{ sale.customer.fullName }}</span>
                             </div>
                         </div>
                         <div class="col-12 md:col-6">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Email</label>
-                                <span class="text-900">{{ sale.client.email }}</span>
+                                <span class="text-900">{{ sale.customer.email }}</span>
                             </div>
                         </div>
-                        @if (sale.client.phone) {
+                        @if (sale.customer.phone) {
                         <div class="col-12 md:col-6">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Telefone</label>
-                                <span class="text-900">{{ sale.client.phone }}</span>
+                                <span class="text-900">{{ sale.customer.phone }}</span>
                             </div>
                         </div>
                         }
@@ -66,66 +66,65 @@
                         <div class="col-12 md:col-6">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Tipo</label>
-                                <p-tag [value]="sale.product.type" [severity]="getTypeSeverity(sale.product.type)"></p-tag>
+                                <p-tag [value]="formatDocumentType(sale.documentType)" [severity]="getTypeSeverity(sale.documentType)"></p-tag>
                             </div>
                         </div>
                         <div class="col-12 md:col-6">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Produto</label>
-                                <span class="text-900">{{ sale.product.name }}</span>
+                                <span class="text-900">{{ sale.items[0]?.productName || sale.description }}</span>
                             </div>
                         </div>
                         <div class="col-12 md:col-4">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Quantidade</label>
-                                <span class="text-900">{{ sale.product.quantity }}</span>
+                                <span class="text-900">{{ sale.items[0]?.quantity || 0 }}</span>
                             </div>
                         </div>
                         <div class="col-12 md:col-4">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Preço Unitário</label>
-                                <span class="text-900">{{ sale.product.unitPrice | currency:'Kz':'symbol':'1.2-2' }}</span>
+                                <span class="text-900">{{ (sale.items[0]?.unitPrice || 0) | currency:'Kz':'symbol':'1.2-2' }}</span>
                             </div>
                         </div>
                         <div class="col-12 md:col-4">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Total</label>
-                                <span class="text-900 font-bold text-blue-600">{{ sale.product.total | currency:'Kz':'symbol':'1.2-2' }}</span>
+                                <span class="text-900 font-bold text-blue-600">{{ sale.amount | currency:'Kz':'symbol':'1.2-2' }}</span>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Método de Pagamento</label>
-                                <span class="text-900">{{ sale.payment.method }}</span>
+                                <span class="text-900">{{ sale.paymentSchedule || '-' }}</span>
                             </div>
                         </div>
-                        @if (sale.payment.reference) {
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="block text-600 font-medium mb-2">Referência</label>
-                                <span class="text-900">{{ sale.payment.reference }}</span>
-                            </div>
-                        </div>
-                        }
                     </div>
                 </div>
 
                 <!-- Change History -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-4">Histórico de Alterações</h3>
-                    <div class="flex flex-column gap-3">
-                        @for (item of sale.history; track item.timestamp) {
-                        <div class="p-3 border-round surface-border surface-card">
-                            <div class="flex justify-content-between align-items-start">
-                                <div class="flex-1">
-                                    <h4 class="font-medium text-900 mb-1">{{ item.action }}</h4>
-                                    <p class="text-600 mb-0">{{ item.description }}</p>
-                                </div>
-                                <span class="text-sm text-color-secondary">{{ formatDate(item.timestamp) }}</span>
-                            </div>
-                        </div>
-                        }
-                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Itens da Fatura</h3>
+                    <p-table [value]="sale.items" styleClass="p-datatable-sm">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Preço Unitário</th>
+                                <th>Desconto</th>
+                                <th>Total</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-item>
+                            <tr>
+                                <td>{{ item.productName }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.unitPrice | currency:'Kz':'symbol':'1.2-2' }}</td>
+                                <td>{{ item.discountAmount | currency:'Kz':'symbol':'1.2-2' }}</td>
+                                <td>{{ item.totalAmount | currency:'Kz':'symbol':'1.2-2' }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
                 </div>
             </div>
 
@@ -137,19 +136,19 @@
                     <div class="flex flex-column gap-3">
                         <div class="flex justify-content-between align-items-center">
                             <span class="text-600">Status do Pagamento:</span>
-                            <p-tag [value]="sale.payment.status" [severity]="getStatusSeverity(sale.payment.status)"></p-tag>
+                            <p-tag [value]="formatStatus(sale.paymentStatus)" [severity]="getStatusSeverity(sale.paymentStatus)"></p-tag>
                         </div>
                         <div class="flex justify-content-between align-items-center">
                             <span class="text-600">Quantidade:</span>
-                            <span class="text-900 font-medium">{{ sale.product.quantity }}</span>
+                            <span class="text-900 font-medium">{{ sale.items[0]?.quantity || 0 }}</span>
                         </div>
                         <div class="flex justify-content-between align-items-center">
                             <span class="text-600">Preço Unitário:</span>
-                            <span class="text-900 font-medium">{{ sale.product.unitPrice | currency:'Kz':'symbol':'1.2-2' }}</span>
+                            <span class="text-900 font-medium">{{ (sale.items[0]?.unitPrice || 0) | currency:'Kz':'symbol':'1.2-2' }}</span>
                         </div>
                         <div class="flex justify-content-between align-items-center">
                             <span class="text-600">Total:</span>
-                            <span class="text-900 font-bold text-blue-600">{{ sale.product.total | currency:'Kz':'symbol':'1.2-2' }}</span>
+                            <span class="text-900 font-bold text-blue-600">{{ sale.amount | currency:'Kz':'symbol':'1.2-2' }}</span>
                         </div>
                     </div>
                 </div>
@@ -160,20 +159,18 @@
                     <div class="flex flex-column gap-3">
                         <div class="flex justify-content-between align-items-center">
                             <span class="text-600">Data de Criação:</span>
-                            <span class="text-900 font-medium">{{ formatDate(sale.dates.created) }}</span>
+                            <span class="text-900 font-medium">{{ formatDate(sale.issueDate) }}</span>
                         </div>
                         <div class="flex justify-content-between align-items-center">
-                            <span class="text-600">Última Atualização:</span>
-                            <span class="text-900 font-medium">{{ formatDate(sale.dates.lastUpdate) }}</span>
+                            <span class="text-600">Contrato:</span>
+                            <span class="text-900 font-medium">{{ sale.contractCode }}</span>
                         </div>
-                        @if (sale.dates.paidAt) {
                         <div class="flex justify-content-between align-items-center">
-                            <span class="text-600">Data do Pagamento:</span>
-                            <span class="text-900 font-medium">{{ formatDate(sale.dates.paidAt) }}</span>
+                            <span class="text-600">Centro:</span>
+                            <span class="text-900 font-medium">{{ sale.customer.centerName }}</span>
                         </div>
-                        }
                         <div class="flex justify-content-between align-items-center">
-                            <span class="text-600">ID da Venda:</span>
+                            <span class="text-600">ID da Fatura:</span>
                             <span class="text-900 font-medium">{{ sale.id }}</span>
                         </div>
                     </div>

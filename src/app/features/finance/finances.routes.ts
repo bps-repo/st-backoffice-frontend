@@ -17,11 +17,6 @@ export const FINANCES_ROUTES: Routes = [
                 component: FinanceDashboard,
             },
             {
-                path: 'invoices',
-                loadChildren: () =>
-                    import('./invoices/invoices.routes').then(m => m.InvoicesRoutes),
-            },
-            {
                 path: 'payments',
                 loadChildren: () =>
                     import('./payments/payments.routes').then(m => m.PaymentsRoutes),
@@ -34,7 +29,7 @@ export const FINANCES_ROUTES: Routes = [
             {
                 path: 'sales',
                 loadChildren: () =>
-                    import('../finances/features/sales/sales.routes').then(m => m.SalesRoutes),
+                    import('./sales/sales.routes').then(m => m.SalesRoutes),
             },
             {
                 path: 'settings',

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, Subject, takeUntil, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { Observable, Subject, of, takeUntil } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,8 +14,21 @@ import { FormsModule } from '@angular/forms';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { BadgeModule } from 'primeng/badge';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { SalesService } from 'src/app/core/services/sales.service';
-import { Sale, SaleFilter } from 'src/app/core/models/finance/sale.model';
+import { InvoiceListItem } from 'src/app/core/models/invoice/invoice.model';
+import { SalesActions } from 'src/app/core/store/finance/sales/sales.actions';
+import { selectAllSales, selectSalesError, selectSalesLoading } from 'src/app/core/store/finance/sales/sales.selectors';
+
+interface SaleListItem {
+    id: string;
+    clientName: string;
+    clientEmail: string;
+    productName: string;
+    type: string;
+    quantity: number;
+    total: number;
+    paymentStatus: string;
+    date: string;
+}
 
 @Component({
     selector: 'app-sales-list',
@@ -71,18 +84,19 @@ import { Sale, SaleFilter } from 'src/app/core/models/finance/sale.model';
 })
 export class ListComponent implements OnInit, OnDestroy {
     private router = inject(Router);
-    private salesService = inject(SalesService);
+    private store = inject(Store);
 
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
 
     // Data observables
-    sales$: Observable<Sale[]> = of([]);
+    sales$: Observable<SaleListItem[]> = of([]);
     loading$: Observable<boolean> = of(false);
     error$: Observable<string | null> = of(null);
 
     // Local state
-    sales: Sale[] = [];
+    allSales: SaleListItem[] = [];
+    sales: SaleListItem[] = [];
     loading = false;
     error: string | null = null;
     searchTerm = '';
@@ -122,6 +136,26 @@ export class ListComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     ngOnInit(): void {
+        this.store.select(selectAllSales)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((sales) => {
+                const mappedSales = sales.map((invoice) => this.mapInvoiceToSale(invoice));
+                this.allSales = mappedSales;
+                this.sales = this.filterSales(this.allSales);
+            });
+
+        this.store.select(selectSalesLoading)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((loading) => {
+                this.loading = loading;
+            });
+
+        this.store.select(selectSalesError)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((error) => {
+                this.error = error ? `Erro ao carregar vendas: ${error?.message || error}` : null;
+            });
+
         this.loadSales();
     }
 
@@ -148,27 +182,75 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     loadSales(): void {
-        this.loading = true;
-        this.error = null;
+        this.store.dispatch(SalesActions.loadSales());
+    }
 
-        const filter: SaleFilter = {
-            searchTerm: this.searchTerm || undefined,
-            type: this.typeFilter || undefined,
-            status: this.statusFilter || undefined
+    private mapInvoiceToSale(invoice: InvoiceListItem): SaleListItem {
+        return {
+            id: invoice.id,
+            clientName: invoice.customer.fullName || '-',
+            clientEmail: invoice.customer.email || '-',
+            productName: invoice.items[0].productName || '-',
+            type: this.normalizeType(invoice.documentType),
+            quantity: invoice.items?.reduce((total, item) => total + item.quantity, 0) || 0,
+            total: invoice.amount || 0,
+            paymentStatus: this.normalizeStatus(invoice.paymentStatus),
+            date: invoice.issueDate
         };
+    }
 
-        this.salesService.getSales(filter).pipe(
-            takeUntil(this.destroy$)
-        ).subscribe({
-            next: (sales) => {
-                this.sales = sales;
-                this.loading = false;
-            },
-            error: (error) => {
-                this.error = 'Erro ao carregar vendas: ' + error.message;
-                this.loading = false;
+    private filterSales(sales: SaleListItem[]): SaleListItem[] {
+        const searchTerm = this.searchTerm.trim().toLowerCase();
+
+        return sales.filter((sale) => {
+            if (searchTerm) {
+                const matchesSearch =
+                    sale.clientName.toLowerCase().includes(searchTerm) ||
+                    sale.productName.toLowerCase().includes(searchTerm);
+                if (!matchesSearch) {
+                    return false;
+                }
             }
+
+            if (this.typeFilter && sale.type !== this.typeFilter) {
+                return false;
+            }
+
+            if (this.statusFilter && sale.paymentStatus !== this.statusFilter) {
+                return false;
+            }
+
+            return true;
         });
+    }
+
+    private normalizeStatus(status: string): string {
+        switch ((status || '').toLowerCase()) {
+            case 'paid':
+                return 'Pago';
+            case 'cancelled':
+                return 'Cancelado';
+            case 'pending':
+            default:
+                return 'Pendente';
+        }
+    }
+
+    private normalizeType(type: string): string {
+        switch ((type || '').toLowerCase()) {
+            case 'book':
+            case 'livro':
+                return 'Livro';
+            case 'certificate':
+            case 'certificado':
+                return 'Certificado';
+            case 'declaration':
+            case 'declaracao':
+            case 'declaração':
+                return 'Declaração';
+            default:
+                return 'Serviço';
+        }
     }
 
     onViewChange(event: any): void {
@@ -181,11 +263,11 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onSearchChange(): void {
-        this.loadSales();
+        this.sales = this.filterSales(this.allSales);
     }
 
     onFilterChange(): void {
-        this.loadSales();
+        this.sales = this.filterSales(this.allSales);
     }
 
     getStatusSeverity(status: string): string {
@@ -220,7 +302,7 @@ export class ListComponent implements OnInit, OnDestroy {
         return new Date(dateString).toLocaleDateString('pt-BR');
     }
 
-    viewSaleDetails(sale: Sale): void {
+    viewSaleDetails(sale: SaleListItem): void {
         this.router.navigate(['/finances/sales', sale.id]);
     }
 

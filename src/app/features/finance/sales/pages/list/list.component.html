@@ -27,7 +27,6 @@
 
             <div class="flex align-items-center gap-3">
                 <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
                     <input type="text" pInputText placeholder="Buscar por cliente ou produto..."
                         [(ngModel)]="searchTerm" (input)="onSearchChange()" class="w-20rem" />
                 </span>
@@ -94,21 +93,21 @@
                     <tr>
                         <td>
                             <div class="flex flex-column">
-                                <span class="font-medium">{{ sale.client.name }}</span>
-                                <small class="text-color-secondary">{{ sale.client.email }}</small>
+                                <span class="font-medium">{{ sale.clientName }}</span>
+                                <small class="text-color-secondary">{{ sale.clientEmail }}</small>
                             </div>
                         </td>
-                        <td>{{ sale.product.name }}</td>
+                        <td>{{ sale.productName }}</td>
                         <td>
-                            <p-tag [value]="sale.product.type" [severity]="getTypeSeverity(sale.product.type)"></p-tag>
+                            <p-tag [value]="sale.type" [severity]="getTypeSeverity(sale.type)"></p-tag>
                         </td>
-                        <td>{{ sale.product.quantity }}</td>
-                        <td>{{ sale.product.total | currency:'Kz':'symbol':'1.2-2' }}</td>
-                        <td>{{ sale.payment.method }}</td>
+                        <td>{{ sale.quantity }}</td>
+                        <td>{{ sale.total | currency:'Kz':'symbol':'1.2-2' }}</td>
+                        <td>-</td>
                         <td>
-                            <p-tag [value]="sale.payment.status" [severity]="getStatusSeverity(sale.payment.status)"></p-tag>
+                            <p-tag [value]="sale.paymentStatus" [severity]="getStatusSeverity(sale.paymentStatus)"></p-tag>
                         </td>
-                        <td>{{ formatDate(sale.dates.created) }}</td>
+                        <td>{{ formatDate(sale.date) }}</td>
                         <td>
                             <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm"
                                 pTooltip="Ver detalhes" (click)="viewSaleDetails(sale)"></button>

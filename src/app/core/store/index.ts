@@ -42,6 +42,9 @@ import {InstallmentsState} from "../store/finance/installments/installments.stat
 import {PaymentsEffects} from "../store/finance/payments/payments.effects";
 import {paymentsFeature} from "../store/finance/payments/payments.feature";
 import {PaymentsState} from "../store/finance/payments/payments.state";
+import {SalesEffects} from "./finance/sales/sales.effects";
+import {salesFeature} from "./finance/sales/sales.feature";
+import {SalesState} from "./finance/sales/sales.state";
 import {CentersEffects} from "./corporate/center/centers.effects";
 import {TasksEffects} from "./settings/tasks/tasks.effects";
 import {tasksFeature} from "./settings/tasks/tasks.feature";
@@ -72,6 +75,7 @@ export interface AppState {
     attendances: AttendancesState;
     installments: InstallmentsState;
     payments: PaymentsState;
+    sales: SalesState;
     tasks: TasksState;
     location: LocationState;
     statistics: StatisticsState;
@@ -94,6 +98,7 @@ export const AppEffects = [
     AttendancesEffects,
     InstallmentsEffects,
     PaymentsEffects,
+    SalesEffects,
     TasksEffects,
     LocationEffects,
     StatisticsEffects,
@@ -116,6 +121,7 @@ export const AppFeatures = [
     attendancesFeature,
     installmentsFeature,
     paymentsFeature,
+    salesFeature,
     tasksFeature,
     locationFeature,
     statisticsFeature,
