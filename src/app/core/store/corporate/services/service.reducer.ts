@@ -35,12 +35,25 @@ export const serviceFeature = createFeature({
             loadingCreate: false,
             createError: null,
         })),
-        on(ServiceActions.loadServicesSuccess, (state, { services }) => serviceAdapter.setAll(services, {
+        on(ServiceActions.loadServicesPaged, (state, { page, size }) => ({
+            ...state,
+            loading: true,
+            error: null,
+            loadingCreate: false,
+            createError: null,
+            page,
+            size,
+        })),
+        on(ServiceActions.loadServicesSuccess, (state, { services, page, size, totalElements, totalPages }) => serviceAdapter.setAll(services, {
             ...state,
             loading: false,
             error: null,
             loadingCreate: false,
             createError: null,
+            page,
+            size,
+            totalElements,
+            totalPages,
         })),
         on(ServiceActions.loadServicesFailure, (state, { error }) => ({
             ...state,
@@ -49,12 +62,13 @@ export const serviceFeature = createFeature({
             loadingCreate: false,
             createError: null,
         })),
-        on(ServiceActions.loadService, (state) => ({
+        on(ServiceActions.loadService, (state, { id }) => ({
             ...state,
             loading: true,
             error: null,
             loadingCreate: false,
             createError: null,
+            selectedServiceId: id,
         })),
         on(ServiceActions.loadServiceSuccess, (state, { service }) => serviceAdapter.setOne(service, {
             ...state,
@@ -62,6 +76,7 @@ export const serviceFeature = createFeature({
             error: null,
             loadingCreate: false,
             createError: null,
+            selectedServiceId: service.id,
         })),
         on(ServiceActions.loadServiceFailure, (state, { error }) => ({
             ...state,

@@ -36,35 +36,47 @@
             <!-- Left Column -->
             <div class="col-12 lg:col-8">
                 <!-- Client Data Card -->
-                <div class="card mb-4">
+                <div class="card mb-4" formGroupName="client">
                     <h3 class="text-xl font-semibold mb-4">Dados do Cliente</h3>
-                    <p class="text-color-secondary mb-4">Informe os dados do cliente ou busque no cadastro existente</p>
+                    <p class="text-color-secondary mb-4">Selecione um aluno para preencher os dados do cliente automaticamente</p>
 
                     <div class="grid">
                         <div class="col-12">
-                            <label class="block text-600 font-medium mb-2">Nome do Cliente *</label>
-                            <div class="p-inputgroup">
-                                <input type="text" pInputText formControlName="client.name"
-                                    placeholder="Digite o nome do cliente" class="w-full" />
-                                <span class="p-inputgroup-addon">
-                                    <i class="pi pi-search"></i>
-                                </span>
-                            </div>
-                            @if (saleForm.get('client.name')?.invalid && saleForm.get('client.name')?.touched) {
-                            <small class="p-error block mt-1">Nome do cliente é obrigatório</small>
+                            <label class="block text-600 font-medium mb-2">Aluno *</label>
+                            <p-dropdown [options]="studentOptions" formControlName="studentId"
+                                placeholder="Selecione um aluno" optionLabel="label" optionValue="value"
+                                [filter]="true" [showClear]="true" class="w-full" [loading]="loadingStudents"></p-dropdown>
+                            @if (saleForm.get('client.studentId')?.invalid && saleForm.get('client.studentId')?.touched) {
+                            <small class="p-error block mt-1">Selecione um aluno</small>
                             }
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label class="block text-600 font-medium mb-2">Email (opcional)</label>
-                            <input type="email" pInputText formControlName="client.email"
-                                placeholder="cliente@email.com" class="w-full" />
+                            <label class="block text-600 font-medium mb-2">Nome do Cliente</label>
+                            <input type="text" pInputText formControlName="name"
+                                placeholder="Nome do aluno" class="w-full" readonly />
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label class="block text-600 font-medium mb-2">Telefone (opcional)</label>
-                            <input type="tel" pInputText formControlName="client.phone" placeholder="+244 900 000 000"
-                                class="w-full" />
+                            <label class="block text-600 font-medium mb-2">Email</label>
+                            <input type="email" pInputText formControlName="email"
+                                placeholder="Email do aluno" class="w-full" readonly />
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <label class="block text-600 font-medium mb-2">Telefone</label>
+                            <input type="tel" pInputText formControlName="phone" placeholder="+244 900 000 000"
+                                class="w-full" readonly />
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <label class="block text-600 font-medium mb-2">Centro *</label>
+                            <p-dropdown [options]="centerOptions" formControlName="centerId"
+                                placeholder="Selecione o centro" optionLabel="label" optionValue="value"
+                                [filter]="true" [showClear]="true" class="w-full" [loading]="loadingCenters"></p-dropdown>
+                            @if (saleForm.get('client.centerId')?.invalid && saleForm.get('client.centerId')?.touched) {
+                            <small class="p-error block mt-1">Centro é obrigatório</small>
+                            }
                         </div>
                     </div>
                 </div>
@@ -74,29 +86,29 @@
                     <h3 class="text-xl font-semibold mb-4">Dados do Produto/Serviço</h3>
 
                     <div class="grid">
+                        <div class="col-12 contents" formGroupName="product">
                         <div class="col-12 md:col-6">
-                            <label class="block text-600 font-medium mb-2">Tipo de Produto *</label>
-                            <p-dropdown [options]="productTypeOptions" formControlName="product.type"
-                                placeholder="Selecione o tipo" optionLabel="label" optionValue="value"
-                                class="w-full"></p-dropdown>
-                            @if (saleForm.get('product.type')?.invalid && saleForm.get('product.type')?.touched) {
-                            <small class="p-error block mt-1">Tipo de produto é obrigatório</small>
+                            <label class="block text-600 font-medium mb-2">Serviço *</label>
+                            <p-dropdown [options]="availableProducts" formControlName="centerProductId"
+                                placeholder="Selecione o serviço" optionLabel="label" optionValue="value"
+                                class="w-full" [loading]="loadingServices" [filter]="true"></p-dropdown>
+                            @if (saleForm.get('product.centerProductId')?.invalid && saleForm.get('product.centerProductId')?.touched) {
+                            <small class="p-error block mt-1">Serviço é obrigatório</small>
                             }
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label class="block text-600 font-medium mb-2">Produto/Serviço *</label>
-                            <p-dropdown [options]="availableProducts" formControlName="product.name"
-                                placeholder="Selecione o produto" optionLabel="label" optionValue="value" class="w-full"
-                                [disabled]="!saleForm.get('product.type')?.value"></p-dropdown>
+                            <label class="block text-600 font-medium mb-2">Nome do Serviço *</label>
+                            <input type="text" pInputText formControlName="name"
+                                placeholder="Nome do serviço" class="w-full" readonly />
                             @if (saleForm.get('product.name')?.invalid && saleForm.get('product.name')?.touched) {
-                            <small class="p-error block mt-1">Produto é obrigatório</small>
+                            <small class="p-error block mt-1">Serviço é obrigatório</small>
                             }
                         </div>
 
                         <div class="col-12 md:col-4">
                             <label class="block text-600 font-medium mb-2">Quantidade *</label>
-                            <p-inputNumber formControlName="product.quantity" [min]="1" [max]="999"
+                            <p-inputNumber formControlName="quantity" [min]="1" [max]="999"
                                 class="w-full"></p-inputNumber>
                             @if (saleForm.get('product.quantity')?.invalid && saleForm.get('product.quantity')?.touched)
                             {
@@ -106,17 +118,18 @@
 
                         <div class="col-12 md:col-4">
                             <label class="block text-600 font-medium mb-2">Preço Unitário (AOA) *</label>
-                            <p-inputNumber formControlName="product.unitPrice" [min]="0" [maxFractionDigits]="2"
+                            <p-inputNumber formControlName="unitPrice" [min]="0" [maxFractionDigits]="2"
                                 [minFractionDigits]="2" class="w-full"></p-inputNumber>
                             @if (saleForm.get('product.unitPrice')?.invalid &&
                             saleForm.get('product.unitPrice')?.touched) {
                             <small class="p-error block mt-1">Preço unitário deve ser maior ou igual a 0</small>
                             }
                         </div>
+                        </div>
 
-                        <div class="col-12 md:col-4">
+                        <div class="col-12 md:col-4" formGroupName="payment">
                             <label class="block text-600 font-medium mb-2">Método de Pagamento *</label>
-                            <p-dropdown [options]="paymentMethodOptions" formControlName="payment.method"
+                            <p-dropdown [options]="paymentMethodOptions" formControlName="method"
                                 optionLabel="label" optionValue="value" class="w-full"></p-dropdown>
                         </div>
 
@@ -131,7 +144,7 @@
 
             <!-- Right Column - Sale Summary -->
             <div class="col-12 lg:col-4">
-                <div class="card mb-4">
+                <div class="card mb-4" formGroupName="product">
                     <h3 class="text-lg font-semibold mb-4">Resumo da Venda</h3>
 
                     <div class="flex flex-column gap-3">

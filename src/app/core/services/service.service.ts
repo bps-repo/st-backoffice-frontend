@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -16,10 +16,17 @@ export class ServiceService {
     private apiUrl = `${environment.apiUrl}/services`;
 
 
-    getServices(): Observable<Service[]> {
-        return this.http.get<ApiResponse<PageableResponse<Service>>>(this.apiUrl).pipe(
-            map((response) => response.data.content as Service[])
-        );
+    getServices(
+        page: number = 0,
+        size: number = 15,
+        sort: string = 'createdAt,desc',
+    ): Observable<ApiResponse<PageableResponse<Service>>> {
+        const params = new HttpParams()
+            .set('page', String(page))
+            .set('size', String(size))
+            .set('sort', sort);
+
+        return this.http.get<ApiResponse<PageableResponse<Service>>>(this.apiUrl, { params });
     }
 
     getServiceById(id: string): Observable<Service> {

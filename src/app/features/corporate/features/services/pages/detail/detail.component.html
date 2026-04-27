@@ -1,0 +1,48 @@
+<div class="grid">
+    @if (loading) {
+        <div class="col-12 flex align-items-center justify-content-center py-5">
+            <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+            <span class="ml-3">Carregando detalhes do serviço...</span>
+        </div>
+    } @else {
+        <div class="col-12">
+            <div class="flex align-items-center gap-3 mb-4">
+                <button pButton icon="pi pi-arrow-left" class="p-button-text" (click)="goBack()"></button>
+                <h2 class="text-2xl font-bold m-0">Detalhes do Serviço</h2>
+            </div>
+
+            @if (error) {
+                <div class="p-3 mb-4 border-1 border-red-200 border-round bg-red-50">
+                    <span class="text-red-700">Erro ao carregar serviço: {{ error }}</span>
+                </div>
+            }
+
+            @if (service) {
+                <div class="card">
+                    <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <p class="text-sm text-color-secondary mb-1">Nome</p>
+                            <p class="m-0 font-medium">{{ service.name }}</p>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <p class="text-sm text-color-secondary mb-1">Tipo</p>
+                            <p class="m-0 font-medium">{{ service.type }}</p>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <p class="text-sm text-color-secondary mb-1">Valor</p>
+                            <p class="m-0 font-medium">{{ service.value | currency:'Kz':'symbol':'1.2-2' }}</p>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <p class="text-sm text-color-secondary mb-1">Status</p>
+                            <p-tag [value]="service.active ? 'Ativo' : 'Inativo'" [severity]="service.active ? 'success' : 'danger'"></p-tag>
+                        </div>
+                        <div class="col-12">
+                            <p class="text-sm text-color-secondary mb-1">Descrição</p>
+                            <p class="m-0">{{ service.description || '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

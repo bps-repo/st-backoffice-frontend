@@ -3,7 +3,7 @@ import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
-import {Invoice, InvoiceDetail, InvoiceListItem} from '../models/invoice/invoice.model';
+import {CreateInvoiceRequest, Invoice, InvoiceDetail, InvoiceListItem} from '../models/invoice/invoice.model';
 
 @Injectable({
     providedIn: 'root',
@@ -33,8 +33,8 @@ export class InvoiceService {
         );
     }
 
-    createInvoice(invoice: Invoice): Observable<Invoice> {
-        return this.http.post<Invoice>(this.apiUrl, invoice);
+    createInvoice(invoice: CreateInvoiceRequest): Observable<ApiResponse<InvoiceDetail>> {
+        return this.http.post<ApiResponse<InvoiceDetail>>(this.apiUrl, invoice);
     }
 
     updateInvoice(invoice: Invoice): Observable<Invoice> {

@@ -1,0 +1,107 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-2xl font-bold mb-2">Serviços</h2>
+            <p class="text-color-secondary mb-4">Lista de serviços disponíveis na administração.</p>
+
+            <div class="grid mb-4">
+                <div class="col-12 md:col-4">
+                    <span class="p-input-icon-left w-full">
+                        <input
+                            pInputText
+                            type="text"
+                            class="w-full"
+                            placeholder="Buscar por nome ou descrição"
+                            [(ngModel)]="searchTerm"
+                            (input)="onFilterChange()"
+                        />
+                    </span>
+                </div>
+                <div class="col-12 md:col-4">
+                    <select class="w-full p-inputtext" [(ngModel)]="typeFilter" (change)="onFilterChange()">
+                        <option value="">Todos os tipos</option>
+                        @for (type of getServiceTypes(services$ | async); track type) {
+                            <option [value]="type">{{ getTypeLabel(type) }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 md:col-4">
+                    <select class="w-full p-inputtext" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+                        <option value="">Todos os status</option>
+                        <option value="active">Ativo</option>
+                        <option value="inactive">Inativo</option>
+                    </select>
+                </div>
+            </div>
+
+            @if (error$ | async; as error) {
+                <div class="p-3 mb-4 border-1 border-red-200 border-round bg-red-50">
+                    <span class="text-red-700">Erro ao carregar serviços: {{ error }}</span>
+                </div>
+            }
+
+            <p-table
+                [value]="(filteredServices$ | async) || []"
+                responsiveLayout="scroll"
+                styleClass="p-datatable-sm"
+                [lazy]="true"
+                [paginator]="true"
+                [rows]="rows"
+                [rowsPerPageOptions]="[10, 15, 25, 50]"
+                [totalRecords]="(totalElements$ | async) || 0"
+                [loading]="(loading$ | async) || false"
+                currentPageReportTemplate="A mostrar {first} a {last} de {totalRecords} serviços"
+                (onLazyLoad)="onLazyLoad($event)"
+            >
+                <ng-template pTemplate="caption">
+                    @if (loading$ | async) {
+                        <div class="flex align-items-center gap-2">
+                            <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+                            <span>Carregando serviços...</span>
+                        </div>
+                    }
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-service>
+                    <tr>
+                        <td>{{ service.name }}</td>
+                        <td>{{ service.description || '-' }}</td>
+                        <td>{{ getTypeLabel(service.type) }}</td>
+                        <td>{{ service.value | currency:'Kz':'symbol':'1.2-2' }}</td>
+                        <td>
+                            <p-tag
+                                [value]="service.active ? 'Ativo' : 'Inativo'"
+                                [severity]="getStatusSeverity(service.active)"
+                            ></p-tag>
+                        </td>
+                        <td>
+                            <button
+                                pButton
+                                type="button"
+                                icon="pi pi-eye"
+                                class="p-button-rounded p-button-text"
+                                (click)="viewDetails(service)"
+                            ></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-color-secondary">
+                            Nenhum serviço encontrado.
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

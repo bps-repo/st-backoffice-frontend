@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import * as ServiceActions from './service.actions';
 import { ServiceService } from 'src/app/core/services/service.service';
+import { Service } from 'src/app/core/models/course/service';
 
 @Injectable()
 export class ServiceEffects {
@@ -15,14 +16,38 @@ export class ServiceEffects {
         this.actions$.pipe(
             ofType(ServiceActions.loadServices),
             mergeMap(() =>
-                this.serviceService.getServices().pipe(
-                    map((services) => ServiceActions.loadServicesSuccess({ services })),
+                this.serviceService.getServices(0, 15).pipe(
+                    map((response) => ServiceActions.loadServicesSuccess({
+                        services: response.data.content as Service[],
+                        page: response.data.number,
+                        size: response.data.size,
+                        totalElements: response.data.totalElements,
+                        totalPages: response.data.totalPages,
+                    })),
                     catchError(error =>
                         of(ServiceActions.loadServicesFailure({ error }))
                     )
                 )
             )
         )
+    );
+
+    loadServicesPaged$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ServiceActions.loadServicesPaged),
+            mergeMap(({ page, size, sort }) =>
+                this.serviceService.getServices(page, size, sort).pipe(
+                    map((response) => ServiceActions.loadServicesSuccess({
+                        services: response.data.content as Service[],
+                        page: response.data.number,
+                        size: response.data.size,
+                        totalElements: response.data.totalElements,
+                        totalPages: response.data.totalPages,
+                    })),
+                    catchError((error) => of(ServiceActions.loadServicesFailure({ error }))),
+                ),
+            ),
+        ),
     );
 
     createService$ = createEffect(() =>

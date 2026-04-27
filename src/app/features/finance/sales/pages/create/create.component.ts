@@ -10,8 +10,15 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { SalesService } from 'src/app/core/services/sales.service';
-import { Sale } from 'src/app/core/models/finance/sale.model';
+import { InputTextarea } from 'primeng/inputtextarea';
+import { InvoiceService } from 'src/app/core/services/invoice.service';
+import { CreateInvoiceRequest } from 'src/app/core/models/invoice/invoice.model';
+import { StudentService } from 'src/app/core/services/student.service';
+import { Student } from 'src/app/core/models/academic/students/student';
+import { CenterService } from 'src/app/core/services/center.service';
+import { Center } from 'src/app/core/models/corporate/center';
+import { ServiceService } from 'src/app/core/services/service.service';
+import { Service } from 'src/app/core/models/course/service';
 
 @Component({
     selector: 'app-create-sale',
@@ -25,47 +32,31 @@ import { Sale } from 'src/app/core/models/finance/sale.model';
         DropdownModule,
         InputNumberModule,
         InputGroupModule,
-        InputGroupAddonModule
+        InputGroupAddonModule,
+        InputTextarea
     ],
     templateUrl: './create.component.html'
 })
 export class CreateComponent implements OnInit, OnDestroy {
     private router = inject(Router);
     private formBuilder = inject(FormBuilder);
-    private salesService = inject(SalesService);
+    private invoiceService = inject(InvoiceService);
+    private studentService = inject(StudentService);
+    private centerService = inject(CenterService);
+    private serviceService = inject(ServiceService);
 
     saleForm!: FormGroup;
     loading = false;
+    loadingStudents = false;
+    loadingCenters = false;
+    loadingServices = false;
     error: string | null = null;
-
-    // Product type options
-    productTypeOptions = [
-        { label: 'Livro Didático', value: 'Livro' },
-        { label: 'Certificado', value: 'Certificado' },
-        { label: 'Declaração', value: 'Declaração' },
-        { label: 'Serviço', value: 'Serviço' }
-    ];
-
-    // Product options based on type
-    productOptions: { [key: string]: any[] } = {
-        'Livro': [
-            { label: 'Livro English Course Level 1', value: 'Livro English Course Level 1', price: 2500 },
-            { label: 'Livro English Course Level 2', value: 'Livro English Course Level 2', price: 2500 },
-            { label: 'Livro English Course Level 3', value: 'Livro English Course Level 3', price: 2500 }
-        ],
-        'Certificado': [
-            { label: 'Certificado de Conclusão', value: 'Certificado de Conclusão', price: 1500 },
-            { label: 'Certificado de Participação', value: 'Certificado de Participação', price: 1000 }
-        ],
-        'Declaração': [
-            { label: 'Declaração de Frequência', value: 'Declaração de Frequência', price: 500 },
-            { label: 'Declaração de Matrícula', value: 'Declaração de Matrícula', price: 500 }
-        ],
-        'Serviço': [
-            { label: 'Aula Particular', value: 'Aula Particular', price: 2000 },
-            { label: 'Tradução de Documentos', value: 'Tradução de Documentos', price: 3000 }
-        ]
-    };
+    students: Student[] = [];
+    centers: Center[] = [];
+    services: Service[] = [];
+    studentOptions: Array<{ label: string; value: string }> = [];
+    centerOptions: Array<{ label: string; value: string }> = [];
+    availableProducts: Array<{ label: string; value: string; price: number; name: string }> = [];
 
     // Payment method options
     paymentMethodOptions = [
@@ -76,14 +67,14 @@ export class CreateComponent implements OnInit, OnDestroy {
         { label: 'Cartão de Débito', value: 'Cartão de Débito' }
     ];
 
-    // Available products for current selection
-    availableProducts: any[] = [];
-
     private destroy$ = new Subject<void>();
 
     ngOnInit(): void {
         this.initForm();
         this.setupFormListeners();
+        this.loadStudents();
+        this.loadCenters();
+        this.loadServices();
     }
 
     ngOnDestroy(): void {
@@ -94,15 +85,18 @@ export class CreateComponent implements OnInit, OnDestroy {
     private initForm(): void {
         this.saleForm = this.formBuilder.group({
             client: this.formBuilder.group({
+                studentId: ['', Validators.required],
                 name: ['', Validators.required],
                 email: [''],
-                phone: ['']
+                phone: [''],
+                customerId: ['', Validators.required],
+                centerId: ['', Validators.required],
             }),
             product: this.formBuilder.group({
-                type: ['', Validators.required],
                 name: ['', Validators.required],
                 quantity: [1, [Validators.required, Validators.min(1)]],
-                unitPrice: [0, [Validators.required, Validators.min(0)]]
+                unitPrice: [0, [Validators.required, Validators.min(0)]],
+                centerProductId: ['', Validators.required],
             }),
             payment: this.formBuilder.group({
                 method: ['Dinheiro', Validators.required]
@@ -111,33 +105,122 @@ export class CreateComponent implements OnInit, OnDestroy {
         });
     }
 
-    private setupFormListeners(): void {
-        // Listen to product type changes to update available products
-        this.saleForm.get('product.type')?.valueChanges.pipe(
-            takeUntil(this.destroy$)
-        ).subscribe(type => {
-            this.availableProducts = this.productOptions[type] || [];
-            this.saleForm.patchValue({
-                product: {
-                    name: '',
-                    unitPrice: 0
-                }
-            });
-        });
+    private loadStudents(): void {
+        this.loadingStudents = true;
 
-        // Listen to product selection to auto-fill price
-        this.saleForm.get('product.name')?.valueChanges.pipe(
+        this.studentService.getStudents().pipe(
             takeUntil(this.destroy$)
-        ).subscribe(productName => {
-            if (productName) {
-                const selectedProduct = this.availableProducts.find(p => p.value === productName);
+        ).subscribe({
+            next: (students) => {
+                this.students = students;
+                this.studentOptions = students.map((student) => ({
+                    value: student.id || '',
+                    label: `${student.user?.firstname || ''} ${student.user?.lastname || ''}`.trim() || student.user?.email || `Aluno #${student.code}`,
+                })).filter((option) => option.value);
+                this.loadingStudents = false;
+            },
+            error: (error) => {
+                this.error = 'Erro ao carregar alunos: ' + (error?.error?.message || error.message || 'erro desconhecido');
+                this.loadingStudents = false;
+            }
+        });
+    }
+
+    private loadCenters(): void {
+        this.loadingCenters = true;
+
+        this.centerService.getAllCenters().pipe(
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: (centers) => {
+                this.centers = centers;
+                this.centerOptions = centers.map((center) => ({
+                    value: center.id,
+                    label: center.name,
+                }));
+                this.loadingCenters = false;
+            },
+            error: (error) => {
+                this.error = 'Erro ao carregar centros: ' + (error?.error?.message || error.message || 'erro desconhecido');
+                this.loadingCenters = false;
+            }
+        });
+    }
+
+    private loadServices(): void {
+        this.loadingServices = true;
+
+        this.serviceService.getServices(0, 200).pipe(
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: (response) => {
+                const services = response.data?.content || [];
+                this.services = services;
+                this.availableProducts = services.map((service) => ({
+                    value: service.id,
+                    label: service.name,
+                    name: service.name,
+                    price: service.value || 0,
+                }));
+                this.loadingServices = false;
+            },
+            error: (error) => {
+                this.error = 'Erro ao carregar serviços: ' + (error?.error?.message || error.message || 'erro desconhecido');
+                this.loadingServices = false;
+            }
+        });
+    }
+
+    private setupFormListeners(): void {
+        // Listen to product selection to auto-fill service and price
+        this.saleForm.get('product.centerProductId')?.valueChanges.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe((centerProductId) => {
+            if (centerProductId) {
+                const selectedProduct = this.availableProducts.find((p) => p.value === centerProductId);
                 if (selectedProduct) {
                     this.saleForm.patchValue({
                         product: {
+                            name: selectedProduct.name,
                             unitPrice: selectedProduct.price
                         }
-                    });
+                    }, { emitEvent: false });
                 }
+            }
+        });
+
+        this.saleForm.get('client.studentId')?.valueChanges.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe((studentId) => {
+            const selectedStudent = this.students.find((student) => student.id === studentId);
+            if (!selectedStudent) {
+                this.saleForm.patchValue({
+                    client: {
+                        name: '',
+                        email: '',
+                        phone: '',
+                        customerId: '',
+                        centerId: '',
+                    }
+                }, { emitEvent: false });
+                return;
+            }
+
+            this.saleForm.patchValue({
+                client: {
+                    name: `${selectedStudent.user?.firstname || ''} ${selectedStudent.user?.lastname || ''}`.trim(),
+                    email: selectedStudent.user?.email || '',
+                    phone: selectedStudent.user?.phone || '',
+                    customerId: selectedStudent.id || '',
+                }
+            }, { emitEvent: false });
+
+            if (selectedStudent.center?.id) {
+                this.saleForm.patchValue({
+                    client: {
+                        centerId: selectedStudent.center.id
+                    }
+                }, { emitEvent: false });
             }
         });
     }
@@ -163,35 +246,34 @@ export class CreateComponent implements OnInit, OnDestroy {
         this.error = null;
 
         const formValue = this.saleForm.value;
-        const saleData: Omit<Sale, 'id' | 'dates' | 'history'> = {
-            client: {
-                name: formValue.client.name,
-                email: formValue.client.email || '',
-                phone: formValue.client.phone || ''
-            },
-            product: {
-                type: formValue.product.type,
-                name: formValue.product.name,
-                quantity: formValue.product.quantity,
-                unitPrice: formValue.product.unitPrice,
-                total: this.totalAmount
-            },
-            payment: {
-                method: formValue.payment.method,
-                status: 'Pendente'
-            },
-            notes: formValue.notes || ''
+        const payload: CreateInvoiceRequest = {
+            documentType: 'PROFORMA',
+            issueDate: new Date().toISOString().split('T')[0],
+            customerId: formValue.client.customerId,
+            centerId: formValue.client.centerId,
+            description: formValue.product.name,
+            notes: formValue.notes || '',
+            discountAmount: 0,
+            items: [
+                {
+                    centerProductId: formValue.product.centerProductId,
+                    productName: formValue.product.name,
+                    quantity: formValue.product.quantity,
+                    unitPrice: formValue.product.unitPrice,
+                    discountAmount: 0,
+                },
+            ],
         };
 
-        this.salesService.createSale(saleData).pipe(
+        this.invoiceService.createInvoice(payload).pipe(
             takeUntil(this.destroy$)
         ).subscribe({
-            next: (sale) => {
+            next: ({ data }) => {
                 this.loading = false;
-                this.router.navigate(['/finances/sales', sale.id]);
+                this.router.navigate(['/finances/sales', data.id]);
             },
             error: (error) => {
-                this.error = 'Erro ao criar venda: ' + error.message;
+                this.error = 'Erro ao criar fatura: ' + (error?.error?.message || error.message);
                 this.loading = false;
             }
         });

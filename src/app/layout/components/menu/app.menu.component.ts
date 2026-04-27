@@ -211,6 +211,14 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                                 icon: 'pi pi-fw pi-id-card',
                                 routerLink: ['/corporate/roles'],
                                 visible: this.hasPermission('roles.view')
+                            },
+                            {
+                                label: 'Serviços',
+                                icon: 'pi pi-fw pi-briefcase',
+                                routerLink: ['/corporate/services'],
+                                visible: (this.hasPermission('users.view')
+                                    || this.hasPermission('roles.view')
+                                )
                             }
                         ]
                     },

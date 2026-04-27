@@ -97,6 +97,25 @@ export interface InvoiceDetail {
     items: InvoiceListItemProduct[];
 }
 
+export interface CreateInvoiceRequest {
+    documentType: string;
+    issueDate: string;
+    customerId: string;
+    centerId: string;
+    description: string;
+    notes: string;
+    discountAmount: number;
+    items: CreateInvoiceItemRequest[];
+}
+
+export interface CreateInvoiceItemRequest {
+    centerProductId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    discountAmount: number;
+}
+
 export interface InvoiceItem {
     tax_rate: number;
     total: number;
