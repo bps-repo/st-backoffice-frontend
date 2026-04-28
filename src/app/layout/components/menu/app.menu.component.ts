@@ -171,6 +171,11 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                 icon: 'pi pi-fw pi-users',
                 visible: (this.hasPermission('centers.view')
                     || this.hasPermission('reports.export')
+                    || this.hasPermission('users.view')
+                    || this.hasPermission('roles.view')
+                    || this.hasPermission('users.edit')
+                    || this.hasPermission('users.create')
+                    || this.hasPermission('users.delete')
                 ),
                 items: [
                     {
@@ -198,6 +203,9 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         icon: 'pi pi-fw pi-cog',
                         visible: (this.hasPermission('users.view')
                             || this.hasPermission('roles.view')
+                            || this.hasPermission('users.edit')
+                            || this.hasPermission('users.create')
+                            || this.hasPermission('users.delete')
                         ),
                         items: [
                             {
