@@ -130,7 +130,7 @@ export class StudentLessonsTabComponent implements OnInit, OnChanges, OnDestroy 
         const now = new Date();
         this.dateRange = [
             new Date(now.getFullYear(), now.getMonth(), 1),
-            new Date(now.getFullYear(), now.getMonth() + 1, 0),
+            new Date(now.getFullYear(), now.getMonth() + 12, 0),
         ];
         this.setWeekFromDate(now);
     }
