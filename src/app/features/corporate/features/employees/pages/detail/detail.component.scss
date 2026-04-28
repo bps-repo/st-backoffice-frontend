@@ -1,0 +1,227 @@
+.employee-detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.quick-stat-card {
+    border: 1px solid var(--surface-border);
+    border-radius: 0.85rem;
+    padding: 0.8rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    background: var(--surface-card);
+}
+
+.quick-stat-label {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    opacity: 0.75;
+}
+
+.quick-stat-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.employee-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.employee-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.employee-avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #0f766e;
+    background: #dff8f3;
+}
+
+.employee-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.employee-name {
+    margin: 0;
+    font-size: 1.9rem;
+    line-height: 1.2;
+}
+
+.employee-role-center {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 1rem;
+}
+
+.employee-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.action-button {
+    min-width: 7rem;
+}
+
+:host ::ng-deep .employee-tabs .p-tabview-nav {
+    margin-bottom: 1.25rem;
+    gap: 0.25rem;
+}
+
+:host ::ng-deep .employee-tabs .p-tabview-nav li .p-tabview-nav-link {
+    border-radius: 0.7rem 0.7rem 0 0;
+}
+
+.employee-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.info-panel {
+    border: 1px solid var(--surface-border);
+    border-radius: 0.85rem;
+    padding: 1.25rem;
+    background: var(--surface-card);
+}
+
+.info-panel h3 {
+    margin: 0 0 1.2rem 0;
+    font-size: 1.1rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 1rem;
+}
+
+.detail-label {
+    font-size: 0.95rem;
+    opacity: 0.75;
+}
+
+.detail-value {
+    font-size: 1.2rem;
+    line-height: 1.2;
+    font-weight: 600;
+}
+
+.detail-value.muted {
+    opacity: 0.8;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.verification {
+    margin-top: 0.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.95rem;
+}
+
+.verification.verified {
+    color: #34d399;
+}
+
+.verification.unverified {
+    color: #fbbf24;
+}
+
+.detail-divider {
+    width: 100%;
+    height: 1px;
+    background-color: var(--surface-border);
+    margin: 0.75rem 0 1rem;
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 0.2rem 0.65rem;
+    width: fit-content;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.role-description {
+    margin-top: 0.3rem;
+    opacity: 0.8;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.status-card {
+    border: 1px solid var(--surface-border);
+    border-radius: 0.7rem;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background-color: var(--surface-card);
+}
+
+.status-label {
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+:host ::ng-deep .status-card .p-tag {
+    width: fit-content;
+}
+
+@media (max-width: 992px) {
+    .employee-name {
+        font-size: 1.7rem;
+    }
+
+    .detail-value {
+        font-size: 1.05rem;
+    }
+
+    .employee-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr;
+    }
+}

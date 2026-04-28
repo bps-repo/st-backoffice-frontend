@@ -17,6 +17,7 @@ import { EmployeesActions } from 'src/app/core/store/corporate/employees/employe
 @Component({
     selector: 'app-detail',
     templateUrl: './detail.component.html',
+    styleUrls: ['./detail.component.scss'],
     standalone: true,
     imports: [
         CommonModule,
@@ -129,5 +130,17 @@ export class DetailComponent implements OnInit, OnDestroy {
             style: 'currency',
             currency: 'BRL'
         }).format(amount);
+    }
+
+    getEmployeeInitials(): string {
+        const firstName = this.employeeDetails?.personalInfo?.firstName?.trim() ?? '';
+        const lastName = this.employeeDetails?.personalInfo?.lastName?.trim() ?? '';
+
+        const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+        return initials || '??';
+    }
+
+    getTotalPermissions(): number {
+        return this.employeeDetails?.allPermissions?.length ?? 0;
     }
 }

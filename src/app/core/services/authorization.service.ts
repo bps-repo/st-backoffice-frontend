@@ -78,6 +78,21 @@ export class AuthorizationService {
     );
   }
 
+  private getPermissionsForCheck(userId?: string): Observable<Permission[]> {
+    if (userId) {
+      return this.getUserPermissions();
+    }
+
+    const currentPermissions = this.currentUserPermissions$.value;
+    if (currentPermissions.length > 0) {
+      return of(currentPermissions);
+    }
+
+    return this.getUserPermissions().pipe(
+      map(permissions => permissions || [])
+    );
+  }
+
   /**
    * Check if user has a specific permission
    * @param permissionName - The permission name to check
@@ -89,13 +104,7 @@ export class AuthorizationService {
       return of(false);
     }
 
-    if (userId) {
-      return this.getUserPermissions().pipe(
-        map(permissions => this.checkPermissionInList(permissions, permissionName))
-      );
-    }
-
-    return this.currentUserPermissions$.pipe(
+    return this.getPermissionsForCheck(userId).pipe(
       map(permissions => this.checkPermissionInList(permissions, permissionName))
     );
   }
@@ -111,17 +120,7 @@ export class AuthorizationService {
       return of(false);
     }
 
-    if (userId) {
-      return this.getUserPermissions().pipe(
-        map(permissions =>
-          permissionNames.some(permissionName =>
-            this.checkPermissionInList(permissions, permissionName)
-          )
-        )
-      );
-    }
-
-    return this.currentUserPermissions$.pipe(
+    return this.getPermissionsForCheck(userId).pipe(
       map(permissions =>
         permissionNames.some(permissionName =>
           this.checkPermissionInList(permissions, permissionName)
@@ -141,17 +140,7 @@ export class AuthorizationService {
       return of(true);
     }
 
-    if (userId) {
-      return this.getUserPermissions().pipe(
-        map(permissions =>
-          permissionNames.every(permissionName =>
-            this.checkPermissionInList(permissions, permissionName)
-          )
-        )
-      );
-    }
-
-    return this.currentUserPermissions$.pipe(
+    return this.getPermissionsForCheck(userId).pipe(
       map(permissions =>
         permissionNames.every(permissionName =>
           this.checkPermissionInList(permissions, permissionName)
@@ -211,13 +200,7 @@ export class AuthorizationService {
       return of(false);
     }
 
-    if (userId) {
-      return this.getUserPermissions().pipe(
-        map(permissions => permissions.some(p => p.id === permissionId))
-      );
-    }
-
-    return this.currentUserPermissions$.pipe(
+    return this.getPermissionsForCheck(userId).pipe(
       map(permissions => permissions.some(p => p.id === permissionId))
     );
   }
@@ -229,15 +212,7 @@ export class AuthorizationService {
    * @returns Observable<boolean>
    */
   hasAnyModulePermission(moduleName: string, userId?: string): Observable<boolean> {
-    if (userId) {
-      return this.getUserPermissions().pipe(
-        map(permissions =>
-          permissions.some(p => p.name.startsWith(`${moduleName}.`))
-        )
-      );
-    }
-
-    return this.currentUserPermissions$.pipe(
+    return this.getPermissionsForCheck(userId).pipe(
       map(permissions =>
         permissions.some(p => p.name.startsWith(`${moduleName}.`))
       )
@@ -251,15 +226,7 @@ export class AuthorizationService {
    * @returns Observable<Permission[]>
    */
   getModulePermissions(moduleName: string, userId?: string): Observable<Permission[]> {
-    if (userId) {
-      return this.getUserPermissions().pipe(
-        map(permissions =>
-          permissions.filter(p => p.name.startsWith(`${moduleName}.`))
-        )
-      );
-    }
-
-    return this.currentUserPermissions$.pipe(
+    return this.getPermissionsForCheck(userId).pipe(
       map(permissions =>
         permissions.filter(p => p.name.startsWith(`${moduleName}.`))
       )
@@ -353,13 +320,7 @@ export class AuthorizationService {
    * @returns Observable<Permission | null>
    */
   getPermissionByName(permissionName: string, userId?: string): Observable<Permission | null> {
-    if (userId) {
-      return this.getUserPermissions().pipe(
-        map(permissions => permissions.find(p => p.name === permissionName) || null)
-      );
-    }
-
-    return this.currentUserPermissions$.pipe(
+    return this.getPermissionsForCheck(userId).pipe(
       map(permissions => permissions.find(p => p.name === permissionName) || null)
     );
   }

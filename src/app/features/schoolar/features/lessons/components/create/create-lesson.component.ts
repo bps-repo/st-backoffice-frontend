@@ -195,7 +195,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                 this.teacherOptions = employees.map((e: Employee) => {
                     const first = e.personalInfo.firstName || '';
                     const last = e.personalInfo.lastName || '';
-                    const label = `${first} ${last}`.trim() || e.personalInfo?.email || e.id;
+                    const center = e.workInfo.centerName || '';
+                    const label = `${first} ${last} - (${center})`.trim() || e.personalInfo?.email || e.id;
                     return {label, value: e.id};
                 });
             });
