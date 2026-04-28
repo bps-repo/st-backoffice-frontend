@@ -58,6 +58,7 @@ interface WeeklyLessonCard {
 interface WeeklyLessonDay {
     day: string;
     date: string;
+    dayKey?: string;
     isToday: boolean;
     classes: WeeklyLessonCard[];
 }
@@ -358,7 +359,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     viewOptions = [
         {label: 'Lista de Aulas', value: 'list'},
-        {label: 'Calendário', value: 'calendario'},
         {label: 'Relatórios', value: 'relatorios'},
         {label: 'Estatísticas', value: 'estatisticas'},
     ];
@@ -392,6 +392,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     // Sample lesson data for calendar
     weeklyLessons: WeeklyLessonDay[] = [];
     monthlyCalendarDays: any[] = [];
+    readonly maxVisibleLessonsPerDay = 5;
+    private expandedDayLessons = new Set<string>();
 
     // Dialog state
     lessonDialogVisible = signal(false);
@@ -677,6 +679,44 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         return this.currentDate.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
     }
 
+    private getDayKey(day: { date?: Date | string; dayKey?: string }): string {
+        if (day.dayKey) {
+            return day.dayKey;
+        }
+        return day.date ? new Date(day.date).toDateString() : '';
+    }
+
+    isDayExpanded(day: { date?: Date | string; dayKey?: string }): boolean {
+        const key = this.getDayKey(day);
+        return !!key && this.expandedDayLessons.has(key);
+    }
+
+    toggleDayLessons(day: { date?: Date | string; dayKey?: string }): void {
+        const key = this.getDayKey(day);
+        if (!key) return;
+        if (this.expandedDayLessons.has(key)) {
+            this.expandedDayLessons.delete(key);
+        } else {
+            this.expandedDayLessons.add(key);
+        }
+    }
+
+    getVisibleWeeklyClasses(dayData: { classes: any[]; dayKey?: string }): any[] {
+        if (!Array.isArray(dayData.classes)) return [];
+        if (dayData.classes.length <= this.maxVisibleLessonsPerDay || this.isDayExpanded(dayData)) {
+            return dayData.classes;
+        }
+        return dayData.classes.slice(0, this.maxVisibleLessonsPerDay);
+    }
+
+    getVisibleMonthlyLessons(day: { lessons: any[]; date?: Date | string; dayKey?: string }): any[] {
+        if (!Array.isArray(day.lessons)) return [];
+        if (day.lessons.length <= this.maxVisibleLessonsPerDay || this.isDayExpanded(day)) {
+            return day.lessons;
+        }
+        return day.lessons.slice(0, this.maxVisibleLessonsPerDay);
+    }
+
     // Listen for scroll events
     @HostListener('window:scroll')
     onWindowScroll() {
@@ -895,6 +935,15 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
+     * Duplicate lesson by opening create form prefilled.
+     */
+    duplicateLesson(lessonId: string) {
+        this.router.navigate(['/schoolar/lessons/create'], {
+            queryParams: {duplicateFrom: lessonId}
+        }).then();
+    }
+
+    /**
      * Open online lesson link
      */
     openOnlineLink(link: string) {
@@ -985,6 +1034,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.weeklyLessons.push({
                 day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
                 date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
+                dayKey: currentDay.toDateString(),
                 isToday,
                 classes
             });

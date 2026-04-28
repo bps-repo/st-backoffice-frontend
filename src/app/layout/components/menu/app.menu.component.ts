@@ -149,7 +149,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Vendas Avulsas',
                         icon: 'pi pi-fw pi-shopping-cart',
                         routerLink: ['/finances/sales'],
-                        visible: this.hasPermission('pos.view_sales')
+                        visible: this.hasPermission('sales.view_invoices')
 
                     },
                     {

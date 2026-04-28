@@ -134,7 +134,7 @@
                         </div>
 
                         <div class="classes-list">
-                            @for (classItem of dayData.classes; track $index) {
+                            @for (classItem of getVisibleWeeklyClasses(dayData); track $index) {
                             <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors cursor-pointer"
                                 [class]="'border-left-3 border-' + classItem.statusClass"
                                 (mouseenter)="showLessonDetails(classItem.lesson)" (mouseleave)="hideLessonDetails()"
@@ -156,6 +156,13 @@
                                     </span>
                                 </div>
                             </div>
+                            }
+
+                            @if (dayData.classes.length > maxVisibleLessonsPerDay) {
+                            <button type="button" pButton class="p-button-text p-button-sm mt-1"
+                                [label]="isDayExpanded(dayData) ? 'Ver menos' : ('Ver mais ' + (dayData.classes.length - maxVisibleLessonsPerDay))"
+                                (click)="toggleDayLessons(dayData); $event.stopPropagation()">
+                            </button>
                             }
                         </div>
                     </div>
@@ -199,7 +206,7 @@
                             <!-- Lessons for this day -->
                             @if (day.lessons && day.lessons.length > 0) {
                             <div class="monthly-lessons">
-                                @for (lesson of day.lessons.slice(0, 10); track lesson.lesson.id) {
+                                @for (lesson of getVisibleDayLessons(day); track lesson.lesson.id) {
                                 <div class="monthly-lesson-card cursor-pointer"
                                     [class]="'border-left-2 border-' + lesson.statusClass"
                                     (mouseenter)="showLessonDetails(lesson.lesson)" (mouseleave)="hideLessonDetails()"
@@ -208,10 +215,11 @@
                                     <div class="lesson-title text-xs">{{ lesson.title }}</div>
                                 </div>
                                 }
-                                @if (day.lessons.length > 10) {
-                                <div class="more-lessons text-xs text-gray-500">
-                                    +{{ day.lessons.length - 10 }} mais
-                                </div>
+                                @if (day.lessons.length > maxVisibleLessonsPerDay) {
+                                <button type="button" pButton class="p-button-text p-button-sm mt-1"
+                                    [label]="isDayExpanded(day) ? 'Ver menos' : ('Ver mais ' + (day.lessons.length - maxVisibleLessonsPerDay))"
+                                    (click)="toggleDayLessons(day); $event.stopPropagation()">
+                                </button>
                                 }
                             </div>
                             }
@@ -326,7 +334,7 @@
         <!-- Teacher -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-user text-600"></i>
-            <span>{{ selectedLesson.teacher.name }}</span>
+            <span>{{ selectedLesson.teacher?.name || selectedLesson.teacher || 'N/A' }}</span>
         </div>
 
         <!-- Class/Group -->
@@ -338,7 +346,7 @@
         <!-- Center -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-map-marker text-600"></i>
-            <span>{{ selectedLesson.center.name }}</span>
+            <span>{{ selectedLesson.center?.name || selectedLesson.center || 'N/A' }}</span>
         </div>
 
         <!-- Students -->

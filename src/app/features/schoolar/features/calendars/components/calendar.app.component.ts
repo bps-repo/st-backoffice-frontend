@@ -1,4 +1,4 @@
-import { Component, ComponentRef, OnInit, ViewContainerRef, ViewChild, ElementRef, HostListener, AfterViewInit, signal, inject } from '@angular/core';
+import { Component, ComponentRef, OnInit, ViewContainerRef, ViewChild, ElementRef, HostListener, AfterViewInit, signal, inject, OnDestroy } from '@angular/core';
 import {EventTooltipComponent} from 'src/app/shared/components/event-tooltip/event-tooltip.component';
 import {LessonService} from 'src/app/core/services/lesson.service';
 import {Lesson} from 'src/app/core/models/academic/lesson';
@@ -24,6 +24,8 @@ import {Store} from '@ngrx/store';
 import {lessonsActions} from 'src/app/core/store/schoolar/lessons/lessons.actions';
 import {selectAllLessons} from 'src/app/core/store/schoolar/lessons/lessons.selectors';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: "app-lesson-calendar",
@@ -50,10 +52,9 @@ import {LessonStatus} from 'src/app/core/enums/lesson-status';
     ],
     styleUrls: ['./calendar.app.component.scss']
 })
-export class CalendarAppComponent implements OnInit, AfterViewInit {
+export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     private viewContainerRef = inject(ViewContainerRef);
     private router = inject(Router);
-    private lessonApiService = inject(LessonService);
     private store = inject(Store);
 
     @ViewChild('mainHeader', {static: false}) mainHeader!: ElementRef;
@@ -140,6 +141,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     protected readonly Math = Math;
 
     private tooltipRef: ComponentRef<EventTooltipComponent> | null = null;
+    private destroy$ = new Subject<void>();
 
     // Custom calendar properties
     currentDate: Date = new Date();
@@ -148,6 +150,8 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     weeklyLessons: any[] = [];
     monthlyCalendarDays: any[] = [];
     classes: Lesson[] = [];
+    readonly maxVisibleLessonsPerDay = 5;
+    private expandedDayLessons = new Set<string>();
 
     // Dialog state
     lessonDialogVisible = signal(false);
@@ -176,7 +180,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         this.initializeCalendarData();
 
         // Subscribe to lessons and map to calendar events
-        this.store.select(selectAllLessons).subscribe((lessons: Lesson[]) => {
+        this.store.select(selectAllLessons).pipe(takeUntil(this.destroy$)).subscribe((lessons: Lesson[]) => {
             this.classes = lessons;
             this.events = lessons.map(lesson => this.mapLessonToEvent(lesson));
             this.filteredEvents = [...this.events];
@@ -194,7 +198,17 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             }
         });
 
-        this.store.dispatch(lessonsActions.loadLessons());
+        // Use the same data source as lessons list to avoid refresh inconsistencies.
+        this.store.dispatch(lessonsActions.loadLessonsPaginated({
+            page: 0,
+            size: 1000,
+            sort: 'startDatetime,desc'
+        }));
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     ngAfterViewInit() {
@@ -848,6 +862,15 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         }
     }
 
+    private extractNamedEntity(value: any): string {
+        if (!value) return 'N/A';
+        if (typeof value === 'string') return value;
+        if (typeof value === 'object') {
+            return value.name || value.title || value.username || 'N/A';
+        }
+        return String(value);
+    }
+
     loadMonthlyLessonsFromData(lessons: Lesson[]) {
         const year = this.currentDate.getFullYear();
         const month = this.currentDate.getMonth();
@@ -870,7 +893,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             }).map(lesson => ({
                 time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
                 title: lesson.title,
-                teacher: lesson.teacher.name,
+                teacher: this.extractNamedEntity(lesson.teacher),
                 group: lesson.level || 'N/A',
                 status: this.getStatusLabel(lesson.status),
                 statusClass: this.getStatusClass(lesson.status),
@@ -894,6 +917,58 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         });
 
         return weeks;
+    }
+
+    private getDayKey(day: { date?: Date; dayKey?: string }): string {
+        if (day.dayKey) {
+            return day.dayKey;
+        }
+        return day.date ? new Date(day.date).toDateString() : '';
+    }
+
+    isDayExpanded(day: { date?: Date; dayKey?: string }): boolean {
+        const dayKey = this.getDayKey(day);
+        return !!dayKey && this.expandedDayLessons.has(dayKey);
+    }
+
+    toggleDayLessons(day: { date?: Date; dayKey?: string }): void {
+        const dayKey = this.getDayKey(day);
+        if (!dayKey) {
+            return;
+        }
+        if (this.expandedDayLessons.has(dayKey)) {
+            this.expandedDayLessons.delete(dayKey);
+        } else {
+            this.expandedDayLessons.add(dayKey);
+        }
+    }
+
+    getVisibleDayLessons<T extends { lessons: any[]; date?: Date; dayKey?: string }>(day: T): any[] {
+        if (!Array.isArray(day.lessons)) {
+            return [];
+        }
+
+        if (day.lessons.length <= this.maxVisibleLessonsPerDay) {
+            return day.lessons;
+        }
+
+        if (this.isDayExpanded(day as any)) {
+            return day.lessons;
+        }
+
+        return day.lessons.slice(0, this.maxVisibleLessonsPerDay);
+    }
+
+    getVisibleWeeklyClasses(day: { classes: any[]; dayKey?: string }): any[] {
+        if (!Array.isArray(day.classes)) {
+            return [];
+        }
+
+        if (day.classes.length <= this.maxVisibleLessonsPerDay || this.isDayExpanded(day)) {
+            return day.classes;
+        }
+
+        return day.classes.slice(0, this.maxVisibleLessonsPerDay);
     }
 
     loadWeeklyLessonsFromData(lessons: Lesson[]) {
@@ -922,6 +997,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             this.weeklyLessons.push({
                 day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
                 date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
+                dayKey: currentDay.toDateString(),
                 isToday,
                 classes: dayLessons.map(lesson => ({
                     time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {
@@ -929,7 +1005,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
                         minute: '2-digit'
                     }),
                     title: lesson.title,
-                    teacher: lesson.teacher.name,
+                    teacher: this.extractNamedEntity(lesson.teacher),
                     group: lesson.level || 'N/A',
                     status: this.getStatusLabel(lesson.status),
                     statusClass: this.getStatusClass(lesson.status),

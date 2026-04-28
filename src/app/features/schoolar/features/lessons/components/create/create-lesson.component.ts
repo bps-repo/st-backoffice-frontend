@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, OnInit, OnDestroy, inject} from '@angular/core';
-import {ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl} from '@angular/forms';
 import {SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {DropdownModule} from 'primeng/dropdown';
@@ -9,7 +9,7 @@ import {CalendarModule} from 'primeng/calendar';
 import {Store} from '@ngrx/store';
 import {LessonCreate} from 'src/app/core/models/academic/lesson';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Subject, takeUntil, take, Observable, of} from 'rxjs';
 import {MessageService} from 'primeng/api';
 import {Actions, ofType} from '@ngrx/effects';
@@ -31,6 +31,8 @@ import {UnitActions} from 'src/app/core/store/schoolar/units/unit.actions';
 import {Unit} from 'src/app/core/models/course/unit';
 import {LessonType} from 'src/app/core/enums/lesson-type';
 import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
+import {LessonService} from 'src/app/core/services/lesson.service';
+import {Lesson} from 'src/app/core/models/academic/lesson';
 
 @Component({
     selector: 'app-create-lesson',
@@ -55,12 +57,15 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     private fb = inject(FormBuilder);
     private store$ = inject(Store);
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
     private messageService = inject(MessageService);
     private actions$ = inject(Actions);
+    private lessonService = inject(LessonService);
 
     loading: boolean = false;
     form!: FormGroup;
     private destroy$ = new Subject<void>();
+    private duplicateLessonToApply: Lesson | null = null;
 
     // Loading states for dropdowns
     loadingCenters: Observable<boolean> = of(false);
@@ -140,7 +145,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.form = this.fb.group({
             title: ['', Validators.required],
             centerId: [null, Validators.required],
-            weekRange: [null, Validators.required],
+            weekRange: [null],
             selectedDay: [null, Validators.required],
             startDatetime: [defaultStartHour, Validators.required],
             endDatetime: [defaultEndHour, Validators.required],
@@ -175,6 +180,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                         this.form.get('weekRange')?.setValue(null);
                     }
                 }
+                this.updateConditionalDateValidators();
             });
 
         // Load Centers
@@ -183,6 +189,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: centers => {
                     this.centerOptions = (centers || []).map(c => ({label: c.name, value: c.id}));
+                    this.tryApplyDuplicatePrefill();
                 },
                 error: () => {
                     this.centerOptions = [];
@@ -191,6 +198,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
         // Load Teachers (employees with role TEACHER)
         this.store$.select(selectEmployeesByRole("TEACHER"))
+            .pipe(takeUntil(this.destroy$))
             .subscribe((employees: Employee[]) => {
                 this.teacherOptions = employees.map((e: Employee) => {
                     const first = e.personalInfo.firstName || '';
@@ -199,6 +207,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                     const label = `${first} ${last} - (${center})`.trim() || e.personalInfo?.email || e.id;
                     return {label, value: e.id};
                 });
+                this.tryApplyDuplicatePrefill();
             });
 
         // Load Levels
@@ -207,6 +216,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: levels => {
                     this.levelOptions = (levels || []).map(l => ({label: l.name, value: l.id}));
+                    this.tryApplyDuplicatePrefill();
                 },
                 error: () => {
                     this.levelOptions = [];
@@ -234,6 +244,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             .subscribe(selectedDay => {
                 // Just log the selection, no automatic range update
                 console.log('Day selected:', selectedDay);
+                this.updateConditionalDateValidators();
             });
 
         // Listen for start time changes to automatically update end time
@@ -244,6 +255,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                     this.updateEndTimeFromStartTime(startTime);
                 }
             });
+
+        this.updateConditionalDateValidators();
+        this.handleDuplicateFromQueryParam();
     }
 
     ngOnDestroy(): void {
@@ -340,6 +354,207 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             ));
     }
 
+    private handleDuplicateFromQueryParam(): void {
+        this.route.queryParamMap
+            .pipe(takeUntil(this.destroy$), take(1))
+            .subscribe((params) => {
+                const sourceLessonId = params.get('duplicateFrom');
+                if (!sourceLessonId) {
+                    return;
+                }
+
+                this.lessonService.getLesson(sourceLessonId).pipe(take(1)).subscribe({
+                    next: (lesson) => {
+                        this.duplicateLessonToApply = lesson;
+                        this.tryApplyDuplicatePrefill();
+                    },
+                    error: () => {
+                        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Aviso',
+                            detail: 'Não foi possível carregar os dados da aula a duplicar.'
+                        });
+                    }
+                });
+            });
+    }
+
+    private tryApplyDuplicatePrefill(): void {
+        if (!this.duplicateLessonToApply) {
+            return;
+        }
+
+        // Wait until core options are available for matching ids.
+        if (!this.teacherOptions.length || !this.centerOptions.length || !this.levelOptions.length) {
+            return;
+        }
+
+        this.prefillFormFromLesson(this.duplicateLessonToApply);
+        this.duplicateLessonToApply = null;
+    }
+
+    private prefillFormFromLesson(lesson: Lesson): void {
+        const lessonStart = new Date(lesson.startDatetime);
+        const lessonEnd = new Date(lesson.endDatetime);
+        const selectedDay = new Date(lessonStart);
+        const weekRange = this.buildWeekRangeFromDate(selectedDay);
+
+        const teacherId = this.resolveTeacherIdFromLesson(lesson);
+        const centerId = this.resolveCenterIdFromLesson(lesson);
+        const unitId = (lesson as any)?.unit?.id || null;
+        const levelId = (lesson as any)?.unit?.levelId || (lesson as any)?.level || null;
+        const type = this.resolveLessonTypeValue(lesson.type);
+
+        this.form.patchValue({
+            title: `${lesson.title} (cópia)`,
+            description: lesson.description || '',
+            centerId,
+            weekRange,
+            startDatetime: lessonStart,
+            endDatetime: lessonEnd,
+            teacherId,
+            levelId,
+            unitId,
+            online: !!lesson.online,
+            onlineLink: lesson.onlineLink || '',
+            type,
+            status: lesson.status || LessonStatus.AVAILABLE
+        });
+
+        // Ensure selected day uses the same object instance from options.
+        const selectedDayOption = this.weekDayOptions.find(
+            option => new Date(option.value).toDateString() === selectedDay.toDateString()
+        );
+        this.form.get('selectedDay')?.setValue(selectedDayOption?.value || selectedDay);
+        this.updateConditionalDateValidators();
+
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Duplicação',
+            detail: 'Dados da aula carregados. Ajuste se necessário e clique em criar.'
+        });
+    }
+
+    private normalizeText(value: string): string {
+        return (value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+    }
+
+    private resolveTeacherIdFromLesson(lesson: Lesson): string | null {
+        const directId = (lesson as any)?.teacher?.id;
+        if (directId) {
+            return directId;
+        }
+
+        const teacherName = this.normalizeText((lesson as any)?.teacher?.name || (lesson as any)?.teacher || '');
+        if (!teacherName) {
+            return null;
+        }
+
+        const matched = this.teacherOptions.find(option =>
+            this.normalizeText(option.label || '').includes(teacherName)
+        );
+        return (matched?.value as string) || null;
+    }
+
+    private resolveCenterIdFromLesson(lesson: Lesson): string | null {
+        const directId = (lesson as any)?.center?.id;
+        if (directId) {
+            return directId;
+        }
+
+        const centerName = this.normalizeText((lesson as any)?.center?.name || (lesson as any)?.center || '');
+        if (!centerName) {
+            return null;
+        }
+
+        const matched = this.centerOptions.find(option =>
+            this.normalizeText(option.label || '') === centerName
+        );
+        return (matched?.value as string) || null;
+    }
+
+    private buildWeekRangeFromDate(referenceDate: Date): Date[] {
+        const date = new Date(referenceDate);
+        const dayOfWeek = date.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+        const start = new Date(date);
+        start.setDate(date.getDate() + mondayOffset);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        end.setHours(23, 59, 59, 999);
+
+        return [start, end];
+    }
+
+    private resolveLessonTypeValue(type: LessonType | string | number | undefined): LessonType {
+        if (type === undefined || type === null) {
+            return LessonType.GENERAL;
+        }
+
+        if (typeof type === 'number') {
+            return type as LessonType;
+        }
+
+        if (typeof type === 'string') {
+            const enumValue = (LessonType as any)[type.toUpperCase()];
+            if (typeof enumValue === 'number') {
+                return enumValue as LessonType;
+            }
+        }
+
+        return LessonType.GENERAL;
+    }
+
+    private updateConditionalDateValidators(): void {
+        const weekRangeControl = this.form.get('weekRange');
+        const selectedDayControl = this.form.get('selectedDay');
+
+        if (!weekRangeControl || !selectedDayControl) {
+            return;
+        }
+
+        const hasSelectedDay = !!selectedDayControl.value;
+        const hasWeekRange = this.hasWeekRange(weekRangeControl);
+
+        if (hasSelectedDay) {
+            weekRangeControl.clearValidators();
+        } else {
+            weekRangeControl.setValidators([this.weekRangeRequiredWhenNoSelectedDay.bind(this)]);
+        }
+
+        weekRangeControl.updateValueAndValidity({emitEvent: false});
+
+        if (!hasSelectedDay && !hasWeekRange) {
+            selectedDayControl.setValidators([Validators.required]);
+        } else {
+            selectedDayControl.setValidators([Validators.required]);
+        }
+        selectedDayControl.updateValueAndValidity({emitEvent: false});
+    }
+
+    private hasWeekRange(control: AbstractControl): boolean {
+        const value = control.value;
+        return Array.isArray(value) && value.length === 2 && !!value[0] && !!value[1];
+    }
+
+    private weekRangeRequiredWhenNoSelectedDay(control: AbstractControl) {
+        const selectedDay = this.form?.get('selectedDay')?.value;
+        const hasRange = this.hasWeekRange(control);
+
+        if (selectedDay || hasRange) {
+            return null;
+        }
+
+        return {required: true};
+    }
+
     cancel() {
         this.router.navigate(['/schoolar/lessons']).then();
     }
@@ -376,6 +591,8 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     }
 
     saveLesson() {
+        this.updateConditionalDateValidators();
+
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             this.messageService.add({

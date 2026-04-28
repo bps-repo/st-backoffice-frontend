@@ -113,10 +113,12 @@
                 <!-- Date + Start time -->
                 <div class="flex flex-column col-12 md:col-4 mt-4">
                     <label for="selectedDay" class="font-bold">Data da Aula *</label>
-                    <p-dropdown id="selectedDay" [options]="weekDayOptions" formControlName="selectedDay"
-                        optionLabel="label" optionValue="value" placeholder="Selecione a data da aula"
-                        [showClear]="true" [required]="true" [disabled]="!form.get('weekRange')?.value">
-                    </p-dropdown>
+                    <p-calendar id="selectedDay" formControlName="selectedDay" dateFormat="dd/mm/yy" [showIcon]="true"
+                        [required]="true" [appendTo]="'body'" placeholder="Selecione a data da aula">
+                    </p-calendar>
+                    <small class="text-600 block mt-1">
+                        Pode selecionar diretamente a data, sem escolher semana.
+                    </small>
                 </div>
 
                 <div class="flex flex-column col-12 md:col-4 mt-4">
