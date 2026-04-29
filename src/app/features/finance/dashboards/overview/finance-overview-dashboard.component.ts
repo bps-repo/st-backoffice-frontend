@@ -4,13 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
+import { SelectItem } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
 import { ChartModule } from 'primeng/chart';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
 import { FinanceOverviewActions } from '../../../../core/store/finance/overview/finance-overview.actions';
 import {
     selectFinanceOverview,
@@ -29,6 +33,7 @@ import { FinanceOverview, FinanceOverviewFilter } from '../../../../core/models/
         ChartModule,
         CalendarModule,
         ButtonModule,
+        DropdownModule,
         SkeletonModule,
         TagModule,
         TooltipModule,
@@ -54,11 +59,20 @@ export class FinanceOverviewDashboardComponent implements OnInit {
     contractChartData: any;
     contractChartOptions: any;
 
+    /** Empty string = todos os centros (sem `centerId` na API). */
+    selectedCenterId = '';
+
+    readonly centerOptions$: Observable<SelectItem[]> = this.store.select(CenterSelectors.selectAllCenters).pipe(
+        map((centers) => [
+            { label: 'Todos os centros', value: '' },
+            ...centers.map((c) => ({ label: c.name, value: c.id })),
+        ]),
+    );
+
     constructor() {
         this.store.select(selectFinanceOverview)
             .pipe(takeUntilDestroyed())
             .subscribe((overview) => {
-                console.log('overview', overview);
                 this.overview = overview;
                 if (overview) this.initCharts(overview);
             });
@@ -70,6 +84,7 @@ export class FinanceOverviewDashboardComponent implements OnInit {
         this.store.select(selectFinanceOverviewFilter)
             .pipe(takeUntilDestroyed())
             .subscribe((filter) => {
+                this.selectedCenterId = filter.centerId ?? '';
                 if (filter.dateFrom) {
                     const from = new Date(filter.dateFrom + 'T00:00:00');
                     const to = filter.dateTo ? new Date(filter.dateTo + 'T00:00:00') : from;
@@ -79,6 +94,7 @@ export class FinanceOverviewDashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.store.dispatch(CenterActions.loadCenters());
         this.dispatchLoad();
     }
 
@@ -88,6 +104,7 @@ export class FinanceOverviewDashboardComponent implements OnInit {
 
     clearFilter(): void {
         this.dateRange = [];
+        this.selectedCenterId = '';
         const today = new Date();
         const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         this.store.dispatch(
@@ -109,6 +126,7 @@ export class FinanceOverviewDashboardComponent implements OnInit {
         const filter: FinanceOverviewFilter = {};
         if (this.dateRange?.[0]) filter.dateFrom = this.toISODate(this.dateRange[0]);
         if (this.dateRange?.[1]) filter.dateTo = this.toISODate(this.dateRange[1]);
+        if (this.selectedCenterId) filter.centerId = this.selectedCenterId;
         this.store.dispatch(FinanceOverviewActions.loadOverview({ filter }));
     }
 

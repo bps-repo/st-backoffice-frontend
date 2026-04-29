@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
+import { SelectItem } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
 import { ChartModule } from 'primeng/chart';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +19,8 @@ import {
     selectInvoiceTrendsLoading,
 } from '../../../../core/store/finance/invoice-trends/invoice-trends.selectors';
 import { InvoiceTrends } from '../../../../core/models/finance/invoice-trends.model';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
 
 const MONTH_LABELS: Record<string, string> = {
     JANUARY: 'Jan', FEBRUARY: 'Fev', MARCH: 'Mar', APRIL: 'Abr',
@@ -27,7 +31,7 @@ const MONTH_LABELS: Record<string, string> = {
 @Component({
     selector: 'app-students-materials-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, ButtonModule, SkeletonModule],
+    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, ButtonModule, DropdownModule, SkeletonModule],
     templateUrl: './invoices-dashboard.component.html',
 })
 export class InvoicesDashboardComponent implements OnInit {
@@ -45,6 +49,16 @@ export class InvoicesDashboardComponent implements OnInit {
     barChartData: any;
     barChartOptions: any;
 
+    /** Empty string = todos os centros (sem `centerId` na API). */
+    selectedCenterId = '';
+
+    readonly centerOptions$: Observable<SelectItem[]> = this.store.select(CenterSelectors.selectAllCenters).pipe(
+        map((centers) => [
+            { label: 'Todos os centros', value: '' },
+            ...centers.map((c) => ({ label: c.name, value: c.id })),
+        ]),
+    );
+
     constructor() {
         this.store.select(selectInvoiceTrends)
             .pipe(takeUntilDestroyed())
@@ -60,6 +74,7 @@ export class InvoicesDashboardComponent implements OnInit {
         this.store.select(selectInvoiceTrendsFilter)
             .pipe(takeUntilDestroyed())
             .subscribe((filter) => {
+                this.selectedCenterId = filter.centerId ?? '';
                 const from = new Date(filter.dateFrom + 'T00:00:00');
                 const to = new Date(filter.dateTo + 'T00:00:00');
                 this.dateRange = [from, to];
@@ -67,6 +82,7 @@ export class InvoicesDashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.store.dispatch(CenterActions.loadCenters());
         this.dispatchLoad();
     }
 
@@ -75,6 +91,7 @@ export class InvoicesDashboardComponent implements OnInit {
     }
 
     clearFilter(): void {
+        this.selectedCenterId = '';
         const today = new Date();
         const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
         this.dateRange = [oneYearAgo, today];
@@ -99,6 +116,7 @@ export class InvoicesDashboardComponent implements OnInit {
                     dateTo: this.dateRange?.[1]
                         ? this.toISODate(this.dateRange[1])
                         : this.toISODate(today),
+                    ...(this.selectedCenterId ? { centerId: this.selectedCenterId } : {}),
                 },
             }),
         );

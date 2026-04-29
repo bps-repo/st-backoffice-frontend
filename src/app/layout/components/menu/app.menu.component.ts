@@ -162,7 +162,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/finances/reports'],
-                        visible: this.hasPermission('financial.generate_reports')
+                        visible: this.hasPermission('sales.generate_reports')
                     },
                 ],
             },
