@@ -1,0 +1,379 @@
+<div class="grid">
+
+    <!-- Filter Bar -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+                <span class="font-semibold text-color-secondary">Filtrar por período:</span>
+                <p-calendar
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Data início – Data fim"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-calendar>
+                <p-button
+                    label="Aplicar"
+                    icon="pi pi-filter"
+                    (onClick)="applyFilter()"
+                    [loading]="loading"
+                ></p-button>
+                <p-button
+                    label="Limpar"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilter()"
+                    [disabled]="!dateRange?.length"
+                ></p-button>
+
+                <span class="ml-auto text-sm text-color-secondary" *ngIf="overview?.lastUpdated">
+                    <i class="pi pi-clock mr-1"></i>
+                    Actualizado: {{ overview!.lastUpdated | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="col-12" *ngIf="error">
+        <div class="card border-red-300 bg-red-50">
+            <div class="flex align-items-center gap-2 text-red-600">
+                <i class="pi pi-exclamation-triangle text-xl"></i>
+                <span class="font-semibold">{{ error }}</span>
+                <p-button
+                    label="Tentar novamente"
+                    icon="pi pi-refresh"
+                    severity="danger"
+                    [text]="true"
+                    size="small"
+                    (onClick)="loadOverview()"
+                    class="ml-2"
+                ></p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards – Revenue -->
+    <div class="col-12">
+        <span class="text-sm font-semibold text-color-secondary uppercase tracking-widest">Receita</span>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Receita Total</span>
+                    <div class="text-3xl font-bold text-900 mt-2">
+                        <p-skeleton *ngIf="loading" width="10rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ formatCurrency(overview?.totalRevenue ?? 0, overview?.currency) }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--primary-100)">
+                    <i class="pi pi-dollar text-primary text-xl"></i>
+                </span>
+            </div>
+            <div class="mt-3 flex align-items-center gap-1 text-sm" *ngIf="!loading && overview">
+                <i class="pi" [ngClass]="revenueGrowthPositive ? 'pi-arrow-up text-green-500' : 'pi-arrow-down text-red-500'"></i>
+                <span [ngClass]="revenueGrowthPositive ? 'text-green-500' : 'text-red-500'" class="font-semibold">
+                    {{ overview.revenueGrowth }}%
+                </span>
+                <span class="text-color-secondary">crescimento</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Revenue -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Receita Mensal</span>
+                    <div class="text-3xl font-bold text-900 mt-2">
+                        <p-skeleton *ngIf="loading" width="10rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ formatCurrency(overview?.monthlyRevenue ?? 0, overview?.currency) }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--blue-100)">
+                    <i class="pi pi-calendar text-blue-500 text-xl"></i>
+                </span>
+            </div>
+            <div class="mt-3 text-sm text-color-secondary" *ngIf="!loading && overview">
+                Média mensal: <strong>{{ formatCurrency(overview.averageMonthlyIncome, overview.currency) }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yearly Revenue -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Receita Anual</span>
+                    <div class="text-3xl font-bold text-900 mt-2">
+                        <p-skeleton *ngIf="loading" width="10rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ formatCurrency(overview?.yearlyRevenue ?? 0, overview?.currency) }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--green-100)">
+                    <i class="pi pi-chart-line text-green-500 text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Contract Value -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Valor Médio de Contrato</span>
+                    <div class="text-3xl font-bold text-900 mt-2">
+                        <p-skeleton *ngIf="loading" width="10rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ formatCurrency(overview?.averageContractValue ?? 0, overview?.currency) }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--orange-100)">
+                    <i class="pi pi-file-edit text-orange-500 text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards – Collections -->
+    <div class="col-12 mt-2">
+        <span class="text-sm font-semibold text-color-secondary uppercase tracking-widest">Cobranças</span>
+    </div>
+
+    <!-- Total Collected -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Total Cobrado</span>
+                    <div class="text-3xl font-bold text-green-600 mt-2">
+                        <p-skeleton *ngIf="loading" width="10rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ formatCurrency(overview?.totalCollected ?? 0, overview?.currency) }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--green-100)">
+                    <i class="pi pi-check-circle text-green-500 text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collection Rate -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Taxa de Cobrança</span>
+                    <div class="text-3xl font-bold text-primary mt-2">
+                        <p-skeleton *ngIf="loading" width="6rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ collectionRatePercent }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--primary-100)">
+                    <i class="pi pi-percentage text-primary text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Pending -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Total Pendente</span>
+                    <div class="text-3xl font-bold text-yellow-600 mt-2">
+                        <p-skeleton *ngIf="loading" width="10rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ formatCurrency(overview?.totalPending ?? 0, overview?.currency) }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--yellow-100)">
+                    <i class="pi pi-clock text-yellow-500 text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue -->
+    <div class="col-12 md:col-6 xl:col-3">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Em Atraso</span>
+                    <div class="text-3xl font-bold text-red-600 mt-2">
+                        <p-skeleton *ngIf="loading" width="10rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ formatCurrency(overview?.overdueAmount ?? 0, overview?.currency) }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--red-100)">
+                    <i class="pi pi-exclamation-circle text-red-500 text-xl"></i>
+                </span>
+            </div>
+            <div class="mt-3 text-sm text-color-secondary" *ngIf="!loading && overview">
+                <span class="font-semibold text-red-500">{{ overview.overdueCount }}</span> contrato(s) em atraso
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards – Contracts -->
+    <div class="col-12 mt-2">
+        <span class="text-sm font-semibold text-color-secondary uppercase tracking-widest">Contratos</span>
+    </div>
+
+    <div class="col-12 md:col-4">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Contratos Activos</span>
+                    <div class="text-3xl font-bold text-900 mt-2">
+                        <p-skeleton *ngIf="loading" width="4rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ overview?.totalActiveContracts ?? 0 }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--primary-100)">
+                    <i class="pi pi-briefcase text-primary text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 md:col-4">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Novos este Mês</span>
+                    <div class="text-3xl font-bold text-900 mt-2">
+                        <p-skeleton *ngIf="loading" width="4rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ overview?.newContractsThisMonth ?? 0 }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--blue-100)">
+                    <i class="pi pi-plus-circle text-blue-500 text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 md:col-4">
+        <div class="card h-full">
+            <div class="flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-color-secondary font-medium">Novos este Ano</span>
+                    <div class="text-3xl font-bold text-900 mt-2">
+                        <p-skeleton *ngIf="loading" width="4rem" height="2rem"></p-skeleton>
+                        <span *ngIf="!loading">{{ overview?.newContractsThisYear ?? 0 }}</span>
+                    </div>
+                </div>
+                <span class="flex align-items-center justify-content-center border-round"
+                      style="width:2.8rem;height:2.8rem;background:var(--green-100)">
+                    <i class="pi pi-calendar-plus text-green-500 text-xl"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="col-12 xl:col-8">
+        <div class="card h-full">
+            <div class="text-xl font-semibold mb-4">Distribuição de Receita</div>
+            <p-skeleton *ngIf="loading" height="300px"></p-skeleton>
+            <p-chart
+                *ngIf="!loading && revenueChartData"
+                type="bar"
+                [data]="revenueChartData"
+                [options]="revenueChartOptions"
+                height="300px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <div class="col-12 xl:col-4">
+        <div class="card h-full">
+            <div class="text-xl font-semibold mb-4">Taxa de Cobrança</div>
+            <p-skeleton *ngIf="loading" height="300px"></p-skeleton>
+            <p-chart
+                *ngIf="!loading && collectionChartData"
+                type="doughnut"
+                [data]="collectionChartData"
+                [options]="collectionChartOptions"
+                height="300px"
+            ></p-chart>
+            <div *ngIf="!loading && overview" class="flex flex-column align-items-center mt-3">
+                <span class="text-4xl font-bold text-primary">{{ collectionRatePercent }}</span>
+                <span class="text-color-secondary text-sm mt-1">do total facturado cobrado</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 xl:col-6">
+        <div class="card h-full">
+            <div class="text-xl font-semibold mb-4">Contratos</div>
+            <p-skeleton *ngIf="loading" height="220px"></p-skeleton>
+            <p-chart
+                *ngIf="!loading && contractChartData"
+                type="bar"
+                [data]="contractChartData"
+                [options]="contractChartOptions"
+                height="220px"
+            ></p-chart>
+        </div>
+    </div>
+
+    <div class="col-12 xl:col-6">
+        <div class="card h-full">
+            <div class="text-xl font-semibold mb-4">Resumo</div>
+            <p-skeleton *ngIf="loading" height="220px"></p-skeleton>
+            <ng-container *ngIf="!loading && overview">
+                <div class="flex flex-column gap-3">
+                    <div class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border">
+                        <span class="text-color-secondary">Moeda</span>
+                        <p-tag [value]="overview.currency" severity="info"></p-tag>
+                    </div>
+                    <div class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border">
+                        <span class="text-color-secondary">Receita Total</span>
+                        <span class="font-semibold">{{ formatCurrency(overview.totalRevenue, overview.currency) }}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border">
+                        <span class="text-color-secondary">Total Cobrado</span>
+                        <span class="font-semibold text-green-600">{{ formatCurrency(overview.totalCollected, overview.currency) }}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border">
+                        <span class="text-color-secondary">Total Pendente</span>
+                        <span class="font-semibold text-yellow-600">{{ formatCurrency(overview.totalPending, overview.currency) }}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border">
+                        <span class="text-color-secondary">Em Atraso</span>
+                        <span class="font-semibold text-red-600">{{ formatCurrency(overview.overdueAmount, overview.currency) }}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center py-2">
+                        <span class="text-color-secondary">Crescimento de Receita</span>
+                        <span class="font-semibold"
+                              [ngClass]="revenueGrowthPositive ? 'text-green-600' : 'text-red-600'">
+                            <i class="pi mr-1" [ngClass]="revenueGrowthPositive ? 'pi-trending-up' : 'pi-trending-down'"></i>
+                            {{ overview.revenueGrowth }}%
+                        </span>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+</div>
