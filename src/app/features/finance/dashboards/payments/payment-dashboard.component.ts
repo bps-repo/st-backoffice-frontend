@@ -1,133 +1,169 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {RouterLink} from "@angular/router";
-import {ChartModule} from 'primeng/chart';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
+import { SelectItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { ChartModule } from 'primeng/chart';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
+import { SkeletonModule } from 'primeng/skeleton';
+import { FinancePaymentDashboardActions } from 'src/app/core/store/finance/payment-dashboard/payment-dashboard.actions';
+import {
+    selectFinancePaymentDashboardError,
+    selectFinancePaymentDashboardFilter,
+    selectFinancePaymentDashboardLoading,
+    selectFinancePaymentDashboardSummary,
+    selectFinancePaymentDashboardTrends,
+} from 'src/app/core/store/finance/payment-dashboard/payment-dashboard.selectors';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
+import { PaymentDashboardFilter, PaymentSummary, PaymentTrends } from 'src/app/core/models/finance/payment-dashboard.model';
+
+const MONTH_LABELS: Record<string, string> = {
+    JANUARY: 'Jan',
+    FEBRUARY: 'Fev',
+    MARCH: 'Mar',
+    APRIL: 'Abr',
+    MAY: 'Mai',
+    JUNE: 'Jun',
+    JULY: 'Jul',
+    AUGUST: 'Ago',
+    SEPTEMBER: 'Set',
+    OCTOBER: 'Out',
+    NOVEMBER: 'Nov',
+    DECEMBER: 'Dez',
+};
 
 @Component({
-    selector: 'app-students-materials-dashboard',
+    selector: 'app-payment-dashboard',
     templateUrl: './payment-dashboard.component.html',
     standalone: true,
-    imports: [CommonModule, RouterLink, ChartModule]
+    imports: [
+        CommonModule,
+        FormsModule,
+        ChartModule,
+        CalendarModule,
+        DropdownModule,
+        ButtonModule,
+        SkeletonModule,
+    ],
 })
 export class PaymentDashboardComponent implements OnInit {
-    recentPayments: any[] = [];
-    upcomingInstallments: any[] = [];
-    paymentStats = {
-        totalPaid: 0,
-        pendingAmount: 0,
-        overdueAmount: 0
-    };
+    private readonly store = inject(Store);
 
-    // Chart properties
+    readonly loading$: Observable<boolean> = this.store
+        .select(selectFinancePaymentDashboardLoading)
+        .pipe(distinctUntilChanged());
+
+    summary: PaymentSummary | null = null;
+    error: string | null = null;
+    dateRange: Date[] = [];
+
+    /** Empty string = todos os centros. */
+    selectedCenterId = '';
+
+    readonly centerOptions$: Observable<SelectItem[]> = this.store.select(CenterSelectors.selectAllCenters).pipe(
+        map((centers) => [
+            { label: 'Todos os centros', value: '' },
+            ...centers.map((c) => ({ label: c.name, value: c.id })),
+        ]),
+    );
+
     paymentDistributionData: any;
     paymentDistributionOptions: any;
     paymentTrendsData: any;
     paymentTrendsOptions: any;
 
     constructor() {
+        this.store.select(selectFinancePaymentDashboardSummary).pipe(takeUntilDestroyed()).subscribe((s) => {
+            this.summary = s;
+            if (s) this.initDistributionChart(s);
+        });
+
+        this.store.select(selectFinancePaymentDashboardTrends).pipe(takeUntilDestroyed()).subscribe((t) => {
+            if (t) this.initTrendsChart(t);
+        });
+
+        this.store
+            .select(selectFinancePaymentDashboardError)
+            .pipe(takeUntilDestroyed())
+            .subscribe((err) => (this.error = err ? 'Não foi possível carregar o resumo de pagamentos.' : null));
+
+        this.store
+            .select(selectFinancePaymentDashboardFilter)
+            .pipe(takeUntilDestroyed())
+            .subscribe((filter) => {
+                this.selectedCenterId = filter.centerId ?? '';
+                const from = new Date(filter.dateFrom + 'T00:00:00');
+                const to = new Date(filter.dateTo + 'T00:00:00');
+                this.dateRange = [from, to];
+            });
     }
 
     ngOnInit(): void {
-        // In a real application, these would be fetched from a service
-        this.loadMockData();
-
-        // Initialize charts
-        this.initPaymentDistributionChart();
-        this.initPaymentTrendsChart();
+        this.store.dispatch(CenterActions.loadCenters());
+        this.dispatchLoad();
     }
 
-    loadMockData(): void {
-        // Mock data for demonstration
-        this.recentPayments = [
-            {
-                id: 1,
-                invoice_id: 101,
-                amount: 500,
-                payment_date: new Date('2025-05-20'),
-                payment_method: 'Credit Card',
-                status: 'completed'
-            },
-            {
-                id: 2,
-                invoice_id: 102,
-                amount: 750,
-                payment_date: new Date('2025-05-18'),
-                payment_method: 'Bank Transfer',
-                status: 'completed'
-            },
-            {
-                id: 3,
-                invoice_id: 103,
-                amount: 1200,
-                payment_date: new Date('2025-05-15'),
-                payment_method: 'PayPal',
-                status: 'completed'
-            }
-        ];
+    applyFilter(): void {
+        this.dispatchLoad();
+    }
 
-        this.upcomingInstallments = [
-            {
-                id: 1,
-                payment_id: 4,
-                amount: 300,
-                due_date: new Date('2025-06-01'),
-                status: 'pending',
-                number: 2,
-                total_installments: 3
-            },
-            {
-                id: 2,
-                payment_id: 5,
-                amount: 450,
-                due_date: new Date('2025-06-05'),
-                status: 'pending',
-                number: 1,
-                total_installments: 2
-            },
-            {
-                id: 3,
-                payment_id: 6,
-                amount: 200,
-                due_date: new Date('2025-06-10'),
-                status: 'pending',
-                number: 3,
-                total_installments: 3
-            }
-        ];
+    clearFilter(): void {
+        this.selectedCenterId = '';
+        const today = new Date();
+        const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+        this.dateRange = [oneYearAgo, today];
+        this.dispatchLoad();
+    }
 
-        this.paymentStats = {
-            totalPaid: 2450,
-            pendingAmount: 950,
-            overdueAmount: 150
+    retryLoad(): void {
+        this.store.dispatch(FinancePaymentDashboardActions.clearError());
+        this.dispatchLoad();
+    }
+
+    private dispatchLoad(): void {
+        const today = new Date();
+        const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+
+        const filter: PaymentDashboardFilter = {
+            dateFrom: this.dateRange?.[0] ? this.toISODate(this.dateRange[0]) : this.toISODate(oneYearAgo),
+            dateTo: this.dateRange?.[1] ? this.toISODate(this.dateRange[1]) : this.toISODate(today),
+            ...(this.selectedCenterId ? { centerId: this.selectedCenterId } : {}),
         };
+
+        this.store.dispatch(FinancePaymentDashboardActions.load({ filter }));
     }
 
-    initPaymentDistributionChart(): void {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
+    private toISODate(date: Date): string {
+        return date.toISOString().split('T')[0];
+    }
 
-        // Create chart data from centers stats
+    private initDistributionChart(s: PaymentSummary): void {
+        const style = getComputedStyle(document.documentElement);
+        const textColor = style.getPropertyValue('--text-color');
+
         this.paymentDistributionData = {
-            labels: ['Paid', 'Pending', 'Overdue'],
+            labels: ['Pagos', 'Pendentes', 'Em atraso'],
             datasets: [
                 {
-                    data: [
-                        this.paymentStats.totalPaid,
-                        this.paymentStats.pendingAmount,
-                        this.paymentStats.overdueAmount
-                    ],
+                    data: [s.totalPaid, s.pendingAmount, s.overdueAmount],
                     backgroundColor: [
-                        documentStyle.getPropertyValue('--green-500'),
-                        documentStyle.getPropertyValue('--yellow-500'),
-                        documentStyle.getPropertyValue('--red-500')
+                        style.getPropertyValue('--green-500'),
+                        style.getPropertyValue('--yellow-500'),
+                        style.getPropertyValue('--red-500'),
                     ],
                     hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--green-400'),
-                        documentStyle.getPropertyValue('--yellow-400'),
-                        documentStyle.getPropertyValue('--red-400')
-                    ]
-                }
-            ]
+                        style.getPropertyValue('--green-400'),
+                        style.getPropertyValue('--yellow-400'),
+                        style.getPropertyValue('--red-400'),
+                    ],
+                },
+            ],
         };
 
         this.paymentDistributionOptions = {
@@ -136,44 +172,37 @@ export class PaymentDashboardComponent implements OnInit {
                     labels: {
                         color: textColor,
                         usePointStyle: true,
-                        font: {weight: 700},
-                        padding: 20
+                        font: { weight: 600 },
+                        padding: 16,
                     },
-                    position: 'bottom'
+                    position: 'bottom',
                 },
                 title: {
                     display: true,
-                    text: 'Payment Distribution',
-                    font: {
-                        size: 16
-                    }
-                }
+                    text: 'Distribuição de valores',
+                    font: { size: 14 },
+                    color: textColor,
+                },
             },
-            cutout: '60%'
+            cutout: '60%',
         };
     }
 
-    initPaymentTrendsChart(): void {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
+    private initTrendsChart(trends: PaymentTrends): void {
+        const style = getComputedStyle(document.documentElement);
+        const textColor = style.getPropertyValue('--text-color');
+        const borderColor = style.getPropertyValue('--surface-border');
 
-        // Mock monthly centers data
+        const palette = [style.getPropertyValue('--primary-500'), style.getPropertyValue('--orange-400')];
+
         this.paymentTrendsData = {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [
-                {
-                    label: 'Payments',
-                    data: [1200, 1900, 1500, 2800, 2450, 0],
-                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
-                    borderColor: documentStyle.getPropertyValue('--primary-500')
-                },
-                {
-                    label: 'Installments',
-                    data: [800, 1100, 900, 1600, 950, 0],
-                    backgroundColor: documentStyle.getPropertyValue('--primary-300'),
-                    borderColor: documentStyle.getPropertyValue('--primary-300')
-                }
-            ]
+            labels: trends.labels.map((m) => MONTH_LABELS[m] ?? m),
+            datasets: trends.datasets.map((ds, i) => ({
+                label: ds.label,
+                data: ds.data,
+                backgroundColor: palette[i % palette.length],
+                borderRadius: 4,
+            })),
         };
 
         this.paymentTrendsOptions = {
@@ -181,30 +210,34 @@ export class PaymentDashboardComponent implements OnInit {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    labels: {
-                        color: textColor,
-                        font: {weight: 500}
-                    }
+                    labels: { color: textColor, font: { weight: 500 } },
                 },
                 title: {
                     display: true,
-                    text: 'Monthly Payment Trends',
-                    font: {
-                        size: 16
-                    }
-                }
+                    text: 'Tendências de pagamentos',
+                    font: { size: 14 },
+                    color: textColor,
+                },
             },
             scales: {
                 x: {
-                    ticks: {color: textColor},
-                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
+                    ticks: { color: textColor },
+                    grid: { color: borderColor },
                 },
                 y: {
-                    ticks: {color: textColor},
-                    grid: {color: documentStyle.getPropertyValue('--surface-border')},
-                    beginAtZero: true
-                }
-            }
+                    beginAtZero: true,
+                    ticks: { color: textColor },
+                    grid: { color: borderColor },
+                },
+            },
         };
+    }
+
+    formatMoney(value: number, currency: string): string {
+        return new Intl.NumberFormat('pt-AO', {
+            style: 'currency',
+            currency,
+            minimumFractionDigits: 2,
+        }).format(value);
     }
 }

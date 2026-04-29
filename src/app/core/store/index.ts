@@ -64,6 +64,12 @@ import {FinanceOverviewState} from "./finance/overview/finance-overview.state";
 import {InvoiceTrendsEffects} from "./finance/invoice-trends/invoice-trends.effects";
 import {invoiceTrendsFeature} from "./finance/invoice-trends/invoice-trends.feature";
 import {InvoiceTrendsState} from "./finance/invoice-trends/invoice-trends.state";
+import {FinancePaymentDashboardEffects} from "./finance/payment-dashboard/payment-dashboard.effects";
+import {financePaymentDashboardFeature} from "./finance/payment-dashboard/payment-dashboard.feature";
+import {FinancePaymentDashboardState} from "./finance/payment-dashboard/payment-dashboard.state";
+import {FinanceSellersEffects} from "./finance/finance-sellers/finance-sellers.effects";
+import {financeSellersFeature} from "./finance/finance-sellers/finance-sellers.feature";
+import {FinanceSellersState} from "./finance/finance-sellers/finance-sellers.state";
 
 export interface AppState {
     auth: AuthState;
@@ -88,6 +94,8 @@ export interface AppState {
     certificates: CertificatesState;
     financeOverview: FinanceOverviewState;
     invoiceTrends: InvoiceTrendsState;
+    financePaymentDashboard: FinancePaymentDashboardState;
+    financeSellers: FinanceSellersState;
 }
 
 export const AppEffects = [
@@ -113,6 +121,8 @@ export const AppEffects = [
     CertificatesEffects,
     FinanceOverviewEffects,
     InvoiceTrendsEffects,
+    FinancePaymentDashboardEffects,
+    FinanceSellersEffects,
 ];
 
 export const AppFeatures = [
@@ -138,4 +148,6 @@ export const AppFeatures = [
     certificatesFeature,
     financeOverviewFeature,
     invoiceTrendsFeature,
+    financePaymentDashboardFeature,
+    financeSellersFeature,
 ];

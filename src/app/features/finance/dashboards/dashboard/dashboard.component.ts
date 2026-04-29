@@ -9,6 +9,7 @@ import {PaymentDashboardComponent} from "../payments/payment-dashboard.component
 import {TabViewComponent} from "../../../../shared/components/tables/tab-view/tab-view.component";
 import {ViewTabComponent} from "../../../../shared/components/view-tab/view-tab.component";
 import {FinanceOverviewDashboardComponent} from "../overview/finance-overview-dashboard.component";
+import {SellersDashboardComponent} from "../sellers/sellers-dashboard.component";
 
 type ViewOption = { label: string; value: { key: string; component: any } };
 
@@ -25,6 +26,7 @@ export class FinanceDashboard implements OnInit {
         {label: 'Geral', value: {key: 'general', component: FinanceOverviewDashboardComponent}},
         {label: 'Facturas', value: {key: 'students', component: InvoicesDashboardComponent}},
         {label: 'Pagamentos', value: {key: 'lessons', component: PaymentDashboardComponent}},
+        {label: 'Vendedores', value: {key: 'sellers', component: SellersDashboardComponent}},
     ];
 
     ngOnInit() {
