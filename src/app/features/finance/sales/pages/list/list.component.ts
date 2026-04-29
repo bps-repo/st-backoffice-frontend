@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener, inje
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, of, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -84,20 +85,16 @@ interface SaleListItem {
 })
 export class ListComponent implements OnInit, OnDestroy {
     private router = inject(Router);
-    private store = inject(Store);
+    private readonly store = inject(Store);
 
+    /** NgRx — `selectSalesLoading`. */
+    readonly loading$ = this.store.select(selectSalesLoading).pipe(distinctUntilChanged());
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
-
-    // Data observables
-    sales$: Observable<SaleListItem[]> = of([]);
-    loading$: Observable<boolean> = of(false);
-    error$: Observable<string | null> = of(null);
 
     // Local state
     allSales: SaleListItem[] = [];
     sales: SaleListItem[] = [];
-    loading = false;
     error: string | null = null;
     searchTerm = '';
     typeFilter = '';
@@ -142,12 +139,6 @@ export class ListComponent implements OnInit, OnDestroy {
                 const mappedSales = sales.map((invoice) => this.mapInvoiceToSale(invoice));
                 this.allSales = mappedSales;
                 this.sales = this.filterSales(this.allSales);
-            });
-
-        this.store.select(selectSalesLoading)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe((loading) => {
-                this.loading = loading;
             });
 
         this.store.select(selectSalesError)

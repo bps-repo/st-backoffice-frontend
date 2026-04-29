@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -30,11 +31,13 @@ import { selectSalesDetailError, selectSalesDetailLoading, selectSelectedSale } 
 export class DetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
-    private store = inject(Store);
+    private readonly store = inject(Store);
     private cdr = inject(ChangeDetectorRef);
 
+    /** NgRx — `selectSalesDetailLoading`. */
+    readonly loading$ = this.store.select(selectSalesDetailLoading).pipe(distinctUntilChanged());
+
     saleId: string | null = null;
-    loading = false;
     sale: InvoiceDetail | null = null;
     error: string | null = null;
 
@@ -45,13 +48,6 @@ export class DetailComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe((sale) => {
                 this.sale = sale;
-                this.cdr.markForCheck();
-            });
-
-        this.store.select(selectSalesDetailLoading)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe((loading) => {
-                this.loading = loading;
                 this.cdr.markForCheck();
             });
 

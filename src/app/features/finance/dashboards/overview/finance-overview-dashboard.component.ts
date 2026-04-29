@@ -1,13 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { ChartModule } from 'primeng/chart';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { FinanceDashboardService } from '../../../../core/services/finance-dashboard.service';
+import { FinanceOverviewActions } from '../../../../core/store/finance/overview/finance-overview.actions';
+import {
+    selectFinanceOverview,
+    selectFinanceOverviewError,
+    selectFinanceOverviewFilter,
+    selectFinanceOverviewLoading,
+} from '../../../../core/store/finance/overview/finance-overview.selectors';
 import { FinanceOverview, FinanceOverviewFilter } from '../../../../core/models/finance/finance-overview.model';
 
 @Component({
@@ -26,12 +36,15 @@ import { FinanceOverview, FinanceOverviewFilter } from '../../../../core/models/
     templateUrl: './finance-overview-dashboard.component.html',
 })
 export class FinanceOverviewDashboardComponent implements OnInit {
-    private service = inject(FinanceDashboardService);
+    private readonly store = inject(Store);
+
+    /** Driven by NgRx `selectFinanceOverviewLoading` — use `(loading$ | async)` in the template. */
+    readonly loading$: Observable<boolean> = this.store
+        .select(selectFinanceOverviewLoading)
+        .pipe(distinctUntilChanged());
 
     overview: FinanceOverview | null = null;
-    loading = false;
     error: string | null = null;
-
     dateRange: Date[] = [];
 
     revenueChartData: any;
@@ -41,38 +54,62 @@ export class FinanceOverviewDashboardComponent implements OnInit {
     contractChartData: any;
     contractChartOptions: any;
 
-    ngOnInit(): void {
-        this.loadOverview();
+    constructor() {
+        this.store.select(selectFinanceOverview)
+            .pipe(takeUntilDestroyed())
+            .subscribe((overview) => {
+                console.log('overview', overview);
+                this.overview = overview;
+                if (overview) this.initCharts(overview);
+            });
+
+        this.store.select(selectFinanceOverviewError)
+            .pipe(takeUntilDestroyed())
+            .subscribe((error) => (this.error = error ? 'Não foi possível carregar a visão geral financeira.' : null));
+
+        this.store.select(selectFinanceOverviewFilter)
+            .pipe(takeUntilDestroyed())
+            .subscribe((filter) => {
+                if (filter.dateFrom) {
+                    const from = new Date(filter.dateFrom + 'T00:00:00');
+                    const to = filter.dateTo ? new Date(filter.dateTo + 'T00:00:00') : from;
+                    this.dateRange = [from, to];
+                }
+            });
     }
 
-    loadOverview(): void {
-        this.loading = true;
-        this.error = null;
-
-        const filter: FinanceOverviewFilter = {};
-        if (this.dateRange?.[0]) filter.dateFrom = this.toISODate(this.dateRange[0]);
-        if (this.dateRange?.[1]) filter.dateTo = this.toISODate(this.dateRange[1]);
-
-        this.service.getOverview(filter).subscribe({
-            next: (data) => {
-                this.overview = data;
-                this.loading = false;
-                this.initCharts(data);
-            },
-            error: () => {
-                this.error = 'Não foi possível carregar a visão geral financeira.';
-                this.loading = false;
-            },
-        });
+    ngOnInit(): void {
+        this.dispatchLoad();
     }
 
     applyFilter(): void {
-        this.loadOverview();
+        this.dispatchLoad();
     }
 
     clearFilter(): void {
         this.dateRange = [];
-        this.loadOverview();
+        const today = new Date();
+        const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        this.store.dispatch(
+            FinanceOverviewActions.loadOverview({
+                filter: {
+                    dateFrom: this.toISODate(firstOfMonth),
+                    dateTo: this.toISODate(today),
+                },
+            }),
+        );
+    }
+
+    retryLoad(): void {
+        this.store.dispatch(FinanceOverviewActions.clearError());
+        this.dispatchLoad();
+    }
+
+    private dispatchLoad(): void {
+        const filter: FinanceOverviewFilter = {};
+        if (this.dateRange?.[0]) filter.dateFrom = this.toISODate(this.dateRange[0]);
+        if (this.dateRange?.[1]) filter.dateTo = this.toISODate(this.dateRange[1]);
+        this.store.dispatch(FinanceOverviewActions.loadOverview({ filter }));
     }
 
     private toISODate(date: Date): string {
@@ -108,8 +145,7 @@ export class FinanceOverviewDashboardComponent implements OnInit {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (ctx: any) =>
-                            ` ${this.formatCurrency(ctx.parsed.y, data.currency)}`,
+                        label: (ctx: any) => ` ${this.formatCurrency(ctx.parsed.y, data.currency)}`,
                     },
                 },
             },
@@ -172,9 +208,7 @@ export class FinanceOverviewDashboardComponent implements OnInit {
         this.contractChartOptions = {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-            },
+            plugins: { legend: { display: false } },
             scales: {
                 x: { ticks: { color: textColor }, grid: { display: false } },
                 y: {

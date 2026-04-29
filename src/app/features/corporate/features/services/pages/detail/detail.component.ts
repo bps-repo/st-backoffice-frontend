@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -20,19 +21,17 @@ import { selectSelectedService, selectServiceError, selectServiceLoading } from 
 export class DetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
-    private store = inject(Store);
+    private readonly store = inject(Store);
     private destroy$ = new Subject<void>();
 
-    loading = false;
+    /** NgRx — `selectServiceLoading`. */
+    readonly loading$ = this.store.select(selectServiceLoading).pipe(distinctUntilChanged());
+
     error: string | null = null;
     serviceId: string | null = null;
     service: Service | null = null;
 
     ngOnInit(): void {
-        this.store.select(selectServiceLoading).pipe(takeUntil(this.destroy$)).subscribe((loading) => {
-            this.loading = loading;
-        });
-
         this.store.select(selectServiceError).pipe(takeUntil(this.destroy$)).subscribe((error) => {
             this.error = error;
         });

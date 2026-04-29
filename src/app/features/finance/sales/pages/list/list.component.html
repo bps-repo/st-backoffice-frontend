@@ -20,6 +20,7 @@
     <!-- Lista de Vendas View -->
     @if (currentView === 'list') {
     <div class="col-12 animate-fade">
+        @let loading = (loading$ | async) ?? false;
         <!-- Filters Section -->
         <div class="card mb-4">
             <h3 class="text-lg font-semibold mb-3">Filtros</h3>

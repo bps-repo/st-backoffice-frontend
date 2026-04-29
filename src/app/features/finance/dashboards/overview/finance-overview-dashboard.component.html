@@ -1,5 +1,7 @@
 <div class="grid">
 
+    @let loading = (loading$ | async) ?? false;
+
     <!-- Filter Bar -->
     <div class="col-12">
         <div class="card">
@@ -49,7 +51,7 @@
                     severity="danger"
                     [text]="true"
                     size="small"
-                    (onClick)="loadOverview()"
+                    (onClick)="retryLoad()"
                     class="ml-2"
                 ></p-button>
             </div>

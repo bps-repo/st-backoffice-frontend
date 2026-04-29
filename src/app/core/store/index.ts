@@ -58,6 +58,12 @@ import {StatisticsState} from "./schoolar/statistics/statisticsState";
 import {CertificatesEffects} from "./schoolar/certificates/certificates.effects";
 import {certificatesFeature} from "./schoolar/certificates/certificates.feature";
 import {CertificatesState} from "./schoolar/app.state";
+import {FinanceOverviewEffects} from "./finance/overview/finance-overview.effects";
+import {financeOverviewFeature} from "./finance/overview/finance-overview.feature";
+import {FinanceOverviewState} from "./finance/overview/finance-overview.state";
+import {InvoiceTrendsEffects} from "./finance/invoice-trends/invoice-trends.effects";
+import {invoiceTrendsFeature} from "./finance/invoice-trends/invoice-trends.feature";
+import {InvoiceTrendsState} from "./finance/invoice-trends/invoice-trends.state";
 
 export interface AppState {
     auth: AuthState;
@@ -80,6 +86,8 @@ export interface AppState {
     location: LocationState;
     statistics: StatisticsState;
     certificates: CertificatesState;
+    financeOverview: FinanceOverviewState;
+    invoiceTrends: InvoiceTrendsState;
 }
 
 export const AppEffects = [
@@ -103,6 +111,8 @@ export const AppEffects = [
     LocationEffects,
     StatisticsEffects,
     CertificatesEffects,
+    FinanceOverviewEffects,
+    InvoiceTrendsEffects,
 ];
 
 export const AppFeatures = [
@@ -126,4 +136,6 @@ export const AppFeatures = [
     locationFeature,
     statisticsFeature,
     certificatesFeature,
+    financeOverviewFeature,
+    invoiceTrendsFeature,
 ];

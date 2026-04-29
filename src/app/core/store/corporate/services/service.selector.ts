@@ -20,6 +20,7 @@ export const selectSelectedService = createSelector(
     (state) => (state.selectedServiceId ? state.entities[state.selectedServiceId] || null : null)
 );
 
+/** Aggregate loading flags for corporate service mutations / detail load. */
 export const selectServiceLoading = createSelector(
     selectServiceState,
     (state) => state.loading || state.loadingCreate || state.loadingUpdate || state.loadingDelete || false

@@ -5,8 +5,10 @@ import { salesAdapter } from './sales.state';
 const { selectAll, selectEntities } = salesAdapter.getSelectors();
 
 export const selectSalesState = salesFeature.selectSalesState;
+/** True while the sales list GET is in flight. */
 export const selectSalesLoading = salesFeature.selectLoading;
 export const selectSalesError = salesFeature.selectError;
+/** True while a single-sale detail GET is in flight. */
 export const selectSalesDetailLoading = salesFeature.selectDetailLoading;
 export const selectSalesDetailError = salesFeature.selectDetailError;
 export const selectSelectedSale = salesFeature.selectSelectedSale;
