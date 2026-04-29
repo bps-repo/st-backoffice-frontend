@@ -33,6 +33,8 @@ import {
 } from '../models/finance/finance-sellers.model';
 import { PageableResponse } from '../models/ApiResponseService';
 
+export type ExportFormat = 'pdf' | 'csv' | 'excel';
+
 @Injectable({ providedIn: 'root' })
 export class FinanceDashboardService {
     private http = inject(HttpClient);
@@ -54,6 +56,20 @@ export class FinanceDashboardService {
             .pipe(map((res) => res.data));
     }
 
+    exportOverview(filter: FinanceOverviewFilter = {}, format: ExportFormat): Observable<Blob> {
+        const today = new Date();
+        const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom ?? this.toISODate(firstOfMonth))
+            .set('dateTo', filter.dateTo ?? this.toISODate(today))
+            .set('format', format);
+
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${this.apiUrl}/overview/export`, { params, responseType: 'blob' });
+    }
+
     getInvoiceTrends(filter: InvoiceTrendsFilter): Observable<InvoiceTrends> {
         let params = new HttpParams()
             .set('dateFrom', filter.dateFrom)
@@ -66,6 +82,16 @@ export class FinanceDashboardService {
             .pipe(map((res) => res.data));
     }
 
+    exportInvoiceTrends(filter: InvoiceTrendsFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${this.apiUrl}/invoices/trends/export`, { params, responseType: 'blob' });
+    }
+
     getPaymentSummary(filter: PaymentDashboardFilter): Observable<PaymentSummary> {
         let params = new HttpParams().set('dateFrom', filter.dateFrom).set('dateTo', filter.dateTo);
         if (filter.centerId) params = params.set('centerId', filter.centerId);
@@ -73,6 +99,16 @@ export class FinanceDashboardService {
         return this.http
             .get<ApiResponse<PaymentSummary>>(`${this.apiUrl}/payments/summary`, { params })
             .pipe(map((res) => res.data));
+    }
+
+    exportPaymentSummary(filter: PaymentDashboardFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${this.apiUrl}/payments/summary/export`, { params, responseType: 'blob' });
     }
 
     getPaymentTrends(filter: PaymentDashboardFilter): Observable<PaymentTrends> {
@@ -84,6 +120,16 @@ export class FinanceDashboardService {
             .pipe(map((res) => res.data));
     }
 
+    exportPaymentTrends(filter: PaymentDashboardFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${this.apiUrl}/payments/trends/export`, { params, responseType: 'blob' });
+    }
+
     getFinanceSellers(filter: FinanceSellersFilter): Observable<FinanceSeller[]> {
         let params = new HttpParams().set('dateFrom', filter.dateFrom).set('dateTo', filter.dateTo);
         if (filter.centerId) params = params.set('centerId', filter.centerId);
@@ -93,6 +139,16 @@ export class FinanceDashboardService {
             .pipe(map((res) => res.data));
     }
 
+    exportFinanceSellers(filter: FinanceSellersFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${this.apiUrl}/sellers/export`, { params, responseType: 'blob' });
+    }
+
     getFinanceSellersTop(filter: FinanceSellersFilter): Observable<FinanceSellerTopRanking[]> {
         let params = new HttpParams().set('dateFrom', filter.dateFrom).set('dateTo', filter.dateTo);
         if (filter.centerId) params = params.set('centerId', filter.centerId);
@@ -100,6 +156,16 @@ export class FinanceDashboardService {
         return this.http
             .get<ApiResponse<FinanceSellerTopRanking[]>>(`${this.apiUrl}/sellers/top`, { params })
             .pipe(map((res) => res.data));
+    }
+
+    exportFinanceSellersTop(filter: FinanceSellersFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${this.apiUrl}/sellers/top/export`, { params, responseType: 'blob' });
     }
 
     getFinanceContractsReport(
@@ -132,6 +198,21 @@ export class FinanceDashboardService {
             .pipe(map((res) => res.data));
     }
 
+    exportFinanceContractsReport(filter: FinanceContractsReportFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+        if (filter.sellerId) params = params.set('sellerId', filter.sellerId);
+        if (filter.status?.length) filter.status.forEach((status) => (params = params.append('status', status)));
+        if (filter.contractType?.length)
+            filter.contractType.forEach((contractType) => (params = params.append('contractType', contractType)));
+
+        return this.http.get(`${environment.apiUrl}/reports/finance/contracts/export`, { params, responseType: 'blob' });
+    }
+
     getFinanceCustomersReport(
         filter: FinanceCustomersReportFilter,
     ): Observable<PageableResponse<FinanceCustomerReportRow>> {
@@ -147,6 +228,16 @@ export class FinanceDashboardService {
                 { params },
             )
             .pipe(map((res) => res.data));
+    }
+
+    exportFinanceCustomersReport(filter: FinanceCustomersReportFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${environment.apiUrl}/reports/finance/customers/export`, { params, responseType: 'blob' });
     }
 
     getFinanceInvoicesReport(
@@ -178,6 +269,21 @@ export class FinanceDashboardService {
             .pipe(map((res) => res.data));
     }
 
+    exportFinanceInvoicesReport(filter: FinanceInvoicesReportFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+        if (filter.documentType?.length)
+            filter.documentType.forEach((documentType) => (params = params.append('documentType', documentType)));
+        if (filter.paymentStatus?.length)
+            filter.paymentStatus.forEach((paymentStatus) => (params = params.append('paymentStatus', paymentStatus)));
+
+        return this.http.get(`${environment.apiUrl}/reports/finance/invoices/export`, { params, responseType: 'blob' });
+    }
+
     getFinanceSellersReport(filter: FinanceSellersReportFilter): Observable<FinanceSellerReportRow[]> {
         let params = new HttpParams().set('dateFrom', filter.dateFrom).set('dateTo', filter.dateTo);
 
@@ -191,7 +297,21 @@ export class FinanceDashboardService {
             .pipe(map((res) => res.data));
     }
 
+    exportFinanceSellersReport(filter: FinanceSellersReportFilter, format: ExportFormat): Observable<Blob> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo)
+            .set('format', format);
+        if (filter.sellerId) params = params.set('sellerId', filter.sellerId);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http.get(`${environment.apiUrl}/reports/finance/sellers/export`, { params, responseType: 'blob' });
+    }
+
     private toISODate(date: Date): string {
-        return date.toISOString().split('T')[0];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 }

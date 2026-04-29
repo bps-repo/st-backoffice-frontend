@@ -44,6 +44,23 @@
                     (onClick)="clearFilter()"
                     [disabled]="loading"
                 ></p-button>
+                <p-dropdown
+                    [options]="formatOptions"
+                    [(ngModel)]="selectedExportFormat"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="min-w-9rem"
+                    appendTo="body"
+                ></p-dropdown>
+                <p-button
+                    label="Exportar"
+                    icon="pi pi-file-export"
+                    severity="help"
+                    [outlined]="true"
+                    [loading]="exportLoading"
+                    [disabled]="loading"
+                    (onClick)="exportData()"
+                ></p-button>
             </div>
         </div>
     </div>

@@ -14,7 +14,7 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { FinanceDashboardService } from 'src/app/core/services/finance-dashboard.service';
+import { ExportFormat, FinanceDashboardService } from 'src/app/core/services/finance-dashboard.service';
 import {
     FinanceContractReportRow,
     FinanceContractStatus,
@@ -64,15 +64,22 @@ export class ContractsReportComponent implements OnInit {
 
     centerOptions: SelectItem[] = [{ label: 'Todos os centros', value: '' }];
     sellerOptions: SelectItem[] = [{ label: 'Todos os vendedores', value: '' }];
+    readonly formatOptions: SelectItem[] = [
+        { label: 'PDF', value: 'pdf' },
+        { label: 'CSV', value: 'csv' },
+        { label: 'Excel', value: 'excel' },
+    ];
 
     rows: FinanceContractReportRow[] = [];
     error: string | null = null;
+    exportLoading = false;
 
     dateRange: Date[] = [];
     selectedStatuses: FinanceContractStatus[] = [];
     selectedContractTypes: FinanceContractType[] = [];
     selectedSellerId = '';
     selectedCenterId = '';
+    selectedExportFormat: ExportFormat = 'pdf';
 
     page = 0;
     size = 20;
@@ -132,6 +139,33 @@ export class ContractsReportComponent implements OnInit {
         this.load();
     }
 
+    exportData(): void {
+        const today = new Date();
+        const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+        const dateFrom = this.dateRange?.[0] ? this.toISODate(this.dateRange[0]) : this.toISODate(oneYearAgo);
+        const dateTo = this.dateRange?.[1] ? this.toISODate(this.dateRange[1]) : this.toISODate(today);
+
+        this.exportLoading = true;
+
+        this.service
+            .exportFinanceContractsReport(
+                {
+                    dateFrom,
+                    dateTo,
+                    status: this.selectedStatuses.length ? this.selectedStatuses : undefined,
+                    contractType: this.selectedContractTypes.length ? this.selectedContractTypes : undefined,
+                    sellerId: this.selectedSellerId || undefined,
+                    centerId: this.selectedCenterId || undefined,
+                },
+                this.selectedExportFormat,
+            )
+            .pipe(finalize(() => (this.exportLoading = false)))
+            .subscribe({
+                next: (blob) => this.downloadBlob(blob, `finance-contracts-report.${this.selectedExportFormat}`),
+                error: () => (this.error = 'Não foi possível exportar o relatório de contratos.'),
+            });
+    }
+
     onPageChange(event: PaginatorState): void {
         this.page = event.page ?? 0;
         this.size = event.rows ?? 20;
@@ -186,6 +220,18 @@ export class ContractsReportComponent implements OnInit {
     }
 
     private toISODate(date: Date): string {
-        return date.toISOString().split('T')[0];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    private downloadBlob(blob: Blob, filename: string): void {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
     }
 }
