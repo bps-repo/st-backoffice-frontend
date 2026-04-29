@@ -1,0 +1,144 @@
+<div class="grid p-3">
+    @let loading = (loading$ | async) ?? false;
+
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+                <span class="font-semibold text-color-secondary">Período:</span>
+                <p-calendar
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Data início - Data fim"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-calendar>
+
+                <p-multiSelect
+                    [options]="statusOptions"
+                    [(ngModel)]="selectedStatuses"
+                    optionLabel="label"
+                    optionValue="value"
+                    defaultLabel="Estados"
+                    styleClass="min-w-14rem"
+                    appendTo="body"
+                ></p-multiSelect>
+
+                <p-multiSelect
+                    [options]="contractTypeOptions"
+                    [(ngModel)]="selectedContractTypes"
+                    optionLabel="label"
+                    optionValue="value"
+                    defaultLabel="Tipos de contrato"
+                    styleClass="min-w-14rem"
+                    appendTo="body"
+                ></p-multiSelect>
+
+                <p-dropdown
+                    [options]="sellerOptions"
+                    [(ngModel)]="selectedSellerId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Todos os vendedores"
+                    styleClass="min-w-14rem"
+                    appendTo="body"
+                ></p-dropdown>
+
+                <p-dropdown
+                    [options]="centerOptions"
+                    [(ngModel)]="selectedCenterId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Todos os centros"
+                    styleClass="min-w-14rem"
+                    appendTo="body"
+                ></p-dropdown>
+
+                <p-button label="Aplicar" icon="pi pi-filter" (onClick)="applyFilter()" [loading]="loading"></p-button>
+                <p-button
+                    label="Limpar"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilter()"
+                    [disabled]="loading"
+                ></p-button>
+            </div>
+        </div>
+    </div>
+
+    @if (error) {
+        <div class="col-12">
+            <div class="card border-red-200 bg-red-50">
+                <div class="flex align-items-center gap-2 text-red-600">
+                    <i class="pi pi-exclamation-triangle text-xl"></i>
+                    <span class="font-semibold">{{ error }}</span>
+                    <p-button
+                        label="Tentar novamente"
+                        icon="pi pi-refresh"
+                        severity="danger"
+                        [text]="true"
+                        size="small"
+                        (onClick)="retryLoad()"
+                        class="ml-2"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="col-12">
+        <div class="card">
+            @if (loading) {
+                <p-skeleton height="260px"></p-skeleton>
+            } @else {
+                <p-table [value]="rows" responsiveLayout="scroll" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Código</th>
+                            <th>Aluno</th>
+                            <th>Centro</th>
+                            <th>Vendedor</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th class="text-right">Valor</th>
+                            <th class="text-right">Pago</th>
+                            <th class="text-right">Pendente</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-row>
+                        <tr>
+                            <td class="font-medium">{{ row.contractCode }}</td>
+                            <td>{{ row.studentName }}</td>
+                            <td>{{ row.centerName }}</td>
+                            <td>{{ row.sellerName }}</td>
+                            <td><p-tag [value]="row.contractType" severity="secondary"></p-tag></td>
+                            <td><p-tag [value]="row.status" severity="info"></p-tag></td>
+                            <td class="text-right">{{ formatMoney(row.amount) }}</td>
+                            <td class="text-right text-green-600">{{ formatMoney(row.totalPaid) }}</td>
+                            <td class="text-right text-orange-600">{{ formatMoney(row.totalPending) }}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="9" class="text-center p-6 text-color-secondary">
+                                Sem dados para o período ou filtros actuais.
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <div class="mt-3 flex justify-content-end">
+                    <p-paginator
+                        [rows]="size"
+                        [totalRecords]="totalRecords"
+                        [rowsPerPageOptions]="[10, 20, 50]"
+                        [first]="page * size"
+                        (onPageChange)="onPageChange($event)"
+                    ></p-paginator>
+                </div>
+            }
+        </div>
+    </div>
+</div>
