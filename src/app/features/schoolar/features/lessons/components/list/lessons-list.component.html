@@ -203,14 +203,12 @@
 </ng-template>
 
 <ng-template #statusTemplate let-row>
-    <span class="p-badge" [ngClass]="{
-            'p-badge-success': row.status === 'COMPLETED' || row.status === 'AVAILABLE',
-            'p-badge-info': row.status === 'OVERDUE' || row.status === 'POSTPONED',
-            'p-badge-warning': row.status === 'SCHEDULED' || row.status === 'BOOKED',
-            'p-badge-danger': row.status === 'CANCELLED'
-          }">
-        {{ getStatusLabel(row.status) }}
-    </span>
+    <p-tag
+        [value]="row | lessonStatusLabel"
+        [severity]="row | lessonStatusSeverity"
+        [styleClass]="row | lessonStatusClass"
+        [rounded]="true">
+    </p-tag>
 </ng-template>
 
 <ng-template #actionsTemplate let-row>
@@ -351,14 +349,19 @@
         <div class="lesson-details-content">
             <!-- Status Badge -->
             <div class="flex justify-content-between align-items-center mb-3">
-            <span class="p-badge text-sm" [ngClass]="{
-                        'p-badge-success': selectedLesson.status === 'COMPLETED' || selectedLesson.status === 'AVAILABLE',
-                        'p-badge-warning': selectedLesson.status === 'SCHEDULED' || selectedLesson.status === 'BOOKED',
-                        'p-badge-danger': selectedLesson.status === 'CANCELLED' || selectedLesson.status === 'OVERDUE',
-                        'p-badge-info': selectedLesson.status === 'POSTPONED'
-                      }">
-                {{ getStatusLabel(selectedLesson.status) }}
-            </span>
+                <div class="flex gap-2 align-items-center">
+                    <p-tag
+                        [value]="selectedLesson | lessonStatusLabel"
+                        [severity]="selectedLesson | lessonStatusSeverity"
+                        [styleClass]="selectedLesson | lessonStatusClass"
+                        [rounded]="true">
+                    </p-tag>
+                    <p-tag
+                        [value]="selectedLesson | lessonStatusLabel : 'modality'"
+                        [severity]="selectedLesson | lessonStatusSeverity : 'modality'"
+                        [rounded]="true">
+                    </p-tag>
+                </div>
                 <span class="text-sm text-500">{{ selectedLesson.startDatetime | date: 'dd/MM/yyyy' }}</span>
             </div>
 

@@ -30,6 +30,30 @@ $gutter: 1rem; //for primeflex grid system
     gap: 0.5rem;
 }
 
+// ── Lesson status custom colours ──────────────────────────────────────────────
+// Applied via [styleClass] on <p-tag> for states that have no native PrimeNG
+// severity counterpart.
+
+.lesson-status-planned {
+    background-color: #6366f1 !important; // indigo – "Aula Prevista"
+    color: #ffffff !important;
+}
+
+.lesson-status-rescheduled {
+    background-color: #f59e0b !important; // amber  – "Aula Reagendada"
+    color: #ffffff !important;
+}
+
+.lesson-status-no-attendance {
+    background-color: #f97316 !important; // orange – "Aula sem Presença"
+    color: #ffffff !important;
+}
+
+// Badge variants (p-badge usage in lesson list)
+.p-badge.lesson-status-planned      { @extend .lesson-status-planned; }
+.p-badge.lesson-status-rescheduled  { @extend .lesson-status-rescheduled; }
+.p-badge.lesson-status-no-attendance{ @extend .lesson-status-no-attendance; }
+
 
 @keyframes custom-progress-spinner-color {
     100%,

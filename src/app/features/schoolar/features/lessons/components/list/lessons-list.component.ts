@@ -42,6 +42,10 @@ import {CenterService} from "../../../../../../core/services/center.service";
 import {LevelService} from "../../../../../../core/services/level.service";
 import {UnitService} from "../../../../../../core/services/unit.service";
 import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {LessonStatusLabelPipe} from "../../../../../../shared/pipes/lesson-status-label.pipe";
+import {LessonStatusSeverityPipe} from "../../../../../../shared/pipes/lesson-status-severity.pipe";
+import {LessonStatusClassPipe} from "../../../../../../shared/pipes/lesson-status-class.pipe";
+import {TagModule} from 'primeng/tag';
 
 interface WeeklyLessonCard {
     time: string;
@@ -84,6 +88,10 @@ interface WeeklyLessonDay {
         HasPermissionDirective,
         InputSwitchModule,
         KpiIndicatorsComponent,
+        LessonStatusLabelPipe,
+        LessonStatusSeverityPipe,
+        LessonStatusClassPipe,
+        TagModule,
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`

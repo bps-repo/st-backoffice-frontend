@@ -20,6 +20,9 @@ import { Location } from '@angular/common';
 import { Lesson, LessonBooking, LessonUpdate } from "../../../../../../core/models/academic/lesson";
 import { LessonStatus } from "../../../../../../core/enums/lesson-status";
 import { LessonType } from "../../../../../../core/enums/lesson-type";
+import { LessonStatusLabelPipe } from "../../../../../../shared/pipes/lesson-status-label.pipe";
+import { LessonStatusSeverityPipe } from "../../../../../../shared/pipes/lesson-status-severity.pipe";
+import { LessonStatusClassPipe } from "../../../../../../shared/pipes/lesson-status-class.pipe";
 import { AttendanceStatus } from "../../../../../../core/enums/attendance-status";
 import { LessonService } from "../../../../../../core/services/lessons/lesson.service";
 import { LessonsFacade } from "../../../../../../core/services/lessons/lesson.facade";
@@ -68,6 +71,9 @@ interface AttendanceTableData {
         CalendarModule,
         SplitButtonModule,
         ToastModule,
+        LessonStatusLabelPipe,
+        LessonStatusSeverityPipe,
+        LessonStatusClassPipe,
     ],
     providers: [MessageService],
     templateUrl: './lesson-detail.component.html'
@@ -540,48 +546,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         // Implement notification logic
     }
 
-    // Status helper methods
-    public getLessonStatusText(lesson: Lesson): string {
-        if (!lesson) return 'Desconhecido';
-
-        switch (lesson.status) {
-            case LessonStatus.AVAILABLE:
-                return 'Disponível';
-            case LessonStatus.BOOKED:
-                return 'Agendada';
-            case LessonStatus.COMPLETED:
-                return 'Concluída';
-            case LessonStatus.CANCELLED:
-                return 'Cancelada';
-            case LessonStatus.POSTPONED:
-                return 'Adiada';
-            case LessonStatus.OVERDUE:
-                return 'Lecionada';
-            default:
-                return 'Disponível';
-        }
-    }
-
-    public getLessonStatusSeverity(lesson: Lesson): string {
-        if (!lesson) return 'secondary';
-
-        switch (lesson.status) {
-            case LessonStatus.AVAILABLE:
-                return 'success';
-            case LessonStatus.COMPLETED:
-                return 'info';
-            case LessonStatus.BOOKED:
-                return 'warning';
-            case LessonStatus.CANCELLED:
-                return 'danger';
-            case LessonStatus.POSTPONED:
-                return 'warning';
-            case LessonStatus.OVERDUE:
-                return 'info';
-            default:
-                return 'secondary';
-        }
-    }
+    // Status labels and severities are now handled by the reusable pipes:
+    //   lessonStatusLabel | lessonStatusSeverity | lessonStatusClass
+    // These derive the display state from lesson.status + lesson.startDatetime
+    // (+ optional attendance data) and support "Aula Prevista", "Aula Cancelada",
+    // "Aula Reagendada", "Aula Lecionada", "Aula sem Presença" etc.
 
     // Attendance table data helper
     public getAttendanceTableData(): AttendanceTableData[] {
@@ -626,8 +595,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     // Enhanced action methods
     public duplicateLesson(lesson: Lesson): void {
         if (lesson?.id) {
-            console.log('Duplicating lesson:', lesson.id);
-            // Implement duplication logic
+            this.router.navigate(['/schoolar/lessons/create'], {
+                queryParams: { duplicateFrom: lesson.id }
+            });
         }
     }
 

@@ -50,11 +50,19 @@
                                 </h1>
                             </div>
                             <div class="flex align-items-center gap-3 mb-3">
-                                <span class="text-600">{{ lesson.online ? 'Online' : 'Presencial' }} • {{
-                                    lesson.center.name
-                                    }}</span>
-                                <p-tag [value]="getLessonStatusText(lesson)"
-                                    [severity]="getLessonStatusSeverity(lesson)" [rounded]="true">
+                                <span class="text-600">{{ lesson.center.name }}</span>
+                                <!-- Lesson status (Prevista / Lecionada / Cancelada / …) -->
+                                <p-tag
+                                    [value]="lesson | lessonStatusLabel"
+                                    [severity]="lesson | lessonStatusSeverity"
+                                    [styleClass]="lesson | lessonStatusClass"
+                                    [rounded]="true">
+                                </p-tag>
+                                <!-- Modality (Online / Presencial) -->
+                                <p-tag
+                                    [value]="lesson | lessonStatusLabel : 'modality'"
+                                    [severity]="lesson | lessonStatusSeverity : 'modality'"
+                                    [rounded]="true">
                                 </p-tag>
                             </div>
                             <div class="flex align-items-center gap-2 text-600">
@@ -71,9 +79,6 @@
                             </p-button>
                             <p-button icon="pi pi-copy" label="Duplicar" [outlined]="true" size="small"
                                 (click)="duplicateLesson(lesson)">
-                            </p-button>
-                            <p-button icon="pi pi-pencil" label="Editar" severity="info" size="small"
-                                (click)="editLesson(lesson)">
                             </p-button>
                             <!-- Update dropdown -->
                             <p-splitButton

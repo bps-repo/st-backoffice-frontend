@@ -27,6 +27,10 @@ import {EmployeeService} from 'src/app/core/services/corporate/employee.service'
 import {CenterService} from 'src/app/core/services/center.service';
 import {LevelService} from 'src/app/core/services/level.service';
 import {UnitService} from 'src/app/core/services/unit.service';
+import {LessonStatusLabelPipe, resolveStatusLabel} from 'src/app/shared/pipes/lesson-status-label.pipe';
+import {LessonStatusSeverityPipe, resolveStatusSeverity} from 'src/app/shared/pipes/lesson-status-severity.pipe';
+import {LessonStatusClassPipe} from 'src/app/shared/pipes/lesson-status-class.pipe';
+import {TagModule} from 'primeng/tag';
 
 @Component({
     selector: "app-lesson-calendar",
@@ -49,7 +53,11 @@ import {UnitService} from 'src/app/core/services/unit.service';
         CardModule,
         SelectButtonModule,
         KpiIndicatorsComponent,
-        CalendarReportsComponent
+        CalendarReportsComponent,
+        LessonStatusLabelPipe,
+        LessonStatusSeverityPipe,
+        LessonStatusClassPipe,
+        TagModule,
     ],
     styleUrls: ['./calendar.app.component.scss']
 })
@@ -744,11 +752,11 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     private mapLessonToEvent(lesson: Lesson): Partial<LessonEvent> {
         const start = new Date(lesson.startDatetime as any);
         const end = new Date(lesson.endDatetime as any);
-        const status = (lesson.status || '').toString().toLowerCase();
-        // Simple color coding based on status
-        const tagColor = status === 'canceled' ? '#ef4444' : status === 'active' ? '#22c55e' : '#3b82f6';
+        const severity = resolveStatusSeverity(lesson.status as string, lesson.startDatetime);
+        const tagColor = this.severityToHex(severity);
         const centerName = typeof lesson.center === 'string' ? lesson.center : (lesson.center as any)?.name;
         const time = `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')}`;
+        const statusLabel = resolveStatusLabel(lesson.status as string, lesson.startDatetime);
 
         return {
             id: lesson.id,
@@ -757,17 +765,34 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
             end,
             backgroundColor: tagColor,
             borderColor: tagColor,
-            textColor: '#212121',
-            tag: {name: status ? status : 'lesson', color: tagColor},
+            textColor: '#ffffff',
+            tag: {name: statusLabel, color: tagColor},
             extendedProps: {
                 teacher: lesson.teacher || '',
                 center: centerName || '',
                 description: lesson.description || '',
                 isOnline: !!lesson.online,
                 status: lesson.status?.toString() || undefined,
+                severity,
                 time
             }
         } as unknown as Partial<LessonEvent>;
+    }
+
+    /** Maps a severity string (from resolveStatusSeverity) to a hex colour for calendar events. */
+    private severityToHex(severity: string | undefined): string {
+        const map: Record<string, string> = {
+            'success':        '#22c55e',
+            'info':           '#3b82f6',
+            'warning':        '#f59e0b',
+            'danger':         '#ef4444',
+            'planned':        '#6366f1',
+            'rescheduled':    '#f59e0b',
+            'no-attendance':  '#f97316',
+            'secondary':      '#94a3b8',
+            'contrast':       '#1e293b',
+        };
+        return map[severity ?? ''] ?? '#3b82f6';
     }
 
     // Custom Calendar Methods
@@ -889,8 +914,8 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
                 title: lesson.title,
                 teacher: this.extractNamedEntity(lesson.teacher),
                 group: lesson.level || 'N/A',
-                status: this.getStatusLabel(lesson.status),
-                statusClass: this.getStatusClass(lesson.status),
+                status: resolveStatusLabel(lesson.status as string, lesson.startDatetime),
+                statusClass: resolveStatusSeverity(lesson.status as string, lesson.startDatetime) ?? 'secondary',
                 lesson: lesson
             }));
         });
@@ -1001,8 +1026,8 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
                     title: lesson.title,
                     teacher: this.extractNamedEntity(lesson.teacher),
                     group: lesson.level || 'N/A',
-                    status: this.getStatusLabel(lesson.status),
-                    statusClass: this.getStatusClass(lesson.status),
+                    status: resolveStatusLabel(lesson.status as string, lesson.startDatetime),
+                    statusClass: resolveStatusSeverity(lesson.status as string, lesson.startDatetime) ?? 'secondary',
                     lesson: lesson
                 }))
             });
@@ -1115,80 +1140,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
 
+    /** Returns the display label for a raw status string (used by the active-filter chip). */
     getStatusLabel(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                    return 'Disponível';
-                case 'BOOKED':
-                    return 'Agendada';
-                case 'COMPLETED':
-                    return 'Concluída';
-                case 'CANCELLED':
-                    return 'Cancelada';
-                case 'SCHEDULED':
-                    return 'Agendada';
-                case 'POSTPONED':
-                    return 'Adiada';
-                case 'OVERDUE':
-                    return 'Atrasada';
-                default:
-                    return status;
-            }
-        }
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-                return 'Disponível';
-            case LessonStatus.BOOKED:
-                return 'Agendada';
-            case LessonStatus.COMPLETED:
-                return 'Concluída';
-            case LessonStatus.CANCELLED:
-                return 'Cancelada';
-            case LessonStatus.SCHEDULED:
-                return 'Agendada';
-            case LessonStatus.POSTPONED:
-                return 'Adiada';
-            case LessonStatus.OVERDUE:
-                return 'Atrasada';
-            default:
-                return 'Desconhecido';
-        }
-    }
-
-    private getStatusClass(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                case 'COMPLETED':
-                    return 'success';
-                case 'BOOKED':
-                case 'SCHEDULED':
-                    return 'warning';
-                case 'CANCELLED':
-                case 'OVERDUE':
-                    return 'danger';
-                case 'POSTPONED':
-                    return 'info';
-                default:
-                    return 'secondary';
-            }
-        }
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-            case LessonStatus.COMPLETED:
-                return 'success';
-            case LessonStatus.BOOKED:
-            case LessonStatus.SCHEDULED:
-                return 'warning';
-            case LessonStatus.CANCELLED:
-            case LessonStatus.OVERDUE:
-                return 'danger';
-            case LessonStatus.POSTPONED:
-                return 'info';
-            default:
-                return 'secondary';
-        }
+        return resolveStatusLabel(status as string);
     }
 
     getStudentsString(lesson: Lesson): string {

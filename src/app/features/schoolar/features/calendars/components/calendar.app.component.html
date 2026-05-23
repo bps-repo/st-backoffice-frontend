@@ -163,8 +163,8 @@
 
                         <div class="classes-list">
                             @for (classItem of getVisibleWeeklyClasses(dayData); track $index) {
-                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors cursor-pointer"
-                                [class]="'border-left-3 border-' + classItem.statusClass"
+                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors"
+                                [ngClass]="'border-left-3 lesson-border-' + (classItem.lesson | lessonStatusSeverity)"
                                 (mouseenter)="showLessonDetails(classItem.lesson)" (mouseleave)="hideLessonDetails()"
                                 (click)="viewLesson(classItem.lesson.id!)">
                                 <div class="flex align-items-center justify-content-between mb-1">
@@ -179,9 +179,12 @@
                                     {{ classItem.group }}
                                 </div>
                                 <div class="status-badge">
-                                    <span class="p-badge" [class]="'p-badge-' + classItem.statusClass">
-                                        {{ classItem.status }}
-                                    </span>
+                                    <p-tag
+                                        [value]="classItem.lesson | lessonStatusLabel"
+                                        [severity]="classItem.lesson | lessonStatusSeverity"
+                                        [styleClass]="classItem.lesson | lessonStatusClass"
+                                        [rounded]="true">
+                                    </p-tag>
                                 </div>
                             </div>
                             }
@@ -236,7 +239,7 @@
                             <div class="monthly-lessons">
                                 @for (lesson of getVisibleDayLessons(day); track lesson.lesson.id) {
                                 <div class="monthly-lesson-card cursor-pointer"
-                                    [class]="'border-left-2 border-' + lesson.statusClass"
+                                    [ngClass]="'border-left-2 lesson-border-' + (lesson.lesson | lessonStatusSeverity)"
                                     (mouseenter)="showLessonDetails(lesson.lesson)" (mouseleave)="hideLessonDetails()"
                                     (click)="viewLesson(lesson.lesson.id!)">
                                     <div class="lesson-time text-xs font-bold">{{ lesson.time }}</div>
@@ -381,16 +384,21 @@
 
     @if (selectedLesson) {
     <div class="lesson-details-content">
-        <!-- Status Badge -->
+        <!-- Status + Modality tags -->
         <div class="flex justify-content-between align-items-center mb-3">
-            <span class="p-badge text-sm" [ngClass]="{
-                        'p-badge-success': selectedLesson.status === 'COMPLETED' || selectedLesson.status === 'AVAILABLE',
-                        'p-badge-warning': selectedLesson.status === 'SCHEDULED' || selectedLesson.status === 'BOOKED',
-                        'p-badge-danger': selectedLesson.status === 'CANCELLED' || selectedLesson.status === 'OVERDUE',
-                        'p-badge-info': selectedLesson.status === 'POSTPONED'
-                      }">
-                {{ getStatusLabel(selectedLesson.status) }}
-            </span>
+            <div class="flex gap-2 align-items-center">
+                <p-tag
+                    [value]="selectedLesson | lessonStatusLabel"
+                    [severity]="selectedLesson | lessonStatusSeverity"
+                    [styleClass]="selectedLesson | lessonStatusClass"
+                    [rounded]="true">
+                </p-tag>
+                <p-tag
+                    [value]="selectedLesson | lessonStatusLabel : 'modality'"
+                    [severity]="selectedLesson | lessonStatusSeverity : 'modality'"
+                    [rounded]="true">
+                </p-tag>
+            </div>
             <span class="text-sm text-500">{{ selectedLesson.startDatetime | date: 'dd/MM/yyyy' }}</span>
         </div>
 
