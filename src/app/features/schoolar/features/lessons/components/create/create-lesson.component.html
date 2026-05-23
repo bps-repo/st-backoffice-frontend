@@ -8,6 +8,10 @@
         </div>
     </div>
 
+    <div class="col-12" *ngIf="error()">
+        <a> {{ error() }} </a>
+    </div>
+
     <div class="col-12">
         <div class="card">
             <form class="p-fluid formgrid grid " [formGroup]="form">
@@ -32,9 +36,9 @@
                     <div class="relative">
                         <p-dropdown id="center" [options]="centerOptions" formControlName="centerId" optionLabel="label"
                             optionValue="value" placeholder="Selecione o centro" [showClear]="true" [required]="true"
-                            [disabled]="(loadingCenters | async)!">
+                            [disabled]="loadingCenters()">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="(loadingCenters | async)" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="loadingCenters()" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s">
                         </p-progressSpinner>
@@ -46,9 +50,9 @@
                     <div class="relative">
                         <p-dropdown id="level" [options]="levelOptions" formControlName="levelId" optionLabel="label"
                             optionValue="value" placeholder="Selecione o nível" [showClear]="true" [required]="true"
-                            [disabled]="(loadingLevels | async)!">
+                            [disabled]="loadingLevels()">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="(loadingLevels | async)" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="loadingLevels()" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s">
                         </p-progressSpinner>
@@ -149,9 +153,9 @@
                     <div class="relative">
                         <p-dropdown id="teacher" [options]="teacherOptions" formControlName="teacherId"
                             optionLabel="label" optionValue="value" placeholder="Selecione o professor"
-                            [showClear]="true" [required]="true" [disabled]="(loadingTeachers | async)!">
+                            [showClear]="true" [required]="true" [disabled]="loadingTeachers()">
                         </p-dropdown>
-                        <p-progressSpinner *ngIf="(loadingTeachers | async)" styleClass="absolute top-50 right-0 mr-2"
+                        <p-progressSpinner *ngIf="loadingTeachers()" styleClass="absolute top-50 right-0 mr-2"
                             [style]="{'width': '20px', 'height': '20px'}" strokeWidth="3" fill="transparent"
                             animationDuration="1s">
                         </p-progressSpinner>
@@ -187,7 +191,7 @@
                 <button pButton label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-secondary"
                     (click)="cancel()">
                 </button>
-                <button pButton label="Criar aula" icon="pi pi-check" [loading]="loading" (click)="saveLesson()">
+                <button pButton label="Criar aula" icon="pi pi-check" [loading]="loading()" (click)="saveLesson()">
                 </button>
             </div>
         </div>

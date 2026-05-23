@@ -6,7 +6,7 @@ import { Lesson } from 'src/app/core/models/academic/lesson';
 import { Student } from 'src/app/core/models/academic/students/student';
 import { AvailableStudent } from 'src/app/core/models/academic/available-student';
 import { BulkBookingRequest, BulkBookingResult, FailedBooking } from 'src/app/core/models/academic/bulk-booking';
-import { LessonService } from 'src/app/core/services/lesson.service';
+import { LessonService } from 'src/app/core/services/lessons/lesson.service';
 import { StudentService } from 'src/app/core/services/student.service';
 import { LevelService } from 'src/app/core/services/level.service';
 import { filter, map, Subject, takeUntil } from 'rxjs';

@@ -10,7 +10,7 @@ import {DropdownModule} from 'primeng/dropdown';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
-import {LessonService} from '../../../../../../core/services/lesson.service';
+import {LessonService} from '../../../../../../core/services/lessons/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
 import {Student} from '../../../../../../core/models/academic/students/student';

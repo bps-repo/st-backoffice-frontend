@@ -12,7 +12,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonService } from '../../../../../../core/services/lesson.service';
+import { LessonService } from '../../../../../../core/services/lessons/lesson.service';
 import { StudentService } from '../../../../../../core/services/student.service';
 import { LessonStatus } from '../../../../../../core/enums/lesson-status';
 

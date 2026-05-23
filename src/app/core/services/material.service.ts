@@ -49,7 +49,7 @@ export class MaterialService {
     }
 
     getMaterialsByEntity(entityType: string, entityId: string): Observable<Material[]> {
-        return this.http.get<ApiResponse<Material[]>>(`${this.apiUrl}/materials/entity/${entityType}/${entityId}`).pipe(
+        return this.http.get<ApiResponse<Material[]>>(`${this.apiUrl}/entity/${entityType}/${entityId}`).pipe(
             map((response) => response.data as Material[])
         );
     }

@@ -21,7 +21,7 @@ import {
     selectBulkBookingError
 } from '../../../../../../core/store/schoolar/lessons/lessons.selectors';
 import {Actions, ofType} from '@ngrx/effects';
-import {LessonService} from '../../../../../../core/services/lesson.service';
+import {LessonService} from '../../../../../../core/services/lessons/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
 import {Student} from '../../../../../../core/models/academic/students/student';

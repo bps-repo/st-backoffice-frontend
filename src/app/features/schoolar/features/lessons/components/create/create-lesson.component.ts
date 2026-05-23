@@ -1,38 +1,31 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit, OnDestroy, inject} from '@angular/core';
-import {ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl} from '@angular/forms';
-import {SelectItem} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {CalendarModule} from 'primeng/calendar';
-import {Store} from '@ngrx/store';
-import {LessonCreate} from 'src/app/core/models/academic/lesson';
-import {LessonStatus} from 'src/app/core/enums/lesson-status';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Subject, takeUntil, take, Observable, of} from 'rxjs';
-import {MessageService} from 'primeng/api';
-import {Actions, ofType} from '@ngrx/effects';
-import {ToastModule} from 'primeng/toast';
-import {CheckboxModule} from "primeng/checkbox";
-import {CardModule} from 'primeng/card';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import {TooltipModule} from 'primeng/tooltip';
-import {Employee} from 'src/app/core/models/corporate/employee';
-import {CenterActions} from 'src/app/core/store/corporate/center/centers.actions';
-import {selectAllCenters, selectLoadingCenters} from 'src/app/core/store/corporate/center/centers.selector';
-import {LevelActions} from 'src/app/core/store/schoolar/level/level.actions';
-import {selectAllLevels} from 'src/app/core/store/schoolar/level/level.selector';
-import {EmployeesActions} from 'src/app/core/store/corporate/employees/employees.actions';
-import {selectEmployeeLoading, selectEmployeesByRole} from 'src/app/core/store/corporate/employees/employees.selectors';
-import {selectUnitsByLevelId} from 'src/app/core/store/schoolar/units/unit.selectors';
-import {UnitActions} from 'src/app/core/store/schoolar/units/unit.actions';
-import {Unit} from 'src/app/core/models/course/unit';
-import {LessonType} from 'src/app/core/enums/lesson-type';
-import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
-import {LessonService} from 'src/app/core/services/lesson.service';
-import {Lesson} from 'src/app/core/models/academic/lesson';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { SelectItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { CalendarModule } from 'primeng/calendar';
+import { LessonCreate } from 'src/app/core/models/academic/lesson';
+import { LessonStatus } from 'src/app/core/enums/lesson-status';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil, take } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { CheckboxModule } from "primeng/checkbox";
+import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
+import { Employee } from 'src/app/core/models/corporate/employee';
+import { Unit } from 'src/app/core/models/course/unit';
+import { LessonType } from 'src/app/core/enums/lesson-type';
+import { LessonService } from 'src/app/core/services/lessons/lesson.service';
+import { Lesson } from 'src/app/core/models/academic/lesson';
+import { EmployeeService } from 'src/app/core/services/corporate/employee.service';
+import { LessonsFacade } from 'src/app/core/services/lessons/lesson.facade';
+import { CenterService } from 'src/app/core/services/center.service';
+import { LevelService } from 'src/app/core/services/level.service';
+import { UnitService } from 'src/app/core/services/unit.service';
 
 @Component({
     selector: 'app-create-lesson',
@@ -55,27 +48,31 @@ import {Lesson} from 'src/app/core/models/academic/lesson';
 })
 export class CreateLessonComponent implements OnInit, OnDestroy {
     private fb = inject(FormBuilder);
-    private store$ = inject(Store);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private messageService = inject(MessageService);
-    private actions$ = inject(Actions);
     private lessonService = inject(LessonService);
+    private teacherService = inject(EmployeeService);
+    private lessonsFacade = inject(LessonsFacade);
+    private centerService = inject(CenterService);
+    private levelService = inject(LevelService);
+    private unitService = inject(UnitService);
 
-    loading: boolean = false;
+    loading = this.lessonsFacade.loading;
+    error = this.lessonsFacade.error;
+
     form!: FormGroup;
     private destroy$ = new Subject<void>();
     private duplicateLessonToApply: Lesson | null = null;
+    private allUnits: Unit[] = [];
 
-    // Loading states for dropdowns
-    loadingCenters: Observable<boolean> = of(false);
-    loadingLevels: Observable<boolean> = of(false);
-    loadingUnits: boolean = false;
-    loadingTeachers: Observable<boolean> = of(false);
+    loadingCenters = signal(false);
+    loadingLevels = signal(false);
+    loadingUnits = false;
+    loadingTeachers = signal(false);
 
-    selectecGenericUnit: Unit | null = null
+    selectecGenericUnit: Unit | null = null;
 
-    // Week range properties
     selectedWeekRange: Date[] = [];
     availableDays: Date[] = [];
 
@@ -94,17 +91,16 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         status: LessonStatus.AVAILABLE
     };
 
-    // Dropdown options
     typeOptions: SelectItem[] = [
-        {label: 'Geral', value: LessonType.GENERAL},
-        {label: 'Gramática', value: LessonType.GRAMMAR},
-        {label: 'Vocabulário', value: LessonType.VOCABULARY},
-        {label: 'Prática', value: LessonType.PRACTICAL},
-        {label: 'Pronúncia', value: LessonType.PRONUNCIATION},
-        {label: 'Escrita', value: LessonType.WRITING},
-        {label: 'Leitura', value: LessonType.READING},
-        {label: 'Conversa', value: LessonType.CONVERSATION},
-        {label: 'Fala', value: LessonType.SPEAKING}
+        { label: 'Geral', value: LessonType.GENERAL },
+        { label: 'Gramática', value: LessonType.GRAMMAR },
+        { label: 'Vocabulário', value: LessonType.VOCABULARY },
+        { label: 'Prática', value: LessonType.PRACTICAL },
+        { label: 'Pronúncia', value: LessonType.PRONUNCIATION },
+        { label: 'Escrita', value: LessonType.WRITING },
+        { label: 'Leitura', value: LessonType.READING },
+        { label: 'Conversa', value: LessonType.CONVERSATION },
+        { label: 'Fala', value: LessonType.SPEAKING }
     ];
     teacherOptions: SelectItem[] = [];
     levelOptions: SelectItem[] = [];
@@ -113,35 +109,20 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     weekDayOptions: SelectItem[] = [];
     weekRangeOptions: SelectItem[] = [];
     statusOptions: SelectItem[] = [
-        {label: 'Available', value: LessonStatus.AVAILABLE},
-        {label: 'Booked', value: LessonStatus.BOOKED},
-        {label: 'Cancelled', value: LessonStatus.CANCELLED},
-        {label: 'Completed', value: LessonStatus.COMPLETED}
+        { label: 'Available', value: LessonStatus.AVAILABLE },
+        { label: 'Booked', value: LessonStatus.BOOKED },
+        { label: 'Cancelled', value: LessonStatus.CANCELLED },
+        { label: 'Completed', value: LessonStatus.COMPLETED }
     ];
 
-    constructor() {
-        const store$ = this.store$;
-
-        this.store$.dispatch(CenterActions.loadCenters())
-        this.store$.dispatch(UnitActions.loadUnits())
-        this.store$.dispatch(LevelActions.loadLevels({}))
-        this.store$.dispatch(EmployeesActions.loadEmployees())
-
-        this.loadingCenters = store$.select(selectLoadingCenters)
-        this.loadingTeachers = store$.select(selectEmployeeLoading)
-    }
-
     ngOnInit() {
-        // Set default times (9:00 AM for start, 10:00 AM for end)
         const defaultStartHour = new Date();
         defaultStartHour.setHours(9, 0, 0, 0);
         const defaultEndHour = new Date();
         defaultEndHour.setHours(10, 0, 0, 0);
 
-        // Initialize week range with current week
         this.initializeWeekRange();
 
-        // Build reactive form
         this.form = this.fb.group({
             title: ['', Validators.required],
             centerId: [null, Validators.required],
@@ -159,19 +140,15 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             description: ['']
         });
 
-        // Listen for week range changes
         this.form.get('weekRange')?.valueChanges
             .pipe(takeUntil(this.destroy$))
             .subscribe(weekRange => {
                 if (weekRange && weekRange.length === 2) {
-                    // Validate that the range is exactly 7 days
                     if (this.isValidWeekRange(weekRange)) {
                         this.selectedWeekRange = weekRange;
                         this.updateAvailableDays();
-                        // Reset selected day when week range changes
                         this.form.get('selectedDay')?.setValue(null);
                     } else {
-                        // Reset to invalid range
                         this.messageService.add({
                             severity: 'warn',
                             summary: 'Aviso',
@@ -183,50 +160,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                 this.updateConditionalDateValidators();
             });
 
-        // Load Centers
-        this.store$.select(selectAllCenters)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: centers => {
-                    this.centerOptions = (centers || []).map(c => ({label: c.name, value: c.id}));
-                    this.tryApplyDuplicatePrefill();
-                },
-                error: () => {
-                    this.centerOptions = [];
-                }
-            });
-
-        // Load Teachers (employees with role TEACHER)
-        this.store$.select(selectEmployeesByRole("TEACHER"))
-            .pipe(takeUntil(this.destroy$))
-            .subscribe((employees: Employee[]) => {
-                this.teacherOptions = employees.map((e: Employee) => {
-                    const first = e.personalInfo.firstName || '';
-                    const last = e.personalInfo.lastName || '';
-                    const center = e.workInfo.centerName || '';
-                    const label = `${first} ${last} - (${center})`.trim() || e.personalInfo?.email || e.id;
-                    return {label, value: e.id};
-                });
-                this.tryApplyDuplicatePrefill();
-            });
-
-        // Load Levels
-        this.store$.select(selectAllLevels)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: levels => {
-                    this.levelOptions = (levels || []).map(l => ({label: l.name, value: l.id}));
-                    this.tryApplyDuplicatePrefill();
-                },
-                error: () => {
-                    this.levelOptions = [];
-                }
-            });
-
-        // Load Units (initially empty, will be filtered by selected level)
-        this.unitOptions = [];
-
-        // Listen for level changes to filter units
         this.form.get('levelId')?.valueChanges
             .pipe(takeUntil(this.destroy$))
             .subscribe(levelId => {
@@ -238,16 +171,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                 }
             });
 
-        // Listen for selected day changes (no automatic range update)
         this.form.get('selectedDay')?.valueChanges
             .pipe(takeUntil(this.destroy$))
-            .subscribe(selectedDay => {
-                // Just log the selection, no automatic range update
-                console.log('Day selected:', selectedDay);
-                this.updateConditionalDateValidators();
-            });
+            .subscribe(() => this.updateConditionalDateValidators());
 
-        // Listen for start time changes to automatically update end time
         this.form.get('startDatetime')?.valueChanges
             .pipe(takeUntil(this.destroy$))
             .subscribe(startTime => {
@@ -255,6 +182,11 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                     this.updateEndTimeFromStartTime(startTime);
                 }
             });
+
+        this.loadCenters();
+        this.loadLevels();
+        this.loadTeachers();
+        this.loadUnits();
 
         this.updateConditionalDateValidators();
         this.handleDuplicateFromQueryParam();
@@ -265,16 +197,89 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
+    private loadCenters(): void {
+        this.loadingCenters.set(true);
+        this.centerService.getAllCenters()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: centers => {
+                    this.centerOptions = centers.map(c => ({ label: c.name, value: c.id }));
+                    this.loadingCenters.set(false);
+                    this.tryApplyDuplicatePrefill();
+                },
+                error: () => {
+                    this.centerOptions = [];
+                    this.loadingCenters.set(false);
+                }
+            });
+    }
+
+    private loadLevels(): void {
+        this.loadingLevels.set(true);
+        this.levelService.getLevels()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: levels => {
+                    this.levelOptions = levels.map((l: any) => ({ label: l.name, value: l.id }));
+                    this.loadingLevels.set(false);
+                    this.tryApplyDuplicatePrefill();
+                },
+                error: () => {
+                    this.levelOptions = [];
+                    this.loadingLevels.set(false);
+                }
+            });
+    }
+
+    private loadTeachers(): void {
+        this.loadingTeachers.set(true);
+        this.teacherService.getTeachers()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (employees: Employee[]) => {
+                    this.teacherOptions = employees.map((e: Employee) => {
+                        const first = e.personalInfo.firstName || '';
+                        const last = e.personalInfo.lastName || '';
+                        const center = e.workInfo.centerName || '';
+                        const label = `${first} ${last} - (${center})`.trim() || e.personalInfo?.email || e.id;
+                        return { label, value: e.id };
+                    });
+                    this.loadingTeachers.set(false);
+                    this.tryApplyDuplicatePrefill();
+                },
+                error: () => {
+                    this.loadingTeachers.set(false);
+                }
+            });
+    }
+
+    private loadUnits(): void {
+        this.unitService.loadUnits()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: units => {
+                    this.allUnits = units;
+                    const levelId = this.form.get('levelId')?.value;
+                    if (levelId) {
+                        this.loadUnitsForLevel(levelId);
+                    }
+                },
+                error: () => {
+                    this.allUnits = [];
+                }
+            });
+    }
+
     private initializeWeekRange(): void {
         const today = new Date();
         const startOfWeek = new Date(today);
         const dayOfWeek = today.getDay();
-        const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Monday
+        const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
         startOfWeek.setDate(diff);
         startOfWeek.setHours(0, 0, 0, 0);
 
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
         endOfWeek.setHours(23, 59, 59, 999);
 
         this.selectedWeekRange = [startOfWeek, endOfWeek];
@@ -285,24 +290,19 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     private updateAvailableDays(): void {
         if (this.selectedWeekRange.length !== 2) return;
 
-        // Normalize the week range
         const normalizedRange = this.normalizeWeekRange(this.selectedWeekRange);
         const [startDate, endDate] = normalizedRange;
 
         this.availableDays = [];
         this.weekDayOptions = [];
 
-        // Show all days in the selected range
         const currentDate = new Date(startDate);
         while (currentDate <= endDate) {
             this.availableDays.push(new Date(currentDate));
-
-            const dayName = this.getDayName(currentDate.getDay());
             this.weekDayOptions.push({
-                label: dayName,
+                label: this.getDayName(currentDate.getDay()),
                 value: new Date(currentDate)
             });
-
             currentDate.setDate(currentDate.getDate() + 1);
         }
     }
@@ -319,7 +319,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        // Must be between 0 and 6 days difference (1 to 7 days total including both start and end)
         return diffDays >= 0 && diffDays <= 6;
     }
 
@@ -328,7 +327,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
 
         const [startDate, endDate] = weekRange;
 
-        // Keep the original range but normalize times
         const start = new Date(startDate);
         start.setHours(0, 0, 0, 0);
 
@@ -338,20 +336,14 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         return [start, end];
     }
 
-
     private loadUnitsForLevel(levelId: string): void {
-        this.store$.select(selectUnitsByLevelId(levelId, false))
-            .subscribe((units => {
-                    // Filter units by the selected level
-                    this.unitOptions = units.map(u => ({label: u.name, value: u.id}));
+        const filtered = this.allUnits.filter(u => u.levelId === levelId && !u.generic);
+        this.unitOptions = filtered.map(u => ({ label: u.name, value: u.id }));
 
-                    // Reset unit selection if current selection is not valid for the new level
-                    const currentUnitId = this.form.get('unitId')?.value;
-                    if (currentUnitId && !units.some(u => u.id === currentUnitId)) {
-                        this.form.get('unitId')?.setValue(null);
-                    }
-                }
-            ));
+        const currentUnitId = this.form.get('unitId')?.value;
+        if (currentUnitId && !filtered.some(u => u.id === currentUnitId)) {
+            this.form.get('unitId')?.setValue(null);
+        }
     }
 
     private handleDuplicateFromQueryParam(): void {
@@ -384,7 +376,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Wait until core options are available for matching ids.
         if (!this.teacherOptions.length || !this.centerOptions.length || !this.levelOptions.length) {
             return;
         }
@@ -421,7 +412,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             status: lesson.status || LessonStatus.AVAILABLE
         });
 
-        // Ensure selected day uses the same object instance from options.
         const selectedDayOption = this.weekDayOptions.find(
             option => new Date(option.value).toDateString() === selectedDay.toDateString()
         );
@@ -521,7 +511,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         }
 
         const hasSelectedDay = !!selectedDayControl.value;
-        const hasWeekRange = this.hasWeekRange(weekRangeControl);
 
         if (hasSelectedDay) {
             weekRangeControl.clearValidators();
@@ -529,14 +518,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             weekRangeControl.setValidators([this.weekRangeRequiredWhenNoSelectedDay.bind(this)]);
         }
 
-        weekRangeControl.updateValueAndValidity({emitEvent: false});
-
-        if (!hasSelectedDay && !hasWeekRange) {
-            selectedDayControl.setValidators([Validators.required]);
-        } else {
-            selectedDayControl.setValidators([Validators.required]);
-        }
-        selectedDayControl.updateValueAndValidity({emitEvent: false});
+        weekRangeControl.updateValueAndValidity({ emitEvent: false });
+        selectedDayControl.setValidators([Validators.required]);
+        selectedDayControl.updateValueAndValidity({ emitEvent: false });
     }
 
     private hasWeekRange(control: AbstractControl): boolean {
@@ -552,7 +536,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return null;
         }
 
-        return {required: true};
+        return { required: true };
     }
 
     cancel() {
@@ -560,37 +544,19 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     }
 
     private createDateTimeFromHour(hourDate: Date, selectedDay: Date): Date {
-        // Create a copy of the selected day
         const result = new Date(selectedDay);
-
-        // Set the time from the hour picker directly
         result.setHours(hourDate.getHours(), hourDate.getMinutes(), hourDate.getSeconds(), 0);
-
-        // Add 1 hour to compensate for the timezone issue
         result.setHours(result.getHours() + 1);
-
-        // Debug logs
-        console.log('createDateTimeFromHour - Input hourDate:', hourDate);
-        console.log('createDateTimeFromHour - Input selectedDay:', selectedDay);
-        console.log('createDateTimeFromHour - Result (after +1h):', result);
-        console.log('createDateTimeFromHour - Hour from hourDate:', hourDate.getHours());
-        console.log('createDateTimeFromHour - Hour in result:', result.getHours());
-
         return result;
     }
 
     private updateEndTimeFromStartTime(startTime: Date): void {
-        // Create a new date with start time + 1 hour
         const endTime = new Date(startTime);
         endTime.setHours(endTime.getHours() + 1);
-
-        // Update the end time in the form
         this.form.get('endDatetime')?.setValue(endTime);
-
-        console.log('Auto-updated end time:', endTime);
     }
 
-    saveLesson() {
+    async saveLesson() {
         this.updateConditionalDateValidators();
 
         if (this.form.invalid) {
@@ -603,7 +569,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Additional validation for selected day
         if (!this.form.get('selectedDay')?.value) {
             this.messageService.add({
                 severity: 'error',
@@ -613,25 +578,12 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return;
         }
 
-
-        this.loading = true;
-
         const v = this.form.value as any;
 
-        this.getGenericUnitLevel(v.levelId)
+        this.resolveGenericUnit(v.levelId);
 
-        // Debug logs
-        console.log('Form values:', v);
-        console.log('startDatetime from form:', v.startDatetime);
-        console.log('endDatetime from form:', v.endDatetime);
-        console.log('selectedDay from form:', v.selectedDay);
-
-        // Build API-compliant payload
         const startDateTime = this.createDateTimeFromHour(v.startDatetime, v.selectedDay);
         const endDateTime = this.createDateTimeFromHour(v.endDatetime, v.selectedDay);
-
-        console.log('Final startDateTime:', startDateTime);
-        console.log('Final endDateTime:', endDateTime);
 
         const payload: LessonCreate = {
             title: v.title || '',
@@ -648,37 +600,32 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             status: (v.status as any) ?? LessonStatus.AVAILABLE
         } as LessonCreate;
 
-        // Dispatch the create lesson action
-        this.store$.dispatch(lessonsActions.createLesson({lesson: payload}));
+        await this.lessonsFacade.createLesson(payload);
 
-        // Wait for success or failure
-        this.actions$.pipe(
-            ofType(lessonsActions.createLessonSuccess),
-            takeUntil(this.destroy$), take(1))
-            .subscribe(() => {
-                this.loading = false;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Aula criada com sucesso'
-                });
-                this.router.navigate(['/schoolar/lessons']).then();
+        if (this.error()) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erro ao criar aula',
+                detail: this.error()!
             });
-        this.actions$.pipe(ofType(lessonsActions.createLessonFailure), takeUntil(this.destroy$), take(1))
-            .subscribe(({error}: any) => {
-                this.loading = false;
-                ShowToastErrorService.showToastError('Error', error, this.messageService, 'Failed to create lesson');
-            });
+            return;
+        }
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Aula criada com sucesso'
+        });
+
+        this.router.navigate(['/schoolar/lessons']);
     }
 
     resetForm() {
-        // Set default times (9:00 AM for start, 10:00 AM for end)
         const defaultStartHour = new Date();
         defaultStartHour.setHours(9, 0, 0, 0);
         const defaultEndHour = new Date();
         defaultEndHour.setHours(10, 0, 0, 0);
 
-        // Reset week range to current week
         this.initializeWeekRange();
 
         this.form.reset({
@@ -698,20 +645,11 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
         });
     }
 
-    onWeekRangeSelect(event: any) {
-        // This method is called when the user selects a range in the calendar
-        // The validation is already handled in the valueChanges subscription
-        console.log("Week range selected:", event);
-    }
+    onWeekRangeSelect(_event: any) {}
 
-    callMethod() {
-        console.log("startDatetime", this.form.get('startDatetime')?.value);
-        console.log("endDatetime", this.form.get('endDatetime')?.value);
-    }
+    callMethod() {}
 
-    getGenericUnitLevel(levelId: any) {
-        this.store$.select(selectUnitsByLevelId(levelId, true)).subscribe((u) => this.selectecGenericUnit = u[0])
+    private resolveGenericUnit(levelId: string): void {
+        this.selectecGenericUnit = this.allUnits.find(u => u.levelId === levelId && u.generic) ?? null;
     }
 }
-
-

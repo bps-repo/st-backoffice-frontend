@@ -17,7 +17,7 @@ import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {Lesson} from "../../../../../../../../core/models/academic/lesson";
 import {Material} from "../../../../../../../../core/models/academic/material";
-import {LessonService} from "../../../../../../../../core/services/lesson.service";
+import {LessonService} from "../../../../../../../../core/services/lessons/lesson.service";
 import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({

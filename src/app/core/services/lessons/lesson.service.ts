@@ -1,13 +1,13 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable, inject} from '@angular/core';
 import {environment} from 'src/environments/environment';
-import {Lesson, LessonCreate} from "../models/academic/lesson";
+import {Lesson, LessonCreate} from "../../models/academic/lesson";
 import {Observable, of} from 'rxjs';
-import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
+import {ApiResponse, PageableResponse} from "../../models/ApiResponseService";
 import {map} from "rxjs/operators";
-import {BulkBookingRequest, BulkBookingResult} from "../models/academic/bulk-booking";
-import {AvailableStudent} from "../models/academic/available-student";
-import {StudentBooking} from "../models/academic/student-booking";
+import {BulkBookingRequest, BulkBookingResult} from "../../models/academic/bulk-booking";
+import {AvailableStudent} from "../../models/academic/available-student";
+import {StudentBooking} from "../../models/academic/student-booking";
 
 @Injectable({
     providedIn: 'root',
@@ -29,7 +29,7 @@ export class LessonService {
             .set('size', size.toString());
         if (sort) params = params.set('sort', sort);
         if (status) params = params.set('status', status);
-        return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}/search/paginated`, {params}).pipe(
+        return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}/search`, {params}).pipe(
             map((response) => response.data)
         );
     }

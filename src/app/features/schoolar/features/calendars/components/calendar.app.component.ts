@@ -1,6 +1,6 @@
 import { Component, ComponentRef, OnInit, ViewContainerRef, ViewChild, ElementRef, HostListener, AfterViewInit, signal, inject, OnDestroy } from '@angular/core';
 import {EventTooltipComponent} from 'src/app/shared/components/event-tooltip/event-tooltip.component';
-import {LessonService} from 'src/app/core/services/lesson.service';
+import {LessonService} from 'src/app/core/services/lessons/lesson.service';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -161,7 +161,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     private isDialogHovered: boolean = false;
 
     // Listen for scroll events
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll() {
         this.checkStickyState();
     }

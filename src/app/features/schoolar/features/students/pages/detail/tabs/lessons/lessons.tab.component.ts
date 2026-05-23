@@ -12,7 +12,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {DividerModule} from 'primeng/divider';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {Subject, takeUntil, switchMap, of, catchError} from 'rxjs';
-import {LessonService} from 'src/app/core/services/lesson.service';
+import {LessonService} from 'src/app/core/services/lessons/lesson.service';
 import {StudentBooking, BookingStatus} from 'src/app/core/models/academic/student-booking';
 import { Router } from '@angular/router';
 

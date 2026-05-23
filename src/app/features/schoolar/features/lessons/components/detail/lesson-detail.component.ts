@@ -25,7 +25,7 @@ import { AttendanceStatusUpdate } from "../../../../../../core/models/academic/a
 import { Material } from "../../../../../../core/models/academic/material";
 import { StudentService } from "../../../../../../core/services/student.service";
 import { MaterialService } from "../../../../../../core/services/material.service";
-import { LessonService } from "../../../../../../core/services/lesson.service";
+import { LessonService } from "../../../../../../core/services/lessons/lesson.service";
 import { MaterialActions } from "../../../../../../core/store/schoolar/materials/material.actions";
 import { selectMaterialsByEntityAndId } from "../../../../../../core/store/schoolar/materials/material.selectors";
 import { selectLoadingMaterials } from 'src/app/core/store/schoolar/units/unit.selectors';

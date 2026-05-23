@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
 import {catchError, exhaustMap, map, switchMap} from 'rxjs/operators';
-import {LessonService} from '../../../services/lesson.service';
+import {LessonService} from '../../../services/lessons/lesson.service';
 import {lessonsActions} from "./lessons.actions";
 import {HttpErrorResponse} from "@angular/common/http";
 
