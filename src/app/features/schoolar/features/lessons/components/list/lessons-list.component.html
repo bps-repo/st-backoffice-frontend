@@ -18,18 +18,113 @@
     <!-- Lesson list View -->
     @if (currentView === 'list') {
         <div class="col-12 animate-fade">
-            <div class="flex justify-content-between align-items-center mb-3">
-                <div class="flex align-items-center">
-                <span class="p-input-icon-left mr-2">
-                    <input type="text" pInputText placeholder="Buscar aulas"/>
-                </span>
+
+            <!-- KPI cards -->
+            <div class="grid gap-1 mb-3">
+                @for (kpi of kpis; track kpi.label) {
+                    <div class="col">
+                        <app-kpi-indicators [kpi]="kpi"></app-kpi-indicators>
+                    </div>
+                }
+            </div>
+
+            <!-- Search + filter button row -->
+            <div class="col-12 flex justify-content-between align-content-center mb-3">
+                <div class="flex gap-2">
+                    <span class="p-input-icon-left w-full">
+                        <i class="pi pi-search"></i>
+                        <input type="text" pInputText placeholder="Buscar aulas…"
+                               [(ngModel)]="searchTerm"
+                               (input)="onSearchInput()"
+                               style="width: 280px"/>
+                    </span>
+                    <button *ngIf="searchTerm" pButton type="button" icon="pi pi-times"
+                            class="p-button-outlined p-button-danger"
+                            (click)="searchTerm = ''; applyFilters()"></button>
                 </div>
-                <div class="flex">
-                    <p-button icon="pi pi-table" class="mr-2" pTooltip="Visualização em tabela"></p-button>
-                    <p-button icon="pi pi-th-large" class="mr-2" pTooltip="Visualização em cards"></p-button>
-                    <p-button icon="pi pi-download" label="Exportar" pTooltip="Exportar"></p-button>
+                <div class="flex gap-2">
+                    <button pButton type="button" icon="pi pi-filter" label="Filtros"
+                            (click)="showFilterDialog = true"
+                            class="p-button-secondary"
+                            [class.p-button-outlined]="!hasActiveFilters"
+                            [class.p-button-info]="hasActiveFilters"></button>
                 </div>
             </div>
+
+            <!-- Active filter tags -->
+            @if (hasActiveFilters) {
+                <div class="col-12 flex flex-wrap gap-2 align-items-center mb-3">
+                    <span class="font-semibold text-sm mr-1">Filtros activos:</span>
+
+                    @if (filterTeacherId) {
+                        <span class="filter-tag">
+                            <i class="pi pi-user mr-1"></i>{{ getTeacherLabel(filterTeacherId) }}
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterTeacherId = null; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterCenterId) {
+                        <span class="filter-tag">
+                            <i class="pi pi-map-marker mr-1"></i>{{ getCenterLabel(filterCenterId) }}
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterCenterId = null; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterUnitId) {
+                        <span class="filter-tag">
+                            <i class="pi pi-book mr-1"></i>{{ getUnitLabel(filterUnitId) }}
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterUnitId = null; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterLevelId) {
+                        <span class="filter-tag">
+                            <i class="pi pi-chart-bar mr-1"></i>{{ getLevelLabel(filterLevelId) }}
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterLevelId = null; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterStatus) {
+                        <span class="filter-tag">
+                            <i class="pi pi-info-circle mr-1"></i>{{ getStatusLabel(filterStatus) }}
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterStatus = null; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterOnline !== null) {
+                        <span class="filter-tag">
+                            <i class="pi pi-globe mr-1"></i>{{ filterOnline ? 'Online' : 'Presencial' }}
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterOnline = null; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterHasBookings) {
+                        <span class="filter-tag">
+                            <i class="pi pi-calendar-plus mr-1"></i>Com reservas
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterHasBookings = false; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterWithoutBookings) {
+                        <span class="filter-tag">
+                            <i class="pi pi-calendar-minus mr-1"></i>Sem reservas
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterWithoutBookings = false; applyFilters()"></i>
+                        </span>
+                    }
+                    @if (filterSortField) {
+                        <span class="filter-tag">
+                            <i class="pi pi-sort-alt mr-1"></i>{{ filterSortField }}, {{ filterSortDirection }}
+                            <i class="pi pi-times ml-1 cursor-pointer"
+                               (click)="filterSortField = null; applyFilters()"></i>
+                        </span>
+                    }
+
+                    <button pButton type="button" icon="pi pi-trash" label="Limpar Filtros"
+                            class="p-button-sm p-button-text p-button-danger ml-1"
+                            (click)="clearFilters()"></button>
+                </div>
+            }
 
             <!-- Error message -->
             @if (error$ | async; as error) {
@@ -141,6 +236,111 @@
         {{ getFormattedDateTime(row.startDatetime, row.endDatetime) }}
     </span>
 </ng-template>
+
+<!-- Filter Dialog -->
+<p-dialog [(visible)]="showFilterDialog" [style]="{width: '560px'}" header="Filtrar Aulas"
+          [modal]="true" [draggable]="false" [resizable]="false">
+    <div class="p-fluid">
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Professor</label>
+                <p-dropdown [options]="teacherOptions" [(ngModel)]="filterTeacherId"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Centro</label>
+                <p-dropdown [options]="centerOptions" [(ngModel)]="filterCenterId"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Unidade</label>
+                <p-dropdown [options]="unitOptions" [(ngModel)]="filterUnitId"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todas" [showClear]="true" [filter]="true"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Nível</label>
+                <p-dropdown [options]="levelOptions" [(ngModel)]="filterLevelId"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Status</label>
+                <p-dropdown [options]="statusOptions" [(ngModel)]="filterStatus"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todos" [showClear]="true"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Modalidade</label>
+                <p-dropdown [options]="onlineOptions" [(ngModel)]="filterOnline"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todas" [showClear]="true"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Data início</label>
+                <p-calendar [(ngModel)]="filterStartDate" [showTime]="true"
+                            dateFormat="dd/mm/yy" [showClear]="true" [showIcon]="true"></p-calendar>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Data fim</label>
+                <p-calendar [(ngModel)]="filterEndDate" [showTime]="true"
+                            dateFormat="dd/mm/yy" [showClear]="true" [showIcon]="true"></p-calendar>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterHasBookings"
+                                   (onChange)="onHasBookingsChange()"></p-inputSwitch>
+                    <label>Com reservas</label>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterWithoutBookings"
+                                   (onChange)="onWithoutBookingsChange()"></p-inputSwitch>
+                    <label>Sem reservas</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-8 field">
+                <label>Ordenar por</label>
+                <p-dropdown [options]="sortFieldOptions" [(ngModel)]="filterSortField"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Padrão" [showClear]="true"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-4 field">
+                <label>Direção</label>
+                <p-dropdown [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection"
+                            optionLabel="label" optionValue="value"></p-dropdown>
+            </div>
+        </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Aplicar" icon="pi pi-check"
+                (click)="applyFilters(); showFilterDialog = false"></button>
+        <button pButton type="button" label="Limpar" icon="pi pi-times"
+                class="p-button-outlined"
+                (click)="clearFilters(); showFilterDialog = false"></button>
+    </ng-template>
+</p-dialog>
 
 <!-- Lesson Details Dialog -->
 <p-dialog [header]="selectedLesson?.title || 'Detalhes da Aula'" [visible]="lessonDialogVisible()" [modal]="false"

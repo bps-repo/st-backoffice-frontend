@@ -4,6 +4,8 @@
     }
 </style>
 
+<p-toast position="top-right"></p-toast>
+
 <div class="lesson-detail-container">
     <!-- Header Section with Navigation -->
     <div class="mb-4">
@@ -63,7 +65,7 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex gap-2 flex-wrap">
+                        <div class="flex gap-2 flex-wrap align-items-center">
                             <p-button icon="pi pi-calendar-plus" label="Marcar Aula" severity="success" size="small"
                                 (click)="scheduleLesson(lesson)">
                             </p-button>
@@ -73,6 +75,16 @@
                             <p-button icon="pi pi-pencil" label="Editar" severity="info" size="small"
                                 (click)="editLesson(lesson)">
                             </p-button>
+                            <!-- Update dropdown -->
+                            <p-splitButton
+                                label="Atualizar"
+                                icon="pi pi-refresh"
+                                severity="warn"
+                                size="small"
+                                [model]="updateMenuItems"
+                                (onClick)="openRescheduleModal(lesson)"
+                                appendTo="body">
+                            </p-splitButton>
                             <p-button icon="pi pi-download" label="Exportar" [outlined]="true" size="small"
                                 (click)="exportLesson(lesson)">
                             </p-button>
@@ -466,3 +478,197 @@
         </div>
     </div>
 </div>
+
+<!-- ── Reschedule Modal ──────────────────────────────────────────────────── -->
+<p-dialog
+    header="Reagendar Aula"
+    [(visible)]="showRescheduleModal"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '480px' }"
+    appendTo="body">
+
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-4 pt-2">
+
+            <!-- Start datetime -->
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-calendar mr-1"></i> Data e Hora de Início <span class="text-red-500">*</span>
+                </label>
+                <p-calendar
+                    [(ngModel)]="rescheduleData.startDatetime"
+                    [showTime]="true"
+                    [showSeconds]="false"
+                    dateFormat="dd/mm/yy"
+                    hourFormat="24"
+                    [showIcon]="true"
+                    styleClass="w-full"
+                    inputStyleClass="w-full"
+                    placeholder="dd/mm/aaaa hh:mm">
+                </p-calendar>
+            </div>
+
+            <!-- End datetime -->
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-calendar-minus mr-1"></i> Data e Hora de Fim <span class="text-red-500">*</span>
+                </label>
+                <p-calendar
+                    [(ngModel)]="rescheduleData.endDatetime"
+                    [showTime]="true"
+                    [showSeconds]="false"
+                    dateFormat="dd/mm/yy"
+                    hourFormat="24"
+                    [showIcon]="true"
+                    styleClass="w-full"
+                    inputStyleClass="w-full"
+                    placeholder="dd/mm/aaaa hh:mm"
+                    [minDate]="rescheduleData.startDatetime ?? undefined">
+                </p-calendar>
+            </div>
+
+            <!-- Justification -->
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-comment mr-1"></i> Justificativa (opcional)
+                </label>
+                <input
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Ex: Aluno solicitou reagendamento"
+                    [(ngModel)]="rescheduleData.justification" />
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Cancelar"
+                icon="pi pi-times"
+                [outlined]="true"
+                severity="secondary"
+                (click)="cancelReschedule()"
+                [disabled]="rescheduleLoading()">
+            </p-button>
+            <p-button
+                label="Confirmar Reagendamento"
+                icon="pi pi-check"
+                severity="success"
+                (click)="confirmReschedule()"
+                [loading]="rescheduleLoading()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ── Cancel Confirmation Modal ─────────────────────────────────────────── -->
+<p-dialog
+    header="Cancelar Aula"
+    [(visible)]="showCancelModal"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '440px' }"
+    appendTo="body">
+
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-4 pt-2">
+            <div class="flex align-items-center gap-3 p-3 border-round bg-red-50 border-1 border-red-200">
+                <i class="pi pi-exclamation-triangle text-red-500 text-2xl"></i>
+                <p class="m-0 text-red-700 text-sm">
+                    Esta ação cancelará a aula permanentemente. Por favor, informe uma justificativa antes de confirmar.
+                </p>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-comment mr-1"></i> Justificativa <span class="text-red-500">*</span>
+                </label>
+                <input
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Ex: Aluno solicitou cancelamento"
+                    [(ngModel)]="cancelJustification" />
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Voltar"
+                icon="pi pi-arrow-left"
+                [outlined]="true"
+                severity="secondary"
+                (click)="closeCancelModal()"
+                [disabled]="cancelLoading()">
+            </p-button>
+            <p-button
+                label="Confirmar Cancelamento"
+                icon="pi pi-times-circle"
+                severity="danger"
+                (click)="confirmCancel()"
+                [loading]="cancelLoading()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ── Online Link Modal ──────────────────────────────────────────────────── -->
+<p-dialog
+    header="Configurar Link da Aula Online"
+    [(visible)]="showOnlineLinkModal"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '480px' }"
+    appendTo="body">
+
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-4 pt-2">
+            <div class="flex align-items-center gap-3 p-3 border-round bg-blue-50 border-1 border-blue-200">
+                <i class="pi pi-video text-blue-500 text-2xl"></i>
+                <p class="m-0 text-blue-700 text-sm">
+                    Informe o link de acesso à aula online (ex: Zoom, Google Meet, Teams).
+                </p>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-link mr-1"></i> Link da Aula <span class="text-red-500">*</span>
+                </label>
+                <input
+                    pInputText
+                    type="url"
+                    class="w-full"
+                    placeholder="https://meet.google.com/..."
+                    [(ngModel)]="onlineLinkValue" />
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Cancelar"
+                icon="pi pi-times"
+                [outlined]="true"
+                severity="secondary"
+                (click)="closeOnlineLinkModal()"
+                [disabled]="onlineLinkLoading()">
+            </p-button>
+            <p-button
+                label="Confirmar"
+                icon="pi pi-check"
+                severity="info"
+                (click)="confirmOnlineLink()"
+                [loading]="onlineLinkLoading()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

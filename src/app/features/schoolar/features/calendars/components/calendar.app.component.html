@@ -32,8 +32,7 @@
             <div class="col-12 flex justify-content-between align-content-center">
                 <div class="col-8 flex">
                     <span class="p-input-icon-left w-full mr-2">
-                        <i class="pi pi-search"></i>
-                        <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" pInputText
+                        <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="onSearchInput()" pInputText
                             placeholder="Buscar aulas" />
                     </span>
                     <button *ngIf="searchTerm" pButton type="button" icon="pi pi-times"
@@ -42,8 +41,8 @@
                 <div class="flex gap-2 h-3rem mt-3">
                     <button pButton type="button" icon="pi pi-filter" label="Filtros" (click)="showFilterDialog = true"
                         class="p-button-secondary"
-                        [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
-                        [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"></button>
+                        [class.p-button-outlined]="!hasActiveFilters"
+                        [class.p-button-info]="hasActiveFilters"></button>
                 </div>
             </div>
         </div>
@@ -79,35 +78,64 @@
         </div>
 
         <!-- Active filters display -->
-        <div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
-            class="active-filters mb-3 animate-fade px-fadein">
-            <span class="filter-label mr-2">Active Filters:</span>
+        <div *ngIf="hasActiveFilters" class="active-filters mb-3 animate-fade px-fadein">
+            <span class="filter-label mr-2">Filtros activos:</span>
 
-            <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
-                <span class="tag-color" [style.background-color]="tag.color"></span>
-                <span class="tag-name">{{ tag.name }}</span>
-                <i class="pi pi-times" (click)="removeTag(tag.name)"></i>
-            </span>
-
-            <span *ngFor="let teacher of selectedTeachers" class="filter-tag mr-2 mb-1">
+            <span *ngIf="filterTeacherId" class="filter-tag mr-2 mb-1">
                 <i class="pi pi-user"></i>
-                <span class="tag-name">{{ teacher.label }}</span>
-                <i class="pi pi-times" (click)="removeTeacher(teacher.value)"></i>
+                <span class="tag-name">{{ getTeacherLabel(filterTeacherId) }}</span>
+                <i class="pi pi-times" (click)="filterTeacherId = null; applyFilters()"></i>
             </span>
 
-            <span *ngFor="let center of selectedCenters" class="filter-tag mr-2 mb-1">
+            <span *ngIf="filterCenterId" class="filter-tag mr-2 mb-1">
                 <i class="pi pi-map-marker"></i>
-                <span class="tag-name">{{ center.label }}</span>
-                <i class="pi pi-times" (click)="removeCenter(center.value)"></i>
+                <span class="tag-name">{{ getCenterLabel(filterCenterId) }}</span>
+                <i class="pi pi-times" (click)="filterCenterId = null; applyFilters()"></i>
             </span>
 
-            <span *ngFor="let classEntity of selectedClasses" class="filter-tag mr-2 mb-1">
-                <i class="pi pi-users"></i>
-                <span class="tag-name">{{ classEntity.label }}</span>
-                <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
+            <span *ngIf="filterUnitId" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-book"></i>
+                <span class="tag-name">{{ getUnitLabel(filterUnitId) }}</span>
+                <i class="pi pi-times" (click)="filterUnitId = null; applyFilters()"></i>
             </span>
 
-            <button pButton type="button" icon="pi pi-trash" label="Clear All"
+            <span *ngIf="filterLevelId" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-chart-bar"></i>
+                <span class="tag-name">{{ getLevelLabel(filterLevelId) }}</span>
+                <i class="pi pi-times" (click)="filterLevelId = null; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterStatus" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-info-circle"></i>
+                <span class="tag-name">{{ getStatusLabel(filterStatus) }}</span>
+                <i class="pi pi-times" (click)="filterStatus = null; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterOnline !== null" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-globe"></i>
+                <span class="tag-name">{{ filterOnline ? 'Online' : 'Presencial' }}</span>
+                <i class="pi pi-times" (click)="filterOnline = null; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterHasBookings" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-calendar-plus"></i>
+                <span class="tag-name">Com reservas</span>
+                <i class="pi pi-times" (click)="filterHasBookings = false; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterWithoutBookings" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-calendar-minus"></i>
+                <span class="tag-name">Sem reservas</span>
+                <i class="pi pi-times" (click)="filterWithoutBookings = false; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterSortField" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-sort-alt"></i>
+                <span class="tag-name">{{ filterSortField }}, {{ filterSortDirection }}</span>
+                <i class="pi pi-times" (click)="filterSortField = null; applyFilters()"></i>
+            </span>
+
+            <button pButton type="button" icon="pi pi-trash" label="Limpar Filtros"
                 class="p-button-sm p-button-text p-button-danger ml-2" (click)="clearFilters()"></button>
         </div>
 
@@ -252,54 +280,96 @@
 </section>
 
 <!-- Filter Dialog -->
-<p-dialog [(visible)]="showFilterDialog" [style]="{width: '450px'}" header="Filter Events" [modal]="true"
+<p-dialog [(visible)]="showFilterDialog" [style]="{width: '560px'}" header="Filtrar Aulas" [modal]="true"
     [draggable]="false" [resizable]="false">
     <div class="p-fluid">
-        <div class="field">
-            <label for="tags">Filter by Tags</label>
-            <p-multiSelect id="tags" [options]="tags" [(ngModel)]="selectedTags" optionLabel="name"
-                placeholder="Select Tags" [showToggleAll]="true">
-                <ng-template let-tag pTemplate="item">
-                    <div class="flex align-items-center">
-                        <span class="color-dot mr-2" [style.background-color]="tag.color"></span>
-                        <span>{{ tag.name }}</span>
-                    </div>
-                </ng-template>
-            </p-multiSelect>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Professor</label>
+                <p-dropdown [options]="teacherOptions" [(ngModel)]="filterTeacherId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Centro</label>
+                <p-dropdown [options]="centerOptions" [(ngModel)]="filterCenterId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+            </div>
         </div>
 
-        <div class="field">
-            <div class="flex align-items-center">
-                <p-inputSwitch [(ngModel)]="filterByTeacher" class="mr-2"></p-inputSwitch>
-                <label for="teachers">Filter by Teachers</label>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Unidade</label>
+                <p-dropdown [options]="unitOptions" [(ngModel)]="filterUnitId" optionLabel="label"
+                    optionValue="value" placeholder="Todas" [showClear]="true" [filter]="true"></p-dropdown>
             </div>
-            <p-multiSelect id="teachers" [options]="teachers" [(ngModel)]="selectedTeachers" optionLabel="label"
-                placeholder="Select Teachers" [disabled]="!filterByTeacher" [showToggleAll]="true"></p-multiSelect>
+            <div class="col-12 md:col-6 field">
+                <label>Nível</label>
+                <p-dropdown [options]="levelOptions" [(ngModel)]="filterLevelId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+            </div>
         </div>
 
-        <div class="field">
-            <div class="flex align-items-center">
-                <p-inputSwitch [(ngModel)]="filterByCenter" class="mr-2"></p-inputSwitch>
-                <label for="centers">Filter by Centers</label>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Status</label>
+                <p-dropdown [options]="statusOptions" [(ngModel)]="filterStatus" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true"></p-dropdown>
             </div>
-            <p-multiSelect id="centers" [options]="centers" [(ngModel)]="selectedCenters" optionLabel="label"
-                placeholder="Select Centers" [disabled]="!filterByCenter" [showToggleAll]="true"></p-multiSelect>
+            <div class="col-12 md:col-6 field">
+                <label>Modalidade</label>
+                <p-dropdown [options]="onlineOptions" [(ngModel)]="filterOnline" optionLabel="label"
+                    optionValue="value" placeholder="Todas" [showClear]="true"></p-dropdown>
+            </div>
         </div>
 
-        <div class="field">
-            <div class="flex align-items-center">
-                <p-inputSwitch [(ngModel)]="filterByClass" class="mr-2"></p-inputSwitch>
-                <label for="classes">Filter by Classes</label>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Data início</label>
+                <p-calendar [(ngModel)]="filterStartDate" [showTime]="true" dateFormat="dd/mm/yy"
+                    [showClear]="true" [showIcon]="true"></p-calendar>
             </div>
-            <p-multiSelect id="classes" [options]="classes" [(ngModel)]="selectedClasses" optionLabel="label"
-                placeholder="Select Classes" [disabled]="!filterByClass" [showToggleAll]="true"></p-multiSelect>
+            <div class="col-12 md:col-6 field">
+                <label>Data fim</label>
+                <p-calendar [(ngModel)]="filterEndDate" [showTime]="true" dateFormat="dd/mm/yy"
+                    [showClear]="true" [showIcon]="true"></p-calendar>
+            </div>
         </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterHasBookings" (onChange)="onHasBookingsChange()"></p-inputSwitch>
+                    <label>Com reservas</label>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterWithoutBookings" (onChange)="onWithoutBookingsChange()"></p-inputSwitch>
+                    <label>Sem reservas</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-8 field">
+                <label>Ordenar por</label>
+                <p-dropdown [options]="sortFieldOptions" [(ngModel)]="filterSortField" optionLabel="label"
+                    optionValue="value" placeholder="Padrão" [showClear]="true"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-4 field">
+                <label>Direção</label>
+                <p-dropdown [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection" optionLabel="label"
+                    optionValue="value"></p-dropdown>
+            </div>
+        </div>
+
     </div>
 
     <ng-template pTemplate="footer">
-        <button pButton type="button" label="Apply" icon="pi pi-check"
+        <button pButton type="button" label="Aplicar" icon="pi pi-check"
             (click)="applyFilters(); showFilterDialog = false"></button>
-        <button pButton type="button" label="Clear" icon="pi pi-times" class="p-button-outlined"
+        <button pButton type="button" label="Limpar" icon="pi pi-times" class="p-button-outlined"
             (click)="clearFilters(); showFilterDialog = false"></button>
     </ng-template>
 </p-dialog>

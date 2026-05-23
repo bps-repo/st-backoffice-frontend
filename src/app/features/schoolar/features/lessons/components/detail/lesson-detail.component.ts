@@ -8,24 +8,27 @@ import { TagModule } from 'primeng/tag';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { Subject, takeUntil, Observable, combineLatest, of } from 'rxjs';
+import { DialogModule } from 'primeng/dialog';
+import { CalendarModule } from 'primeng/calendar';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { ToastModule } from 'primeng/toast';
+import { MessageService, MenuItem } from 'primeng/api';
+import { BehaviorSubject, Subject, takeUntil, Observable, of } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Location } from '@angular/common';
-import { Lesson, LessonBooking } from "../../../../../../core/models/academic/lesson";
+import { Lesson, LessonBooking, LessonUpdate } from "../../../../../../core/models/academic/lesson";
 import { LessonStatus } from "../../../../../../core/enums/lesson-status";
+import { LessonType } from "../../../../../../core/enums/lesson-type";
 import { AttendanceStatus } from "../../../../../../core/enums/attendance-status";
-import { lessonsActions } from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import { selectSelectedLesson, selectLoadingLessons, selectError, selectLessonBookings, selectBookings } from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
+import { LessonService } from "../../../../../../core/services/lessons/lesson.service";
+import { LessonsFacade } from "../../../../../../core/services/lessons/lesson.facade";
 import { attendancesActions } from "../../../../../../core/store/schoolar/attendances/attendances.actions";
 import { selectAttendancesByLesson, selectAttendancesLoading, selectAttendancesError } from "../../../../../../core/store/schoolar/attendances/attendances.selectors";
 import { Student } from "../../../../../../core/models/academic/students/student";
 import { Attendance } from "../../../../../../core/models/academic/attendance";
 import { AttendanceStatusUpdate } from "../../../../../../core/models/academic/attendance-update";
 import { Material } from "../../../../../../core/models/academic/material";
-import { StudentService } from "../../../../../../core/services/student.service";
-import { MaterialService } from "../../../../../../core/services/material.service";
-import { LessonService } from "../../../../../../core/services/lessons/lesson.service";
 import { MaterialActions } from "../../../../../../core/store/schoolar/materials/material.actions";
 import { selectMaterialsByEntityAndId } from "../../../../../../core/store/schoolar/materials/material.selectors";
 import { selectLoadingMaterials } from 'src/app/core/store/schoolar/units/unit.selectors';
@@ -61,7 +64,12 @@ interface AttendanceTableData {
         DropdownModule,
         InputTextModule,
         FormsModule,
+        DialogModule,
+        CalendarModule,
+        SplitButtonModule,
+        ToastModule,
     ],
+    providers: [MessageService],
     templateUrl: './lesson-detail.component.html'
 })
 export class LessonDetailComponent implements OnInit, OnDestroy {
@@ -69,12 +77,70 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private router = inject(Router);
     private store = inject(Store);
     private location = inject(Location);
+    private lessonService = inject(LessonService);
+    private lessonsFacade = inject(LessonsFacade);
+    private messageService = inject(MessageService);
 
-    quickActions: any[] = []
-    lesson$!: Observable<Lesson | null>;
-    error$: Observable<string | null>;
+    quickActions: any[] = [];
 
-    bookings = signal<LessonBooking[]>([])
+    // ── Reschedule modal ──────────────────────────────────────────────────────
+    showRescheduleModal = false;
+    rescheduleLoading = signal(false);
+    rescheduleData: { startDatetime: Date | null; endDatetime: Date | null; justification: string } = {
+        startDatetime: null,
+        endDatetime: null,
+        justification: ''
+    };
+
+    // ── Cancel confirmation modal ─────────────────────────────────────────────
+    showCancelModal = false;
+    cancelLoading = signal(false);
+    cancelJustification = '';
+    private pendingCancelLesson: Lesson | null = null;
+
+    // ── Online link modal ─────────────────────────────────────────────────────
+    showOnlineLinkModal = false;
+    onlineLinkLoading = signal(false);
+    onlineLinkValue = '';
+    private pendingOnlineLesson: Lesson | null = null;
+
+    // ── Update dropdown (SplitButton items) ──────────────────────────────────
+    updateMenuItems: MenuItem[] = [];
+
+    // Status options for the update dropdown
+    lessonStatusOptions = [
+        { label: 'Disponível',  value: LessonStatus.AVAILABLE },
+        { label: 'Agendada',    value: LessonStatus.BOOKED },
+        { label: 'Concluída',   value: LessonStatus.COMPLETED },
+        { label: 'Cancelada',   value: LessonStatus.CANCELLED },
+        { label: 'Adiada',      value: LessonStatus.POSTPONED },
+    ];
+
+    // Type options for the update dropdown
+    lessonTypeOptions = [
+        { label: 'Geral',         value: 'GENERAL' },
+        { label: 'Gramática',     value: 'GRAMMAR' },
+        { label: 'Vocabulário',   value: 'VOCABULARY' },
+        { label: 'Pronúncia',     value: 'PRONUNCIATION' },
+        { label: 'Escuta',        value: 'LISTENING' },
+        { label: 'Escrita',       value: 'WRITING' },
+        { label: 'Fala',          value: 'SPEAKING' },
+        { label: 'Leitura',       value: 'READING' },
+        { label: 'Conversação',   value: 'CONVERSATION' },
+        { label: 'Prático',       value: 'PRACTICAL' },
+        { label: 'Negócios',      value: 'BUSINESS' },
+        { label: 'Outro',         value: 'OTHER' },
+    ];
+
+    // Inline update form (for the dropdown-driven edit panel)
+    showUpdatePanel = signal(false);
+    updateForm = signal<LessonUpdate>({});
+
+    private lessonSubject = new BehaviorSubject<Lesson | null>(null);
+    lesson$: Observable<Lesson | null> = this.lessonSubject.asObservable();
+    error$: Observable<string | null> = of(null);
+
+    bookings = signal<LessonBooking[]>([]);
 
     // Attendance data
     attendances: Attendance[] = [];
@@ -86,7 +152,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     notes: LessonNote[] = [];
 
     // Tab view properties
-    currentView: string = 'overview'; // Default view is overview
+    currentView: string = 'overview';
     viewOptions = [
         { label: 'Visão Geral', value: 'overview' },
         { label: 'Alunos', value: 'students' },
@@ -95,9 +161,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         { label: 'Anotações', value: 'notes' },
     ];
 
-    // Loading states for related data
-    loading$: Observable<boolean> = of(false);
-    loadingAttendances$: Observable<boolean> = of(false)
+    // Loading states
+    private loadingSubject = new BehaviorSubject<boolean>(false);
+    loading$: Observable<boolean> = this.loadingSubject.asObservable();
+    loadingAttendances$: Observable<boolean> = of(false);
     loadingStudents$: Observable<boolean> = of(false);
     loadingMaterials$: Observable<boolean> = of(false);
 
@@ -109,21 +176,14 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     ];
 
     private destroy$ = new Subject<void>();
+    private currentLessonId: string | null = null;
 
     constructor() {
-        // Initialize observables from store
-
-        // Errors states
-        this.lesson$ = this.store.select(selectSelectedLesson) as Observable<Lesson | null>;
-        this.error$ = this.store.select(selectError);
-        this.error$ = this.store.select(selectAttendancesError)
-
-        // Loadings states
-        this.loading$ = this.store.select(selectLoadingLessons);
-        this.loadingAttendances$ = this.store.select(selectAttendancesLoading)
-        this.loadingMaterials$ = this.store.select(selectLoadingMaterials)
-        this.loadingStudents$ = this.store.select(selectStudentAnyLoading)
-
+        // Wire up store-backed loading observables for data managed via NgRx
+        this.error$ = this.store.select(selectAttendancesError);
+        this.loadingAttendances$ = this.store.select(selectAttendancesLoading);
+        this.loadingMaterials$ = this.store.select(selectLoadingMaterials);
+        this.loadingStudents$ = this.store.select(selectStudentAnyLoading);
 
         this.lesson$.subscribe((v) => {
             this.quickActions = [
@@ -160,14 +220,14 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                     icon: 'pi-clock',
                     iconColor: 'text-purple-600',
                     bgColor: 'bg-purple-100',
-                    handler: () => this.rescheduleLesson()
+                    handler: () => v && this.openRescheduleModal(v)
                 },
                 {
                     label: 'Cancelar Aula',
                     icon: 'pi-times',
                     iconColor: 'text-red-600',
                     bgColor: 'bg-red-100',
-                    handler: () => this.cancelLesson()
+                    handler: () => v && this.openCancelModal(v)
                 },
                 {
                     label: 'Enviar Notificação',
@@ -177,25 +237,79 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                     handler: () => this.sendNotification()
                 }
             ];
-        })
+
+            // Build update split-button items from the current lesson
+            this.updateMenuItems = [
+                {
+                    label: 'Alterar Status',
+                    icon: 'pi pi-tag',
+                    items: this.lessonStatusOptions.map(opt => ({
+                        label: opt.label,
+                        command: () => v && this.patchField(v, { status: opt.value })
+                    }))
+                },
+                {
+                    label: 'Alterar Tipo',
+                    icon: 'pi pi-list',
+                    items: this.lessonTypeOptions.map(opt => ({
+                        label: opt.label,
+                        command: () => v && this.patchField(v, { type: opt.value })
+                    }))
+                },
+                { separator: true },
+                {
+                    label: 'Tornar Online',
+                    icon: 'pi pi-video',
+                    command: () => v && this.openOnlineLinkModal(v)
+                },
+                {
+                    label: 'Tornar Presencial',
+                    icon: 'pi pi-building',
+                    command: () => v && this.patchField(v, { online: false, onlineLink: '' })
+                },
+                { separator: true },
+                {
+                    label: 'Reagendar',
+                    icon: 'pi pi-calendar',
+                    command: () => v && this.openRescheduleModal(v)
+                },
+                {
+                    label: 'Cancelar Aula',
+                    icon: 'pi pi-times-circle',
+                    styleClass: 'text-red-600',
+                    command: () => v && this.openCancelModal(v)
+                },
+            ];
+        });
     }
 
-    private currentLessonId: string | null = null;
-
     ngOnInit() {
-        // Get the lesson ID from the route
         this.route.params
             .pipe(takeUntil(this.destroy$))
             .subscribe(params => {
                 const id = params['id'];
                 if (id) {
                     this.currentLessonId = id;
-                    // Dispatch action to load the lesson
-                    this.store.dispatch(lessonsActions.loadLesson({ id }));
-                    this.store.dispatch(lessonsActions.loadLessonBookings({ lessonId: id }));
 
+                    // Load lesson directly via service
+                    this.loadingSubject.next(true);
+                    this.lessonService.getLesson(id)
+                        .pipe(takeUntil(this.destroy$))
+                        .subscribe({
+                            next: (lesson) => {
+                                this.lessonSubject.next(lesson);
+                                this.loadingSubject.next(false);
+                            },
+                            error: () => this.loadingSubject.next(false)
+                        });
+
+                    // Load bookings directly via service
+                    this.lessonService.getLessonBookings(id)
+                        .pipe(takeUntil(this.destroy$))
+                        .subscribe((bookings) => this.bookings.set(bookings ?? []));
+
+                    // Attendances and materials still managed via NgRx
                     this.store.dispatch(attendancesActions.loadAttendancesByLesson({ lessonId: id }));
-                    // Subscribe to attendances for this lesson
                     this.store.select(selectAttendancesByLesson(id))
                         .pipe(takeUntil(this.destroy$))
                         .subscribe((attendances) => {
@@ -203,11 +317,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                             this.attendanceTableData = this.buildAttendanceTableData(attendances);
                         });
 
-                    this.store.select(selectBookings).subscribe((v: any) => {
-                        this.bookings.set(v?.[id] || [])
-                    })
-
-                    // Load lesson materials using entity LESSON via NgRx
                     this.store.dispatch(MaterialActions.loadMaterialsByEntity({ entity: 'LESSON', entityId: id }));
                     this.store.select(selectMaterialsByEntityAndId('LESSON', id))
                         .pipe(takeUntil(this.destroy$))
@@ -219,7 +328,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.store.dispatch(lessonsActions.clearSelectedLesson());
         if (this.currentLessonId) {
             this.store.dispatch(attendancesActions.clearAttendancesByLesson({ lessonId: this.currentLessonId }));
         }
@@ -285,19 +393,146 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         }
     }
 
-    public rescheduleLesson(): void {
-        console.log('Reschedule lesson');
-        // Implement reschedule logic
+    // ── Reschedule modal ──────────────────────────────────────────────────────
+
+    public openRescheduleModal(lesson: Lesson): void {
+        this.rescheduleData = {
+            startDatetime: lesson.startDatetime ? new Date(lesson.startDatetime) : null,
+            endDatetime:   lesson.endDatetime   ? new Date(lesson.endDatetime)   : null,
+            justification: ''
+        };
+        this.showRescheduleModal = true;
+    }
+
+    public async confirmReschedule(): Promise<void> {
+        if (!this.currentLessonId) return;
+
+        const { startDatetime, endDatetime, justification } = this.rescheduleData;
+        if (!startDatetime || !endDatetime) {
+            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Preencha as datas de início e fim.' });
+            return;
+        }
+        if (endDatetime <= startDatetime) {
+            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'A data de fim deve ser posterior à de início.' });
+            return;
+        }
+
+        this.rescheduleLoading.set(true);
+        const payload: LessonUpdate = {
+            startDatetime: startDatetime.toISOString().slice(0, 19),
+            endDatetime:   endDatetime.toISOString().slice(0, 19),
+            ...(justification?.trim() ? { justification: justification.trim() } : {})
+        };
+
+        const updated = await this.lessonsFacade.patchLesson(this.currentLessonId, payload);
+        this.rescheduleLoading.set(false);
+
+        if (updated) {
+            this.lessonSubject.next(updated);
+            this.showRescheduleModal = false;
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula reagendada com sucesso.' });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: this.lessonsFacade.error() ?? 'Erro ao reagendar aula.' });
+        }
+    }
+
+    public cancelReschedule(): void {
+        this.showRescheduleModal = false;
+    }
+
+    // ── Cancel confirmation modal ─────────────────────────────────────────────
+
+    public openCancelModal(lesson: Lesson): void {
+        this.pendingCancelLesson = lesson;
+        this.cancelJustification = '';
+        this.showCancelModal = true;
+    }
+
+    public async confirmCancel(): Promise<void> {
+        if (!this.pendingCancelLesson?.id) return;
+
+        if (!this.cancelJustification.trim()) {
+            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Informe uma justificativa para o cancelamento.' });
+            return;
+        }
+
+        this.cancelLoading.set(true);
+        const updated = await this.lessonsFacade.patchLesson(this.pendingCancelLesson.id, {
+            status: LessonStatus.CANCELLED,
+            justification: this.cancelJustification.trim()
+        });
+        this.cancelLoading.set(false);
+
+        if (updated) {
+            this.lessonSubject.next(updated);
+            this.showCancelModal = false;
+            this.pendingCancelLesson = null;
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula cancelada com sucesso.' });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: this.lessonsFacade.error() ?? 'Erro ao cancelar aula.' });
+        }
+    }
+
+    public closeCancelModal(): void {
+        this.showCancelModal = false;
+        this.pendingCancelLesson = null;
+    }
+
+    // ── Online link modal ─────────────────────────────────────────────────────
+
+    public openOnlineLinkModal(lesson: Lesson): void {
+        this.pendingOnlineLesson = lesson;
+        this.onlineLinkValue = lesson.onlineLink ?? '';
+        this.showOnlineLinkModal = true;
+    }
+
+    public async confirmOnlineLink(): Promise<void> {
+        if (!this.pendingOnlineLesson?.id) return;
+
+        if (!this.onlineLinkValue.trim()) {
+            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Informe o link da aula online.' });
+            return;
+        }
+
+        this.onlineLinkLoading.set(true);
+        const updated = await this.lessonsFacade.patchLesson(this.pendingOnlineLesson.id, {
+            online: true,
+            onlineLink: this.onlineLinkValue.trim()
+        });
+        this.onlineLinkLoading.set(false);
+
+        if (updated) {
+            this.lessonSubject.next(updated);
+            this.showOnlineLinkModal = false;
+            this.pendingOnlineLesson = null;
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula configurada como online.' });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: this.lessonsFacade.error() ?? 'Erro ao atualizar aula.' });
+        }
+    }
+
+    public closeOnlineLinkModal(): void {
+        this.showOnlineLinkModal = false;
+        this.pendingOnlineLesson = null;
+    }
+
+    // ── Generic patch helper (used by update dropdown) ────────────────────────
+
+    public async patchField(lesson: Lesson, payload: LessonUpdate): Promise<void> {
+        if (!lesson.id) return;
+
+        const updated = await this.lessonsFacade.patchLesson(lesson.id, payload);
+        if (updated) {
+            this.lessonSubject.next(updated);
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula atualizada com sucesso.' });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: this.lessonsFacade.error() ?? 'Erro ao atualizar aula.' });
+        }
     }
 
     public respondLesson(): void {
         console.log('Respond to lesson');
         // Implement respond logic
-    }
-
-    public cancelLesson(): void {
-        console.log('Cancel lesson');
-        // Implement cancel logic
     }
 
     public sendNotification(): void {

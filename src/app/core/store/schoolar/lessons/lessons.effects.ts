@@ -15,7 +15,7 @@ export class LessonsEffects {
         this.actions$.pipe(
             ofType(lessonsActions.loadLessonsPaginated),
             switchMap(({page, size, sort, status}) =>
-                this.lessonApiService.getLessonsPaginated(page, size, sort, status).pipe(
+                this.lessonApiService.searchLessons({page, size, sort, status}).pipe(
                     map((response) => lessonsActions.loadLessonsPaginatedSuccess(response)),
                     catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsPaginatedFailure({error: error.message}))
@@ -30,8 +30,8 @@ export class LessonsEffects {
         this.actions$.pipe(
             ofType(lessonsActions.loadLessons),
             exhaustMap(() =>
-                this.lessonApiService.getLessons().pipe(
-                    map((lessons) => lessonsActions.loadLessonsSuccess({lessons})),
+                this.lessonApiService.searchLessons({}).pipe(
+                    map((response) => lessonsActions.loadLessonsSuccess({lessons: response.content ?? []})),
                     catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsFailure({error: error.message}))
                     )
@@ -137,8 +137,8 @@ export class LessonsEffects {
         this.actions$.pipe(
             ofType(lessonsActions.loadLessonsByDateRange),
             exhaustMap(({startDate, endDate}) =>
-                this.lessonApiService.getLessonsByDateRange(startDate, endDate).pipe(
-                    map((lessons) => lessonsActions.loadLessonsByDateRangeSuccess({lessons})),
+                this.lessonApiService.searchLessons({startDate, endDate}).pipe(
+                    map((response) => lessonsActions.loadLessonsByDateRangeSuccess({lessons: response.content ?? []})),
                     catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsByDateRangeFailure({error: error.message}))
                     )

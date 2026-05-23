@@ -1,8 +1,8 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable, inject} from '@angular/core';
 import {environment} from 'src/environments/environment';
-import {Lesson, LessonCreate} from "../../models/academic/lesson";
-import {Observable, of} from 'rxjs';
+import {Lesson, LessonCreate, LessonUpdate} from "../../models/academic/lesson";
+import {Observable} from 'rxjs';
 import {ApiResponse, PageableResponse} from "../../models/ApiResponseService";
 import {map} from "rxjs/operators";
 import {BulkBookingRequest, BulkBookingResult} from "../../models/academic/bulk-booking";
@@ -17,30 +17,10 @@ export class LessonService {
 
     private apiUrl = `${environment.apiUrl}/lessons`;
 
-    getLessons(): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`).pipe(
-            map((response) => {
-                const data = response.data;
-                return (Array.isArray(data) ? data : (data?.content ?? [])) as Lesson[];
-            })
-        )
-    }
-
-    getLessonsPaginated(page: number, size: number, sort?: string, status?: string): Observable<PageableResponse<Lesson>> {
-        let params = new HttpParams()
-            .set('page', page.toString())
-            .set('size', size.toString());
-        if (sort) params = params.set('sort', sort);
-        if (status) params = params.set('status', status);
-        return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}/search`, {params}).pipe(
-            map((response) => response.data)
-        );
-    }
-
     getAllLessons(): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}?page=0&size=1000`).pipe(
-            map((response) => response.data.content as Lesson[])
-        )
+        return this.searchLessons({page: 0, size: 1000}).pipe(
+            map((response) => response.content as Lesson[])
+        );
     }
 
     getLesson(id: string): Observable<Lesson> {
@@ -61,6 +41,12 @@ export class LessonService {
         );
     }
 
+    patchLesson(id: string, payload: LessonUpdate): Observable<Lesson> {
+        return this.http.patch<ApiResponse<Lesson>>(`${this.apiUrl}/${id}`, payload).pipe(
+            map((response) => response.data as Lesson)
+        );
+    }
+
     deleteLesson(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
@@ -72,36 +58,30 @@ export class LessonService {
         );
     }
 
-    getLessonsByDateRange(startDate: string, endDate: string): Observable<Lesson[]> {
-        const params = new HttpParams()
-            .set('startDate', startDate)
-            .set('endDate', endDate);
-
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, {params}).pipe(
-            map((response) => response.data as Lesson[])
-        );
-    }
-
     searchLessons(filters: {
+        teacherId?: string;
         unitId?: string;
+        centerId?: string;
+        levelId?: string;
         startDate?: string;
         endDate?: string;
-        centerId?: string;
+        status?: string; // AVAILABLE | COMPLETED | CANCELLED | OVERDUE
         online?: boolean;
-        status?: string; // AVAILABLE | COMPLETE | OVERDUE | CANCELLED
-        teacherId?: string;
         titleContains?: string;
+        hasBookings?: boolean;
+        withoutBookings?: boolean;
         page?: number;
         size?: number;
-    }): Observable<Lesson[]> {
+        sort?: string; // e.g. "title,asc" or "startDatetime,desc"
+    }): Observable<PageableResponse<Lesson>> {
         let params = new HttpParams();
         Object.entries(filters || {}).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {
                 params = params.set(key, String(value));
             }
         });
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`, {params}).pipe(
-            map((response) => response.data as Lesson[])
+        return this.http.get<ApiResponse<PageableResponse<Lesson>>>(`${this.apiUrl}/search`, {params}).pipe(
+            map((response) => response.data)
         );
     }
 

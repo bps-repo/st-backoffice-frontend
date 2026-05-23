@@ -17,9 +17,7 @@ import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
 import { Store } from '@ngrx/store';
-import * as LessonActions from 'src/app/core/store/schoolar/lessons/lessons.actions';
 import * as StudentActions from 'src/app/core/store/schoolar/students/students.actions';
-import { selectAllLessons, selectLessonBookings } from 'src/app/core/store/schoolar/lessons/lessons.selectors';
 import { selectAllStudents } from 'src/app/core/store/schoolar/students/students.selectors';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
@@ -93,7 +91,6 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     constructor() {
-        this.store.dispatch(LessonActions.lessonsActions.loadLessons());
         this.store.dispatch(StudentActions.StudentsActions.loadStudents());
     }
 
@@ -114,12 +111,16 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
         // Auto-select lesson from query param (lesson-to-students flow)
         const preselectedLessonId = this.route.snapshot.queryParamMap.get('lessonId');
         if (preselectedLessonId) {
-            this.store.select(selectAllLessons).pipe(
-                takeUntil(this.destroy$),
-                filter((l) => l != null && l.length > 0),
-                map((l) => l!.find(x => x.id === preselectedLessonId) ?? null),
-                filter((lesson): lesson is Lesson => lesson !== null),
-            ).subscribe((lesson) => this.selectLesson(lesson));
+            // Wait until lessons are loaded, then auto-select the matching one
+            const lessonCheckInterval = setInterval(() => {
+                const found = this.lessons.find(l => l.id === preselectedLessonId);
+                if (found) {
+                    clearInterval(lessonCheckInterval);
+                    this.selectLesson(found);
+                }
+            }, 100);
+            // Stop polling after 10 s to avoid memory leaks
+            setTimeout(() => clearInterval(lessonCheckInterval), 10000);
         }
 
         // Auto-select student from query param (student-to-lessons flow)
@@ -167,18 +168,17 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     // ── Lesson-to-Students logic ─────────────────────────────────────────────
     private loadLessons(): void {
         this.loadingLessons.set(true);
-        this.store.select(selectAllLessons).pipe(
-            takeUntil(this.destroy$),
-            filter((lessons) => lessons !== null),
-            map((lessons) => lessons!.filter((l) => l.status === LessonStatus.AVAILABLE)),
-        ).subscribe({
-            next: (lessons) => {
-                this.lessons = lessons as Lesson[];
-                this.filteredLessons = lessons;
-                this.loadingLessons.set(false);
-            },
-            error: () => this.loadingLessons.set(false)
-        });
+        this.lessonApi.searchLessons({status: LessonStatus.AVAILABLE, size: 1000})
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    const lessons = (response.content ?? []) as Lesson[];
+                    this.lessons = lessons;
+                    this.filteredLessons = lessons;
+                    this.loadingLessons.set(false);
+                },
+                error: () => this.loadingLessons.set(false)
+            });
     }
 
     private loadLevels(): void {
@@ -214,7 +214,7 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
             next: (availableStudents) => {
                 this.available = availableStudents;
 
-                this.store.select(selectLessonBookings).pipe(takeUntil(this.destroy$)).subscribe({
+                this.lessonApi.getLessonBookings(lessonId).pipe(takeUntil(this.destroy$)).subscribe({
                     next: (bookings) => {
                         const bookedIds = Array.isArray(bookings) ? bookings.map((b: any) => b.studentId) : [];
                         this.studentApi.getStudents().pipe(takeUntil(this.destroy$)).subscribe({

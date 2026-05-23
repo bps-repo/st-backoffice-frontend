@@ -597,7 +597,7 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             unitId: v.unitId ? v.unitId : this.selectecGenericUnit?.id,
             centerId: v.centerId,
             type: v.type,
-            status: (v.status as any) ?? LessonStatus.AVAILABLE
+            status: LessonStatus.AVAILABLE
         } as LessonCreate;
 
         await this.lessonsFacade.createLesson(payload);

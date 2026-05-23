@@ -73,6 +73,18 @@ export interface LessonCreate {
     materials?: Material[];
 }
 
+export interface LessonUpdate {
+    title?: string;
+    description?: string;
+    status?: string;
+    online?: boolean;
+    onlineLink?: string;
+    type?: string;
+    startDatetime?: string;
+    endDatetime?: string;
+    justification?: string;
+}
+
 export type BookingStatus = 'BOOKED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
 
 export type StudentStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'GRADUATED';

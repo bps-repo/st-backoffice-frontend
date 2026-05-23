@@ -3,10 +3,7 @@ import {StudentsEffects} from "./schoolar/students/students.effects";
 import {studentsFeature} from "./schoolar/students/students.reducers";
 import {authFeature} from "./auth/auth.reducers";
 import {AuthState} from "./auth/auth.state";
-import {LessonsEffects} from "./schoolar/lessons/lessons.effects";
-import {lessonsFeature} from "./schoolar/lessons/lessons.feature";
 import {StudentState} from "./schoolar/students/student.state";
-import {LessonState} from "./schoolar/lessons/lesson.state";
 import {CenterFeature} from "./corporate/center/centers.reducer";
 import {CenterState} from "./corporate/center/center.state";
 import {UnitEffects} from "./schoolar/units/unit.effects";
@@ -74,7 +71,6 @@ import {FinanceSellersState} from "./finance/finance-sellers/finance-sellers.sta
 export interface AppState {
     auth: AuthState;
     students: StudentState;
-    lessons: LessonState;
     centers: CenterState;
     units: UnitState;
     levels: LevelState;
@@ -104,7 +100,6 @@ export const AppEffects = [
     StudentsEffects,
     UnitEffects,
     LevelEffects,
-    LessonsEffects,
     RolesEffects,
     PermissionsEffects,
     EmployeesEffects,
@@ -132,7 +127,6 @@ export const AppFeatures = [
     unitFeature,
     CenterFeature,
     serviceFeature,
-    lessonsFeature,
     rolesFeature,
     permissionsFeature,
     employeesFeature,

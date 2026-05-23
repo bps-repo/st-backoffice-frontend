@@ -17,33 +17,31 @@ import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextModule} from 'primeng/inputtext';
+import {InputSwitchModule} from 'primeng/inputswitch';
 import {SelectItem} from 'primeng/api';
 import {LEVELS} from 'src/app/shared/constants/app';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Store} from '@ngrx/store';
-import {Observable, Subject} from 'rxjs';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {Router, RouterModule} from '@angular/router';
 import {ChartModule} from 'primeng/chart';
 import {CardModule} from 'primeng/card';
 import {RippleModule} from "primeng/ripple";
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {TooltipModule} from 'primeng/tooltip';
-import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import {
-    selectAllLessons,
-    selectAnyLoading,
-    selectAnyError,
-    selectTotalElements,
-} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
-import {takeUntil} from 'rxjs/operators';
+import {debounceTime, takeUntil} from 'rxjs/operators';
 import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
-import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
 import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
 import {CalendarModule} from 'primeng/calendar';
 import {BadgeModule} from 'primeng/badge';
 import {HasPermissionDirective} from 'src/app/shared/directives/has-permission.directive';
+import {LessonService} from "../../../../../../core/services/lessons/lesson.service";
+import {EmployeeService} from "../../../../../../core/services/corporate/employee.service";
+import {CenterService} from "../../../../../../core/services/center.service";
+import {LevelService} from "../../../../../../core/services/level.service";
+import {UnitService} from "../../../../../../core/services/unit.service";
+import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 
 interface WeeklyLessonCard {
     time: string;
@@ -83,10 +81,22 @@ interface WeeklyLessonDay {
         LessonReports,
         CalendarModule,
         BadgeModule,
-        HasPermissionDirective
+        HasPermissionDirective,
+        InputSwitchModule,
+        KpiIndicatorsComponent,
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`
+
+        /* Active filter tags */
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e9ecef;
+            border-radius: 16px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
 
         /* Calendar Styles */
         .weekly-calendar .today-card {
@@ -324,20 +334,26 @@ interface WeeklyLessonDay {
     `]
 })
 export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
-    private store = inject<Store<LessonState>>(Store);
+    private lessonService = inject(LessonService);
+    private employeeService = inject(EmployeeService);
+    private centerService = inject(CenterService);
+    private levelService = inject(LevelService);
+    private unitService = inject(UnitService);
     private router = inject(Router);
 
     lesson: Lesson = {} as Lesson;
 
     lessons$: Observable<Lesson[]>;
+    loading$: Observable<boolean>;
+    error$: Observable<string | null>;
+    totalElements$: Observable<number>;
+
+    private lessonsSubject = new BehaviorSubject<Lesson[]>([]);
+    private loadingSubject = new BehaviorSubject<boolean>(false);
+    private errorSubject = new BehaviorSubject<string | null>(null);
+    private totalElementsSubject = new BehaviorSubject<number>(0);
 
     classes: Lesson[] = [];
-
-    loading$: Observable<boolean>;
-
-    error$: Observable<string | null>;
-
-    totalElements$: Observable<number>;
 
     readonly DEFAULT_PAGE_SIZE = 10;
     readonly DEFAULT_SORT = 'startDatetime,desc';
@@ -353,6 +369,149 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     columns: any[] = LESSON_COLUMNS;
 
     globalFilterFields: string[] = LESSONS_GLOBAL_FILTER_FIELDS;
+
+    // ── KPIs ─────────────────────────────────────────────────────────────────
+    kpis: Kpi[] = [];
+
+    private buildKpis(lessons: Lesson[], total: number): void {
+        const available  = lessons.filter(l => l.status === 'AVAILABLE').length;
+        const booked     = lessons.filter(l => l.status === 'BOOKED' || l.status === 'SCHEDULED').length;
+        const completed  = lessons.filter(l => l.status === 'COMPLETED').length;
+        const cancelled  = lessons.filter(l => l.status === 'CANCELLED').length;
+        const online     = lessons.filter(l => l.online).length;
+
+        this.kpis = [
+            {label: 'Total de Aulas',  value: total,     icon: {label: 'calendar',        color: 'text-blue-500'}},
+            {label: 'Disponíveis',     value: available, icon: {label: 'user-check',       color: 'text-green-500'}},
+            {label: 'Agendadas',       value: booked,    icon: {label: 'calendar-plus',    color: 'text-yellow-500'}},
+            {label: 'Concluídas',      value: completed, icon: {label: 'graduation-cap',   color: 'text-purple-500'}},
+            {label: 'Canceladas',      value: cancelled, icon: {label: 'user-cancel',      color: 'text-red-500'}},
+            {label: 'Online',          value: online,    icon: {label: 'exclamation-circle',color: 'text-cyan-500'}},
+        ];
+    }
+
+    // ── Filters ───────────────────────────────────────────────────────────────
+    searchTerm: string = '';
+    showFilterDialog: boolean = false;
+
+    filterTeacherId: string | null = null;
+    filterUnitId: string | null = null;
+    filterCenterId: string | null = null;
+    filterLevelId: string | null = null;
+    filterStatus: string | null = null;
+    filterOnline: boolean | null = null;
+    filterHasBookings: boolean = false;
+    filterWithoutBookings: boolean = false;
+    filterStartDate: Date | null = null;
+    filterEndDate: Date | null = null;
+    filterSortField: string | null = null;
+    filterSortDirection: 'asc' | 'desc' = 'asc';
+
+    // Dropdown options loaded from API
+    teacherOptions: { label: string; value: string }[] = [];
+    centerOptions: { label: string; value: string }[] = [];
+    unitOptions: { label: string; value: string }[] = [];
+    levelOptions: { label: string; value: string }[] = [];
+
+    readonly statusOptions = [
+        {label: 'Disponível', value: 'AVAILABLE'},
+        {label: 'Lecionada', value: 'COMPLETED'},
+        {label: 'Cancelada', value: 'CANCELLED'},
+        {label: 'Sem agendamento', value: 'OVERDUE'},
+    ];
+
+    readonly onlineOptions = [
+        {label: 'Online', value: true},
+        {label: 'Presencial', value: false},
+    ];
+
+    readonly sortFieldOptions = [
+        {label: 'Título', value: 'title'},
+        {label: 'Status', value: 'status'},
+        {label: 'Data de início', value: 'startDatetime'},
+        {label: 'Data de fim', value: 'endDatetime'},
+    ];
+
+    readonly sortDirectionOptions = [
+        {label: 'Crescente', value: 'asc'},
+        {label: 'Decrescente', value: 'desc'},
+    ];
+
+    private searchSubject = new Subject<void>();
+
+    get hasActiveFilters(): boolean {
+        return !!(this.filterTeacherId || this.filterUnitId || this.filterCenterId ||
+            this.filterLevelId || this.filterStatus || this.filterOnline !== null ||
+            this.filterHasBookings || this.filterWithoutBookings ||
+            this.filterStartDate || this.filterEndDate || this.filterSortField);
+    }
+
+    getTeacherLabel(id: string): string {
+        return this.teacherOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getCenterLabel(id: string): string {
+        return this.centerOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getUnitLabel(id: string): string {
+        return this.unitOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getLevelLabel(id: string): string {
+        return this.levelOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    onHasBookingsChange(): void {
+        if (this.filterHasBookings) this.filterWithoutBookings = false;
+    }
+
+    onWithoutBookingsChange(): void {
+        if (this.filterWithoutBookings) this.filterHasBookings = false;
+    }
+
+    onSearchInput(): void {
+        this.searchSubject.next();
+    }
+
+    applyFilters(): void {
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
+    }
+
+    clearFilters(): void {
+        this.searchTerm = '';
+        this.filterTeacherId = null;
+        this.filterUnitId = null;
+        this.filterCenterId = null;
+        this.filterLevelId = null;
+        this.filterStatus = null;
+        this.filterOnline = null;
+        this.filterHasBookings = false;
+        this.filterWithoutBookings = false;
+        this.filterStartDate = null;
+        this.filterEndDate = null;
+        this.filterSortField = null;
+        this.filterSortDirection = 'asc';
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
+    }
+
+    private loadFilterOptions(): void {
+        this.employeeService.getTeachers().pipe(takeUntil(this.destroy$)).subscribe(teachers => {
+            this.teacherOptions = teachers.map(t => ({
+                label: `${t.personalInfo.firstName} ${t.personalInfo.lastName}`.trim(),
+                value: t.id
+            }));
+        });
+        this.centerService.getAllCenters().pipe(takeUntil(this.destroy$)).subscribe(centers => {
+            this.centerOptions = centers.map(c => ({label: c.name, value: c.id}));
+        });
+        this.unitService.loadUnits().pipe(takeUntil(this.destroy$)).subscribe(units => {
+            this.unitOptions = units.map(u => ({label: u.name, value: u.id}));
+        });
+        this.levelService.getLevels().pipe(takeUntil(this.destroy$)).subscribe(levels => {
+            this.levelOptions = levels.map(l => ({label: l.name, value: l.id}));
+        });
+    }
 
     // View selection
     currentView: string = 'list'; // Default view is list
@@ -739,14 +898,19 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     constructor() {
-        this.lessons$ = this.store.select(selectAllLessons);
-        this.loading$ = this.store.select(selectAnyLoading);
-        this.error$ = this.store.select(selectAnyError);
-        this.totalElements$ = this.store.select(selectTotalElements);
+        this.lessons$ = this.lessonsSubject.asObservable();
+        this.loading$ = this.loadingSubject.asObservable();
+        this.error$ = this.errorSubject.asObservable();
+        this.totalElements$ = this.totalElementsSubject.asObservable();
     }
 
     ngOnInit(): void {
         this.initializeCalendarData();
+
+        // Wire search debounce
+        this.searchSubject.pipe(debounceTime(400), takeUntil(this.destroy$)).subscribe(() => {
+            this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
+        });
 
         // Subscribe to lessons for calendar view
         this.lessons$.pipe(
@@ -761,6 +925,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 }
             }
         });
+
+        this.loadFilterOptions();
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.DEFAULT_SORT);
     }
 
     ngAfterViewInit() {
@@ -799,26 +966,55 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.router.navigate(['/schoolar/lessons/create']).then();
     }
 
+    private loadLessons(page: number, size: number, sort?: string): void {
+        this.loadingSubject.next(true);
+        this.errorSubject.next(null);
+        const resolvedSort = this.filterSortField
+            ? `${this.filterSortField},${this.filterSortDirection}`
+            : sort;
+
+        this.lessonService.searchLessons({
+            page,
+            size,
+            sort: resolvedSort,
+            titleContains: this.searchTerm || undefined,
+            teacherId: this.filterTeacherId ?? undefined,
+            unitId: this.filterUnitId ?? undefined,
+            centerId: this.filterCenterId ?? undefined,
+            levelId: this.filterLevelId ?? undefined,
+            status: this.filterStatus ?? undefined,
+            online: this.filterOnline !== null ? this.filterOnline : undefined,
+            hasBookings: this.filterHasBookings || undefined,
+            withoutBookings: this.filterWithoutBookings || undefined,
+            startDate: this.filterStartDate ? this.filterStartDate.toISOString() : undefined,
+            endDate: this.filterEndDate ? this.filterEndDate.toISOString() : undefined,
+        })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    const lessons = response.content ?? [];
+                    const total   = response.totalElements ?? 0;
+                    this.lessonsSubject.next(lessons);
+                    this.totalElementsSubject.next(total);
+                    this.buildKpis(lessons, total);
+                    this.loadingSubject.next(false);
+                },
+                error: (err) => {
+                    this.errorSubject.next(err?.message ?? 'Erro ao carregar aulas');
+                    this.loadingSubject.next(false);
+                }
+            });
+    }
+
     onPageChange(event: { page: number; rows: number; sort?: string }): void {
         if (event.sort) {
             this.currentSort = event.sort;
         }
-        this.store.dispatch(lessonsActions.loadLessonsPaginated({
-            page: event.page,
-            size: event.rows,
-            sort: this.currentSort,
-        }));
+        this.loadLessons(event.page, event.rows, this.currentSort);
     }
 
-    /**
-     * Retry loading lessons
-     */
-    retryLoadLessons() {
-        this.store.dispatch(lessonsActions.loadLessonsPaginated({
-            page: 0,
-            size: this.DEFAULT_PAGE_SIZE,
-            sort: this.currentSort,
-        }));
+    retryLoadLessons(): void {
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
     }
 
     /**
@@ -1090,18 +1286,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         const normalized = new Date(date);
         normalized.setHours(23, 59, 59, 999);
         return normalized;
-    }
-
-    /**
-     * Format date for display
-     */
-    private formatDate(dateString: string): string {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        });
     }
 
     getOnlineType(online: boolean): string {

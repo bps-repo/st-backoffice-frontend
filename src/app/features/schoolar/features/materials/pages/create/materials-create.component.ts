@@ -37,7 +37,7 @@ import {Unit} from 'src/app/core/models/course/unit';
 import {Employee} from 'src/app/core/models/corporate/employee';
 import {forkJoin, of, Subject, takeUntil} from 'rxjs';
 import type {Observable} from 'rxjs';
-import {catchError, finalize, take} from 'rxjs/operators';
+import {catchError, finalize, map, take} from 'rxjs/operators';
 import {Store} from '@ngrx/store';
 import {authFeature} from 'src/app/core/store/auth/auth.reducers';
 import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
@@ -226,7 +226,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
 
         forkJoin({
             students: fallback(this.studentService.getStudents(), [] as Student[]),
-            lessons: fallback(this.lessonService.getLessons(), [] as Lesson[]),
+            lessons: fallback(this.lessonService.searchLessons({size: 1000}).pipe(map(r => r.content ?? [])), [] as Lesson[]),
             levels: fallback(this.levelService.getLevels(), [] as unknown[]),
             centers: fallback(this.centerService.getAllCenters(), [] as Center[]),
             employees: fallback(this.employeeService.getEmployees(), [] as Employee[]),
