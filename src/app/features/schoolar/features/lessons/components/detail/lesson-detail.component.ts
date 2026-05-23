@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, effect } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -13,9 +13,8 @@ import { CalendarModule } from 'primeng/calendar';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, MenuItem } from 'primeng/api';
-import { BehaviorSubject, Subject, takeUntil, Observable, of } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { Location } from '@angular/common';
 import { Lesson, LessonBooking, LessonUpdate } from "../../../../../../core/models/academic/lesson";
 import { LessonStatus } from "../../../../../../core/enums/lesson-status";
@@ -26,16 +25,12 @@ import { LessonStatusClassPipe } from "../../../../../../shared/pipes/lesson-sta
 import { AttendanceStatus } from "../../../../../../core/enums/attendance-status";
 import { LessonService } from "../../../../../../core/services/lessons/lesson.service";
 import { LessonsFacade } from "../../../../../../core/services/lessons/lesson.facade";
-import { attendancesActions } from "../../../../../../core/store/schoolar/attendances/attendances.actions";
-import { selectAttendancesByLesson, selectAttendancesLoading, selectAttendancesError } from "../../../../../../core/store/schoolar/attendances/attendances.selectors";
+import { AttendanceFacade } from "../../../../../../core/services/attendance/attendance.facade";
+import { MaterialsFacade } from "../../../../../../core/services/materials/material.facade";
 import { Student } from "../../../../../../core/models/academic/students/student";
 import { Attendance } from "../../../../../../core/models/academic/attendance";
 import { AttendanceStatusUpdate } from "../../../../../../core/models/academic/attendance-update";
 import { Material } from "../../../../../../core/models/academic/material";
-import { MaterialActions } from "../../../../../../core/store/schoolar/materials/material.actions";
-import { selectMaterialsByEntityAndId } from "../../../../../../core/store/schoolar/materials/material.selectors";
-import { selectLoadingMaterials } from 'src/app/core/store/schoolar/units/unit.selectors';
-import { selectStudentAnyLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 
 // Interface for notes
 interface LessonNote {
@@ -81,11 +76,13 @@ interface AttendanceTableData {
 export class LessonDetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
-    private store = inject(Store);
     private location = inject(Location);
     private lessonService = inject(LessonService);
     private lessonsFacade = inject(LessonsFacade);
     private messageService = inject(MessageService);
+
+    protected readonly attendanceFacade = inject(AttendanceFacade);
+    protected readonly materialsFacade = inject(MaterialsFacade);
 
     quickActions: any[] = [];
 
@@ -138,23 +135,31 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         { label: 'Outro',         value: 'OTHER' },
     ];
 
+    // ── Core lesson state (signals) ───────────────────────────────────────────
+    lesson = signal<Lesson | null>(null);
+    loading = signal(false);
+    loadError = signal<string | null>(null);
+    loadingBookings = signal(false);
+
+    // Signals exposed to template from facades
+    readonly loadingAttendances = this.attendanceFacade.loading;
+    readonly loadingMaterials = this.materialsFacade.loading;
+    readonly attendanceError = this.attendanceFacade.error;
+
+    // Bookings signal (students enrolled in this lesson)
+    bookings = signal<LessonBooking[]>([]);
+
     // Inline update form (for the dropdown-driven edit panel)
     showUpdatePanel = signal(false);
     updateForm = signal<LessonUpdate>({});
 
-    private lessonSubject = new BehaviorSubject<Lesson | null>(null);
-    lesson$: Observable<Lesson | null> = this.lessonSubject.asObservable();
-    error$: Observable<string | null> = of(null);
-
-    bookings = signal<LessonBooking[]>([]);
-
-    // Attendance data
+    // Attendance data — kept as plain arrays, synced from facade signal via effect
     attendances: Attendance[] = [];
     attendanceTableData: AttendanceTableData[] = [];
 
-    // Related data
-    students: Student[] = [];
+    // Materials — synced from facade signal via effect
     materials: Material[] = [];
+
     notes: LessonNote[] = [];
 
     // Tab view properties
@@ -167,13 +172,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         { label: 'Anotações', value: 'notes' },
     ];
 
-    // Loading states
-    private loadingSubject = new BehaviorSubject<boolean>(false);
-    loading$: Observable<boolean> = this.loadingSubject.asObservable();
-    loadingAttendances$: Observable<boolean> = of(false);
-    loadingStudents$: Observable<boolean> = of(false);
-    loadingMaterials$: Observable<boolean> = of(false);
-
     // Attendance status options for dropdown
     attendanceStatusOptions = [
         { label: 'Presente', value: AttendanceStatus.PRESENT },
@@ -185,13 +183,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private currentLessonId: string | null = null;
 
     constructor() {
-        // Wire up store-backed loading observables for data managed via NgRx
-        this.error$ = this.store.select(selectAttendancesError);
-        this.loadingAttendances$ = this.store.select(selectAttendancesLoading);
-        this.loadingMaterials$ = this.store.select(selectLoadingMaterials);
-        this.loadingStudents$ = this.store.select(selectStudentAnyLoading);
-
-        this.lesson$.subscribe((v) => {
+        // Keep quickActions and updateMenuItems in sync with the current lesson signal
+        effect(() => {
+            const v = this.lesson();
             this.quickActions = [
                 {
                     label: 'Marcar Aula',
@@ -244,7 +238,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 }
             ];
 
-            // Build update split-button items from the current lesson
             this.updateMenuItems = [
                 {
                     label: 'Alterar Status',
@@ -287,6 +280,17 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 },
             ];
         });
+
+        // Keep local attendances array in sync with facade signal
+        effect(() => {
+            this.attendances = this.attendanceFacade.attendances();
+            this.attendanceTableData = this.buildAttendanceTableData(this.attendances);
+        });
+
+        // Keep local materials array in sync with facade signal
+        effect(() => {
+            this.materials = this.materialsFacade.materials();
+        });
     }
 
     ngOnInit() {
@@ -297,46 +301,51 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 if (id) {
                     this.currentLessonId = id;
 
-                    // Load lesson directly via service
-                    this.loadingSubject.next(true);
+                    // Load lesson via service
+                    this.loading.set(true);
+                    this.loadError.set(null);
                     this.lessonService.getLesson(id)
                         .pipe(takeUntil(this.destroy$))
                         .subscribe({
-                            next: (lesson) => {
-                                this.lessonSubject.next(lesson);
-                                this.loadingSubject.next(false);
+                            next: (lessonData) => {
+                                this.lesson.set(lessonData);
+                                this.loading.set(false);
+                                this.loadError.set(null);
                             },
-                            error: () => this.loadingSubject.next(false)
+                            error: (err: unknown) => {
+                                this.loading.set(false);
+                                const msg =
+                                    (err as { error?: { message?: string }; message?: string })?.error?.message ??
+                                    (err as { message?: string })?.message ??
+                                    'Erro ao carregar a aula';
+                                this.loadError.set(msg);
+                            }
                         });
 
-                    // Load bookings directly via service
+                    // Load bookings via service
+                    this.loadingBookings.set(true);
                     this.lessonService.getLessonBookings(id)
                         .pipe(takeUntil(this.destroy$))
-                        .subscribe((bookings) => this.bookings.set(bookings ?? []));
-
-                    // Attendances and materials still managed via NgRx
-                    this.store.dispatch(attendancesActions.loadAttendancesByLesson({ lessonId: id }));
-                    this.store.select(selectAttendancesByLesson(id))
-                        .pipe(takeUntil(this.destroy$))
-                        .subscribe((attendances) => {
-                            this.attendances = attendances;
-                            this.attendanceTableData = this.buildAttendanceTableData(attendances);
+                        .subscribe({
+                            next: (b) => {
+                                this.bookings.set(b ?? []);
+                                this.loadingBookings.set(false);
+                            },
+                            error: () => {
+                                this.bookings.set([]);
+                                this.loadingBookings.set(false);
+                            }
                         });
-
-                    this.store.dispatch(MaterialActions.loadMaterialsByEntity({ entity: 'LESSON', entityId: id }));
-                    this.store.select(selectMaterialsByEntityAndId('LESSON', id))
-                        .pipe(takeUntil(this.destroy$))
-                        .subscribe((materials) => {
-                            this.materials = materials;
-                        });
+                    // Load attendances and materials through signal-based facades
+                    void this.attendanceFacade.loadByLesson(id);
+                    void this.materialsFacade.loadByEntity('LESSON', id);
                 }
             });
     }
 
     ngOnDestroy(): void {
-        if (this.currentLessonId) {
-            this.store.dispatch(attendancesActions.clearAttendancesByLesson({ lessonId: this.currentLessonId }));
-        }
+        this.attendanceFacade.clear();
+        this.materialsFacade.clearMaterials();
         this.destroy$.next();
         this.destroy$.complete();
     }
@@ -353,13 +362,12 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     // KPI methods with real data
     public getStudentCount(): number {
-        return this.students.length;
+        return this.bookings().length;
     }
 
     public getAttendanceRate(): number {
         if (this.attendances.length === 0) return 0;
-
-        const presentCount = this.attendances.filter(attendance => attendance.present).length;
+        const presentCount = this.attendances.filter(a => a.present).length;
         return Math.round((presentCount / this.attendances.length) * 100);
     }
 
@@ -370,7 +378,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     // Helper methods
     public getTeacherInitials(lesson: Lesson): string {
         if (!lesson || !lesson.teacher || !lesson.teacher.name) return 'MS';
-
         const names = lesson.teacher.name.split(' ');
         if (names.length >= 2) {
             return (names[0][0] + names[names.length - 1][0]).toUpperCase();
@@ -387,11 +394,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     public markAttendance(): void {
         console.log('Mark attendance');
-        // Implement attendance marking logic
     }
 
     public addMaterial(lesson: Lesson): void {
-
         if (lesson.id) {
             this.router.navigate(['/schoolar/materials/create'], {
                 queryParams: { entity: "LESSON", entityId: lesson.id }
@@ -434,7 +439,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.rescheduleLoading.set(false);
 
         if (updated) {
-            this.lessonSubject.next(updated);
+            this.lesson.set(updated);
             this.showRescheduleModal = false;
             this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula reagendada com sucesso.' });
         } else {
@@ -470,7 +475,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.cancelLoading.set(false);
 
         if (updated) {
-            this.lessonSubject.next(updated);
+            this.lesson.set(updated);
             this.showCancelModal = false;
             this.pendingCancelLesson = null;
             this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula cancelada com sucesso.' });
@@ -508,7 +513,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
         this.onlineLinkLoading.set(false);
 
         if (updated) {
-            this.lessonSubject.next(updated);
+            this.lesson.set(updated);
             this.showOnlineLinkModal = false;
             this.pendingOnlineLesson = null;
             this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula configurada como online.' });
@@ -526,10 +531,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     public async patchField(lesson: Lesson, payload: LessonUpdate): Promise<void> {
         if (!lesson.id) return;
-
         const updated = await this.lessonsFacade.patchLesson(lesson.id, payload);
         if (updated) {
-            this.lessonSubject.next(updated);
+            this.lesson.set(updated);
             this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Aula atualizada com sucesso.' });
         } else {
             this.messageService.add({ severity: 'error', summary: 'Erro', detail: this.lessonsFacade.error() ?? 'Erro ao atualizar aula.' });
@@ -538,19 +542,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     public respondLesson(): void {
         console.log('Respond to lesson');
-        // Implement respond logic
     }
 
     public sendNotification(): void {
         console.log('Send notification');
-        // Implement notification logic
     }
-
-    // Status labels and severities are now handled by the reusable pipes:
-    //   lessonStatusLabel | lessonStatusSeverity | lessonStatusClass
-    // These derive the display state from lesson.status + lesson.startDatetime
-    // (+ optional attendance data) and support "Aula Prevista", "Aula Cancelada",
-    // "Aula Reagendada", "Aula Lecionada", "Aula sem Presença" etc.
 
     // Attendance table data helper
     public getAttendanceTableData(): AttendanceTableData[] {
@@ -559,10 +555,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     private buildAttendanceTableData(attendances: Attendance[]): AttendanceTableData[] {
         return attendances.map(attendance => {
-            // Create a student object from the attendance data
             const student: Student = {
                 id: attendance.studentId,
-                code: 0, // Default code
+                code: 0,
                 user: {
                     id: attendance.studentId,
                     email: '',
@@ -576,8 +571,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
                 },
                 status: 'ACTIVE' as any,
                 levelProgressPercentage: 0,
-                center: {} as any, // Default center
-                level: {} as any, // Default level
+                center: {} as any,
+                level: {} as any,
                 enrollmentDate: attendance.createdAt,
                 createdAt: attendance.createdAt,
                 updatedAt: attendance.updatedAt
@@ -585,7 +580,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
             return {
                 student,
-                attendance: attendance,
+                attendance,
                 present: attendance.present,
                 observations: attendance.justification
             };
@@ -609,34 +604,30 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     public scheduleLesson(lesson: Lesson): void {
         if (lesson?.id) {
-            this.router.navigate(['/schoolar/lessons/schedule'], {queryParams: {lessonId: lesson.id}});
+            this.router.navigate(['/schoolar/lessons/schedule'], { queryParams: { lessonId: lesson.id } });
         }
     }
 
     public exportLesson(lesson: Lesson): void {
         if (lesson?.id) {
             console.log('Exporting lesson:', lesson.id);
-            // Implement export logic
         }
     }
 
     public printLesson(lesson: Lesson): void {
         if (lesson?.id) {
             console.log('Printing lesson:', lesson.id);
-            // Implement print logic
         }
     }
 
     public configureOnlineLink(lesson: Lesson): void {
         if (lesson?.id) {
             console.log('Configuring online link for lesson:', lesson.id);
-            // Implement online link configuration
         }
     }
 
     public addStudent(): void {
         console.log('Adding student to lesson');
-        // Implement add student logic
     }
 
     public viewStudentDetails(student: Student): void {
@@ -653,12 +644,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     public markAllPresent(): void {
         console.log('Marking all students as present');
-        // Implement mark all present logic
     }
 
     public editAttendance(attendanceData: AttendanceTableData): void {
         console.log('Editing attendance for student:', attendanceData.student.id);
-        // Implement edit attendance logic
     }
 
     public updateAttendanceStatus(attendanceData: AttendanceTableData, newStatus: AttendanceStatus, justification: string): void {
@@ -667,96 +656,62 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const statusUpdate: AttendanceStatusUpdate = {
-            status: newStatus,
-            justification: justification
-        };
-
-        // Dispatch NgRx action to update attendance status
-        this.store.dispatch(attendancesActions.updateAttendanceStatus({ id: attendanceData.attendance.id, statusUpdate }));
+        const statusUpdate: AttendanceStatusUpdate = { status: newStatus, justification };
+        void this.attendanceFacade.updateStatus(attendanceData.attendance.id, statusUpdate);
     }
 
     public onAttendanceStatusChange(attendanceData: AttendanceTableData, newStatus: AttendanceStatus): void {
-        // Generate appropriate justification based on status
         let justification = '';
         switch (newStatus) {
-            case AttendanceStatus.PRESENT:
-                justification = 'Present';
-                break;
-            case AttendanceStatus.ABSENT:
-                justification = 'Absent';
-                break;
-            case AttendanceStatus.BOOKED:
-                justification = 'Automatically created when lesson was booked';
-                break;
+            case AttendanceStatus.PRESENT:  justification = 'Present';  break;
+            case AttendanceStatus.ABSENT:   justification = 'Absent';   break;
+            case AttendanceStatus.BOOKED:   justification = 'Automatically created when lesson was booked'; break;
         }
-
         this.updateAttendanceStatus(attendanceData, newStatus, justification);
     }
 
     public downloadMaterial(material: Material): void {
-        if (material.id) {
-            console.log('Downloading material:', material.id);
-            // Implement download logic
-        }
+        if (material.id) console.log('Downloading material:', material.id);
     }
 
     public editMaterial(material: Material): void {
-        if (material.id) {
-            console.log('Editing material:', material.id);
-            // Implement edit material logic
-        }
+        if (material.id) console.log('Editing material:', material.id);
     }
 
     public removeMaterial(material: Material): void {
-        if (material.id) {
-            console.log('Removing material:', material.id);
-            // Implement remove material logic
-        }
+        if (material.id) console.log('Removing material:', material.id);
     }
 
     public addNote(): void {
         console.log('Adding new note');
-        // Implement add note logic
     }
 
     public editNote(note: LessonNote): void {
         console.log('Editing note:', note.id);
-        // Implement edit note logic
     }
 
     public removeNote(note: LessonNote): void {
         console.log('Removing note:', note.id);
-        // Implement remove note logic
     }
 
     protected LessonStatus = LessonStatus;
     protected AttendanceStatus = AttendanceStatus;
 
-    // Attendance status helper methods
     public getAttendanceStatusText(status: string): string {
         switch (status) {
-            case AttendanceStatus.PRESENT:
-                return 'Presente';
-            case AttendanceStatus.ABSENT:
-                return 'Ausente';
-            case AttendanceStatus.BOOKED:
-                return 'Pendente';
-            default:
-                return 'Desconhecido';
+            case AttendanceStatus.PRESENT: return 'Presente';
+            case AttendanceStatus.ABSENT:  return 'Ausente';
+            case AttendanceStatus.BOOKED:  return 'Pendente';
+            default: return 'Desconhecido';
         }
     }
 
     public getAttendanceStatusSeverity(status: string): string {
         switch (status) {
-            case AttendanceStatus.PRESENT:
-                return 'success';
-            case AttendanceStatus.ABSENT:
-                return 'danger';
-            case AttendanceStatus.BOOKED:
-                return 'warning';
-            default:
-                return 'secondary';
+            case AttendanceStatus.PRESENT: return 'success';
+            case AttendanceStatus.ABSENT:  return 'danger';
+            case AttendanceStatus.BOOKED:  return 'warning';
+            default: return 'secondary';
         }
     }
 }

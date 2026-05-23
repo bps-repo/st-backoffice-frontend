@@ -9,6 +9,27 @@ export class MaterialsFacade {
 
     loading = signal(false);
     error = signal<string | null>(null);
+    materials = signal<Material[]>([]);
+
+    async loadByEntity(entityType: string, entityId: string): Promise<void> {
+        this.loading.set(true);
+        this.error.set(null);
+        try {
+            const result = await firstValueFrom(
+                this.materialService.getMaterialsByEntity(entityType, entityId)
+            );
+            this.materials.set(result ?? []);
+        } catch (err: any) {
+            this.error.set(err?.error?.message ?? err?.message ?? 'Erro ao carregar materiais');
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    clearMaterials(): void {
+        this.materials.set([]);
+        this.error.set(null);
+    }
 
     async createMaterialWithRelations(request: MaterialCreateRequest): Promise<Material | null> {
         this.loading.set(true);
