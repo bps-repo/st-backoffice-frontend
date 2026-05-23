@@ -18,8 +18,11 @@ export class LessonService {
     private apiUrl = `${environment.apiUrl}/lessons`;
 
     getLessons(): Observable<Lesson[]> {
-        return this.http.get<ApiResponse<Lesson[]>>(`${this.apiUrl}/search`).pipe(
-            map((response) => response.data as Lesson[])
+        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`).pipe(
+            map((response) => {
+                const data = response.data;
+                return (Array.isArray(data) ? data : (data?.content ?? [])) as Lesson[];
+            })
         )
     }
 
