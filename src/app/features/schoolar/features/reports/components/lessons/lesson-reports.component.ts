@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ChartModule } from 'primeng/chart';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
@@ -26,7 +26,7 @@ import { LessonStatus } from '../../../../../../core/enums/lesson-status';
         ButtonModule,
         TableModule,
         DropdownModule,
-        CalendarModule,
+        DatePickerModule,
         ChartModule,
         RippleModule,
         CardModule,

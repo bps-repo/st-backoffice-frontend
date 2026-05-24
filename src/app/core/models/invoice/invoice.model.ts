@@ -57,7 +57,7 @@ export interface InvoiceCustomer {
 
 export interface InvoiceListItemProduct {
     id: string;
-    productName: string;
+    productName?: string;
     quantity: number;
     unitPrice: number;
     discountAmount: number;

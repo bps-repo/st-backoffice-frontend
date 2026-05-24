@@ -44,7 +44,7 @@
                             </div>
                             <div class="field">
                                 <label for="dateOfBirth">Data de Nascimento</label>
-                                <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <p-datepicker id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-datepicker>
                                 <small *ngIf="employeeForm.get('user.dateOfBirth')?.invalid && employeeForm.get('user.dateOfBirth')?.touched" class="p-error">
                                     Data de nascimento é obrigatória
                                 </small>

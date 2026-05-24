@@ -78,10 +78,10 @@
                 <!-- Week range -->
                 <div class="flex flex-column col-12 md:col-4 mt-4">
                     <label for="weekRange" class="font-bold">Selecione a Semana *</label>
-                    <p-calendar id="weekRange" formControlName="weekRange" [selectionMode]="'range'"
+                    <p-datepicker id="weekRange" formControlName="weekRange" [selectionMode]="'range'"
                         [readonlyInput]="true" [showIcon]="true" placeholder="Selecione entre 1 e 7 dias"
                         [required]="true" [appendTo]="'body'" (onSelect)="onWeekRangeSelect($event)">
-                    </p-calendar>
+                    </p-datepicker>
                     <small class="text-600 block mt-1" *ngIf="form.get('weekRange')?.value">
                         Período selecionado: {{ form.get('weekRange')?.value[0] | date:'dd/MM/yyyy' }} –
                         {{ form.get('weekRange')?.value[1] | date:'dd/MM/yyyy' }}
@@ -117,9 +117,9 @@
                 <!-- Date + Start time -->
                 <div class="flex flex-column col-12 md:col-4 mt-4">
                     <label for="selectedDay" class="font-bold">Data da Aula *</label>
-                    <p-calendar id="selectedDay" formControlName="selectedDay" dateFormat="dd/mm/yy" [showIcon]="true"
+                    <p-datepicker id="selectedDay" formControlName="selectedDay" dateFormat="dd/mm/yy" [showIcon]="true"
                         [required]="true" [appendTo]="'body'" placeholder="Selecione a data da aula">
-                    </p-calendar>
+                    </p-datepicker>
                     <small class="text-600 block mt-1">
                         Pode selecionar diretamente a data, sem escolher semana.
                     </small>
@@ -127,9 +127,9 @@
 
                 <div class="flex flex-column col-12 md:col-4 mt-4">
                     <label for="startDatetime" class="font-bold">Hora de Início *</label>
-                    <p-calendar (onChange)="callMethod()" id="startDatetime" formControlName="startDatetime"
+                    <p-datepicker (onChange)="callMethod()" id="startDatetime" formControlName="startDatetime"
                         [showIcon]="true" [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
-                    </p-calendar>
+                    </p-datepicker>
                     <small class="text-600 block mt-1">
                         <i class="pi pi-clock mr-1"></i>
                         A hora de fim será calculada automaticamente (+1h)
@@ -139,9 +139,9 @@
                 <!-- End time + Teacher -->
                 <div class="flex flex-column col-12 md:col-4 mt-4">
                     <label for="endDatetime" class="font-bold">Hora de fim *</label>
-                    <p-calendar (onSelect)="callMethod()" id="endDatetime" formControlName="endDatetime"
+                    <p-datepicker (onSelect)="callMethod()" id="endDatetime" formControlName="endDatetime"
                         [showIcon]="true" [timeOnly]="true" hourFormat="24" [required]="true" [appendTo]="'body'">
-                    </p-calendar>
+                    </p-datepicker>
                     <small class="text-600 block mt-1">
                         <i class="pi pi-info-circle mr-1"></i>
                         Automaticamente calculado (hora de início + 1h)

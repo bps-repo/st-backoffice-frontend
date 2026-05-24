@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AssessmentService } from 'src/app/core/services/assessment.service';
 
@@ -19,7 +19,7 @@ import { AssessmentService } from 'src/app/core/services/assessment.service';
         CardModule,
         InputTextModule,
         DropdownModule,
-        CalendarModule,
+        DatePickerModule,
         InputNumberModule
     ],
     templateUrl: './edit.component.html'

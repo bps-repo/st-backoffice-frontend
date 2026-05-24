@@ -5,7 +5,7 @@ import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PaginatorModule} from "primeng/paginator";
 import {DialogModule} from "primeng/dialog";
-import {CalendarModule} from "primeng/calendar";
+import {DatePickerModule} from "primeng/datepicker";
 import {CommonModule} from "@angular/common";
 import {InputTextModule} from "primeng/inputtext";
 import {DropdownModule} from "primeng/dropdown";
@@ -41,7 +41,7 @@ import {TagModule} from 'primeng/tag';
         ReactiveFormsModule,
         PaginatorModule,
         DialogModule,
-        CalendarModule,
+        DatePickerModule,
         CommonModule,
         InputTextModule,
         DropdownModule,

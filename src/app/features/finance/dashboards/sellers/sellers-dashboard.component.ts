@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
@@ -29,7 +29,7 @@ import { FinanceSellerTopRanking, FinanceSellersFilter } from 'src/app/core/mode
     imports: [
         CommonModule,
         FormsModule,
-        CalendarModule,
+        DatePickerModule,
         DropdownModule,
         ButtonModule,
         SkeletonModule,

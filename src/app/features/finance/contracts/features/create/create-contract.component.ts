@@ -15,7 +15,7 @@ import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {InputTextModule} from 'primeng/inputtext';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import {RippleModule} from 'primeng/ripple';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {StepsModule} from 'primeng/steps';
 import {ToastModule} from 'primeng/toast';
 import {
@@ -51,7 +51,7 @@ import {Textarea} from "primeng/textarea";
         RadioButtonModule,
         CheckboxModule,
         CardModule,
-        CalendarModule,
+        DatePickerModule,
         StepsModule,
         ToastModule,
         RenewContractComponent,

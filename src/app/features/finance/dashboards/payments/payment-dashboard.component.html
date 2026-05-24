@@ -23,7 +23,7 @@
                 ></p-dropdown>
 
                 <span class="font-semibold text-color-secondary">Período:</span>
-                <p-calendar
+                <p-datepicker
                     [(ngModel)]="dateRange"
                     selectionMode="range"
                     [readonlyInput]="true"
@@ -31,7 +31,7 @@
                     placeholder="Data início – Data fim"
                     [showIcon]="true"
                     styleClass="w-18rem"
-                ></p-calendar>
+                ></p-datepicker>
 
                 <p-button
                     label="Aplicar"
@@ -46,7 +46,7 @@
                     severity="secondary"
                     [outlined]="true"
                     (onClick)="clearFilter()"
-                    [disabled]="loading || (!dateRange?.length && !selectedCenterId)"
+                    [disabled]="loading || (!dateRange.length && !selectedCenterId)"
                 ></p-button>
 
                 @if (summary?.lastUpdated) {

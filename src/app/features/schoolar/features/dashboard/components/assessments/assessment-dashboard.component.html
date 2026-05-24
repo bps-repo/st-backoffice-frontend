@@ -26,13 +26,13 @@
     <div class="col-12">
         <div class="card">
             <div class="flex gap-3 align-items-center">
-                <p-calendar
+                <p-datepicker
                     [(ngModel)]="dateRange"
                     selectionMode="range"
                     dateFormat="mm/yy"
                     view="month"
                     placeholder="Filter by period"
-                ></p-calendar>
+                ></p-datepicker>
                 <button pButton type="button" label="Filter" (click)="filterData()"></button>
             </div>
         </div>

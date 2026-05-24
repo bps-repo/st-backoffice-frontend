@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { MaterialService } from '../material.service';
-import { Material, MaterialCreateRequest } from '../../models/academic/material';
+import { Material, MaterialCreateRequest, MaterialUploadRequest } from '../../models/academic/material';
 
 @Injectable({ providedIn: 'root' })
 export class MaterialsFacade {
@@ -36,6 +36,24 @@ export class MaterialsFacade {
         this.error.set(null);
         try {
             return await firstValueFrom(this.materialService.createMaterialWithRelations(request));
+        } catch (err: any) {
+            const message =
+                err?.error?.message ||
+                err?.error?.detail ||
+                err?.message ||
+                'Erro desconhecido';
+            this.error.set(typeof message === 'string' ? message : 'Erro desconhecido');
+            return null;
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    async uploadMaterialWithRelations(file: File, request: MaterialUploadRequest): Promise<Material | null> {
+        this.loading.set(true);
+        this.error.set(null);
+        try {
+            return await firstValueFrom(this.materialService.uploadMaterialWithRelations(file, request));
         } catch (err: any) {
             const message =
                 err?.error?.message ||

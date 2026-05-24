@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MaterialsRoutes} from './materials.routes';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {DialogModule} from 'primeng/dialog';
 import {ButtonModule} from 'primeng/button';
 import {RippleModule} from 'primeng/ripple';
@@ -21,7 +21,7 @@ import {FullCalendarModule} from '@fullcalendar/angular';
         FullCalendarModule,
         DialogModule,
         ButtonModule,
-        CalendarModule,
+        DatePickerModule,
         InputTextModule,
         DropdownModule,
         ToastModule,

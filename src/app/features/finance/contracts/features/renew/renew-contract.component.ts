@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { MessageService } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import { Student } from 'src/app/core/models/academic/students/student';
@@ -42,7 +42,7 @@ import { CreateInstallment, Installment, InstallmentStatus } from 'src/app/core/
         TableModule,
         InputNumberModule,
         ToastModule,
-        CalendarModule,
+        DatePickerModule,
     ],
     providers: [MessageService]
 })

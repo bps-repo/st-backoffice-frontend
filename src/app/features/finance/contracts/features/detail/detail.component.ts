@@ -14,7 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { Store } from "@ngrx/store";
@@ -48,7 +48,7 @@ import { InstallmentService } from 'src/app/core/services/installment.service';
         DialogModule,
         InputTextModule,
         DropdownModule,
-        CalendarModule,
+        DatePickerModule,
         InputNumberModule
     ],
     providers: [MessageService, ConfirmationService]

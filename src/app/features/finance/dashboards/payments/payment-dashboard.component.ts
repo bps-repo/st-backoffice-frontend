@@ -8,7 +8,7 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
 import { SkeletonModule } from 'primeng/skeleton';
 import { FinancePaymentDashboardActions } from 'src/app/core/store/finance/payment-dashboard/payment-dashboard.actions';
@@ -46,7 +46,7 @@ const MONTH_LABELS: Record<string, string> = {
         CommonModule,
         FormsModule,
         ChartModule,
-        CalendarModule,
+        DatePickerModule,
         DropdownModule,
         ButtonModule,
         SkeletonModule,

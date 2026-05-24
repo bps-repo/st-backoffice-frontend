@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 
 interface Alert {
     label: string;
@@ -12,7 +12,7 @@ interface Alert {
 @Component({
     selector: 'app-students-materials-dashboard-empresa',
     standalone: true,
-    imports: [CommonModule, FormsModule, ChartModule, CalendarModule],
+    imports: [CommonModule, FormsModule, ChartModule, DatePickerModule],
     templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {

@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
@@ -30,7 +30,7 @@ import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.se
     imports: [
         CommonModule,
         FormsModule,
-        CalendarModule,
+        DatePickerModule,
         DropdownModule,
         MultiSelectModule,
         ButtonModule,

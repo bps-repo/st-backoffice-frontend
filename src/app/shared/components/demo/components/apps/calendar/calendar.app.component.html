@@ -64,11 +64,11 @@
 
                     <div class="col-12 md:col-6 field">
                         <label for="start" class="text-900 font-semibold">Start Date</label>
-                        <p-calendar [appendTo]="dd" dateFormat="mm-dd-yy" [maxDate]="changedEvent.end" [showTime]="true" [required]="true" inputId="start" [(ngModel)]="changedEvent.start"></p-calendar>
+                        <p-datepicker [appendTo]="dd" dateFormat="mm-dd-yy" [maxDate]="changedEvent.end" [showTime]="true" [required]="true" inputId="start" [(ngModel)]="changedEvent.start"></p-datepicker>
                     </div>
                     <div class="col-12 md:col-6 field">
                         <label for="start" class="text-900 font-semibold">End Date</label>
-                        <p-calendar [appendTo]="dd" dateFormat="mm-dd-yy" [minDate]="changedEvent.start" [showTime]="true" [required]="true" inputId="end" [(ngModel)]="changedEvent.end"></p-calendar>
+                        <p-datepicker [appendTo]="dd" dateFormat="mm-dd-yy" [minDate]="changedEvent.start" [showTime]="true" [required]="true" inputId="end" [(ngModel)]="changedEvent.end"></p-datepicker>
                     </div>
                     <div class="col-12 field">
                         <label for="company-color" class="text-900 font-semibold">Color</label>

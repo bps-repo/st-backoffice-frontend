@@ -499,7 +499,7 @@
                 <label class="block text-sm font-medium text-600 mb-2">
                     <i class="pi pi-calendar mr-1"></i> Data e Hora de Início <span class="text-red-500">*</span>
                 </label>
-                <p-calendar
+                <p-datepicker
                     [(ngModel)]="rescheduleData.startDatetime"
                     [showTime]="true"
                     [showSeconds]="false"
@@ -509,7 +509,7 @@
                     styleClass="w-full"
                     inputStyleClass="w-full"
                     placeholder="dd/mm/aaaa hh:mm">
-                </p-calendar>
+                </p-datepicker>
             </div>
 
             <!-- End datetime -->
@@ -517,7 +517,7 @@
                 <label class="block text-sm font-medium text-600 mb-2">
                     <i class="pi pi-calendar-minus mr-1"></i> Data e Hora de Fim <span class="text-red-500">*</span>
                 </label>
-                <p-calendar
+                <p-datepicker
                     [(ngModel)]="rescheduleData.endDatetime"
                     [showTime]="true"
                     [showSeconds]="false"
@@ -528,7 +528,7 @@
                     inputStyleClass="w-full"
                     placeholder="dd/mm/aaaa hh:mm"
                     [minDate]="rescheduleData.startDatetime ?? undefined">
-                </p-calendar>
+                </p-datepicker>
             </div>
 
             <!-- Justification -->

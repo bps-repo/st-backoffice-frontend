@@ -8,7 +8,7 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { ChartModule } from 'primeng/chart';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
@@ -31,7 +31,7 @@ import { FinanceOverview, FinanceOverviewFilter } from '../../../../core/models/
         CommonModule,
         FormsModule,
         ChartModule,
-        CalendarModule,
+        DatePickerModule,
         ButtonModule,
         DropdownModule,
         SkeletonModule,

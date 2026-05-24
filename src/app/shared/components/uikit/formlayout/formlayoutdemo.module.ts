@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {FormLayoutDemoComponent} from './formlayoutdemo.component';
 import {FormLayoutDemoRoutingModule} from './formlayoutdemo-routing.module';
 import {AutoCompleteModule} from "primeng/autocomplete";
-import {CalendarModule} from "primeng/calendar";
+import {DatePickerModule} from "primeng/datepicker";
 import {ChipsModule} from "primeng/chips";
 import {DropdownModule} from "primeng/dropdown";
 import {InputMaskModule} from "primeng/inputmask";
@@ -19,7 +19,7 @@ import {InputTextModule} from "primeng/inputtext";
         FormsModule,
         FormLayoutDemoRoutingModule,
         AutoCompleteModule,
-        CalendarModule,
+        DatePickerModule,
         ChipsModule,
         DropdownModule,
         InputMaskModule,

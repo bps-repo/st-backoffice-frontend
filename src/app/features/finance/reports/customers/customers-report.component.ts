@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -21,7 +21,7 @@ import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.se
     selector: 'app-customers-report',
     standalone: true,
     templateUrl: './customers-report.component.html',
-    imports: [CommonModule, FormsModule, CalendarModule, DropdownModule, ButtonModule, TableModule, SkeletonModule, PaginatorModule],
+    imports: [CommonModule, FormsModule, DatePickerModule, DropdownModule, ButtonModule, TableModule, SkeletonModule, PaginatorModule],
 })
 export class CustomersReportComponent implements OnInit {
     private readonly service = inject(FinanceDashboardService);

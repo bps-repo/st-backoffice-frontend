@@ -2,7 +2,7 @@ import {CommonModule} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {FormsModule} from '@angular/forms';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {SelectButtonModule} from "primeng/selectbutton";
 import {ViewTabComponent} from "../../../shared/components/view-tab/view-tab.component";
 
@@ -11,7 +11,7 @@ type ViewOption = { label: string; value: { key: string; component: any } };
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SelectButtonModule, ViewTabComponent],
+    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, SelectButtonModule, ViewTabComponent],
     template: `
         <app-view-tab [title]="'Dashboard'" [viewOptions]="viewOptions"/>`,
 })

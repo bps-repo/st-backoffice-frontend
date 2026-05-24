@@ -11,7 +11,7 @@ import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {FileUploadModule} from 'primeng/fileupload';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
@@ -33,7 +33,7 @@ import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-se
         TooltipModule,
         DialogModule,
         InputTextModule,
-        CalendarModule,
+        DatePickerModule,
         FileUploadModule,
         ToastModule
     ],

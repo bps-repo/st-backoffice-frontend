@@ -17,14 +17,14 @@
 
         <div class="field col-12 md:col-4">
           <label for="dateRange">Período</label>
-          <p-calendar
+          <p-datepicker
             id="dateRange"
             [(ngModel)]="dateRange"
             selectionMode="range"
             [readonlyInput]="true"
             placeholder="Selecione um período"
             dateFormat="dd/mm/yy">
-          </p-calendar>
+          </p-datepicker>
         </div>
 
         <div class="field col-12 md:col-4 flex align-items-end">

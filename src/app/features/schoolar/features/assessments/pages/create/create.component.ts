@@ -5,7 +5,7 @@ import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {InputTextModule} from 'primeng/inputtext';
 import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {ChipModule} from 'primeng/chip';
 import {MultiSelectModule} from 'primeng/multiselect';
@@ -24,7 +24,7 @@ import {MessageService} from 'primeng/api';
         CardModule,
         InputTextModule,
         DropdownModule,
-        CalendarModule,
+        DatePickerModule,
         InputNumberModule,
         ChipModule,
         MultiSelectModule,

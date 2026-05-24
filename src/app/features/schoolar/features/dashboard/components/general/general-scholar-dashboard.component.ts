@@ -2,7 +2,7 @@ import {CommonModule} from '@angular/common';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {FormsModule} from '@angular/forms';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {ButtonModule} from 'primeng/button';
 import {SkeletonModule} from 'primeng/skeleton';
 import { Store } from '@ngrx/store';
@@ -22,7 +22,7 @@ interface Alert {
 @Component({
     selector: 'app-general',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, ButtonModule, SkeletonModule],
+    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, ButtonModule, SkeletonModule],
     templateUrl: './general-scholar-dashboard.component.html',
 })
 export class GeneralScholarDashboardComponent implements OnInit, OnDestroy {

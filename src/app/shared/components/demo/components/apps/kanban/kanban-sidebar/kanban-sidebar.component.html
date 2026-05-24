@@ -39,14 +39,14 @@
                         <label for="start" class="block text-900 font-semibold">Start Date</label>
                         <span class="p-input-icon-left w-full" style="height: 3.5rem;">
                             <i class="pi pi-clock z-1" style="left: 1.5rem;"></i>
-                            <p-calendar name="startDate" [appendTo]="sidebar" dateFormat="yy-mm-dd" [showTime]="false" [required]="true" inputId="start" inputStyleClass="w-full pl-7 text-900 font-semibold" styleClass="w-full" [inputStyle]="{'height':'3.5rem'}" [(ngModel)]="formValue.startDate"></p-calendar>
+                            <p-datepicker name="startDate" [appendTo]="sidebar" dateFormat="yy-mm-dd" [showTime]="false" [required]="true" inputId="start" inputStyleClass="w-full pl-7 text-900 font-semibold" styleClass="w-full" [inputStyle]="{'height':'3.5rem'}" [(ngModel)]="formValue.startDate"></p-datepicker>
                         </span>
                     </div>
                     <div class="flex flex-column field w-full">
                         <label for="due" class="block text-900 font-semibold">Due Date</label>
                         <span class="p-input-icon-left w-full" style="height: 3.5rem;">
                             <i class="pi pi-clock z-1" style="left: 1.5rem;"></i>
-                            <p-calendar name="endDate" [appendTo]="sidebar" dateFormat="yy-mm-dd"  [showTime]="false" [required]="true" inputId="due" inputStyleClass="w-full pl-7 text-900 font-semibold" styleClass="w-full" [inputStyle]="{'height':'3.5rem'}" [(ngModel)]="formValue.dueDate"></p-calendar>
+                            <p-datepicker name="endDate" [appendTo]="sidebar" dateFormat="yy-mm-dd"  [showTime]="false" [required]="true" inputId="due" inputStyleClass="w-full pl-7 text-900 font-semibold" styleClass="w-full" [inputStyle]="{'height':'3.5rem'}" [(ngModel)]="formValue.dueDate"></p-datepicker>
                         </span>
                     </div>
                 </div>

@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {CardModule} from 'primeng/card';
 import {TagModule} from 'primeng/tag';
 import {ButtonModule} from 'primeng/button';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {DropdownModule} from 'primeng/dropdown';
 import {BadgeModule} from 'primeng/badge';
@@ -25,7 +25,7 @@ import { Router } from '@angular/router';
         CardModule,
         TagModule,
         ButtonModule,
-        CalendarModule,
+        DatePickerModule,
         SelectButtonModule,
         DropdownModule,
         BadgeModule,

@@ -5,7 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 
 interface Alert {
   type: string;
@@ -25,7 +25,7 @@ interface Alert {
     DropdownModule,
     ButtonModule,
     TableModule,
-    CalendarModule
+    DatePickerModule
   ],
   templateUrl: './alerts.component.html',
 })

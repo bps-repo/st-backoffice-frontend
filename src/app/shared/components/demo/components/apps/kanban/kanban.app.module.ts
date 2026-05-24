@@ -14,7 +14,7 @@ import {AvatarModule} from 'primeng/avatar';
 import {AvatarGroupModule} from 'primeng/avatargroup';
 import {InputTextModule} from 'primeng/inputtext';
 import {ChipsModule} from 'primeng/chips';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {DropdownModule} from 'primeng/dropdown';
 import {SidebarModule} from 'primeng/sidebar';
 import {MenuModule} from 'primeng/menu';
@@ -39,7 +39,7 @@ import {KanbanService} from './service/kanban.service';
         AvatarGroupModule,
         InputTextModule,
         ChipsModule,
-        CalendarModule,
+        DatePickerModule,
         DropdownModule,
         SidebarModule,
         MenuModule,

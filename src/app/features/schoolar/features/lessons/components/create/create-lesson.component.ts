@@ -5,7 +5,7 @@ import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { LessonCreate } from 'src/app/core/models/academic/lesson';
 import { LessonStatus } from 'src/app/core/enums/lesson-status';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,7 +36,7 @@ import { UnitService } from 'src/app/core/services/unit.service';
         ButtonModule,
         DropdownModule,
         InputTextModule,
-        CalendarModule,
+        DatePickerModule,
         ToastModule,
         CheckboxModule,
         CardModule,

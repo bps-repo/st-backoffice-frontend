@@ -24,7 +24,7 @@ import {CenterActions} from "../../../../../../core/store/corporate/center/cente
 import {BadgeModule} from "primeng/badge";
 import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 import {Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import {CalendarModule} from "primeng/calendar";
+import {DatePickerModule} from "primeng/datepicker";
 import {ChipsModule} from "primeng/chips";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {InputTextModule} from "primeng/inputtext";
@@ -49,7 +49,7 @@ import {AppState} from 'src/app/core/store';
         TooltipModule,
         BadgeModule,
         KpiIndicatorsComponent,
-        CalendarModule,
+        DatePickerModule,
         ChipsModule,
         SelectButtonModule,
         InputTextModule,

@@ -221,52 +221,52 @@
         <div class="grid">
             <div class="col-12 md:col-6 field">
                 <label>Professor</label>
-                <p-dropdown [options]="teacherOptions" [(ngModel)]="filterTeacherId" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+                <p-select [options]="teacherOptions" [(ngModel)]="filterTeacherId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-select>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Centro</label>
-                <p-dropdown [options]="centerOptions" [(ngModel)]="filterCenterId" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+                <p-select [options]="centerOptions" [(ngModel)]="filterCenterId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-select>
             </div>
         </div>
 
         <div class="grid">
             <div class="col-12 md:col-6 field">
                 <label>Unidade</label>
-                <p-dropdown [options]="unitOptions" [(ngModel)]="filterUnitId" optionLabel="label" optionValue="value"
-                    placeholder="Todas" [showClear]="true" [filter]="true"></p-dropdown>
+                <p-select [options]="unitOptions" [(ngModel)]="filterUnitId" optionLabel="label" optionValue="value"
+                    placeholder="Todas" [showClear]="true" [filter]="true"></p-select>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Nível</label>
-                <p-dropdown [options]="levelOptions" [(ngModel)]="filterLevelId" optionLabel="label" optionValue="value"
-                    placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+                <p-select [options]="levelOptions" [(ngModel)]="filterLevelId" optionLabel="label" optionValue="value"
+                    placeholder="Todos" [showClear]="true" [filter]="true"></p-select>
             </div>
         </div>
 
         <div class="grid">
             <div class="col-12 md:col-6 field">
                 <label>Status</label>
-                <p-dropdown [options]="statusOptions" [(ngModel)]="filterStatus" optionLabel="label" optionValue="value"
-                    placeholder="Todos" [showClear]="true"></p-dropdown>
+                <p-select [options]="statusOptions" [(ngModel)]="filterStatus" optionLabel="label" optionValue="value"
+                    placeholder="Todos" [showClear]="true"></p-select>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Modalidade</label>
-                <p-dropdown [options]="onlineOptions" [(ngModel)]="filterOnline" optionLabel="label" optionValue="value"
-                    placeholder="Todas" [showClear]="true"></p-dropdown>
+                <p-select [options]="onlineOptions" [(ngModel)]="filterOnline" optionLabel="label" optionValue="value"
+                    placeholder="Todas" [showClear]="true"></p-select>
             </div>
         </div>
 
         <div class="grid">
             <div class="col-12 md:col-6 field">
                 <label>Data início</label>
-                <p-calendar [(ngModel)]="filterStartDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
-                    [showIcon]="true"></p-calendar>
+                <p-datepicker [(ngModel)]="filterStartDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
+                    [showIcon]="true"></p-datepicker>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Data fim</label>
-                <p-calendar [(ngModel)]="filterEndDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
-                    [showIcon]="true"></p-calendar>
+                <p-datepicker [(ngModel)]="filterEndDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
+                    [showIcon]="true"></p-datepicker>
             </div>
         </div>
 
@@ -289,13 +289,13 @@
         <div class="grid">
             <div class="col-12 md:col-8 field">
                 <label>Ordenar por</label>
-                <p-dropdown [options]="sortFieldOptions" [(ngModel)]="filterSortField" optionLabel="label"
-                    optionValue="value" placeholder="Padrão" [showClear]="true"></p-dropdown>
+                <p-select [options]="sortFieldOptions" [(ngModel)]="filterSortField" optionLabel="label"
+                    optionValue="value" placeholder="Padrão" [showClear]="true"></p-select>
             </div>
             <div class="col-12 md:col-4 field">
                 <label>Direção</label>
-                <p-dropdown [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection" optionLabel="label"
-                    optionValue="value"></p-dropdown>
+                <p-select [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection" optionLabel="label"
+                    optionValue="value"></p-select>
             </div>
         </div>
 

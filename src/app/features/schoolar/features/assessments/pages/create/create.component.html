@@ -83,13 +83,13 @@
                 <!-- Assessment Date -->
                 <div class="col-12 md:col-6 field">
                     <label for="date" class="font-bold text-900">Data da Avaliação</label>
-                    <p-calendar
+                    <p-datepicker
                         id="date"
                         [(ngModel)]="assessment.date"
                         [showIcon]="true"
                         dateFormat="dd/mm/yy"
                         placeholder="dd/mm/aaaa">
-                    </p-calendar>
+                    </p-datepicker>
                 </div>
 
                 <!-- Max Score -->

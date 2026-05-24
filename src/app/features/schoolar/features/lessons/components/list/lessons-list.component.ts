@@ -1,4 +1,4 @@
-import {CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -11,41 +11,41 @@ import {
     ViewChild,
     inject
 } from '@angular/core';
-import {DialogModule} from 'primeng/dialog';
-import {ToastModule} from 'primeng/toast';
-import {Lesson} from 'src/app/core/models/academic/lesson';
-import {LessonStatus} from 'src/app/core/enums/lesson-status';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputSwitchModule} from 'primeng/inputswitch';
-import {SelectItem} from 'primeng/api';
-import {LEVELS} from 'src/app/shared/constants/app';
-import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {Router, RouterModule} from '@angular/router';
-import {ChartModule} from 'primeng/chart';
-import {CardModule} from 'primeng/card';
-import {RippleModule} from "primeng/ripple";
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TooltipModule} from 'primeng/tooltip';
-import {debounceTime, takeUntil} from 'rxjs/operators';
-import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
-import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
-import {CalendarModule} from 'primeng/calendar';
-import {BadgeModule} from 'primeng/badge';
-import {HasPermissionDirective} from 'src/app/shared/directives/has-permission.directive';
-import {LessonService} from "../../../../../../core/services/lessons/lesson.service";
-import {EmployeeService} from "../../../../../../core/services/corporate/employee.service";
-import {CenterService} from "../../../../../../core/services/center.service";
-import {LevelService} from "../../../../../../core/services/level.service";
-import {UnitService} from "../../../../../../core/services/unit.service";
-import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import {LessonStatusLabelPipe} from "../../../../../../shared/pipes/lesson-status-label.pipe";
-import {LessonStatusSeverityPipe} from "../../../../../../shared/pipes/lesson-status-severity.pipe";
-import {LessonStatusClassPipe} from "../../../../../../shared/pipes/lesson-status-class.pipe";
-import {TagModule} from 'primeng/tag';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { Lesson } from 'src/app/core/models/academic/lesson';
+import { LessonStatus } from 'src/app/core/enums/lesson-status';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { SelectItem } from 'primeng/api';
+import { LEVELS } from 'src/app/shared/constants/app';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
+import { ChartModule } from 'primeng/chart';
+import { CardModule } from 'primeng/card';
+import { RippleModule } from "primeng/ripple";
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import { debounceTime, takeUntil } from 'rxjs/operators';
+import { LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS } from "./lessons.constants";
+import { LessonReports } from "../../../reports/components/lessons/lesson-reports.component";
+import { DatePickerModule } from 'primeng/datepicker';
+import { BadgeModule } from 'primeng/badge';
+import { HasPermissionDirective } from 'src/app/shared/directives/has-permission.directive';
+import { LessonService } from "../../../../../../core/services/lessons/lesson.service";
+import { EmployeeService } from "../../../../../../core/services/corporate/employee.service";
+import { CenterService } from "../../../../../../core/services/center.service";
+import { LevelService } from "../../../../../../core/services/level.service";
+import { UnitService } from "../../../../../../core/services/unit.service";
+import { KpiIndicatorsComponent, Kpi } from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import { LessonStatusLabelPipe } from "../../../../../../shared/pipes/lesson-status-label.pipe";
+import { LessonStatusSeverityPipe } from "../../../../../../shared/pipes/lesson-status-severity.pipe";
+import { LessonStatusClassPipe } from "../../../../../../shared/pipes/lesson-status-class.pipe";
+import { TagModule } from 'primeng/tag';
 import { LessonsDashboardComponent } from "../../../dashboard/components/lessons/lessons-dashboard.component";
 
 interface WeeklyLessonCard {
@@ -69,32 +69,31 @@ interface WeeklyLessonDay {
 @Component({
     selector: 'app-lessons',
     imports: [
-    GlobalTable,
-    DialogModule,
-    ToastModule,
-    CommonModule,
-    DropdownModule,
-    InputTextModule,
-    FormsModule,
-    ButtonModule,
-    RouterModule,
-    ChartModule,
-    CardModule,
-    RippleModule,
-    SelectButtonModule,
-    TooltipModule,
-    LessonReports,
-    CalendarModule,
-    BadgeModule,
-    HasPermissionDirective,
-    InputSwitchModule,
-    KpiIndicatorsComponent,
-    LessonStatusLabelPipe,
-    LessonStatusSeverityPipe,
-    LessonStatusClassPipe,
-    TagModule,
-    LessonsDashboardComponent
-],
+        GlobalTable,
+        DialogModule,
+        ToastModule,
+        CommonModule,
+        SelectModule,
+        InputTextModule,
+        FormsModule,
+        ButtonModule,
+        RouterModule,
+        ChartModule,
+        CardModule,
+        RippleModule,
+        SelectButtonModule,
+        TooltipModule,
+        DatePickerModule,
+        BadgeModule,
+        HasPermissionDirective,
+        InputSwitchModule,
+        KpiIndicatorsComponent,
+        LessonStatusLabelPipe,
+        LessonStatusSeverityPipe,
+        LessonStatusClassPipe,
+        TagModule,
+        LessonsDashboardComponent
+    ],
     templateUrl: './lessons-list.component.html',
     styles: [`
 
@@ -384,18 +383,18 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     kpis: Kpi[] = [];
 
     private buildKpis(lessons: Lesson[], total: number): void {
-        const available  = lessons.filter(l => l.status === 'AVAILABLE').length;
-        const booked     = lessons.filter(l => l.status === 'BOOKED' || l.status === 'SCHEDULED').length;
-        const completed  = lessons.filter(l => l.status === 'COMPLETED').length;
-        const cancelled  = lessons.filter(l => l.status === 'CANCELLED').length;
-        const online     = lessons.filter(l => l.online).length;
+        const available = lessons.filter(l => l.status === 'AVAILABLE').length;
+        const booked = lessons.filter(l => l.status === 'BOOKED' || l.status === 'SCHEDULED').length;
+        const completed = lessons.filter(l => l.status === 'COMPLETED').length;
+        const cancelled = lessons.filter(l => l.status === 'CANCELLED').length;
+        const online = lessons.filter(l => l.online).length;
 
         this.kpis = [
-            {label: 'Total de Aulas',  value: total,     icon: {label: 'calendar',        color: 'text-blue-500'}},
-            {label: 'Disponíveis',     value: available, icon: {label: 'user-check',       color: 'text-green-500'}},
-            {label: 'Concluídas',      value: completed, icon: {label: 'graduation-cap',   color: 'text-purple-500'}},
-            {label: 'Canceladas',      value: cancelled, icon: {label: 'user-cancel',      color: 'text-red-500'}},
-            {label: 'Online',          value: online,    icon: {label: 'exclamation-circle',color: 'text-cyan-500'}},
+            { label: 'Total de Aulas', value: total, icon: { label: 'calendar', color: 'text-blue-500' } },
+            { label: 'Disponíveis', value: available, icon: { label: 'user-check', color: 'text-green-500' } },
+            { label: 'Concluídas', value: completed, icon: { label: 'graduation-cap', color: 'text-purple-500' } },
+            { label: 'Canceladas', value: cancelled, icon: { label: 'user-cancel', color: 'text-red-500' } },
+            { label: 'Online', value: online, icon: { label: 'exclamation-circle', color: 'text-cyan-500' } },
         ];
     }
 
@@ -423,27 +422,27 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     levelOptions: { label: string; value: string }[] = [];
 
     readonly statusOptions = [
-        {label: 'Disponível', value: 'AVAILABLE'},
-        {label: 'Lecionada', value: 'COMPLETED'},
-        {label: 'Cancelada', value: 'CANCELLED'},
-        {label: 'Sem agendamento', value: 'OVERDUE'},
+        { label: 'Disponível', value: 'AVAILABLE' },
+        { label: 'Lecionada', value: 'COMPLETED' },
+        { label: 'Cancelada', value: 'CANCELLED' },
+        { label: 'Sem agendamento', value: 'OVERDUE' },
     ];
 
     readonly onlineOptions = [
-        {label: 'Online', value: true},
-        {label: 'Presencial', value: false},
+        { label: 'Online', value: true },
+        { label: 'Presencial', value: false },
     ];
 
     readonly sortFieldOptions = [
-        {label: 'Título', value: 'title'},
-        {label: 'Status', value: 'status'},
-        {label: 'Data de início', value: 'startDatetime'},
-        {label: 'Data de fim', value: 'endDatetime'},
+        { label: 'Título', value: 'title' },
+        { label: 'Status', value: 'status' },
+        { label: 'Data de início', value: 'startDatetime' },
+        { label: 'Data de fim', value: 'endDatetime' },
     ];
 
     readonly sortDirectionOptions = [
-        {label: 'Crescente', value: 'asc'},
-        {label: 'Decrescente', value: 'desc'},
+        { label: 'Crescente', value: 'asc' },
+        { label: 'Decrescente', value: 'desc' },
     ];
 
     private searchSubject = new Subject<void>();
@@ -512,13 +511,13 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             }));
         });
         this.centerService.getAllCenters().pipe(takeUntil(this.destroy$)).subscribe(centers => {
-            this.centerOptions = centers.map(c => ({label: c.name, value: c.id}));
+            this.centerOptions = centers.map(c => ({ label: c.name, value: c.id }));
         });
         this.unitService.loadUnits().pipe(takeUntil(this.destroy$)).subscribe(units => {
-            this.unitOptions = units.map(u => ({label: u.name, value: u.id}));
+            this.unitOptions = units.map(u => ({ label: u.name, value: u.id }));
         });
         this.levelService.getLevels().pipe(takeUntil(this.destroy$)).subscribe(levels => {
-            this.levelOptions = levels.map(l => ({label: l.name, value: l.id}));
+            this.levelOptions = levels.map(l => ({ label: l.name, value: l.id }));
         });
     }
 
@@ -526,24 +525,24 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     currentView: string = 'list'; // Default view is list
 
     viewOptions = [
-        {label: 'Lista de Aulas', value: 'list'},
-        {label: 'Relatórios', value: 'relatorios'},
+        { label: 'Lista de Aulas', value: 'list' },
+        { label: 'Relatórios', value: 'relatorios' },
     ];
 
     // References to sticky header elements
-    @ViewChild('mainHeader', {static: false})
+    @ViewChild('mainHeader', { static: false })
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', {static: false})
+    @ViewChild('viewSelector', { static: false })
     viewSelector!: ElementRef;
 
-    @ViewChild('teacherTemplate', {static: true})
+    @ViewChild('teacherTemplate', { static: true })
     teacherTemplate!: TemplateRef<any>;
 
-    @ViewChild('centerTemplate', {static: true})
+    @ViewChild('centerTemplate', { static: true })
     centerTemplate!: TemplateRef<any>;
 
-    @ViewChild('unitTemplate', {static: true})
+    @ViewChild('unitTemplate', { static: true })
     unitTemplate!: TemplateRef<any>;
 
     // Sticky state tracking
@@ -569,17 +568,17 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     private dialogHoverTimeout: any = null;
     private isDialogHovered: boolean = false;
 
-    @ViewChild("startDatetime", {static: true})
+    @ViewChild("startDatetime", { static: true })
     startDatetimeTemplate?: TemplateRef<any>;
 
-    @ViewChild("actionsTemplate", {static: true})
+    @ViewChild("actionsTemplate", { static: true })
     actionsTemplate?: TemplateRef<any>;
 
 
-    @ViewChild("statusTemplate", {static: true})
+    @ViewChild("statusTemplate", { static: true })
     statusTemplate?: TemplateRef<any>;
 
-    @ViewChild("onlineTemplate", {static: true})
+    @ViewChild("onlineTemplate", { static: true })
     onlineTemplate?: TemplateRef<any>;
 
     columnTemplates: Record<string, TemplateRef<any>> = {}
@@ -837,13 +836,13 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     getFormattedWeekRange(): string {
-        const start = this.currentWeekStart.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
-        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+        const start = this.currentWeekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         return `Semana de ${start} a ${end}`;
     }
 
     getFormattedMonth(): string {
-        return this.currentDate.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
+        return this.currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     }
 
     private getDayKey(day: { date?: Date | string; dayKey?: string }): string {
@@ -1001,7 +1000,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             .subscribe({
                 next: (response) => {
                     const lessons = response.content ?? [];
-                    const total   = response.totalElements ?? 0;
+                    const total = response.totalElements ?? 0;
                     this.lessonsSubject.next(lessons);
                     this.totalElementsSubject.next(total);
                     this.buildKpis(lessons, total);
@@ -1135,7 +1134,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
      * Navigate to schedule page with the lesson pre-selected
      */
     scheduleLesson(lessonId: string) {
-        this.router.navigate(['/schoolar/lessons/schedule'], {queryParams: {lessonId}}).then();
+        this.router.navigate(['/schoolar/lessons/schedule'], { queryParams: { lessonId } }).then();
     }
 
     /**
@@ -1143,7 +1142,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
      */
     duplicateLesson(lessonId: string) {
         this.router.navigate(['/schoolar/lessons/create'], {
-            queryParams: {duplicateFrom: lessonId}
+            queryParams: { duplicateFrom: lessonId }
         }).then();
     }
 
@@ -1226,7 +1225,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             const isToday = currentDay.toDateString() === new Date().toDateString();
 
             const classes: WeeklyLessonCard[] = dayLessons.map(lesson => ({
-                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
+                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 title: lesson.title,
                 teacher: lesson.teacher.name,
                 group: lesson.level || 'N/A',
@@ -1236,8 +1235,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             }));
 
             this.weeklyLessons.push({
-                day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
-                date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
+                day: currentDay.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
+                date: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
                 dayKey: currentDay.toDateString(),
                 isToday,
                 classes
@@ -1309,6 +1308,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         })} - ${end.toLocaleTimeString('pt-BR', {
             hour: '2-digit',
             minute: '2-digit'
-        })} | ${start.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
+        })} | ${start.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
     }
 }

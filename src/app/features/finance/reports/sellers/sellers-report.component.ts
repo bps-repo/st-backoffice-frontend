@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
@@ -23,7 +23,7 @@ import * as EmployeesSelectors from 'src/app/core/store/corporate/employees/empl
     selector: 'app-sellers-report',
     standalone: true,
     templateUrl: './sellers-report.component.html',
-    imports: [CommonModule, FormsModule, CalendarModule, DropdownModule, ButtonModule, TableModule, TagModule, SkeletonModule],
+    imports: [CommonModule, FormsModule, DatePickerModule, DropdownModule, ButtonModule, TableModule, TagModule, SkeletonModule],
 })
 export class SellersReportComponent implements OnInit {
     private readonly service = inject(FinanceDashboardService);

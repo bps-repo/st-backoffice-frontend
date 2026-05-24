@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {CalendarRoutes} from './calendar.routes';
 import {CalendarAppComponent} from './components/calendar.app.component';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {DialogModule} from 'primeng/dialog';
 import {ButtonModule} from 'primeng/button';
 import {RippleModule} from 'primeng/ripple';
@@ -22,7 +22,7 @@ import {FullCalendarModule} from '@fullcalendar/angular';
         FullCalendarModule,
         DialogModule,
         ButtonModule,
-        CalendarModule,
+        DatePickerModule,
         InputTextModule,
         DropdownModule,
         ToastModule,

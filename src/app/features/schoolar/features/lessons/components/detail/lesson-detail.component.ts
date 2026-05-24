@@ -9,7 +9,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, MenuItem } from 'primeng/api';
@@ -63,7 +63,7 @@ interface AttendanceTableData {
         InputTextModule,
         FormsModule,
         DialogModule,
-        CalendarModule,
+        DatePickerModule,
         SplitButtonModule,
         ToastModule,
         LessonStatusLabelPipe,

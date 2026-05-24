@@ -7,7 +7,7 @@ import { CreateTaskComponent } from './create-task/create-task.component';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { EditorModule } from 'primeng/editor'
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
 import { AvatarModule } from 'primeng/avatar';
@@ -27,7 +27,7 @@ import { RippleModule } from 'primeng/ripple';
         ButtonModule,
         InputTextModule,
         EditorModule,
-        CalendarModule,
+        DatePickerModule,
         ToastModule,
         AutoCompleteModule,
         AvatarModule,

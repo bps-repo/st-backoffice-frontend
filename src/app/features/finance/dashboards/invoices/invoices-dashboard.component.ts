@@ -8,7 +8,7 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { ChartModule } from 'primeng/chart';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { InvoiceTrendsActions } from '../../../../core/store/finance/invoice-trends/invoice-trends.actions';
@@ -31,7 +31,7 @@ const MONTH_LABELS: Record<string, string> = {
 @Component({
     selector: 'app-students-materials-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, ButtonModule, DropdownModule, SkeletonModule],
+    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, ButtonModule, DropdownModule, SkeletonModule],
     templateUrl: './invoices-dashboard.component.html',
 })
 export class InvoicesDashboardComponent implements OnInit {

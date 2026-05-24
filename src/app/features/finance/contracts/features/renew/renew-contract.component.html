@@ -254,11 +254,11 @@
                                                     </div>
                                                     <!-- Edit Mode -->
                                                     <div *ngIf="isEditingInstallment(i) && editingInstallment">
-                                                        <p-calendar [(ngModel)]="$any(editingInstallment).dueDateObj"
+                                                        <p-datepicker [(ngModel)]="$any(editingInstallment).dueDateObj"
                                                             [ngModelOptions]="{standalone: true}"
                                                             dateFormat="dd/mm/yy" [showIcon]="true"
                                                             placeholder="Selecione a data" [style]="{'width': '100%'}">
-                                                        </p-calendar>
+                                                        </p-datepicker>
                                                     </div>
                                                 </td>
                                                 <td>

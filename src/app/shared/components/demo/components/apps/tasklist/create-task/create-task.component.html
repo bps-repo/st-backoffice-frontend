@@ -12,11 +12,11 @@
             </div>
             <div class="col-6 field mt-0">
                 <label for="start" class="text-900 font-semibold">Start Date</label>
-                <p-calendar appendTo="body" dateFormat="yy-mm-dd" [showTime]="false" inputId="start" placeholder="Start Date" [(ngModel)]="task.startDate"></p-calendar>
+                <p-datepicker appendTo="body" dateFormat="yy-mm-dd" [showTime]="false" inputId="start" placeholder="Start Date" [(ngModel)]="task.startDate"></p-datepicker>
             </div>
             <div class="col-6 field mt-0">
                 <label for="end" class="text-900 font-semibold">Due Date</label>
-                <p-calendar appendTo="body" dateFormat="yy-mm-dd" [showTime]="false" inputId="end" placeholder="Due Date" [(ngModel)]="task.endDate"></p-calendar>
+                <p-datepicker appendTo="body" dateFormat="yy-mm-dd" [showTime]="false" inputId="end" placeholder="Due Date" [(ngModel)]="task.endDate"></p-datepicker>
             </div>
             <div class="col-12 field">
                 <label for="members" class="text-900 font-semibold">Add Team Member</label>

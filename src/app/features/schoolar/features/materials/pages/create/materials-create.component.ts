@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router'; // Add ActivatedRoute
 import {MessageService, SelectItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {CheckboxModule} from 'primeng/checkbox';
 import {DropdownModule} from 'primeng/dropdown';
 import {FileUploadModule} from 'primeng/fileupload';
@@ -16,6 +16,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {CardModule} from 'primeng/card';
 import {DividerModule} from 'primeng/divider';
 import {ChipModule} from 'primeng/chip';
+import {TooltipModule} from 'primeng/tooltip';
 import {AssessmentService} from 'src/app/core/services/assessment.service';
 import {CenterService} from 'src/app/core/services/center.service';
 import {ContractService} from 'src/app/core/services/contract.service';
@@ -25,7 +26,7 @@ import {LessonService} from 'src/app/core/services/lessons/lesson.service';
 import {StudentService} from 'src/app/core/services/student.service';
 import {UnitService} from 'src/app/core/services/unit.service';
 import {EmployeeService} from 'src/app/core/services/corporate/employee.service';
-import {MaterialCreateRequest, MaterialRelation} from 'src/app/core/models/academic/material';
+import {MaterialCreateRequest, MaterialRelation, MaterialUploadRequest} from 'src/app/core/models/academic/material';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {Student} from 'src/app/core/models/academic/students/student';
 import {MaterialType} from 'src/app/core/enums/material-type';
@@ -53,13 +54,14 @@ import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-se
         DropdownModule,
         FileUploadModule,
         CheckboxModule,
-        CalendarModule,
+        DatePickerModule,
         InputSwitchModule,
         ToastModule,
         MultiSelectModule,
         CardModule,
         DividerModule,
-        ChipModule
+        ChipModule,
+        TooltipModule
     ],
     providers: [MessageService],
     templateUrl: './materials-create.component.html'
@@ -432,22 +434,21 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         if (event.files && event.files.length > 0) {
             this.selectedFile = event.files[0];
 
-            // Auto-detect file type
-            const fileName = this.selectedFile!.name.toLowerCase();
-            if (fileName.includes('.pdf')) {
-                this.material.fileType = MaterialType.PDF;
-            } else if (fileName.includes('.doc') || fileName.includes('.docx')) {
-                this.material.fileType = MaterialType.DOCX;
-            } else if (fileName.includes('.mp3') || fileName.includes('.wav')) {
-                this.material.fileType = MaterialType.AUDIO;
-            } else if (fileName.includes('.ppt') || fileName.includes('.pptx')) {
-                this.material.fileType = MaterialType.PRESENTATION;
-            } else if (fileName.includes('.xls') || fileName.includes('.xlsx')) {
-                this.material.fileType = MaterialType.EXCEL;
+            // Auto-detect file type from extension when not yet chosen
+            if (!this.material.fileType) {
+                const fileName = this.selectedFile!.name.toLowerCase();
+                if (fileName.endsWith('.pdf')) {
+                    this.material.fileType = MaterialType.PDF;
+                } else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+                    this.material.fileType = MaterialType.DOCX;
+                } else if (fileName.endsWith('.mp3') || fileName.endsWith('.wav')) {
+                    this.material.fileType = MaterialType.AUDIO;
+                } else if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
+                    this.material.fileType = MaterialType.PRESENTATION;
+                } else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
+                    this.material.fileType = MaterialType.EXCEL;
+                }
             }
-
-            // In real app, upload file and get URL
-            this.material.fileUrl = `https://example.com/uploads/${this.selectedFile!.name}`;
 
             this.messageService.add({
                 severity: 'success',
@@ -629,18 +630,23 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             this.material.description &&
             this.material.fileType &&
             this.material.type &&
-            this.material.fileUrl &&
             this.material.uploaderId &&
             this.material.availabilityStartDate &&
             this.material.availabilityEndDate &&
             this.material.relations.length > 0
         );
 
-        if (this.material.fileType === MaterialType.VIDEO) {
-            return basicFieldsValid && !!this.material.fileUrl && this.material.fileUrl !== 'https://youtu.be/...';
+        if (!basicFieldsValid) {
+            return false;
         }
 
-        return basicFieldsValid && !!this.selectedFile;
+        // Video type → must have a non-placeholder URL
+        if (this.material.fileType === MaterialType.VIDEO) {
+            return !!this.material.fileUrl && this.material.fileUrl !== 'https://youtu.be/...';
+        }
+
+        // All other types → must have a local file ready to upload
+        return !!this.selectedFile;
     }
 
     isVideoFileType(): boolean {
@@ -649,7 +655,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
 
     async saveMaterial(): Promise<void> {
         if (!this.isFormValid()) {
-            const message = this.material.fileType === MaterialType.VIDEO
+            const message = this.isVideoFileType()
                 ? 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e informe uma URL válida para o vídeo'
                 : 'Por favor, preencha todos os campos obrigatórios, adicione pelo menos uma relação e faça upload de um arquivo';
 
@@ -661,7 +667,24 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             return;
         }
 
-        await this.materialsFacade.createMaterialWithRelations(this.material);
+        if (this.isVideoFileType()) {
+            // Video: send as plain JSON — fileUrl already holds the external link
+            await this.materialsFacade.createMaterialWithRelations(this.material);
+        } else {
+            // File: send as multipart/form-data → POST /materials/upload-with-relations
+            const uploadRequest: MaterialUploadRequest = {
+                title: this.material.title,
+                description: this.material.description,
+                fileType: this.material.fileType,
+                type: this.material.type,
+                uploaderId: this.material.uploaderId,
+                active: this.material.active,
+                availabilityStartDate: this.material.availabilityStartDate,
+                availabilityEndDate: this.material.availabilityEndDate,
+                relations: this.material.relations
+            };
+            await this.materialsFacade.uploadMaterialWithRelations(this.selectedFile!, uploadRequest);
+        }
 
         if (this.materialsFacade.error()) {
             ShowToastErrorService.showToastError(

@@ -49,31 +49,60 @@
 
         <!-- FILE UPLOAD SECTION -->
         <div class="col-12 lg:col-12" *ngIf="!isVideoFileType()">
-            <p-card header="Upload de Arquivo" class="mb-4">
-                <p-fileUpload #fileUploader name="material[]"
+            <p-card class="mb-4">
+                <ng-template pTemplate="header">
+                    <div class="flex align-items-center justify-content-between px-4 pt-3">
+                        <span class="font-semibold text-lg">Upload de Arquivo</span>
+                        <!-- Badge shown once a file is staged -->
+                        <span *ngIf="selectedFile && !loading()"
+                            class="text-xs font-medium px-2 py-1 border-round"
+                            style="background:#e8f5e9;color:#2e7d32">
+                            <i class="pi pi-check-circle mr-1"></i>Pronto para enviar
+                        </span>
+                        <span *ngIf="loading()"
+                            class="text-xs font-medium px-2 py-1 border-round"
+                            style="background:#e3f2fd;color:#1565c0">
+                            <i class="pi pi-spin pi-spinner mr-1"></i>A enviar…
+                        </span>
+                    </div>
+                </ng-template>
+
+                <p-fileUpload #fileUploader name="file"
                     accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,audio/mp3,audio/wav,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    [maxFileSize]="524288000" (onSelect)="onFileSelect($event)" (onError)="onFileUploadError($event)"
-                    [customUpload]="true" [auto]="false" chooseLabel="Selecionar Arquivo" [showUploadButton]="false"
+                    [maxFileSize]="524288000"
+                    (onSelect)="onFileSelect($event)"
+                    (onError)="onFileUploadError($event)"
+                    [customUpload]="true"
+                    [auto]="false"
+                    chooseLabel="Selecionar Arquivo"
+                    [showUploadButton]="false"
                     [showCancelButton]="false">
                     <ng-template pTemplate="content">
                         <div class="w-full py-8 border-2 upload-drop-zone flex justify-content-center align-items-center cursor-pointer"
                             (click)="fileUploader.advancedFileInput.nativeElement.click()">
+
+                            <!-- Empty state -->
                             <div *ngIf="!selectedFile"
                                 class="h-full flex flex-column justify-content-center align-items-center">
-                                <i class="pi pi-upload text-500 text-4xl mb-3"></i>
-                                <span class="text-600 text-lg text-center mb-1">Clique para selecionar um
-                                    arquivo</span>
-                                <span class="text-500 text-sm text-center">Suporta: PDF, DOCX, MP3, PPTX, XLSX (máx
-                                    500MB)</span>
+                                <i class="pi pi-cloud-upload text-500 text-5xl mb-3"></i>
+                                <span class="text-600 text-lg text-center mb-1">Arraste ou clique para selecionar</span>
+                                <span class="text-500 text-sm text-center">PDF, DOCX, MP3, PPTX, XLSX — máx. 500 MB</span>
                             </div>
-                            <div *ngIf="selectedFile" class="flex align-items-center gap-3">
-                                <i class="pi pi-file text-primary text-2xl"></i>
-                                <div>
-                                    <p class="m-0 font-medium">{{ selectedFile.name }}</p>
-                                    <p class="m-0 text-sm text-500">{{ formatFileSize(selectedFile.size) }}</p>
+
+                            <!-- File staged -->
+                            <div *ngIf="selectedFile" class="flex align-items-center gap-3 px-4">
+                                <i class="pi pi-file-pdf text-primary text-3xl"></i>
+                                <div class="flex flex-column">
+                                    <span class="font-semibold">{{ selectedFile.name }}</span>
+                                    <span class="text-sm text-500">{{ formatFileSize(selectedFile.size) }}</span>
+                                    <span class="text-xs text-400 mt-1">
+                                        Será enviado como multipart para
+                                        <code>POST /materials/upload-with-relations</code>
+                                    </span>
                                 </div>
                                 <button pButton pRipple icon="pi pi-times"
-                                    class="p-button-rounded p-button-text p-button-sm"
+                                    class="p-button-rounded p-button-text p-button-danger p-button-sm ml-auto"
+                                    pTooltip="Remover arquivo"
                                     (click)="removeFile($event)"></button>
                             </div>
                         </div>
@@ -88,13 +117,13 @@
                 <div class="grid formgrid p-fluid">
                     <div class="field col-12 md:col-6">
                         <label for="startDate" class="font-medium text-900">Data de Início *</label>
-                        <p-calendar id="startDate" [(ngModel)]="material.availabilityStartDate" [showIcon]="true"
-                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
+                        <p-datepicker id="startDate" [(ngModel)]="material.availabilityStartDate" [showIcon]="true"
+                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-datepicker>
                     </div>
                     <div class="field col-12 md:col-6">
                         <label for="endDate" class="font-medium text-900">Data de Fim *</label>
-                        <p-calendar id="endDate" [(ngModel)]="material.availabilityEndDate" [showIcon]="true"
-                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-calendar>
+                        <p-datepicker id="endDate" [(ngModel)]="material.availabilityEndDate" [showIcon]="true"
+                            dateFormat="yy-mm-dd" [readonlyInput]="true"></p-datepicker>
                     </div>
                     <div class="field col-12">
                         <div class="flex align-items-center gap-3">
