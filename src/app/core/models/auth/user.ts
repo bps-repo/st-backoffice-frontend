@@ -32,6 +32,8 @@ export interface User {
     refreshTokenExpiresAt?: Date;
     createdAt: Date;
     updatedAt: Date;
+    /** Employee work info — populated for employee accounts via /users/me */
+    center?: { id: string; name: string } | null;
 }
 
 // Interface for user creation requests

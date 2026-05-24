@@ -67,7 +67,12 @@ import {FinancePaymentDashboardState} from "./finance/payment-dashboard/payment-
 import {FinanceSellersEffects} from "./finance/finance-sellers/finance-sellers.effects";
 import {financeSellersFeature} from "./finance/finance-sellers/finance-sellers.feature";
 import {FinanceSellersState} from "./finance/finance-sellers/finance-sellers.state";
-
+import {CenterRevenueEffects} from "./finance/center-revenue/center-revenue.effects";
+import {centerRevenueFeature} from "./finance/center-revenue/center-revenue.feature";
+import {CenterRevenueState} from "./finance/center-revenue/center-revenue.state";
+import {SellerEvolutionEffects} from "./finance/seller-evolution/seller-evolution.effects";
+import {sellerEvolutionFeature} from "./finance/seller-evolution/seller-evolution.feature";
+import {SellerEvolutionState} from "./finance/seller-evolution/seller-evolution.state";
 export interface AppState {
     auth: AuthState;
     students: StudentState;
@@ -92,6 +97,8 @@ export interface AppState {
     invoiceTrends: InvoiceTrendsState;
     financePaymentDashboard: FinancePaymentDashboardState;
     financeSellers: FinanceSellersState;
+    financeCenterRevenue: CenterRevenueState;
+    sellerEvolution: SellerEvolutionState;
 }
 
 export const AppEffects = [
@@ -118,6 +125,8 @@ export const AppEffects = [
     InvoiceTrendsEffects,
     FinancePaymentDashboardEffects,
     FinanceSellersEffects,
+    CenterRevenueEffects,
+    SellerEvolutionEffects,
 ];
 
 export const AppFeatures = [
@@ -144,4 +153,6 @@ export const AppFeatures = [
     invoiceTrendsFeature,
     financePaymentDashboardFeature,
     financeSellersFeature,
+    centerRevenueFeature,
+    sellerEvolutionFeature,
 ];

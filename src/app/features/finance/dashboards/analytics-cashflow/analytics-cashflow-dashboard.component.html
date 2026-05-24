@@ -1,0 +1,281 @@
+<div class="grid">
+    @let loading = store.loading();
+    @let data    = store.data();
+    @let error   = store.error();
+
+    <!-- ── Filtros ─────────────────────────────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+
+                <p-select
+                    [options]="(centerOptions$ | async) ?? []"
+                    [(ngModel)]="selectedCenterId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Todos os centros"
+                    styleClass="min-w-14rem"
+                ></p-select>
+
+                <p-datepicker
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Data início – Data fim"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-datepicker>
+
+                <p-button label="Aplicar" icon="pi pi-filter" (onClick)="applyFilter()" [loading]="loading"></p-button>
+
+                <p-button
+                    label="Limpar"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilter()"
+                    [disabled]="loading || (!dateRange.length && !selectedCenterId)"
+                ></p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Erro ────────────────────────────────────────────────────────────── -->
+    @if (error) {
+        <div class="col-12">
+            <div class="card border-red-300 bg-red-50">
+                <div class="flex align-items-center gap-2 text-red-600">
+                    <i class="pi pi-exclamation-triangle text-xl"></i>
+                    <span class="font-semibold">{{ error }}</span>
+                    <p-button label="Tentar novamente" icon="pi pi-refresh" severity="danger" [text]="true"
+                              size="small" (onClick)="retryLoad()" class="ml-2"></p-button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── KPIs ──────────────────────────────────────────────────────────── -->
+    @if (loading) {
+        @for (_ of [1,2,3,4,5]; track $index) {
+            <div class="col-12 sm:col-6 xl:col" style="flex:1 1 0">
+                <div class="card">
+                    <p-skeleton height="4rem" styleClass="border-round-xl mb-2"></p-skeleton>
+                    <p-skeleton width="60%" height="1.5rem"></p-skeleton>
+                </div>
+            </div>
+        }
+    } @else if (data) {
+        <!-- Total Entradas -->
+        <div class="col-12 sm:col-6 xl:col-2">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Total Entradas</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--green-100,#dcfce7)">
+                        <i class="pi pi-arrow-down text-green-500 text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold text-900 m-0">{{ formatMoneyShort(data.totalInflow) }}</p>
+                <span class="text-xs text-color-secondary">{{ formatMoney(data.totalInflow) }}</span>
+            </div>
+        </div>
+
+        <!-- Posição Líquida -->
+        <div class="col-12 sm:col-6 xl:col-2">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Posição Líquida</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--primary-100,#e0e7ff)">
+                        <i class="pi pi-wallet text-primary text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold text-900 m-0"
+                   [class.text-green-600]="data.netPosition > 0"
+                   [class.text-red-500]="data.netPosition < 0">
+                    {{ formatMoneyShort(data.netPosition) }}
+                </p>
+                <span class="text-xs text-color-secondary">inflow – pendente – vencido</span>
+            </div>
+        </div>
+
+        <!-- Média Mensal -->
+        <div class="col-12 sm:col-6 xl:col-2">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Média Mensal</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--blue-100,#dbeafe)">
+                        <i class="pi pi-chart-line text-blue-500 text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold text-900 m-0">{{ formatMoneyShort(data.averageMonthlyInflow) }}</p>
+                <span class="text-xs text-color-secondary">por mês</span>
+            </div>
+        </div>
+
+        <!-- Pendente -->
+        <div class="col-12 sm:col-6 xl:col-2">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Pendente</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--yellow-100,#fef9c3)">
+                        <i class="pi pi-clock text-yellow-500 text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold m-0"
+                   [class.text-yellow-600]="data.totalPending > 0"
+                   [class.text-900]="data.totalPending === 0">
+                    {{ formatMoneyShort(data.totalPending) }}
+                </p>
+                <span class="text-xs text-color-secondary">por cobrar</span>
+            </div>
+        </div>
+
+        <!-- Vencido -->
+        <div class="col-12 sm:col-6 xl:col-2">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Vencido</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--red-100,#fee2e2)">
+                        <i class="pi pi-exclamation-circle text-red-500 text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold m-0"
+                   [class.text-red-600]="data.totalOverdue > 0"
+                   [class.text-900]="data.totalOverdue === 0">
+                    {{ formatMoneyShort(data.totalOverdue) }}
+                </p>
+                <span class="text-xs text-color-secondary">em atraso</span>
+            </div>
+        </div>
+    }
+
+    <!-- ── Melhor / Pior mês de inflow ───────────────────────────────────── -->
+    @if (!loading && data) {
+        <div class="col-12 sm:col-6">
+            <div class="card border-left-3 border-green-400">
+                <div class="flex align-items-center gap-3">
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:3rem;height:3rem;background:var(--green-100,#dcfce7)">
+                        <i class="pi pi-star-fill text-green-500 text-xl"></i>
+                    </span>
+                    <div>
+                        <span class="text-sm text-color-secondary font-medium">Melhor Mês de Entradas</span>
+                        <p class="font-bold text-lg text-900 m-0">{{ data.bestInflowMonth }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 sm:col-6">
+            <div class="card border-left-3 border-red-400">
+                <div class="flex align-items-center gap-3">
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:3rem;height:3rem;background:var(--red-100,#fee2e2)">
+                        <i class="pi pi-arrow-down text-red-500 text-xl"></i>
+                    </span>
+                    <div>
+                        <span class="text-sm text-color-secondary font-medium">Pior Mês de Entradas</span>
+                        <p class="font-bold text-lg text-900 m-0">{{ data.worstInflowMonth }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── Gráfico de barras agrupadas: cashflow mensal ───────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex align-items-start justify-content-between mb-4">
+                <div>
+                    <p class="text-xl font-semibold m-0">Fluxo de Caixa Mensal</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">
+                        Entradas, pendente, vencido e contratos originados por mês
+                    </p>
+                </div>
+                @if (!loading && data) {
+                    <p-tag value="AOA" severity="info"></p-tag>
+                }
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="360px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (cashflowChartData) {
+                <p-chart type="bar" [data]="cashflowChartData" [options]="cashflowChartOptions" height="360px"></p-chart>
+            } @else {
+                <div class="flex flex-column align-items-center justify-content-center py-6 text-color-secondary">
+                    <i class="pi pi-chart-bar text-4xl mb-3"></i>
+                    <span>Sem dados para o período seleccionado</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Gráfico de linha: crescimento MoM ─────────────────────────────── -->
+    <div class="col-12 xl:col-6">
+        <div class="card h-full">
+            <div class="mb-4">
+                <p class="text-xl font-semibold m-0">Crescimento de Entradas MoM</p>
+                <p class="text-sm text-color-secondary mt-1 mb-0">Variação percentual das entradas mês a mês</p>
+            </div>
+            @if (loading) {
+                <p-skeleton height="280px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (momChartData) {
+                <p-chart type="line" [data]="momChartData" [options]="momChartOptions" height="280px"></p-chart>
+            } @else {
+                <div class="flex flex-column align-items-center justify-content-center py-6 text-color-secondary">
+                    <i class="pi pi-chart-line text-4xl mb-3"></i>
+                    <span>Dados insuficientes para calcular crescimento</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Tabela de detalhe mensal ──────────────────────────────────────── -->
+    @if (!loading && data?.monthlyData?.length) {
+        <div class="col-12 xl:col-6">
+            <div class="card h-full">
+                <p class="text-xl font-semibold m-0 mb-4">Detalhe Mensal</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full" style="border-collapse:collapse;min-width:480px">
+                        <thead>
+                            <tr style="border-bottom:2px solid var(--surface-border)">
+                                <th class="text-left py-2 px-3 text-color-secondary text-sm font-semibold">Mês</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Entradas</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Net Flow</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Cresc.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (month of data!.monthlyData; track month.month) {
+                                <tr style="border-bottom:1px solid var(--surface-border)"
+                                    class="hover:surface-hover transition-colors transition-duration-150">
+                                    <td class="py-3 px-3 font-semibold text-900">{{ monthLabel(month.monthName) }} {{ month.year }}</td>
+                                    <td class="text-right py-3 px-3 text-green-600 font-medium">{{ formatMoney(month.inflow) }}</td>
+                                    <td class="text-right py-3 px-3 font-medium"
+                                        [class.text-green-600]="month.netFlow > 0"
+                                        [class.text-red-500]="month.netFlow < 0"
+                                        [class.text-900]="month.netFlow === 0">
+                                        {{ formatMoney(month.netFlow) }}
+                                    </td>
+                                    <td class="text-right py-3 px-3">
+                                        @if (month.inflowGrowthRate != null) {
+                                            <p-tag [value]="formatGrowth(month.inflowGrowthRate)" [severity]="growthSeverity(month.inflowGrowthRate)"></p-tag>
+                                        } @else {
+                                            <span class="text-color-secondary text-sm">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

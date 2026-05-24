@@ -10,6 +10,11 @@ import {TabViewComponent} from "../../../../shared/components/tables/tab-view/ta
 import {ViewTabComponent} from "../../../../shared/components/view-tab/view-tab.component";
 import {FinanceOverviewDashboardComponent} from "../overview/finance-overview-dashboard.component";
 import {SellersDashboardComponent} from "../sellers/sellers-dashboard.component";
+import {CenterRevenueDashboardComponent} from "../center-revenue/center-revenue-dashboard.component";
+import {SellerEvolutionDashboardComponent} from "../seller-evolution/seller-evolution-dashboard.component";
+import {AnalyticsGrowthDashboardComponent} from "../analytics-growth/analytics-growth-dashboard.component";
+import {AnalyticsHeatmapDashboardComponent} from "../analytics-heatmap/analytics-heatmap-dashboard.component";
+import {AnalyticsCashflowDashboardComponent} from "../analytics-cashflow/analytics-cashflow-dashboard.component";
 
 type ViewOption = { label: string; value: { key: string; component: any } };
 
@@ -27,6 +32,11 @@ export class FinanceDashboard implements OnInit {
         {label: 'Facturas', value: {key: 'students', component: InvoicesDashboardComponent}},
         {label: 'Pagamentos', value: {key: 'lessons', component: PaymentDashboardComponent}},
         {label: 'Vendedores', value: {key: 'sellers', component: SellersDashboardComponent}},
+        {label: 'Centros',    value: {key: 'centers',         component: CenterRevenueDashboardComponent}},
+        {label: 'Consultores', value: {key: 'seller-evolution', component: SellerEvolutionDashboardComponent}},
+        {label: 'Crescimento', value: {key: 'analytics-growth',    component: AnalyticsGrowthDashboardComponent}},
+        {label: 'Heatmap',     value: {key: 'analytics-heatmap',  component: AnalyticsHeatmapDashboardComponent}},
+        {label: 'Fluxo Caixa', value: {key: 'analytics-cashflow', component: AnalyticsCashflowDashboardComponent}},
     ];
 
     ngOnInit() {

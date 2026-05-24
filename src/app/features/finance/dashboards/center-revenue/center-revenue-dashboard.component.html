@@ -1,0 +1,283 @@
+<div class="grid">
+    @let loading = (loading$ | async) ?? false;
+
+    <!-- ── Filter bar ─────────────────────────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+
+                <p-select
+                    [options]="(centerOptions$ | async) ?? []"
+                    [(ngModel)]="selectedCenterId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Todos os centros"
+                    styleClass="min-w-14rem"
+                ></p-select>
+
+                <p-datepicker
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Data início – Data fim"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-datepicker>
+
+                <p-button
+                    label="Aplicar"
+                    icon="pi pi-filter"
+                    (onClick)="applyFilter()"
+                    [loading]="loading"
+                ></p-button>
+
+                <p-button
+                    label="Limpar"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilter()"
+                    [disabled]="loading || (!dateRange.length && !selectedCenterId)"
+                ></p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────────────────────── -->
+    @if (error) {
+        <div class="col-12">
+            <div class="card border-red-300 bg-red-50">
+                <div class="flex align-items-center gap-2 text-red-600">
+                    <i class="pi pi-exclamation-triangle text-xl"></i>
+                    <span class="font-semibold">{{ error }}</span>
+                    <p-button
+                        label="Tentar novamente"
+                        icon="pi pi-refresh"
+                        severity="danger"
+                        [text]="true"
+                        size="small"
+                        (onClick)="retryLoad()"
+                        class="ml-2"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── KPIs de topo ───────────────────────────────────────────────────── -->
+    @if (loading) {
+        @for (_ of [1,2,3,4]; track $index) {
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card">
+                    <p-skeleton height="4rem" styleClass="border-round-xl mb-2"></p-skeleton>
+                    <p-skeleton width="60%" height="1.5rem"></p-skeleton>
+                </div>
+            </div>
+        }
+    } @else if (data.length) {
+        <!-- Total Receita -->
+        <div class="col-12 sm:col-6 xl:col-3">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Receita Total</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--primary-100,#e0e7ff)">
+                        <i class="pi pi-chart-bar text-primary text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold text-900 m-0">{{ formatMoney(totalRevenue) }}</p>
+                <span class="text-xs text-color-secondary">{{ data.length }} centro(s)</span>
+            </div>
+        </div>
+
+        <!-- Total Cobrado -->
+        <div class="col-12 sm:col-6 xl:col-3">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Total Cobrado</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--green-100,#dcfce7)">
+                        <i class="pi pi-check-circle text-green-500 text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold text-900 m-0">{{ formatMoney(totalCollected) }}</p>
+                <span class="text-xs text-color-secondary">de {{ formatMoney(totalRevenue) }}</span>
+            </div>
+        </div>
+
+        <!-- Total Pendente -->
+        <div class="col-12 sm:col-6 xl:col-3">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Total Pendente</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--yellow-100,#fef9c3)">
+                        <i class="pi pi-clock text-yellow-500 text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold text-900 m-0">{{ formatMoney(totalPending) }}</p>
+                <span class="text-xs text-color-secondary">por cobrar</span>
+            </div>
+        </div>
+
+        <!-- Taxa Média de Cobrança -->
+        <div class="col-12 sm:col-6 xl:col-3">
+            <div class="card flex flex-column gap-1">
+                <div class="flex align-items-center justify-content-between">
+                    <span class="text-color-secondary text-sm font-medium">Taxa Méd. Cobrança</span>
+                    <span class="flex align-items-center justify-content-center border-round"
+                          style="width:2.5rem;height:2.5rem;background:var(--blue-100,#dbeafe)">
+                        <i class="pi pi-percentage text-blue-500 text-xl"></i>
+                    </span>
+                </div>
+                <p class="text-2xl font-bold text-900 m-0">{{ avgCollectionRate.toFixed(1) }}%</p>
+                <span class="text-xs text-color-secondary">média dos centros</span>
+            </div>
+        </div>
+    }
+
+    <!-- ── Gráfico de barras empilhadas — Receita por Centro e Mês ────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex align-items-start justify-content-between mb-4">
+                <div>
+                    <p class="text-xl font-semibold m-0">Receita por Centro e Mês</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">
+                        Distribuição mensal acumulada da receita por centro
+                    </p>
+                </div>
+                @if (!loading && data.length) {
+                    <p-tag value="AOA" severity="info"></p-tag>
+                }
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="360px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (revenueByMonthChartData) {
+                <p-chart
+                    type="bar"
+                    [data]="revenueByMonthChartData"
+                    [options]="revenueByMonthChartOptions"
+                    height="360px"
+                ></p-chart>
+            } @else {
+                <div class="flex flex-column align-items-center justify-content-center py-6 text-color-secondary">
+                    <i class="pi pi-chart-bar text-4xl mb-3"></i>
+                    <span>Sem dados para o período seleccionado</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Gráfico de linha — Crescimento de Cobranças ────────────────────── -->
+    <div class="col-12 xl:col-8">
+        <div class="card h-full">
+            <div class="mb-4">
+                <p class="text-xl font-semibold m-0">Crescimento de Cobranças</p>
+                <p class="text-sm text-color-secondary mt-1 mb-0">
+                    Evolução mensal dos valores cobrados por centro
+                </p>
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="300px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (growthChartData) {
+                <p-chart
+                    type="line"
+                    [data]="growthChartData"
+                    [options]="growthChartOptions"
+                    height="300px"
+                ></p-chart>
+            } @else {
+                <div class="flex flex-column align-items-center justify-content-center py-6 text-color-secondary">
+                    <i class="pi pi-chart-line text-4xl mb-3"></i>
+                    <span>Sem dados para o período seleccionado</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Gráfico horizontal — Comparação por Centro ─────────────────────── -->
+    <div class="col-12 xl:col-4">
+        <div class="card h-full">
+            <div class="mb-4">
+                <p class="text-xl font-semibold m-0">Comparação por Centro</p>
+                <p class="text-sm text-color-secondary mt-1 mb-0">
+                    Receita total vs cobrado por centro
+                </p>
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="300px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (centerCompareChartData) {
+                <p-chart
+                    type="bar"
+                    [data]="centerCompareChartData"
+                    [options]="centerCompareChartOptions"
+                    height="300px"
+                ></p-chart>
+            } @else {
+                <div class="flex flex-column align-items-center justify-content-center py-6 text-color-secondary">
+                    <i class="pi pi-building text-4xl mb-3"></i>
+                    <span>Sem dados para o período seleccionado</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Tabela de resumo por centro ───────────────────────────────────────── -->
+    @if (!loading && data.length) {
+        <div class="col-12">
+            <div class="card">
+                <p class="text-xl font-semibold m-0 mb-4">Resumo por Centro</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full" style="border-collapse:collapse;min-width:700px">
+                        <thead>
+                            <tr style="border-bottom:2px solid var(--surface-border)">
+                                <th class="text-left py-2 px-3 text-color-secondary text-sm font-semibold">Centro</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Receita Total</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Cobrado</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Pendente</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Em Atraso</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Contratos</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Taxa Cob.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (center of data; track center.centerId; let i = $index) {
+                                <tr style="border-bottom:1px solid var(--surface-border)"
+                                    class="hover:surface-hover transition-colors transition-duration-150">
+                                    <td class="py-3 px-3">
+                                        <div class="flex align-items-center gap-2">
+                                            <span class="border-round flex-shrink-0"
+                                                  [style.background]="colorFor(i)"
+                                                  style="width:10px;height:10px;display:inline-block"></span>
+                                            <span class="font-semibold text-900">{{ center.centerName }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-right py-3 px-3 font-medium text-900">{{ formatMoney(center.totalRevenue) }}</td>
+                                    <td class="text-right py-3 px-3 text-green-600 font-medium">{{ formatMoney(center.totalCollected) }}</td>
+                                    <td class="text-right py-3 px-3 text-yellow-600 font-medium">{{ formatMoney(center.totalPending) }}</td>
+                                    <td class="text-right py-3 px-3"
+                                        [class.text-red-600]="center.totalOverdue > 0"
+                                        [class.text-color-secondary]="center.totalOverdue === 0">
+                                        {{ formatMoney(center.totalOverdue) }}
+                                    </td>
+                                    <td class="text-right py-3 px-3 text-color-secondary">{{ center.totalContracts }}</td>
+                                    <td class="text-right py-3 px-3">
+                                        <p-tag
+                                            [value]="center.collectionRate.toFixed(1) + '%'"
+                                            [severity]="center.collectionRate >= 80 ? 'success' : center.collectionRate >= 50 ? 'warn' : 'danger'"
+                                        ></p-tag>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

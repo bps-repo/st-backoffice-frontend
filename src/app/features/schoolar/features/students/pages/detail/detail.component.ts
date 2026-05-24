@@ -24,6 +24,7 @@ import {MessageService, MenuItem} from 'primeng/api';
 import {StudentPaymentTabComponent} from "./tabs/payments/payment.tab.component";
 import {StudentLessonsTabComponent} from "./tabs/lessons/lessons.tab.component";
 import {GeneralComponent} from "./tabs/general/general.component";
+import {StudentCertificatesTabComponent} from "./tabs/certificates/certificates.tab.component";
 
 
 @Component({
@@ -47,6 +48,7 @@ import {GeneralComponent} from "./tabs/general/general.component";
         StudentPaymentTabComponent,
         StudentLessonsTabComponent,
         GeneralComponent,
+        StudentCertificatesTabComponent,
     ],
     providers: [DatePipe, MessageService],
     templateUrl: './detail.component.html',
@@ -70,6 +72,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         {label: 'Historico de aulas', value: 'lessons'},
         {label: 'Avaliações', value: 'assessments'},
         {label: 'Contratos', value: 'payments'},
+        {label: 'Certificados', value: 'certificates'},
     ];
 
     // Documents menu

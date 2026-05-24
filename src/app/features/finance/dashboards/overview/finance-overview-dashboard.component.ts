@@ -6,7 +6,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { ChartModule } from 'primeng/chart';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
@@ -33,7 +33,7 @@ import { FinanceOverview, FinanceOverviewFilter } from '../../../../core/models/
         ChartModule,
         DatePickerModule,
         ButtonModule,
-        DropdownModule,
+        SelectModule,
         SkeletonModule,
         TagModule,
         TooltipModule,
@@ -43,7 +43,6 @@ import { FinanceOverview, FinanceOverviewFilter } from '../../../../core/models/
 export class FinanceOverviewDashboardComponent implements OnInit {
     private readonly store = inject(Store);
 
-    /** Driven by NgRx `selectFinanceOverviewLoading` — use `(loading$ | async)` in the template. */
     readonly loading$: Observable<boolean> = this.store
         .select(selectFinanceOverviewLoading)
         .pipe(distinctUntilChanged());
@@ -52,14 +51,20 @@ export class FinanceOverviewDashboardComponent implements OnInit {
     error: string | null = null;
     dateRange: Date[] = [];
 
+    // ── Charts ────────────────────────────────────────────────────────────────
     revenueChartData: any;
     revenueChartOptions: any;
+
     collectionChartData: any;
     collectionChartOptions: any;
+
     contractChartData: any;
     contractChartOptions: any;
 
-    /** Empty string = todos os centros (sem `centerId` na API). */
+    avgMetricsChartData: any;
+    avgMetricsChartOptions: any;
+
+    // ── Filter ────────────────────────────────────────────────────────────────
     selectedCenterId = '';
 
     readonly centerOptions$: Observable<SelectItem[]> = this.store.select(CenterSelectors.selectAllCenters).pipe(
@@ -98,23 +103,16 @@ export class FinanceOverviewDashboardComponent implements OnInit {
         this.dispatchLoad();
     }
 
-    applyFilter(): void {
-        this.dispatchLoad();
-    }
+    applyFilter(): void { this.dispatchLoad(); }
 
     clearFilter(): void {
         this.dateRange = [];
         this.selectedCenterId = '';
         const today = new Date();
         const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        this.store.dispatch(
-            FinanceOverviewActions.loadOverview({
-                filter: {
-                    dateFrom: this.toISODate(firstOfMonth),
-                    dateTo: this.toISODate(today),
-                },
-            }),
-        );
+        this.store.dispatch(FinanceOverviewActions.loadOverview({
+            filter: { dateFrom: this.toISODate(firstOfMonth), dateTo: this.toISODate(today) },
+        }));
     }
 
     retryLoad(): void {
@@ -122,41 +120,78 @@ export class FinanceOverviewDashboardComponent implements OnInit {
         this.dispatchLoad();
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    formatCurrency(value: number, currency = 'AOA'): string {
+        return new Intl.NumberFormat('pt-AO', {
+            style: 'currency', currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(value ?? 0);
+    }
+
+    formatCurrencyShort(value: number, currency = 'AOA'): string {
+        if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M ${currency}`;
+        if (value >= 1_000)     return `${(value / 1_000).toFixed(0)}K ${currency}`;
+        return this.formatCurrency(value, currency);
+    }
+
+    get collectionRatePercent(): string {
+        return (this.overview?.collectionRate ?? 0).toFixed(1) + '%';
+    }
+
+    get revenueGrowthPositive(): boolean {
+        return (this.overview?.revenueGrowth ?? 0) >= 0;
+    }
+
+    // ── Private ───────────────────────────────────────────────────────────────
+
     private dispatchLoad(): void {
         const filter: FinanceOverviewFilter = {};
         if (this.dateRange?.[0]) filter.dateFrom = this.toISODate(this.dateRange[0]);
-        if (this.dateRange?.[1]) filter.dateTo = this.toISODate(this.dateRange[1]);
+        if (this.dateRange?.[1]) filter.dateTo   = this.toISODate(this.dateRange[1]);
         if (this.selectedCenterId) filter.centerId = this.selectedCenterId;
         this.store.dispatch(FinanceOverviewActions.loadOverview({ filter }));
     }
 
     private toISODate(date: Date): string {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     }
 
     private initCharts(data: FinanceOverview): void {
-        const style = getComputedStyle(document.documentElement);
-        const textColor = style.getPropertyValue('--text-color');
-        const borderColor = style.getPropertyValue('--surface-border');
+        const s        = getComputedStyle(document.documentElement);
+        const text     = s.getPropertyValue('--text-color').trim()         || '#495057';
+        const textMuted= s.getPropertyValue('--text-color-secondary').trim()|| '#6c757d';
+        const border   = s.getPropertyValue('--surface-border').trim()      || '#dee2e6';
+        const surface  = s.getPropertyValue('--surface-100').trim()         || '#f8f9fa';
 
+        const primary  = s.getPropertyValue('--primary-500').trim()  || '#6366f1';
+        const green    = s.getPropertyValue('--green-500').trim()     || '#22c55e';
+        const yellow   = s.getPropertyValue('--yellow-500').trim()    || '#eab308';
+        const red      = s.getPropertyValue('--red-500').trim()       || '#ef4444';
+        const blue     = s.getPropertyValue('--blue-500').trim()      || '#3b82f6';
+        const orange   = s.getPropertyValue('--orange-500').trim()    || '#f97316';
+
+        const tooltipCurrency = (ctx: any) =>
+            ` ${this.formatCurrency(ctx.parsed.y ?? ctx.parsed.x ?? ctx.parsed, data.currency)}`;
+
+        // ── 1. Revenue Bar ────────────────────────────────────────────────────
         this.revenueChartData = {
-            labels: ['Receita Total', 'Cobrado', 'Pendente', 'Em Atraso'],
-            datasets: [
-                {
-                    label: 'Valor (AOA)',
-                    data: [data.totalRevenue, data.totalCollected, data.totalPending, data.overdueAmount],
-                    backgroundColor: [
-                        style.getPropertyValue('--primary-500'),
-                        style.getPropertyValue('--green-500'),
-                        style.getPropertyValue('--yellow-500'),
-                        style.getPropertyValue('--red-500'),
-                    ],
-                    borderRadius: 6,
-                },
-            ],
+            labels: ['Receita Total', 'Receita Mensal', 'Receita Anual', 'Média Mensal'],
+            datasets: [{
+                label: 'Valor',
+                data: [data.totalRevenue, data.monthlyRevenue, data.yearlyRevenue, data.averageMonthlyIncome],
+                backgroundColor: [
+                    primary + 'cc',
+                    blue    + 'cc',
+                    green   + 'cc',
+                    orange  + 'cc',
+                ],
+                borderColor: [primary, blue, green, orange],
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+            }],
         };
 
         this.revenueChartOptions = {
@@ -165,95 +200,143 @@ export class FinanceOverviewDashboardComponent implements OnInit {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    callbacks: {
-                        label: (ctx: any) => ` ${this.formatCurrency(ctx.parsed.y, data.currency)}`,
-                    },
+                    callbacks: { label: tooltipCurrency },
                 },
             },
             scales: {
-                x: { ticks: { color: textColor }, grid: { color: borderColor } },
+                x: {
+                    ticks: { color: text, font: { weight: '500' } },
+                    grid: { display: false },
+                    border: { display: false },
+                },
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        color: textColor,
-                        callback: (v: number) => this.formatCurrency(v, data.currency),
+                        color: textMuted,
+                        callback: (v: number) => this.formatCurrencyShort(v, data.currency),
                     },
-                    grid: { color: borderColor },
+                    grid: { color: border },
+                    border: { display: false },
                 },
             },
         };
 
+        // ── 2. Collection Doughnut ────────────────────────────────────────────
         this.collectionChartData = {
-            labels: ['Cobrado', 'Por Cobrar'],
-            datasets: [
-                {
-                    data: [data.totalCollected, data.totalPending],
-                    backgroundColor: [
-                        style.getPropertyValue('--green-500'),
-                        style.getPropertyValue('--surface-300'),
-                    ],
-                    hoverBackgroundColor: [
-                        style.getPropertyValue('--green-400'),
-                        style.getPropertyValue('--surface-200'),
-                    ],
-                },
-            ],
+            labels: ['Cobrado', 'Pendente', 'Em Atraso'],
+            datasets: [{
+                data: [data.totalCollected, data.totalPending - data.overdueAmount, data.overdueAmount],
+                backgroundColor: [green + 'dd', yellow + 'dd', red + 'dd'],
+                hoverBackgroundColor: [green, yellow, red],
+                borderColor: [green, yellow, red],
+                borderWidth: 2,
+            }],
         };
 
         this.collectionChartOptions = {
-            cutout: '70%',
+            cutout: '72%',
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: textColor, usePointStyle: true, padding: 16 },
+                    labels: { color: text, usePointStyle: true, padding: 20, font: { size: 12 } },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx: any) =>
+                            ` ${ctx.label}: ${this.formatCurrency(ctx.parsed, data.currency)}`,
+                    },
                 },
             },
         };
 
+        // ── 3. Contracts Horizontal Bar ───────────────────────────────────────
         this.contractChartData = {
-            labels: ['Contratos Activos', 'Novos (mês)', 'Novos (ano)'],
-            datasets: [
-                {
-                    label: 'Contratos',
-                    data: [
-                        data.totalActiveContracts,
-                        data.newContractsThisMonth,
-                        data.newContractsThisYear,
-                    ],
-                    backgroundColor: style.getPropertyValue('--primary-400'),
-                    borderRadius: 6,
-                },
-            ],
+            labels: ['Activos', 'Novos este Mês', 'Novos este Ano'],
+            datasets: [{
+                label: 'Contratos',
+                data: [data.totalActiveContracts, data.newContractsThisMonth, data.newContractsThisYear],
+                backgroundColor: [primary + 'cc', blue + 'cc', green + 'cc'],
+                borderColor: [primary, blue, green],
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false,
+            }],
         };
 
         this.contractChartOptions = {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx: any) => ` ${ctx.parsed.x} contrato(s)`,
+                    },
+                },
+            },
             scales: {
-                x: { ticks: { color: textColor }, grid: { display: false } },
-                y: {
+                x: {
                     beginAtZero: true,
-                    ticks: { color: textColor, stepSize: 1 },
-                    grid: { color: borderColor },
+                    ticks: { color: textMuted, stepSize: 1 },
+                    grid: { color: border },
+                    border: { display: false },
+                },
+                y: {
+                    ticks: { color: text, font: { weight: '600' } },
+                    grid: { display: false },
+                    border: { display: false },
                 },
             },
         };
-    }
 
-    formatCurrency(value: number, currency = 'AOA'): string {
-        return new Intl.NumberFormat('pt-AO', {
-            style: 'currency',
-            currency,
-            minimumFractionDigits: 2,
-        }).format(value);
-    }
+        // ── 4. Avg Metrics Polar Area ─────────────────────────────────────────
+        this.avgMetricsChartData = {
+            labels: ['Cobrado Mensal', 'Valor Médio Contrato', 'Receita Mensal', 'Média Mensal'],
+            datasets: [{
+                data: [
+                    data.monthlyCollected,
+                    data.averageContractValue,
+                    data.monthlyRevenue,
+                    data.averageMonthlyIncome,
+                ],
+                backgroundColor: [
+                    green  + '99',
+                    primary+ '99',
+                    blue   + '99',
+                    orange + '99',
+                ],
+                borderColor: [green, primary, blue, orange],
+                borderWidth: 2,
+            }],
+        };
 
-    get collectionRatePercent(): string {
-        return (this.overview?.collectionRate ?? 0).toFixed(2) + '%';
-    }
-
-    get revenueGrowthPositive(): boolean {
-        return (this.overview?.revenueGrowth ?? 0) >= 0;
+        this.avgMetricsChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: text, usePointStyle: true, padding: 16, font: { size: 11 } },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx: any) =>
+                            ` ${ctx.label}: ${this.formatCurrency(ctx.parsed.r, data.currency)}`,
+                    },
+                },
+            },
+            scales: {
+                r: {
+                    ticks: {
+                        display: false,
+                        backdropColor: 'transparent',
+                    },
+                    grid: { color: border },
+                },
+            },
+        };
     }
 }

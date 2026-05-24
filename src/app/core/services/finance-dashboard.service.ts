@@ -32,6 +32,11 @@ import {
     FinanceSellersFilter,
 } from '../models/finance/finance-sellers.model';
 import { PageableResponse } from '../models/ApiResponseService';
+import { CenterRevenue, CenterRevenueFilter } from '../models/finance/center-revenue.model';
+import { SellerEvolution, SellerEvolutionFilter } from '../models/finance/seller-evolution.model';
+import { AnalyticsGrowth, AnalyticsGrowthFilter } from '../models/finance/analytics-growth.model';
+import { AnalyticsHeatmap, AnalyticsHeatmapFilter } from '../models/finance/analytics-heatmap.model';
+import { AnalyticsCashflow, AnalyticsCashflowFilter } from '../models/finance/analytics-cashflow.model';
 
 export type ExportFormat = 'pdf' | 'csv' | 'excel';
 
@@ -306,6 +311,64 @@ export class FinanceDashboardService {
         if (filter.centerId) params = params.set('centerId', filter.centerId);
 
         return this.http.get(`${environment.apiUrl}/reports/finance/sellers/export`, { params, responseType: 'blob' });
+    }
+
+    getSellerEvolution(filter: SellerEvolutionFilter): Observable<SellerEvolution[]> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo',   filter.dateTo);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        const url = filter.sellerId
+            ? `${environment.apiUrl}/dashboards/analytics/sellers/${filter.sellerId}/evolution`
+            : `${environment.apiUrl}/dashboards/analytics/sellers/evolution`;
+
+        return this.http
+            .get<ApiResponse<SellerEvolution[]>>(url, { params })
+            .pipe(map((res) => res.data));
+    }
+
+    getAnalyticsCashflow(filter: AnalyticsCashflowFilter): Observable<AnalyticsCashflow> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo',   filter.dateTo);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http
+            .get<ApiResponse<AnalyticsCashflow>>(`${environment.apiUrl}/dashboards/analytics/cashflow`, { params })
+            .pipe(map((res) => res.data));
+    }
+
+    getAnalyticsGrowth(filter: AnalyticsGrowthFilter): Observable<AnalyticsGrowth> {
+        const params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo',   filter.dateTo);
+
+        return this.http
+            .get<ApiResponse<AnalyticsGrowth>>(`${environment.apiUrl}/dashboards/analytics/growth`, { params })
+            .pipe(map((res) => res.data));
+    }
+
+    getAnalyticsHeatmap(filter: AnalyticsHeatmapFilter): Observable<AnalyticsHeatmap> {
+        const params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo',   filter.dateTo)
+            .set('year',     String(filter.year));
+
+        return this.http
+            .get<ApiResponse<AnalyticsHeatmap>>(`${environment.apiUrl}/dashboards/analytics/heatmap`, { params })
+            .pipe(map((res) => res.data));
+    }
+
+    getCenterRevenue(filter: CenterRevenueFilter): Observable<CenterRevenue[]> {
+        let params = new HttpParams()
+            .set('dateFrom', filter.dateFrom)
+            .set('dateTo', filter.dateTo);
+        if (filter.centerId) params = params.set('centerId', filter.centerId);
+
+        return this.http
+            .get<ApiResponse<CenterRevenue[]>>(`${environment.apiUrl}/dashboards/analytics/center-revenue`, { params })
+            .pipe(map((res) => res.data));
     }
 
     private toISODate(date: Date): string {

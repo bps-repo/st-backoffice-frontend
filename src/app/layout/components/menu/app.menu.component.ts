@@ -176,6 +176,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                     || this.hasPermission('users.edit')
                     || this.hasPermission('users.create')
                     || this.hasPermission('users.delete')
+                    || this.hasPermission('services.view')
                 ),
                 items: [
                     {
@@ -191,6 +192,12 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/corporate/centers'],
                         visible: this.hasPermission('centers.view')
+                    },
+                    {
+                        label: 'Produtos e serviços',
+                        icon: 'pi pi-fw pi-box',
+                        routerLink: ['/corporate/services'],
+                        visible: this.hasPermission('services.view')
                     },
                     {
                         label: 'Relatório',

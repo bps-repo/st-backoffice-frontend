@@ -207,5 +207,10 @@
             </div>
         </div>
         }
+
+        <!-- Certificados Tab Content -->
+        @if (currentView === 'certificates') {
+        <scholar-student-certificates-tab [studentId]="studentId"></scholar-student-certificates-tab>
+        }
     </div>
 </div>
