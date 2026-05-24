@@ -7,10 +7,18 @@ import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { FileUploadModule } from 'primeng/fileupload';
+import { DialogModule } from 'primeng/dialog';
+import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 import { Subject, takeUntil } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { MessageService } from 'primeng/api';
 import { Student } from 'src/app/core/models/academic/students/student';
 import { StudentUnitProgress } from 'src/app/core/models/academic/students/student-unit-progress';
 import { StudentService } from 'src/app/core/services/student.service';
+import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
+import { selectLoadingPhoto } from 'src/app/core/store/schoolar/students/students.selectors';
 
 @Component({
     selector: 'app-general',
@@ -24,13 +32,24 @@ import { StudentService } from 'src/app/core/services/student.service';
         TagModule,
         ButtonModule,
         ProgressBarModule,
+        FileUploadModule,
+        DialogModule,
     ],
     templateUrl: './general.component.html',
+    styleUrl: './general.component.scss',
 })
 export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     private studentService = inject(StudentService);
     private cdr = inject(ChangeDetectorRef);
     private destroy$ = new Subject<void>();
+    private store = inject(Store);
+    private actions$ = inject(Actions);
+    private messageService = inject(MessageService);
+
+    uploadingPhoto = this.store.selectSignal(selectLoadingPhoto);
+
+    /** Modal for choosing a new profile photo (opened from pencil on avatar). */
+    photoUploadDialogVisible = false;
 
     @Input() student: Student | null = null;
     @Input() studentId: string | null = null;
@@ -41,6 +60,31 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     personalInfo: { title: string; value: string | number }[] = [];
 
     ngOnInit(): void {
+        this.actions$.pipe(
+            ofType(StudentsActions.updateStudentPhotoSuccess),
+            filter(({ student }) => student.id === this.studentId),
+            takeUntil(this.destroy$)
+        ).subscribe(() => {
+            this.photoUploadDialogVisible = false;
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: 'Foto do aluno atualizada.',
+            });
+        });
+
+        this.actions$.pipe(
+            ofType(StudentsActions.updateStudentPhotoFailure),
+            filter(({ studentId }) => studentId === this.studentId),
+            takeUntil(this.destroy$)
+        ).subscribe(({ error }) => {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erro',
+                detail: error,
+            });
+        });
+
         if (this.student) {
             this.buildPersonalInfo(this.student);
         }
@@ -134,6 +178,20 @@ export class GeneralComponent implements OnInit, OnDestroy, OnChanges {
     get photoUrl(): string {
         return this.student?.user?.photo ||
             'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg';
+    }
+
+    onPhotoSelectedInDialog(event: { files?: File[] }): void {
+        const file = event.files?.[0];
+        if (!file || !this.studentId) {
+            return;
+        }
+        this.store.dispatch(
+            StudentsActions.updateStudentPhoto({ studentId: this.studentId, photoFile: file })
+        );
+    }
+
+    closePhotoUploadDialog(): void {
+        this.photoUploadDialogVisible = false;
     }
 
     getAge(birthdate: string | null | undefined): string {

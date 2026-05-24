@@ -46,6 +46,7 @@ import {LessonStatusLabelPipe} from "../../../../../../shared/pipes/lesson-statu
 import {LessonStatusSeverityPipe} from "../../../../../../shared/pipes/lesson-status-severity.pipe";
 import {LessonStatusClassPipe} from "../../../../../../shared/pipes/lesson-status-class.pipe";
 import {TagModule} from 'primeng/tag';
+import { LessonsDashboardComponent } from "../../../dashboard/components/lessons/lessons-dashboard.component";
 
 interface WeeklyLessonCard {
     time: string;
@@ -68,31 +69,32 @@ interface WeeklyLessonDay {
 @Component({
     selector: 'app-lessons',
     imports: [
-        GlobalTable,
-        DialogModule,
-        ToastModule,
-        CommonModule,
-        DropdownModule,
-        InputTextModule,
-        FormsModule,
-        ButtonModule,
-        RouterModule,
-        ChartModule,
-        CardModule,
-        RippleModule,
-        SelectButtonModule,
-        TooltipModule,
-        LessonReports,
-        CalendarModule,
-        BadgeModule,
-        HasPermissionDirective,
-        InputSwitchModule,
-        KpiIndicatorsComponent,
-        LessonStatusLabelPipe,
-        LessonStatusSeverityPipe,
-        LessonStatusClassPipe,
-        TagModule,
-    ],
+    GlobalTable,
+    DialogModule,
+    ToastModule,
+    CommonModule,
+    DropdownModule,
+    InputTextModule,
+    FormsModule,
+    ButtonModule,
+    RouterModule,
+    ChartModule,
+    CardModule,
+    RippleModule,
+    SelectButtonModule,
+    TooltipModule,
+    LessonReports,
+    CalendarModule,
+    BadgeModule,
+    HasPermissionDirective,
+    InputSwitchModule,
+    KpiIndicatorsComponent,
+    LessonStatusLabelPipe,
+    LessonStatusSeverityPipe,
+    LessonStatusClassPipe,
+    TagModule,
+    LessonsDashboardComponent
+],
     templateUrl: './lessons-list.component.html',
     styles: [`
 
@@ -391,7 +393,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.kpis = [
             {label: 'Total de Aulas',  value: total,     icon: {label: 'calendar',        color: 'text-blue-500'}},
             {label: 'Disponíveis',     value: available, icon: {label: 'user-check',       color: 'text-green-500'}},
-            {label: 'Agendadas',       value: booked,    icon: {label: 'calendar-plus',    color: 'text-yellow-500'}},
             {label: 'Concluídas',      value: completed, icon: {label: 'graduation-cap',   color: 'text-purple-500'}},
             {label: 'Canceladas',      value: cancelled, icon: {label: 'user-cancel',      color: 'text-red-500'}},
             {label: 'Online',          value: online,    icon: {label: 'exclamation-circle',color: 'text-cyan-500'}},
@@ -527,7 +528,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     viewOptions = [
         {label: 'Lista de Aulas', value: 'list'},
         {label: 'Relatórios', value: 'relatorios'},
-        {label: 'Estatísticas', value: 'estatisticas'},
     ];
 
     // References to sticky header elements

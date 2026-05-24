@@ -12,6 +12,8 @@ export const {
     selectLoadingUpdate,
     selectLoadingDelete,
     selectLoadingBulk,
+    selectLoadingPhoto,
+    selectPhotoError,
     selectError,
     selectCreateError,
     selectUpdateError,

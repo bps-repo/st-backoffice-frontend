@@ -124,6 +124,27 @@ export class StudentsEffects {
         )
     );
 
+    updateStudentPhoto$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.updateStudentPhoto),
+            exhaustMap(({studentId, photoFile}) =>
+                this.studentsService.updateStudentPhoto(studentId, photoFile).pipe(
+                    map((student) => StudentsActions.updateStudentPhotoSuccess({student})),
+                    catchError((error: HttpErrorResponse) => {
+                        const body = error.error;
+                        const msg =
+                            typeof body === 'string'
+                                ? body
+                                : typeof body === 'object' && body && 'message' in body
+                                  ? String((body as { message: unknown }).message)
+                                  : error.message || 'Não foi possível atualizar a foto.';
+                        return of(StudentsActions.updateStudentPhotoFailure({studentId, error: msg}));
+                    })
+                )
+            )
+        )
+    );
+
     addStudentToClass$ = createEffect(() =>
         this.actions$.pipe(
             ofType(StudentsActions.addStudentToClass),

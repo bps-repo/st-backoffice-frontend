@@ -62,6 +62,17 @@ export class StudentService {
         return this.http.post<any>(`${this.apiUrl}/photo/create`, photoData);
     }
 
+    /**
+     * Replace student profile photo (multipart field `photo`).
+     */
+    updateStudentPhoto(studentId: string, photoFile: File): Observable<Student> {
+        const formData = new FormData();
+        formData.append('photo', photoFile);
+        return this.http.put<ApiResponse<any>>(`${this.apiUrl}/${studentId}/photo`, formData).pipe(
+            map((response) => this.normalizeStudent(response.data)),
+        );
+    }
+
     addStudentToClass(studentId: string, classId: string): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/add-to-class/${classId}`, {studentId});
     }
@@ -184,12 +195,31 @@ export class StudentService {
         );
     }
 
+    /**
+     * Turn relative photo paths into absolute URLs against the configured API base.
+     * Leaves http(s), data: and blob: URIs unchanged.
+     */
+    private resolveStudentPhotoUrl(photo: string | null | undefined): string | null | undefined {
+        if (photo == null || String(photo).trim() === '') {
+            return photo;
+        }
+        const p = photo.trim();
+        if (/^(https?:\/\/|data:|blob:)/i.test(p)) {
+            return p;
+        }
+        const base = environment.apiUrl.replace(/\/$/, '');
+        return p.startsWith('/') ? `${base}${p}` : `${base}/${p}`;
+    }
+
     // Normalize API student object into front-end Student model
     private normalizeStudent(apiStudent: any): Student {
+        const user = apiStudent.user;
         return {
             id: apiStudent.id,
             code: apiStudent.code,
-            user: apiStudent.user,
+            user: user
+                ? {...user, photo: this.resolveStudentPhotoUrl(user.photo)}
+                : user,
             status: apiStudent.status,
             levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
             center: apiStudent.center || (apiStudent.centerId ? {id: apiStudent.centerId} : null),

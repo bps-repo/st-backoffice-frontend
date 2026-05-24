@@ -7,9 +7,20 @@
 
             <!-- Avatar + name -->
             <div class="flex flex-column align-items-center text-center pb-3">
-                <p-avatar [image]="photoUrl" size="xlarge" shape="circle"
-                          styleClass="mb-3 shadow-2">
-                </p-avatar>
+                <div class="student-photo-wrap">
+                    <p-avatar [image]="photoUrl" size="xlarge" shape="circle"
+                              styleClass="shadow-2">
+                    </p-avatar>
+                    <button
+                        type="button"
+                        pButton
+                        icon="pi pi-pencil"
+                        class="p-button-rounded p-button-secondary student-photo-edit"
+                        [disabled]="uploadingPhoto()"
+                        [attr.aria-label]="'Alterar foto'"
+                        (click)="photoUploadDialogVisible = true">
+                    </button>
+                </div>
                 <span class="text-xl font-bold">
                     {{ student.user.firstname }} {{ student.user.lastname }}
                 </span>
@@ -17,6 +28,47 @@
                 <p-tag [severity]="student.status === 'ACTIVE' ? 'success' : 'warn'"
                        [value]="student.status" styleClass="mt-2"></p-tag>
             </div>
+
+            <p-dialog
+                header="Alterar foto do aluno"
+                [(visible)]="photoUploadDialogVisible"
+                [modal]="true"
+                [draggable]="false"
+                [resizable]="false"
+                [style]="{ width: 'min(420px, 92vw)' }"
+                [breakpoints]="{ '576px': '95vw' }"
+                appendTo="body">
+                <p class="text-sm text-color-secondary m-0 mb-3">
+                    Selecione uma imagem (máx. 5&nbsp;MB). Formatos: JPG, PNG, etc.
+                </p>
+                <p-fileupload
+                    mode="basic"
+                    name="photo"
+                    accept="image/*"
+                    [maxFileSize]="5000000"
+                    [auto]="false"
+                    chooseLabel="Escolher ficheiro"
+                    chooseIcon="pi pi-image"
+                    [disabled]="uploadingPhoto()"
+                    (onSelect)="onPhotoSelectedInDialog($event)">
+                </p-fileupload>
+                @if (uploadingPhoto()) {
+                    <div class="flex align-items-center gap-2 mt-3 text-sm text-color-secondary">
+                        <i class="pi pi-spin pi-spinner"></i>
+                        <span>A enviar…</span>
+                    </div>
+                }
+                <ng-template pTemplate="footer">
+                    <button
+                        pButton
+                        type="button"
+                        label="Fechar"
+                        class="p-button-text"
+                        [disabled]="uploadingPhoto()"
+                        (click)="closePhotoUploadDialog()">
+                    </button>
+                </ng-template>
+            </p-dialog>
 
             <p-divider>
                 <span class="text-sm font-semibold text-color-secondary">Académico</span>

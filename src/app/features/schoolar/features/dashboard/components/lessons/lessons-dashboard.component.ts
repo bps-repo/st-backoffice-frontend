@@ -19,7 +19,7 @@ import {
 } from 'src/app/core/store/schoolar/statistics/statistics.selectors';
 
 @Component({
-    selector: 'app-lessons',
+    selector: 'app-lessons-dashboard',
     standalone: true,
     imports: [
         ChartModule,

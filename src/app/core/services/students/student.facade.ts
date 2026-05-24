@@ -66,4 +66,22 @@ export class StudentFacade {
             this.loading.set(false);
         }
     }
+
+    async updateStudentPhoto(studentId: string, photoFile: File): Promise<Student | null> {
+        this.loading.set(true);
+        this.error.set(null);
+        try {
+            const student = await firstValueFrom(
+                this.studentService.updateStudentPhoto(studentId, photoFile)
+            );
+            return student;
+        } catch (err: any) {
+            this.error.set(
+                err?.error?.message ?? err?.message ?? 'Erro ao atualizar foto do aluno'
+            );
+            return null;
+        } finally {
+            this.loading.set(false);
+        }
+    }
 }

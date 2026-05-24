@@ -86,6 +86,11 @@ export const StudentsActions = createActionGroup({
         'Create Student Photo Success': props<{ response: any }>(),
         'Create Student Photo Failure': props<{ error: string }>(),
 
+        // Update student photo (PUT /students/:id/photo)
+        'Update Student Photo': props<{ studentId: string; photoFile: File }>(),
+        'Update Student Photo Success': props<{ student: Student }>(),
+        'Update Student Photo Failure': props<{ studentId: string; error: string }>(),
+
 
         // Schedule lessons
         'Load Scheduled Lessons': props<{ studentId: string }>(),

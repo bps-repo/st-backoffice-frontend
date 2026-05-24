@@ -253,6 +253,30 @@ export const studentsFeature = createFeature({
             photoError: error,
         })),
 
+        // Update student photo (PUT multipart)
+        on(StudentsActions.updateStudentPhoto, (state) => ({
+            ...state,
+            loadingPhoto: true,
+            photoError: null,
+        })),
+
+        on(StudentsActions.updateStudentPhotoSuccess, (state, {student}) =>
+            studentsAdapter.updateOne(
+                {id: student.id!, changes: student},
+                {
+                    ...state,
+                    loadingPhoto: false,
+                    photoError: null,
+                },
+            )
+        ),
+
+        on(StudentsActions.updateStudentPhotoFailure, (state, {error}) => ({
+            ...state,
+            loadingPhoto: false,
+            photoError: error,
+        })),
+
         // Add student to class
         on(StudentsActions.addStudentToClass, (state) => ({
             ...state,
