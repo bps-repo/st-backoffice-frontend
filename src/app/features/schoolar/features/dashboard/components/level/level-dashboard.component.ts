@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -16,7 +16,7 @@ interface Alert {
 @Component({
     selector: 'app-students-materials-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule, SkeletonModule],
+    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, SkeletonModule],
     templateUrl: './level-dashboard.component.html',
 })
 export class LevelDashboardComponent implements OnInit, OnDestroy {

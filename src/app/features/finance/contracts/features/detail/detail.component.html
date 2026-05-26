@@ -248,7 +248,7 @@
 
         <div class="col-12 mt-3">
             <label class="block mb-2">Data de vencimento</label>
-            <p-calendar [(ngModel)]="editDueDate" dateFormat="yy-mm-dd" [showIcon]="true"></p-calendar>
+            <p-datepicker [(ngModel)]="editDueDate" dateFormat="yy-mm-dd" [showIcon]="true"></p-datepicker>
         </div>
 
         <div class="col-12 mt-3">
@@ -379,8 +379,8 @@
 
         <div class="col-12 mb-3">
             <label for="paymentDate" class="block font-bold mb-2">Data de Pagamento *</label>
-            <p-calendar id="paymentDate" [(ngModel)]="paymentDate" [showIcon]="true" dateFormat="dd/mm/yy"
-                        [style]="{width: '100%'}"></p-calendar>
+            <p-datepicker id="paymentDate" [(ngModel)]="paymentDate" [showIcon]="true" dateFormat="dd/mm/yy"
+                        [style]="{width: '100%'}"></p-datepicker>
         </div>
 
         <div class="col-12 mb-3">

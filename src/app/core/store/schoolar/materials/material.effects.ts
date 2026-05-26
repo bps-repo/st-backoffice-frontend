@@ -4,7 +4,7 @@ import {of} from 'rxjs';
 import {catchError, map, mergeMap} from 'rxjs/operators';
 import {MaterialService} from 'src/app/core/services/material.service';
 import {MaterialActions} from './material.actions';
-import {HttpErrorResponse} from '@angular/common/module.d-CnjH8Dlt';
+import {HttpErrorResponse} from '@angular/common/http';
 
 @Injectable()
 export class MaterialEffects {

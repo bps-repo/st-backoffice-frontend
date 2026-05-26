@@ -17,7 +17,7 @@ import {
     AuthState,
 } from '../../../../core/store/auth/auth.state';
 import {authActions} from '../../../../core/store/auth/auth.actions';
-import {CommonModule} from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {RouterModule} from '@angular/router';
 import * as authSelectors from '../../../../core/store/auth/auth.selectors';
 import {ErrorMessageService} from '../../../../core/services/error-message.service';
@@ -29,7 +29,7 @@ import {ApiError} from "../../../../core/models/ApiError";
     styleUrls: ['./login.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [ReactiveFormsModule, FormsModule, CommonModule, RouterModule]
+    imports: [ReactiveFormsModule, FormsModule, CommonModule, RouterModule, NgOptimizedImage]
 })
 export class LoginComponent implements OnDestroy {
     private store = inject<Store<AuthState>>(Store);
@@ -139,16 +139,6 @@ export class LoginComponent implements OnDestroy {
         if (this.retryTimer) {
             clearInterval(this.retryTimer);
             this.retryTimer = undefined;
-        }
-    }
-
-    private displayErrorMessage(err: string): void {
-        const alertElement = this.el.nativeElement.querySelector('#alert');
-        const messageElement = this.el.nativeElement.querySelector('#message');
-
-        if (alertElement && messageElement) {
-            this.renderer.setProperty(messageElement, 'textContent', err);
-            this.renderer.addClass(alertElement, 'show');
         }
     }
 

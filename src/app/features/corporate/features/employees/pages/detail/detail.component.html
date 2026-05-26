@@ -1,198 +1,201 @@
-<div class="grid" *ngIf="employeeDetails">
-    <div class="col-12">
-        <div class="card">
-            <div class="flex justify-content-between align-items-center mb-5">
-                <h5>Detalhes do Funcionário: {{ employeeDetails.personalInfo.firstName }} {{
-                    employeeDetails.personalInfo.lastName }}</h5>
-                <div>
-                    <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-outlined mr-2"
-                        (click)="editEmployee()"></button>
-                    <button pButton pRipple label="Voltar" icon="pi pi-arrow-left" class="p-button-outlined"
-                        (click)="goBack()"></button>
-                </div>
+<div class="employee-detail-page" *ngIf="employeeDetails">
+    <div class="employee-header">
+        <div class="employee-identity">
+            <div class="employee-avatar">
+                {{ getEmployeeInitials() }}
             </div>
 
-            <p-tabView>
-                <!-- Info Tab -->
-                <p-tabPanel header="Informações">
-                    <div class="grid">
-                        <!-- Personal Information -->
-                        <div class="col-12 md:col-6">
-                            <div class="card">
-                                <h5>Informações Pessoais</h5>
-                                <div class="field">
-                                    <label>ID</label>
-                                    <div>{{ employeeDetails.id }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Nome Completo</label>
-                                    <div>{{ employeeDetails.personalInfo.firstName }} {{
-                                        employeeDetails.personalInfo.lastName }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Nome de Usuário</label>
-                                    <div>{{ employeeDetails.personalInfo.username }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Email</label>
-                                    <div>{{ employeeDetails.personalInfo.email }}</div>
-                                    <small *ngIf="employeeDetails.personalInfo.emailVerified" class="text-green-600">
-                                        <i class="pi pi-check-circle"></i> Verificado
-                                    </small>
-                                    <small *ngIf="!employeeDetails.personalInfo.emailVerified" class="text-orange-600">
-                                        <i class="pi pi-exclamation-triangle"></i> Não verificado
-                                    </small>
-                                </div>
-                                <div class="field">
-                                    <label>Telefone</label>
-                                    <div>{{ employeeDetails.personalInfo.phone || 'Não informado' }}</div>
-                                    <small
-                                        *ngIf="employeeDetails.personalInfo.phone && employeeDetails.personalInfo.phoneVerified"
-                                        class="text-green-600">
-                                        <i class="pi pi-check-circle"></i> Verificado
-                                    </small>
-                                    <small
-                                        *ngIf="employeeDetails.personalInfo.phone && !employeeDetails.personalInfo.phoneVerified"
-                                        class="text-orange-600">
-                                        <i class="pi pi-exclamation-triangle"></i> Não verificado
-                                    </small>
-                                </div>
-                                <div class="field">
-                                    <label>Número de Identificação</label>
-                                    <div>{{ employeeDetails.personalInfo.identificationNumber || 'Não informado' }}
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <label>Gênero</label>
-                                    <div>{{ getGenderLabel(employeeDetails.personalInfo.gender) }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Data de Nascimento</label>
-                                    <div>{{ formatDate(employeeDetails.personalInfo.birthdate) || 'Não informado' }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="employee-meta">
+                <h2 class="employee-name">{{ employeeDetails.personalInfo.firstName }} {{ employeeDetails.personalInfo.lastName }}</h2>
+                <p class="employee-role-center">{{ employeeDetails.role.name }} · {{ employeeDetails.workInfo.centerName || 'Centro não informado' }}</p>
+            </div>
+        </div>
 
-                        <!-- Employment Information -->
-                        <div class="col-12 md:col-6">
-                            <div class="card">
-                                <h5>Informações Profissionais</h5>
-                                <div class="field">
-                                    <label>Centro</label>
-                                    <div>{{ employeeDetails.workInfo.centerName }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Cargo</label>
-                                    <div>{{ employeeDetails.role.name }}</div>
-                                    <small class="text-gray-600">{{ employeeDetails.role.description }}</small>
-                                </div>
-                                <div class="field">
-                                    <label>Data de Contratação</label>
-                                    <div>{{ formatDate(employeeDetails.workInfo.hiringDate) }}</div>
-                                </div>
-                                <div class="field" *ngIf="employeeDetails.workInfo.resignationDate">
-                                    <label>Data de Demissão</label>
-                                    <div>{{ formatDate(employeeDetails.workInfo.resignationDate) }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Salário</label>
-                                    <div>{{ formatCurrency(employeeDetails.workInfo.wage) }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Status da Conta</label>
-                                    <div>
-                                        <p-tag [severity]="getStatusSeverity(employeeDetails.accountStatus)"
-                                            [value]="getStatusLabel(employeeDetails.accountStatus)"></p-tag>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <label>Status do Trabalho</label>
-                                    <div>
-                                        <p-tag [severity]="getStatusSeverity(employeeDetails.workInfo.status)"
-                                            [value]="getStatusLabel(employeeDetails.workInfo.status)"></p-tag>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </p-tabPanel>
-
-                <!-- Roles Tab -->
-                <p-tabPanel header="Funções e Permissões">
-                    <div class="grid">
-                        <!-- Role Information -->
-                        <div class="col-12 md:col-4">
-                            <div class="card">
-                                <h5>Função Principal</h5>
-                                <div class="field">
-                                    <label>Nome da Função</label>
-                                    <div>{{ employeeDetails.role.name }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>Descrição</label>
-                                    <div>{{ employeeDetails.role.description }}</div>
-                                </div>
-                                <div class="field">
-                                    <label>ID da Função</label>
-                                    <div class="text-xs text-gray-500">{{ employeeDetails.role.id }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Permission Summary -->
-                        <div class="col-12 md:col-8">
-                            <div class="card">
-                                <h5>Resumo de Permissões</h5>
-                                <div class="grid">
-                                    <div class="col-12 md:col-4">
-                                        <div class="text-center p-3 bg-blue-50 border-round">
-                                            <div class="text-blue-600 text-2xl font-bold">{{
-                                                employeeDetails.role.permissions.length }}</div>
-                                            <div class="text-blue-800 text-sm font-medium">Permissões da Função</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 md:col-4">
-                                        <div class="text-center p-3 bg-green-50 border-round">
-                                            <div class="text-green-600 text-2xl font-bold">{{
-                                                employeeDetails.additionalPermissions.length }}</div>
-                                            <div class="text-green-800 text-sm font-medium">Permissões Adicionais</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 md:col-4">
-                                        <div class="text-center p-3 bg-gray-50 border-round">
-                                            <div class="text-gray-600 text-2xl font-bold">{{
-                                                employeeDetails.allPermissions.length }}</div>
-                                            <div class="text-gray-800 text-sm font-medium">Total de Permissões</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tree Display of Permissions -->
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="flex align-items-center gap-2 mb-3">
-                                    <i class="pi pi-sitemap text-primary text-xl"></i>
-                                    <h5 class="m-0">Estrutura Hierárquica de Permissões</h5>
-                                </div>
-                                <p class="text-gray-600 mb-4">
-                                    Visualização das permissões organizadas por categorias e subcategorias.
-                                    As permissões estão agrupadas conforme sua hierarquia no sistema.
-                                </p>
-
-                                <app-permission-tree-display [rolePermissions]="employeeDetails.role.permissions"
-                                    [additionalPermissions]="employeeDetails.additionalPermissions"
-                                    [allPermissions]="employeeDetails.allPermissions">
-                                </app-permission-tree-display>
-                            </div>
-                        </div>
-                    </div>
-                </p-tabPanel>
-            </p-tabView>
+        <div class="employee-actions">
+            <button pButton pRipple type="button" label="Voltar" icon="pi pi-arrow-left"
+                class="p-button-outlined action-button" (click)="goBack()"></button>
+            <button pButton pRipple type="button" label="Editar" icon="pi pi-pencil"
+                class="p-button-outlined action-button" (click)="editEmployee()"></button>
         </div>
     </div>
+
+    <div class="quick-stats">
+        <div class="quick-stat-card">
+            <span class="quick-stat-label">Permissões totais</span>
+            <span class="quick-stat-value">{{ getTotalPermissions() }}</span>
+        </div>
+        <div class="quick-stat-card">
+            <span class="quick-stat-label">Data de contratação</span>
+            <span class="quick-stat-value">{{ formatDate(employeeDetails.workInfo.hiringDate) || 'Não informado' }}</span>
+        </div>
+        <div class="quick-stat-card">
+            <span class="quick-stat-label">Status da conta</span>
+            <p-tag [severity]="getStatusSeverity(employeeDetails.accountStatus)"
+                [value]="getStatusLabel(employeeDetails.accountStatus)"></p-tag>
+        </div>
+    </div>
+
+    <p-tabView styleClass="employee-tabs">
+        <p-tabPanel header="Informações">
+            <div class="employee-info-grid">
+                <section class="info-panel">
+                    <h3>INFORMAÇÕES PESSOAIS</h3>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Nome completo</span>
+                        <span class="detail-value">{{ employeeDetails.personalInfo.firstName }} {{ employeeDetails.personalInfo.lastName }}</span>
+                    </div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Nome de usuário</span>
+                        <span class="detail-value">{{ '@' + employeeDetails.personalInfo.username }}</span>
+                    </div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value">{{ employeeDetails.personalInfo.email }}</span>
+                        <small class="verification verified" *ngIf="employeeDetails.personalInfo.emailVerified">
+                            <i class="pi pi-check-circle"></i>
+                            Verificado
+                        </small>
+                        <small class="verification unverified" *ngIf="!employeeDetails.personalInfo.emailVerified">
+                            <i class="pi pi-exclamation-triangle"></i>
+                            Não verificado
+                        </small>
+                    </div>
+
+                    <div class="detail-divider"></div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Telefone</span>
+                        <span class="detail-value muted">{{ employeeDetails.personalInfo.phone || 'Não informado' }}</span>
+                    </div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Número de identificação</span>
+                        <span class="detail-value muted">{{ employeeDetails.personalInfo.identificationNumber || 'Não informado' }}</span>
+                    </div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Gênero</span>
+                        <span class="detail-value">{{ getGenderLabel(employeeDetails.personalInfo.gender) }}</span>
+                    </div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Data de nascimento</span>
+                        <span class="detail-value muted">{{ formatDate(employeeDetails.personalInfo.birthdate) || 'Não informado' }}</span>
+                    </div>
+                </section>
+
+                <section class="info-panel">
+                    <h3>INFORMAÇÕES PROFISSIONAIS</h3>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Centro</span>
+                        <span class="detail-value">{{ employeeDetails.workInfo.centerName || 'Não informado' }}</span>
+                    </div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Cargo</span>
+                        <div class="role-badge">{{ employeeDetails.role.name }}</div>
+                        <small class="role-description">{{ employeeDetails.role.description }}</small>
+                    </div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Data de contratação</span>
+                        <span class="detail-value">{{ formatDate(employeeDetails.workInfo.hiringDate) }}</span>
+                    </div>
+
+                    <div class="detail-field" *ngIf="employeeDetails.workInfo.resignationDate">
+                        <span class="detail-label">Data de demissão</span>
+                        <span class="detail-value">{{ formatDate(employeeDetails.workInfo.resignationDate) }}</span>
+                    </div>
+
+                    <div class="detail-divider"></div>
+
+                    <div class="detail-field">
+                        <span class="detail-label">Salário</span>
+                        <span class="detail-value">{{ formatCurrency(employeeDetails.workInfo.wage || 0) }}</span>
+                    </div>
+
+                    <div class="status-grid">
+                        <div class="status-card">
+                            <span class="status-label">Status da conta</span>
+                            <p-tag [severity]="getStatusSeverity(employeeDetails.accountStatus)"
+                                [value]="getStatusLabel(employeeDetails.accountStatus)"></p-tag>
+                        </div>
+                        <div class="status-card">
+                            <span class="status-label">Status do trabalho</span>
+                            <p-tag [severity]="getStatusSeverity(employeeDetails.workInfo.status)"
+                                [value]="getStatusLabel(employeeDetails.workInfo.status)"></p-tag>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </p-tabPanel>
+
+        <p-tabPanel header="Funções e permissões">
+            <div class="grid">
+                <div class="col-12 md:col-4">
+                    <div class="card">
+                        <h5>Função Principal</h5>
+                        <div class="field">
+                            <label>Nome da Função</label>
+                            <div>{{ employeeDetails.role.name }}</div>
+                        </div>
+                        <div class="field">
+                            <label>Descrição</label>
+                            <div>{{ employeeDetails.role.description }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-8">
+                    <div class="card">
+                        <h5>Resumo de Permissões</h5>
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <div class="text-center p-3 bg-blue-50 border-round">
+                                    <div class="text-blue-600 text-2xl font-bold">{{ employeeDetails.role.permissions.length }}</div>
+                                    <div class="text-blue-800 text-sm font-medium">Permissões da Função</div>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class="text-center p-3 bg-green-50 border-round">
+                                    <div class="text-green-600 text-2xl font-bold">{{ employeeDetails.additionalPermissions.length }}</div>
+                                    <div class="text-green-800 text-sm font-medium">Permissões Adicionais</div>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class="text-center p-3 bg-gray-50 border-round">
+                                    <div class="text-gray-600 text-2xl font-bold">{{ employeeDetails.allPermissions.length }}</div>
+                                    <div class="text-gray-800 text-sm font-medium">Total de Permissões</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card">
+                        <div class="flex align-items-center gap-2 mb-3">
+                            <i class="pi pi-sitemap text-primary text-xl"></i>
+                            <h5 class="m-0">Estrutura Hierárquica de Permissões</h5>
+                        </div>
+                        <p class="text-gray-600 mb-4">
+                            Visualização das permissões organizadas por categorias e subcategorias.
+                            As permissões estão agrupadas conforme sua hierarquia no sistema.
+                        </p>
+
+                        <app-permission-tree-display [rolePermissions]="employeeDetails.role.permissions"
+                            [additionalPermissions]="employeeDetails.additionalPermissions"
+                            [allPermissions]="employeeDetails.allPermissions">
+                        </app-permission-tree-display>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
 </div>
 
 <div class="grid" *ngIf="loading$ | async">

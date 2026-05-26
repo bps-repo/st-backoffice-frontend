@@ -30,7 +30,7 @@ export class ContractService {
     }
 
     getContractsByStudent(studentId: string): Observable<Contract[]> {
-        return this.http.get<ApiResponse<Contract[]>>(`${this.apiUrl}/students/${studentId}/contracts`).pipe(
+        return this.http.get<ApiResponse<Contract[]>>(`${this.apiUrl}/student/${studentId}`).pipe(
             map(response => response.data as Contract[])
         );
     }

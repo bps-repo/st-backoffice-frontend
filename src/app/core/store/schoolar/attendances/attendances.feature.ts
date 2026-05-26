@@ -26,15 +26,15 @@ export const attendancesFeature = createFeature({
             error,
         })),
 
-        // Load attendances by lesson
+        // Load attendances by lesson — stored in scoped map, not the flat array
         on(attendancesActions.loadAttendancesByLesson, (state) => ({
             ...state,
             loading: true,
             error: null,
         })),
-        on(attendancesActions.loadAttendancesByLessonSuccess, (state, { attendances }) => ({
+        on(attendancesActions.loadAttendancesByLessonSuccess, (state, { lessonId, attendances }) => ({
             ...state,
-            attendances,
+            byLessonId: { ...state.byLessonId, [lessonId]: attendances },
             loading: false,
             error: null,
         })),
@@ -44,15 +44,15 @@ export const attendancesFeature = createFeature({
             error,
         })),
 
-        // Load attendances by student
+        // Load attendances by student — stored in scoped map, not the flat array
         on(attendancesActions.loadAttendancesByStudent, (state) => ({
             ...state,
             loading: true,
             error: null,
         })),
-        on(attendancesActions.loadAttendancesByStudentSuccess, (state, { attendances }) => ({
+        on(attendancesActions.loadAttendancesByStudentSuccess, (state, { studentId, attendances }) => ({
             ...state,
-            attendances,
+            byStudentId: { ...state.byStudentId, [studentId]: attendances },
             loading: false,
             error: null,
         })),
@@ -61,6 +61,16 @@ export const attendancesFeature = createFeature({
             loading: false,
             error,
         })),
+
+        // Clear scoped caches on navigation away
+        on(attendancesActions.clearAttendancesByLesson, (state, { lessonId }) => {
+            const { [lessonId]: _, ...rest } = state.byLessonId;
+            return { ...state, byLessonId: rest };
+        }),
+        on(attendancesActions.clearAttendancesByStudent, (state, { studentId }) => {
+            const { [studentId]: _, ...rest } = state.byStudentId;
+            return { ...state, byStudentId: rest };
+        }),
 
         // Load single attendance
         on(attendancesActions.loadAttendance, (state) => ({

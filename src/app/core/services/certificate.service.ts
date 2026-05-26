@@ -1,78 +1,71 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
+import {HttpClient} from '@angular/common/http';
+import {Injectable, inject} from '@angular/core';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
+import {ApiResponse} from '../models/ApiResponseService';
+import {StudentCertificate} from '../models/academic/students/student-certificate';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class CertificateService {
-  private http = inject(HttpClient);
+    private http = inject(HttpClient);
 
-  private apiUrl = `${environment.apiUrl}/certificates`;
+    private apiUrl = `${environment.apiUrl}/certificates`;
 
+    // ── Student certificates ──────────────────────────────────────────────────
 
-  getCertificates(): Observable<any[]> {
-    return this.http.get<ApiResponse<PageableResponse<any[]>>>(this.apiUrl).pipe(
-      map((response) => response.data.content as any[])
-    );
-  }
+    /**
+     * GET /certificates/student/{studentId}
+     * Returns all certificates issued to a student.
+     */
+    getStudentCertificates(studentId: string): Observable<StudentCertificate[]> {
+        return this.http
+            .get<ApiResponse<StudentCertificate[]>>(`${this.apiUrl}/student/${studentId}`)
+            .pipe(map((res) => res.data ?? []));
+    }
 
+    /**
+     * GET /certificates/student/{studentId}/level/{levelId}
+     * Returns the certificate for a specific contracted level.
+     */
+    getCertificateByLevel(studentId: string, levelId: string): Observable<StudentCertificate> {
+        return this.http
+            .get<ApiResponse<StudentCertificate>>(
+                `${this.apiUrl}/student/${studentId}/level/${levelId}`,
+            )
+            .pipe(map((res) => res.data));
+    }
 
-  getCertificateById(id: string): Observable<any> {
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(
-      map((response) => response.data)
-    );
-  }
+    /**
+     * POST /certificates/issue/{studentId}
+     * Issues a certificate for the student's current level.
+     */
+    issueCertificate(studentId: string): Observable<StudentCertificate> {
+        return this.http
+            .post<ApiResponse<StudentCertificate>>(`${this.apiUrl}/issue/${studentId}`, {})
+            .pipe(map((res) => res.data));
+    }
 
+    /**
+     * PUT /certificates/{certificateId}/publish
+     * Publishes the certificate to the student (makes it visible to the student).
+     */
+    publishCertificate(certificateId: string): Observable<StudentCertificate> {
+        return this.http
+            .put<ApiResponse<StudentCertificate>>(`${this.apiUrl}/${certificateId}/publish`, {})
+            .pipe(map((res) => res.data));
+    }
 
-  getStudentCertificates(studentId: string): Observable<any[]> {
-    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/student/${studentId}`).pipe(
-      map((response) => response.data.content as any[])
-    );
-  }
-
-
-  getCertificatesByCourse(courseId: string): Observable<any[]> {
-    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/course/${courseId}`).pipe(
-      map((response) => response.data.content as any[])
-    );
-  }
-
-
-  getCertificatesByLevel(levelId: string): Observable<any[]> {
-    return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.apiUrl}/level/${levelId}`).pipe(
-      map((response) => response.data.content as any[])
-    );
-  }
-
-
-  issueCertificate(studentId: string): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/issue/${studentId}`, {}).pipe(
-      map((response) => response.data)
-    );
-  }
-
-
-  verifyCertificate(certificateId: string): Observable<any> {
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/verify/${certificateId}`).pipe(
-      map((response) => response.data)
-    );
-  }
-
-
-  revokeCertificate(certificateId: string): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/revoke/${certificateId}`, {}).pipe(
-      map((response) => response.data)
-    );
-  }
-
-  
-  downloadCertificate(certificateId: string): Observable<any> {
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/download/${certificateId}`).pipe(
-      map((response) => response.data)
-    );
-  }
+    /**
+     * GET /certificates/download/{certificateId}
+     * Downloads the PDF binary for a given certificate.
+     */
+    downloadCertificate(certificateId: string): Observable<Blob> {
+        return this.http.get(
+            `${this.apiUrl}/download/${certificateId}`,
+            {responseType: 'blob'},
+        );
+    }
 }

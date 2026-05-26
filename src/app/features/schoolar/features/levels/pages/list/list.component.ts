@@ -20,8 +20,8 @@ import {Level} from 'src/app/core/models/course/level';
 import {Unit} from 'src/app/core/models/course/unit';
 import {RippleModule} from "primeng/ripple";
 import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {TabViewModule} from 'primeng/tabview';
+import {SelectModule} from 'primeng/select';
+import {TabsModule} from 'primeng/tabs';
 import {CardModule} from 'primeng/card';
 import {BadgeModule} from 'primeng/badge';
 import {TooltipModule} from 'primeng/tooltip';
@@ -46,8 +46,8 @@ import {toObservable} from "@angular/core/rxjs-interop";
         ButtonModule,
         RippleModule,
         InputTextModule,
-        DropdownModule,
-        TabViewModule,
+        SelectModule,
+        TabsModule,
         CardModule,
         BadgeModule,
         TooltipModule,
@@ -62,12 +62,12 @@ import {toObservable} from "@angular/core/rxjs-interop";
     standalone: true,
     providers: [ConfirmationService],
     styles: [`
-        ::ng-deep .p-tabview .p-tabview-nav {
+        ::ng-deep .p-tabs .p-tablist {
             border: none;
             background: transparent;
         }
 
-        ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+        ::ng-deep .p-tabs .p-tablist .p-tab {
             border: none;
             background: transparent;
             color: var(--text-color);
@@ -76,9 +76,8 @@ import {toObservable} from "@angular/core/rxjs-interop";
             transition: all 0.2s;
         }
 
-        ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+        ::ng-deep .p-tabs .p-tablist .p-tab.p-tab-active {
             background: transparent;
-            border-color: transparent;
             color: var(--primary-color);
             border-bottom: 2px solid var(--primary-color);
         }

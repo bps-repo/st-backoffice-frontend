@@ -27,39 +27,79 @@
 
     <!-- List View -->
     @if (currentView === 'list') {
-        <div class="col-12 animate-fade px-fadein">
-            <div class="card">
-                <div class="flex flex-column gap-3">
-                    <div class="flex gap-2 align-items-center">
-                        <input pInputText type="text" class="w-full" placeholder="Buscar por código, email, username"
-                               [(ngModel)]="searchTerm" (input)="onSearchInput($event)" (keyup.enter)="onSearch()"/>
-                        <button pButton type="button" label="Buscar" (click)="onSearch()"
-                                [loading]="(loading$ | async)!"></button>
-                        <button *ngIf="(isSearchMode$ | async)!" pButton type="button" label="Limpar"
-                                severity="secondary"
-                                (click)="clearSearch()"></button>
-                    </div>
-                    <div class="flex gap-2 align-items-center">
-                        <p-dropdown [options]="(provinces$ | async)!" [(ngModel)]="selectedProvince"
-                                    placeholder="Filtrar por Província" [showClear]="true" optionLabel="label"
-                                    optionValue="value"
-                                    (onChange)="onProvinceFilter($event.value)" styleClass="w-full"></p-dropdown>
-                        <p-dropdown [options]="(municipalities$ | async)!" [(ngModel)]="selectedMunicipality"
-                                    placeholder="Filtrar por Município" [showClear]="true" optionLabel="label"
-                                    optionValue="value"
-                                    (onChange)="onMunicipalityFilter($event.value)" [disabled]="!selectedProvince"
-                                    styleClass="w-full"></p-dropdown>
-                    </div>
-                </div>
+
+        <!-- Search + filter button row -->
+        <div class="col-12 flex justify-content-between align-content-center mb-3 animate-fade px-fadein">
+            <div class="flex gap-2">
+                <span class="p-input-icon-left">
+                    <input type="text" pInputText placeholder="Buscar por código, email, username…"
+                           [(ngModel)]="searchTerm" (input)="onSearchInput($event)"
+                           (keyup.enter)="onSearch()" style="width: 320px" />
+                </span>
+                <button pButton type="button" label="Buscar" (click)="onSearch()"
+                        [loading]="(loading$ | async)!"></button>
+                <button *ngIf="searchTerm" pButton type="button" icon="pi pi-times"
+                        class="p-button-outlined p-button-danger" (click)="searchTerm = ''; clearSearch()"></button>
+            </div>
+            <div class="flex gap-2">
+                <button pButton type="button" icon="pi pi-filter" label="Filtros"
+                        (click)="showFilterDialog = true"
+                        class="p-button-secondary"
+                        [class.p-button-outlined]="!hasActiveFilters"
+                        [class.p-button-info]="hasActiveFilters"></button>
             </div>
         </div>
+
+        <!-- Active filter tags -->
+        @if (hasActiveFilters) {
+        <div class="col-12 flex flex-wrap gap-2 align-items-center mb-3 animate-fade px-fadein">
+            <span class="font-semibold text-sm mr-1">Filtros activos:</span>
+            @if (filterStatus) {
+            <span class="filter-tag">
+                <i class="pi pi-circle mr-1"></i>{{ getStatusLabel(filterStatus) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterStatus = null; applyDialogFilters()"></i>
+            </span>
+            }
+            @if (filterCenterId) {
+            <span class="filter-tag">
+                <i class="pi pi-building mr-1"></i>{{ getCenterLabel(filterCenterId) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterCenterId = null; applyDialogFilters()"></i>
+            </span>
+            }
+            @if (filterLevelId) {
+            <span class="filter-tag">
+                <i class="pi pi-chart-bar mr-1"></i>{{ getLevelLabel(filterLevelId) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterLevelId = null; applyDialogFilters()"></i>
+            </span>
+            }
+            @if (filterProvince) {
+            <span class="filter-tag">
+                <i class="pi pi-map-marker mr-1"></i>{{ filterProvince }}
+                <i class="pi pi-times ml-1 cursor-pointer"
+                   (click)="filterProvince = null; filterMunicipality = null; applyDialogFilters()"></i>
+            </span>
+            }
+            @if (filterMunicipality) {
+            <span class="filter-tag">
+                <i class="pi pi-map mr-1"></i>{{ filterMunicipality }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterMunicipality = null; applyDialogFilters()"></i>
+            </span>
+            }
+            <button pButton type="button" icon="pi pi-trash" label="Limpar Filtros"
+                    class="p-button-sm p-button-text p-button-danger ml-1" (click)="clearFilters()"></button>
+        </div>
+        }
 
         <!-- Student Table -->
         <app-global-table [loading]="loading$ | async" tableLabel="Alunos" [headerActions]="headerActions"
                           [data]="(students$ | async)!" [entity]="'students'" [columns]="columns"
                           [globalFilterFields]="globalFilterFields" [columnTemplates]="customTemplates"
-                          [filterTemplates]="filterTemplates" (rowSelect)="onRowSelect($event)"
+                          (rowSelect)="onRowSelect($event)"
                           (createEntity)="navigateToCreateStudent()"
+                          [lazy]="true"
+                          [totalRecords]="(totalElements$ | async) ?? 0"
+                          [pageSize]="DEFAULT_PAGE_SIZE"
+                          (pageChange)="onPageChange($event)"
                           class="w-full animate-fade px-fadein"></app-global-table>
     }
 
@@ -116,31 +156,67 @@
              class="w-full"></p-badge>
 </ng-template>
 
-<ng-template #actionsTemplate let-center>
+<ng-template #actionsTemplate let-rowData>
     <div class="flex gap-2 justify-content-center">
         <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
-                (click)="navigateToEditStudent(center)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                (click)="navigateToEditStudent(rowData)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+        <button pButton pRipple icon="pi pi-calendar-plus" class="p-button-rounded p-button-text p-button-success"
+                (click)="navigateToScheduleLesson(rowData.id)" pTooltip="Marcar aula" tooltipPosition="top"></button>
     </div>
 </ng-template>
 
-<!-- Filter Templates -->
-<ng-template #statusFilterTemplate let-value let-filterCallback="filterCallback">
-    <p-dropdown [ngModel]="value" [options]="statusOptions" (onChange)="onColumnFilter('status', $event.value || null)"
-                placeholder="Todos" [showClear]="true" [style]="{ 'min-width': '12rem' }">
-        <ng-template let-option pTemplate="item">
-            <span [class]="'customer-badge status-' + option.value">{{ option.label }}</span>
-        </ng-template>
-    </p-dropdown>
-</ng-template>
+<!-- Filter Dialog -->
+<p-dialog [(visible)]="showFilterDialog" [style]="{width: '520px'}" header="Filtrar Alunos" [modal]="true"
+          [draggable]="false" [resizable]="false">
+    <div class="p-fluid">
 
-<ng-template #centerFilterTemplate let-value let-filterCallback="filterCallback">
-    <p-dropdown [ngModel]="value" [options]="(centers$ | async) || []"
-                (onChange)="onColumnFilter('centerId', $event.value?.id || null)" placeholder="Todos" [showClear]="true"
-                optionLabel="name" [style]="{ 'min-width': '12rem' }"></p-dropdown>
-</ng-template>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Província</label>
+                <p-dropdown [options]="(provinces$ | async)!" [(ngModel)]="filterProvince"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todas" [showClear]="true" [filter]="true" appendTo="body"
+                            (onChange)="onDialogProvinceChange($event.value)"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Município</label>
+                <p-dropdown [options]="(municipalities$ | async)!" [(ngModel)]="filterMunicipality"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"
+                            [disabled]="!filterProvince"></p-dropdown>
+            </div>
+        </div>
 
-<ng-template #levelFilterTemplate let-value let-filterCallback="filterCallback">
-    <p-dropdown [ngModel]="value" [options]="(levels$ | async) || []"
-                (onChange)="onColumnFilter('levelId', $event.value?.id || null)" placeholder="Todos" [showClear]="true"
-                optionLabel="name" [style]="{ 'min-width': '12rem' }"></p-dropdown>
-</ng-template>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Status</label>
+                <p-dropdown [options]="statusOptions" [(ngModel)]="filterStatus"
+                            optionLabel="label" optionValue="value"
+                            placeholder="Todos" [showClear]="true" appendTo="body"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Centro</label>
+                <p-dropdown [options]="(centers$ | async) || []" [(ngModel)]="filterCenterId"
+                            optionLabel="name" optionValue="id"
+                            placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Nível</label>
+                <p-dropdown [options]="(levels$ | async) || []" [(ngModel)]="filterLevelId"
+                            optionLabel="name" optionValue="id"
+                            placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Aplicar" icon="pi pi-check"
+                (click)="applyDialogFilters(); showFilterDialog = false"></button>
+        <button pButton type="button" label="Limpar" icon="pi pi-times" class="p-button-outlined"
+                (click)="clearFilters(); showFilterDialog = false"></button>
+    </ng-template>
+</p-dialog>

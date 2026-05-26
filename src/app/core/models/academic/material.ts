@@ -37,6 +37,20 @@ export interface MaterialCreateRequest {
     relations: MaterialRelation[];
 }
 
+/** Used with POST /materials/upload-with-relations (multipart/form-data).
+ *  The server derives fileUrl from the uploaded binary — it is not sent by the client. */
+export interface MaterialUploadRequest {
+    title: string;
+    description: string;
+    fileType: string;
+    type: string;
+    uploaderId: string;
+    active: boolean;
+    availabilityStartDate: string;
+    availabilityEndDate: string;
+    relations: MaterialRelation[];
+}
+
 export interface LegacyMaterial {
     id: string;
     title: string;

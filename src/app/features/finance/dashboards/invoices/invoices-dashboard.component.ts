@@ -1,130 +1,183 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
+import { SelectItem } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
+import { ChartModule } from 'primeng/chart';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
+import { InvoiceTrendsActions } from '../../../../core/store/finance/invoice-trends/invoice-trends.actions';
+import {
+    selectInvoiceTrends,
+    selectInvoiceTrendsError,
+    selectInvoiceTrendsFilter,
+    selectInvoiceTrendsLoading,
+} from '../../../../core/store/finance/invoice-trends/invoice-trends.selectors';
+import { InvoiceTrends } from '../../../../core/models/finance/invoice-trends.model';
+import { CenterActions } from 'src/app/core/store/corporate/center/centers.actions';
+import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.selector';
 
-interface Alert {
-    label: string;
-    description: string;
-}
+const MONTH_LABELS: Record<string, string> = {
+    JANUARY: 'Jan', FEBRUARY: 'Fev', MARCH: 'Mar', APRIL: 'Abr',
+    MAY: 'Mai', JUNE: 'Jun', JULY: 'Jul', AUGUST: 'Ago',
+    SEPTEMBER: 'Set', OCTOBER: 'Out', NOVEMBER: 'Nov', DECEMBER: 'Dez',
+};
 
 @Component({
     selector: 'app-students-materials-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, CalendarModule],
+    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, ButtonModule, DropdownModule, SkeletonModule],
     templateUrl: './invoices-dashboard.component.html',
 })
 export class InvoicesDashboardComponent implements OnInit {
-    pieDataDocs: any;
-    pieDocOptions: any;
+    private readonly store = inject(Store);
+
+    /** NgRx — `selectInvoiceTrendsLoading` */
+    readonly loading$: Observable<boolean> = this.store
+        .select(selectInvoiceTrendsLoading)
+        .pipe(distinctUntilChanged());
+
+    trends: InvoiceTrends | null = null;
+    error: string | null = null;
+    dateRange: Date[] = [];
+
     barChartData: any;
     barChartOptions: any;
-    dateRange: Date[] | undefined;
 
-    alerts: Alert[] = [
-        { label: 'Nova Fatura Pro-Forma', description: 'Fatura no valor de 500€ emitida para cliente X' },
-        { label: 'Recibo Emitido', description: 'Pagamento de 300€ confirmado' },
-        { label: 'Relatório Financeiro', description: 'Relatório mensal de abril gerado' },
-    ];
+    /** Empty string = todos os centros (sem `centerId` na API). */
+    selectedCenterId = '';
 
-    kpis = [
-        { label: 'Total Faturado (Mês)', current: 8500, diff: 15 },
-        { label: 'Faturas Pro-Forma', current: 23, diff: 10 },
-        { label: 'Recibos Emitidos', current: 18, diff: -5 },
-        { label: 'Relatórios Gerados', current: 6, diff: 20 },
-    ];
+    readonly centerOptions$: Observable<SelectItem[]> = this.store.select(CenterSelectors.selectAllCenters).pipe(
+        map((centers) => [
+            { label: 'Todos os centros', value: '' },
+            ...centers.map((c) => ({ label: c.name, value: c.id })),
+        ]),
+    );
 
-    constructor() {}
+    constructor() {
+        this.store.select(selectInvoiceTrends)
+            .pipe(takeUntilDestroyed())
+            .subscribe((trends) => {
+                this.trends = trends;
+                if (trends) this.buildChart(trends);
+            });
+
+        this.store.select(selectInvoiceTrendsError)
+            .pipe(takeUntilDestroyed())
+            .subscribe((error) => (this.error = error ? 'Não foi possível carregar as tendências de faturas.' : null));
+
+        this.store.select(selectInvoiceTrendsFilter)
+            .pipe(takeUntilDestroyed())
+            .subscribe((filter) => {
+                this.selectedCenterId = filter.centerId ?? '';
+                const from = new Date(filter.dateFrom + 'T00:00:00');
+                const to = new Date(filter.dateTo + 'T00:00:00');
+                this.dateRange = [from, to];
+            });
+    }
 
     ngOnInit(): void {
-        this.initPieChart();
-        this.initBarChart();
+        this.store.dispatch(CenterActions.loadCenters());
+        this.dispatchLoad();
     }
 
-    initPieChart() {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
-
-        this.pieDataDocs = {
-            labels: ['Faturas Pro-Forma', 'Recibos', 'Relatórios'],
-            datasets: [
-                {
-                    data: [23, 18, 6],
-                    backgroundColor: [
-                        documentStyle.getPropertyValue('--primary-800'),
-                        documentStyle.getPropertyValue('--primary-400'),
-                        documentStyle.getPropertyValue('--primary-200'),
-                    ],
-                    hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--primary-600'),
-                        documentStyle.getPropertyValue('--primary-300'),
-                        documentStyle.getPropertyValue('--primary-100'),
-                    ],
-                },
-            ],
-        };
-
-        this.pieDocOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor,
-                        usePointStyle: true,
-                        font: { weight: 700 },
-                        padding: 20,
-                    },
-                    position: 'bottom',
-                },
-            },
-        };
+    applyFilter(): void {
+        this.dispatchLoad();
     }
 
-    initBarChart() {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
+    clearFilter(): void {
+        this.selectedCenterId = '';
+        const today = new Date();
+        const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+        this.dateRange = [oneYearAgo, today];
+        this.dispatchLoad();
+    }
+
+    retryLoad(): void {
+        this.store.dispatch(InvoiceTrendsActions.clearError());
+        this.dispatchLoad();
+    }
+
+    private dispatchLoad(): void {
+        const today = new Date();
+        const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+
+        this.store.dispatch(
+            InvoiceTrendsActions.loadTrends({
+                filter: {
+                    dateFrom: this.dateRange?.[0]
+                        ? this.toISODate(this.dateRange[0])
+                        : this.toISODate(oneYearAgo),
+                    dateTo: this.dateRange?.[1]
+                        ? this.toISODate(this.dateRange[1])
+                        : this.toISODate(today),
+                    ...(this.selectedCenterId ? { centerId: this.selectedCenterId } : {}),
+                },
+            }),
+        );
+    }
+
+    private toISODate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    private buildChart(trends: InvoiceTrends): void {
+        const style = getComputedStyle(document.documentElement);
+        const textColor = style.getPropertyValue('--text-color');
+        const borderColor = style.getPropertyValue('--surface-border');
+
+        const colors = [
+            style.getPropertyValue('--primary-500'),
+            style.getPropertyValue('--green-400'),
+        ];
 
         this.barChartData = {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-            datasets: [
-                {
-                    label: 'Faturado (€)',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-500'),
-                    data: [6000, 7200, 8100, 7500, 8200, 8500],
-                },
-                {
-                    label: 'Recibos Emitidos',
-                    backgroundColor: documentStyle.getPropertyValue('--primary-300'),
-                    data: [15, 18, 20, 19, 17, 18],
-                },
-            ],
+            labels: trends.labels.map((m) => MONTH_LABELS[m] ?? m),
+            datasets: trends.datasets.map((ds, i) => ({
+                label: ds.label,
+                data: ds.data,
+                backgroundColor: colors[i] ?? style.getPropertyValue('--primary-300'),
+                borderRadius: 4,
+            })),
         };
 
         this.barChartOptions = {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    labels: {
-                        color: textColor,
+                    labels: { color: textColor, usePointStyle: true, padding: 16 },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx: any) =>
+                            ` ${ctx.dataset.label}: ${new Intl.NumberFormat('pt-AO', {
+                                style: 'currency',
+                                currency: 'AOA',
+                                minimumFractionDigits: 2,
+                            }).format(ctx.parsed.y)}`,
                     },
                 },
             },
             scales: {
                 x: {
                     ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') },
+                    grid: { color: borderColor },
                 },
                 y: {
                     beginAtZero: true,
                     ticks: { color: textColor },
-                    grid: { color: documentStyle.getPropertyValue('--surface-border') },
+                    grid: { color: borderColor },
                 },
             },
         };
-    }
-
-    filtrarDados() {
-        console.log('Filtrando faturação entre:', this.dateRange);
-        // Aqui você pode aplicar filtro com base nas datas
     }
 }

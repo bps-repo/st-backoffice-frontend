@@ -1,12 +1,11 @@
-import { Component, ComponentRef, OnInit, ViewContainerRef, ViewChild, ElementRef, HostListener, AfterViewInit, signal, inject } from '@angular/core';
+import { Component, ComponentRef, OnInit, ViewContainerRef, ViewChild, ElementRef, HostListener, AfterViewInit, signal, inject, OnDestroy } from '@angular/core';
 import {EventTooltipComponent} from 'src/app/shared/components/event-tooltip/event-tooltip.component';
-import {LessonService} from 'src/app/core/services/lesson.service';
 import {Lesson} from 'src/app/core/models/academic/lesson';
 import {LessonEvent} from "../../../../../core/models/academic/lesson-event";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PaginatorModule} from "primeng/paginator";
 import {DialogModule} from "primeng/dialog";
-import {CalendarModule} from "primeng/calendar";
+import {DatePickerModule} from "primeng/datepicker";
 import {CommonModule} from "@angular/common";
 import {InputTextModule} from "primeng/inputtext";
 import {DropdownModule} from "primeng/dropdown";
@@ -20,10 +19,19 @@ import {CardModule} from "primeng/card";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {KpiIndicatorsComponent} from "src/app/shared/kpi-indicator/kpi-indicator.component";
 import {CalendarReportsComponent} from "./reports/calendar-reports.component";
-import {Store} from '@ngrx/store';
-import {lessonsActions} from 'src/app/core/store/schoolar/lessons/lessons.actions';
-import {selectAllLessons} from 'src/app/core/store/schoolar/lessons/lessons.selectors';
+import {LessonService} from 'src/app/core/services/lessons/lesson.service';
 import {LessonStatus} from 'src/app/core/enums/lesson-status';
+import {Subject} from 'rxjs';
+import {debounceTime, takeUntil} from 'rxjs/operators';
+import {EmployeeService} from 'src/app/core/services/corporate/employee.service';
+import {CenterService} from 'src/app/core/services/center.service';
+import {LevelService} from 'src/app/core/services/level.service';
+import {UnitService} from 'src/app/core/services/unit.service';
+import {LessonStatusLabelPipe, resolveStatusLabel} from 'src/app/shared/pipes/lesson-status-label.pipe';
+import {LessonStatusSeverityPipe, resolveStatusSeverity} from 'src/app/shared/pipes/lesson-status-severity.pipe';
+import {LessonStatusClassPipe} from 'src/app/shared/pipes/lesson-status-class.pipe';
+import {TagModule} from 'primeng/tag';
+import {SkeletonModule} from 'primeng/skeleton';
 
 @Component({
     selector: "app-lesson-calendar",
@@ -34,7 +42,7 @@ import {LessonStatus} from 'src/app/core/enums/lesson-status';
         ReactiveFormsModule,
         PaginatorModule,
         DialogModule,
-        CalendarModule,
+        DatePickerModule,
         CommonModule,
         InputTextModule,
         DropdownModule,
@@ -46,15 +54,23 @@ import {LessonStatus} from 'src/app/core/enums/lesson-status';
         CardModule,
         SelectButtonModule,
         KpiIndicatorsComponent,
-        CalendarReportsComponent
+        CalendarReportsComponent,
+        LessonStatusLabelPipe,
+        LessonStatusSeverityPipe,
+        LessonStatusClassPipe,
+        TagModule,
+        SkeletonModule,
     ],
     styleUrls: ['./calendar.app.component.scss']
 })
-export class CalendarAppComponent implements OnInit, AfterViewInit {
+export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     private viewContainerRef = inject(ViewContainerRef);
     private router = inject(Router);
-    private lessonApiService = inject(LessonService);
-    private store = inject(Store);
+    private lessonService = inject(LessonService);
+    private employeeService = inject(EmployeeService);
+    private centerService = inject(CenterService);
+    private levelService = inject(LevelService);
+    private unitService = inject(UnitService);
 
     @ViewChild('mainHeader', {static: false}) mainHeader!: ElementRef;
     @ViewChild('viewSelector', {static: false}) viewSelector!: ElementRef;
@@ -109,19 +125,54 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     // Current month/year display
     currentMonthYear: string = '';
 
-    // Filter options
-    filterByTeacher: boolean = false;
-    filterByCenter: boolean = false;
-    filterByClass: boolean = false;
+    // API filter state
+    filterTeacherId: string | null = null;
+    filterUnitId: string | null = null;
+    filterCenterId: string | null = null;
+    filterLevelId: string | null = null;
+    filterStatus: string | null = null;
+    filterOnline: boolean | null = null;
+    filterHasBookings = false;
+    filterWithoutBookings = false;
+    filterStartDate: Date | null = null;
+    filterEndDate: Date | null = null;
+    filterSortField: string | null = null;
+    filterSortDirection: 'asc' | 'desc' = 'asc';
 
-    // Available teachers, centers, and classes for filtering
-    teachers: any[] = [];
-    centers: any[] = [];
-    filterClasses: any[] = [];
+    // Dropdown options loaded from API
+    teacherOptions: { label: string; value: string }[] = [];
+    centerOptions: { label: string; value: string }[] = [];
+    unitOptions: { label: string; value: string }[] = [];
+    levelOptions: { label: string; value: string }[] = [];
 
-    selectedTeachers: any[] = [];
-    selectedCenters: any[] = [];
-    selectedClasses: any[] = [];
+    readonly statusOptions = [
+        { label: 'Disponível',    value: 'AVAILABLE'   },
+        { label: 'Agendada',      value: 'SCHEDULED'   },
+        { label: 'Lecionada',     value: 'TAUGHT'      },
+        { label: 'Concluída',     value: 'COMPLETED'   },
+        { label: 'Não Lecionada', value: 'NOT_TAUGHT'  },
+        { label: 'Reagendada',    value: 'RESCHEDULED' },
+        { label: 'Cancelada',     value: 'CANCELLED'   },
+    ];
+
+    readonly onlineOptions = [
+        {label: 'Online', value: true},
+        {label: 'Presencial', value: false},
+    ];
+
+    readonly sortFieldOptions = [
+        {label: 'Título', value: 'title'},
+        {label: 'Status', value: 'status'},
+        {label: 'Data de início', value: 'startDatetime'},
+        {label: 'Data de fim', value: 'endDatetime'},
+    ];
+
+    readonly sortDirectionOptions = [
+        {label: 'Crescente', value: 'asc'},
+        {label: 'Decrescente', value: 'desc'},
+    ];
+
+    private searchSubject = new Subject<void>();
 
     // Dark mode toggle
     darkMode: boolean = false;
@@ -140,6 +191,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     protected readonly Math = Math;
 
     private tooltipRef: ComponentRef<EventTooltipComponent> | null = null;
+    private destroy$ = new Subject<void>();
 
     // Custom calendar properties
     currentDate: Date = new Date();
@@ -148,6 +200,16 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     weeklyLessons: any[] = [];
     monthlyCalendarDays: any[] = [];
     classes: Lesson[] = [];
+    readonly maxVisibleLessonsPerDay = 5;
+    private expandedDayLessons = new Set<string>();
+
+    // Loading state — true while any API request is in flight
+    isLoading = signal(false);
+
+    /** Static arrays used only by skeleton @for loops — no logic, just iteration counts. */
+    readonly skeletonDays  = Array(7);   // 7 columns  (week view columns / month row cells)
+    readonly skeletonWeeks = Array(5);   // 5 rows     (month view rows)
+    readonly skeletonCards = Array(3);   // 3 cards    (placeholder lesson cards per day)
 
     // Dialog state
     lessonDialogVisible = signal(false);
@@ -157,7 +219,7 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     private isDialogHovered: boolean = false;
 
     // Listen for scroll events
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll() {
         this.checkStickyState();
     }
@@ -168,40 +230,145 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
-        // Set today's date in the format YYYY-MM-DD
         const now = new Date();
         this.today = now.toISOString().split('T')[0];
 
-        // Initialize calendar data
         this.initializeCalendarData();
 
-        // Subscribe to lessons and map to calendar events
-        this.store.select(selectAllLessons).subscribe((lessons: Lesson[]) => {
-            this.classes = lessons;
-            this.events = lessons.map(lesson => this.mapLessonToEvent(lesson));
-            this.filteredEvents = [...this.events];
-            this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
-                .map(item => JSON.parse(item));
-            this.extractFilterOptions();
-            this.calculateKpiMetrics();
-            this.initializeKpis();
-
-            // Load calendar data based on current view
-            if (this.selectedCalendarView === 'week') {
-                this.loadWeeklyLessonsFromData(lessons);
-            } else {
-                this.loadMonthlyLessonsFromData(lessons);
-            }
+        this.searchSubject.pipe(debounceTime(400), takeUntil(this.destroy$)).subscribe(() => {
+            this.loadLessonsFromApi();
         });
 
-        this.store.dispatch(lessonsActions.loadLessons());
+        this.loadFilterOptions();
+        this.loadLessonsFromApi();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     ngAfterViewInit() {
-        // Initialize sticky state check after view is initialized
         setTimeout(() => {
             this.checkStickyState();
         });
+    }
+
+    private loadFilterOptions(): void {
+        this.employeeService.getTeachers().pipe(takeUntil(this.destroy$)).subscribe(teachers => {
+            this.teacherOptions = teachers.map(t => ({
+                label: `${t.personalInfo.firstName} ${t.personalInfo.lastName}`.trim(),
+                value: t.id
+            }));
+        });
+        this.centerService.getAllCenters().pipe(takeUntil(this.destroy$)).subscribe(centers => {
+            this.centerOptions = centers.map(c => ({label: c.name, value: c.id}));
+        });
+        this.unitService.loadUnits().pipe(takeUntil(this.destroy$)).subscribe(units => {
+            this.unitOptions = units.map(u => ({label: u.name, value: u.id}));
+        });
+        this.levelService.getLevels().pipe(takeUntil(this.destroy$)).subscribe(levels => {
+            this.levelOptions = levels.map(l => ({label: l.name, value: l.id}));
+        });
+    }
+
+    loadLessonsFromApi(): void {
+        const {startDate, endDate} = this.getCalendarDateRange();
+        const sort = this.filterSortField
+            ? `${this.filterSortField},${this.filterSortDirection}`
+            : undefined;
+
+        this.isLoading.set(true);
+
+        this.lessonService.searchLessons({
+            teacherId: this.filterTeacherId ?? undefined,
+            unitId: this.filterUnitId ?? undefined,
+            centerId: this.filterCenterId ?? undefined,
+            levelId: this.filterLevelId ?? undefined,
+            startDate,
+            endDate,
+            status: this.filterStatus ?? undefined,
+            online: this.filterOnline ?? undefined,
+            titleContains: this.searchTerm || undefined,
+            hasBookings: this.filterHasBookings || undefined,
+            withoutBookings: this.filterWithoutBookings || undefined,
+            page: 0,
+            size: 500,
+            sort,
+        }).pipe(takeUntil(this.destroy$)).subscribe({
+            next: response => {
+                const lessons: Lesson[] = response?.content ?? [];
+                this.classes = lessons;
+                this.events = lessons.map(lesson => this.mapLessonToEvent(lesson));
+                this.filteredEvents = [...this.events];
+                this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
+                    .map(item => JSON.parse(item));
+                this.calculateKpiMetrics();
+                this.initializeKpis();
+                if (this.selectedCalendarView === 'week') {
+                    this.loadWeeklyLessonsFromData(lessons);
+                } else {
+                    this.loadMonthlyLessonsFromData(lessons);
+                }
+                this.isLoading.set(false);
+            },
+            error: () => this.isLoading.set(false),
+        });
+    }
+
+    private getCalendarDateRange(): {startDate: string; endDate: string} {
+        if (this.selectedCalendarView === 'week') {
+            // currentWeekStart/End are already normalised to 00:00/23:59
+            return {
+                startDate: this.currentWeekStart.toISOString(),
+                endDate:   this.currentWeekEnd.toISOString(),
+            };
+        }
+        const year  = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+        return {
+            startDate: new Date(year, month, 1, 0, 0, 0, 0).toISOString(),
+            endDate:   new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString(),
+        };
+    }
+
+    onSearchInput(): void {
+        this.searchSubject.next();
+    }
+
+    get hasActiveFilters(): boolean {
+        return !!(this.filterTeacherId || this.filterUnitId || this.filterCenterId ||
+            this.filterLevelId || this.filterStatus || this.filterOnline !== null ||
+            this.filterHasBookings || this.filterWithoutBookings ||
+            this.filterStartDate || this.filterEndDate || this.filterSortField);
+    }
+
+    getTeacherLabel(id: string): string {
+        return this.teacherOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getCenterLabel(id: string): string {
+        return this.centerOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getUnitLabel(id: string): string {
+        return this.unitOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getLevelLabel(id: string): string {
+        return this.levelOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    onHasBookingsChange(): void {
+        if (this.filterHasBookings) {
+            this.filterWithoutBookings = false;
+        }
+    }
+
+    onWithoutBookingsChange(): void {
+        if (this.filterWithoutBookings) {
+            this.filterHasBookings = false;
+        }
     }
 
     /**
@@ -309,29 +476,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Extract unique teachers, centers, and classes from events for filtering
-     */
-    private extractFilterOptions(): void {
-        // Extract unique teachers
-        this.teachers = Array.from(new Set(this.events
-            .filter(event => event.extendedProps?.teacher)
-            .map(event => event.extendedProps?.teacher)))
-            .map(teacher => ({label: teacher, value: teacher}));
-
-        // Extract unique centers
-        this.centers = Array.from(new Set(this.events
-            .filter(event => event.extendedProps?.center)
-            .map(event => event.extendedProps?.center)))
-            .map(center => ({label: center, value: center}));
-
-        // Extract unique classes
-        this.filterClasses = Array.from(new Set(this.events
-            .filter(event => event.extendedProps?.classEntity)
-            .map(event => event.extendedProps?.classEntity)))
-            .map(classEntity => ({label: classEntity, value: classEntity}));
-    }
-
-    /**
      * Handle event drop (drag and drop)
      */
     handleEventDrop(info: any): void {
@@ -420,115 +564,26 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         };
     }
 
-    /**
-     * Apply filters to events
-     */
     applyFilters(): void {
-        let filtered = [...this.events];
-
-        // Apply search term filter
-        if (this.searchTerm) {
-            const searchLower = this.searchTerm.toLowerCase();
-            filtered = filtered.filter(event =>
-                (event.title && event.title.toLowerCase().includes(searchLower)) ||
-                (event.extendedProps?.description && event.extendedProps.description.toLowerCase().includes(searchLower)) ||
-                (event.extendedProps?.teacher && event.extendedProps.teacher.toLowerCase().includes(searchLower)) ||
-                (event.extendedProps?.center && event.extendedProps.center.toLowerCase().includes(searchLower)) ||
-                (event.extendedProps?.classEntity && event.extendedProps.classEntity.toLowerCase().includes(searchLower))
-            );
-        }
-
-        // Apply tag filter
-        if (this.selectedTags && this.selectedTags.length > 0) {
-            filtered = filtered.filter(event =>
-                this.selectedTags.some(tag =>
-                    event.tag && event.tag.name === tag.name
-                )
-            );
-        }
-
-        // Apply teacher filter
-        if (this.filterByTeacher && this.selectedTeachers.length > 0) {
-            filtered = filtered.filter(event =>
-                this.selectedTeachers.some(teacher =>
-                    event.extendedProps?.teacher === teacher.value
-                )
-            );
-        }
-
-        // Apply center filter
-        if (this.filterByCenter && this.selectedCenters.length > 0) {
-            filtered = filtered.filter(event =>
-                this.selectedCenters.some(center =>
-                    event.extendedProps?.center === center.value
-                )
-            );
-        }
-
-        // Apply class filter
-        if (this.filterByClass && this.selectedClasses.length > 0) {
-            filtered = filtered.filter(event =>
-                this.selectedClasses.some(classEntity =>
-                    event.extendedProps?.classEntity === classEntity.value
-                )
-            );
-        }
-
-        this.filteredEvents = filtered;
-
-        // Calculate KPI metrics based on filtered events
-        this.calculateKpiMetrics();
+        this.loadLessonsFromApi();
     }
 
-    /**
-     * Clear all filters
-     */
     clearFilters(): void {
         this.searchTerm = '';
         this.selectedTags = [];
-        this.selectedTeachers = [];
-        this.selectedCenters = [];
-        this.selectedClasses = [];
-        this.filterByTeacher = false;
-        this.filterByCenter = false;
-        this.filterByClass = false;
-
-        this.filteredEvents = [...this.events];
-
-        // Calculate KPI metrics based on filtered events
-        this.calculateKpiMetrics();
-    }
-
-    /**
-     * Remove a tag from the selected tags
-     */
-    removeTag(tagName: string): void {
-        this.selectedTags = this.selectedTags.filter(t => t.name !== tagName);
-        this.applyFilters();
-    }
-
-    /**
-     * Remove a teacher from the selected teachers
-     */
-    removeTeacher(teacherValue: string): void {
-        this.selectedTeachers = this.selectedTeachers.filter(t => t.value !== teacherValue);
-        this.applyFilters();
-    }
-
-    /**
-     * Remove a center from the selected centers
-     */
-    removeCenter(centerValue: string): void {
-        this.selectedCenters = this.selectedCenters.filter(c => c.value !== centerValue);
-        this.applyFilters();
-    }
-
-    /**
-     * Remove a class from the selected classes
-     */
-    removeClass(classValue: string): void {
-        this.selectedClasses = this.selectedClasses.filter(c => c.value !== classValue);
-        this.applyFilters();
+        this.filterTeacherId = null;
+        this.filterUnitId = null;
+        this.filterCenterId = null;
+        this.filterLevelId = null;
+        this.filterStatus = null;
+        this.filterOnline = null;
+        this.filterHasBookings = false;
+        this.filterWithoutBookings = false;
+        this.filterStartDate = null;
+        this.filterEndDate = null;
+        this.filterSortField = null;
+        this.filterSortDirection = 'asc';
+        this.loadLessonsFromApi();
     }
 
     /**
@@ -561,22 +616,6 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         const options = {month: 'long', year: 'numeric'} as const;
         this.currentMonthYear = date.toLocaleDateString('pt-BR', options as any);
     }
-
-    /**
-     * Handle calendar date range changes: update header and load lessons
-     */
-    onDatesSet(dateInfo: any): void {
-        this.updateCurrentMonthYear(dateInfo);
-        const start: Date = dateInfo.start || dateInfo.view?.currentStart;
-        const end: Date = dateInfo.end || dateInfo.view?.currentEnd;
-        if (start && end) {
-            this.store.dispatch(lessonsActions.loadLessonsByDateRange({
-                startDate: new Date(start).toISOString(),
-                endDate: new Date(end).toISOString()
-            }));
-        }
-    }
-
 
     onEventClick(e: any) {
         this.clickedEvent = e.event;
@@ -734,11 +773,11 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     private mapLessonToEvent(lesson: Lesson): Partial<LessonEvent> {
         const start = new Date(lesson.startDatetime as any);
         const end = new Date(lesson.endDatetime as any);
-        const status = (lesson.status || '').toString().toLowerCase();
-        // Simple color coding based on status
-        const tagColor = status === 'canceled' ? '#ef4444' : status === 'active' ? '#22c55e' : '#3b82f6';
+        const severity = resolveStatusSeverity(lesson.status as string, lesson.startDatetime);
+        const tagColor = this.severityToHex(severity);
         const centerName = typeof lesson.center === 'string' ? lesson.center : (lesson.center as any)?.name;
         const time = `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')}`;
+        const statusLabel = resolveStatusLabel(lesson.status as string, lesson.startDatetime);
 
         return {
             id: lesson.id,
@@ -747,17 +786,34 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             end,
             backgroundColor: tagColor,
             borderColor: tagColor,
-            textColor: '#212121',
-            tag: {name: status ? status : 'lesson', color: tagColor},
+            textColor: '#ffffff',
+            tag: {name: statusLabel, color: tagColor},
             extendedProps: {
                 teacher: lesson.teacher || '',
                 center: centerName || '',
                 description: lesson.description || '',
                 isOnline: !!lesson.online,
                 status: lesson.status?.toString() || undefined,
+                severity,
                 time
             }
         } as unknown as Partial<LessonEvent>;
+    }
+
+    /** Maps a severity string (from resolveStatusSeverity) to a hex colour for calendar events. */
+    private severityToHex(severity: string | undefined): string {
+        const map: Record<string, string> = {
+            'success':        '#22c55e',
+            'info':           '#3b82f6',
+            'warning':        '#f59e0b',
+            'danger':         '#ef4444',
+            'planned':        '#6366f1',
+            'rescheduled':    '#f59e0b',
+            'no-attendance':  '#f97316',
+            'secondary':      '#94a3b8',
+            'contrast':       '#1e293b',
+        };
+        return map[severity ?? ''] ?? '#3b82f6';
     }
 
     // Custom Calendar Methods
@@ -768,14 +824,17 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
 
     setCurrentWeek() {
         const today = new Date();
-        const currentDay = today.getDay();
-        const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days
+        const dayOfWeek = today.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
-        this.currentWeekStart = new Date(today);
-        this.currentWeekStart.setDate(today.getDate() + mondayOffset);
+        const monday = new Date(today);
+        monday.setDate(today.getDate() + mondayOffset);
 
-        this.currentWeekEnd = new Date(this.currentWeekStart);
-        this.currentWeekEnd.setDate(this.currentWeekStart.getDate() + 6);
+        // Always normalise to midnight so time never bleeds into date comparisons
+        this.currentWeekStart = this.startOfDay(monday);
+        this.currentWeekEnd   = this.endOfDay(new Date(
+            monday.getFullYear(), monday.getMonth(), monday.getDate() + 6
+        ));
     }
 
     loadMonthlyLessons() {
@@ -848,18 +907,25 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         }
     }
 
+    private extractNamedEntity(value: any): string {
+        if (!value) return 'N/A';
+        if (typeof value === 'string') return value;
+        if (typeof value === 'object') {
+            return value.name || value.title || value.username || 'N/A';
+        }
+        return String(value);
+    }
+
     loadMonthlyLessonsFromData(lessons: Lesson[]) {
         const year = this.currentDate.getFullYear();
         const month = this.currentDate.getMonth();
 
-        // Get first and last day of the month
         const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
+        const nextMonthStart = new Date(year, month + 1, 1);
 
-        // Filter lessons for current month
         const monthLessons = lessons.filter(lesson => {
             const lessonDate = new Date(lesson.startDatetime);
-            return lessonDate >= firstDay && lessonDate <= lastDay;
+            return lessonDate >= firstDay && lessonDate < nextMonthStart;
         });
 
         // Assign lessons to calendar days
@@ -870,10 +936,10 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
             }).map(lesson => ({
                 time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
                 title: lesson.title,
-                teacher: lesson.teacher.name,
+                teacher: this.extractNamedEntity(lesson.teacher),
                 group: lesson.level || 'N/A',
-                status: this.getStatusLabel(lesson.status),
-                statusClass: this.getStatusClass(lesson.status),
+                status: resolveStatusLabel(lesson.status as string, lesson.startDatetime),
+                statusClass: resolveStatusSeverity(lesson.status as string, lesson.startDatetime) ?? 'secondary',
                 lesson: lesson
             }));
         });
@@ -896,102 +962,156 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
         return weeks;
     }
 
-    loadWeeklyLessonsFromData(lessons: Lesson[]) {
-        const weekStart = new Date(this.currentWeekStart);
-        const weekEnd = new Date(this.currentWeekEnd);
+    private getDayKey(day: { date?: Date; dayKey?: string }): string {
+        if (day.dayKey) {
+            return day.dayKey;
+        }
+        return day.date ? new Date(day.date).toDateString() : '';
+    }
 
-        // Filter lessons for current week
+    isDayExpanded(day: { date?: Date; dayKey?: string }): boolean {
+        const dayKey = this.getDayKey(day);
+        return !!dayKey && this.expandedDayLessons.has(dayKey);
+    }
+
+    toggleDayLessons(day: { date?: Date; dayKey?: string }): void {
+        const dayKey = this.getDayKey(day);
+        if (!dayKey) {
+            return;
+        }
+        if (this.expandedDayLessons.has(dayKey)) {
+            this.expandedDayLessons.delete(dayKey);
+        } else {
+            this.expandedDayLessons.add(dayKey);
+        }
+    }
+
+    getVisibleDayLessons<T extends { lessons: any[]; date?: Date; dayKey?: string }>(day: T): any[] {
+        if (!Array.isArray(day.lessons)) {
+            return [];
+        }
+
+        if (day.lessons.length <= this.maxVisibleLessonsPerDay) {
+            return day.lessons;
+        }
+
+        if (this.isDayExpanded(day as any)) {
+            return day.lessons;
+        }
+
+        return day.lessons.slice(0, this.maxVisibleLessonsPerDay);
+    }
+
+    getVisibleWeeklyClasses(day: { classes: any[]; dayKey?: string }): any[] {
+        if (!Array.isArray(day.classes)) {
+            return [];
+        }
+
+        if (day.classes.length <= this.maxVisibleLessonsPerDay || this.isDayExpanded(day)) {
+            return day.classes;
+        }
+
+        return day.classes.slice(0, this.maxVisibleLessonsPerDay);
+    }
+
+    loadWeeklyLessonsFromData(lessons: Lesson[]) {
+        // Always snapshot the boundaries at the moment of rendering;
+        // normalising to midnight prevents time-of-day from filtering out same-day lessons.
+        const weekStart    = this.startOfDay(new Date(this.currentWeekStart));
+        const weekEnd      = this.endOfDay(new Date(this.currentWeekEnd));
+
         const weekLessons = lessons.filter(lesson => {
-            const lessonDate = new Date(lesson.startDatetime);
-            return lessonDate >= weekStart && lessonDate <= weekEnd;
+            const d = new Date(lesson.startDatetime);
+            return d >= weekStart && d <= weekEnd;
         });
 
-        // Create week structure
-        this.weeklyLessons = [];
+        // Build the 7-day structure using explicit date arithmetic (not setDate addition)
+        // so crossing month/year boundaries is handled correctly.
+        const newWeeklyLessons = [];
         for (let i = 0; i < 7; i++) {
-            const currentDay = new Date(weekStart);
-            currentDay.setDate(weekStart.getDate() + i);
+            const currentDay = new Date(
+                weekStart.getFullYear(),
+                weekStart.getMonth(),
+                weekStart.getDate() + i   // Date constructor handles month overflow
+            );
+            const dayKey   = currentDay.toDateString();
+            const isToday  = dayKey === new Date().toDateString();
 
-            const dayLessons = weekLessons.filter(lesson => {
-                const lessonDate = new Date(lesson.startDatetime);
-                return lessonDate.toDateString() === currentDay.toDateString();
-            });
+            const dayLessons = weekLessons
+                .filter(l => new Date(l.startDatetime).toDateString() === dayKey)
+                .sort((a, b) =>
+                    new Date(a.startDatetime).getTime() - new Date(b.startDatetime).getTime()
+                );
 
-            const isToday = currentDay.toDateString() === new Date().toDateString();
-
-            this.weeklyLessons.push({
-                day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
-                date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
+            newWeeklyLessons.push({
+                // Separate properties so the template never has to split a locale string
+                dayName: currentDay.toLocaleDateString('pt-BR', { weekday: 'short' }),         // e.g. "seg."
+                dayDate: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), // e.g. "26/05"
+                dayKey,
                 isToday,
                 classes: dayLessons.map(lesson => ({
                     time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        hour:   '2-digit',
+                        minute: '2-digit',
                     }),
-                    title: lesson.title,
-                    teacher: lesson.teacher.name,
-                    group: lesson.level || 'N/A',
-                    status: this.getStatusLabel(lesson.status),
-                    statusClass: this.getStatusClass(lesson.status),
-                    lesson: lesson
-                }))
+                    title:       lesson.title,
+                    teacher:     this.extractNamedEntity(lesson.teacher),
+                    group:       lesson.level || 'N/A',
+                    status:      resolveStatusLabel(lesson.status as string, lesson.startDatetime),
+                    statusClass: resolveStatusSeverity(lesson.status as string, lesson.startDatetime) ?? 'secondary',
+                    lesson,
+                })),
             });
         }
+        // Replace in one assignment so Angular sees a single, complete array
+        this.weeklyLessons = newWeeklyLessons;
     }
 
     // Navigation methods
     navigatePrevious() {
         if (this.selectedCalendarView === 'week') {
-            this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
-            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() - 7);
-            if (this.classes?.length > 0) {
-                this.loadWeeklyLessonsFromData(this.classes);
-            }
+            // Create brand-new Date objects — never mutate existing references
+            // so any in-flight change-detection cycle always sees a consistent pair.
+            this.currentWeekStart = this.startOfDay(this.addDays(this.currentWeekStart, -7));
+            this.currentWeekEnd   = this.endOfDay(this.addDays(this.currentWeekEnd,   -7));
+            // Clear stale lessons immediately so the template never shows the wrong week
+            this.weeklyLessons = [];
         } else {
-            this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-            if (this.classes?.length > 0) {
-                this.loadMonthlyLessonsFromData(this.classes);
-            }
+            this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+            this.generateMonthlyCalendar();
         }
+        this.loadLessonsFromApi();
     }
 
     navigateNext() {
         if (this.selectedCalendarView === 'week') {
-            this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
-            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() + 7);
-            if (this.classes?.length > 0) {
-                this.loadWeeklyLessonsFromData(this.classes);
-            }
+            this.currentWeekStart = this.startOfDay(this.addDays(this.currentWeekStart, 7));
+            this.currentWeekEnd   = this.endOfDay(this.addDays(this.currentWeekEnd,   7));
+            this.weeklyLessons = [];
         } else {
-            this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-            if (this.classes?.length > 0) {
-                this.loadMonthlyLessonsFromData(this.classes);
-            }
+            this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+            this.generateMonthlyCalendar();
         }
+        this.loadLessonsFromApi();
     }
 
     navigateToday() {
         this.currentDate = new Date();
         this.setCurrentWeek();
-        if (this.classes?.length > 0) {
-            if (this.selectedCalendarView === 'week') {
-                this.loadWeeklyLessonsFromData(this.classes);
-            } else {
-                this.loadMonthlyLessonsFromData(this.classes);
-            }
+        if (this.selectedCalendarView === 'week') {
+            this.weeklyLessons = [];
+        } else {
+            this.generateMonthlyCalendar();
         }
+        this.loadLessonsFromApi();
     }
 
     changeView(view: string) {
         this.selectedCalendarView = view;
-
-        if (this.classes?.length > 0) {
-            if (view === 'week') {
-                this.loadWeeklyLessonsFromData(this.classes);
-            } else {
-                this.loadMonthlyLessonsFromData(this.classes);
-            }
+        if (view === 'month') {
+            this.generateMonthlyCalendar();
         }
+        this.loadLessonsFromApi();
     }
 
     getFormattedWeekRange(): string {
@@ -1060,80 +1180,25 @@ export class CalendarAppComponent implements OnInit, AfterViewInit {
     }
 
 
+    /** Returns the display label for a raw status string (used by the active-filter chip). */
     getStatusLabel(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                    return 'Disponível';
-                case 'BOOKED':
-                    return 'Agendada';
-                case 'COMPLETED':
-                    return 'Concluída';
-                case 'CANCELLED':
-                    return 'Cancelada';
-                case 'SCHEDULED':
-                    return 'Agendada';
-                case 'POSTPONED':
-                    return 'Adiada';
-                case 'OVERDUE':
-                    return 'Atrasada';
-                default:
-                    return status;
-            }
-        }
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-                return 'Disponível';
-            case LessonStatus.BOOKED:
-                return 'Agendada';
-            case LessonStatus.COMPLETED:
-                return 'Concluída';
-            case LessonStatus.CANCELLED:
-                return 'Cancelada';
-            case LessonStatus.SCHEDULED:
-                return 'Agendada';
-            case LessonStatus.POSTPONED:
-                return 'Adiada';
-            case LessonStatus.OVERDUE:
-                return 'Atrasada';
-            default:
-                return 'Desconhecido';
-        }
+        return resolveStatusLabel(status as string);
     }
 
-    private getStatusClass(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                case 'COMPLETED':
-                    return 'success';
-                case 'BOOKED':
-                case 'SCHEDULED':
-                    return 'warning';
-                case 'CANCELLED':
-                case 'OVERDUE':
-                    return 'danger';
-                case 'POSTPONED':
-                    return 'info';
-                default:
-                    return 'secondary';
-            }
-        }
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-            case LessonStatus.COMPLETED:
-                return 'success';
-            case LessonStatus.BOOKED:
-            case LessonStatus.SCHEDULED:
-                return 'warning';
-            case LessonStatus.CANCELLED:
-            case LessonStatus.OVERDUE:
-                return 'danger';
-            case LessonStatus.POSTPONED:
-                return 'info';
-            default:
-                return 'secondary';
-        }
+    // ── Date helpers ─────────────────────────────────────────────────────────
+    /** Returns a new Date set to 00:00:00.000 on the same calendar day. */
+    private startOfDay(d: Date): Date {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+    }
+
+    /** Returns a new Date set to 23:59:59.999 on the same calendar day. */
+    private endOfDay(d: Date): Date {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+    }
+
+    /** Returns a new Date that is `days` days after (or before, if negative) `d`. */
+    private addDays(d: Date, days: number): Date {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
     }
 
     getStudentsString(lesson: Lesson): string {

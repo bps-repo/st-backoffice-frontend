@@ -32,8 +32,7 @@
             <div class="col-12 flex justify-content-between align-content-center">
                 <div class="col-8 flex">
                     <span class="p-input-icon-left w-full mr-2">
-                        <i class="pi pi-search"></i>
-                        <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" pInputText
+                        <input class="w-full" type="text" [(ngModel)]="searchTerm" (input)="onSearchInput()" pInputText
                             placeholder="Buscar aulas" />
                     </span>
                     <button *ngIf="searchTerm" pButton type="button" icon="pi pi-times"
@@ -42,8 +41,8 @@
                 <div class="flex gap-2 h-3rem mt-3">
                     <button pButton type="button" icon="pi pi-filter" label="Filtros" (click)="showFilterDialog = true"
                         class="p-button-secondary"
-                        [class.p-button-outlined]="!(selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length)"
-                        [class.p-button-info]="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"></button>
+                        [class.p-button-outlined]="!hasActiveFilters"
+                        [class.p-button-info]="hasActiveFilters"></button>
                 </div>
             </div>
         </div>
@@ -79,50 +78,112 @@
         </div>
 
         <!-- Active filters display -->
-        <div *ngIf="selectedTags.length || selectedTeachers.length || selectedCenters.length || selectedClasses.length"
-            class="active-filters mb-3 animate-fade px-fadein">
-            <span class="filter-label mr-2">Active Filters:</span>
+        <div *ngIf="hasActiveFilters" class="active-filters mb-3 animate-fade px-fadein">
+            <span class="filter-label mr-2">Filtros activos:</span>
 
-            <span *ngFor="let tag of selectedTags" class="filter-tag mr-2 mb-1">
-                <span class="tag-color" [style.background-color]="tag.color"></span>
-                <span class="tag-name">{{ tag.name }}</span>
-                <i class="pi pi-times" (click)="removeTag(tag.name)"></i>
-            </span>
-
-            <span *ngFor="let teacher of selectedTeachers" class="filter-tag mr-2 mb-1">
+            <span *ngIf="filterTeacherId" class="filter-tag mr-2 mb-1">
                 <i class="pi pi-user"></i>
-                <span class="tag-name">{{ teacher.label }}</span>
-                <i class="pi pi-times" (click)="removeTeacher(teacher.value)"></i>
+                <span class="tag-name">{{ getTeacherLabel(filterTeacherId) }}</span>
+                <i class="pi pi-times" (click)="filterTeacherId = null; applyFilters()"></i>
             </span>
 
-            <span *ngFor="let center of selectedCenters" class="filter-tag mr-2 mb-1">
+            <span *ngIf="filterCenterId" class="filter-tag mr-2 mb-1">
                 <i class="pi pi-map-marker"></i>
-                <span class="tag-name">{{ center.label }}</span>
-                <i class="pi pi-times" (click)="removeCenter(center.value)"></i>
+                <span class="tag-name">{{ getCenterLabel(filterCenterId) }}</span>
+                <i class="pi pi-times" (click)="filterCenterId = null; applyFilters()"></i>
             </span>
 
-            <span *ngFor="let classEntity of selectedClasses" class="filter-tag mr-2 mb-1">
-                <i class="pi pi-users"></i>
-                <span class="tag-name">{{ classEntity.label }}</span>
-                <i class="pi pi-times" (click)="removeClass(classEntity.value)"></i>
+            <span *ngIf="filterUnitId" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-book"></i>
+                <span class="tag-name">{{ getUnitLabel(filterUnitId) }}</span>
+                <i class="pi pi-times" (click)="filterUnitId = null; applyFilters()"></i>
             </span>
 
-            <button pButton type="button" icon="pi pi-trash" label="Clear All"
+            <span *ngIf="filterLevelId" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-chart-bar"></i>
+                <span class="tag-name">{{ getLevelLabel(filterLevelId) }}</span>
+                <i class="pi pi-times" (click)="filterLevelId = null; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterStatus" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-info-circle"></i>
+                <span class="tag-name">{{ getStatusLabel(filterStatus) }}</span>
+                <i class="pi pi-times" (click)="filterStatus = null; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterOnline !== null" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-globe"></i>
+                <span class="tag-name">{{ filterOnline ? 'Online' : 'Presencial' }}</span>
+                <i class="pi pi-times" (click)="filterOnline = null; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterHasBookings" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-calendar-plus"></i>
+                <span class="tag-name">Com reservas</span>
+                <i class="pi pi-times" (click)="filterHasBookings = false; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterWithoutBookings" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-calendar-minus"></i>
+                <span class="tag-name">Sem reservas</span>
+                <i class="pi pi-times" (click)="filterWithoutBookings = false; applyFilters()"></i>
+            </span>
+
+            <span *ngIf="filterSortField" class="filter-tag mr-2 mb-1">
+                <i class="pi pi-sort-alt"></i>
+                <span class="tag-name">{{ filterSortField }}, {{ filterSortDirection }}</span>
+                <i class="pi pi-times" (click)="filterSortField = null; applyFilters()"></i>
+            </span>
+
+            <button pButton type="button" icon="pi pi-trash" label="Limpar Filtros"
                 class="p-button-sm p-button-text p-button-danger ml-2" (click)="clearFilters()"></button>
         </div>
 
         <!-- Weekly Calendar View -->
         @if (selectedCalendarView === 'week') {
-        <div class="weekly-calendar card w-full h-full">
+
+        <!-- Skeleton while loading -->
+        @if (isLoading()) {
+        <div class="weekly-calendar card w-full">
             <div class="grid gap-2">
-                @for (dayData of weeklyLessons; track dayData.date) {
+                @for (_ of skeletonDays; track $index) {
+                <div class="col-12 md:col">
+                    <div class="card h-full">
+                        <div class="card-header text-center mb-3">
+                            <div class="day-header">
+                                <p-skeleton width="3rem" height="0.7rem" styleClass="mb-1 mx-auto"></p-skeleton>
+                                <p-skeleton width="2.5rem" height="1.25rem" styleClass="mx-auto mt-1"></p-skeleton>
+                            </div>
+                        </div>
+                        <div class="classes-list">
+                            @for (_ of skeletonCards; track $index) {
+                            <div class="mb-2 p-2 border-round" style="border:1px solid var(--surface-border)">
+                                <p-skeleton width="3.5rem" height="0.65rem" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton width="100%" height="0.8rem" styleClass="mb-1"></p-skeleton>
+                                <p-skeleton width="75%" height="0.7rem" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton width="3.5rem" height="1.25rem" borderRadius="1rem"></p-skeleton>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Real content -->
+        @if (!isLoading()) {
+        <div class="weekly-calendar card w-full">
+            <div class="grid gap-2">
+                @for (dayData of weeklyLessons; track dayData.dayKey) {
                 <div class="col-12 md:col">
                     <div class="card h-full" [class.today-card]="dayData.isToday">
                         <div class="card-header text-center mb-3">
                             <div class="day-header">
-                                <div class="day-name text-sm text-gray-600">{{ dayData.day.split(' ')[0] }}</div>
+                                <div class="day-name text-sm text-gray-600">{{ dayData.dayName }}</div>
                                 <div class="day-date font-bold" [class.today-date]="dayData.isToday">
-                                    {{ dayData.day.split(' ')[1] }}
+                                    {{ dayData.dayDate }}
                                 </div>
                             </div>
                             @if (dayData.isToday) {
@@ -134,9 +195,9 @@
                         </div>
 
                         <div class="classes-list">
-                            @for (classItem of dayData.classes; track $index) {
-                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors cursor-pointer"
-                                [class]="'border-left-3 border-' + classItem.statusClass"
+                            @for (classItem of getVisibleWeeklyClasses(dayData); track $index) {
+                            <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors"
+                                [ngClass]="'border-left-3 lesson-border-' + (classItem.lesson | lessonStatusSeverity)"
                                 (mouseenter)="showLessonDetails(classItem.lesson)" (mouseleave)="hideLessonDetails()"
                                 (click)="viewLesson(classItem.lesson.id!)">
                                 <div class="flex align-items-center justify-content-between mb-1">
@@ -151,11 +212,21 @@
                                     {{ classItem.group }}
                                 </div>
                                 <div class="status-badge">
-                                    <span class="p-badge" [class]="'p-badge-' + classItem.statusClass">
-                                        {{ classItem.status }}
-                                    </span>
+                                    <p-tag
+                                        [value]="classItem.lesson | lessonStatusLabel"
+                                        [severity]="classItem.lesson | lessonStatusSeverity"
+                                        [styleClass]="classItem.lesson | lessonStatusClass"
+                                        [rounded]="true">
+                                    </p-tag>
                                 </div>
                             </div>
+                            }
+
+                            @if (dayData.classes.length > maxVisibleLessonsPerDay) {
+                            <button type="button" pButton class="p-button-text p-button-sm mt-1"
+                                [label]="isDayExpanded(dayData) ? 'Ver menos' : ('Ver mais ' + (dayData.classes.length - maxVisibleLessonsPerDay))"
+                                (click)="toggleDayLessons(dayData); $event.stopPropagation()">
+                            </button>
                             }
                         </div>
                     </div>
@@ -164,11 +235,13 @@
             </div>
         </div>
         }
+        } <!-- end @if (!isLoading()) for week -->
 
         <!-- Monthly Calendar View -->
         @if (selectedCalendarView === 'month') {
         <div class="monthly-calendar w-full h-full">
             <div class="card">
+                <!-- Day-of-week header is always visible -->
                 <div class="calendar-header grid border-bottom-1 border-gray-200 font-bold text-center">
                     <div class="col">Dom</div>
                     <div class="col">Seg</div>
@@ -179,6 +252,25 @@
                     <div class="col">Sáb</div>
                 </div>
 
+                <!-- Skeleton while loading -->
+                @if (isLoading()) {
+                <div class="calendar-body">
+                    @for (_ of skeletonWeeks; track $index) {
+                    <div class="grid calendar-week border-bottom-1 border-gray-100">
+                        @for (_ of skeletonDays; track $index) {
+                        <div class="col calendar-day">
+                            <p-skeleton width="1.5rem" height="1.5rem" borderRadius="50%" styleClass="mb-2"></p-skeleton>
+                            <p-skeleton width="100%" height="0.65rem" styleClass="mb-1" borderRadius="4px"></p-skeleton>
+                            <p-skeleton width="80%" height="0.65rem" borderRadius="4px"></p-skeleton>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+
+                <!-- Real content -->
+                @if (!isLoading()) {
                 <div class="calendar-body">
                     @for (week of getMonthlyCalendarWeeks(); track $index) {
                     <div class="grid calendar-week border-bottom-1 border-gray-100">
@@ -199,19 +291,20 @@
                             <!-- Lessons for this day -->
                             @if (day.lessons && day.lessons.length > 0) {
                             <div class="monthly-lessons">
-                                @for (lesson of day.lessons.slice(0, 10); track lesson.lesson.id) {
+                                @for (lesson of getVisibleDayLessons(day); track lesson.lesson.id) {
                                 <div class="monthly-lesson-card cursor-pointer"
-                                    [class]="'border-left-2 border-' + lesson.statusClass"
+                                    [ngClass]="'border-left-2 lesson-border-' + (lesson.lesson | lessonStatusSeverity)"
                                     (mouseenter)="showLessonDetails(lesson.lesson)" (mouseleave)="hideLessonDetails()"
                                     (click)="viewLesson(lesson.lesson.id!)">
                                     <div class="lesson-time text-xs font-bold">{{ lesson.time }}</div>
                                     <div class="lesson-title text-xs">{{ lesson.title }}</div>
                                 </div>
                                 }
-                                @if (day.lessons.length > 10) {
-                                <div class="more-lessons text-xs text-gray-500">
-                                    +{{ day.lessons.length - 10 }} mais
-                                </div>
+                                @if (day.lessons.length > maxVisibleLessonsPerDay) {
+                                <button type="button" pButton class="p-button-text p-button-sm mt-1"
+                                    [label]="isDayExpanded(day) ? 'Ver menos' : ('Ver mais ' + (day.lessons.length - maxVisibleLessonsPerDay))"
+                                    (click)="toggleDayLessons(day); $event.stopPropagation()">
+                                </button>
                                 }
                             </div>
                             }
@@ -220,6 +313,7 @@
                     </div>
                     }
                 </div>
+                } <!-- end @if (!isLoading()) for month -->
             </div>
         </div>
         }
@@ -244,54 +338,96 @@
 </section>
 
 <!-- Filter Dialog -->
-<p-dialog [(visible)]="showFilterDialog" [style]="{width: '450px'}" header="Filter Events" [modal]="true"
+<p-dialog [(visible)]="showFilterDialog" [style]="{width: '560px'}" header="Filtrar Aulas" [modal]="true"
     [draggable]="false" [resizable]="false">
     <div class="p-fluid">
-        <div class="field">
-            <label for="tags">Filter by Tags</label>
-            <p-multiSelect id="tags" [options]="tags" [(ngModel)]="selectedTags" optionLabel="name"
-                placeholder="Select Tags" [showToggleAll]="true">
-                <ng-template let-tag pTemplate="item">
-                    <div class="flex align-items-center">
-                        <span class="color-dot mr-2" [style.background-color]="tag.color"></span>
-                        <span>{{ tag.name }}</span>
-                    </div>
-                </ng-template>
-            </p-multiSelect>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Professor</label>
+                <p-dropdown [options]="teacherOptions" [(ngModel)]="filterTeacherId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Centro</label>
+                <p-dropdown [options]="centerOptions" [(ngModel)]="filterCenterId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
+            </div>
         </div>
 
-        <div class="field">
-            <div class="flex align-items-center">
-                <p-inputSwitch [(ngModel)]="filterByTeacher" class="mr-2"></p-inputSwitch>
-                <label for="teachers">Filter by Teachers</label>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Unidade</label>
+                <p-dropdown [options]="unitOptions" [(ngModel)]="filterUnitId" optionLabel="label"
+                    optionValue="value" placeholder="Todas" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
             </div>
-            <p-multiSelect id="teachers" [options]="teachers" [(ngModel)]="selectedTeachers" optionLabel="label"
-                placeholder="Select Teachers" [disabled]="!filterByTeacher" [showToggleAll]="true"></p-multiSelect>
+            <div class="col-12 md:col-6 field">
+                <label>Nível</label>
+                <p-dropdown [options]="levelOptions" [(ngModel)]="filterLevelId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
+            </div>
         </div>
 
-        <div class="field">
-            <div class="flex align-items-center">
-                <p-inputSwitch [(ngModel)]="filterByCenter" class="mr-2"></p-inputSwitch>
-                <label for="centers">Filter by Centers</label>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Status</label>
+                <p-dropdown [options]="statusOptions" [(ngModel)]="filterStatus" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" appendTo="body"></p-dropdown>
             </div>
-            <p-multiSelect id="centers" [options]="centers" [(ngModel)]="selectedCenters" optionLabel="label"
-                placeholder="Select Centers" [disabled]="!filterByCenter" [showToggleAll]="true"></p-multiSelect>
+            <div class="col-12 md:col-6 field">
+                <label>Modalidade</label>
+                <p-dropdown [options]="onlineOptions" [(ngModel)]="filterOnline" optionLabel="label"
+                    optionValue="value" placeholder="Todas" [showClear]="true" appendTo="body"></p-dropdown>
+            </div>
         </div>
 
-        <div class="field">
-            <div class="flex align-items-center">
-                <p-inputSwitch [(ngModel)]="filterByClass" class="mr-2"></p-inputSwitch>
-                <label for="classes">Filter by Classes</label>
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Data início</label>
+                <p-datepicker [(ngModel)]="filterStartDate" [showTime]="true" dateFormat="dd/mm/yy"
+                    [showClear]="true" [showIcon]="true"></p-datepicker>
             </div>
-            <p-multiSelect id="classes" [options]="classes" [(ngModel)]="selectedClasses" optionLabel="label"
-                placeholder="Select Classes" [disabled]="!filterByClass" [showToggleAll]="true"></p-multiSelect>
+            <div class="col-12 md:col-6 field">
+                <label>Data fim</label>
+                <p-datepicker [(ngModel)]="filterEndDate" [showTime]="true" dateFormat="dd/mm/yy"
+                    [showClear]="true" [showIcon]="true"></p-datepicker>
+            </div>
         </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterHasBookings" (onChange)="onHasBookingsChange()"></p-inputSwitch>
+                    <label>Com reservas</label>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterWithoutBookings" (onChange)="onWithoutBookingsChange()"></p-inputSwitch>
+                    <label>Sem reservas</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-8 field">
+                <label>Ordenar por</label>
+                <p-dropdown [options]="sortFieldOptions" [(ngModel)]="filterSortField" optionLabel="label"
+                    optionValue="value" placeholder="Padrão" [showClear]="true" appendTo="body"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-4 field">
+                <label>Direção</label>
+                <p-dropdown [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection" optionLabel="label"
+                    optionValue="value" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+
     </div>
 
     <ng-template pTemplate="footer">
-        <button pButton type="button" label="Apply" icon="pi pi-check"
+        <button pButton type="button" label="Aplicar" icon="pi pi-check"
             (click)="applyFilters(); showFilterDialog = false"></button>
-        <button pButton type="button" label="Clear" icon="pi pi-times" class="p-button-outlined"
+        <button pButton type="button" label="Limpar" icon="pi pi-times" class="p-button-outlined"
             (click)="clearFilters(); showFilterDialog = false"></button>
     </ng-template>
 </p-dialog>
@@ -303,16 +439,21 @@
 
     @if (selectedLesson) {
     <div class="lesson-details-content">
-        <!-- Status Badge -->
+        <!-- Status + Modality tags -->
         <div class="flex justify-content-between align-items-center mb-3">
-            <span class="p-badge text-sm" [ngClass]="{
-                        'p-badge-success': selectedLesson.status === 'COMPLETED' || selectedLesson.status === 'AVAILABLE',
-                        'p-badge-warning': selectedLesson.status === 'SCHEDULED' || selectedLesson.status === 'BOOKED',
-                        'p-badge-danger': selectedLesson.status === 'CANCELLED' || selectedLesson.status === 'OVERDUE',
-                        'p-badge-info': selectedLesson.status === 'POSTPONED'
-                      }">
-                {{ getStatusLabel(selectedLesson.status) }}
-            </span>
+            <div class="flex gap-2 align-items-center">
+                <p-tag
+                    [value]="selectedLesson | lessonStatusLabel"
+                    [severity]="selectedLesson | lessonStatusSeverity"
+                    [styleClass]="selectedLesson | lessonStatusClass"
+                    [rounded]="true">
+                </p-tag>
+                <p-tag
+                    [value]="selectedLesson | lessonStatusLabel : 'modality'"
+                    [severity]="selectedLesson | lessonStatusSeverity : 'modality'"
+                    [rounded]="true">
+                </p-tag>
+            </div>
             <span class="text-sm text-500">{{ selectedLesson.startDatetime | date: 'dd/MM/yyyy' }}</span>
         </div>
 
@@ -326,7 +467,7 @@
         <!-- Teacher -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-user text-600"></i>
-            <span>{{ selectedLesson.teacher.name }}</span>
+            <span>{{ selectedLesson.teacher.name || selectedLesson.teacher || 'N/A' }}</span>
         </div>
 
         <!-- Class/Group -->
@@ -338,7 +479,7 @@
         <!-- Center -->
         <div class="flex align-items-center gap-2 mb-3">
             <i class="pi pi-map-marker text-600"></i>
-            <span>{{ selectedLesson.center.name }}</span>
+            <span>{{ selectedLesson.center.name || selectedLesson.center || 'N/A' }}</span>
         </div>
 
         <!-- Students -->
@@ -466,13 +607,13 @@
 
                 <div class="col-12 md:col-6 field">
                     <label for="start" class="text-900 font-semibold">Start Date</label>
-                    <p-calendar [appendTo]="dd" dateFormat="mm-dd-yy" [maxDate]="changedEvent.end" [showTime]="true"
-                        [required]="true" inputId="start" [(ngModel)]="changedEvent.start"></p-calendar>
+                    <p-datepicker [appendTo]="dd" dateFormat="mm-dd-yy" [maxDate]="changedEvent.end" [showTime]="true"
+                        [required]="true" inputId="start" [(ngModel)]="changedEvent.start"></p-datepicker>
                 </div>
                 <div class="col-12 md:col-6 field">
                     <label for="start" class="text-900 font-semibold">End Date</label>
-                    <p-calendar [appendTo]="dd" dateFormat="mm-dd-yy" [minDate]="changedEvent.start" [showTime]="true"
-                        [required]="true" inputId="end" [(ngModel)]="changedEvent.end"></p-calendar>
+                    <p-datepicker [appendTo]="dd" dateFormat="mm-dd-yy" [minDate]="changedEvent.start" [showTime]="true"
+                        [required]="true" inputId="end" [(ngModel)]="changedEvent.end"></p-datepicker>
                 </div>
                 <div class="col-12 field">
                     <label for="company-color" class="text-900 font-semibold">Color</label>

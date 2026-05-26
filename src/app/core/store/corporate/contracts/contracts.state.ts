@@ -3,6 +3,8 @@ import {Contract} from "../../../models/corporate/contract";
 
 export interface ContractState extends EntityState<Contract> {
     selectedContract: Contract | null;
+    /** Maps studentId → Contract ids loaded for that student's view. */
+    contractsByStudentId: Record<string, string[]>;
     loading: boolean;
 
     successCreate: boolean;
@@ -25,6 +27,7 @@ export const contractsAdapter = createEntityAdapter<Contract>();
 
 export const initialContractState: ContractState = contractsAdapter.getInitialState({
     selectedContract: null,
+    contractsByStudentId: {},
     loading: false,
     error: null,
 

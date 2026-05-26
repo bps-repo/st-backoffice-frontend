@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
-import { Observable, of, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -16,13 +15,10 @@ import { ActivatedRoute, Router } from "@angular/router";
     templateUrl: './students.component.html'
 })
 export class StudentsComponent implements OnInit, OnDestroy {
-    private store = inject(Store);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
     lessonItem?: Lesson;
-
-    bookings: Observable<Lesson[]> = of([])
 
     lessonId!: string;
     private destroy$ = new Subject<void>();

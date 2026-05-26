@@ -2,6 +2,10 @@ import { createAction, props } from '@ngrx/store';
 import { Service } from 'src/app/core/models/course/service';
 
 export const loadServices = createAction('[Service] Load Services');
+export const loadServicesPaged = createAction(
+    '[Service] Load Services Paged',
+    props<{ page: number; size: number; sort?: string }>(),
+);
 
 export const createService = createAction(
     '[Service] Create Service',
@@ -20,7 +24,7 @@ export const createServiceFailure = createAction(
 
 export const loadServicesSuccess = createAction(
     '[Service] Load Services Success',
-    props<{ services: Service[] }>()
+    props<{ services: Service[]; page: number; size: number; totalElements: number; totalPages: number }>()
 );
 
 export const loadServicesFailure = createAction(

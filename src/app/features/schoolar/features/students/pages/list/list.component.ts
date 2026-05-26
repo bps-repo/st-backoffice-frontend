@@ -24,11 +24,12 @@ import {CenterActions} from "../../../../../../core/store/corporate/center/cente
 import {BadgeModule} from "primeng/badge";
 import {KpiIndicatorsComponent} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
 import {Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
-import {CalendarModule} from "primeng/calendar";
+import {DatePickerModule} from "primeng/datepicker";
 import {ChipsModule} from "primeng/chips";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {InputTextModule} from "primeng/inputtext";
 import {DropdownModule} from "primeng/dropdown";
+import {DialogModule} from "primeng/dialog";
 import {FormsModule} from "@angular/forms";
 import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
 import {StudentReports} from "../../../reports/components/student/student-reports.component";
@@ -49,11 +50,12 @@ import {AppState} from 'src/app/core/store';
         TooltipModule,
         BadgeModule,
         KpiIndicatorsComponent,
-        CalendarModule,
+        DatePickerModule,
         ChipsModule,
         SelectButtonModule,
         InputTextModule,
         DropdownModule,
+        DialogModule,
         FormsModule,
         StudentsDashboardComponent,
         StudentReports,
@@ -95,15 +97,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('typeTemplate', {static: true})
     typeTemplate!: TemplateRef<any>;
 
-    @ViewChild('statusFilterTemplate', {static: true})
-    statusFilterTemplate!: TemplateRef<any>;
-
-    @ViewChild('centerFilterTemplate', {static: true})
-    centerFilterTemplate!: TemplateRef<any>;
-
-    @ViewChild('levelFilterTemplate', {static: true})
-    levelFilterTemplate!: TemplateRef<any>;
-
     // References to sticky header elements
     @ViewChild('mainHeader', {static: false})
     mainHeader!: ElementRef;
@@ -117,10 +110,15 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     isViewSelectorSticky: boolean = false;
 
     students$!: Observable<Student[]>;
+    totalElements$!: Observable<number>;
     centers$!: Observable<any[]>;
     levels$!: Observable<any[]>;
 
     loading$: Observable<boolean>;
+
+    readonly DEFAULT_PAGE_SIZE = 100;
+    readonly DEFAULT_SORT = 'code,asc';
+    private currentSort = this.DEFAULT_SORT;
 
     // Filter options
     statusOptions = [
@@ -140,7 +138,34 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     globalFilterFields: string[] = GLOBAL_FILTERS;
 
     customTemplates: Record<string, TemplateRef<any>> = {};
-    filterTemplates: Record<string, TemplateRef<any>> = {};
+
+    // Filter dialog state
+    showFilterDialog = false;
+    filterStatus: string | null = null;
+    filterCenterId: string | null = null;
+    filterLevelId: string | null = null;
+    filterProvince: string | null = null;
+    filterMunicipality: string | null = null;
+
+    private centersCache: { id: string; name: string }[] = [];
+    private levelsCache: { id: string; name: string }[] = [];
+
+    get hasActiveFilters(): boolean {
+        return !!(this.filterStatus || this.filterCenterId || this.filterLevelId ||
+            this.filterProvince || this.filterMunicipality);
+    }
+
+    getStatusLabel(status: string): string {
+        return this.statusOptions.find(o => o.value === status)?.label ?? status;
+    }
+
+    getCenterLabel(centerId: string): string {
+        return this.centersCache.find(c => c.id === centerId)?.name ?? centerId;
+    }
+
+    getLevelLabel(levelId: string): string {
+        return this.levelsCache.find(l => l.id === levelId)?.name ?? levelId;
+    }
 
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
@@ -183,7 +208,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Listen for scroll events
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll() {
         this.checkStickyState();
     }
@@ -204,16 +229,19 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     constructor() {
-        // Use the entity selectors
         this.students$ = this.store.select(StudentSelectors.selectAllStudents);
+        this.totalElements$ = this.store.select(StudentSelectors.selectTotalElements);
         this.centers$ = this.store.select(CenterSelectors.selectAllCenters);
         this.levels$ = this.store.select(LevelSelectors.selectAllLevels);
 
         this.loading$ = this.store.select(StudentSelectors.selectLoading);
 
-        this.store.select(StudentSelectors.selectIds).subscribe(selectedStudentIds => {
-            console.log(selectedStudentIds)
-        })
+        this.centers$.pipe(takeUntil(this.destroy$)).subscribe(centers => {
+            this.centersCache = centers ?? [];
+        });
+        this.levels$.pipe(takeUntil(this.destroy$)).subscribe(levels => {
+            this.levelsCache = levels ?? [];
+        });
 
         // Initialize chart options
         this.chartOptions = {
@@ -278,10 +306,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnInit(): void {
-        // Dispatch action to load students
         this.store.dispatch(LevelActions.loadLevels({}))
         this.store.dispatch(CenterActions.loadCenters());
-        this.store.dispatch(StudentsActions.loadStudents());
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: 0,
+            size: this.DEFAULT_PAGE_SIZE,
+            sort: this.DEFAULT_SORT,
+        }));
         this.initializeLocationSelectors();
         this.loadProvinces();
         this.headerActions.push(
@@ -336,12 +367,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             vip: this.typeTemplate,
         };
 
-        this.filterTemplates = {
-            status: this.statusFilterTemplate,
-            centerId: this.centerFilterTemplate,
-            levelId: this.levelFilterTemplate,
-        };
-
         // Initialize sticky state check after view is initialized
         setTimeout(() => {
             this.checkStickyState();
@@ -351,6 +376,18 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    onPageChange(event: { page: number; rows: number; sort?: string }): void {
+        if (event.sort) {
+            this.currentSort = event.sort;
+        }
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: event.page,
+            size: event.rows,
+            sort: this.currentSort,
+            filters: Object.keys(this.searchFilters).length > 0 ? this.searchFilters : undefined,
+        }));
     }
 
     onRowSelect($event: Student) {
@@ -363,6 +400,10 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     navigateToEditStudent(id: string) {
 
+    }
+
+    navigateToScheduleLesson(studentId: string) {
+        this.router.navigate(['/schoolar/lessons/schedule'], {queryParams: {studentId}}).then();
     }
 
     onSearchInput(event: any): void {
@@ -382,33 +423,30 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     private performSearch(searchTerm: string): void {
         this.isSearchMode$.next(true);
 
-        // Build search filters
         const filters: any = {};
 
-        // If search term looks like an email
         if (searchTerm.includes('@')) {
             filters.email = searchTerm;
-        }
-        // If search term is numeric, try as code
-        else if (/^\d+$/.test(searchTerm.trim())) {
+        } else if (/^\d+$/.test(searchTerm.trim())) {
             filters.code = parseInt(searchTerm.trim(), 10);
-        }
-        // Otherwise, try as username
-        else {
+        } else {
             filters.username = searchTerm;
         }
 
-        // Merge with existing filters
         const mergedFilters = {...this.searchFilters, ...filters};
 
-        // Remove empty filters
         Object.keys(mergedFilters).forEach(key => {
             if (mergedFilters[key] === undefined || mergedFilters[key] === null || mergedFilters[key] === '') {
                 delete mergedFilters[key];
             }
         });
 
-        this.store.dispatch(StudentsActions.searchStudents({filters: mergedFilters}));
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: 0,
+            size: this.DEFAULT_PAGE_SIZE,
+            sort: this.currentSort,
+            filters: mergedFilters,
+        }));
     }
 
     clearSearch(): void {
@@ -418,8 +456,51 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.selectedMunicipality = null;
         this.municipalities$ = of([]);
         this.loadingMunicipalities$ = of(false);
+        this.currentSort = this.DEFAULT_SORT;
         this.isSearchMode$.next(false);
-        this.store.dispatch(StudentsActions.loadStudents());
+        this.store.dispatch(StudentsActions.loadStudentsPaginated({
+            page: 0,
+            size: this.DEFAULT_PAGE_SIZE,
+            sort: this.DEFAULT_SORT,
+        }));
+    }
+
+    applyDialogFilters(): void {
+        this.searchFilters = {};
+
+        if (this.filterStatus) this.searchFilters.status = this.filterStatus;
+        if (this.filterCenterId) (this.searchFilters as any).centerId = this.filterCenterId;
+        if (this.filterLevelId) (this.searchFilters as any).levelId = this.filterLevelId;
+        if (this.filterProvince) this.searchFilters.province = this.filterProvince;
+        if (this.filterMunicipality) this.searchFilters.municipality = this.filterMunicipality;
+
+        if (this.hasActiveFilters || this.searchTerm.trim()) {
+            this.performColumnFilter();
+            this.isSearchMode$.next(true);
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    clearFilters(): void {
+        this.filterStatus = null;
+        this.filterCenterId = null;
+        this.filterLevelId = null;
+        this.filterProvince = null;
+        this.filterMunicipality = null;
+        this.clearSearch();
+    }
+
+    onDialogProvinceChange(value: string | null): void {
+        this.filterMunicipality = null;
+        if (value) {
+            this.municipalities$ = this.store.select(LocationSelectors.selectMunicipalitiesByProvinceId(value)).pipe(
+                map(municipalities => municipalities.map(m => ({label: m.name, value: m.name.toLowerCase()} as SelectItem)))
+            );
+            this.loadMunicipalities(value);
+        } else {
+            this.municipalities$ = of([]);
+        }
     }
 
     onColumnFilter(field: string, value: any): void {
@@ -533,10 +614,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             }
         });
 
-        console.log("Dispatching search with filters:", filters);
-
         if (Object.keys(filters).length > 0) {
-            this.store.dispatch(StudentsActions.searchStudents({filters}));
+            this.store.dispatch(StudentsActions.loadStudentsPaginated({
+                page: 0,
+                size: this.DEFAULT_PAGE_SIZE,
+                sort: this.currentSort,
+                filters,
+            }));
         } else {
             this.clearSearch();
         }

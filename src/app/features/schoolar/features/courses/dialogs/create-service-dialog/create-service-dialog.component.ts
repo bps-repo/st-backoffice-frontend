@@ -38,15 +38,14 @@ export class CreateServiceDialogComponent implements OnInit {
         description: '',
         value: 0,
         active: true,
-        type: 'REGULAR_COURSE'
+        type: 'GENERAL'
     };
 
     typeOptions: SelectItem[] = [
-        {label: 'Curso Regular', value: 'REGULAR_COURSE'},
-        {label: 'Curso Intensivo', value: 'INTENSIVE_COURSE'},
-        {label: 'Aulas Particulares', value: 'PRIVATE_LESSONS'},
-        {label: 'Workshop', value: 'WORKSHOP'},
-        {label: 'Preparação para exames', value: 'EXAM_PREPARATION'}
+        {label: 'Geral', value: 'GENERAL'},
+        {label: 'Curso Inglês Adulto', value: 'ADULT_ENGLISH_COURSE'},
+        {label: 'Curso Inglês Kids', value: 'KIDS_ENGLISH_COURSE'},
+        {label: 'ATL', value: 'ATL'},
     ];
 
     activeOptions: SelectItem[] = [
@@ -108,7 +107,7 @@ export class CreateServiceDialogComponent implements OnInit {
             description: '',
             value: 0,
             active: true,
-            type: 'REGULAR_COURSE'
+            type: 'GENERAL'
         };
     }
 }

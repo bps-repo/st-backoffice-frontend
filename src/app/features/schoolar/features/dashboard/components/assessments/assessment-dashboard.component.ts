@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { FormsModule } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -18,7 +18,7 @@ import { AssessmentService } from 'src/app/core/services/assessment.service';
         ChartModule,
         CommonModule,
         FormsModule,
-        CalendarModule,
+        DatePickerModule,
         CardModule,
         ButtonModule,
         TableModule,

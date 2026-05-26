@@ -1,55 +1,40 @@
-import { Injectable, inject } from '@angular/core';
-import {
-    CanActivate,
-    Router,
-} from '@angular/router';
+import {inject} from '@angular/core';
+import {CanActivateFn, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
+import {map, take} from 'rxjs';
 import {authFeature} from '../store/auth/auth.reducers';
-import {map, Observable, take} from 'rxjs';
-import { JwtTokenService } from '../services/jwtToken.service';
+import {JwtTokenService} from '../services/jwtToken.service';
 
-/**
- * Guard for checking if the user is authenticated.
- * Allows access if the user is authenticated.
- */
-@Injectable({
-    providedIn: 'root',
-})
-export class AuthGuard implements CanActivate {
-    private store = inject(Store);
-    private router = inject(Router);
+export const AuthGuard: CanActivateFn = () => {
+    const store = inject(Store);
+    const router = inject(Router);
 
+    return store.select(authFeature.selectIsAuthenticated).pipe(
+        take(1),
+        map((isAuthenticated) => {
+            const storedToken = localStorage.getItem('accessToken');
+            let tokenValid = false;
 
-    canActivate(): Observable<boolean> {
-        return this.store.select(authFeature.selectIsAuthenticated).pipe(
-            take(1),
-            map((isAuthenticated) => {
-                // Double-check with localStorage and token validity
-                const storedToken = localStorage.getItem('accessToken');
-                let tokenValid = false;
-
-                if (storedToken) {
-                    try {
-                        JwtTokenService.decodeToken(storedToken);
-                        tokenValid = !JwtTokenService.isTokenExpired();
-                    } catch {
-                        tokenValid = false;
-                    }
+            if (storedToken) {
+                try {
+                    JwtTokenService.decodeToken(storedToken);
+                    tokenValid = !JwtTokenService.isTokenExpired();
+                } catch {
+                    tokenValid = false;
                 }
+            }
 
-                const actuallyAuthenticated = isAuthenticated && tokenValid;
+            const actuallyAuthenticated = isAuthenticated && tokenValid;
 
-                if (!actuallyAuthenticated) {
-                    // Clear invalid tokens
-                    if (storedToken && !tokenValid) {
-                        localStorage.removeItem('accessToken');
-                        localStorage.removeItem('refreshToken');
-                    }
-                    this.router.navigate(['/auth/login']);
+            if (!actuallyAuthenticated) {
+                if (storedToken && !tokenValid) {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
                 }
+                return router.createUrlTree(['/auth/login']);
+            }
 
-                return actuallyAuthenticated;
-            })
-        );
-    }
-}
+            return true;
+        }),
+    );
+};

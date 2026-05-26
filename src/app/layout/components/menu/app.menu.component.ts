@@ -149,7 +149,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Vendas Avulsas',
                         icon: 'pi pi-fw pi-shopping-cart',
                         routerLink: ['/finances/sales'],
-                        visible: this.hasPermission('pos.view_sales')
+                        visible: this.hasPermission('sales.view_invoices')
 
                     },
                     {
@@ -162,7 +162,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         label: 'Relatórios',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/finances/reports'],
-                        visible: this.hasPermission('financial.generate_reports')
+                        visible: this.hasPermission('sales.generate_reports')
                     },
                 ],
             },
@@ -171,6 +171,12 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                 icon: 'pi pi-fw pi-users',
                 visible: (this.hasPermission('centers.view')
                     || this.hasPermission('reports.export')
+                    || this.hasPermission('users.view')
+                    || this.hasPermission('roles.view')
+                    || this.hasPermission('users.edit')
+                    || this.hasPermission('users.create')
+                    || this.hasPermission('users.delete')
+                    || this.hasPermission('services.view')
                 ),
                 items: [
                     {
@@ -188,6 +194,12 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         visible: this.hasPermission('centers.view')
                     },
                     {
+                        label: 'Produtos e serviços',
+                        icon: 'pi pi-fw pi-box',
+                        routerLink: ['/corporate/services'],
+                        visible: this.hasPermission('services.view')
+                    },
+                    {
                         label: 'Relatório',
                         icon: 'pi pi-fw pi-file-pdf',
                         routerLink: ['/corporate/reports'],
@@ -198,6 +210,9 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         icon: 'pi pi-fw pi-cog',
                         visible: (this.hasPermission('users.view')
                             || this.hasPermission('roles.view')
+                            || this.hasPermission('users.edit')
+                            || this.hasPermission('users.create')
+                            || this.hasPermission('users.delete')
                         ),
                         items: [
                             {
@@ -211,6 +226,14 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                                 icon: 'pi pi-fw pi-id-card',
                                 routerLink: ['/corporate/roles'],
                                 visible: this.hasPermission('roles.view')
+                            },
+                            {
+                                label: 'Serviços',
+                                icon: 'pi pi-fw pi-briefcase',
+                                routerLink: ['/corporate/services'],
+                                visible: (this.hasPermission('users.view')
+                                    || this.hasPermission('roles.view')
+                                )
                             }
                         ]
                     },

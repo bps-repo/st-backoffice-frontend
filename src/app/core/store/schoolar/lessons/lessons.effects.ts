@@ -1,8 +1,8 @@
 import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
-import {catchError, exhaustMap, map} from 'rxjs/operators';
-import {LessonService} from '../../../services/lesson.service';
+import {catchError, exhaustMap, map, switchMap} from 'rxjs/operators';
+import {LessonService} from '../../../services/lessons/lesson.service';
 import {lessonsActions} from "./lessons.actions";
 import {HttpErrorResponse} from "@angular/common/http";
 
@@ -11,13 +11,27 @@ export class LessonsEffects {
     private actions$ = inject(Actions);
     private lessonApiService = inject(LessonService);
 
+    loadLessonsPaginated$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(lessonsActions.loadLessonsPaginated),
+            switchMap(({page, size, sort, status}) =>
+                this.lessonApiService.searchLessons({page, size, sort, status}).pipe(
+                    map((response) => lessonsActions.loadLessonsPaginatedSuccess(response)),
+                    catchError((error: HttpErrorResponse) =>
+                        of(lessonsActions.loadLessonsPaginatedFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
     // Basic CRUD operations
     loadLessons$ = createEffect(() =>
         this.actions$.pipe(
             ofType(lessonsActions.loadLessons),
             exhaustMap(() =>
-                this.lessonApiService.getLessons().pipe(
-                    map((lessons) => lessonsActions.loadLessonsSuccess({lessons})),
+                this.lessonApiService.searchLessons({}).pipe(
+                    map((response) => lessonsActions.loadLessonsSuccess({lessons: response.content ?? []})),
                     catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsFailure({error: error.message}))
                     )
@@ -123,8 +137,8 @@ export class LessonsEffects {
         this.actions$.pipe(
             ofType(lessonsActions.loadLessonsByDateRange),
             exhaustMap(({startDate, endDate}) =>
-                this.lessonApiService.getLessonsByDateRange(startDate, endDate).pipe(
-                    map((lessons) => lessonsActions.loadLessonsByDateRangeSuccess({lessons})),
+                this.lessonApiService.searchLessons({startDate, endDate}).pipe(
+                    map((response) => lessonsActions.loadLessonsByDateRangeSuccess({lessons: response.content ?? []})),
                     catchError((error: HttpErrorResponse) =>
                         of(lessonsActions.loadLessonsByDateRangeFailure({error: error.message}))
                     )
@@ -168,9 +182,9 @@ export class LessonsEffects {
             ofType(lessonsActions.loadLessonBookings),
             exhaustMap(({lessonId}) =>
                 this.lessonApiService.getLessonBookings(lessonId).pipe(
-                    map((bookings) => lessonsActions.loadLessonBookingsSuccess({bookings})),
+                    map((bookings) => lessonsActions.loadLessonBookingsSuccess({lessonId, bookings})),
                     catchError((error: HttpErrorResponse) =>
-                        of(lessonsActions.loadLessonBookingsFailure({error: error.error.message}))
+                        of(lessonsActions.loadLessonBookingsFailure({error: error.error?.message ?? error.message}))
                     )
                 )
             )

@@ -20,7 +20,7 @@
       
       <div class="field col-12 md:col-6">
         <label for="dueDate" class="font-bold">Data de Vencimento*</label>
-        <p-calendar id="dueDate" formControlName="dueDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+        <p-datepicker id="dueDate" formControlName="dueDate" [showIcon]="true" dateFormat="dd/mm/yy"></p-datepicker>
         <small *ngIf="taskForm.get('dueDate')?.invalid && taskForm.get('dueDate')?.touched" class="p-error">Data de vencimento é obrigatória</small>
       </div>
     </div>

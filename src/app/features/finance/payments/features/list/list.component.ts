@@ -1,145 +1,199 @@
-import {Component, OnInit, OnDestroy, inject} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
-import {FormsModule} from '@angular/forms';
-import {Installment, InstallmentStatus} from '../../../../../core/models/payment/installment';
-import {ButtonModule} from 'primeng/button';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {TooltipModule} from 'primeng/tooltip';
-import {Store} from '@ngrx/store';
-import {InstallmentsActions} from '../../../../../core/store/finance/installments/installments.actions';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-    selectAllInstallments,
-    selectLoading,
-    selectPage,
-    selectSize,
-    selectTotalElements
-} from '../../../../../core/store/finance/installments/installments.selectors';
-import {Observable, of, Subscription} from 'rxjs';
-import {InstallmentService} from "../../../../../core/services/installment.service";
+    EntityPayment,
+    Installment,
+    PaymentEntityType,
+    PaymentMethod,
+} from '../../../../../core/models/payment/installment';
+import { Contract } from '../../../../../core/models/corporate/contract';
+import { PaymentsActions } from '../../../../../core/store/finance/payments/payments.actions';
+import {
+    selectAllPayments,
+    selectPaymentsLoading,
+    selectPaymentsSize,
+    selectPaymentsTotalElements,
+} from '../../../../../core/store/finance/payments/payments.selectors';
+import {CurrencyFormatPipe} from '../../../../../shared/pipes/currency-format.pipe';
+import {EntityTypeLabelPipe} from '../../../../../shared/pipes/entity-type-label.pipe';
+import {EntityTypeSeverityPipe} from '../../../../../shared/pipes/entity-type-severity.pipe';
+import {PaymentMethodLabelPipe} from '../../../../../shared/pipes/payment-method-label.pipe';
+
+type PaymentMethodFilter = 'all' | PaymentMethod;
+type EntityTypeFilter = 'all' | PaymentEntityType;
 
 @Component({
     selector: 'app-general',
     templateUrl: './list.component.html',
     styleUrls: ['./list.component.scss'],
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule, ButtonModule, SelectButtonModule, TableModule, TagModule, TooltipModule]
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        AsyncPipe,
+        DatePipe,
+        NgIf,
+        RouterModule,
+        FormsModule,
+        ButtonModule,
+        SelectButtonModule,
+        TableModule,
+        TagModule,
+        TooltipModule,
+        CurrencyFormatPipe,
+        EntityTypeLabelPipe,
+        EntityTypeSeverityPipe,
+        PaymentMethodLabelPipe,
+    ],
 })
 export class ListComponent implements OnInit {
-    private installmentsService = inject(InstallmentService);
     private store$ = inject(Store);
 
-    installments: Installment[] = [];
-    filteredInstallments: Installment[] = [];
-    statusFilter: string = 'all';
+    payments: EntityPayment[] = [];
+    filteredPayments: EntityPayment[] = [];
 
-    installments$: Observable<Installment[]> = of([]);
+    methodFilter: PaymentMethodFilter = 'all';
+    entityTypeFilter: EntityTypeFilter = 'all';
 
-    // pagination
-    page: number = 0;
-    size: number = 15;
-    totalRecords: number = 0;
+    loading$: Observable<boolean> = this.store$.select(selectPaymentsLoading);
 
-    loading$: Observable<boolean> = of(false);
+    page = 0;
+    size = 15;
+    totalRecords = 0;
 
-    // Summary counts
-    totalInstallments: number = 0;
-    paidInstallments: number = 0;
-    pendingInstallments: number = 0;
-    overdueInstallments: number = 0;
+    totalPayments = 0;
+    totalAmount = 0;
+    installmentPayments = 0;
+    contractPayments = 0;
+
+    readonly entityTypeOptions: { label: string; value: EntityTypeFilter }[] = [
+        { label: 'Todos', value: 'all' },
+        { label: 'Parcelas', value: PaymentEntityType.INSTALLMENT },
+        { label: 'Contratos', value: PaymentEntityType.CONTRACT },
+    ];
+
+    readonly paymentMethodOptions: { label: string; value: PaymentMethodFilter }[] = [
+        { label: 'Todos', value: 'all' },
+        { label: 'Dinheiro', value: PaymentMethod.CASH },
+        { label: 'Cartão', value: PaymentMethod.CREDIT_CARD },
+        { label: 'Transferência', value: PaymentMethod.BANK_TRANSFER },
+        { label: 'Multicaixa', value: PaymentMethod.MULTICAIXA },
+    ];
 
     constructor() {
-        this.installments$ = this.store$.select(selectAllInstallments);
-        this.loading$ = this.store$.select(selectLoading);
+        this.store$.select(selectAllPayments)
+            .pipe(takeUntilDestroyed())
+            .subscribe((list) => {
+                this.payments = list;
+                this.applyFilters();
+                this.updateSummary();
+            });
+
+        this.store$.select(selectPaymentsTotalElements)
+            .pipe(takeUntilDestroyed())
+            .subscribe((total) => { this.totalRecords = total ?? 0; });
+
+        this.store$.select(selectPaymentsSize)
+            .pipe(takeUntilDestroyed())
+            .subscribe((size) => { if (size) this.size = size; });
     }
 
     ngOnInit(): void {
-        this.loadInstallments();
+        this.loadPayments();
     }
 
-    loadInstallments(page: number = this.page, size: number = this.size): void {
-        this.store$.dispatch(InstallmentsActions.loadInstallments({page: page, size}))
-        this.installments$.subscribe({
-            next: (res) => {
-                this.installments = res;
-                this.applyFilters();
-                this.updateSummary();
-            },
-            error: (err) => {
-                console.error('Failed to load installments', err);
-                this.installments = [];
-                this.filteredInstallments = [];
-                this.totalRecords = 0;
-            }
-        });
+    loadPayments(page: number = this.page, size: number = this.size): void {
+        this.page = page;
+        this.size = size;
+        this.store$.dispatch(PaymentsActions.loadPayments({ page, size }));
     }
 
     applyFilters(): void {
-        if (this.statusFilter === 'all') {
-            this.filteredInstallments = [...this.installments];
-        } else {
-            this.filteredInstallments = this.installments.filter(
-                installment => installment.status === this.statusFilter
-            );
+        let list = [...this.payments];
+
+        if (this.entityTypeFilter !== 'all') {
+            list = list.filter((p) => p.paymentEntityType === this.entityTypeFilter);
         }
-        this.updateSummary();
+
+        if (this.methodFilter !== 'all') {
+            list = list.filter((p) => p.paymentMethod === this.methodFilter);
+        }
+
+        this.filteredPayments = list;
     }
 
     updateSummary(): void {
-        this.totalInstallments = this.installments.length;
-        this.paidInstallments = this.installments.filter(i => i.status === 'PAID').length;
-        this.pendingInstallments = this.installments.filter(i => i.status === 'PENDING_PAYMENT').length;
-        this.overdueInstallments = this.installments.filter(i => i.status === 'OVERDUE').length;
+        this.totalPayments = this.payments.length;
+        this.totalAmount = this.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        this.installmentPayments = this.payments.filter(
+            (p) => p.paymentEntityType === PaymentEntityType.INSTALLMENT,
+        ).length;
+        this.contractPayments = this.payments.filter(
+            (p) => p.paymentEntityType === PaymentEntityType.CONTRACT,
+        ).length;
     }
 
-    getStatusSeverity(status: InstallmentStatus | string): string {
-        switch (status) {
-            case 'PAID':
-                return 'success';
-            case 'PENDING_PAYMENT':
-                return 'warning';
-            case 'OVERDUE':
-                return 'danger';
-            case 'CANCELLED':
-                return 'info';
-            default:
-                return 'secondary';
-        }
-    }
-
-    markAsPaid(installment: Installment): void {
-        const index = this.installments.findIndex(i => i.id === installment.id);
-        if (index !== -1) {
-            this.installments[index] = {
-                ...this.installments[index],
-                status: 'PAID',
-                updatedAt: new Date().toISOString()
-            } as Installment;
-            this.applyFilters();
-            this.updateSummary();
-        }
-
-        const payload = {
-            paymentMethod: "CREDIT_CARD",
-            installmentId: installment.id,
-            amount: installment.amount,
-        }
-
-        this.installmentsService.makePayment(installment.id, payload).subscribe({
-            next: (res) => {
-                console.log('Payment successful', res);
-            },
-            error: (err) => {
-                console.error('Payment failed', err);
-            }
-        })
-    }
-
-    onPageChange(event: any) {
+    onPageChange(event: any): void {
         const newPage = event.first / event.rows;
         const newSize = event.rows;
-        this.loadInstallments(newPage, newSize);
+        this.loadPayments(newPage, newSize);
+    }
+
+    getInstallmentEntity(payment: EntityPayment): Installment | null {
+        if (payment.paymentEntityType !== PaymentEntityType.INSTALLMENT) return null;
+        return (payment.entity as Installment) ?? null;
+    }
+
+    getContract(payment: EntityPayment): Contract | null {
+        const installment = this.getInstallmentEntity(payment);
+        if (installment?.contract) return installment.contract;
+
+        if (payment.paymentEntityType === PaymentEntityType.CONTRACT) {
+            return (payment.entity as Contract) ?? null;
+        }
+        return null;
+    }
+
+    getStudentCode(payment: EntityPayment): string | number | null {
+        const contract = this.getContract(payment);
+        const student: any = contract?.student;
+        return student?.code ?? null;
+    }
+
+    getStudentName(payment: EntityPayment): string | null {
+        const contract = this.getContract(payment);
+        const student: any = contract?.student;
+        if (!student) return null;
+        if (student.name) return student.name;
+        if (student.user) {
+            const { firstname, lastname } = student.user;
+            return [firstname, lastname].filter(Boolean).join(' ') || null;
+        }
+        return null;
+    }
+
+    getContractCode(payment: EntityPayment): string | null {
+        return this.getContract(payment)?.code ?? null;
+    }
+
+    getContractId(payment: EntityPayment): string | null {
+        return this.getContract(payment)?.id ?? null;
+    }
+
+    getInstallmentNumber(payment: EntityPayment): number | null {
+        return this.getInstallmentEntity(payment)?.installmentNumber ?? null;
+    }
+
+    trackByPayment(_: number, payment: EntityPayment): string {
+        return payment.id;
     }
 }

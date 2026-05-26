@@ -28,6 +28,33 @@ export const lessonsFeature = createFeature({
             error,
         })),
 
+        // Load lessons paginated
+        on(lessonsActions.loadLessonsPaginated, (state, { page, size }) => ({
+            ...state,
+            loading: true,
+            error: null,
+            page,
+            size,
+        })),
+        on(lessonsActions.loadLessonsPaginatedSuccess, (state, { content, totalElements, totalPages, number, size }) =>
+            lessonsAdapter.setAll(content, {
+                ...state,
+                loading: false,
+                error: null,
+                page: number,
+                size,
+                totalElements,
+                totalPages,
+                lastFetch: Date.now(),
+                cacheExpired: false,
+            })
+        ),
+        on(lessonsActions.loadLessonsPaginatedFailure, (state, { error }) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
+
         // Load lesson
         on(lessonsActions.loadLesson, (state) => ({
             ...state,
@@ -201,14 +228,19 @@ export const lessonsFeature = createFeature({
             loadingLessonBookings: true,
             lessonBookingsError: null,
         })),
-        on(lessonsActions.loadLessonBookingsSuccess, (state, { bookings }) => ({
+        on(lessonsActions.loadLessonBookingsSuccess, (state, { lessonId, bookings }) => ({
             ...state,
             lessonBookings: {
                 ...state.lessonBookings,
-                bookings
+                [lessonId]: bookings,
             },
             loadingLessonBookings: false,
             lessonBookingsError: null,
+        })),
+
+        on(lessonsActions.clearSelectedLesson, (state) => ({
+            ...state,
+            selectedLessonId: null,
         })),
         on(lessonsActions.loadLessonBookingsFailure, (state, { error }) => ({
             ...state,

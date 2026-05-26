@@ -5,16 +5,23 @@
             <p-progressSpinner></p-progressSpinner>
         </div>
 
-        <p-table #dt [value]="data" [rows]="10" [loading]="loading" [paginator]="true"
+        <p-table #dt [value]="data" [rows]="pageSize" [loading]="loading" [paginator]="true"
             [globalFilterFields]="globalFilterFields" [scrollable]="true" draggable="false" scrollHeight="400px"
-            responsiveLayout="scroll" [expandedRowKeys]="expandedRows">
+            responsiveLayout="scroll" [expandedRowKeys]="expandedRows"
+            [lazy]="lazy" [totalRecords]="lazy ? totalRecords : data.length"
+            (onLazyLoad)="onLazyLoad($event)">
 
             <!-- Header -->
             <ng-template pTemplate="header">
                 <tr>
-                    <th *ngFor="let col of columns" [style.minWidth]="'5rem'">
-                        <div class="flex justify-content-between font-semibold">
-                            {{ col.header }}
+                    <th *ngFor="let col of columns" [style.minWidth]="'5rem'"
+                        [pSortableColumn]="col.sortable ? (col.sortField ?? col.field) : undefined"
+                        [pSortableColumnDisabled]="!col.sortable">
+                        <div class="flex justify-content-between align-items-center font-semibold">
+                            <span class="flex align-items-center gap-1">
+                                {{ col.header }}
+                                <p-sortIcon *ngIf="col.sortable" [field]="col.sortField ?? col.field"></p-sortIcon>
+                            </span>
                             <p-columnFilter *ngIf="col.filterType && !col.filterTemplate && !filterTemplates[col.field]" [type]="col.filterType"
                                 [field]="col.field" display="menu"></p-columnFilter>
                             <p-columnFilter *ngIf="col.filterType && col.filterTemplate && filterTemplates[col.field]"

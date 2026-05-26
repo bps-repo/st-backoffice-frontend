@@ -32,6 +32,38 @@ export const studentsFeature = createFeature({
             error,
         })),
 
+        // Load students paginated
+        on(StudentsActions.loadStudentsPaginated, (state) => ({
+            ...state,
+            loading: true,
+            error: null,
+        })),
+
+        on(StudentsActions.loadStudentsPaginatedSuccess, (state, {content, totalElements, totalPages, number, size}) =>
+            studentsAdapter.setAll(content, {
+                ...state,
+                loading: false,
+                error: null,
+                lastFetch: Date.now(),
+                cacheExpired: false,
+                totalElements,
+                pagination: {
+                    ...state.pagination,
+                    currentPage: number,
+                    pageIndex: number,
+                    pageSize: size,
+                    totalItems: totalElements,
+                    totalPages,
+                },
+            })
+        ),
+
+        on(StudentsActions.loadStudentsPaginatedFailure, (state, {error}) => ({
+            ...state,
+            loading: false,
+            error,
+        })),
+
         // Search students
         on(StudentsActions.searchStudents, (state) => ({
             ...state,
@@ -55,10 +87,10 @@ export const studentsFeature = createFeature({
             error,
         })),
 
-        // Load single student
+        // Load single student — uses loadingDetail so list loading state is unaffected
         on(StudentsActions.loadStudent, (state) => ({
             ...state,
-            loading: true,
+            loadingDetail: true,
             error: null,
         })),
 
@@ -66,14 +98,14 @@ export const studentsFeature = createFeature({
             studentsAdapter.upsertOne(student, {
                 ...state,
                 selectedStudentId: student.id || null,
-                loading: false,
+                loadingDetail: false,
                 error: null,
             })
         ),
 
         on(StudentsActions.loadStudentFailure, (state, {error}) => ({
             ...state,
-            loading: false,
+            loadingDetail: false,
             error,
         })),
 
@@ -216,6 +248,30 @@ export const studentsFeature = createFeature({
         })),
 
         on(StudentsActions.createStudentPhotoFailure, (state, {error}) => ({
+            ...state,
+            loadingPhoto: false,
+            photoError: error,
+        })),
+
+        // Update student photo (PUT multipart)
+        on(StudentsActions.updateStudentPhoto, (state) => ({
+            ...state,
+            loadingPhoto: true,
+            photoError: null,
+        })),
+
+        on(StudentsActions.updateStudentPhotoSuccess, (state, {student}) =>
+            studentsAdapter.updateOne(
+                {id: student.id!, changes: student},
+                {
+                    ...state,
+                    loadingPhoto: false,
+                    photoError: null,
+                },
+            )
+        ),
+
+        on(StudentsActions.updateStudentPhotoFailure, (state, {error}) => ({
             ...state,
             loadingPhoto: false,
             photoError: error,

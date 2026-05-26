@@ -3,7 +3,8 @@ import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Student} from 'src/app/core/models/academic/students/student';
-import {ApiResponse} from "../models/ApiResponseService";
+import {StudentUnitProgress} from 'src/app/core/models/academic/students/student-unit-progress';
+import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 import {CreateStudentRequest} from "../models/academic/students/create-student-request";
 
@@ -61,6 +62,17 @@ export class StudentService {
         return this.http.post<any>(`${this.apiUrl}/photo/create`, photoData);
     }
 
+    /**
+     * Replace student profile photo (multipart field `photo`).
+     */
+    updateStudentPhoto(studentId: string, photoFile: File): Observable<Student> {
+        const formData = new FormData();
+        formData.append('photo', photoFile);
+        return this.http.put<ApiResponse<any>>(`${this.apiUrl}/${studentId}/photo`, formData).pipe(
+            map((response) => this.normalizeStudent(response.data)),
+        );
+    }
+
     addStudentToClass(studentId: string, classId: string): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/add-to-class/${classId}`, {studentId});
     }
@@ -79,20 +91,6 @@ export class StudentService {
 
     /**
      * Search and filter students with comprehensive filtering options.
-     * @param filters Search filters (
-     * status,
-     * gender,
-     * ageRange ex.: 18-25
-     * academicBackground,
-     * centerId,
-     * levelId,
-     * unitId,
-     * code,
-     * email,
-     * username,
-     * province,
-     * municipality)
-     * @returns Observable of Student array
      */
     searchStudents(filters: {
         status?: string;
@@ -119,20 +117,109 @@ export class StudentService {
         return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`, {params}).pipe(
             map((response) => {
                 const data = response.data;
-                // Handle both pageable and non-pageable responses
                 const list = Array.isArray(data) ? data : (data?.content ?? []);
                 return (list as any[]).map((s) => this.normalizeStudent(s));
             })
         );
     }
 
+    /**
+     * Paginated search — used by the student list with server-side pagination and sorting.
+     */
+    searchStudentsPaginated(
+        filters: {
+            status?: string;
+            academicBackground?: string;
+            ageRange?: string;
+            gender?: string;
+            centerId?: string;
+            levelId?: string;
+            unitId?: string;
+            code?: number;
+            email?: string;
+            username?: string;
+            province?: string;
+            municipality?: string;
+        },
+        page: number,
+        size: number,
+        sort?: string
+    ): Observable<PageableResponse<Student>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        if (sort) params = params.set('sort', sort);
+
+        Object.entries(filters || {}).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                params = params.set(key, String(value));
+            }
+        });
+
+        return this.http.get<ApiResponse<PageableResponse<any>>>(`${this.apiUrl}/search`, {params}).pipe(
+            map((response) => {
+                const data = response.data as PageableResponse<any>;
+                return {
+                    ...data,
+                    content: (data.content ?? []).map((s: any) => this.normalizeStudent(s)),
+                } as PageableResponse<Student>;
+            })
+        );
+    }
+
+
+    getStudentUnitProgresses(studentId: string): Observable<StudentUnitProgress[]> {
+        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/${studentId}/unit-progresses`).pipe(
+            map(res => {
+                const items: any[] = res.data ?? [];
+                return items
+                    .map(item => {
+                        // lessonProgress / assessmentProgress / status live inside the
+                        // embedded student.unitProgresses array; find the matching entry by id.
+                        const embedded: any[] = item.student?.unitProgresses ?? [];
+                        const extra = embedded.find((up: any) => up.id === item.id) ?? {};
+                        return {
+                            id: item.id,
+                            unit: item.unit,
+                            completed: item.completed ?? false,
+                            assessmentsPassed: item.assessmentsPassed ?? 0,
+                            assessmentsFailed: item.assessmentsFailed ?? 0,
+                            lessonProgress: extra.lessonProgress ?? 0,
+                            assessmentProgress: extra.assessmentProgress ?? 0,
+                            status: extra.status ?? (item.completed ? 'COMPLETED' : 'PENDING'),
+                        } as StudentUnitProgress;
+                    })
+                    .sort((a, b) => Number(a.unit.orderUnit) - Number(b.unit.orderUnit));
+            })
+        );
+    }
+
+    /**
+     * Turn relative photo paths into absolute URLs against the configured API base.
+     * Leaves http(s), data: and blob: URIs unchanged.
+     */
+    private resolveStudentPhotoUrl(photo: string | null | undefined): string | null | undefined {
+        if (photo == null || String(photo).trim() === '') {
+            return photo;
+        }
+        const p = photo.trim();
+        if (/^(https?:\/\/|data:|blob:)/i.test(p)) {
+            return p;
+        }
+        const base = environment.apiUrl.replace(/\/$/, '');
+        return p.startsWith('/') ? `${base}${p}` : `${base}/${p}`;
+    }
 
     // Normalize API student object into front-end Student model
     private normalizeStudent(apiStudent: any): Student {
+        const user = apiStudent.user;
         return {
             id: apiStudent.id,
             code: apiStudent.code,
-            user: apiStudent.user,
+            user: user
+                ? {...user, photo: this.resolveStudentPhotoUrl(user.photo)}
+                : user,
             status: apiStudent.status,
             levelProgressPercentage: apiStudent.levelProgressPercentage ?? 0,
             center: apiStudent.center || (apiStudent.centerId ? {id: apiStudent.centerId} : null),

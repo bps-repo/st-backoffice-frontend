@@ -1,6 +1,7 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
 import {Lesson, LessonCreate} from 'src/app/core/models/academic/lesson';
 import {BulkBookingRequest, BulkBookingResult} from 'src/app/core/models/academic/bulk-booking';
+import {PageableResponse} from 'src/app/core/models/ApiResponseService';
 
 export const LESSONS_FEATURE_KEY = 'lessons';
 
@@ -11,6 +12,11 @@ export const lessonsActions = createActionGroup({
         'Load Lessons': emptyProps(),
         'Load Lessons Success': props<{ lessons: Lesson[] }>(),
         'Load Lessons Failure': props<{ error: string }>(),
+
+        // Load lessons paginated
+        'Load Lessons Paginated': props<{ page: number; size: number; sort?: string; status?: string }>(),
+        'Load Lessons Paginated Success': props<PageableResponse<Lesson>>(),
+        'Load Lessons Paginated Failure': props<{ error: string }>(),
 
         // Load Lesson
         'Load Lesson': props<{ id: string }>(),
@@ -60,8 +66,11 @@ export const lessonsActions = createActionGroup({
 
         // Lesson bookings endpoints
         'Load Lesson Bookings': props<{ lessonId: string }>(),
-        'Load Lesson Bookings Success': props<{ bookings: any[] }>(),
+        'Load Lesson Bookings Success': props<{ lessonId: string; bookings: any[] }>(),
         'Load Lesson Bookings Failure': props<{ error: string }>(),
+
+        // Clear selected lesson on navigation
+        'Clear Selected Lesson': emptyProps(),
 
         'Create Lesson Booking': props<{ lessonId: string, bookingData: any }>(),
         'Create Lesson Booking Success': props<{ booking: any }>(),

@@ -4,7 +4,7 @@
             <div class="flex flex-column md:flex-row justify-content-between align-items-start gap-3">
                 <div>
                     <h2 class="m-0">Pagamentos</h2>
-                    <span class="text-600">Vista geral de pagamentos</span>
+                    <span class="text-600">Lista de todos os pagamentos registados</span>
                 </div>
                 <div class="flex gap-2">
                     <button pButton type="button" label="Relatórios" icon="pi pi-chart-bar" class="p-button-outlined"
@@ -14,83 +14,124 @@
                 </div>
             </div>
 
-            <div class="mt-3">
-                <p-selectButton [options]="[
-          {label: 'Todos', value: 'all'},
-          {label: 'Pendentes', value: 'PENDING_PAYMENT'},
-          {label: 'Pagos', value: 'PAID'},
-          {label: 'Vencidos', value: 'OVERDUE'},
-          {label: 'Cancelado', value: 'CANCELLED'}
-        ]" [(ngModel)]="statusFilter" (onChange)="applyFilters()"></p-selectButton>
+            <div class="flex flex-column md:flex-row flex-wrap gap-3 mt-3">
+                <div class="flex flex-column gap-1">
+                    <span class="text-xs text-600">Tipo</span>
+                    <p-selectButton [options]="entityTypeOptions" optionLabel="label" optionValue="value"
+                                    [(ngModel)]="entityTypeFilter" (onChange)="applyFilters()"></p-selectButton>
+                </div>
+                <div class="flex flex-column gap-1">
+                    <span class="text-xs text-600">Método</span>
+                    <p-selectButton [options]="paymentMethodOptions" optionLabel="label" optionValue="value"
+                                    [(ngModel)]="methodFilter" (onChange)="applyFilters()"></p-selectButton>
+                </div>
             </div>
 
             <div class="grid mt-3">
                 <div class="col-12 md:col-3">
                     <div class="surface-100 p-3 border-round">
                         <div class="text-600">Total de pagamentos</div>
-                        <div class="text-3xl font-bold">{{ totalInstallments }}</div>
+                        <div class="text-3xl font-bold">{{ totalPayments }}</div>
                     </div>
                 </div>
                 <div class="col-12 md:col-3">
                     <div class="surface-100 p-3 border-round">
-                        <div class="text-600">Pagos</div>
-                        <div class="text-3xl font-bold text-green-600">{{ paidInstallments }}</div>
+                        <div class="text-600">Valor total</div>
+                        <div class="text-3xl font-bold text-green-600">{{ totalAmount | currencyFormat }}</div>
                     </div>
                 </div>
                 <div class="col-12 md:col-3">
                     <div class="surface-100 p-3 border-round">
-                        <div class="text-600">Pendentes</div>
-                        <div class="text-3xl font-bold text-yellow-600">{{ pendingInstallments }}</div>
+                        <div class="text-600">Parcelas</div>
+                        <div class="text-3xl font-bold text-blue-600">{{ installmentPayments }}</div>
                     </div>
                 </div>
                 <div class="col-12 md:col-3">
                     <div class="surface-100 p-3 border-round">
-                        <div class="text-600">Vencidos</div>
-                        <div class="text-3xl font-bold text-red-600">{{ overdueInstallments }}</div>
+                        <div class="text-600">Contratos</div>
+                        <div class="text-3xl font-bold text-primary">{{ contractPayments }}</div>
                     </div>
                 </div>
             </div>
 
-            <p-table [value]="filteredInstallments" [paginator]="true" [rows]="size"
+            <p-table [value]="filteredPayments" [paginator]="true" [rows]="size"
                      [rowsPerPageOptions]="[10,15,25,50]" [lazy]="true" [totalRecords]="totalRecords"
-                     [loading]="(loading$ | async)!" (onPage)="onPageChange($event)" responsiveLayout="scroll">
+                     [loading]="(loading$ | async)!" (onPage)="onPageChange($event)" responsiveLayout="scroll"
+                     dataKey="id">
                 <ng-template pTemplate="header">
                     <tr>
+                        <th>Tipo</th>
+                        <th>Aluno</th>
                         <th>Contrato</th>
-                        <th>Valor</th>
-                        <th>Data de vencimento</th>
                         <th>Parcela</th>
-                        <th>Estado</th>
+                        <th>Valor</th>
+                        <th>Método</th>
+                        <th>Data</th>
                         <th>Acções</th>
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-installment>
+                <ng-template pTemplate="body" let-payment>
                     <tr>
                         <td>
-                            <a [routerLink]="['/finances/contracts/details', installment.contract.id]"
-                               class="text-primary">
-                                {{ installment.contract.student.code }}
-                            </a>
+                            <p-tag [value]="payment.paymentEntityType | entityTypeLabel"
+                                   [severity]="payment.paymentEntityType | entityTypeSeverity"
+                                   [rounded]="true"></p-tag>
                         </td>
-                        <td>{{ installment.amount + ' Kz' }}</td>
-                        <td>{{ installment.dueDate | date:'shortDate' }}</td>
-                        <td>{{ installment.installmentNumber }}</td>
                         <td>
-                            <p-tag [value]="installment.status"
-                                   [severity]="getStatusSeverity(installment.status)"></p-tag>
+                            <ng-container *ngIf="getStudentCode(payment) as code; else noStudent">
+                                <div class="flex flex-column">
+                                    <span class="text-sm font-medium">{{ code }}</span>
+                                    <span *ngIf="getStudentName(payment) as name"
+                                          class="text-xs text-color-secondary">{{ name }}</span>
+                                </div>
+                            </ng-container>
+                            <ng-template #noStudent>
+                                <span class="text-color-secondary">-</span>
+                            </ng-template>
                         </td>
+                        <td>
+                            <ng-container *ngIf="getContractCode(payment) as contractCode; else noContract">
+                                <a *ngIf="getContractId(payment) as contractId"
+                                   [routerLink]="['/finances/contracts/details', contractId]"
+                                   class="text-primary">
+                                    {{ contractCode }}
+                                </a>
+                            </ng-container>
+                            <ng-template #noContract>
+                                <span class="text-color-secondary">-</span>
+                            </ng-template>
+                        </td>
+                        <td>
+                            <span *ngIf="getInstallmentNumber(payment) as number; else noInstallment">
+                                {{ number }}
+                            </span>
+                            <ng-template #noInstallment>
+                                <span class="text-color-secondary">-</span>
+                            </ng-template>
+                        </td>
+                        <td class="font-semibold">{{ payment.amount | currencyFormat }}</td>
+                        <td>{{ payment.paymentMethod | paymentMethodLabel }}</td>
+                        <td>{{ payment.paymentDate | date:'shortDate' }}</td>
                         <td class="flex gap-2">
-                            <button *ngIf="installment.status !== 'PAID'" pButton type="button" icon="pi pi-check"
-                                    class="p-button-success p-button-sm" (click)="markAsPaid(installment)"
-                                    pTooltip="Fazer pagamento"></button>
-                            <button pButton type="button" icon="pi pi-eye" class="p-button-info p-button-sm"
-                                    [routerLink]="['/finances/contracts/details', installment.contract.id]"
+                            <button pButton type="button" icon="pi pi-receipt"
+                                    class="p-button-sm"
+                                    [routerLink]="['/finances/payments/details', payment.id]"
+                                    pTooltip="Ver Pagamento"></button>
+                            <button *ngIf="getContractId(payment) as contractId" pButton type="button" icon="pi pi-eye"
+                                    class="p-button-info p-button-sm p-button-outlined"
+                                    [routerLink]="['/finances/contracts/details', contractId]"
                                     pTooltip="Ver Contrato"></button>
                         </td>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8" class="text-center text-color-secondary py-5">
+                            Nenhum pagamento encontrado.
+                        </td>
+                    </tr>
+                </ng-template>
             </p-table>
-
         </div>
     </div>
 </div>

@@ -17,7 +17,7 @@
                     <div class="col-12 md:col-6" formGroupName="user">
                         <div class="personal-information">
                             <h5>Informações Pessoais</h5>
-                            <div class="fields mt-4">
+                            <div class="field mt-4">
                                 <label for="firstname">Nome</label>
                                 <input id="firstname" type="text" pInputText formControlName="firstname" />
                                 <small *ngIf="employeeForm.get('user.firstname')?.invalid && employeeForm.get('user.firstname')?.touched" class="p-error">
@@ -44,7 +44,7 @@
                             </div>
                             <div class="field">
                                 <label for="dateOfBirth">Data de Nascimento</label>
-                                <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+                                <p-datepicker id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy"></p-datepicker>
                                 <small *ngIf="employeeForm.get('user.dateOfBirth')?.invalid && employeeForm.get('user.dateOfBirth')?.touched" class="p-error">
                                     Data de nascimento é obrigatória
                                 </small>

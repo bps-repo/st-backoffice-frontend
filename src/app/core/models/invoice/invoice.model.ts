@@ -19,6 +19,103 @@ export interface Invoice {
     items: InvoiceItem[];
 }
 
+export interface InvoiceListItem {
+    id: string;
+    invoiceNumber: string;
+    documentType: string;
+    issueDate: string;
+    contractId: string;
+    contractCode: string;
+    contractStatus: string;
+    centerId: string;
+    description: string;
+    notes: string;
+    paymentSchedule: string;
+    subtotal: number;
+    discountAmount: number;
+    amount: number;
+    paidAmount: number;
+    pendingAmount: number;
+    paymentStatus: string;
+    paid: boolean;
+    active: boolean;
+    items: InvoiceListItemProduct[];
+    customer: InvoiceCustomer;
+}
+
+
+export interface InvoiceCustomer {
+    id: string;
+    code: number;
+    fullName: string;
+    email: string;
+    phone: string;
+    centerId: string;
+    centerName: string;
+}
+
+
+export interface InvoiceListItemProduct {
+    id: string;
+    productName?: string;
+    quantity: number;
+    unitPrice: number;
+    discountAmount: number;
+    totalAmount: number;
+}
+
+export interface InvoiceDetail {
+    id: string;
+    invoiceNumber: string;
+    documentType: string;
+    issueDate: string;
+    customerId: string;
+    customer: {
+        id: string;
+        code: number;
+        fullName: string;
+        email: string;
+        phone: string;
+        centerId: string;
+        centerName: string;
+    };
+    contractId: string;
+    contractCode: string;
+    contractStatus: string;
+    centerId: string;
+    description: string;
+    notes: string;
+    paymentSchedule: string;
+    subtotal: number;
+    discountAmount: number;
+    amount: number;
+    paidAmount: number;
+    pendingAmount: number;
+    paymentStatus: string;
+    paid: boolean;
+    active: boolean;
+    items: InvoiceListItemProduct[];
+}
+
+export interface CreateInvoiceRequest {
+    documentType: string;
+    issueDate: string;
+    customerId: string;
+    centerId: string;
+    description: string;
+    notes: string;
+    discountAmount: number;
+    items: CreateInvoiceItemRequest[];
+}
+
+export interface CreateInvoiceItemRequest {
+    centerProductId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    discountAmount: number;
+}
+
 export interface InvoiceItem {
     tax_rate: number;
     total: number;

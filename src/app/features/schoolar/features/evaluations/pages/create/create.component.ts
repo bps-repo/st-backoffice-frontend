@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
@@ -17,7 +17,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
         CardModule,
         InputTextModule,
         DropdownModule,
-        CalendarModule,
+        DatePickerModule,
         InputNumberModule
     ],
     templateUrl: './create.component.html'

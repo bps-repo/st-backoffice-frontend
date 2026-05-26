@@ -15,7 +15,7 @@ import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {InputTextModule} from 'primeng/inputtext';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import {RippleModule} from 'primeng/ripple';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {StepsModule} from 'primeng/steps';
 import {ToastModule} from 'primeng/toast';
 import {
@@ -51,7 +51,7 @@ import {Textarea} from "primeng/textarea";
         RadioButtonModule,
         CheckboxModule,
         CardModule,
-        CalendarModule,
+        DatePickerModule,
         StepsModule,
         ToastModule,
         RenewContractComponent,
@@ -122,6 +122,7 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
     }
 
     ngOnInit() {
+        this.resetCreatedStudentFlowState();
         this.initializeForm();
         this.initializeCentersDropdown();
         this.initializeLocationSelectors();
@@ -134,7 +135,9 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         this.setupNavigationGuard();
 
         // Listen for created student ID
-        this.store.select(selectCreatedStudentId).subscribe(studentId => {
+        this.store.select(selectCreatedStudentId).pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(studentId => {
             if (studentId) {
                 this.isStudentCreated = true;
                 this.createdStudentId = studentId;
@@ -488,11 +491,16 @@ export class CreateContractComponent implements OnInit, OnDestroy, CanComponentD
         });
 
         // Reset flags
-        this.isStudentCreated = false;
-        this.createdStudentId = null;
+        this.resetCreatedStudentFlowState();
 
         // Navigate away
         this.router.navigate(['/schoolar/students']).then();
+    }
+
+    private resetCreatedStudentFlowState(): void {
+        this.isStudentCreated = false;
+        this.createdStudentId = null;
+        this.store.dispatch(StudentsActions.clearSelection());
     }
 
     private findFirstInvalidStep(): number {

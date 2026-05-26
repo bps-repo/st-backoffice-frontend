@@ -6,7 +6,7 @@ import { CreateEmployeeRequest } from 'src/app/core/models/corporate/employee';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { takeUntil } from 'rxjs/operators';
 import { Role } from 'src/app/core/models/auth/role';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -39,7 +39,7 @@ import * as PermissionsSelectors from 'src/app/core/store/permissions/selectors/
         ButtonModule,
         InputTextModule,
         DropdownModule,
-        CalendarModule,
+        DatePickerModule,
         MultiSelectModule,
         PasswordModule,
         InputNumberModule,

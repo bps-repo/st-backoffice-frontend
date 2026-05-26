@@ -40,6 +40,10 @@
                                     [severity]="getStatusSeverity(currentUser.accountStatus || '')">
                                 </p-badge>
                             </div>
+                            <div class="profile-center" *ngIf="currentUser.center?.name">
+                                <i class="pi pi-building text-color-secondary"></i>
+                                <span class="text-color-secondary text-sm">{{ currentUser.center?.name }}</span>
+                            </div>
                         </div>
                     </div>
                 </ng-template>
@@ -172,6 +176,12 @@
                 </div>
 
                 <div class="account-info">
+                    <div class="info-item" *ngIf="currentUser.center?.name">
+                        <label>Centro</label>
+                        <span class="status-pill text-green-700">
+                            {{ currentUser.center?.name }}
+                        </span>
+                    </div>
                     <div class="info-item">
                         <label>Status da conta</label>
                         <p-badge

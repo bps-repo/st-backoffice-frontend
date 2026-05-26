@@ -1,38 +1,83 @@
-<style>
-    ::ng-deep .p-selectbutton {
-        display: flex;
-        flex-wrap: nowrap;
-    }
-
-    ::ng-deep .p-selectbutton .p-button {
-        margin-right: 0.5rem;
-        border: none;
-    }
-
-    ::ng-deep .p-selectbutton .p-button:last-child {
-        margin-right: 0;
-    }
-
-    /* Animation classes */
-    .animate-fade {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .animate-scale {
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-</style>
+<p-toast></p-toast>
 
 <div class="grid">
-    <div class="col-12 flex justify-content-start align-content-center gap-4">
-        <button pButton icon="pi pi-arrow-left" class="p-button-secondary p-button-outlined h-3rem mt-2 "
-                label="Voltar"></button>
-        <div class="flex flex-column text-sm">
-            <h1 class="text-2xl"
-                *ngIf="student$ | async as student">{{ student.user.firstname + " " + student.user.lastname }}</h1>
-            <span *ngIf="student$ | async as student">{{ student.user.email }}</span>
+    <div class="col-12 flex justify-content-between align-items-center gap-4">
+        <div class="flex align-items-center gap-3">
+            <button pButton icon="pi pi-arrow-left" class="p-button-secondary p-button-outlined"
+                label="Voltar" (click)="router.navigate(['/schoolar/students'])"></button>
+
+            <!-- Avatar -->
+            <p-avatar *ngIf="studentPhotoUrl"
+                      [image]="studentPhotoUrl"
+                      shape="circle"
+                      size="large"
+                      styleClass="shadow-2">
+            </p-avatar>
+            <p-avatar *ngIf="!studentPhotoUrl"
+                      [label]="studentInitials"
+                      shape="circle"
+                      size="large"
+                      styleClass="shadow-2 bg-primary text-white font-bold">
+            </p-avatar>
+
+            <div class="flex flex-column">
+                <span class="text-xl font-bold" *ngIf="student$ | async as student">
+                    {{ student.user.firstname }} {{ student.user.lastname }}
+                </span>
+                <span class="text-sm text-color-secondary" *ngIf="student$ | async as student">
+                    {{ student.user.email }}
+                </span>
+            </div>
+        </div>
+
+        <div class="flex align-items-center gap-2">
+            <!-- Documents menu -->
+            <p-menu #docMenu [model]="documentMenuItems" [popup]="true"></p-menu>
+            <button pButton
+                    icon="pi pi-file"
+                    label="Documentos"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="docMenu.toggle($event)">
+            </button>
+
+            <!-- Schedule lesson -->
+            <button pButton icon="pi pi-calendar-plus" label="Marcar Aula" severity="success"
+                class="p-button-outlined" (click)="navigateToScheduleLesson()"></button>
         </div>
     </div>
+
+    <!-- Certificate dialog -->
+    <p-dialog header="Emitir Certificado"
+              [(visible)]="certificateDialogVisible"
+              [modal]="true"
+              [style]="{width: '420px'}"
+              [draggable]="false">
+        <div class="flex flex-column gap-3 pt-2">
+            <p class="text-sm text-color-secondary m-0">
+                Selecione o nível para o qual pretende emitir o certificado de conclusão.
+            </p>
+            <div class="flex flex-column gap-1">
+                <label class="text-sm font-medium">Nível</label>
+                <p-dropdown [options]="certificateLevelOptions"
+                            [(ngModel)]="selectedCertificateLevel"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecionar nível"
+                            styleClass="w-full">
+                </p-dropdown>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancelar" icon="pi pi-times"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="certificateDialogVisible = false">
+            </button>
+            <button pButton label="Descarregar" icon="pi pi-download"
+                    [disabled]="!selectedCertificateLevel"
+                    (click)="downloadCertificate()">
+            </button>
+        </ng-template>
+    </p-dialog>
 
     <!-- KPI Cards -->
     <div class="col-12">
@@ -47,7 +92,7 @@
                     <div *ngIf="student$ | async as student">
                         <span class="text-3xl font-bold block mb-2">{{ getAttendancePercentage(student) }}%</span>
                         <p-progressBar [value]="getAttendancePercentage(student)" [showValue]="false"
-                                       styleClass="mb-2"></p-progressBar>
+                            styleClass="mb-2"></p-progressBar>
                     </div>
                 </div>
             </div>
@@ -62,7 +107,7 @@
                     <div *ngIf="student$ | async as student">
                         <span class="text-3xl font-bold block mb-2">{{ getLevelName(student) }}</span>
                         <p-progressBar [value]="student.levelProgressPercentage" [showValue]="false"
-                                       styleClass="mb-2"></p-progressBar>
+                            styleClass="mb-2"></p-progressBar>
                     </div>
                 </div>
             </div>
@@ -90,8 +135,8 @@
                         <i class="pi pi-user text-primary text-xl"></i>
                     </div>
                     <div *ngIf="student$ | async as student">
-                        <span class="text-3xl font-bold block mb-2"
-                              [ngClass]="getStatusColor(student)">{{ student.status }}</span>
+                        <span class="text-3xl font-bold block mb-2" [ngClass]="getStatusColor(student)">{{
+                            student.status }}</span>
                         <span class="text-sm text-500 block">Desde {{ formatDate(student.enrollmentDate) }}</span>
                     </div>
                 </div>
@@ -103,64 +148,69 @@
     <div class="col-12 mt-4">
         <div class="flex justify-content-start gap-2 items-center mb-4">
             <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-                            optionLabel="label" optionValue="value"></p-selectButton>
+                optionLabel="label" optionValue="value"></p-selectButton>
         </div>
 
         <!-- Visão geral Tab Content -->
         @if (currentView === 'overview') {
-            <app-general [student]="student$ | async"></app-general>
+        <app-general [student]="student$ | async" [studentId]="studentId"></app-general>
         }
 
         <!-- Historico de aulas Tab Content -->
         @if (currentView === 'lessons') {
-            <scholar-student-lessons-tab></scholar-student-lessons-tab>
+        <scholar-student-lessons-tab [studentId]="studentId"></scholar-student-lessons-tab>
         }
 
         <!-- Avaliações Tab Content -->
         @if (currentView === 'assessments') {
-            <div class="col-12 animate-scale px-scalein">
-                <div class="card">
-                    <h3>Avaliações</h3>
-                    <p>Histórico de avaliações, notas e desempenho acadêmico do aluno.</p>
-                    <!-- Placeholder content -->
-                    <div class="mt-4 p-4 surface-100 border-round">
-                        <p>Informações de avaliações serão exibidas aqui.</p>
-                    </div>
+        <div class="col-12 animate-scale px-scalein">
+            <div class="card">
+                <h3>Avaliações</h3>
+                <p>Histórico de avaliações, notas e desempenho acadêmico do aluno.</p>
+                <!-- Placeholder content -->
+                <div class="mt-4 p-4 surface-100 border-round">
+                    <p>Informações de avaliações serão exibidas aqui.</p>
                 </div>
             </div>
+        </div>
         }
 
         <!-- Frequências Tab Content -->
         @if (currentView === 'attendances') {
-            <div class="col-12 animate-scale px-scalein">
-                <div class="card">
-                    <h3>Frequências</h3>
-                    <p>Registro detalhado de presenças e faltas do aluno em todas as aulas.</p>
-                    <!-- Placeholder content -->
-                    <div class="mt-4 p-4 surface-100 border-round">
-                        <p>Registro de frequências será exibido aqui.</p>
-                    </div>
+        <div class="col-12 animate-scale px-scalein">
+            <div class="card">
+                <h3>Frequências</h3>
+                <p>Registro detalhado de presenças e faltas do aluno em todas as aulas.</p>
+                <!-- Placeholder content -->
+                <div class="mt-4 p-4 surface-100 border-round">
+                    <p>Registro de frequências será exibido aqui.</p>
                 </div>
             </div>
+        </div>
         }
 
         <!-- Pagamentos Tab Content -->
         @if (currentView === 'payments') {
-            <scholar-student-payment-tab></scholar-student-payment-tab>
+        <scholar-student-payment-tab [studentId]="studentId"></scholar-student-payment-tab>
         }
 
         <!-- Historico Tab Content -->
         @if (currentView === 'history') {
-            <div class="col-12 animate-scale px-scalein">
-                <div class="card">
-                    <h3>Histórico</h3>
-                    <p>Histórico completo do aluno, incluindo mudanças de status, níveis e eventos importantes.</p>
-                    <!-- Placeholder content -->
-                    <div class="mt-4 p-4 surface-100 border-round">
-                        <p>Histórico completo será exibido aqui.</p>
-                    </div>
+        <div class="col-12 animate-scale px-scalein">
+            <div class="card">
+                <h3>Histórico</h3>
+                <p>Histórico completo do aluno, incluindo mudanças de status, níveis e eventos importantes.</p>
+                <!-- Placeholder content -->
+                <div class="mt-4 p-4 surface-100 border-round">
+                    <p>Histórico completo será exibido aqui.</p>
                 </div>
             </div>
+        </div>
+        }
+
+        <!-- Certificados Tab Content -->
+        @if (currentView === 'certificates') {
+        <scholar-student-certificates-tab [studentId]="studentId"></scholar-student-certificates-tab>
         }
     </div>
 </div>

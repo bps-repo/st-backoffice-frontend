@@ -1,0 +1,394 @@
+<div class="grid">
+    @let loading = (loading$ | async) ?? false;
+
+    <!-- ── Filter bar ─────────────────────────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+
+                <!-- Centro -->
+                <p-select
+                    [options]="(centerOptions$ | async) ?? []"
+                    [(ngModel)]="selectedCenterId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Todos os centros"
+                    styleClass="min-w-14rem"
+                ></p-select>
+
+                <!-- Consultor (carregado após primeiro load) -->
+                @if (sellers.length) {
+                    <p-select
+                        [options]="sellerOptions"
+                        [(ngModel)]="selectedSellerId"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Todos os consultores"
+                        styleClass="min-w-16rem"
+                        (onChange)="onSellerChange()"
+                    ></p-select>
+                }
+
+                <!-- Intervalo de datas -->
+                <p-datepicker
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Data início – Data fim"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-datepicker>
+
+                <p-button label="Aplicar"  icon="pi pi-filter" (onClick)="applyFilter()" [loading]="loading"></p-button>
+                <p-button label="Limpar"   icon="pi pi-times"  severity="secondary" [outlined]="true"
+                          (onClick)="clearFilter()"
+                          [disabled]="loading || (!dateRange.length && !selectedCenterId && !selectedSellerId)">
+                </p-button>
+
+                <!-- Badge: modo detalhe -->
+                @if (isDetailView && activeSeller) {
+                    <div class="flex align-items-center gap-2 ml-auto">
+                        <i class="pi pi-user text-primary"></i>
+                        <span class="font-semibold text-primary">{{ activeSeller.sellerName }}</span>
+                        <p-tag [value]="activeSeller.centerName" severity="secondary"></p-tag>
+                        <p-tag [value]="'Ranking #' + activeSeller.overallRanking"
+                               [severity]="activeSeller.overallRanking === 1 ? 'success' : 'info'">
+                        </p-tag>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────────────────────── -->
+    @if (error) {
+        <div class="col-12">
+            <div class="card border-red-300 bg-red-50">
+                <div class="flex align-items-center gap-2 text-red-600">
+                    <i class="pi pi-exclamation-triangle text-xl"></i>
+                    <span class="font-semibold">{{ error }}</span>
+                    <p-button label="Tentar novamente" icon="pi pi-refresh" severity="danger"
+                              [text]="true" size="small" (onClick)="retryLoad()" class="ml-2">
+                    </p-button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- VISÃO INDIVIDUAL — detalhe de um consultor                          -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    @if (isDetailView && activeSeller) {
+        @let seller = activeSeller!;
+
+        <!-- KPIs individuais -->
+        @if (loading) {
+            @for (_ of [1,2,3,4,5,6]; track $index) {
+                <div class="col-12 sm:col-6 xl:col-2">
+                    <div class="card"><p-skeleton height="4.5rem" styleClass="border-round-xl"></p-skeleton></div>
+                </div>
+            }
+        } @else {
+            <div class="col-12 sm:col-6 xl:col-2">
+                <div class="card flex flex-column gap-1">
+                    <span class="text-color-secondary text-xs font-medium">Receita Total</span>
+                    <p class="text-xl font-bold text-900 m-0">{{ formatMoney(seller.totalRevenue) }}</p>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-2">
+                <div class="card flex flex-column gap-1">
+                    <span class="text-color-secondary text-xs font-medium">Total Cobrado</span>
+                    <p class="text-xl font-bold text-green-600 m-0">{{ formatMoney(seller.totalCollected) }}</p>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-2">
+                <div class="card flex flex-column gap-1">
+                    <span class="text-color-secondary text-xs font-medium">Total Pendente</span>
+                    <p class="text-xl font-bold text-yellow-600 m-0">{{ formatMoney(seller.totalPending) }}</p>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-2">
+                <div class="card flex flex-column gap-1">
+                    <span class="text-color-secondary text-xs font-medium">Taxa de Cobrança</span>
+                    <p class="text-xl font-bold text-900 m-0">{{ seller.collectionRate.toFixed(1) }}%</p>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-2">
+                <div class="card flex flex-column gap-1">
+                    <span class="text-color-secondary text-xs font-medium">Ticket Médio</span>
+                    <p class="text-xl font-bold text-900 m-0">{{ formatMoney(seller.averageTicket) }}</p>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-2">
+                <div class="card flex flex-column gap-1">
+                    <span class="text-color-secondary text-xs font-medium">Contratos</span>
+                    <p class="text-xl font-bold text-900 m-0">{{ seller.totalContracts }}</p>
+                    <div class="flex gap-2 text-xs text-color-secondary flex-wrap">
+                        <span><i class="pi pi-arrow-up text-green-500 mr-1"></i>{{ seller.bestMonth }}</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Linha: receita vs cobrado vs pendente -->
+        <div class="col-12 xl:col-8">
+            <div class="card h-full">
+                <div class="mb-4">
+                    <p class="text-xl font-semibold m-0">Evolução Financeira — {{ seller.sellerName }}</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">Receita, cobranças e pendentes mês a mês</p>
+                </div>
+                @if (loading) {
+                    <p-skeleton height="300px" styleClass="border-round-xl"></p-skeleton>
+                } @else if (detailRevenueChartData) {
+                    <p-chart type="line" [data]="detailRevenueChartData" [options]="detailRevenueChartOptions" height="300px"></p-chart>
+                }
+            </div>
+        </div>
+
+        <!-- Barras: contratos assinados por mês -->
+        <div class="col-12 xl:col-4">
+            <div class="card h-full">
+                <div class="mb-4">
+                    <p class="text-xl font-semibold m-0">Contratos por Mês</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">Volume de contratos assinados</p>
+                </div>
+                @if (loading) {
+                    <p-skeleton height="300px" styleClass="border-round-xl"></p-skeleton>
+                } @else if (detailContractsChartData) {
+                    <p-chart type="bar" [data]="detailContractsChartData" [options]="detailContractsChartOptions" height="300px"></p-chart>
+                }
+            </div>
+        </div>
+
+        <!-- Tabela mensal detalhada -->
+        @if (!loading && seller.monthlyData.length) {
+            <div class="col-12">
+                <div class="card">
+                    <p class="text-xl font-semibold m-0 mb-4">Detalhe Mensal</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full" style="border-collapse:collapse;min-width:700px">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--surface-border)">
+                                    <th class="text-left py-2 px-3 text-color-secondary text-sm font-semibold">Mês</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Contratos</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Receita</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Cobrado</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Pendente</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Taxa Cob.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (m of seller.monthlyData; track m.month) {
+                                    <tr style="border-bottom:1px solid var(--surface-border)"
+                                        class="hover:surface-hover transition-colors transition-duration-150">
+                                        <td class="py-3 px-3 font-semibold text-900">{{ m.monthName }} {{ m.year }}</td>
+                                        <td class="text-right py-3 px-3 text-color-secondary">{{ m.contractsSigned }}</td>
+                                        <td class="text-right py-3 px-3 font-medium text-900">{{ formatMoney(m.revenue) }}</td>
+                                        <td class="text-right py-3 px-3 text-green-600 font-medium">{{ formatMoney(m.collected) }}</td>
+                                        <td class="text-right py-3 px-3 text-yellow-600 font-medium">{{ formatMoney(m.pending) }}</td>
+                                        <td class="text-right py-3 px-3">
+                                            <p-tag
+                                                [value]="m.collectionRate.toFixed(1) + '%'"
+                                                [severity]="m.collectionRate >= 80 ? 'success' : m.collectionRate >= 50 ? 'warn' : 'danger'"
+                                            ></p-tag>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- VISÃO GERAL — todos os consultores                                   -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    } @else {
+
+        <!-- KPIs de topo -->
+        @if (loading) {
+            @for (_ of [1,2,3,4]; track $index) {
+                <div class="col-12 sm:col-6 xl:col-3">
+                    <div class="card"><p-skeleton height="4rem" styleClass="border-round-xl mb-2"></p-skeleton></div>
+                </div>
+            }
+        } @else if (sellers.length) {
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Receita Total</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                              style="width:2.5rem;height:2.5rem;background:var(--primary-100,#e0e7ff)">
+                            <i class="pi pi-chart-line text-primary text-xl"></i>
+                        </span>
+                    </div>
+                    <p class="text-2xl font-bold text-900 m-0">{{ formatMoney(totalRevenue) }}</p>
+                    <span class="text-xs text-color-secondary">{{ sellers.length }} consultor(es)</span>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Total Cobrado</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                              style="width:2.5rem;height:2.5rem;background:var(--green-100,#dcfce7)">
+                            <i class="pi pi-check-circle text-green-500 text-xl"></i>
+                        </span>
+                    </div>
+                    <p class="text-2xl font-bold text-900 m-0">{{ formatMoney(totalCollected) }}</p>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Contratos Totais</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                              style="width:2.5rem;height:2.5rem;background:var(--blue-100,#dbeafe)">
+                            <i class="pi pi-file text-blue-500 text-xl"></i>
+                        </span>
+                    </div>
+                    <p class="text-2xl font-bold text-900 m-0">{{ totalContracts }}</p>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Melhor Consultor</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                              style="width:2.5rem;height:2.5rem;background:var(--yellow-100,#fef9c3)">
+                            <i class="pi pi-star-fill text-yellow-400 text-xl"></i>
+                        </span>
+                    </div>
+                    @if (topSeller) {
+                        <p class="text-lg font-bold text-900 m-0 white-space-nowrap overflow-hidden text-overflow-ellipsis"
+                           [pTooltip]="topSeller.sellerName" tooltipPosition="top">
+                            {{ topSeller.sellerName }}
+                        </p>
+                        <span class="text-xs text-color-secondary">{{ topSeller.centerName }} · {{ topSeller.totalContracts }} contratos</span>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Linha: evolução de receita por consultor -->
+        <div class="col-12">
+            <div class="card">
+                <div class="flex align-items-start justify-content-between mb-4">
+                    <div>
+                        <p class="text-xl font-semibold m-0">Evolução de Receita por Consultor</p>
+                        <p class="text-sm text-color-secondary mt-1 mb-0">Receita mensal gerada por cada consultor</p>
+                    </div>
+                    @if (!loading && sellers.length) {
+                        <p-tag value="AOA" severity="info"></p-tag>
+                    }
+                </div>
+                @if (loading) {
+                    <p-skeleton height="340px" styleClass="border-round-xl"></p-skeleton>
+                } @else if (revenueEvolutionChartData) {
+                    <p-chart type="line" [data]="revenueEvolutionChartData" [options]="revenueEvolutionChartOptions" height="340px"></p-chart>
+                } @else {
+                    <div class="flex flex-column align-items-center justify-content-center py-6 text-color-secondary">
+                        <i class="pi pi-chart-line text-4xl mb-3"></i>
+                        <span>Sem dados para o período seleccionado</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Linha cobranças + Barras contratos -->
+        <div class="col-12 xl:col-7">
+            <div class="card h-full">
+                <div class="mb-4">
+                    <p class="text-xl font-semibold m-0">Crescimento de Cobranças</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">Valores cobrados mês a mês por consultor</p>
+                </div>
+                @if (loading) {
+                    <p-skeleton height="280px" styleClass="border-round-xl"></p-skeleton>
+                } @else if (collectedEvolutionChartData) {
+                    <p-chart type="line" [data]="collectedEvolutionChartData" [options]="collectedEvolutionChartOptions" height="280px"></p-chart>
+                }
+            </div>
+        </div>
+
+        <div class="col-12 xl:col-5">
+            <div class="card h-full">
+                <div class="mb-4">
+                    <p class="text-xl font-semibold m-0">Contratos por Mês</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">Volume de contratos assinados por consultor</p>
+                </div>
+                @if (loading) {
+                    <p-skeleton height="280px" styleClass="border-round-xl"></p-skeleton>
+                } @else if (contractsChartData) {
+                    <p-chart type="bar" [data]="contractsChartData" [options]="contractsChartOptions" height="280px"></p-chart>
+                }
+            </div>
+        </div>
+
+        <!-- Tabela ranking de consultores -->
+        @if (!loading && sellers.length) {
+            <div class="col-12">
+                <div class="card">
+                    <p class="text-xl font-semibold m-0 mb-4">Ranking de Consultores</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full" style="border-collapse:collapse;min-width:750px">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--surface-border)">
+                                    <th class="text-center py-2 px-3 text-color-secondary text-sm font-semibold w-4rem">#</th>
+                                    <th class="text-left py-2 px-3 text-color-secondary text-sm font-semibold">Consultor</th>
+                                    <th class="text-left py-2 px-3 text-color-secondary text-sm font-semibold">Centro</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Contratos</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Receita</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Cobrado</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Ticket Médio</th>
+                                    <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Taxa Cob.</th>
+                                    <th class="text-center py-2 px-3 text-color-secondary text-sm font-semibold">Melhor Mês</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (s of sellers; track s.sellerId; let i = $index) {
+                                    <tr style="border-bottom:1px solid var(--surface-border)"
+                                        class="hover:surface-hover transition-colors transition-duration-150 cursor-pointer"
+                                        (click)="selectedSellerId = s.sellerId; onSellerChange()">
+                                        <td class="text-center py-3 px-3">
+                                            <i [class]="rankIcon(s.overallRanking)" style="font-size:1.1rem"></i>
+                                        </td>
+                                        <td class="py-3 px-3">
+                                            <div class="flex align-items-center gap-2">
+                                                <span class="border-round-full flex-shrink-0"
+                                                      [style.background]="colorFor(i)"
+                                                      style="width:10px;height:10px;display:inline-block"></span>
+                                                <span class="font-semibold text-900">{{ s.sellerName }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-3">
+                                            <p-tag [value]="s.centerName" severity="secondary"></p-tag>
+                                        </td>
+                                        <td class="text-right py-3 px-3 text-color-secondary font-medium">{{ s.totalContracts }}</td>
+                                        <td class="text-right py-3 px-3 font-medium text-900">{{ formatMoney(s.totalRevenue) }}</td>
+                                        <td class="text-right py-3 px-3 text-green-600 font-medium">{{ formatMoney(s.totalCollected) }}</td>
+                                        <td class="text-right py-3 px-3 text-color-secondary">{{ formatMoney(s.averageTicket) }}</td>
+                                        <td class="text-right py-3 px-3">
+                                            <p-tag
+                                                [value]="s.collectionRate.toFixed(1) + '%'"
+                                                [severity]="s.collectionRate >= 80 ? 'success' : s.collectionRate >= 50 ? 'warn' : 'danger'"
+                                            ></p-tag>
+                                        </td>
+                                        <td class="text-center py-3 px-3 text-xs text-color-secondary">{{ s.bestMonth }}</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-color-secondary mt-3 mb-0">
+                        <i class="pi pi-info-circle mr-1"></i>
+                        Clique numa linha para ver o detalhe do consultor.
+                    </p>
+                </div>
+            </div>
+        }
+
+    } <!-- fim @else visão geral -->
+
+</div>

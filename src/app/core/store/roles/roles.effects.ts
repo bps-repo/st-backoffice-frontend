@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import { RoleService } from 'src/app/core/services/role.service';
 import * as RolesActions from './roles.actions';
-import { HttpErrorResponse } from '@angular/common/module.d-CnjH8Dlt';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable()
 export class RolesEffects {

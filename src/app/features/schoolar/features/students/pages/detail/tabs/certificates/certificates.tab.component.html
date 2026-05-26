@@ -1,0 +1,172 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '420px'}"></p-confirmDialog>
+
+<p-card styleClass="student-certificates-card">
+    <ng-template pTemplate="header">
+        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3 p-4 pb-0">
+            <div>
+                <h3 class="m-0 text-xl font-semibold">Certificados</h3>
+                <p class="mt-1 mb-0 text-sm text-color-secondary">
+                    Certificados de conclusão emitidos para o aluno
+                </p>
+            </div>
+
+            <div class="flex align-items-center gap-2">
+                <button pButton
+                        type="button"
+                        icon="pi pi-refresh"
+                        class="p-button-outlined p-button-secondary p-button-sm"
+                        pTooltip="Recarregar"
+                        tooltipPosition="left"
+                        [disabled]="loading"
+                        (click)="reload()">
+                </button>
+                <button pButton
+                        type="button"
+                        icon="pi pi-plus"
+                        label="Emitir Certificado"
+                        class="p-button-sm"
+                        [loading]="issuing"
+                        [disabled]="loading || issuing"
+                        (click)="issueForCurrentLevel()">
+                </button>
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- Loading skeleton -->
+    <ng-container *ngIf="loading">
+        <div class="flex flex-column gap-3 pt-2">
+            <div *ngFor="let i of [1,2,3]"
+                 class="cert-row p-3 border-1 surface-border border-round">
+                <p-skeleton width="60%" height="1.2rem" styleClass="mb-2"></p-skeleton>
+                <p-skeleton width="40%" height="1rem" styleClass="mb-2"></p-skeleton>
+                <p-skeleton width="30%" height="1rem"></p-skeleton>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Error state -->
+    <ng-container *ngIf="!loading && error">
+        <div class="text-center py-5">
+            <i class="pi pi-exclamation-triangle text-red-500" style="font-size: 2.5rem"></i>
+            <h4 class="mt-3">Erro ao carregar certificados</h4>
+            <p class="text-500">{{ error }}</p>
+            <button pButton label="Tentar novamente" icon="pi pi-refresh"
+                    class="p-button-outlined"
+                    (click)="reload()">
+            </button>
+        </div>
+    </ng-container>
+
+    <!-- Empty state -->
+    <ng-container *ngIf="!loading && !error && certificates.length === 0">
+        <div class="text-center py-6">
+            <i class="pi pi-verified text-400" style="font-size: 3rem"></i>
+            <h4 class="mt-3 mb-1">Nenhum certificado emitido</h4>
+            <p class="text-500 m-0">
+                Este aluno ainda não possui certificados. Clique em <strong>Emitir Certificado</strong> para criar o primeiro.
+            </p>
+        </div>
+    </ng-container>
+
+    <!-- Certificate list -->
+    <ng-container *ngIf="!loading && !error && certificates.length > 0">
+        <div class="flex flex-column gap-3 pt-2">
+            <div *ngFor="let cert of certificates; trackBy: trackById"
+                 class="cert-row p-4 border-1 surface-border border-round">
+
+                <!-- Header row -->
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-start gap-3">
+                    <div class="flex-1">
+                        <div class="flex flex-wrap align-items-center gap-2 mb-2">
+                            <i class="pi pi-verified text-primary"></i>
+                            <span class="text-base font-semibold text-color">{{ cert.levelName }}</span>
+
+                            <p-tag *ngIf="cert.publishedToStudent"
+                                   value="Publicado"
+                                   severity="success"
+                                   [rounded]="true">
+                            </p-tag>
+                            <p-tag *ngIf="!cert.publishedToStudent"
+                                   value="Não publicado"
+                                   severity="secondary"
+                                   [rounded]="true">
+                            </p-tag>
+                        </div>
+
+                        <!-- Meta grid -->
+                        <div class="grid gap-0 row-gap-2 mt-1">
+                            <div class="col-12 sm:col-6 md:col-4">
+                                <div class="text-xs text-color-secondary">Nº Certificado</div>
+                                <div class="text-sm font-medium text-color cert-number">
+                                    {{ cert.certificateNumber }}
+                                </div>
+                            </div>
+
+                            <div class="col-12 sm:col-6 md:col-4">
+                                <div class="text-xs text-color-secondary">Data de Emissão</div>
+                                <div class="text-sm text-color">{{ formatDate(cert.issueDate) }}</div>
+                            </div>
+
+                            <div class="col-12 sm:col-6 md:col-4">
+                                <div class="text-xs text-color-secondary">Nível ID</div>
+                                <div class="text-sm text-color cert-number">{{ cert.levelId }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex align-items-center gap-2 flex-shrink-0">
+                        <!-- Publish -->
+                        <button *ngIf="!cert.publishedToStudent"
+                                pButton
+                                type="button"
+                                icon="pi pi-send"
+                                label="Publicar"
+                                class="p-button-sm p-button-outlined"
+                                [loading]="isPublishing(cert)"
+                                [disabled]="isPublishing(cert) || isDownloading(cert)"
+                                pTooltip="Publicar ao aluno"
+                                tooltipPosition="left"
+                                (click)="publishToStudent(cert)">
+                        </button>
+
+                        <!-- Download -->
+                        <button pButton
+                                type="button"
+                                icon="pi pi-download"
+                                label="Descarregar"
+                                class="p-button-sm"
+                                [loading]="isDownloading(cert)"
+                                [disabled]="isPublishing(cert) || isDownloading(cert)"
+                                pTooltip="Descarregar PDF"
+                                tooltipPosition="left"
+                                (click)="downloadCertificate(cert)">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</p-card>
+
+<style>
+    .student-certificates-card :is(.p-card-body) {
+        padding-top: 0;
+    }
+
+    .cert-row {
+        background: var(--surface-0);
+        transition: box-shadow 0.2s ease-in-out;
+    }
+
+    .cert-row:hover {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .cert-number {
+        font-family: var(--font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+        font-size: 0.8rem;
+    }
+</style>

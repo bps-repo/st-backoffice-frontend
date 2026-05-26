@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {of} from 'rxjs';
-import {catchError, exhaustMap, map} from 'rxjs/operators';
+import {catchError, exhaustMap, map, switchMap} from 'rxjs/operators';
 import {StudentService} from '../../../services/student.service';
 import {StudentsActions} from "./students.actions";
 import {HttpErrorResponse} from '@angular/common/http';
@@ -19,6 +19,20 @@ export class StudentsEffects {
                     map((students) => StudentsActions.loadStudentsSuccess({students, pagination: null})),
                     catchError((error) =>
                         of(StudentsActions.loadStudentsFailure({error: error.message}))
+                    )
+                )
+            )
+        )
+    );
+
+    loadStudentsPaginated$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.loadStudentsPaginated),
+            switchMap(({page, size, sort, filters}) =>
+                this.studentsService.searchStudentsPaginated(filters ?? {}, page, size, sort).pipe(
+                    map((response) => StudentsActions.loadStudentsPaginatedSuccess(response)),
+                    catchError((error) =>
+                        of(StudentsActions.loadStudentsPaginatedFailure({error: error.message}))
                     )
                 )
             )
@@ -105,6 +119,27 @@ export class StudentsEffects {
                     catchError((error) =>
                         of(StudentsActions.createStudentPhotoFailure({error: error.message}))
                     )
+                )
+            )
+        )
+    );
+
+    updateStudentPhoto$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(StudentsActions.updateStudentPhoto),
+            exhaustMap(({studentId, photoFile}) =>
+                this.studentsService.updateStudentPhoto(studentId, photoFile).pipe(
+                    map((student) => StudentsActions.updateStudentPhotoSuccess({student})),
+                    catchError((error: HttpErrorResponse) => {
+                        const body = error.error;
+                        const msg =
+                            typeof body === 'string'
+                                ? body
+                                : typeof body === 'object' && body && 'message' in body
+                                  ? String((body as { message: unknown }).message)
+                                  : error.message || 'Não foi possível atualizar a foto.';
+                        return of(StudentsActions.updateStudentPhotoFailure({studentId, error: msg}));
+                    })
                 )
             )
         )

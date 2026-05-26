@@ -14,7 +14,7 @@ import {BadgeModule} from 'primeng/badge';
 import {DividerModule} from 'primeng/divider';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {DropdownModule} from 'primeng/dropdown';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 
 import {User} from '../../../../../../core/models/auth/user';
 import {Permission} from '../../../../../../core/models/auth/permission';
@@ -48,7 +48,7 @@ type PermissionCategory = 'read' | 'write' | 'delete' | 'manage';
         DividerModule,
         ProgressSpinnerModule,
         DropdownModule,
-        CalendarModule
+        DatePickerModule
     ],
     templateUrl: 'profile.component.html',
     styleUrl: 'profile.component.css'

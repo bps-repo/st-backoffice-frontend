@@ -1,0 +1,101 @@
+<p-toast></p-toast>
+
+<p-dialog
+    [(visible)]="visible"
+    [header]="editMode ? 'Editar Produto / Serviço' : 'Novo Produto / Serviço'"
+    [modal]="true"
+    [style]="{ width: '520px' }"
+    [draggable]="false"
+    [resizable]="false"
+>
+    <div class="flex flex-column gap-4 pt-2">
+
+        <!-- Nome -->
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold text-sm" for="svc-name">Nome <span class="text-red-500">*</span></label>
+            <input
+                id="svc-name"
+                pInputText
+                type="text"
+                class="w-full"
+                placeholder="Nome do produto / serviço"
+                [(ngModel)]="form.name"
+            />
+        </div>
+
+        <!-- Descrição -->
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold text-sm" for="svc-desc">Descrição</label>
+            <input
+                id="svc-desc"
+                pInputText
+                type="text"
+                class="w-full"
+                placeholder="Descrição opcional"
+                [(ngModel)]="form.description"
+            />
+        </div>
+
+        <!-- Tipo -->
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold text-sm" for="svc-type">Tipo <span class="text-red-500">*</span></label>
+            <p-select
+                inputId="svc-type"
+                [options]="typeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecionar tipo"
+                styleClass="w-full"
+                [(ngModel)]="form.type"
+            ></p-select>
+        </div>
+
+        <!-- Valor -->
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold text-sm" for="svc-value">Valor (Kz)</label>
+            <p-inputNumber
+                inputId="svc-value"
+                [(ngModel)]="form.value"
+                [min]="0"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                mode="decimal"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+            ></p-inputNumber>
+        </div>
+
+        <!-- Activo -->
+        <div class="flex align-items-center gap-3">
+            <label class="font-semibold text-sm">Estado</label>
+            <p-toggleButton
+                [(ngModel)]="form.active"
+                onLabel="Activo"
+                offLabel="Inactivo"
+                onIcon="pi pi-check"
+                offIcon="pi pi-times"
+            ></p-toggleButton>
+        </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button
+                pButton
+                type="button"
+                label="Cancelar"
+                class="p-button-text p-button-secondary"
+                (click)="close()"
+            ></button>
+            <button
+                pButton
+                type="button"
+                [label]="editMode ? 'Guardar alterações' : 'Criar'"
+                [icon]="editMode ? 'pi pi-save' : 'pi pi-plus'"
+                [loading]="(loading$ | async) || false"
+                (click)="save()"
+            ></button>
+        </div>
+    </ng-template>
+</p-dialog>

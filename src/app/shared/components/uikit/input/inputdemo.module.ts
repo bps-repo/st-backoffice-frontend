@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {InputDemoComponent} from './inputdemo.component';
 import {InputDemoRoutingModule} from './inputdemo-routing.module';
 import {AutoCompleteModule} from 'primeng/autocomplete';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {ChipsModule} from 'primeng/chips';
 import {ChipModule} from 'primeng/chip';
 import {DropdownModule} from 'primeng/dropdown';
@@ -33,7 +33,7 @@ import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
         FormsModule,
         InputDemoRoutingModule,
         AutoCompleteModule,
-        CalendarModule,
+        DatePickerModule,
         ChipsModule,
         DropdownModule,
         InputMaskModule,

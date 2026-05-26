@@ -4,6 +4,8 @@
     }
 </style>
 
+<p-toast position="top-right"></p-toast>
+
 <div class="lesson-detail-container">
     <!-- Header Section with Navigation -->
     <div class="mb-4">
@@ -15,7 +17,7 @@
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="loading$ | async" class="col-12">
+    <div *ngIf="loading()" class="col-12">
         <div class="card">
             <div class="flex align-items-center justify-content-center p-4">
                 <i class="pi pi-spin pi-spinner text-2xl"></i>
@@ -25,7 +27,7 @@
     </div>
 
     <!-- Error State -->
-    <div *ngIf="error$ | async as error" class="col-12">
+    <div *ngIf="loadError() as error" class="col-12">
         <div class="card">
             <div class="flex align-items-center justify-content-center p-4 text-red-600">
                 <i class="pi pi-exclamation-triangle text-2xl"></i>
@@ -35,7 +37,8 @@
     </div>
 
     <!-- Main Content -->
-    <div *ngIf="(lesson$ | async) as lesson" class="grid">
+    @if (lesson(); as lesson) {
+    <div class="grid">
         <!-- Title and Action Buttons Section -->
         <div class="col-12">
             <div class="card">
@@ -48,11 +51,19 @@
                                 </h1>
                             </div>
                             <div class="flex align-items-center gap-3 mb-3">
-                                <span class="text-600">{{ lesson.online ? 'Online' : 'Presencial' }} • {{
-                                    lesson.center.name
-                                    }}</span>
-                                <p-tag [value]="getLessonStatusText(lesson)"
-                                    [severity]="getLessonStatusSeverity(lesson)" [rounded]="true">
+                                <span class="text-600">{{ lesson.center.name }}</span>
+                                <!-- Lesson status (Prevista / Lecionada / Cancelada / …) -->
+                                <p-tag
+                                    [value]="lesson | lessonStatusLabel"
+                                    [severity]="lesson | lessonStatusSeverity"
+                                    [styleClass]="lesson | lessonStatusClass"
+                                    [rounded]="true">
+                                </p-tag>
+                                <!-- Modality (Online / Presencial) -->
+                                <p-tag
+                                    [value]="lesson | lessonStatusLabel : 'modality'"
+                                    [severity]="lesson | lessonStatusSeverity : 'modality'"
+                                    [rounded]="true">
                                 </p-tag>
                             </div>
                             <div class="flex align-items-center gap-2 text-600">
@@ -63,18 +74,31 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex gap-2 flex-wrap">
+                        <div class="flex gap-2 flex-wrap align-items-center">
+                            <p-button icon="pi pi-calendar-plus" label="Marcar Aula" severity="success" size="small"
+                                (click)="scheduleLesson(lesson)">
+                            </p-button>
                             <p-button icon="pi pi-copy" label="Duplicar" [outlined]="true" size="small"
                                 (click)="duplicateLesson(lesson)">
                             </p-button>
-                            <p-button icon="pi pi-pencil" label="Editar" severity="info" size="small"
-                                (click)="editLesson(lesson)">
-                            </p-button>
-                            <p-button icon="pi pi-download" label="Exportar" [outlined]="true" size="small"
+                            <!-- Update dropdown -->
+                            <p-splitButton
+                                label="Atualizar"
+                                icon="pi pi-refresh"
+                                severity="warn"
+                                size="small"
+                                [model]="updateMenuItems"
+                                (onClick)="openRescheduleModal(lesson)"
+                                appendTo="body">
+                            </p-splitButton>
+                            <p-button
+                                icon="pi pi-file-pdf"
+                                label="Exportar resumo em PDF"
+                                [outlined]="true"
+                                size="small"
+                                pTooltip="Descarregar resumo em PDF"
+                                [loading]="pdfLoading()"
                                 (click)="exportLesson(lesson)">
-                            </p-button>
-                            <p-button icon="pi pi-print" label="Imprimir" [outlined]="true" size="small"
-                                (click)="printLesson(lesson)">
                             </p-button>
                         </div>
                     </div>
@@ -91,8 +115,8 @@
                                         </div>
                                     </div>
                                     <h3 class="text-2xl font-bold text-900 m-0 mb-2">
-                                        <span *ngIf="(loadingStudents$ | async)" class="pi pi-spin pi-spinner"></span>
-                                        <span *ngIf="!(loadingStudents$ | async)">{{ bookings().length || 0 }}</span>
+                                        <span *ngIf="loadingBookings()" class="pi pi-spin pi-spinner"></span>
+                                        <span *ngIf="!loadingBookings()">{{ bookings().length || 0 }}</span>
                                     </h3>
                                     <p class="text-600 m-0">Alunos</p>
                                 </div>
@@ -106,9 +130,9 @@
                                         </div>
                                     </div>
                                     <h3 class="text-2xl font-bold text-900 m-0 mb-2">
-                                        <span *ngIf="(loadingAttendances$ | async)"
+                                        <span *ngIf="loadingAttendances()"
                                             class="pi pi-spin pi-spinner"></span>
-                                        <span *ngIf="!(loadingAttendances$ | async)">{{ getAttendanceRate() }}%</span>
+                                        <span *ngIf="!loadingAttendances()">{{ getAttendanceRate() }}%</span>
                                     </h3>
                                     <p class="text-600 m-0">Taxa de Presença</p>
                                 </div>
@@ -122,8 +146,8 @@
                                         </div>
                                     </div>
                                     <h3 class="text-2xl font-bold text-900 m-0 mb-2">
-                                        <span *ngIf="(loadingMaterials$ | async)" class="pi pi-spin pi-spinner"></span>
-                                        <span *ngIf="!(loadingMaterials$ | async)">{{ getMaterialCount() }}</span>
+                                        <span *ngIf="loadingMaterials()" class="pi pi-spin pi-spinner"></span>
+                                        <span *ngIf="!loadingMaterials()">{{ getMaterialCount() }}</span>
                                     </h3>
                                     <p class="text-600 m-0">Materiais</p>
                                 </div>
@@ -213,6 +237,31 @@
                     </div>
                 </div>
 
+                <!-- Description Card -->
+                <div class="col-12 mt-4">
+                    <div class="card">
+                        <div class="flex align-items-center justify-content-between mb-3">
+                            <h3 class="text-xl font-semibold text-900 m-0">Descrição</h3>
+                            <p-button
+                                icon="pi pi-pencil"
+                                [text]="true"
+                                size="small"
+                                pTooltip="Editar descrição"
+                                (click)="addNote()">
+                            </p-button>
+                        </div>
+
+                        @if (lesson.description) {
+                        <p class="text-700 line-height-3 m-0 white-space-pre-line">{{ lesson.description }}</p>
+                        } @else {
+                        <div class="flex align-items-center gap-2 text-400">
+                            <i class="pi pi-file-edit"></i>
+                            <span class="text-sm">Sem descrição. Clique no lápis para adicionar uma anotação.</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
                 <!-- Quick Actions Section -->
                 <div class="col-12 mt-4">
                     <div class="card">
@@ -245,7 +294,7 @@
                         </p-button>
                     </div>
 
-                    <div *ngIf="(loadingStudents$ | async)" class="flex align-items-center justify-content-center p-4">
+                    <div *ngIf="loadingBookings()" class="flex align-items-center justify-content-center p-4">
                         <i class="pi pi-spin pi-spinner text-xl"></i>
                         <span class="ml-2">Carregando alunos...</span>
                     </div>
@@ -279,7 +328,7 @@
                         </div>
                     </div>
 
-                    <div *ngIf="!(loadingStudents$ | async) && students.length === 0" class="text-center p-4">
+                    <div *ngIf="!loadingBookings() && bookings().length === 0" class="text-center p-4">
                         <i class="pi pi-users text-3xl text-300 mb-2"></i>
                         <p class="text-600 m-0">Nenhum aluno inscrito nesta aula</p>
                     </div>
@@ -298,19 +347,14 @@
                         </p-button>
                     </div>
 
-                    <div *ngIf="(loadingAttendances$ | async)"
+                    <div *ngIf="loadingAttendances()"
                         class="flex align-items-center justify-content-center p-4">
                         <i class="pi pi-spin pi-spinner text-xl"></i>
                         <span class="ml-2">Carregando presenças...</span>
                     </div>
 
-                    <div *ngIf="!(loadingAttendances$ | async)" class="grid">
+                    <div *ngIf="!loadingAttendances()" class="grid">
                         <div class="col-12">
-                            <div *ngIf="(loadingAttendances$ | async)"
-                                class="flex align-items-center justify-content-center p-3 mb-3">
-                                <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
-                                <span>Atualizando presença...</span>
-                            </div>
                             <p-table [value]="getAttendanceTableData()" [tableStyle]="{'min-width': '50rem'}"
                                 styleClass="p-datatable-sm">
                                 <ng-template pTemplate="header">
@@ -340,8 +384,9 @@
                                             <div class="flex align-items-center gap-2">
                                                 <p-dropdown [options]="attendanceStatusOptions"
                                                     [(ngModel)]="attendance.attendance.status" optionLabel="label"
-                                                    optionValue="value" [disabled]="(loadingAttendances$ | async)!"
+                                                    optionValue="value" [disabled]="loadingAttendances()"
                                                     (onChange)="onAttendanceStatusChange(attendance, $event.value)"
+                                                    appendTo="body"
                                                     styleClass="w-full">
                                                 </p-dropdown>
                                             </div>
@@ -377,12 +422,12 @@
                         </p-button>
                     </div>
 
-                    <div *ngIf="(loadingMaterials$ | async)" class="flex align-items-center justify-content-center p-4">
+                    <div *ngIf="loadingMaterials()" class="flex align-items-center justify-content-center p-4">
                         <i class="pi pi-spin pi-spinner text-xl"></i>
                         <span class="ml-2">Carregando materiais...</span>
                     </div>
 
-                    <div *ngIf="!(loadingMaterials$ | async) && materials.length > 0" class="space-y-3">
+                    <div *ngIf="!loadingMaterials() && materials.length > 0" class="space-y-3">
                         <div *ngFor="let material of materials"
                             class="flex align-items-center gap-3 p-3 border-round surface-100">
                             <div
@@ -408,7 +453,7 @@
                         </div>
                     </div>
 
-                    <div *ngIf="!(loadingMaterials$ | async) && materials.length === 0" class="text-center p-4">
+                    <div *ngIf="!loadingMaterials() && materials.length === 0" class="text-center p-4">
                         <i class="pi pi-book text-3xl text-300 mb-2"></i>
                         <p class="text-600 m-0">Nenhum material disponível</p>
                     </div>
@@ -462,4 +507,248 @@
             }
         </div>
     </div>
+    }
 </div>
+
+<!-- ── Reschedule Modal ──────────────────────────────────────────────────── -->
+<p-dialog
+    header="Reagendar Aula"
+    [(visible)]="showRescheduleModal"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '480px' }"
+    appendTo="body">
+
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-4 pt-2">
+
+            <!-- Start datetime -->
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-calendar mr-1"></i> Data e Hora de Início <span class="text-red-500">*</span>
+                </label>
+                <p-datepicker
+                    [(ngModel)]="rescheduleData.startDatetime"
+                    [showTime]="true"
+                    [showSeconds]="false"
+                    dateFormat="dd/mm/yy"
+                    hourFormat="24"
+                    [showIcon]="true"
+                    styleClass="w-full"
+                    inputStyleClass="w-full"
+                    placeholder="dd/mm/aaaa hh:mm">
+                </p-datepicker>
+            </div>
+
+            <!-- End datetime -->
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-calendar-minus mr-1"></i> Data e Hora de Fim <span class="text-red-500">*</span>
+                </label>
+                <p-datepicker
+                    [(ngModel)]="rescheduleData.endDatetime"
+                    [showTime]="true"
+                    [showSeconds]="false"
+                    dateFormat="dd/mm/yy"
+                    hourFormat="24"
+                    [showIcon]="true"
+                    styleClass="w-full"
+                    inputStyleClass="w-full"
+                    placeholder="dd/mm/aaaa hh:mm"
+                    [minDate]="rescheduleData.startDatetime ?? undefined">
+                </p-datepicker>
+            </div>
+
+            <!-- Justification -->
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-comment mr-1"></i> Justificativa (opcional)
+                </label>
+                <input
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Ex: Aluno solicitou reagendamento"
+                    [(ngModel)]="rescheduleData.justification" />
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Cancelar"
+                icon="pi pi-times"
+                [outlined]="true"
+                severity="secondary"
+                (click)="cancelReschedule()"
+                [disabled]="rescheduleLoading()">
+            </p-button>
+            <p-button
+                label="Confirmar Reagendamento"
+                icon="pi pi-check"
+                severity="success"
+                (click)="confirmReschedule()"
+                [loading]="rescheduleLoading()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ── Cancel Confirmation Modal ─────────────────────────────────────────── -->
+<p-dialog
+    header="Cancelar Aula"
+    [(visible)]="showCancelModal"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '440px' }"
+    appendTo="body">
+
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-4 pt-2">
+            <div class="flex align-items-center gap-3 p-3 border-round bg-red-50 border-1 border-red-200">
+                <i class="pi pi-exclamation-triangle text-red-500 text-2xl"></i>
+                <p class="m-0 text-red-700 text-sm">
+                    Esta ação cancelará a aula permanentemente. Por favor, informe uma justificativa antes de confirmar.
+                </p>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-comment mr-1"></i> Justificativa <span class="text-red-500">*</span>
+                </label>
+                <input
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Ex: Aluno solicitou cancelamento"
+                    [(ngModel)]="cancelJustification" />
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Voltar"
+                icon="pi pi-arrow-left"
+                [outlined]="true"
+                severity="secondary"
+                (click)="closeCancelModal()"
+                [disabled]="cancelLoading()">
+            </p-button>
+            <p-button
+                label="Confirmar Cancelamento"
+                icon="pi pi-times-circle"
+                severity="danger"
+                (click)="confirmCancel()"
+                [loading]="cancelLoading()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ── Online Link Modal ──────────────────────────────────────────────────── -->
+<p-dialog
+    header="Configurar Link da Aula Online"
+    [(visible)]="showOnlineLinkModal"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '480px' }"
+    appendTo="body">
+
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-4 pt-2">
+            <div class="flex align-items-center gap-3 p-3 border-round bg-blue-50 border-1 border-blue-200">
+                <i class="pi pi-video text-blue-500 text-2xl"></i>
+                <p class="m-0 text-blue-700 text-sm">
+                    Informe o link de acesso à aula online (ex: Zoom, Google Meet, Teams).
+                </p>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-link mr-1"></i> Link da Aula <span class="text-red-500">*</span>
+                </label>
+                <input
+                    pInputText
+                    type="url"
+                    class="w-full"
+                    placeholder="https://meet.google.com/..."
+                    [(ngModel)]="onlineLinkValue" />
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Cancelar"
+                icon="pi pi-times"
+                [outlined]="true"
+                severity="secondary"
+                (click)="closeOnlineLinkModal()"
+                [disabled]="onlineLinkLoading()">
+            </p-button>
+            <p-button
+                label="Confirmar"
+                icon="pi pi-check"
+                severity="info"
+                (click)="confirmOnlineLink()"
+                [loading]="onlineLinkLoading()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ── Notes / Description Modal ─────────────────────────────────────────── -->
+<p-dialog
+    header="Fazer Anotação"
+    [(visible)]="showNotesModal"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '520px' }"
+    appendTo="body">
+
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-3 pt-2">
+            <div class="field">
+                <label class="block text-sm font-medium text-600 mb-2">
+                    <i class="pi pi-file-edit mr-1"></i> Descrição / Anotação
+                </label>
+                <textarea
+                    pInputTextarea
+                    [(ngModel)]="notesDescription"
+                    [autoResize]="true"
+                    [rows]="6"
+                    placeholder="Escreva aqui as anotações ou observações sobre esta aula…"
+                    class="w-full">
+                </textarea>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Cancelar"
+                icon="pi pi-times"
+                [outlined]="true"
+                severity="secondary"
+                (click)="closeNotesModal()"
+                [disabled]="notesLoading()">
+            </p-button>
+            <p-button
+                label="Guardar"
+                icon="pi pi-check"
+                severity="success"
+                (click)="saveNotesDescription()"
+                [loading]="notesLoading()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

@@ -6,6 +6,8 @@ import {ApiError} from "../../../models/ApiError";
 export interface StudentState extends EntityState<Student> {
     // Loading states
     loading: boolean;
+    /** Separate flag for loading a single student detail — avoids blocking list UI. */
+    loadingDetail: boolean;
     loadingCreate: boolean;
     loadingUpdate: boolean;
     loadingDelete: boolean;
@@ -35,6 +37,7 @@ export interface StudentState extends EntityState<Student> {
     // Filters and pagination
     filters: StudentFilters;
     pagination: PaginationState;
+    totalElements: number;
 
     // Cache management
     lastFetch: number | null;
@@ -52,20 +55,13 @@ export interface StudentState extends EntityState<Student> {
 
 export const studentsAdapter: EntityAdapter<Student> = createEntityAdapter<Student>({
     selectId: (student: Student) => student.id || '',
-    sortComparer: (a: Student, b: Student) => {
-        // Default sort by name, then by created date
-        const nameComparison = (a.user.firstname || '').localeCompare(b.user.firstname || '');
-        if (nameComparison !== 0) return nameComparison;
-
-        const dateA = new Date(a.createdAt || 0).getTime();
-        const dateB = new Date(b.createdAt || 0).getTime();
-        return dateB - dateA; // Most recent first
-    }
+    sortComparer: false,
 });
 
 export const initialStudentsState: StudentState = studentsAdapter.getInitialState({
     // Loading states
     loading: false,
+    loadingDetail: false,
     loadingCreate: false,
     loadingUpdate: false,
     loadingDelete: false,
@@ -107,11 +103,12 @@ export const initialStudentsState: StudentState = studentsAdapter.getInitialStat
     // Pagination
     pagination: {
         currentPage: 0,
-        pageSize: 15,
+        pageSize: 20,
         pageIndex: 0,
         totalItems: 0,
         totalPages: 0
     },
+    totalElements: 0,
 
     // Cache
     lastFetch: null,

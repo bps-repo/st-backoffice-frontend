@@ -1,166 +1,225 @@
-<section class="mt-3">
-    <!-- Student Overview -->
-    <div class="grid" *ngIf="studentInfo; else loading">
-        <!-- Student Profile & Academic Info -->
-        <div class="col-12 md:col-4">
-            <p-card styleClass="h-full">
-                <div class="flex flex-column align-items-center">
-                    <p-avatar [image]="studentInfo.photo" size="xlarge" shape="circle"
-                              [style]="{'box-shadow': '0 3px 6px rgba(0, 0, 0, 0.16)'}">
+@if (student) {
+<div class="grid mt-2">
+
+    <!-- ── Left column: profile + personal info ── -->
+    <div class="col-12 md:col-4">
+        <div class="card h-full">
+
+            <!-- Avatar + name -->
+            <div class="flex flex-column align-items-center text-center pb-3">
+                <div class="student-photo-wrap">
+                    <p-avatar [image]="photoUrl" size="xlarge" shape="circle"
+                              styleClass="shadow-2">
                     </p-avatar>
-                    <h2 class="text-2xl font-bold mt-3 mb-1">{{ studentInfo.name }}</h2>
-                    <p class="text-600 m-0">{{ studentInfo.email }}</p>
-                    <p-tag [severity]="studentInfo.status === 'ACTIVE' ? 'success' : 'warning'"
-                           [value]="studentInfo.status" class="mt-2"></p-tag>
+                    <button
+                        type="button"
+                        pButton
+                        icon="pi pi-pencil"
+                        class="p-button-rounded p-button-secondary student-photo-edit"
+                        [disabled]="uploadingPhoto()"
+                        [attr.aria-label]="'Alterar foto'"
+                        (click)="photoUploadDialogVisible = true">
+                    </button>
                 </div>
+                <span class="text-xl font-bold">
+                    {{ student.user.firstname }} {{ student.user.lastname }}
+                </span>
+                <span class="text-sm text-color-secondary mt-1">{{ student.user.email }}</span>
+                <p-tag [severity]="student.status === 'ACTIVE' ? 'success' : 'warn'"
+                       [value]="student.status" styleClass="mt-2"></p-tag>
+            </div>
 
+            <p-dialog
+                header="Alterar foto do aluno"
+                [(visible)]="photoUploadDialogVisible"
+                [modal]="true"
+                [draggable]="false"
+                [resizable]="false"
+                [style]="{ width: 'min(420px, 92vw)' }"
+                [breakpoints]="{ '576px': '95vw' }"
+                appendTo="body">
+                <p class="text-sm text-color-secondary m-0 mb-3">
+                    Selecione uma imagem (máx. 5&nbsp;MB). Formatos: JPG, PNG, etc.
+                </p>
+                <p-fileupload
+                    mode="basic"
+                    name="photo"
+                    accept="image/*"
+                    [maxFileSize]="5000000"
+                    [auto]="false"
+                    chooseLabel="Escolher ficheiro"
+                    chooseIcon="pi pi-image"
+                    [disabled]="uploadingPhoto()"
+                    (onSelect)="onPhotoSelectedInDialog($event)">
+                </p-fileupload>
+                @if (uploadingPhoto()) {
+                    <div class="flex align-items-center gap-2 mt-3 text-sm text-color-secondary">
+                        <i class="pi pi-spin pi-spinner"></i>
+                        <span>A enviar…</span>
+                    </div>
+                }
+                <ng-template pTemplate="footer">
+                    <button
+                        pButton
+                        type="button"
+                        label="Fechar"
+                        class="p-button-text"
+                        [disabled]="uploadingPhoto()"
+                        (click)="closePhotoUploadDialog()">
+                    </button>
+                </ng-template>
+            </p-dialog>
+
+            <p-divider>
+                <span class="text-sm font-semibold text-color-secondary">Académico</span>
+            </p-divider>
+
+            <div class="flex flex-column gap-2">
+                <div class="flex justify-content-between align-items-center">
+                    <span class="text-sm text-color-secondary">Centro</span>
+                    <span class="text-sm font-medium">{{ student.center.name }}</span>
+                </div>
+                <div class="flex justify-content-between align-items-center">
+                    <span class="text-sm text-color-secondary">Nível</span>
+                    <span class="text-sm font-medium">{{ student.level.name }}</span>
+                </div>
+                <div class="flex justify-content-between align-items-center">
+                    <span class="text-sm text-color-secondary">Unidade actual</span>
+                    <span class="text-sm font-medium">{{ student.currentUnit?.name ?? '—' }}</span>
+                </div>
+                <div class="flex justify-content-between align-items-center">
+                    <span class="text-sm text-color-secondary">Inscrição</span>
+                    <span class="text-sm font-medium">{{ formatDate(student.enrollmentDate) }}</span>
+                </div>
+            </div>
+
+            <p-divider>
+                <span class="text-sm font-semibold text-color-secondary">Pessoal</span>
+            </p-divider>
+
+            <div class="flex flex-column gap-2">
+                @for (info of personalInfo; track info.title) {
+                    <div class="flex justify-content-between align-items-center">
+                        <span class="text-sm text-color-secondary">{{ info.title }}</span>
+                        <span class="text-sm font-medium">{{ info.value }}</span>
+                    </div>
+                }
+            </div>
+
+            @if (student.notes) {
                 <p-divider>
-                    <span class="font-medium">Informação académica</span>
+                    <span class="text-sm font-semibold text-color-secondary">Notas</span>
                 </p-divider>
+                <p class="text-sm text-color-secondary m-0">{{ student.notes }}</p>
+            }
+        </div>
+    </div>
 
-                <div class="grid">
-                    <div class="col-12 mb-2">
-                        <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Centro</span>
-                            <span class="font-medium text-900">{{ studentInfo.center }}</span>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-2">
-                        <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Nível</span>
-                            <span class="font-medium text-900">{{ studentInfo.level }}</span>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-2">
-                        <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Unidade actual</span>
-                            <span class="font-medium text-900">{{ studentInfo.unit }}</span>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-2">
-                        <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">Data de Inscrição</span>
-                            <span class="font-medium text-900">{{ formatDate(studentInfo.enrollmentDate) }}</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- ── Right column: level progress + unit progresses ── -->
+    <div class="col-12 md:col-8 flex flex-column gap-3">
 
-                <p-divider>
-                    <span class="font-medium">Informações pessoais</span>
-                </p-divider>
-
-                <div class="grid">
-                    <div *ngFor="let info of personalInfo" class="col-12 mb-2">
-                        <div class="flex justify-content-between align-items-center">
-                            <span class="font-medium text-600">{{ info.title }}</span>
-                            <span class="font-medium text-900">{{ info.value }}</span>
-                        </div>
-                    </div>
-                </div>
-            </p-card>
+        <!-- Level progress summary -->
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-3">
+                <span class="font-semibold">Progresso no Nível</span>
+                <span class="text-sm text-color-secondary">{{ student.level.name }}</span>
+            </div>
+            <div class="flex justify-content-between align-items-center mb-1">
+                <span class="text-sm text-color-secondary">Progresso global</span>
+                <span class="text-sm font-semibold">{{ student.levelProgressPercentage }}%</span>
+            </div>
+            <p-progressBar [value]="student.levelProgressPercentage"
+                           [showValue]="false"
+                           styleClass="mb-1"
+                           [style]="{'height': '8px'}">
+            </p-progressBar>
         </div>
 
-        <!-- Progress & Upcoming Lessons -->
-        <div class="col-12 md:col-8">
-            <div class="grid">
-                <!-- Progress Cards -->
-                <div class="col-12 md:col-6">
-                    <p-card styleClass="h-full" header="Unit Progress">
-                        <div class="flex flex-column">
-                            <div class="flex justify-content-between align-items-center mb-2">
-                                <span class="font-medium">{{ studentInfo.unit }}</span>
-                                <span class="font-bold">{{ unitProgress }}%</span>
-                            </div>
-                            <p-progressBar [value]="unitProgress" [showValue]="false" styleClass="mb-3"
-                                           [style]="{'height': '10px'}"></p-progressBar>
-                            <div class="text-sm text-600 mb-4">
-                                Unit {{ studentInfo.unitOrder }} of {{ studentInfo.totalUnits }}
-                                in {{ studentInfo.level }}
-                            </div>
+        <!-- Unit progresses -->
+        <div class="card p-0 overflow-hidden">
+            <div class="flex justify-content-between align-items-center px-4 py-3 border-bottom-1 surface-border">
+                <span class="font-semibold">Progresso por Unidade</span>
+                @if (loadingProgresses) {
+                    <i class="pi pi-spin pi-spinner text-primary"></i>
+                }
+            </div>
 
-                            <div class="flex justify-content-between align-items-center mb-2 mt-4">
-                                <span class="font-medium">Level Progress</span>
-                                <span class="font-bold">{{ levelProgress }}%</span>
-                            </div>
-                            <p-progressBar [value]="levelProgress" [showValue]="false" styleClass="mb-3"
-                                           [style]="{'height': '10px'}"></p-progressBar>
-                            <div class="text-sm text-600">
-                                Completed {{ Math.floor(levelProgress / 100 * studentInfo.totalUnits) }}
-                                of {{ studentInfo.totalUnits }} units
-                            </div>
-                        </div>
-                    </p-card>
+            @if (loadingProgresses && unitProgresses.length === 0) {
+                <div class="flex justify-content-center align-items-center p-5">
+                    <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
                 </div>
+            } @else if (unitProgresses.length === 0) {
+                <div class="flex flex-column align-items-center justify-content-center p-5 text-color-secondary">
+                    <i class="pi pi-inbox text-4xl mb-2"></i>
+                    <span class="text-sm">Nenhum progresso disponível</span>
+                </div>
+            } @else {
+                <div class="flex flex-column">
+                    @for (up of unitProgresses; track up.id) {
+                        <div class="px-4 py-3 border-bottom-1 surface-border">
 
-                <!-- Notifications -->
-                <div class="col-12 md:col-6">
-                    <p-card styleClass="h-full" header="Actividades recentes">
-                        <ul class="list-none m-0 p-0">
-                            <li *ngFor="let notification of notifications" class="mb-3">
-                                <div class="flex align-items-start p-2 border-round surface-hover">
-                                    <span
-                                        class="flex align-items-center justify-content-center border-circle bg-primary-100 mr-3"
-                                        style="width: 2.5rem; height: 2.5rem">
-                                        <i [ngClass]="notification.icon" class="text-lg text-primary-700"></i>
+                            <!-- Unit header row -->
+                            <div class="flex justify-content-between align-items-center mb-3">
+                                <div class="flex align-items-center gap-2">
+                                    <span class="flex align-items-center justify-content-center border-circle bg-primary text-white font-bold text-xs"
+                                          style="width:1.75rem;height:1.75rem;flex-shrink:0">
+                                        {{ up.unit.orderUnit }}
                                     </span>
-                                    <div>
-                                        <span class="font-medium block mb-1">{{ notification.title }}</span>
-                                        <span class="text-600 block text-sm">{{ notification.message }}</span>
-                                        <small class="text-500">{{ notification.time }}</small>
-                                    </div>
+                                    <span class="font-semibold">{{ up.unit.name }}</span>
                                 </div>
-                            </li>
-                        </ul>
-                    </p-card>
-                </div>
+                                <p-tag [value]="getUnitStatusLabel(up.status)"
+                                       [severity]="getUnitStatusSeverity(up.status)">
+                                </p-tag>
+                            </div>
 
-                <!-- Upcoming Lessons -->
-                <div class="col-12">
-                    <p-card header="Aulas agendadas">
-                        <p-table [value]="upcomingLessons" styleClass="p-datatable-sm"
-                                 [tableStyle]="{'min-width': '50rem'}">
-                            <ng-template pTemplate="header">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Lesson</th>
-                                    <th>Teacher</th>
-                                    <th>Location</th>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="body" let-lesson>
-                                <tr>
-                                    <td>{{ formatDate(lesson.date) }}</td>
-                                    <td>{{ lesson.time }}</td>
-                                    <td>{{ lesson.title }}</td>
-                                    <td>{{ lesson.teacher }}</td>
-                                    <td>{{ lesson.location }}</td>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="emptymessage">
-                                <tr>
-                                    <td colspan="5" class="text-center p-4">No upcoming lessons scheduled.</td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                    </p-card>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                            <!-- Progress bars -->
+                            <div class="flex flex-column gap-2">
+                                <div>
+                                    <div class="flex justify-content-between align-items-center mb-1">
+                                        <span class="text-xs text-color-secondary">Aulas</span>
+                                        <span class="text-xs font-medium">{{ up.lessonProgress }}%</span>
+                                    </div>
+                                    <p-progressBar [value]="up.lessonProgress"
+                                                   [showValue]="false"
+                                                   [style]="{'height': '6px'}">
+                                    </p-progressBar>
+                                </div>
 
-<ng-template #loading>
-    <div class="grid">
-        <div class="col-12">
-            <div class="card">
-                <div class="flex justify-content-center align-items-center" style="height: 400px;">
-                    <div class="text-center">
-                        <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
-                        <h3 class="mt-3">Loading student details...</h3>
-                    </div>
+                                <div>
+                                    <div class="flex justify-content-between align-items-center mb-1">
+                                        <span class="text-xs text-color-secondary">Avaliações</span>
+                                        <span class="text-xs font-medium">{{ up.assessmentProgress }}%</span>
+                                    </div>
+                                    <p-progressBar [value]="up.assessmentProgress"
+                                                   [showValue]="false"
+                                                   [style]="{'height': '6px'}">
+                                    </p-progressBar>
+                                </div>
+                            </div>
+
+                            <!-- Assessments passed / failed -->
+                            @if (up.assessmentsPassed > 0 || up.assessmentsFailed > 0) {
+                                <div class="flex gap-3 mt-2">
+                                    <span class="text-xs text-green-600 flex align-items-center gap-1">
+                                        <i class="pi pi-check-circle"></i>
+                                        {{ up.assessmentsPassed }} aprovado(s)
+                                    </span>
+                                    <span class="text-xs text-red-500 flex align-items-center gap-1">
+                                        <i class="pi pi-times-circle"></i>
+                                        {{ up.assessmentsFailed }} reprovado(s)
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
-            </div>
+            }
         </div>
+
     </div>
-</ng-template>
+</div>
+} @else {
+    <div class="flex justify-content-center align-items-center p-6">
+        <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
+    </div>
+}

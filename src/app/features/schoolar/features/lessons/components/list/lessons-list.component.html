@@ -1,271 +1,162 @@
 <div class="grid">
     <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
-         [ngClass]="{'sticky-active': isMainHeaderSticky}">
+        [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
             <h2 class="font-bold text-2xl mb-4">Gestão de aulas</h2>
             <span class="text-lg">Sistema completo para criação, gerenciamento e análise de aulas</span>
         </div>
         <p-button *hasPermission="'lessons.create'" label="Novo aula" icon="pi pi-plus" class="p-button-outlined"
-                  (click)="navigateToCreateLesson()"></p-button>
+            (click)="navigateToCreateLesson()"></p-button>
     </div>
 
     <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
-         style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
+        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
         <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-                        optionLabel="label" optionValue="value"></p-selectButton>
+            optionLabel="label" optionValue="value"></p-selectButton>
     </div>
 
     <!-- Lesson list View -->
     @if (currentView === 'list') {
-        <div class="col-12 animate-fade">
-            <div class="flex justify-content-between align-items-center mb-3">
-                <div class="flex align-items-center">
-                <span class="p-input-icon-left mr-2">
-                    <input type="text" pInputText placeholder="Buscar aulas"/>
-                </span>
-                </div>
-                <div class="flex">
-                    <p-button icon="pi pi-table" class="mr-2" pTooltip="Visualização em tabela"></p-button>
-                    <p-button icon="pi pi-th-large" class="mr-2" pTooltip="Visualização em cards"></p-button>
-                    <p-button icon="pi pi-download" label="Exportar" pTooltip="Exportar"></p-button>
-                </div>
-            </div>
+    <div class="col-12 animate-fade">
 
-            <!-- Error message -->
-            @if (error$ | async; as error) {
-                <div class="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="pi pi-times-circle text-red-400"></i>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800">
-                                Erro ao carregar aulas
-                            </h3>
-                            <div class="mt-2 text-sm text-red-700">
-                                <p>{{ error }}</p>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex space-x-2">
-                                    <p-button label="Tentar novamente" size="small" severity="danger" [outlined]="true"
-                                              (click)="retryLoadLessons()">
-                                    </p-button>
-                                </div>
-                            </div>
+        <!-- KPI cards -->
+        <div class="grid gap-1 mb-3">
+            @for (kpi of kpis; track kpi.label) {
+            <div class="col">
+                <app-kpi-indicators [kpi]="kpi"></app-kpi-indicators>
+            </div>
+            }
+        </div>
+
+        <!-- Search + filter button row -->
+        <div class="col-12 flex justify-content-between align-content-center mb-3">
+            <div class="flex gap-2">
+                <span class="p-input-icon-left w-full">
+                    <input type="text" pInputText placeholder="Buscar aulas…" [(ngModel)]="searchTerm"
+                        (input)="onSearchInput()" style="width: 280px" />
+                </span>
+                <button *ngIf="searchTerm" pButton type="button" icon="pi pi-times"
+                    class="p-button-outlined p-button-danger" (click)="searchTerm = ''; applyFilters()"></button>
+            </div>
+            <div class="flex gap-2">
+                <button pButton type="button" icon="pi pi-filter" label="Filtros" (click)="showFilterDialog = true"
+                    class="p-button-secondary" [class.p-button-outlined]="!hasActiveFilters"
+                    [class.p-button-info]="hasActiveFilters"></button>
+            </div>
+        </div>
+
+        <!-- Active filter tags -->
+        @if (hasActiveFilters) {
+        <div class="col-12 flex flex-wrap gap-2 align-items-center mb-3">
+            <span class="font-semibold text-sm mr-1">Filtros activos:</span>
+
+            @if (filterTeacherId) {
+            <span class="filter-tag">
+                <i class="pi pi-user mr-1"></i>{{ getTeacherLabel(filterTeacherId) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterTeacherId = null; applyFilters()"></i>
+            </span>
+            }
+            @if (filterCenterId) {
+            <span class="filter-tag">
+                <i class="pi pi-map-marker mr-1"></i>{{ getCenterLabel(filterCenterId) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterCenterId = null; applyFilters()"></i>
+            </span>
+            }
+            @if (filterUnitId) {
+            <span class="filter-tag">
+                <i class="pi pi-book mr-1"></i>{{ getUnitLabel(filterUnitId) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterUnitId = null; applyFilters()"></i>
+            </span>
+            }
+            @if (filterLevelId) {
+            <span class="filter-tag">
+                <i class="pi pi-chart-bar mr-1"></i>{{ getLevelLabel(filterLevelId) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterLevelId = null; applyFilters()"></i>
+            </span>
+            }
+            @if (filterStatus) {
+            <span class="filter-tag">
+                <i class="pi pi-info-circle mr-1"></i>{{ getStatusLabel(filterStatus) }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterStatus = null; applyFilters()"></i>
+            </span>
+            }
+            @if (filterOnline !== null) {
+            <span class="filter-tag">
+                <i class="pi pi-globe mr-1"></i>{{ filterOnline ? 'Online' : 'Presencial' }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterOnline = null; applyFilters()"></i>
+            </span>
+            }
+            @if (filterHasBookings) {
+            <span class="filter-tag">
+                <i class="pi pi-calendar-plus mr-1"></i>Com reservas
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterHasBookings = false; applyFilters()"></i>
+            </span>
+            }
+            @if (filterWithoutBookings) {
+            <span class="filter-tag">
+                <i class="pi pi-calendar-minus mr-1"></i>Sem reservas
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterWithoutBookings = false; applyFilters()"></i>
+            </span>
+            }
+            @if (filterSortField) {
+            <span class="filter-tag">
+                <i class="pi pi-sort-alt mr-1"></i>{{ filterSortField }}, {{ filterSortDirection }}
+                <i class="pi pi-times ml-1 cursor-pointer" (click)="filterSortField = null; applyFilters()"></i>
+            </span>
+            }
+
+            <button pButton type="button" icon="pi pi-trash" label="Limpar Filtros"
+                class="p-button-sm p-button-text p-button-danger ml-1" (click)="clearFilters()"></button>
+        </div>
+        }
+
+        <!-- Error message -->
+        @if (error$ | async; as error) {
+        <div class="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="pi pi-times-circle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">
+                        Erro ao carregar aulas
+                    </h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p>{{ error }}</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex space-x-2">
+                            <p-button label="Tentar novamente" size="small" severity="danger" [outlined]="true"
+                                (click)="retryLoadLessons()">
+                            </p-button>
                         </div>
                     </div>
                 </div>
-            }
-
-            <app-global-table tableLabel="Aulas" [columnTemplates]="columnTemplates" [data]="lessons$ | async"
-                              [loading]="loading$ | async" [entity]="'lessons'" [columns]="columns"
-                              [globalFilterFields]="globalFilterFields" class="w-full"
-                              (rowSelect)="viewLesson($event.id!)"
-                              (createEntity)="navigateToCreateLesson()"></app-global-table>
+            </div>
         </div>
+        }
+
+        <app-global-table tableLabel="Aulas" [columnTemplates]="columnTemplates" [data]="lessons$ | async"
+            [loading]="loading$ | async" [entity]="'lessons'" [columns]="columns"
+            [globalFilterFields]="globalFilterFields" class="w-full" [lazy]="true"
+            [totalRecords]="(totalElements$ | async) ?? 0" [pageSize]="DEFAULT_PAGE_SIZE"
+            (pageChange)="onPageChange($event)" (rowSelect)="viewLesson($event.id!)"
+            (createEntity)="navigateToCreateLesson()"></app-global-table>
+    </div>
     }
 
     <!-- Reports View   -->
     @if (currentView === 'relatorios') {
-        <app-lesson-reports></app-lesson-reports>
+    <app-lessons-dashboard></app-lessons-dashboard>
     }
 
-    <!-- Calendar View -->
-    @if (currentView === 'calendario') {
-        <div class="col-12 animate-fade">
-            <!-- Error message for calendar -->
-            @if (error$ | async; as error) {
-                <div class="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="pi pi-times-circle text-red-400"></i>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800">
-                                Erro ao carregar aulas do calendário
-                            </h3>
-                            <div class="mt-2 text-sm text-red-700">
-                                <p>{{ error }}</p>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex space-x-2">
-                                    <p-button label="Tentar novamente" size="small" severity="danger" [outlined]="true"
-                                              (click)="retryLoadLessons()">
-                                    </p-button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-
-            <!-- Loading indicator for calendar -->
-            @if (loading$ | async) {
-                <div class="flex justify-content-center align-items-center p-4 mb-4">
-                    <i class="pi pi-spin pi-spinner mr-2"></i>
-                    <span>Carregando aulas...</span>
-                </div>
-            }
-
-            <!-- Calendar controls -->
-            <div class="flex justify-content-between align-items-center mb-4">
-                <div class="flex align-items-center gap-2">
-                    <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text"
-                            (click)="navigatePrevious()"></button>
-                    <h3 class="font-bold text-xl m-0">
-                        @if (calendarView === 'week') {
-                            {{ getFormattedWeekRange() }}
-                        } @else {
-                            {{ getFormattedMonth() }}
-                        }
-                    </h3>
-                    <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text"
-                            (click)="navigateNext()"></button>
-                </div>
-
-                <div class="flex gap-2">
-                    <button pButton type="button" label="Filtros" icon="pi pi-filter"
-                            class="p-button-outlined"></button>
-                    <div class="flex">
-                        <button pButton type="button" label="Mês" [class.p-button-outlined]="calendarView !== 'month'"
-                                [class.p-button-info]="calendarView === 'month'"
-                                (click)="switchCalendarView('month')"></button>
-                        <button pButton type="button" label="Semana" [class.p-button-outlined]="calendarView !== 'week'"
-                                [class.p-button-info]="calendarView === 'week'"
-                                (click)="switchCalendarView('week')"></button>
-                        <button pButton type="button" label="Hoje" class="p-button-outlined"
-                                (click)="navigateToday()"></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Weekly Calendar View -->
-            @if (calendarView === 'week') {
-                <div class="weekly-calendar card">
-                    <div class="grid gap-2">
-                        @for (dayData of weeklyLessons; track dayData.date) {
-                            <div class="col-12 md:col">
-                                <div class="card h-full" [class.today-card]="dayData.isToday">
-                                    <div class="card-header text-center mb-3">
-                                        <div class="day-header">
-                                            <div
-                                                class="day-name text-sm text-gray-600">{{ dayData.day.split(' ')[0] }}
-                                            </div>
-                                            <div class="day-date font-bold" [class.today-date]="dayData.isToday">
-                                                {{ dayData.day.split(' ')[1] }}
-                                            </div>
-                                        </div>
-                                        @if (dayData.isToday) {
-                                            <div class="today-label text-xs text-primary font-bold">Hoje</div>
-                                        }
-                                        @if (!dayData.classes.length) {
-                                            <div class="no-lessons text-xs text-gray-500 mt-2">Nenhuma aula agendada
-                                            </div>
-                                        }
-                                    </div>
-
-                                    @if ((dayData.classes.length) > 0) {
-                                        <div class="flex flex-column gap-2">
-                                            @for (classData of (dayData.classes || []); track classData.lesson.id) {
-                                                <div class="class-card border-left-2 cursor-pointer"
-                                                     [class]="'class-card border-left-2 border-' + classData.statusClass"
-                                                     (mouseenter)="showLessonDetails(classData.lesson)"
-                                                     (mouseleave)="hideLessonDetails()"
-                                                     (click)="viewLesson(classData.lesson.id!)">
-                                                    <div class="p-2">
-                                                        <div
-                                                            class="flex justify-content-between align-items-center mb-1">
-                                                            <span
-                                                                class="class-title font-semibold text-sm">{{ classData.title }}</span>
-                                                            <span class="text-xs text-600">{{ classData.time }}</span>
-                                                        </div>
-                                                        <div class="class-details text-xs text-600">
-                                                            {{ classData.teacher }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
-
-            <!-- Monthly Calendar View -->
-            @if (calendarView === 'month') {
-                <div class="monthly-calendar">
-                    <div class="card">
-                        <div class="calendar-header grid border-bottom-1 border-gray-200 font-bold text-center">
-                            <div class="col">Dom</div>
-                            <div class="col">Seg</div>
-                            <div class="col">Ter</div>
-                            <div class="col">Qua</div>
-                            <div class="col">Qui</div>
-                            <div class="col">Sex</div>
-                            <div class="col">Sáb</div>
-                        </div>
-
-                        <div class="calendar-body">
-                            @for (week of getMonthlyCalendarWeeks(); track $index) {
-                                <div class="grid calendar-week border-bottom-1 border-gray-100">
-                                    @for (day of week; track day.date) {
-                                        <div class="col calendar-day" [class.text-gray-400]="!day.isCurrentMonth"
-                                             [class.today-day]="day.isToday" [class.current-month]="day.isCurrentMonth">
-
-                                            <!-- Day number -->
-                                            <div class="day-number" [class.today-number]="day.isToday">
-                                                {{ day.dayNumber }}
-                                            </div>
-
-                                            <!-- Today indicator -->
-                                            @if (day.isToday) {
-                                                <div class="today-indicator"></div>
-                                            }
-
-                                            <!-- Lessons for this day -->
-                                            @if (day.lessons && day.lessons.length > 0) {
-                                                <div class="monthly-lessons">
-                                                    @for (lesson of day.lessons.slice(0, 3); track lesson.lesson.id) {
-                                                        <div class="monthly-lesson-card cursor-pointer"
-                                                             [class]="'border-left-2 border-' + lesson.statusClass"
-                                                             (mouseenter)="showLessonDetails(lesson.lesson)"
-                                                             (mouseleave)="hideLessonDetails()"
-                                                             (click)="viewLesson(lesson.lesson.id!)">
-                                                            <div
-                                                                class="lesson-time text-xs font-bold">{{ lesson.time }}
-                                                            </div>
-                                                            <div class="lesson-title text-xs">{{ lesson.title }}</div>
-                                                        </div>
-                                                    }
-                                                    @if (day.lessons.length > 3) {
-                                                        <div class="more-lessons text-xs text-gray-500">
-                                                            +{{ day.lessons.length - 3 }} mais
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
-
-    <!-- Estatisticas View -->
     @if (currentView === 'estatisticas') {
-        <div class="col-12 animate-fade content-sticky">
-            <div class="p-4 text-center">
-                <h3>Estatísticas</h3>
-                <p>Conteúdo das estatísticas será implementado aqui.</p>
-            </div>
+    <div class="col-12 animate-fade content-sticky">
+        <div class="p-4 text-center">
+            <h3>Estatísticas</h3>
+            <p>Conteúdo das estatísticas será implementado aqui.</p>
         </div>
+    </div>
     }
 </div>
 
@@ -293,26 +184,25 @@
 </ng-template>
 
 <ng-template #statusTemplate let-row>
-    <span class="p-badge" [ngClass]="{
-            'p-badge-success': row.status === 'COMPLETED' || row.status === 'AVAILABLE',
-            'p-badge-info': row.status === 'OVERDUE' || row.status === 'POSTPONED',
-            'p-badge-warning': row.status === 'SCHEDULED' || row.status === 'BOOKED',
-            'p-badge-danger': row.status === 'CANCELLED'
-          }">
-        {{ getStatusLabel(row.status) }}
-    </span>
+    <p-tag [value]="row | lessonStatusLabel" [severity]="row | lessonStatusSeverity"
+        [styleClass]="row | lessonStatusClass" [rounded]="true">
+    </p-tag>
 </ng-template>
 
 <ng-template #actionsTemplate let-row>
     <div class="flex gap-2">
         <p-button icon="pi pi-eye" size="small" severity="info" [outlined]="true" pTooltip="Ver detalhes"
-                  (mouseenter)="showLessonDetails(row)" (mouseleave)="hideLessonDetails()"
-                  (click)="viewLesson(row.id)"></p-button>
+            (mouseenter)="showLessonDetails(row)" (mouseleave)="hideLessonDetails()"
+            (click)="viewLesson(row.id)"></p-button>
         <p-button icon="pi pi-pencil" size="small" severity="secondary" [outlined]="true" pTooltip="Editar"
-                  (click)="editLesson(row.id)"></p-button>
+            (click)="editLesson(row.id)"></p-button>
+        <p-button icon="pi pi-copy" size="small" severity="contrast" [outlined]="true" pTooltip="Duplicar aula"
+            (click)="duplicateLesson(row.id)"></p-button>
+        <p-button icon="pi pi-calendar-plus" size="small" severity="success" [outlined]="true" pTooltip="Marcar aula"
+            (click)="scheduleLesson(row.id)"></p-button>
         @if (row.online && row.onlineLink) {
-            <p-button icon="pi pi-external-link" size="small" severity="help" [outlined]="true"
-                      pTooltip="Abrir link da aula" (click)="openOnlineLink(row.onlineLink)"></p-button>
+        <p-button icon="pi pi-external-link" size="small" severity="help" [outlined]="true"
+            pTooltip="Abrir link da aula" (click)="openOnlineLink(row.onlineLink)"></p-button>
         }
     </div>
 </ng-template>
@@ -323,97 +213,193 @@
     </span>
 </ng-template>
 
+<!-- Filter Dialog -->
+<p-dialog [(visible)]="showFilterDialog" [style]="{width: '560px'}" header="Filtrar Aulas" [modal]="true"
+    [draggable]="false" [resizable]="false">
+    <div class="p-fluid">
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Professor</label>
+                <p-select [options]="teacherOptions" [(ngModel)]="filterTeacherId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Centro</label>
+                <p-select [options]="centerOptions" [(ngModel)]="filterCenterId" optionLabel="label"
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-select>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Unidade</label>
+                <p-select [options]="unitOptions" [(ngModel)]="filterUnitId" optionLabel="label" optionValue="value"
+                    placeholder="Todas" [showClear]="true" [filter]="true" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Nível</label>
+                <p-select [options]="levelOptions" [(ngModel)]="filterLevelId" optionLabel="label" optionValue="value"
+                    placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-select>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Status</label>
+                <p-select [options]="statusOptions" [(ngModel)]="filterStatus" optionLabel="label" optionValue="value"
+                    placeholder="Todos" [showClear]="true" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Modalidade</label>
+                <p-select [options]="onlineOptions" [(ngModel)]="filterOnline" optionLabel="label" optionValue="value"
+                    placeholder="Todas" [showClear]="true" appendTo="body"></p-select>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <label>Data início</label>
+                <p-datepicker [(ngModel)]="filterStartDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
+                    [showIcon]="true" appendTo="body"></p-datepicker>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label>Data fim</label>
+                <p-datepicker [(ngModel)]="filterEndDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
+                    [showIcon]="true" appendTo="body"></p-datepicker>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterHasBookings" (onChange)="onHasBookingsChange()"></p-inputSwitch>
+                    <label>Com reservas</label>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <div class="flex align-items-center gap-2">
+                    <p-inputSwitch [(ngModel)]="filterWithoutBookings"
+                        (onChange)="onWithoutBookingsChange()"></p-inputSwitch>
+                    <label>Sem reservas</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-8 field">
+                <label>Ordenar por</label>
+                <p-select [options]="sortFieldOptions" [(ngModel)]="filterSortField" optionLabel="label"
+                    optionValue="value" placeholder="Padrão" [showClear]="true" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 md:col-4 field">
+                <label>Direção</label>
+                <p-select [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection" optionLabel="label"
+                    optionValue="value" appendTo="body"></p-select>
+            </div>
+        </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Aplicar" icon="pi pi-check"
+            (click)="applyFilters(); showFilterDialog = false"></button>
+        <button pButton type="button" label="Limpar" icon="pi pi-times" class="p-button-outlined"
+            (click)="clearFilters(); showFilterDialog = false"></button>
+    </ng-template>
+</p-dialog>
+
 <!-- Lesson Details Dialog -->
 <p-dialog [header]="selectedLesson?.title || 'Detalhes da Aula'" [visible]="lessonDialogVisible()" [modal]="false"
-          [closable]="true" [draggable]="false" [resizable]="false" styleClass="lesson-details-dialog"
-          [style]="{width: '400px'}" (mouseenter)="keepDialogOpen()" (mouseleave)="onDialogMouseLeave()">
+    [closable]="true" [draggable]="false" [resizable]="false" styleClass="lesson-details-dialog"
+    [style]="{width: '400px'}" (mouseenter)="keepDialogOpen()" (mouseleave)="onDialogMouseLeave()">
 
     @if (selectedLesson) {
-        <div class="lesson-details-content">
-            <!-- Status Badge -->
-            <div class="flex justify-content-between align-items-center mb-3">
-            <span class="p-badge text-sm" [ngClass]="{
-                        'p-badge-success': selectedLesson.status === 'COMPLETED' || selectedLesson.status === 'AVAILABLE',
-                        'p-badge-warning': selectedLesson.status === 'SCHEDULED' || selectedLesson.status === 'BOOKED',
-                        'p-badge-danger': selectedLesson.status === 'CANCELLED' || selectedLesson.status === 'OVERDUE',
-                        'p-badge-info': selectedLesson.status === 'POSTPONED'
-                      }">
-                {{ getStatusLabel(selectedLesson.status) }}
-            </span>
-                <span class="text-sm text-500">{{ selectedLesson.startDatetime | date: 'dd/MM/yyyy' }}</span>
+    <div class="lesson-details-content">
+        <!-- Status Badge -->
+        <div class="flex justify-content-between align-items-center mb-3">
+            <div class="flex gap-2 align-items-center">
+                <p-tag [value]="selectedLesson | lessonStatusLabel" [severity]="selectedLesson | lessonStatusSeverity"
+                    [styleClass]="selectedLesson | lessonStatusClass" [rounded]="true">
+                </p-tag>
+                <p-tag [value]="selectedLesson | lessonStatusLabel : 'modality'"
+                    [severity]="selectedLesson | lessonStatusSeverity : 'modality'" [rounded]="true">
+                </p-tag>
             </div>
-
-            <!-- Time -->
-            <div class="flex align-items-center gap-2 mb-3">
-                <i class="pi pi-clock text-600"></i>
-                <span class="font-medium">{{
-                        (selectedLesson.startDatetime | date: 'HH:mm') + ' - ' +
-                        (selectedLesson.endDatetime | date: 'HH:mm')
-                    }}</span>
-            </div>
-
-            <!-- Teacher -->
-            <div class="flex align-items-center gap-2 mb-3">
-                <i class="pi pi-user text-600"></i>
-                <span>{{ selectedLesson.teacher.name }}</span>
-            </div>
-
-            <!-- Class/Group -->
-            <div class="flex align-items-center gap-2 mb-3">
-                <i class="pi pi-users text-600"></i>
-                <span>{{ selectedLesson.level || 'N/A' }}</span>
-            </div>
-
-            <!-- Center -->
-            <div class="flex align-items-center gap-2 mb-3">
-                <i class="pi pi-map-marker text-600"></i>
-                <span>{{ selectedLesson.center.name }}</span>
-            </div>
-
-            <!-- Students -->
-            <div class="mb-3">
-                <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
-                    <i class="pi pi-users text-600"></i>
-                    Alunos ({{ selectedLesson.students?.length || 0 }})
-                </h6>
-                <div class="text-sm text-700">
-                    {{ getStudentsString(selectedLesson) }}
-                </div>
-            </div>
-
-            <!-- Materials -->
-            <div class="mb-3">
-                <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
-                    <i class="pi pi-book text-600"></i>
-                    Materiais ({{ selectedLesson.materials?.length || 0 }})
-                </h6>
-                <div class="text-sm text-700">
-                    {{ getMaterialsString(selectedLesson) }}
-                </div>
-            </div>
-
-            <!-- Description -->
-            @if (selectedLesson.description) {
-                <div class="mb-3">
-                    <h6 class="text-900 font-semibold mb-2">Descrição</h6>
-                    <div class="text-sm text-700">
-                        {{ selectedLesson.description }}
-                    </div>
-                </div>
-            }
-
-            <!-- Online Link -->
-            @if (selectedLesson.online && selectedLesson.onlineLink) {
-                <div class="mb-3">
-                    <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
-                        <i class="pi pi-globe text-600"></i>
-                        Aula Online
-                    </h6>
-                    <p-button label="Abrir Link da Aula" icon="pi pi-external-link" size="small" [outlined]="true"
-                              (click)="openOnlineLink(selectedLesson.onlineLink!)">
-                    </p-button>
-                </div>
-            }
+            <span class="text-sm text-500">{{ selectedLesson.startDatetime | date: 'dd/MM/yyyy' }}</span>
         </div>
+
+        <!-- Time -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-clock text-600"></i>
+            <span class="font-medium">{{
+                (selectedLesson.startDatetime | date: 'HH:mm') + ' - ' +
+                (selectedLesson.endDatetime | date: 'HH:mm')
+                }}</span>
+        </div>
+
+        <!-- Teacher -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-user text-600"></i>
+            <span>{{ selectedLesson.teacher.name }}</span>
+        </div>
+
+        <!-- Class/Group -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-users text-600"></i>
+            <span>{{ selectedLesson.level || 'N/A' }}</span>
+        </div>
+
+        <!-- Center -->
+        <div class="flex align-items-center gap-2 mb-3">
+            <i class="pi pi-map-marker text-600"></i>
+            <span>{{ selectedLesson.center.name }}</span>
+        </div>
+
+        <!-- Students -->
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                <i class="pi pi-users text-600"></i>
+                Alunos ({{ selectedLesson.students?.length || 0 }})
+            </h6>
+            <div class="text-sm text-700">
+                {{ getStudentsString(selectedLesson) }}
+            </div>
+        </div>
+
+        <!-- Materials -->
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                <i class="pi pi-book text-600"></i>
+                Materiais ({{ selectedLesson.materials?.length || 0 }})
+            </h6>
+            <div class="text-sm text-700">
+                {{ getMaterialsString(selectedLesson) }}
+            </div>
+        </div>
+
+        <!-- Description -->
+        @if (selectedLesson.description) {
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2">Descrição</h6>
+            <div class="text-sm text-700">
+                {{ selectedLesson.description }}
+            </div>
+        </div>
+        }
+
+        <!-- Online Link -->
+        @if (selectedLesson.online && selectedLesson.onlineLink) {
+        <div class="mb-3">
+            <h6 class="text-900 font-semibold mb-2 flex align-items-center gap-2">
+                <i class="pi pi-globe text-600"></i>
+                Aula Online
+            </h6>
+            <p-button label="Abrir Link da Aula" icon="pi pi-external-link" size="small" [outlined]="true"
+                (click)="openOnlineLink(selectedLesson.onlineLink!)">
+            </p-button>
+        </div>
+        }
+    </div>
     }
 </p-dialog>

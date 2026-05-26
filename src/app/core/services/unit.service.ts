@@ -27,8 +27,11 @@ export class UnitService {
     }
 
     loadUnits(): Observable<Unit[]> {
-        return this.http.get<ApiResponse<Unit[]>>(`${this.apiUrl}/search`).pipe(
-            map(response => response.data)
+        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`).pipe(
+            map(response => {
+                const data = response.data;
+                return (Array.isArray(data) ? data : (data?.content ?? [])) as Unit[];
+            })
         );
     }
 

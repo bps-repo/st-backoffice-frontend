@@ -5,14 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ChartModule } from 'primeng/chart';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonService } from '../../../../../../core/services/lesson.service';
+import { LessonService } from '../../../../../../core/services/lessons/lesson.service';
 import { StudentService } from '../../../../../../core/services/student.service';
 import { LessonStatus } from '../../../../../../core/enums/lesson-status';
 
@@ -26,7 +26,7 @@ import { LessonStatus } from '../../../../../../core/enums/lesson-status';
         ButtonModule,
         TableModule,
         DropdownModule,
-        CalendarModule,
+        DatePickerModule,
         ChartModule,
         RippleModule,
         CardModule,
@@ -161,7 +161,7 @@ export class LessonReports implements OnInit {
 
         // Aulas por status (Lessons by status) - Bar chart
         this.barChartLessonStatus = {
-            labels: ['AVAILABLE', 'BOOKED', 'COMPLETED', 'CANCELLED', 'SCHEDULED', 'POSTPONED', 'OVERDUE'],
+            labels: ['AVAILABLE', 'BOOKED', 'SCHEDULED', 'COMPLETED', 'TAUGHT', 'NOT_TAUGHT', 'RESCHEDULED', 'POSTPONED', 'CANCELLED'],
             datasets: [
                 {
                     label: 'Número de aulas',

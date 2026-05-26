@@ -6,6 +6,20 @@
     margin-bottom: 1.5rem;
 }
 
+// The weekly-calendar outer wrapper must NOT clip its children; each day column
+// card grows to fit its lesson cards and the grid row must be free to expand.
+.weekly-calendar {
+    overflow: visible !important;
+    height: auto !important;
+
+    // Inner day-column cards: let content dictate height so lessons are never clipped.
+    > .grid > * > .card {
+        overflow: visible;
+        height: auto;
+        min-height: 8rem;
+    }
+}
+
 // Sticky header styles
 .sticky-header {
     position: sticky;
@@ -442,29 +456,20 @@
     line-height: 1.3;
 }
 
-.border-success {
-    border-left-color: #10b981 !important;
-}
+// ── Left-border colours for weekly & monthly lesson cards ────────────────────
+// Applied as  lesson-border-{severity}  where severity comes from
+// lessonStatusSeverity pipe (success | info | warning | danger |
+//                            planned | rescheduled | no-attendance | secondary)
 
-.border-warning {
-    border-left-color: #f59e0b !important;
-}
-
-.border-danger {
-    border-left-color: #ef4444 !important;
-}
-
-.p-badge-success {
-    background-color: #10b981;
-}
-
-.p-badge-warning {
-    background-color: #f59e0b;
-}
-
-.p-badge-danger {
-    background-color: #ef4444;
-}
+.lesson-border-success        { border-left-color: #22c55e !important; }
+.lesson-border-info           { border-left-color: #3b82f6 !important; }
+.lesson-border-warning        { border-left-color: #f59e0b !important; }
+.lesson-border-danger         { border-left-color: #ef4444 !important; }
+.lesson-border-planned        { border-left-color: #6366f1 !important; }
+.lesson-border-rescheduled    { border-left-color: #f59e0b !important; }
+.lesson-border-no-attendance  { border-left-color: #f97316 !important; }
+.lesson-border-secondary      { border-left-color: #94a3b8 !important; }
+.lesson-border-contrast       { border-left-color: #1e293b !important; }
 
 /* Monthly Calendar Styles */
 .monthly-calendar .calendar-header {

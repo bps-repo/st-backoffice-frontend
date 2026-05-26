@@ -28,7 +28,7 @@ export const ContractActions = createActionGroup(
             'Delete Contract Failure': props<{ error: any }>(),
 
             'Load Contracts By Student': props<{ studentId: string }>(),
-            'Load Contracts By Student Success': props<{ contracts: Contract[] }>(),
+            'Load Contracts By Student Success': props<{ studentId: string; contracts: Contract[] }>(),
             'Load Contracts By Student Failure': props<{ error: any }>(),
 
             'Download Contract': props<{ contractId: string }>(),
@@ -36,6 +36,7 @@ export const ContractActions = createActionGroup(
             'Download Contract Failure': props<{ error: any }>(),
 
             'Clear Contracts': emptyProps(),
+            'Clear Selected Contract': emptyProps(),
             'Clear Contracts Errors': emptyProps(),
         }
     }

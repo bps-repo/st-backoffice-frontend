@@ -1,0 +1,9 @@
+.upload-drop-zone {
+    border-style: dashed;
+    border-color: var(--surface-300);
+    transition: background-color 0.15s;
+
+    &:hover {
+        background-color: var(--surface-50);
+    }
+}

@@ -1,4 +1,4 @@
-import {CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -11,38 +11,42 @@ import {
     ViewChild,
     inject
 } from '@angular/core';
-import {DialogModule} from 'primeng/dialog';
-import {ToastModule} from 'primeng/toast';
-import {Lesson} from 'src/app/core/models/academic/lesson';
-import {LessonStatus} from 'src/app/core/enums/lesson-status';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {SelectItem} from 'primeng/api';
-import {LEVELS} from 'src/app/shared/constants/app';
-import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {GlobalTable} from 'src/app/shared/components/tables/global-table/global-table.component';
-import {Store} from '@ngrx/store';
-import {Observable, Subject} from 'rxjs';
-import {Router, RouterModule} from '@angular/router';
-import {ChartModule} from 'primeng/chart';
-import {CardModule} from 'primeng/card';
-import {RippleModule} from "primeng/ripple";
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TooltipModule} from 'primeng/tooltip';
-import {lessonsActions} from "../../../../../../core/store/schoolar/lessons/lessons.actions";
-import {
-    selectAllLessons,
-    selectAnyLoading,
-    selectAnyError
-} from "../../../../../../core/store/schoolar/lessons/lessons.selectors";
-import {takeUntil} from 'rxjs/operators';
-import {LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS} from "./lessons.constants";
-import {LessonState} from "../../../../../../core/store/schoolar/lessons/lesson.state";
-import {LessonReports} from "../../../reports/components/lessons/lesson-reports.component";
-import {CalendarModule} from 'primeng/calendar';
-import {BadgeModule} from 'primeng/badge';
-import {HasPermissionDirective} from 'src/app/shared/directives/has-permission.directive';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { Lesson } from 'src/app/core/models/academic/lesson';
+import { LessonStatus } from 'src/app/core/enums/lesson-status';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { SelectItem } from 'primeng/api';
+import { LEVELS } from 'src/app/shared/constants/app';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
+import { ChartModule } from 'primeng/chart';
+import { CardModule } from 'primeng/card';
+import { RippleModule } from "primeng/ripple";
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import { debounceTime, takeUntil } from 'rxjs/operators';
+import { LESSON_COLUMNS, LESSONS_GLOBAL_FILTER_FIELDS } from "./lessons.constants";
+import { LessonReports } from "../../../reports/components/lessons/lesson-reports.component";
+import { DatePickerModule } from 'primeng/datepicker';
+import { BadgeModule } from 'primeng/badge';
+import { HasPermissionDirective } from 'src/app/shared/directives/has-permission.directive';
+import { LessonService } from "../../../../../../core/services/lessons/lesson.service";
+import { EmployeeService } from "../../../../../../core/services/corporate/employee.service";
+import { CenterService } from "../../../../../../core/services/center.service";
+import { LevelService } from "../../../../../../core/services/level.service";
+import { UnitService } from "../../../../../../core/services/unit.service";
+import { KpiIndicatorsComponent, Kpi } from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import { LessonStatusLabelPipe } from "../../../../../../shared/pipes/lesson-status-label.pipe";
+import { LessonStatusSeverityPipe } from "../../../../../../shared/pipes/lesson-status-severity.pipe";
+import { LessonStatusClassPipe } from "../../../../../../shared/pipes/lesson-status-class.pipe";
+import { TagModule } from 'primeng/tag';
+import { LessonsDashboardComponent } from "../../../dashboard/components/lessons/lessons-dashboard.component";
 
 interface WeeklyLessonCard {
     time: string;
@@ -57,6 +61,7 @@ interface WeeklyLessonCard {
 interface WeeklyLessonDay {
     day: string;
     date: string;
+    dayKey?: string;
     isToday: boolean;
     classes: WeeklyLessonCard[];
 }
@@ -68,7 +73,7 @@ interface WeeklyLessonDay {
         DialogModule,
         ToastModule,
         CommonModule,
-        DropdownModule,
+        SelectModule,
         InputTextModule,
         FormsModule,
         ButtonModule,
@@ -78,13 +83,29 @@ interface WeeklyLessonDay {
         RippleModule,
         SelectButtonModule,
         TooltipModule,
-        LessonReports,
-        CalendarModule,
+        DatePickerModule,
         BadgeModule,
-        HasPermissionDirective
+        HasPermissionDirective,
+        InputSwitchModule,
+        KpiIndicatorsComponent,
+        LessonStatusLabelPipe,
+        LessonStatusSeverityPipe,
+        LessonStatusClassPipe,
+        TagModule,
+        LessonsDashboardComponent
     ],
     templateUrl: './lessons-list.component.html',
     styles: [`
+
+        /* Active filter tags */
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e9ecef;
+            border-radius: 16px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
 
         /* Calendar Styles */
         .weekly-calendar .today-card {
@@ -322,18 +343,31 @@ interface WeeklyLessonDay {
     `]
 })
 export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
-    private store = inject<Store<LessonState>>(Store);
+    private lessonService = inject(LessonService);
+    private employeeService = inject(EmployeeService);
+    private centerService = inject(CenterService);
+    private levelService = inject(LevelService);
+    private unitService = inject(UnitService);
     private router = inject(Router);
 
     lesson: Lesson = {} as Lesson;
 
     lessons$: Observable<Lesson[]>;
+    loading$: Observable<boolean>;
+    error$: Observable<string | null>;
+    totalElements$: Observable<number>;
+
+    private lessonsSubject = new BehaviorSubject<Lesson[]>([]);
+    private loadingSubject = new BehaviorSubject<boolean>(false);
+    private errorSubject = new BehaviorSubject<string | null>(null);
+    private totalElementsSubject = new BehaviorSubject<number>(0);
 
     classes: Lesson[] = [];
 
-    loading$: Observable<boolean>;
+    readonly DEFAULT_PAGE_SIZE = 10;
+    readonly DEFAULT_SORT = 'startDatetime,desc';
 
-    error$: Observable<string | null>;
+    private currentSort = this.DEFAULT_SORT;
 
     selected: SelectItem[] = [];
 
@@ -345,30 +379,173 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     globalFilterFields: string[] = LESSONS_GLOBAL_FILTER_FIELDS;
 
+    // ── KPIs ─────────────────────────────────────────────────────────────────
+    kpis: Kpi[] = [];
+
+    private buildKpis(lessons: Lesson[], total: number): void {
+        const available = lessons.filter(l => l.status === 'AVAILABLE').length;
+        const booked = lessons.filter(l => l.status === 'BOOKED' || l.status === 'SCHEDULED').length;
+        const completed = lessons.filter(l => l.status === 'COMPLETED').length;
+        const cancelled = lessons.filter(l => l.status === 'CANCELLED').length;
+        const online = lessons.filter(l => l.online).length;
+
+        this.kpis = [
+            { label: 'Total de Aulas', value: total, icon: { label: 'calendar', color: 'text-blue-500' } },
+            { label: 'Disponíveis', value: available, icon: { label: 'user-check', color: 'text-green-500' } },
+            { label: 'Concluídas', value: completed, icon: { label: 'graduation-cap', color: 'text-purple-500' } },
+            { label: 'Canceladas', value: cancelled, icon: { label: 'user-cancel', color: 'text-red-500' } },
+            { label: 'Online', value: online, icon: { label: 'exclamation-circle', color: 'text-cyan-500' } },
+        ];
+    }
+
+    // ── Filters ───────────────────────────────────────────────────────────────
+    searchTerm: string = '';
+    showFilterDialog: boolean = false;
+
+    filterTeacherId: string | null = null;
+    filterUnitId: string | null = null;
+    filterCenterId: string | null = null;
+    filterLevelId: string | null = null;
+    filterStatus: string | null = null;
+    filterOnline: boolean | null = null;
+    filterHasBookings: boolean = false;
+    filterWithoutBookings: boolean = false;
+    filterStartDate: Date | null = null;
+    filterEndDate: Date | null = null;
+    filterSortField: string | null = null;
+    filterSortDirection: 'asc' | 'desc' = 'asc';
+
+    // Dropdown options loaded from API
+    teacherOptions: { label: string; value: string }[] = [];
+    centerOptions: { label: string; value: string }[] = [];
+    unitOptions: { label: string; value: string }[] = [];
+    levelOptions: { label: string; value: string }[] = [];
+
+    readonly statusOptions = [
+        { label: 'Disponível',      value: 'AVAILABLE'    },
+        { label: 'Agendada',        value: 'SCHEDULED'    },
+        { label: 'Lecionada',       value: 'TAUGHT'       },
+        { label: 'Concluída',       value: 'COMPLETED'    },
+        { label: 'Não Lecionada',   value: 'NOT_TAUGHT'   },
+        { label: 'Reagendada',      value: 'RESCHEDULED'  },
+        { label: 'Cancelada',       value: 'CANCELLED'    },
+    ];
+
+    readonly onlineOptions = [
+        { label: 'Online', value: true },
+        { label: 'Presencial', value: false },
+    ];
+
+    readonly sortFieldOptions = [
+        { label: 'Título', value: 'title' },
+        { label: 'Status', value: 'status' },
+        { label: 'Data de início', value: 'startDatetime' },
+        { label: 'Data de fim', value: 'endDatetime' },
+    ];
+
+    readonly sortDirectionOptions = [
+        { label: 'Crescente', value: 'asc' },
+        { label: 'Decrescente', value: 'desc' },
+    ];
+
+    private searchSubject = new Subject<void>();
+
+    get hasActiveFilters(): boolean {
+        return !!(this.filterTeacherId || this.filterUnitId || this.filterCenterId ||
+            this.filterLevelId || this.filterStatus || this.filterOnline !== null ||
+            this.filterHasBookings || this.filterWithoutBookings ||
+            this.filterStartDate || this.filterEndDate || this.filterSortField);
+    }
+
+    getTeacherLabel(id: string): string {
+        return this.teacherOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getCenterLabel(id: string): string {
+        return this.centerOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getUnitLabel(id: string): string {
+        return this.unitOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    getLevelLabel(id: string): string {
+        return this.levelOptions.find(o => o.value === id)?.label ?? id;
+    }
+
+    onHasBookingsChange(): void {
+        if (this.filterHasBookings) this.filterWithoutBookings = false;
+    }
+
+    onWithoutBookingsChange(): void {
+        if (this.filterWithoutBookings) this.filterHasBookings = false;
+    }
+
+    onSearchInput(): void {
+        this.searchSubject.next();
+    }
+
+    applyFilters(): void {
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
+    }
+
+    clearFilters(): void {
+        this.searchTerm = '';
+        this.filterTeacherId = null;
+        this.filterUnitId = null;
+        this.filterCenterId = null;
+        this.filterLevelId = null;
+        this.filterStatus = null;
+        this.filterOnline = null;
+        this.filterHasBookings = false;
+        this.filterWithoutBookings = false;
+        this.filterStartDate = null;
+        this.filterEndDate = null;
+        this.filterSortField = null;
+        this.filterSortDirection = 'asc';
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
+    }
+
+    private loadFilterOptions(): void {
+        this.employeeService.getTeachers().pipe(takeUntil(this.destroy$)).subscribe(teachers => {
+            this.teacherOptions = teachers.map(t => ({
+                label: `${t.personalInfo.firstName} ${t.personalInfo.lastName}`.trim(),
+                value: t.id
+            }));
+        });
+        this.centerService.getAllCenters().pipe(takeUntil(this.destroy$)).subscribe(centers => {
+            this.centerOptions = centers.map(c => ({ label: c.name, value: c.id }));
+        });
+        this.unitService.loadUnits().pipe(takeUntil(this.destroy$)).subscribe(units => {
+            this.unitOptions = units.map(u => ({ label: u.name, value: u.id }));
+        });
+        this.levelService.getLevels().pipe(takeUntil(this.destroy$)).subscribe(levels => {
+            this.levelOptions = levels.map(l => ({ label: l.name, value: l.id }));
+        });
+    }
+
     // View selection
     currentView: string = 'list'; // Default view is list
 
     viewOptions = [
-        {label: 'Lista de Aulas', value: 'list'},
-        {label: 'Calendário', value: 'calendario'},
-        {label: 'Relatórios', value: 'relatorios'},
-        {label: 'Estatísticas', value: 'estatisticas'},
+        { label: 'Lista de Aulas', value: 'list' },
+        { label: 'Relatórios', value: 'relatorios' },
     ];
 
     // References to sticky header elements
-    @ViewChild('mainHeader', {static: false})
+    @ViewChild('mainHeader', { static: false })
     mainHeader!: ElementRef;
 
-    @ViewChild('viewSelector', {static: false})
+    @ViewChild('viewSelector', { static: false })
     viewSelector!: ElementRef;
 
-    @ViewChild('teacherTemplate', {static: true})
+    @ViewChild('teacherTemplate', { static: true })
     teacherTemplate!: TemplateRef<any>;
 
-    @ViewChild('centerTemplate', {static: true})
+    @ViewChild('centerTemplate', { static: true })
     centerTemplate!: TemplateRef<any>;
 
-    @ViewChild('unitTemplate', {static: true})
+    @ViewChild('unitTemplate', { static: true })
     unitTemplate!: TemplateRef<any>;
 
     // Sticky state tracking
@@ -384,6 +561,8 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     // Sample lesson data for calendar
     weeklyLessons: WeeklyLessonDay[] = [];
     monthlyCalendarDays: any[] = [];
+    readonly maxVisibleLessonsPerDay = 5;
+    private expandedDayLessons = new Set<string>();
 
     // Dialog state
     lessonDialogVisible = signal(false);
@@ -392,17 +571,17 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     private dialogHoverTimeout: any = null;
     private isDialogHovered: boolean = false;
 
-    @ViewChild("startDatetime", {static: true})
+    @ViewChild("startDatetime", { static: true })
     startDatetimeTemplate?: TemplateRef<any>;
 
-    @ViewChild("actionsTemplate", {static: true})
+    @ViewChild("actionsTemplate", { static: true })
     actionsTemplate?: TemplateRef<any>;
 
 
-    @ViewChild("statusTemplate", {static: true})
+    @ViewChild("statusTemplate", { static: true })
     statusTemplate?: TemplateRef<any>;
 
-    @ViewChild("onlineTemplate", {static: true})
+    @ViewChild("onlineTemplate", { static: true })
     onlineTemplate?: TemplateRef<any>;
 
     columnTemplates: Record<string, TemplateRef<any>> = {}
@@ -660,17 +839,55 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     getFormattedWeekRange(): string {
-        const start = this.currentWeekStart.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
-        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+        const start = this.currentWeekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const end = this.currentWeekEnd.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         return `Semana de ${start} a ${end}`;
     }
 
     getFormattedMonth(): string {
-        return this.currentDate.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
+        return this.currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    }
+
+    private getDayKey(day: { date?: Date | string; dayKey?: string }): string {
+        if (day.dayKey) {
+            return day.dayKey;
+        }
+        return day.date ? new Date(day.date).toDateString() : '';
+    }
+
+    isDayExpanded(day: { date?: Date | string; dayKey?: string }): boolean {
+        const key = this.getDayKey(day);
+        return !!key && this.expandedDayLessons.has(key);
+    }
+
+    toggleDayLessons(day: { date?: Date | string; dayKey?: string }): void {
+        const key = this.getDayKey(day);
+        if (!key) return;
+        if (this.expandedDayLessons.has(key)) {
+            this.expandedDayLessons.delete(key);
+        } else {
+            this.expandedDayLessons.add(key);
+        }
+    }
+
+    getVisibleWeeklyClasses(dayData: { classes: any[]; dayKey?: string }): any[] {
+        if (!Array.isArray(dayData.classes)) return [];
+        if (dayData.classes.length <= this.maxVisibleLessonsPerDay || this.isDayExpanded(dayData)) {
+            return dayData.classes;
+        }
+        return dayData.classes.slice(0, this.maxVisibleLessonsPerDay);
+    }
+
+    getVisibleMonthlyLessons(day: { lessons: any[]; date?: Date | string; dayKey?: string }): any[] {
+        if (!Array.isArray(day.lessons)) return [];
+        if (day.lessons.length <= this.maxVisibleLessonsPerDay || this.isDayExpanded(day)) {
+            return day.lessons;
+        }
+        return day.lessons.slice(0, this.maxVisibleLessonsPerDay);
     }
 
     // Listen for scroll events
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll() {
         this.checkStickyState();
     }
@@ -691,14 +908,19 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     constructor() {
-        this.lessons$ = this.store.select(selectAllLessons);
-        this.loading$ = this.store.select(selectAnyLoading);
-        this.error$ = this.store.select(selectAnyError);
+        this.lessons$ = this.lessonsSubject.asObservable();
+        this.loading$ = this.loadingSubject.asObservable();
+        this.error$ = this.errorSubject.asObservable();
+        this.totalElements$ = this.totalElementsSubject.asObservable();
     }
 
     ngOnInit(): void {
-        this.store.dispatch(lessonsActions.loadLessons());
         this.initializeCalendarData();
+
+        // Wire search debounce
+        this.searchSubject.pipe(debounceTime(400), takeUntil(this.destroy$)).subscribe(() => {
+            this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
+        });
 
         // Subscribe to lessons for calendar view
         this.lessons$.pipe(
@@ -713,6 +935,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 }
             }
         });
+
+        this.loadFilterOptions();
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.DEFAULT_SORT);
     }
 
     ngAfterViewInit() {
@@ -751,11 +976,55 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.router.navigate(['/schoolar/lessons/create']).then();
     }
 
-    /**
-     * Retry loading lessons
-     */
-    retryLoadLessons() {
-        this.store.dispatch(lessonsActions.loadLessons());
+    private loadLessons(page: number, size: number, sort?: string): void {
+        this.loadingSubject.next(true);
+        this.errorSubject.next(null);
+        const resolvedSort = this.filterSortField
+            ? `${this.filterSortField},${this.filterSortDirection}`
+            : sort;
+
+        this.lessonService.searchLessons({
+            page,
+            size,
+            sort: resolvedSort,
+            titleContains: this.searchTerm || undefined,
+            teacherId: this.filterTeacherId ?? undefined,
+            unitId: this.filterUnitId ?? undefined,
+            centerId: this.filterCenterId ?? undefined,
+            levelId: this.filterLevelId ?? undefined,
+            status: this.filterStatus ?? undefined,
+            online: this.filterOnline !== null ? this.filterOnline : undefined,
+            hasBookings: this.filterHasBookings || undefined,
+            withoutBookings: this.filterWithoutBookings || undefined,
+            startDate: this.filterStartDate ? this.filterStartDate.toISOString() : undefined,
+            endDate: this.filterEndDate ? this.filterEndDate.toISOString() : undefined,
+        })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    const lessons = response.content ?? [];
+                    const total = response.totalElements ?? 0;
+                    this.lessonsSubject.next(lessons);
+                    this.totalElementsSubject.next(total);
+                    this.buildKpis(lessons, total);
+                    this.loadingSubject.next(false);
+                },
+                error: (err) => {
+                    this.errorSubject.next(err?.message ?? 'Erro ao carregar aulas');
+                    this.loadingSubject.next(false);
+                }
+            });
+    }
+
+    onPageChange(event: { page: number; rows: number; sort?: string }): void {
+        if (event.sort) {
+            this.currentSort = event.sort;
+        }
+        this.loadLessons(event.page, event.rows, this.currentSort);
+    }
+
+    retryLoadLessons(): void {
+        this.loadLessons(0, this.DEFAULT_PAGE_SIZE, this.currentSort);
     }
 
     /**
@@ -865,6 +1134,22 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
+     * Navigate to schedule page with the lesson pre-selected
+     */
+    scheduleLesson(lessonId: string) {
+        this.router.navigate(['/schoolar/lessons/schedule'], { queryParams: { lessonId } }).then();
+    }
+
+    /**
+     * Duplicate lesson by opening create form prefilled.
+     */
+    duplicateLesson(lessonId: string) {
+        this.router.navigate(['/schoolar/lessons/create'], {
+            queryParams: { duplicateFrom: lessonId }
+        }).then();
+    }
+
+    /**
      * Open online lesson link
      */
     openOnlineLink(link: string) {
@@ -872,47 +1157,25 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
-     * Get display label for lesson status
+     * Get display label for lesson status.
+     * Delegates to a shared lookup so the calendar cards stay consistent
+     * with the pipe-based labels used in the table view.
      */
     getStatusLabel(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                    return 'Disponível';
-                case 'BOOKED':
-                    return 'Agendada';
-                case 'COMPLETED':
-                    return 'Concluída';
-                case 'CANCELLED':
-                    return 'Cancelada';
-                case 'SCHEDULED':
-                    return 'Agendada';
-                case 'POSTPONED':
-                    return 'Adiada';
-                case 'OVERDUE':
-                    return 'Lecionada';
-                default:
-                    return status;
-            }
-        }
-        // Handle enum values
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-                return 'Disponível';
-            case LessonStatus.BOOKED:
-                return 'Agendada';
-            case LessonStatus.COMPLETED:
-                return 'Concluída';
-            case LessonStatus.CANCELLED:
-                return 'Cancelada';
-            case LessonStatus.SCHEDULED:
-                return 'Agendada';
-            case LessonStatus.POSTPONED:
-                return 'Adiada';
-            case LessonStatus.OVERDUE:
-                return 'Lecionada';
-            default:
-                return 'Desconhecido';
+        const key = typeof status === 'string' ? status.toUpperCase() : (status as string);
+        switch (key) {
+            case 'AVAILABLE':    return 'Disponível';
+            case 'BOOKED':       return 'Agendada';
+            case 'SCHEDULED':    return 'Agendada';
+            case 'COMPLETED':    return 'Concluída';
+            case 'CANCELLED':    return 'Cancelada';
+            case 'POSTPONED':    return 'Reagendada';
+            case 'RESCHEDULED':  return 'Reagendada';
+            case 'TAUGHT':       return 'Lecionada';
+            case 'NOT_TAUGHT':   return 'Não Lecionada';
+            /** @deprecated OVERDUE migrated to NOT_TAUGHT on first deploy */
+            case 'OVERDUE':      return 'Não Lecionada';
+            default:             return status as string;
         }
     }
 
@@ -943,7 +1206,7 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             const isToday = currentDay.toDateString() === new Date().toDateString();
 
             const classes: WeeklyLessonCard[] = dayLessons.map(lesson => ({
-                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
+                time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 title: lesson.title,
                 teacher: lesson.teacher.name,
                 group: lesson.level || 'N/A',
@@ -953,8 +1216,9 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
             }));
 
             this.weeklyLessons.push({
-                day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
-                date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
+                day: currentDay.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
+                date: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                dayKey: currentDay.toDateString(),
                 isToday,
                 classes
             });
@@ -962,39 +1226,27 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
-     * Get CSS class for status
+     * Get PrimeNG badge severity class for calendar card status indicators.
      */
     private getStatusClass(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                case 'COMPLETED':
-                    return 'success';
-                case 'BOOKED':
-                case 'SCHEDULED':
-                    return 'warning';
-                case 'CANCELLED':
-                case 'OVERDUE':
-                    return 'info';
-                case 'POSTPONED':
-                    return 'info';
-                default:
-                    return 'secondary';
-            }
-        }
-        // Handle enum values
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-            case LessonStatus.COMPLETED:
+        const key = typeof status === 'string' ? status.toUpperCase() : (status as string);
+        switch (key) {
+            case 'AVAILABLE':
+            case 'COMPLETED':
+            case 'TAUGHT':
                 return 'success';
-            case LessonStatus.BOOKED:
-            case LessonStatus.SCHEDULED:
+            case 'BOOKED':
+            case 'SCHEDULED':
+                return 'info';
+            case 'POSTPONED':
+            case 'RESCHEDULED':
                 return 'warning';
-            case LessonStatus.CANCELLED:
-            case LessonStatus.OVERDUE:
-                return 'info';
-            case LessonStatus.POSTPONED:
-                return 'info';
+            case 'NOT_TAUGHT':
+            /** @deprecated OVERDUE migrated to NOT_TAUGHT on first deploy */
+            case 'OVERDUE':
+                return 'danger';
+            case 'CANCELLED':
+                return 'danger';
             default:
                 return 'secondary';
         }
@@ -1012,18 +1264,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         return normalized;
     }
 
-    /**
-     * Format date for display
-     */
-    private formatDate(dateString: string): string {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        });
-    }
-
     getOnlineType(online: boolean): string {
         return online ? 'Online' : 'Presencial';
     }
@@ -1037,6 +1277,6 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
         })} - ${end.toLocaleTimeString('pt-BR', {
             hour: '2-digit',
             minute: '2-digit'
-        })} | ${start.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
+        })} | ${start.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
     }
 }

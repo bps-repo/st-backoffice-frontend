@@ -18,7 +18,7 @@ export interface EmployeesState extends EntityState<Employee> {
     loadingDelete: boolean;
     errorDelete: string | null;
 
-    selectedId: string;
+    selectedId: string | null;
     selectedEmployee: Employee | null;
 
     byRole: Record<string, string[]>; // store IDs by role

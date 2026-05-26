@@ -1,0 +1,152 @@
+<p-toast></p-toast>
+
+<div class="grid">
+    @let loading = (loading$ | async) ?? false;
+
+    @if (loading && !service) {
+        <div class="col-12 flex align-items-center justify-content-center py-8">
+            <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+            <span class="ml-3 text-color-secondary">A carregar detalhes…</span>
+        </div>
+    } @else {
+        <div class="col-12">
+
+            <!-- Breadcrumb / back -->
+            <div class="flex align-items-center justify-content-between mb-4">
+                <div class="flex align-items-center gap-3">
+                    <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-secondary" (click)="goBack()" pTooltip="Voltar à lista"></button>
+                    <div>
+                        <h2 class="text-2xl font-bold m-0">{{ service?.name || 'Detalhe do serviço' }}</h2>
+                        <p class="text-color-secondary mt-1 mb-0 text-sm">Edite os dados abaixo e clique em <strong>Guardar</strong>.</p>
+                    </div>
+                </div>
+                @if (service) {
+                    <p-tag
+                        [value]="service.active ? 'Activo' : 'Inactivo'"
+                        [severity]="service.active ? 'success' : 'danger'"
+                    ></p-tag>
+                }
+            </div>
+
+            <!-- Error -->
+            @if (error) {
+                <div class="p-3 mb-4 border-1 border-red-200 border-round bg-red-50">
+                    <span class="text-red-700">{{ error }}</span>
+                </div>
+            }
+
+            @if (service) {
+                <div class="card">
+                    <div class="grid gap-y-4">
+
+                        <!-- Nome -->
+                        <div class="col-12 md:col-6">
+                            <label class="font-semibold text-sm block mb-1" for="det-name">
+                                Nome <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                id="det-name"
+                                pInputText
+                                type="text"
+                                class="w-full"
+                                [(ngModel)]="form.name"
+                                (ngModelChange)="markDirty()"
+                            />
+                        </div>
+
+                        <!-- Tipo -->
+                        <div class="col-12 md:col-6">
+                            <label class="font-semibold text-sm block mb-1" for="det-type">Tipo</label>
+                            <p-select
+                                inputId="det-type"
+                                [options]="typeOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                styleClass="w-full"
+                                [(ngModel)]="form.type"
+                                (ngModelChange)="markDirty()"
+                            ></p-select>
+                        </div>
+
+                        <!-- Descrição -->
+                        <div class="col-12">
+                            <label class="font-semibold text-sm block mb-1" for="det-desc">Descrição</label>
+                            <input
+                                id="det-desc"
+                                pInputText
+                                type="text"
+                                class="w-full"
+                                [(ngModel)]="form.description"
+                                (ngModelChange)="markDirty()"
+                            />
+                        </div>
+
+                        <!-- Valor -->
+                        <div class="col-12 md:col-6">
+                            <label class="font-semibold text-sm block mb-1" for="det-value">Valor (Kz)</label>
+                            <p-inputNumber
+                                inputId="det-value"
+                                [(ngModel)]="form.value"
+                                (ngModelChange)="markDirty()"
+                                [min]="0"
+                                [minFractionDigits]="2"
+                                [maxFractionDigits]="2"
+                                mode="decimal"
+                                styleClass="w-full"
+                                inputStyleClass="w-full"
+                            ></p-inputNumber>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="col-12 md:col-6 flex flex-column justify-content-end">
+                            <label class="font-semibold text-sm block mb-1">Estado</label>
+                            <p-toggleButton
+                                [(ngModel)]="form.active"
+                                (ngModelChange)="markDirty()"
+                                onLabel="Activo"
+                                offLabel="Inactivo"
+                                onIcon="pi pi-check"
+                                offIcon="pi pi-times"
+                            ></p-toggleButton>
+                        </div>
+
+                        <!-- Datas (read-only) -->
+                        @if (service.createdAt) {
+                            <div class="col-12">
+                                <hr class="my-2 border-top-1 border-200" />
+                                <div class="flex gap-4 text-sm text-color-secondary">
+                                    <span>Criado em: {{ service.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                                    @if (service.updatedAt) {
+                                        <span>Actualizado em: {{ service.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+
+                    <!-- Footer actions -->
+                    <div class="flex justify-content-end gap-2 mt-4">
+                        <button
+                            pButton
+                            type="button"
+                            label="Cancelar"
+                            class="p-button-text p-button-secondary"
+                            (click)="goBack()"
+                        ></button>
+                        <button
+                            pButton
+                            type="button"
+                            label="Guardar"
+                            icon="pi pi-save"
+                            [disabled]="!isDirty"
+                            [loading]="loading"
+                            (click)="save()"
+                        ></button>
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+</div>

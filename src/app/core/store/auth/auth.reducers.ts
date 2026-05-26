@@ -15,19 +15,15 @@ export const authFeature = createFeature({
             shouldNavigateAfterProfileLoad: true
         })),
 
-        on(authActions.loginSuccess, (state, {token, refreshToken}) => {
-            localStorage.setItem('accessToken', token);
-            localStorage.setItem('refreshToken', refreshToken);
-            return {
-                ...state,
-                isAuthenticated: true,
-                token,
-                refreshToken,
-                error: null,
-                loading: false,
-                shouldNavigateAfterProfileLoad: true
-            };
-        }),
+        on(authActions.loginSuccess, (state, {token, refreshToken}) => ({
+            ...state,
+            isAuthenticated: true,
+            token,
+            refreshToken,
+            error: null,
+            loading: false,
+            shouldNavigateAfterProfileLoad: true,
+        })),
 
         on(authActions.loginFailure, (state, {error}) => ({
             ...state,
@@ -75,32 +71,23 @@ export const authFeature = createFeature({
             shouldNavigateAfterProfileLoad: false
         })),
 
-        on(authActions.refreshTokenSuccess, (state, {token, refreshToken}) => {
-            localStorage.setItem('accessToken', token);
-            localStorage.setItem('refreshToken', refreshToken);
-            return {
-                ...state,
-                isAuthenticated: true,
-                token,
-                refreshToken,
-                error: null,
-                loading: false
-            };
-        }),
+        on(authActions.refreshTokenSuccess, (state, {token, refreshToken}) => ({
+            ...state,
+            isAuthenticated: true,
+            token,
+            refreshToken,
+            error: null,
+            loading: false,
+        })),
 
-        on(authActions.refreshTokenFailure, (state, {error}) => {
-            // Clear tokens from localStorage on refresh failure
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            return {
-                ...state,
-                isAuthenticated: false,
-                token: null,
-                refreshToken: null,
-                error,
-                loading: false
-            };
-        }),
+        on(authActions.refreshTokenFailure, (state, {error}) => ({
+            ...state,
+            isAuthenticated: false,
+            token: null,
+            refreshToken: null,
+            error,
+            loading: false,
+        })),
 
         // Verify actions
         on(authActions.verify, (state) => ({

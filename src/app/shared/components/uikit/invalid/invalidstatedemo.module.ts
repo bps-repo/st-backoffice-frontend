@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {InvalidStateDemoComponent} from './invalidstatedemo.component';
 import {InvalidStateDemoRoutingModule} from './invalidstatedemo-routing.module';
 import {AutoCompleteModule} from "primeng/autocomplete";
-import {CalendarModule} from "primeng/calendar";
+import {DatePickerModule} from "primeng/datepicker";
 import {ChipsModule} from "primeng/chips";
 import {DropdownModule} from "primeng/dropdown";
 import {InputMaskModule} from "primeng/inputmask";
@@ -20,7 +20,7 @@ import {PasswordModule} from "primeng/password";
         FormsModule,
         InvalidStateDemoRoutingModule,
         AutoCompleteModule,
-        CalendarModule,
+        DatePickerModule,
         ChipsModule,
         DropdownModule,
         InputMaskModule,

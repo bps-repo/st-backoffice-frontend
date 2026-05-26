@@ -1,0 +1,234 @@
+<div class="grid">
+    @let loading = store.loading();
+    @let data    = store.data();
+    @let error   = store.error();
+
+    <!-- ── Filtros ─────────────────────────────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+
+                <p-datepicker
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Período (data início – fim)"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-datepicker>
+
+                <p-inputnumber
+                    [(ngModel)]="selectedYear"
+                    [min]="2020"
+                    [max]="2100"
+                    [useGrouping]="false"
+                    placeholder="Ano"
+                    styleClass="w-6rem"
+                ></p-inputnumber>
+
+                <p-button
+                    label="Aplicar"
+                    icon="pi pi-filter"
+                    (onClick)="applyFilter()"
+                    [loading]="loading"
+                ></p-button>
+
+                <p-button
+                    label="Limpar"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilter()"
+                    [disabled]="loading || !dateRange.length"
+                ></p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Erro ────────────────────────────────────────────────────────────── -->
+    @if (error) {
+        <div class="col-12">
+            <div class="card border-red-300 bg-red-50">
+                <div class="flex align-items-center gap-2 text-red-600">
+                    <i class="pi pi-exclamation-triangle text-xl"></i>
+                    <span class="font-semibold">{{ error }}</span>
+                    <p-button label="Tentar novamente" icon="pi pi-refresh" severity="danger" [text]="true"
+                              size="small" (onClick)="retryLoad()" class="ml-2"></p-button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── Legenda ─────────────────────────────────────────────────────────── -->
+    @if (!loading && data?.rows?.length) {
+        <div class="col-12">
+            <div class="flex flex-wrap gap-3 align-items-center px-2">
+                <span class="text-sm text-color-secondary font-medium">Legenda:</span>
+                <span class="flex align-items-center gap-2 text-sm">
+                    <span style="width:14px;height:14px;border-radius:3px;background:rgba(34,197,94,.8);display:inline-block"></span>
+                    Melhor mês
+                </span>
+                <span class="flex align-items-center gap-2 text-sm">
+                    <span style="width:14px;height:14px;border-radius:3px;background:rgba(239,68,68,.8);display:inline-block"></span>
+                    Pior mês
+                </span>
+                <span class="flex align-items-center gap-2 text-sm">
+                    <span style="width:14px;height:14px;border-radius:3px;background:rgba(99,102,241,.8);display:inline-block"></span>
+                    Outros meses
+                </span>
+                <span class="flex align-items-center gap-2 text-sm">
+                    <span style="width:14px;height:14px;border-radius:3px;border:1px dashed var(--surface-border);background:var(--surface-ground);display:inline-block"></span>
+                    Sem dados
+                </span>
+                <span class="text-xs text-color-secondary ml-2">Intensidade proporcional ao valor</span>
+            </div>
+        </div>
+    }
+
+    <!-- ── Heatmap ─────────────────────────────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex align-items-start justify-content-between mb-4">
+                <div>
+                    <p class="text-xl font-semibold m-0">Heatmap de Receita</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">
+                        Receita mensal por centro — ano {{ data?.year ?? selectedYear }}
+                    </p>
+                </div>
+                @if (!loading && data) {
+                    <p-tag value="AOA" severity="info"></p-tag>
+                }
+            </div>
+
+            @if (loading) {
+                <div style="overflow-x:auto">
+                    <table style="width:100%;border-collapse:separate;border-spacing:6px">
+                        <thead>
+                            <tr>
+                                <th style="width:140px"></th>
+                                @for (_ of [1,2,3,4,5,6,7,8,9,10,11,12]; track $index) {
+                                    <th style="min-width:70px"><p-skeleton width="100%" height="1.2rem"></p-skeleton></th>
+                                }
+                                <th style="width:100px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (_ of [1,2,3]; track $index) {
+                                <tr>
+                                    <td><p-skeleton width="120px" height="3.5rem"></p-skeleton></td>
+                                    @for (__ of [1,2,3,4,5,6,7,8,9,10,11,12]; track $index) {
+                                        <td><p-skeleton width="100%" height="3.5rem"></p-skeleton></td>
+                                    }
+                                    <td><p-skeleton width="90px" height="3.5rem"></p-skeleton></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            } @else if (data?.rows?.length) {
+                <div style="overflow-x:auto">
+                    <table style="width:100%;border-collapse:separate;border-spacing:6px;min-width:900px">
+                        <thead>
+                            <tr>
+                                <th style="width:140px;text-align:left;padding:4px 8px"
+                                    class="text-color-secondary text-sm font-semibold">Centro</th>
+                                @for (label of data!.monthLabels; track label) {
+                                    <th style="min-width:70px;text-align:center;padding:4px 4px"
+                                        class="text-color-secondary text-xs font-semibold">
+                                        {{ monthLabel(label) }}
+                                    </th>
+                                }
+                                <th style="width:110px;text-align:right;padding:4px 8px"
+                                    class="text-color-secondary text-sm font-semibold">Total Ano</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (row of sortedRows(); track row.centerId) {
+                                <tr>
+                                    <td style="padding:4px 8px;white-space:nowrap">
+                                        <span class="font-semibold text-900 text-sm">{{ row.centerName }}</span>
+                                    </td>
+                                    @for (value of row.monthlyRevenue; track $index; let i = $index) {
+                                        <td style="padding:4px">
+                                            <div class="heatmap-cell"
+                                                 [class.empty]="value == null"
+                                                 [style.background]="cellBg(value, row, i)"
+                                                 [style.color]="cellTextColor(value, row, i)"
+                                                 [pTooltip]="tooltipText(value, monthLabel(data!.monthLabels[i]), row, i)"
+                                                 tooltipPosition="top">
+                                                @if (value != null) {
+                                                    <span class="text-xs font-bold" style="line-height:1.2">
+                                                        {{ formatMoneyShort(value) }}
+                                                    </span>
+                                                    @if (i === row.bestMonthIndex) {
+                                                        <span style="font-size:0.6rem">🏆</span>
+                                                    } @else if (i === row.worstMonthIndex) {
+                                                        <span style="font-size:0.6rem">📉</span>
+                                                    }
+                                                } @else {
+                                                    <span class="text-color-secondary" style="font-size:0.7rem">—</span>
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                    <td style="padding:4px 8px;text-align:right;white-space:nowrap">
+                                        <span class="font-bold text-900 text-sm">{{ formatMoneyShort(row.yearTotal) }}</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            } @else {
+                <div class="flex flex-column align-items-center justify-content-center py-6 text-color-secondary">
+                    <i class="pi pi-th-large text-4xl mb-3"></i>
+                    <span>Sem dados para o período e ano seleccionados</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Tabela de resumo por centro ──────────────────────────────────── -->
+    @if (!loading && data?.rows?.length) {
+        <div class="col-12">
+            <div class="card">
+                <p class="text-xl font-semibold m-0 mb-4">Resumo por Centro — {{ data!.year }}</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full" style="border-collapse:collapse;min-width:500px">
+                        <thead>
+                            <tr style="border-bottom:2px solid var(--surface-border)">
+                                <th class="text-left py-2 px-3 text-color-secondary text-sm font-semibold">Centro</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Total do Ano</th>
+                                <th class="text-center py-2 px-3 text-color-secondary text-sm font-semibold">Melhor Mês</th>
+                                <th class="text-center py-2 px-3 text-color-secondary text-sm font-semibold">Pior Mês</th>
+                                <th class="text-right py-2 px-3 text-color-secondary text-sm font-semibold">Meses c/ dados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (row of sortedRows(); track row.centerId) {
+                                <tr style="border-bottom:1px solid var(--surface-border)"
+                                    class="hover:surface-hover transition-colors transition-duration-150">
+                                    <td class="py-3 px-3 font-semibold text-900">{{ row.centerName }}</td>
+                                    <td class="text-right py-3 px-3 font-bold text-900">{{ formatMoney(row.yearTotal) }}</td>
+                                    <td class="text-center py-3 px-3">
+                                        <p-tag severity="success" [value]="monthLabel(data!.monthLabels[row.bestMonthIndex])" icon="pi pi-star"></p-tag>
+                                    </td>
+                                    <td class="text-center py-3 px-3">
+                                        <p-tag severity="danger" [value]="monthLabel(data!.monthLabels[row.worstMonthIndex])" icon="pi pi-arrow-down"></p-tag>
+                                    </td>
+                                    <td class="text-right py-3 px-3 text-color-secondary">
+                                        {{ countWithData(row.monthlyRevenue) }} / 12
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

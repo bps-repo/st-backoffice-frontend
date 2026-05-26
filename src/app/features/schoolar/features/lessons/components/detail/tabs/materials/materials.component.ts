@@ -11,13 +11,13 @@ import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
-import {CalendarModule} from 'primeng/calendar';
+import {DatePickerModule} from 'primeng/datepicker';
 import {FileUploadModule} from 'primeng/fileupload';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {Lesson} from "../../../../../../../../core/models/academic/lesson";
 import {Material} from "../../../../../../../../core/models/academic/material";
-import {LessonService} from "../../../../../../../../core/services/lesson.service";
+import {LessonService} from "../../../../../../../../core/services/lessons/lesson.service";
 import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
@@ -33,7 +33,7 @@ import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-se
         TooltipModule,
         DialogModule,
         InputTextModule,
-        CalendarModule,
+        DatePickerModule,
         FileUploadModule,
         ToastModule
     ],

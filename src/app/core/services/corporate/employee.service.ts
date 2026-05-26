@@ -20,6 +20,10 @@ export class EmployeeService {
         );
     }
 
+    getTeachers(): Observable<Employee[]> {
+        return this.getEmployeesByRole("TEACHER");
+    }
+
     createEmployee(employeeData: CreateEmployeeRequest): Observable<Employee> {
         return this.http.post<ApiResponse<Employee>>(this.apiUrl, employeeData).pipe(
             map((response) => response.data)

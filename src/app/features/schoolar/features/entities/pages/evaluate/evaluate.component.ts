@@ -12,7 +12,7 @@ interface alert {
     imports: [ChartModule, CommonModule],
     templateUrl: './evaluate.component.html'
 })
-export class EvaluateComponent implements OnInit{
+export class EvaluateComponent implements OnInit {
 
     pieDataLevels: any;
 
@@ -33,7 +33,7 @@ export class EvaluateComponent implements OnInit{
         },
     ];
 
-    constructor() {}
+    constructor() { }
 
     ngOnInit(): void {
         this.initCharts();

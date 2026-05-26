@@ -1,157 +1,226 @@
-<div class="p-4">
-  <h1 class="text-3xl font-bold mb-4">Payments Dashboard</h1>
+<div class="grid">
+    @let loading = (loading$ | async) ?? false;
 
-  <!-- Payment Statistics -->
-  <div class="grid mt-4">
-    <div class="col-12 md:col-4">
-      <div class="p-card shadow-2 bg-green-500 text-white mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-body p-3">
-          <h5 class="text-xl font-medium mb-2">Total Paid</h5>
-          <h2 class="text-4xl font-bold">${{ paymentStats.totalPaid.toFixed(2) }}</h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 md:col-4">
-      <div class="p-card shadow-2 bg-yellow-500 text-white mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-body p-3">
-          <h5 class="text-xl font-medium mb-2">Pending Amount</h5>
-          <h2 class="text-4xl font-bold">${{ paymentStats.pendingAmount.toFixed(2) }}</h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 md:col-4">
-      <div class="p-card shadow-2 bg-red-500 text-white mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-body p-3">
-          <h5 class="text-xl font-medium mb-2">Overdue Amount</h5>
-          <h2 class="text-4xl font-bold">${{ paymentStats.overdueAmount.toFixed(2) }}</h2>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Charts -->
-  <div class="grid mt-4">
-    <div class="col-12 md:col-6">
-      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-body">
-          <p-chart type="doughnut" [data]="paymentDistributionData" [options]="paymentDistributionOptions" height="300px"></p-chart>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 md:col-6">
-      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-body">
-          <p-chart type="bar" [data]="paymentTrendsData" [options]="paymentTrendsOptions" height="300px"></p-chart>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent Payments -->
-  <div class="grid mt-4">
-    <div class="col-12 md:col-6">
-      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-header bg-gray-100 p-3">
-          <h5 class="text-xl font-medium m-0">Recent Payments</h5>
-        </div>
-        <div class="p-card-body">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b border-gray-300">
-                  <th class="text-left p-2 font-semibold">Invoice #</th>
-                  <th class="text-left p-2 font-semibold">Amount</th>
-                  <th class="text-left p-2 font-semibold">Date</th>
-                  <th class="text-left p-2 font-semibold">Method</th>
-                  <th class="text-left p-2 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let payment of recentPayments" class="border-b border-gray-200 hover:bg-gray-50">
-                  <td class="p-2">{{ payment.invoice_id }}</td>
-                  <td class="p-2">${{ payment.amount.toFixed(2) }}</td>
-                  <td class="p-2">{{ payment.payment_date | date:'shortDate' }}</td>
-                  <td class="p-2">{{ payment.payment_method }}</td>
-                  <td class="p-2">
-                    <span class="text-xs py-1 px-2 rounded-full text-white"
-                      [ngClass]="{
-                        'bg-green-500': payment.status === 'completed',
-                        'bg-yellow-500': payment.status === 'pending',
-                        'bg-red-500': payment.status === 'failed'
-                      }">
-                      {{ payment.status | titlecase }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="mt-3">
-            <a routerLink="/payments/installments" class="p-button p-button-primary text-center">View All Payments</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Upcoming Installments -->
-    <div class="col-12 md:col-6">
-      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-header bg-gray-100 p-3">
-          <h5 class="text-xl font-medium m-0">Upcoming Installments</h5>
-        </div>
-        <div class="p-card-body">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b border-gray-300">
-                  <th class="text-left p-2 font-semibold">Amount</th>
-                  <th class="text-left p-2 font-semibold">Due Date</th>
-                  <th class="text-left p-2 font-semibold">Installment</th>
-                  <th class="text-left p-2 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let installment of upcomingInstallments" class="border-b border-gray-200 hover:bg-gray-50">
-                  <td class="p-2">${{ installment.amount.toFixed(2) }}</td>
-                  <td class="p-2">{{ installment.due_date | date:'shortDate' }}</td>
-                  <td class="p-2">{{ installment.number }}/{{ installment.total_installments }}</td>
-                  <td class="p-2">
-                    <span class="text-xs py-1 px-2 rounded-full text-white"
-                      [ngClass]="{
-                        'bg-yellow-500': installment.status === 'pending',
-                        'bg-green-500': installment.status === 'paid',
-                        'bg-red-500': installment.status === 'overdue'
-                      }">
-                      {{ installment.status | titlecase }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="mt-3">
-            <a routerLink="/payments/installments" class="p-button p-button-primary text-center">Manage Installments</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Links -->
-  <div class="grid mt-4">
+    <!-- ── Header ─────────────────────────────────────────────────────────── -->
     <div class="col-12">
-      <div class="p-card shadow-2 mb-3 transform transition-all hover:scale-105">
-        <div class="p-card-header bg-gray-100 p-3">
-          <h5 class="text-xl font-medium m-0">Quick Actions</h5>
+        <div class="flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h2 class="text-2xl font-bold m-0">Painel de Pagamentos</h2>
+                <p class="text-color-secondary mt-1 mb-0 text-sm">Resumo e tendências conforme período e centro.</p>
+            </div>
+            @if (summary?.lastUpdated) {
+                <span class="text-sm text-color-secondary">
+                    <i class="pi pi-clock mr-1"></i>
+                    Actualizado: {{ summary!.lastUpdated | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+            }
         </div>
-        <div class="p-card-body">
-          <div class="flex justify-content-around flex-wrap">
-            <a routerLink="/payments/reports" class="p-button p-button-info m-2">Generate Reports</a>
-            <a routerLink="/payments/settings" class="p-button p-button-secondary m-2">Payment Settings</a>
-            <a routerLink="/invoices/form-invoices/create" class="p-button p-button-success m-2">Create New Invoice</a>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <!-- ── Filter bar ─────────────────────────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+
+                <p-select
+                    [options]="(centerOptions$ | async) ?? []"
+                    [(ngModel)]="selectedCenterId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Todos os centros"
+                    styleClass="min-w-14rem"
+                ></p-select>
+
+                <p-datepicker
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Data início – Data fim"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-datepicker>
+
+                <p-button label="Aplicar" icon="pi pi-filter" (onClick)="applyFilter()" [loading]="loading"></p-button>
+
+                <p-button
+                    label="Limpar"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilter()"
+                    [disabled]="loading || (!dateRange.length && !selectedCenterId)"
+                ></p-button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────────────────────── -->
+    @if (error) {
+        <div class="col-12">
+            <div class="card border-red-300 bg-red-50">
+                <div class="flex align-items-center gap-2 text-red-600">
+                    <i class="pi pi-exclamation-triangle text-xl"></i>
+                    <span class="font-semibold">{{ error }}</span>
+                    <p-button
+                        label="Tentar novamente" icon="pi pi-refresh"
+                        severity="danger" [text]="true" size="small"
+                        (onClick)="retryLoad()" class="ml-2"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── Row 1 — Area/Line trends chart (full width hero) ──────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
+                <div>
+                    <p class="text-xl font-semibold m-0">Tendências de Pagamentos</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">Evolução mensal dos pagamentos no período seleccionado</p>
+                </div>
+                @if (!loading && summary) {
+                    <p-tag [value]="summary.currency" severity="info"></p-tag>
+                }
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="300px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (trendsChartData) {
+                <p-chart
+                    type="line"
+                    [data]="trendsChartData"
+                    [options]="trendsChartOptions"
+                    height="300px"
+                ></p-chart>
+            } @else {
+                <div class="flex align-items-center justify-content-center py-6 text-color-secondary" style="height:300px">
+                    <i class="pi pi-chart-line text-4xl mb-3 block text-center w-full"></i>
+                    <span>Sem dados de tendências para o período seleccionado.</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Row 2 — Distribution doughnut + Horizontal summary bar ────────── -->
+
+    <!-- Doughnut — proportions -->
+    <div class="col-12 xl:col-4">
+        <div class="card h-full flex flex-column">
+            <div class="mb-4">
+                <p class="text-xl font-semibold m-0">Distribuição de Valores</p>
+                <p class="text-sm text-color-secondary mt-1 mb-0">Proporção entre pagos, pendentes e em atraso</p>
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="240px" styleClass="border-round-xl mb-3"></p-skeleton>
+                <div class="flex justify-content-center gap-4 mt-2">
+                    <p-skeleton width="6rem" height="2.5rem" styleClass="border-round-xl"></p-skeleton>
+                    <p-skeleton width="6rem" height="2.5rem" styleClass="border-round-xl"></p-skeleton>
+                </div>
+            } @else if (distributionChartData) {
+                <p-chart
+                    type="doughnut"
+                    [data]="distributionChartData"
+                    [options]="distributionChartOptions"
+                    height="240px"
+                ></p-chart>
+
+                <!-- Key rates below chart -->
+                @if (summary) {
+                    <div class="flex justify-content-around mt-4 pt-3 border-top-1 surface-border text-center">
+                        <div>
+                            <p class="text-2xl font-bold text-green-500 m-0">{{ collectionRatePercent }}</p>
+                            <p class="text-xs text-color-secondary mt-1 mb-0">Cobrado</p>
+                        </div>
+                        <div class="border-right-1 surface-border"></div>
+                        <div>
+                            <p class="text-2xl font-bold text-red-500 m-0">{{ overdueRatePercent }}</p>
+                            <p class="text-xs text-color-secondary mt-1 mb-0">Em Atraso</p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- Horizontal bar — absolute values comparison -->
+    <div class="col-12 xl:col-8">
+        <div class="card h-full flex flex-column">
+            <div class="mb-4">
+                <p class="text-xl font-semibold m-0">Comparação de Valores</p>
+                <p class="text-sm text-color-secondary mt-1 mb-0">Montantes absolutos por estado de pagamento</p>
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="160px" styleClass="border-round-xl mb-4"></p-skeleton>
+                <div class="flex flex-column gap-2">
+                    <p-skeleton height="1.5rem" styleClass="border-round-xl"></p-skeleton>
+                    <p-skeleton height="1.5rem" styleClass="border-round-xl w-8"></p-skeleton>
+                    <p-skeleton height="1.5rem" styleClass="border-round-xl w-6"></p-skeleton>
+                </div>
+            } @else if (summaryBarData) {
+                <p-chart
+                    type="bar"
+                    [data]="summaryBarData"
+                    [options]="summaryBarOptions"
+                    height="180px"
+                ></p-chart>
+
+                <!-- Detailed values below the chart -->
+                @if (summary) {
+                    <div class="grid mt-4 pt-3 border-top-1 surface-border">
+                        <div class="col-12 md:col-4">
+                            <div class="flex align-items-center gap-2 p-2 border-round"
+                                 style="background: var(--green-50)">
+                                <span class="flex align-items-center justify-content-center border-round-lg"
+                                      style="width:2rem;height:2rem;background:var(--green-100)">
+                                    <i class="pi pi-check-circle text-green-600 text-sm"></i>
+                                </span>
+                                <div>
+                                    <p class="text-xs text-color-secondary m-0">Pagos</p>
+                                    <p class="text-sm font-bold text-green-700 m-0">
+                                        {{ formatMoney(summary.totalPaid, summary.currency) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="flex align-items-center gap-2 p-2 border-round"
+                                 style="background: var(--yellow-50)">
+                                <span class="flex align-items-center justify-content-center border-round-lg"
+                                      style="width:2rem;height:2rem;background:var(--yellow-100)">
+                                    <i class="pi pi-clock text-yellow-600 text-sm"></i>
+                                </span>
+                                <div>
+                                    <p class="text-xs text-color-secondary m-0">Pendente</p>
+                                    <p class="text-sm font-bold text-yellow-700 m-0">
+                                        {{ formatMoney(summary.pendingAmount, summary.currency) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="flex align-items-center gap-2 p-2 border-round"
+                                 style="background: var(--red-50)">
+                                <span class="flex align-items-center justify-content-center border-round-lg"
+                                      style="width:2rem;height:2rem;background:var(--red-100)">
+                                    <i class="pi pi-exclamation-circle text-red-600 text-sm"></i>
+                                </span>
+                                <div>
+                                    <p class="text-xs text-color-secondary m-0">Em Atraso</p>
+                                    <p class="text-sm font-bold text-red-700 m-0">
+                                        {{ formatMoney(summary.overdueAmount, summary.currency) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
 </div>

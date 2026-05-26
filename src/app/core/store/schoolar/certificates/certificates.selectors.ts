@@ -1,13 +1,8 @@
-import {createFeatureSelector, createSelector} from '@ngrx/store';
+import {createSelector} from '@ngrx/store';
+import {certificatesFeature} from './certificates.feature';
 import * as fromCertificates from './certificates.reducer';
-import {AppState} from "../../index";
 
-export const selectSchoolarState = createFeatureSelector<AppState>('schoolar');
-
-export const selectCertificatesState = createSelector(
-    selectSchoolarState,
-    (state: AppState) => state.certificates
-);
+export const selectCertificatesState = certificatesFeature.selectCertificatesState;
 
 export const selectAllCertificates = createSelector(
     selectCertificatesState,
@@ -27,7 +22,7 @@ export const selectSelectedCertificateId = createSelector(
 export const selectSelectedCertificate = createSelector(
     selectCertificatesEntities,
     selectSelectedCertificateId,
-    (entities, selectedId) => selectedId && entities[selectedId]
+    (entities, selectedId) => selectedId ? entities[selectedId] : null
 );
 
 export const selectCertificatesLoading = createSelector(

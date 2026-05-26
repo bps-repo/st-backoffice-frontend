@@ -1,6 +1,5 @@
-import {HttpInterceptorFn} from '@angular/common/http';
+import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
 import {catchError} from "rxjs/operators";
-import {HttpErrorResponse} from "@angular/common/module.d-CnjH8Dlt";
 import {throwError} from "rxjs";
 import {inject} from "@angular/core";
 import {MessageService} from "primeng/api";

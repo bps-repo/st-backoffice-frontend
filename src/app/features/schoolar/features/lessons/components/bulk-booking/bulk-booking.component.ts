@@ -13,15 +13,7 @@ import {TableModule} from 'primeng/table';
 import {BadgeModule} from 'primeng/badge';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {DialogModule} from 'primeng/dialog';
-import {Store} from '@ngrx/store';
-import {AppState} from '../../../../../../core/store';
-import {lessonsActions} from '../../../../../../core/store/schoolar/lessons/lessons.actions';
-import {
-    selectLoadingBulkBooking,
-    selectBulkBookingError
-} from '../../../../../../core/store/schoolar/lessons/lessons.selectors';
-import {Actions, ofType} from '@ngrx/effects';
-import {LessonService} from '../../../../../../core/services/lesson.service';
+import {LessonService} from '../../../../../../core/services/lessons/lesson.service';
 import {StudentService} from '../../../../../../core/services/student.service';
 import {Lesson} from '../../../../../../core/models/academic/lesson';
 import {Student} from '../../../../../../core/models/academic/students/student';
@@ -60,8 +52,6 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
     private lessonService = inject(LessonService);
     private studentService = inject(StudentService);
     private messageService = inject(MessageService);
-    private store = inject<Store<AppState>>(Store);
-    private actions$ = inject(Actions);
 
     bulkBookingForm: FormGroup;
     lessons: Lesson[] = [];
@@ -81,37 +71,6 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.loadLessons();
         this.loadStudents();
-
-        // Subscribe to bulk booking state
-        this.store.select(selectLoadingBulkBooking)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(loading => {
-                this.loading = loading;
-            });
-
-        this.store.select(selectBulkBookingError)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(error => {
-                if (error) {
-                    ShowToastErrorService.showToastError('Error', error, this.messageService);
-                }
-            });
-
-        // Subscribe to bulk booking success action
-        this.actions$.pipe(
-            ofType(lessonsActions.bulkBookLessonsSuccess),
-            takeUntil(this.destroy$)
-        ).subscribe(({response}) => {
-            this.bulkBookingResults = response as BulkBookingResult;
-            this.showResultsDialog = true;
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Bulk booking completed successfully'
-            });
-            // Reset form after successful booking
-            this.bulkBookingForm.reset();
-        });
     }
 
     ngOnDestroy(): void {
@@ -158,19 +117,36 @@ export class BulkBookingComponent implements OnInit, OnDestroy {
         }
 
         const formValue = this.bulkBookingForm.value;
-        const selectedLessonIds = formValue.selectedLessons;
-        const selectedStudentIds = formValue.selectedStudents;
+        const selectedLessonIds: string[] = formValue.selectedLessons;
+        const selectedStudentIds: string[] = formValue.selectedStudents;
 
-        // Create bulk booking request
         const bulkBookingRequest: BulkBookingRequest = {
-            lessons: selectedLessonIds.map((lessonId: string) => ({
-                lessonId: lessonId,
+            lessons: selectedLessonIds.map((lessonId) => ({
+                lessonId,
                 studentIds: selectedStudentIds
             }))
         };
 
-        // Dispatch the bulk booking action
-        this.store.dispatch(lessonsActions.bulkBookLessons({bulkBookingRequest}));
+        this.loading = true;
+        this.lessonService.bulkBookLessons(bulkBookingRequest)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.loading = false;
+                    this.bulkBookingResults = response;
+                    this.showResultsDialog = true;
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Sucesso',
+                        detail: 'Marcação em bloco realizada com sucesso'
+                    });
+                    this.bulkBookingForm.reset();
+                },
+                error: (error) => {
+                    this.loading = false;
+                    ShowToastErrorService.showToastError('Erro', error, this.messageService);
+                }
+            });
     }
 
 

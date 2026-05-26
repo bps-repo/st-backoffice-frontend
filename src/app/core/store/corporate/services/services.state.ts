@@ -17,6 +17,10 @@ export interface ServiceState extends EntityState<Service> {
     updateError: string | null;
     deleteError: string | null;
     selectedServiceId: string | null;
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
 }
 
 export const serviceAdapter = createEntityAdapter<Service>();
@@ -34,4 +38,8 @@ export const initialState: ServiceState = {
     updateError: null,
     deleteError: null,
     selectedServiceId: null,
+    page: 0,
+    size: 15,
+    totalElements: 0,
+    totalPages: 0,
 };

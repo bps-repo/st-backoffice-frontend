@@ -37,6 +37,11 @@ export const CORPORATE_ROUTES: Routes = [
                     import('./features/permissions/permissions.routes').then((m) => m.PermissionsRoutes),
             },
             {
+                path: 'services',
+                loadChildren: () =>
+                    import('./features/services/services.routes').then((m) => m.ServicesRoutes),
+            },
+            {
                 path: 'settings',
                 component: CorporateSettingsComponent,
             },

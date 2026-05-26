@@ -1,0 +1,209 @@
+<div class="grid">
+    @let loading = (loading$ | async) ?? false;
+
+    <!-- ── Filter bar ─────────────────────────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex flex-wrap gap-3 align-items-center">
+
+                <p-select
+                    [options]="(centerOptions$ | async) ?? []"
+                    [(ngModel)]="selectedCenterId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Todos os centros"
+                    styleClass="min-w-14rem"
+                ></p-select>
+
+                <p-datepicker
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Data início – Data fim"
+                    [showIcon]="true"
+                    styleClass="w-18rem"
+                ></p-datepicker>
+
+                <p-button
+                    label="Aplicar"
+                    icon="pi pi-filter"
+                    (onClick)="applyFilter()"
+                    [loading]="loading"
+                ></p-button>
+
+                <p-button
+                    label="Limpar"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilter()"
+                    [disabled]="loading || (!dateRange.length && !selectedCenterId)"
+                ></p-button>
+
+                @if (overview?.lastUpdated) {
+                    <span class="ml-auto text-sm text-color-secondary">
+                        <i class="pi pi-clock mr-1"></i>
+                        Actualizado: {{ overview!.lastUpdated | date:'dd/MM/yyyy HH:mm' }}
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────────────────────── -->
+    @if (error) {
+        <div class="col-12">
+            <div class="card border-red-300 bg-red-50">
+                <div class="flex align-items-center gap-2 text-red-600">
+                    <i class="pi pi-exclamation-triangle text-xl"></i>
+                    <span class="font-semibold">{{ error }}</span>
+                    <p-button
+                        label="Tentar novamente"
+                        icon="pi pi-refresh"
+                        severity="danger"
+                        [text]="true"
+                        size="small"
+                        (onClick)="retryLoad()"
+                        class="ml-2"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── Row 1 — Revenue bar + Collection doughnut ─────────────────────── -->
+
+    <!-- Revenue bar chart -->
+    <div class="col-12 xl:col-8">
+        <div class="card h-full">
+            <div class="flex align-items-start justify-content-between mb-4">
+                <div>
+                    <p class="text-xl font-semibold m-0">Visão Geral de Receita</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">Comparação entre os principais indicadores de receita</p>
+                </div>
+                @if (!loading && overview) {
+                    <div class="flex align-items-center gap-1 text-sm font-semibold"
+                         [ngClass]="revenueGrowthPositive ? 'text-green-500' : 'text-red-500'">
+                        <i class="pi" [ngClass]="revenueGrowthPositive ? 'pi-arrow-up' : 'pi-arrow-down'"></i>
+                        {{ overview.revenueGrowth }}% crescimento
+                    </div>
+                }
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="320px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (revenueChartData) {
+                <p-chart
+                    type="bar"
+                    [data]="revenueChartData"
+                    [options]="revenueChartOptions"
+                    height="320px"
+                ></p-chart>
+            }
+        </div>
+    </div>
+
+    <!-- Collection doughnut -->
+    <div class="col-12 xl:col-4">
+        <div class="card h-full flex flex-column">
+            <div class="mb-4">
+                <p class="text-xl font-semibold m-0">Estado das Cobranças</p>
+                <p class="text-sm text-color-secondary mt-1 mb-0">Distribuição do total facturado</p>
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="260px" styleClass="border-round-xl"></p-skeleton>
+                <div class="flex justify-content-center mt-4">
+                    <p-skeleton width="8rem" height="3rem" styleClass="border-round-xl"></p-skeleton>
+                </div>
+            } @else if (collectionChartData) {
+                <div class="flex-1" style="min-height: 0;">
+                    <p-chart
+                        type="doughnut"
+                        [data]="collectionChartData"
+                        [options]="collectionChartOptions"
+                        height="260px"
+                    ></p-chart>
+                </div>
+                <div class="flex flex-column align-items-center mt-3 pt-3 border-top-1 surface-border">
+                    <span class="text-4xl font-bold text-primary">{{ collectionRatePercent }}</span>
+                    <span class="text-color-secondary text-sm mt-1">taxa de cobrança</span>
+                    @if (overview?.overdueCount) {
+                        <span class="text-xs text-red-500 mt-2">
+                            <i class="pi pi-exclamation-circle mr-1"></i>
+                            {{ overview!.overdueCount }} contrato(s) em atraso
+                        </span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Row 2 — Contracts horizontal bar + Avg metrics polar ─────────── -->
+
+    <!-- Contracts horizontal bar -->
+    <div class="col-12 xl:col-5">
+        <div class="card h-full">
+            <div class="mb-4">
+                <p class="text-xl font-semibold m-0">Contratos</p>
+                <p class="text-sm text-color-secondary mt-1 mb-0">Activos e novos no período seleccionado</p>
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="200px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (contractChartData) {
+                <p-chart
+                    type="bar"
+                    [data]="contractChartData"
+                    [options]="contractChartOptions"
+                    height="200px"
+                ></p-chart>
+            }
+
+            @if (!loading && overview) {
+                <div class="grid mt-4 text-center">
+                    <div class="col-4 border-right-1 surface-border">
+                        <p class="text-2xl font-bold text-900 m-0">{{ overview.totalActiveContracts }}</p>
+                        <p class="text-xs text-color-secondary mt-1 mb-0">Activos</p>
+                    </div>
+                    <div class="col-4 border-right-1 surface-border">
+                        <p class="text-2xl font-bold text-900 m-0">{{ overview.newContractsThisMonth }}</p>
+                        <p class="text-xs text-color-secondary mt-1 mb-0">Novos Mês</p>
+                    </div>
+                    <div class="col-4">
+                        <p class="text-2xl font-bold text-900 m-0">{{ overview.newContractsThisYear }}</p>
+                        <p class="text-xs text-color-secondary mt-1 mb-0">Novos Ano</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Avg metrics polar area -->
+    <div class="col-12 xl:col-7">
+        <div class="card h-full">
+            <div class="flex align-items-start justify-content-between mb-4">
+                <div>
+                    <p class="text-xl font-semibold m-0">Médias & Valores de Referência</p>
+                    <p class="text-sm text-color-secondary mt-1 mb-0">Comparação de métricas médias do período</p>
+                </div>
+                @if (!loading && overview) {
+                    <p-tag [value]="overview.currency" severity="info"></p-tag>
+                }
+            </div>
+
+            @if (loading) {
+                <p-skeleton height="260px" styleClass="border-round-xl"></p-skeleton>
+            } @else if (avgMetricsChartData) {
+                <p-chart
+                    type="polarArea"
+                    [data]="avgMetricsChartData"
+                    [options]="avgMetricsChartOptions"
+                    height="280px"
+                ></p-chart>
+            }
+        </div>
+    </div>
+
+</div>

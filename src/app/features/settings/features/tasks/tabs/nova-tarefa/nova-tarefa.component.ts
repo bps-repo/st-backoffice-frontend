@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { Task } from '../../models/task.model';
 import { TASK_DATA } from 'src/app/shared/tokens/task.token';
@@ -16,7 +16,7 @@ import { TASK_DATA } from 'src/app/shared/tokens/task.token';
     ReactiveFormsModule,
     InputTextModule,
     DropdownModule,
-    CalendarModule,
+    DatePickerModule,
     ButtonModule
   ],
   templateUrl: './nova-tarefa.component.html',
