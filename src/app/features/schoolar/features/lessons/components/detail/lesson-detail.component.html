@@ -91,7 +91,13 @@
                                 (onClick)="openRescheduleModal(lesson)"
                                 appendTo="body">
                             </p-splitButton>
-                            <p-button icon="pi pi-download" label="Exportar" [outlined]="true" size="small"
+                            <p-button
+                                icon="pi pi-file-pdf"
+                                label="Exportar PDF"
+                                [outlined]="true"
+                                size="small"
+                                pTooltip="Descarregar resumo em PDF"
+                                [loading]="pdfLoading()"
                                 (click)="exportLesson(lesson)">
                             </p-button>
                             <p-button icon="pi pi-print" label="Imprimir" [outlined]="true" size="small"

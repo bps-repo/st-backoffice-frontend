@@ -114,6 +114,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     notesLoading = signal(false);
     notesDescription = '';
 
+    // ── PDF export ────────────────────────────────────────────────────────────
+    pdfLoading = signal(false);
+
     // ── Update dropdown (SplitButton items) ──────────────────────────────────
     updateMenuItems: MenuItem[] = [];
 
@@ -619,9 +622,36 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     public exportLesson(lesson: Lesson): void {
-        if (lesson?.id) {
-            console.log('Exporting lesson:', lesson.id);
-        }
+        this.downloadSummaryPdf(lesson);
+    }
+
+    public downloadSummaryPdf(lesson?: Lesson | null): void {
+        const id = lesson?.id ?? this.currentLessonId;
+        if (!id) return;
+
+        this.pdfLoading.set(true);
+        this.lessonService.getLessonSummaryPdf(id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const anchor = document.createElement('a');
+                    const title = (lesson ?? this.lesson())?.title ?? id;
+                    anchor.href = url;
+                    anchor.download = `resumo-aula-${title.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+                    anchor.click();
+                    URL.revokeObjectURL(url);
+                    this.pdfLoading.set(false);
+                },
+                error: () => {
+                    this.pdfLoading.set(false);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erro',
+                        detail: 'Não foi possível gerar o PDF do resumo.'
+                    });
+                }
+            });
     }
 
     public printLesson(lesson: Lesson): void {

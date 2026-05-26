@@ -165,4 +165,9 @@ export class LessonService {
             map((response) => response.data as Lesson[])
         );
     }
+
+    /** Downloads the lesson summary as a PDF blob. */
+    getLessonSummaryPdf(id: string): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${id}/summary/pdf`, { responseType: 'blob' });
+    }
 }
