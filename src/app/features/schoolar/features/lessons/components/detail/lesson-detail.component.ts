@@ -7,6 +7,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextarea } from 'primeng/inputtextarea';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -69,6 +70,7 @@ interface AttendanceTableData {
         LessonStatusLabelPipe,
         LessonStatusSeverityPipe,
         LessonStatusClassPipe,
+        InputTextarea,
     ],
     providers: [MessageService],
     templateUrl: './lesson-detail.component.html'
@@ -106,6 +108,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     onlineLinkLoading = signal(false);
     onlineLinkValue = '';
     private pendingOnlineLesson: Lesson | null = null;
+
+    // ── Notes / description modal ─────────────────────────────────────────────
+    showNotesModal = false;
+    notesLoading = signal(false);
+    notesDescription = '';
 
     // ── Update dropdown (SplitButton items) ──────────────────────────────────
     updateMenuItems: MenuItem[] = [];
@@ -396,7 +403,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     public markAttendance(): void {
-        console.log('Mark attendance');
+        this.currentView = 'attendance';
     }
 
     public addMaterial(lesson: Lesson): void {
@@ -686,7 +693,31 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
 
     public addNote(): void {
-        console.log('Adding new note');
+        this.notesDescription = this.lesson()?.description ?? '';
+        this.showNotesModal = true;
+    }
+
+    public async saveNotesDescription(): Promise<void> {
+        const v = this.lesson();
+        if (!v?.id) return;
+
+        this.notesLoading.set(true);
+        const updated = await this.lessonsFacade.patchLesson(v.id, {
+            description: this.notesDescription.trim()
+        });
+        this.notesLoading.set(false);
+
+        if (updated) {
+            this.lesson.set(updated);
+            this.showNotesModal = false;
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Anotação guardada com sucesso.' });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: this.lessonsFacade.error() ?? 'Erro ao guardar anotação.' });
+        }
+    }
+
+    public closeNotesModal(): void {
+        this.showNotesModal = false;
     }
 
     public editNote(note: LessonNote): void {
