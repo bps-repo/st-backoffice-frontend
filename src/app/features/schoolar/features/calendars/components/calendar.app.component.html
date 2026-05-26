@@ -141,16 +141,49 @@
 
         <!-- Weekly Calendar View -->
         @if (selectedCalendarView === 'week') {
-        <div class="weekly-calendar card w-full h-full">
+
+        <!-- Skeleton while loading -->
+        @if (isLoading()) {
+        <div class="weekly-calendar card w-full">
             <div class="grid gap-2">
-                @for (dayData of weeklyLessons; track dayData.date) {
+                @for (_ of skeletonDays; track $index) {
+                <div class="col-12 md:col">
+                    <div class="card h-full">
+                        <div class="card-header text-center mb-3">
+                            <div class="day-header">
+                                <p-skeleton width="3rem" height="0.7rem" styleClass="mb-1 mx-auto"></p-skeleton>
+                                <p-skeleton width="2.5rem" height="1.25rem" styleClass="mx-auto mt-1"></p-skeleton>
+                            </div>
+                        </div>
+                        <div class="classes-list">
+                            @for (_ of skeletonCards; track $index) {
+                            <div class="mb-2 p-2 border-round" style="border:1px solid var(--surface-border)">
+                                <p-skeleton width="3.5rem" height="0.65rem" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton width="100%" height="0.8rem" styleClass="mb-1"></p-skeleton>
+                                <p-skeleton width="75%" height="0.7rem" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton width="3.5rem" height="1.25rem" borderRadius="1rem"></p-skeleton>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Real content -->
+        @if (!isLoading()) {
+        <div class="weekly-calendar card w-full">
+            <div class="grid gap-2">
+                @for (dayData of weeklyLessons; track dayData.dayKey) {
                 <div class="col-12 md:col">
                     <div class="card h-full" [class.today-card]="dayData.isToday">
                         <div class="card-header text-center mb-3">
                             <div class="day-header">
-                                <div class="day-name text-sm text-gray-600">{{ dayData.day.split(' ')[0] }}</div>
+                                <div class="day-name text-sm text-gray-600">{{ dayData.dayName }}</div>
                                 <div class="day-date font-bold" [class.today-date]="dayData.isToday">
-                                    {{ dayData.day.split(' ')[1] }}
+                                    {{ dayData.dayDate }}
                                 </div>
                             </div>
                             @if (dayData.isToday) {
@@ -202,11 +235,13 @@
             </div>
         </div>
         }
+        } <!-- end @if (!isLoading()) for week -->
 
         <!-- Monthly Calendar View -->
         @if (selectedCalendarView === 'month') {
         <div class="monthly-calendar w-full h-full">
             <div class="card">
+                <!-- Day-of-week header is always visible -->
                 <div class="calendar-header grid border-bottom-1 border-gray-200 font-bold text-center">
                     <div class="col">Dom</div>
                     <div class="col">Seg</div>
@@ -217,6 +252,25 @@
                     <div class="col">Sáb</div>
                 </div>
 
+                <!-- Skeleton while loading -->
+                @if (isLoading()) {
+                <div class="calendar-body">
+                    @for (_ of skeletonWeeks; track $index) {
+                    <div class="grid calendar-week border-bottom-1 border-gray-100">
+                        @for (_ of skeletonDays; track $index) {
+                        <div class="col calendar-day">
+                            <p-skeleton width="1.5rem" height="1.5rem" borderRadius="50%" styleClass="mb-2"></p-skeleton>
+                            <p-skeleton width="100%" height="0.65rem" styleClass="mb-1" borderRadius="4px"></p-skeleton>
+                            <p-skeleton width="80%" height="0.65rem" borderRadius="4px"></p-skeleton>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+
+                <!-- Real content -->
+                @if (!isLoading()) {
                 <div class="calendar-body">
                     @for (week of getMonthlyCalendarWeeks(); track $index) {
                     <div class="grid calendar-week border-bottom-1 border-gray-100">
@@ -259,6 +313,7 @@
                     </div>
                     }
                 </div>
+                } <!-- end @if (!isLoading()) for month -->
             </div>
         </div>
         }

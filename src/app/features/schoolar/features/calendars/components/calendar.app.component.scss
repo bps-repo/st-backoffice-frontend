@@ -6,6 +6,20 @@
     margin-bottom: 1.5rem;
 }
 
+// The weekly-calendar outer wrapper must NOT clip its children; each day column
+// card grows to fit its lesson cards and the grid row must be free to expand.
+.weekly-calendar {
+    overflow: visible !important;
+    height: auto !important;
+
+    // Inner day-column cards: let content dictate height so lessons are never clipped.
+    > .grid > * > .card {
+        overflow: visible;
+        height: auto;
+        min-height: 8rem;
+    }
+}
+
 // Sticky header styles
 .sticky-header {
     position: sticky;

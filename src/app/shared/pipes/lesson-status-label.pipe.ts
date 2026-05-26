@@ -55,12 +55,14 @@ export class LessonStatusLabelPipe implements PipeTransform {
  * Pure resolver – also exported so other code can call it without the pipe.
  *
  * Priority:
- *  1. CANCELLED           → "Aula Cancelada"
- *  2. Future startDatetime → "Aula Prevista"   (unless completed/cancelled)
- *  3. POSTPONED           → "Aula Reagendada"
- *  4. COMPLETED/OVERDUE   → "Aula Lecionada"  or  "Aula sem Presença"
- *  5. AVAILABLE           → "Disponível"
- *  6. BOOKED / SCHEDULED  → "Agendada"
+ *  1. CANCELLED                    → "Aula Cancelada"
+ *  2. Future startDatetime          → "Aula Prevista"   (unless completed/cancelled/taught)
+ *  3. POSTPONED / RESCHEDULED       → "Aula Reagendada"
+ *  4. TAUGHT                        → "Aula Lecionada"
+ *  5. NOT_TAUGHT / OVERDUE(legacy)  → "Aula Não Lecionada" or "Aula sem Presença"
+ *  6. COMPLETED                     → "Aula Lecionada"  or  "Aula sem Presença"
+ *  7. AVAILABLE                     → "Disponível"
+ *  8. BOOKED / SCHEDULED            → "Agendada"
  */
 export function resolveStatusLabel(
     status: string,
@@ -69,13 +71,32 @@ export function resolveStatusLabel(
 ): string {
     if (status === LessonStatus.CANCELLED) return 'Aula Cancelada';
 
-    if (startDatetime && isFuture(startDatetime) && status !== LessonStatus.COMPLETED) {
+    const completedLike = status === LessonStatus.COMPLETED
+        || status === LessonStatus.TAUGHT
+        || status === LessonStatus.NOT_TAUGHT
+        || status === LessonStatus.OVERDUE;
+
+    if (startDatetime && isFuture(startDatetime) && !completedLike) {
         return 'Aula Prevista';
     }
 
-    if (status === LessonStatus.POSTPONED) return 'Aula Reagendada';
+    if (status === LessonStatus.POSTPONED || status === LessonStatus.RESCHEDULED) {
+        return 'Aula Reagendada';
+    }
 
-    if (status === LessonStatus.COMPLETED || status === LessonStatus.OVERDUE) {
+    // TAUGHT → explicitly marked as taught
+    if (status === LessonStatus.TAUGHT) return 'Aula Lecionada';
+
+    // NOT_TAUGHT / OVERDUE (legacy, migrated to NOT_TAUGHT on deploy)
+    if (status === LessonStatus.NOT_TAUGHT || status === LessonStatus.OVERDUE) {
+        if (attendances && attendances.length > 0) {
+            return attendances.some(a => a.present) ? 'Aula Lecionada' : 'Aula sem Presença';
+        }
+        return 'Aula Não Lecionada';
+    }
+
+    // COMPLETED – derives label from attendance when available
+    if (status === LessonStatus.COMPLETED) {
         if (attendances && attendances.length > 0) {
             return attendances.some(a => a.present) ? 'Aula Lecionada' : 'Aula sem Presença';
         }

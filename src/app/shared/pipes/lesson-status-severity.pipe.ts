@@ -57,9 +57,9 @@ export class LessonStatusSeverityPipe implements PipeTransform {
  *
  * Returns a PrimeNG severity for standard states, and a custom sentinel
  * string for states that need bespoke CSS via lessonStatusClass:
- *   'planned'    → .lesson-status-planned   (indigo / purple)
- *   'rescheduled'→ .lesson-status-rescheduled (amber)
- *   'no-attendance'→ .lesson-status-no-attendance (orange)
+ *   'planned'       → .lesson-status-planned        (indigo / purple)
+ *   'rescheduled'   → .lesson-status-rescheduled    (amber)
+ *   'no-attendance' → .lesson-status-no-attendance  (orange)
  */
 export function resolveStatusSeverity(
     status: string,
@@ -68,13 +68,32 @@ export function resolveStatusSeverity(
 ): string | undefined {
     if (status === LessonStatus.CANCELLED) return 'danger';
 
-    if (startDatetime && isFuture(startDatetime) && status !== LessonStatus.COMPLETED) {
+    const completedLike = status === LessonStatus.COMPLETED
+        || status === LessonStatus.TAUGHT
+        || status === LessonStatus.NOT_TAUGHT
+        || status === LessonStatus.OVERDUE;
+
+    if (startDatetime && isFuture(startDatetime) && !completedLike) {
         return 'planned';          // custom – handled via styleClass
     }
 
-    if (status === LessonStatus.POSTPONED) return 'rescheduled'; // custom
+    if (status === LessonStatus.POSTPONED || status === LessonStatus.RESCHEDULED) {
+        return 'rescheduled';      // custom – amber
+    }
 
-    if (status === LessonStatus.COMPLETED || status === LessonStatus.OVERDUE) {
+    // TAUGHT → explicitly marked as taught
+    if (status === LessonStatus.TAUGHT) return 'success';
+
+    // NOT_TAUGHT / OVERDUE (legacy, migrated to NOT_TAUGHT on deploy)
+    if (status === LessonStatus.NOT_TAUGHT || status === LessonStatus.OVERDUE) {
+        if (attendances && attendances.length > 0) {
+            return attendances.some(a => a.present) ? 'success' : 'no-attendance'; // last is custom
+        }
+        return 'no-attendance';    // custom – orange
+    }
+
+    // COMPLETED – derives severity from attendance when available
+    if (status === LessonStatus.COMPLETED) {
         if (attendances && attendances.length > 0) {
             return attendances.some(a => a.present) ? 'success' : 'no-attendance'; // last is custom
         }

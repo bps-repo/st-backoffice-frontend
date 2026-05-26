@@ -161,7 +161,7 @@ export class LessonReports implements OnInit {
 
         // Aulas por status (Lessons by status) - Bar chart
         this.barChartLessonStatus = {
-            labels: ['AVAILABLE', 'BOOKED', 'COMPLETED', 'CANCELLED', 'SCHEDULED', 'POSTPONED', 'OVERDUE'],
+            labels: ['AVAILABLE', 'BOOKED', 'SCHEDULED', 'COMPLETED', 'TAUGHT', 'NOT_TAUGHT', 'RESCHEDULED', 'POSTPONED', 'CANCELLED'],
             datasets: [
                 {
                     label: 'Número de aulas',

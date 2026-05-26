@@ -31,6 +31,7 @@ import {LessonStatusLabelPipe, resolveStatusLabel} from 'src/app/shared/pipes/le
 import {LessonStatusSeverityPipe, resolveStatusSeverity} from 'src/app/shared/pipes/lesson-status-severity.pipe';
 import {LessonStatusClassPipe} from 'src/app/shared/pipes/lesson-status-class.pipe';
 import {TagModule} from 'primeng/tag';
+import {SkeletonModule} from 'primeng/skeleton';
 
 @Component({
     selector: "app-lesson-calendar",
@@ -58,6 +59,7 @@ import {TagModule} from 'primeng/tag';
         LessonStatusSeverityPipe,
         LessonStatusClassPipe,
         TagModule,
+        SkeletonModule,
     ],
     styleUrls: ['./calendar.app.component.scss']
 })
@@ -144,10 +146,13 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     levelOptions: { label: string; value: string }[] = [];
 
     readonly statusOptions = [
-        {label: 'Disponível', value: 'AVAILABLE'},
-        {label: 'Concluída', value: 'COMPLETED'},
-        {label: 'Cancelada', value: 'CANCELLED'},
-        {label: 'Atrasada', value: 'OVERDUE'},
+        { label: 'Disponível',    value: 'AVAILABLE'   },
+        { label: 'Agendada',      value: 'SCHEDULED'   },
+        { label: 'Lecionada',     value: 'TAUGHT'      },
+        { label: 'Concluída',     value: 'COMPLETED'   },
+        { label: 'Não Lecionada', value: 'NOT_TAUGHT'  },
+        { label: 'Reagendada',    value: 'RESCHEDULED' },
+        { label: 'Cancelada',     value: 'CANCELLED'   },
     ];
 
     readonly onlineOptions = [
@@ -197,6 +202,14 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     classes: Lesson[] = [];
     readonly maxVisibleLessonsPerDay = 5;
     private expandedDayLessons = new Set<string>();
+
+    // Loading state — true while any API request is in flight
+    isLoading = signal(false);
+
+    /** Static arrays used only by skeleton @for loops — no logic, just iteration counts. */
+    readonly skeletonDays  = Array(7);   // 7 columns  (week view columns / month row cells)
+    readonly skeletonWeeks = Array(5);   // 5 rows     (month view rows)
+    readonly skeletonCards = Array(3);   // 3 cards    (placeholder lesson cards per day)
 
     // Dialog state
     lessonDialogVisible = signal(false);
@@ -265,6 +278,8 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
             ? `${this.filterSortField},${this.filterSortDirection}`
             : undefined;
 
+        this.isLoading.set(true);
+
         this.lessonService.searchLessons({
             teacherId: this.filterTeacherId ?? undefined,
             unitId: this.filterUnitId ?? undefined,
@@ -280,35 +295,41 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
             page: 0,
             size: 500,
             sort,
-        }).pipe(takeUntil(this.destroy$)).subscribe(response => {
-            const lessons: Lesson[] = response?.content ?? [];
-            this.classes = lessons;
-            this.events = lessons.map(lesson => this.mapLessonToEvent(lesson));
-            this.filteredEvents = [...this.events];
-            this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
-                .map(item => JSON.parse(item));
-            this.calculateKpiMetrics();
-            this.initializeKpis();
-            if (this.selectedCalendarView === 'week') {
-                this.loadWeeklyLessonsFromData(lessons);
-            } else {
-                this.loadMonthlyLessonsFromData(lessons);
-            }
+        }).pipe(takeUntil(this.destroy$)).subscribe({
+            next: response => {
+                const lessons: Lesson[] = response?.content ?? [];
+                this.classes = lessons;
+                this.events = lessons.map(lesson => this.mapLessonToEvent(lesson));
+                this.filteredEvents = [...this.events];
+                this.tags = Array.from(new Set(this.events.map(item => JSON.stringify(item.tag))))
+                    .map(item => JSON.parse(item));
+                this.calculateKpiMetrics();
+                this.initializeKpis();
+                if (this.selectedCalendarView === 'week') {
+                    this.loadWeeklyLessonsFromData(lessons);
+                } else {
+                    this.loadMonthlyLessonsFromData(lessons);
+                }
+                this.isLoading.set(false);
+            },
+            error: () => this.isLoading.set(false),
         });
     }
 
     private getCalendarDateRange(): {startDate: string; endDate: string} {
         if (this.selectedCalendarView === 'week') {
-            const start = new Date(this.currentWeekStart);
-            const end = new Date(this.currentWeekEnd);
-            end.setDate(end.getDate() + 1);
-            return {startDate: start.toISOString(), endDate: end.toISOString()};
+            // currentWeekStart/End are already normalised to 00:00/23:59
+            return {
+                startDate: this.currentWeekStart.toISOString(),
+                endDate:   this.currentWeekEnd.toISOString(),
+            };
         }
-        const year = this.currentDate.getFullYear();
+        const year  = this.currentDate.getFullYear();
         const month = this.currentDate.getMonth();
-        const start = new Date(year, month, 1);
-        const end = new Date(year, month + 1, 0, 23, 59, 59);
-        return {startDate: start.toISOString(), endDate: end.toISOString()};
+        return {
+            startDate: new Date(year, month, 1, 0, 0, 0, 0).toISOString(),
+            endDate:   new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString(),
+        };
     }
 
     onSearchInput(): void {
@@ -803,14 +824,17 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     setCurrentWeek() {
         const today = new Date();
-        const currentDay = today.getDay();
-        const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days
+        const dayOfWeek = today.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
-        this.currentWeekStart = new Date(today);
-        this.currentWeekStart.setDate(today.getDate() + mondayOffset);
+        const monday = new Date(today);
+        monday.setDate(today.getDate() + mondayOffset);
 
-        this.currentWeekEnd = new Date(this.currentWeekStart);
-        this.currentWeekEnd.setDate(this.currentWeekStart.getDate() + 6);
+        // Always normalise to midnight so time never bleeds into date comparisons
+        this.currentWeekStart = this.startOfDay(monday);
+        this.currentWeekEnd   = this.endOfDay(new Date(
+            monday.getFullYear(), monday.getMonth(), monday.getDate() + 6
+        ));
     }
 
     loadMonthlyLessons() {
@@ -991,54 +1015,67 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     loadWeeklyLessonsFromData(lessons: Lesson[]) {
-        const weekStart = new Date(this.currentWeekStart);
-        const dayAfterWeekEnd = new Date(this.currentWeekEnd);
-        dayAfterWeekEnd.setDate(dayAfterWeekEnd.getDate() + 1);
+        // Always snapshot the boundaries at the moment of rendering;
+        // normalising to midnight prevents time-of-day from filtering out same-day lessons.
+        const weekStart    = this.startOfDay(new Date(this.currentWeekStart));
+        const weekEnd      = this.endOfDay(new Date(this.currentWeekEnd));
 
         const weekLessons = lessons.filter(lesson => {
-            const lessonDate = new Date(lesson.startDatetime);
-            return lessonDate >= weekStart && lessonDate < dayAfterWeekEnd;
+            const d = new Date(lesson.startDatetime);
+            return d >= weekStart && d <= weekEnd;
         });
 
-        // Create week structure
-        this.weeklyLessons = [];
+        // Build the 7-day structure using explicit date arithmetic (not setDate addition)
+        // so crossing month/year boundaries is handled correctly.
+        const newWeeklyLessons = [];
         for (let i = 0; i < 7; i++) {
-            const currentDay = new Date(weekStart);
-            currentDay.setDate(weekStart.getDate() + i);
+            const currentDay = new Date(
+                weekStart.getFullYear(),
+                weekStart.getMonth(),
+                weekStart.getDate() + i   // Date constructor handles month overflow
+            );
+            const dayKey   = currentDay.toDateString();
+            const isToday  = dayKey === new Date().toDateString();
 
-            const dayLessons = weekLessons.filter(lesson => {
-                const lessonDate = new Date(lesson.startDatetime);
-                return lessonDate.toDateString() === currentDay.toDateString();
-            });
+            const dayLessons = weekLessons
+                .filter(l => new Date(l.startDatetime).toDateString() === dayKey)
+                .sort((a, b) =>
+                    new Date(a.startDatetime).getTime() - new Date(b.startDatetime).getTime()
+                );
 
-            const isToday = currentDay.toDateString() === new Date().toDateString();
-
-            this.weeklyLessons.push({
-                day: currentDay.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit', month: '2-digit'}),
-                date: currentDay.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}),
-                dayKey: currentDay.toDateString(),
+            newWeeklyLessons.push({
+                // Separate properties so the template never has to split a locale string
+                dayName: currentDay.toLocaleDateString('pt-BR', { weekday: 'short' }),         // e.g. "seg."
+                dayDate: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), // e.g. "26/05"
+                dayKey,
                 isToday,
                 classes: dayLessons.map(lesson => ({
                     time: new Date(lesson.startDatetime).toLocaleTimeString('pt-BR', {
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        hour:   '2-digit',
+                        minute: '2-digit',
                     }),
-                    title: lesson.title,
-                    teacher: this.extractNamedEntity(lesson.teacher),
-                    group: lesson.level || 'N/A',
-                    status: resolveStatusLabel(lesson.status as string, lesson.startDatetime),
+                    title:       lesson.title,
+                    teacher:     this.extractNamedEntity(lesson.teacher),
+                    group:       lesson.level || 'N/A',
+                    status:      resolveStatusLabel(lesson.status as string, lesson.startDatetime),
                     statusClass: resolveStatusSeverity(lesson.status as string, lesson.startDatetime) ?? 'secondary',
-                    lesson: lesson
-                }))
+                    lesson,
+                })),
             });
         }
+        // Replace in one assignment so Angular sees a single, complete array
+        this.weeklyLessons = newWeeklyLessons;
     }
 
     // Navigation methods
     navigatePrevious() {
         if (this.selectedCalendarView === 'week') {
-            this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
-            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() - 7);
+            // Create brand-new Date objects — never mutate existing references
+            // so any in-flight change-detection cycle always sees a consistent pair.
+            this.currentWeekStart = this.startOfDay(this.addDays(this.currentWeekStart, -7));
+            this.currentWeekEnd   = this.endOfDay(this.addDays(this.currentWeekEnd,   -7));
+            // Clear stale lessons immediately so the template never shows the wrong week
+            this.weeklyLessons = [];
         } else {
             this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
             this.generateMonthlyCalendar();
@@ -1048,8 +1085,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     navigateNext() {
         if (this.selectedCalendarView === 'week') {
-            this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
-            this.currentWeekEnd.setDate(this.currentWeekEnd.getDate() + 7);
+            this.currentWeekStart = this.startOfDay(this.addDays(this.currentWeekStart, 7));
+            this.currentWeekEnd   = this.endOfDay(this.addDays(this.currentWeekEnd,   7));
+            this.weeklyLessons = [];
         } else {
             this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
             this.generateMonthlyCalendar();
@@ -1060,7 +1098,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     navigateToday() {
         this.currentDate = new Date();
         this.setCurrentWeek();
-        if (this.selectedCalendarView === 'month') {
+        if (this.selectedCalendarView === 'week') {
+            this.weeklyLessons = [];
+        } else {
             this.generateMonthlyCalendar();
         }
         this.loadLessonsFromApi();
@@ -1143,6 +1183,22 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     /** Returns the display label for a raw status string (used by the active-filter chip). */
     getStatusLabel(status: string | LessonStatus): string {
         return resolveStatusLabel(status as string);
+    }
+
+    // ── Date helpers ─────────────────────────────────────────────────────────
+    /** Returns a new Date set to 00:00:00.000 on the same calendar day. */
+    private startOfDay(d: Date): Date {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+    }
+
+    /** Returns a new Date set to 23:59:59.999 on the same calendar day. */
+    private endOfDay(d: Date): Date {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+    }
+
+    /** Returns a new Date that is `days` days after (or before, if negative) `d`. */
+    private addDays(d: Date, days: number): Date {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
     }
 
     getStudentsString(lesson: Lesson): string {

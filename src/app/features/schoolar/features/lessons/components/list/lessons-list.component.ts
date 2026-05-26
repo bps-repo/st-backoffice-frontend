@@ -422,10 +422,13 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     levelOptions: { label: string; value: string }[] = [];
 
     readonly statusOptions = [
-        { label: 'Disponível', value: 'AVAILABLE' },
-        { label: 'Lecionada', value: 'COMPLETED' },
-        { label: 'Cancelada', value: 'CANCELLED' },
-        { label: 'Sem agendamento', value: 'OVERDUE' },
+        { label: 'Disponível',      value: 'AVAILABLE'    },
+        { label: 'Agendada',        value: 'SCHEDULED'    },
+        { label: 'Lecionada',       value: 'TAUGHT'       },
+        { label: 'Concluída',       value: 'COMPLETED'    },
+        { label: 'Não Lecionada',   value: 'NOT_TAUGHT'   },
+        { label: 'Reagendada',      value: 'RESCHEDULED'  },
+        { label: 'Cancelada',       value: 'CANCELLED'    },
     ];
 
     readonly onlineOptions = [
@@ -1154,47 +1157,25 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
-     * Get display label for lesson status
+     * Get display label for lesson status.
+     * Delegates to a shared lookup so the calendar cards stay consistent
+     * with the pipe-based labels used in the table view.
      */
     getStatusLabel(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                    return 'Disponível';
-                case 'BOOKED':
-                    return 'Agendada';
-                case 'COMPLETED':
-                    return 'Concluída';
-                case 'CANCELLED':
-                    return 'Cancelada';
-                case 'SCHEDULED':
-                    return 'Agendada';
-                case 'POSTPONED':
-                    return 'Adiada';
-                case 'OVERDUE':
-                    return 'Lecionada';
-                default:
-                    return status;
-            }
-        }
-        // Handle enum values
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-                return 'Disponível';
-            case LessonStatus.BOOKED:
-                return 'Agendada';
-            case LessonStatus.COMPLETED:
-                return 'Concluída';
-            case LessonStatus.CANCELLED:
-                return 'Cancelada';
-            case LessonStatus.SCHEDULED:
-                return 'Agendada';
-            case LessonStatus.POSTPONED:
-                return 'Adiada';
-            case LessonStatus.OVERDUE:
-                return 'Lecionada';
-            default:
-                return 'Desconhecido';
+        const key = typeof status === 'string' ? status.toUpperCase() : (status as string);
+        switch (key) {
+            case 'AVAILABLE':    return 'Disponível';
+            case 'BOOKED':       return 'Agendada';
+            case 'SCHEDULED':    return 'Agendada';
+            case 'COMPLETED':    return 'Concluída';
+            case 'CANCELLED':    return 'Cancelada';
+            case 'POSTPONED':    return 'Reagendada';
+            case 'RESCHEDULED':  return 'Reagendada';
+            case 'TAUGHT':       return 'Lecionada';
+            case 'NOT_TAUGHT':   return 'Não Lecionada';
+            /** @deprecated OVERDUE migrated to NOT_TAUGHT on first deploy */
+            case 'OVERDUE':      return 'Não Lecionada';
+            default:             return status as string;
         }
     }
 
@@ -1245,39 +1226,27 @@ export class LessonsListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
-     * Get CSS class for status
+     * Get PrimeNG badge severity class for calendar card status indicators.
      */
     private getStatusClass(status: string | LessonStatus): string {
-        if (typeof status === 'string') {
-            switch (status.toUpperCase()) {
-                case 'AVAILABLE':
-                case 'COMPLETED':
-                    return 'success';
-                case 'BOOKED':
-                case 'SCHEDULED':
-                    return 'warning';
-                case 'CANCELLED':
-                case 'OVERDUE':
-                    return 'info';
-                case 'POSTPONED':
-                    return 'info';
-                default:
-                    return 'secondary';
-            }
-        }
-        // Handle enum values
-        switch (status) {
-            case LessonStatus.AVAILABLE:
-            case LessonStatus.COMPLETED:
+        const key = typeof status === 'string' ? status.toUpperCase() : (status as string);
+        switch (key) {
+            case 'AVAILABLE':
+            case 'COMPLETED':
+            case 'TAUGHT':
                 return 'success';
-            case LessonStatus.BOOKED:
-            case LessonStatus.SCHEDULED:
+            case 'BOOKED':
+            case 'SCHEDULED':
+                return 'info';
+            case 'POSTPONED':
+            case 'RESCHEDULED':
                 return 'warning';
-            case LessonStatus.CANCELLED:
-            case LessonStatus.OVERDUE:
-                return 'info';
-            case LessonStatus.POSTPONED:
-                return 'info';
+            case 'NOT_TAUGHT':
+            /** @deprecated OVERDUE migrated to NOT_TAUGHT on first deploy */
+            case 'OVERDUE':
+                return 'danger';
+            case 'CANCELLED':
+                return 'danger';
             default:
                 return 'secondary';
         }

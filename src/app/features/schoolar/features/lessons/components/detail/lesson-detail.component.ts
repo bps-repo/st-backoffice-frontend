@@ -112,11 +112,14 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
     // Status options for the update dropdown
     lessonStatusOptions = [
-        { label: 'Disponível',  value: LessonStatus.AVAILABLE },
-        { label: 'Agendada',    value: LessonStatus.BOOKED },
-        { label: 'Concluída',   value: LessonStatus.COMPLETED },
-        { label: 'Cancelada',   value: LessonStatus.CANCELLED },
-        { label: 'Adiada',      value: LessonStatus.POSTPONED },
+        { label: 'Disponível',      value: LessonStatus.AVAILABLE    },
+        { label: 'Agendada',        value: LessonStatus.BOOKED       },
+        { label: 'Concluída',       value: LessonStatus.COMPLETED    },
+        { label: 'Lecionada',       value: LessonStatus.TAUGHT       },
+        { label: 'Não Lecionada',   value: LessonStatus.NOT_TAUGHT   },
+        { label: 'Reagendada',      value: LessonStatus.RESCHEDULED  },
+        { label: 'Cancelada',       value: LessonStatus.CANCELLED    },
+        { label: 'Adiada',          value: LessonStatus.POSTPONED    },
     ];
 
     // Type options for the update dropdown
