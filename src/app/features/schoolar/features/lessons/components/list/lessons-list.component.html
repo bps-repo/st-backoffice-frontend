@@ -222,12 +222,12 @@
             <div class="col-12 md:col-6 field">
                 <label>Professor</label>
                 <p-select [options]="teacherOptions" [(ngModel)]="filterTeacherId" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-select>
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-select>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Centro</label>
                 <p-select [options]="centerOptions" [(ngModel)]="filterCenterId" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-select>
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-select>
             </div>
         </div>
 
@@ -235,12 +235,12 @@
             <div class="col-12 md:col-6 field">
                 <label>Unidade</label>
                 <p-select [options]="unitOptions" [(ngModel)]="filterUnitId" optionLabel="label" optionValue="value"
-                    placeholder="Todas" [showClear]="true" [filter]="true"></p-select>
+                    placeholder="Todas" [showClear]="true" [filter]="true" appendTo="body"></p-select>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Nível</label>
                 <p-select [options]="levelOptions" [(ngModel)]="filterLevelId" optionLabel="label" optionValue="value"
-                    placeholder="Todos" [showClear]="true" [filter]="true"></p-select>
+                    placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-select>
             </div>
         </div>
 
@@ -248,12 +248,12 @@
             <div class="col-12 md:col-6 field">
                 <label>Status</label>
                 <p-select [options]="statusOptions" [(ngModel)]="filterStatus" optionLabel="label" optionValue="value"
-                    placeholder="Todos" [showClear]="true"></p-select>
+                    placeholder="Todos" [showClear]="true" appendTo="body"></p-select>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Modalidade</label>
                 <p-select [options]="onlineOptions" [(ngModel)]="filterOnline" optionLabel="label" optionValue="value"
-                    placeholder="Todas" [showClear]="true"></p-select>
+                    placeholder="Todas" [showClear]="true" appendTo="body"></p-select>
             </div>
         </div>
 
@@ -261,12 +261,12 @@
             <div class="col-12 md:col-6 field">
                 <label>Data início</label>
                 <p-datepicker [(ngModel)]="filterStartDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
-                    [showIcon]="true"></p-datepicker>
+                    [showIcon]="true" appendTo="body"></p-datepicker>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Data fim</label>
                 <p-datepicker [(ngModel)]="filterEndDate" [showTime]="true" dateFormat="dd/mm/yy" [showClear]="true"
-                    [showIcon]="true"></p-datepicker>
+                    [showIcon]="true" appendTo="body"></p-datepicker>
             </div>
         </div>
 
@@ -290,12 +290,12 @@
             <div class="col-12 md:col-8 field">
                 <label>Ordenar por</label>
                 <p-select [options]="sortFieldOptions" [(ngModel)]="filterSortField" optionLabel="label"
-                    optionValue="value" placeholder="Padrão" [showClear]="true"></p-select>
+                    optionValue="value" placeholder="Padrão" [showClear]="true" appendTo="body"></p-select>
             </div>
             <div class="col-12 md:col-4 field">
                 <label>Direção</label>
                 <p-select [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection" optionLabel="label"
-                    optionValue="value"></p-select>
+                    optionValue="value" appendTo="body"></p-select>
             </div>
         </div>
 

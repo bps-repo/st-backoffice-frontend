@@ -346,12 +346,12 @@
             <div class="col-12 md:col-6 field">
                 <label>Professor</label>
                 <p-dropdown [options]="teacherOptions" [(ngModel)]="filterTeacherId" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Centro</label>
                 <p-dropdown [options]="centerOptions" [(ngModel)]="filterCenterId" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
             </div>
         </div>
 
@@ -359,12 +359,12 @@
             <div class="col-12 md:col-6 field">
                 <label>Unidade</label>
                 <p-dropdown [options]="unitOptions" [(ngModel)]="filterUnitId" optionLabel="label"
-                    optionValue="value" placeholder="Todas" [showClear]="true" [filter]="true"></p-dropdown>
+                    optionValue="value" placeholder="Todas" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Nível</label>
                 <p-dropdown [options]="levelOptions" [(ngModel)]="filterLevelId" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true"></p-dropdown>
+                    optionValue="value" placeholder="Todos" [showClear]="true" [filter]="true" appendTo="body"></p-dropdown>
             </div>
         </div>
 
@@ -372,12 +372,12 @@
             <div class="col-12 md:col-6 field">
                 <label>Status</label>
                 <p-dropdown [options]="statusOptions" [(ngModel)]="filterStatus" optionLabel="label"
-                    optionValue="value" placeholder="Todos" [showClear]="true"></p-dropdown>
+                    optionValue="value" placeholder="Todos" [showClear]="true" appendTo="body"></p-dropdown>
             </div>
             <div class="col-12 md:col-6 field">
                 <label>Modalidade</label>
                 <p-dropdown [options]="onlineOptions" [(ngModel)]="filterOnline" optionLabel="label"
-                    optionValue="value" placeholder="Todas" [showClear]="true"></p-dropdown>
+                    optionValue="value" placeholder="Todas" [showClear]="true" appendTo="body"></p-dropdown>
             </div>
         </div>
 
@@ -413,12 +413,12 @@
             <div class="col-12 md:col-8 field">
                 <label>Ordenar por</label>
                 <p-dropdown [options]="sortFieldOptions" [(ngModel)]="filterSortField" optionLabel="label"
-                    optionValue="value" placeholder="Padrão" [showClear]="true"></p-dropdown>
+                    optionValue="value" placeholder="Padrão" [showClear]="true" appendTo="body"></p-dropdown>
             </div>
             <div class="col-12 md:col-4 field">
                 <label>Direção</label>
                 <p-dropdown [options]="sortDirectionOptions" [(ngModel)]="filterSortDirection" optionLabel="label"
-                    optionValue="value"></p-dropdown>
+                    optionValue="value" appendTo="body"></p-dropdown>
             </div>
         </div>
 

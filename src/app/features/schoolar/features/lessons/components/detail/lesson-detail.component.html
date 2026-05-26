@@ -93,15 +93,12 @@
                             </p-splitButton>
                             <p-button
                                 icon="pi pi-file-pdf"
-                                label="Exportar PDF"
+                                label="Exportar resumo em PDF"
                                 [outlined]="true"
                                 size="small"
                                 pTooltip="Descarregar resumo em PDF"
                                 [loading]="pdfLoading()"
                                 (click)="exportLesson(lesson)">
-                            </p-button>
-                            <p-button icon="pi pi-print" label="Imprimir" [outlined]="true" size="small"
-                                (click)="printLesson(lesson)">
                             </p-button>
                         </div>
                     </div>
@@ -389,6 +386,7 @@
                                                     [(ngModel)]="attendance.attendance.status" optionLabel="label"
                                                     optionValue="value" [disabled]="loadingAttendances()"
                                                     (onChange)="onAttendanceStatusChange(attendance, $event.value)"
+                                                    appendTo="body"
                                                     styleClass="w-full">
                                                 </p-dropdown>
                                             </div>

@@ -29,6 +29,7 @@ import {ChipsModule} from "primeng/chips";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {InputTextModule} from "primeng/inputtext";
 import {DropdownModule} from "primeng/dropdown";
+import {DialogModule} from "primeng/dialog";
 import {FormsModule} from "@angular/forms";
 import {StudentsDashboardComponent} from "../../../dashboard/components/students/student-dashboard.component";
 import {StudentReports} from "../../../reports/components/student/student-reports.component";
@@ -54,6 +55,7 @@ import {AppState} from 'src/app/core/store';
         SelectButtonModule,
         InputTextModule,
         DropdownModule,
+        DialogModule,
         FormsModule,
         StudentsDashboardComponent,
         StudentReports,
@@ -94,15 +96,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @ViewChild('typeTemplate', {static: true})
     typeTemplate!: TemplateRef<any>;
-
-    @ViewChild('statusFilterTemplate', {static: true})
-    statusFilterTemplate!: TemplateRef<any>;
-
-    @ViewChild('centerFilterTemplate', {static: true})
-    centerFilterTemplate!: TemplateRef<any>;
-
-    @ViewChild('levelFilterTemplate', {static: true})
-    levelFilterTemplate!: TemplateRef<any>;
 
     // References to sticky header elements
     @ViewChild('mainHeader', {static: false})
@@ -145,7 +138,34 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     globalFilterFields: string[] = GLOBAL_FILTERS;
 
     customTemplates: Record<string, TemplateRef<any>> = {};
-    filterTemplates: Record<string, TemplateRef<any>> = {};
+
+    // Filter dialog state
+    showFilterDialog = false;
+    filterStatus: string | null = null;
+    filterCenterId: string | null = null;
+    filterLevelId: string | null = null;
+    filterProvince: string | null = null;
+    filterMunicipality: string | null = null;
+
+    private centersCache: { id: string; name: string }[] = [];
+    private levelsCache: { id: string; name: string }[] = [];
+
+    get hasActiveFilters(): boolean {
+        return !!(this.filterStatus || this.filterCenterId || this.filterLevelId ||
+            this.filterProvince || this.filterMunicipality);
+    }
+
+    getStatusLabel(status: string): string {
+        return this.statusOptions.find(o => o.value === status)?.label ?? status;
+    }
+
+    getCenterLabel(centerId: string): string {
+        return this.centersCache.find(c => c.id === centerId)?.name ?? centerId;
+    }
+
+    getLevelLabel(levelId: string): string {
+        return this.levelsCache.find(l => l.id === levelId)?.name ?? levelId;
+    }
 
     headerActions: TableHeaderAction[] = HEADER_ACTIONS;
 
@@ -216,9 +236,12 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.loading$ = this.store.select(StudentSelectors.selectLoading);
 
-        this.store.select(StudentSelectors.selectIds).subscribe(selectedStudentIds => {
-            console.log(selectedStudentIds)
-        })
+        this.centers$.pipe(takeUntil(this.destroy$)).subscribe(centers => {
+            this.centersCache = centers ?? [];
+        });
+        this.levels$.pipe(takeUntil(this.destroy$)).subscribe(levels => {
+            this.levelsCache = levels ?? [];
+        });
 
         // Initialize chart options
         this.chartOptions = {
@@ -344,12 +367,6 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             vip: this.typeTemplate,
         };
 
-        this.filterTemplates = {
-            status: this.statusFilterTemplate,
-            centerId: this.centerFilterTemplate,
-            levelId: this.levelFilterTemplate,
-        };
-
         // Initialize sticky state check after view is initialized
         setTimeout(() => {
             this.checkStickyState();
@@ -446,6 +463,44 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             size: this.DEFAULT_PAGE_SIZE,
             sort: this.DEFAULT_SORT,
         }));
+    }
+
+    applyDialogFilters(): void {
+        this.searchFilters = {};
+
+        if (this.filterStatus) this.searchFilters.status = this.filterStatus;
+        if (this.filterCenterId) (this.searchFilters as any).centerId = this.filterCenterId;
+        if (this.filterLevelId) (this.searchFilters as any).levelId = this.filterLevelId;
+        if (this.filterProvince) this.searchFilters.province = this.filterProvince;
+        if (this.filterMunicipality) this.searchFilters.municipality = this.filterMunicipality;
+
+        if (this.hasActiveFilters || this.searchTerm.trim()) {
+            this.performColumnFilter();
+            this.isSearchMode$.next(true);
+        } else {
+            this.clearSearch();
+        }
+    }
+
+    clearFilters(): void {
+        this.filterStatus = null;
+        this.filterCenterId = null;
+        this.filterLevelId = null;
+        this.filterProvince = null;
+        this.filterMunicipality = null;
+        this.clearSearch();
+    }
+
+    onDialogProvinceChange(value: string | null): void {
+        this.filterMunicipality = null;
+        if (value) {
+            this.municipalities$ = this.store.select(LocationSelectors.selectMunicipalitiesByProvinceId(value)).pipe(
+                map(municipalities => municipalities.map(m => ({label: m.name, value: m.name.toLowerCase()} as SelectItem)))
+            );
+            this.loadMunicipalities(value);
+        } else {
+            this.municipalities$ = of([]);
+        }
     }
 
     onColumnFilter(field: string, value: any): void {
