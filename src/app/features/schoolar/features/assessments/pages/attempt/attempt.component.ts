@@ -1,152 +1,196 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Subject, takeUntil} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {DropdownModule} from 'primeng/dropdown';
-import {TabViewModule} from 'primeng/tabview';
-import {Exam} from 'src/app/core/models/academic/exam';
-import {selectSelectedExam} from 'src/app/core/store/schoolar/assessments/exams.selectors';
-import {SkillCategory} from 'src/app/core/enums/skill-category';
-import {AssessmentService} from 'src/app/core/services/assessment.service';
+// src/app/features/schoolar/features/assessments/pages/attempt/attempt.component.ts
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextarea } from 'primeng/inputtextarea';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToastModule } from 'primeng/toast';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TagModule } from 'primeng/tag';
+import { MessageService } from 'primeng/api';
+import { AssessmentService } from 'src/app/core/services/assessment.service';
+import { AssessmentBookingService } from 'src/app/core/services/assessment-booking.service';
+import { Assessment } from 'src/app/core/models/academic/assessment';
+import { AssessmentBooking } from 'src/app/core/models/academic/assessment-booking';
+import { EvaluationType } from 'src/app/core/enums/evaluation-type';
+import { forkJoin } from 'rxjs';
 
-interface SkillEvaluation {
+interface SkillRow {
+    skillId: string;
+    skillName: string;
     score: number;
     feedback: string;
 }
 
-interface StudentAttempt {
-    studentId: string;
-    studentName: string;
-    assessmentId: string;
-    date: Date;
-    skillEvaluations: Record<SkillCategory, SkillEvaluation>;
+interface UnitRow {
+    unitId: string;
+    unitName: string;
+    score: number;
+    feedback: string;
 }
 
 @Component({
     selector: 'app-attempt',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
         CommonModule,
         FormsModule,
         ButtonModule,
-        CardModule,
-        InputTextModule,
         InputNumberModule,
+        InputTextarea,
         DropdownModule,
-        TabViewModule
+        ToastModule,
+        ProgressSpinnerModule,
+        TagModule,
     ],
-    templateUrl: './attempt.component.html'
+    providers: [MessageService],
+    templateUrl: './attempt.component.html',
 })
-export class AttemptComponent implements OnInit, OnDestroy {
+export class AttemptComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
-    private store = inject(Store);
     private assessmentService = inject(AssessmentService);
+    private bookingService = inject(AssessmentBookingService);
+    private messageService = inject(MessageService);
 
-    exam: Exam | null = null;
-    students: any[] = []; // This would be populated from a service
-    selectedStudent: any = null;
+    readonly EvaluationType = EvaluationType;
 
-    attempt: StudentAttempt = {
-        studentId: '',
-        studentName: '',
-        assessmentId: '',
-        date: new Date(),
-        skillEvaluations: {} as Record<SkillCategory, SkillEvaluation>
-    };
+    readonly assessment = signal<Assessment | null>(null);
+    readonly bookings = signal<AssessmentBooking[]>([]);
+    readonly loading = signal(true);
+    readonly submitting = signal(false);
 
-    // Convert enum to array for UI
-    skillCategories = Object.keys(SkillCategory)
-        .filter(key => isNaN(Number(key)))
-        .map(key => ({
-            label: key,
-            value: SkillCategory[key as keyof typeof SkillCategory]
-        }));
+    readonly selectedStudentId = signal<string | null>(null);
+    readonly skillRows = signal<SkillRow[]>([]);
+    readonly unitRows = signal<UnitRow[]>([]);
 
-    private destroy$ = new Subject<void>();
+    readonly canSubmit = computed(() =>
+        !!this.selectedStudentId() && !this.submitting() && !!this.assessment()
+    );
+
+    readonly studentOptions = computed(() =>
+        this.bookings().map((b) => ({ label: b.studentName, value: b.studentId }))
+    );
 
     ngOnInit(): void {
-        // Initialize empty skill evaluations for each skill category
-        this.skillCategories.forEach(category => {
-            this.attempt.skillEvaluations[category.value] = {
-                score: 0,
-                feedback: ''
-            };
-        });
-
-        // Get the assessment ID from the route
-        this.route.params
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(params => {
-                const id = params['id'];
-                if (id) {
-                    this.attempt.assessmentId = id;
-                    // Load the exam details
-                    this.store.select(selectSelectedExam)
-                        .pipe(takeUntil(this.destroy$))
-                        .subscribe(exam => {
-                            this.exam = exam;
-                        });
-
-                    // In a real application, you would load the students for this assessment
-                    // For now, we'll use mock data
-                    this.students = [
-                        {id: '1', name: 'John Doe'},
-                        {id: '2', name: 'Jane Smith'},
-                        {id: '3', name: 'Bob Johnson'}
-                    ];
-                }
-            });
-    }
-
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
-
-    onStudentChange(): void {
-        if (this.selectedStudent) {
-            this.attempt.studentId = this.selectedStudent.id;
-            this.attempt.studentName = this.selectedStudent.name;
-        }
-    }
-
-    loading = false;
-
-    saveAttempt(): void {
-        if (!this.attempt.studentId) {
-            console.error('No student selected');
+        const assessmentId = this.route.snapshot.params['id'];
+        if (!assessmentId) {
+            this.router.navigate(['/schoolar/assessments']);
             return;
         }
 
-        this.loading = true;
-        this.assessmentService.submitAssessmentResult(
-            this.attempt.assessmentId,
-            this.attempt.studentId,
-            this.attempt as unknown as Record<string, unknown>
-        ).subscribe({
-            next: (result: unknown) => {
-                console.log('Attempt saved successfully:', result);
-                this.loading = false;
-                // Navigate back to the assessment details page
-                this.router.navigate(['/schoolar/assessments', this.attempt.assessmentId]);
+        forkJoin({
+            assessment: this.assessmentService.getAssessmentById(assessmentId),
+            bookings: this.bookingService.getBookingsByAssessment(assessmentId),
+        }).subscribe({
+            next: ({ assessment, bookings }) => {
+                this.assessment.set(assessment);
+                this.bookings.set(bookings);
+                this.initRows(assessment);
+                this.loading.set(false);
             },
-            error: (error: unknown) => {
-                console.error('Error saving attempt:', error);
-                this.loading = false;
-                // In a real application, you would show an error message to the user
-            }
+            error: (err: HttpErrorResponse) => {
+                this.loading.set(false);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: err.error?.error ?? 'Não foi possível carregar a avaliação.',
+                });
+            },
         });
     }
 
+    updateSkillScore(skillId: string, score: number): void {
+        this.skillRows.update((rows) =>
+            rows.map((r) => (r.skillId === skillId ? { ...r, score } : r))
+        );
+    }
+
+    updateSkillFeedback(skillId: string, feedback: string): void {
+        this.skillRows.update((rows) =>
+            rows.map((r) => (r.skillId === skillId ? { ...r, feedback } : r))
+        );
+    }
+
+    updateUnitScore(unitId: string, score: number): void {
+        this.unitRows.update((rows) =>
+            rows.map((r) => (r.unitId === unitId ? { ...r, score } : r))
+        );
+    }
+
+    updateUnitFeedback(unitId: string, feedback: string): void {
+        this.unitRows.update((rows) =>
+            rows.map((r) => (r.unitId === unitId ? { ...r, feedback } : r))
+        );
+    }
+
+    submit(): void {
+        const assessment = this.assessment();
+        const studentId = this.selectedStudentId();
+        if (!assessment || !studentId) return;
+
+        this.submitting.set(true);
+        this.assessmentService
+            .recordAttempt(assessment.id, {
+                studentId,
+                skillEvaluations: this.skillRows().map(({ skillId, score, feedback }) => ({
+                    skillId,
+                    score,
+                    feedback,
+                })),
+                unitEvaluations: this.unitRows().map(({ unitId, score, feedback }) => ({
+                    unitId,
+                    score,
+                    feedback,
+                })),
+            })
+            .subscribe({
+                next: () => {
+                    this.submitting.set(false);
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Sucesso',
+                        detail: 'Tentativa registada com sucesso.',
+                    });
+                    setTimeout(() => this.router.navigate(['/schoolar/assessments', assessment.id]), 1000);
+                },
+                error: (err: HttpErrorResponse) => {
+                    this.submitting.set(false);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erro',
+                        detail: err.error?.error ?? 'Não foi possível registar a tentativa.',
+                    });
+                },
+            });
+    }
+
     cancel(): void {
-        // Navigate back to the assessment details page without saving
-        this.router.navigate(['/schoolar/assessments', this.attempt.assessmentId]);
+        const id = this.assessment()?.id;
+        this.router.navigate(id ? ['/schoolar/assessments', id] : ['/schoolar/assessments']);
+    }
+
+    private initRows(assessment: Assessment): void {
+        this.skillRows.set(
+            (assessment.skills ?? []).map((s) => ({
+                skillId: s.id,
+                skillName: s.name,
+                score: 0,
+                feedback: '',
+            }))
+        );
+        this.unitRows.set(
+            (assessment.evaluatedUnits ?? []).map((u) => ({
+                unitId: u.id,
+                unitName: u.name,
+                score: 0,
+                feedback: '',
+            }))
+        );
     }
 }

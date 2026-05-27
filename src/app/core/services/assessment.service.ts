@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
-import { Assessment, AssessmentAttempt, CreateAssessmentRequest } from '../models/academic/assessment';
+import { Assessment, AssessmentAttempt, CreateAssessmentRequest, RecordAttemptRequest } from '../models/academic/assessment';
 
 export interface AssessmentListParams {
     page?: number;
@@ -97,13 +97,9 @@ export class AssessmentService {
         );
     }
 
-    /**
-     * Submits an assessment result for a student.
-     */
-    submitAssessmentResult(assessmentId: string, studentId: string, resultData: Record<string, unknown>): Observable<unknown> {
-        return this.http.post<ApiResponse<unknown>>(
-            `${this.apiUrl}/${assessmentId}/results/${studentId}`,
-            resultData
-        ).pipe(map((response) => response.data));
+    recordAttempt(assessmentId: string, body: RecordAttemptRequest): Observable<AssessmentAttempt> {
+        return this.http
+            .post<ApiResponse<AssessmentAttempt>>(`${this.apiUrl}/${assessmentId}/record-attempt`, body)
+            .pipe(map((res) => res.data));
     }
 }

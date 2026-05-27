@@ -78,3 +78,9 @@ export interface CreateAssessmentRequest {
     skillIds: string[];
     evaluatedUnitIds: string[];
 }
+
+export interface RecordAttemptRequest {
+    studentId: string;
+    skillEvaluations: { skillId: string; score: number; feedback: string }[];
+    unitEvaluations: { unitId: string; score: number; feedback: string }[];
+}
