@@ -77,7 +77,7 @@ export function resolveStatusSeverity(
         return 'planned';          // custom – handled via styleClass
     }
 
-    if (status === LessonStatus.POSTPONED || status === LessonStatus.RESCHEDULED) {
+    if (status === LessonStatus.POSTPONED || status === LessonStatus.RESCHEDULED || status === LessonStatus.RESCHEDULE) {
         return 'rescheduled';      // custom – amber
     }
 

@@ -80,7 +80,7 @@ export function resolveStatusLabel(
         return 'Aula Prevista';
     }
 
-    if (status === LessonStatus.POSTPONED || status === LessonStatus.RESCHEDULED) {
+    if (status === LessonStatus.POSTPONED || status === LessonStatus.RESCHEDULED || status === LessonStatus.RESCHEDULE) {
         return 'Aula Reagendada';
     }
 

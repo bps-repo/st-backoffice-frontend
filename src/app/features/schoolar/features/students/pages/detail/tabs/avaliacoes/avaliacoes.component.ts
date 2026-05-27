@@ -1,98 +1,122 @@
-import { Component, OnInit, inject } from '@angular/core';
+// src/app/features/schoolar/features/students/pages/detail/tabs/avaliacoes/avaliacoes.component.ts
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Input,
+    OnChanges,
+    OnDestroy,
+    SimpleChanges,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GlobalTable } from 'src/app/shared/components/tables/global-table/global-table.component';
-import { TableService } from 'src/app/shared/services/table.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subject, takeUntil } from 'rxjs';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
+import { AssessmentService } from '../../../../../../../../core/services/assessment.service';
+import { AssessmentAttempt } from '../../../../../../../../core/models/academic/assessment';
+import { EvaluationType } from '../../../../../../../../core/enums/evaluation-type';
 
 @Component({
     selector: 'app-avaliacoes',
-    imports: [GlobalTable, CommonModule],
-    templateUrl: './avaliacoes.component.html'
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [CommonModule, TableModule, TagModule, TooltipModule, ButtonModule, SkeletonModule],
+    templateUrl: './avaliacoes.component.html',
 })
-export class AvaliacoesComponent implements OnInit {
-    private tableService = inject<TableService<any>>(TableService);
+export class AvaliacoesComponent implements OnChanges, OnDestroy {
+    @Input() studentId: string | null = null;
 
-    evaluations: any[] = [
-        {
-            id: 1,
-            title: 'Midterm Exam',
-            date: '2023-03-15',
-            score: 85,
-            maxScore: 100,
-            grade: 'B',
-            subject: 'English Grammar',
-            teacher: 'John Smith'
-        },
-        {
-            id: 2,
-            title: 'Final Project',
-            date: '2023-05-20',
-            score: 92,
-            maxScore: 100,
-            grade: 'A',
-            subject: 'English Conversation',
-            teacher: 'Jane Doe'
-        },
-        {
-            id: 3,
-            title: 'Vocabulary Quiz',
-            date: '2023-02-10',
-            score: 78,
-            maxScore: 100,
-            grade: 'C',
-            subject: 'English Vocabulary',
-            teacher: 'John Smith'
-        }
-    ];
+    private assessmentService = inject(AssessmentService);
+    private destroy$ = new Subject<void>();
 
-    columns: any[] = [];
-    globalFilterFields: string[] = [];
+    readonly attempts = signal<AssessmentAttempt[]>([]);
+    readonly loading = signal(false);
+    readonly error = signal<string | null>(null);
+    readonly expandedRows = signal<Record<string, boolean>>({});
 
-    ngOnInit(): void {
-        // Define custom column templates for different filter types
-        this.columns = [
-            {
-                field: 'id',
-                header: 'ID',
-                filterType: 'text',
-            },
-            {
-                field: 'title',
-                header: 'Título',
-                filterType: 'text',
-            },
-            {
-                field: 'date',
-                header: 'Data',
-                filterType: 'date',
-            },
-            {
-                field: 'score',
-                header: 'Pontuação',
-                filterType: 'numeric',
-            },
-            {
-                field: 'maxScore',
-                header: 'Pontuação Máxima',
-                filterType: 'numeric',
-            },
-            {
-                field: 'grade',
-                header: 'Nota',
-                filterType: 'text',
-            },
-            {
-                field: 'subject',
-                header: 'Disciplina',
-                filterType: 'text',
-            },
-            {
-                field: 'teacher',
-                header: 'Professor',
-                filterType: 'text',
+    readonly totalAttempts = computed(() => this.attempts().length);
+    readonly passedCount = computed(() => this.attempts().filter((a) => a.passed).length);
+    readonly passRate = computed(() => {
+        const total = this.totalAttempts();
+        return total ? Math.round((this.passedCount() / total) * 100) : 0;
+    });
+    readonly bestScore = computed(() => {
+        const scores = this.attempts().map((a) => a.score);
+        return scores.length ? Math.max(...scores) : 0;
+    });
+
+    readonly EvaluationType = EvaluationType;
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['studentId'] && this.studentId) this.loadHistory();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    toggleRow(id: string): void {
+        this.expandedRows.update((m) => {
+            const next = { ...m };
+            if (next[id]) {
+                delete next[id];
+            } else {
+                next[id] = true;
             }
-        ];
+            return next;
+        });
+    }
 
-        // Populate globalFilterFields
-        this.globalFilterFields = this.columns.map(col => col.field);
+    reload(): void {
+        this.loadHistory();
+    }
+
+    getTypeLabel(type: string): string {
+        const map: Record<string, string> = {
+            QUIZ: 'Quiz',
+            MIDTERM: 'Intermédio',
+            PLACEMENT: 'Nivelamento',
+            FINAL: 'Final',
+            SKILL_CHECK: 'Competências',
+        };
+        return map[type] ?? type;
+    }
+
+    getTypeSeverity(type: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+        switch (type) {
+            case 'QUIZ': return 'info';
+            case 'MIDTERM': return 'warn';
+            case 'FINAL': return 'danger';
+            case 'PLACEMENT': return 'secondary';
+            case 'SKILL_CHECK': return 'success';
+            default: return 'info';
+        }
+    }
+
+    private loadHistory(): void {
+        if (!this.studentId) return;
+        this.loading.set(true);
+        this.error.set(null);
+        this.expandedRows.set({});
+        this.assessmentService
+            .getStudentHistory(this.studentId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (data) => {
+                    this.attempts.set(data ?? []);
+                    this.loading.set(false);
+                },
+                error: (err: HttpErrorResponse) => {
+                    this.error.set(err.error?.error ?? 'Não foi possível carregar o histórico de avaliações.');
+                    this.loading.set(false);
+                },
+            });
     }
 }

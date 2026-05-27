@@ -102,4 +102,10 @@ export class AssessmentService {
             .post<ApiResponse<AssessmentAttempt>>(`${this.apiUrl}/${assessmentId}/record-attempt`, body)
             .pipe(map((res) => res.data));
     }
+
+    getStudentHistory(studentId: string): Observable<AssessmentAttempt[]> {
+        return this.http
+            .get<ApiResponse<AssessmentAttempt[]>>(`${this.apiUrl}/student/${studentId}/history`)
+            .pipe(map((res) => res.data));
+    }
 }
