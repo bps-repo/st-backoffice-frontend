@@ -1,37 +1,24 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {ListComponent} from './pages/list/list.component';
-import {CreateComponent} from './pages/create/create.component';
-import {EditComponent} from './pages/edit/edit.component';
-import {DetailComponent} from './pages/detail/detail.component';
-import {AttemptComponent} from './pages/attempt/attempt.component';
+import { Routes } from '@angular/router';
 
-const routes: Routes = [
+export const AssessmentsRoutes: Routes = [
     {
         path: '',
-        component: ListComponent,
+        loadComponent: () => import('./pages/list/list.component').then((m) => m.ListComponent),
     },
     {
         path: 'create',
-        component: CreateComponent,
+        loadComponent: () => import('./pages/create/create.component').then((m) => m.CreateComponent),
     },
     {
         path: 'edit/:id',
-        component: EditComponent,
+        loadComponent: () => import('./pages/edit/edit.component').then((m) => m.EditComponent),
     },
     {
         path: 'attempt/:id',
-        component: AttemptComponent,
+        loadComponent: () => import('./pages/attempt/attempt.component').then((m) => m.AttemptComponent),
     },
     {
         path: ':id',
-        component: DetailComponent,
+        loadComponent: () => import('./pages/detail/detail.component').then((m) => m.DetailComponent),
     },
 ];
-
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
-})
-export class AssessmentsRoutes {
-}

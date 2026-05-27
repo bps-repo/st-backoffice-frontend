@@ -129,15 +129,15 @@ export class AttemptComponent implements OnInit, OnDestroy {
         this.assessmentService.submitAssessmentResult(
             this.attempt.assessmentId,
             this.attempt.studentId,
-            this.attempt
+            this.attempt as unknown as Record<string, unknown>
         ).subscribe({
-            next: (result) => {
+            next: (result: unknown) => {
                 console.log('Attempt saved successfully:', result);
                 this.loading = false;
                 // Navigate back to the assessment details page
                 this.router.navigate(['/schoolar/assessments', this.attempt.assessmentId]);
             },
-            error: (error) => {
+            error: (error: unknown) => {
                 console.error('Error saving attempt:', error);
                 this.loading = false;
                 // In a real application, you would show an error message to the user

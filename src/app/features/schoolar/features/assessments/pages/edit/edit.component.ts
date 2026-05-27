@@ -54,9 +54,9 @@ export class EditComponent implements OnInit {
             this.assessmentService.getAssessmentById(this.assessmentId).subscribe({
                 next: (data) => {
                     this.assessment = data;
-                    // Convert type to dropdown format if needed
-                    if (data.type && typeof data.type === 'string') {
-                        this.assessment.type = this.assessmentTypes.find(t => t.value === data.type) || null;
+                    // Convert assessmentType to dropdown format if needed
+                    if (data.assessmentType && typeof data.assessmentType === 'string') {
+                        this.assessment.assessmentType = this.assessmentTypes.find(t => t.value === data.assessmentType) || null;
                     }
                     this.loading = false;
                 },
