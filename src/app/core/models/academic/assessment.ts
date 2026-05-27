@@ -36,6 +36,35 @@ export interface Assessment {
     deleted: boolean;
 }
 
+export interface SkillEvaluation {
+    id: string;
+    skill: Skill;
+    score: number;
+    feedback: string;
+}
+
+export interface UnitEvaluation {
+    id: string;
+    unit: AssessmentUnit;
+    score: number;
+    feedback: string;
+}
+
+export interface AssessmentAttempt {
+    id: string;
+    studentId: string;
+    studentName: string;
+    assessment: Assessment;
+    attemptDate: string;
+    score: number;
+    passed: boolean;
+    skillEvaluations: SkillEvaluation[];
+    unitEvaluations: UnitEvaluation[];
+    createdAt: string;
+    updatedAt: string;
+    deleted: boolean;
+}
+
 export interface CreateAssessmentRequest {
     title: string;
     description: string;

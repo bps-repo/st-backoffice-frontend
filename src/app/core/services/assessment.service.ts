@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
-import { Assessment, CreateAssessmentRequest } from '../models/academic/assessment';
+import { Assessment, AssessmentAttempt, CreateAssessmentRequest } from '../models/academic/assessment';
 
 export interface AssessmentListParams {
     page?: number;
@@ -85,6 +85,15 @@ export class AssessmentService {
     getUnitAssessments(unitId: string): Observable<Assessment[]> {
         return this.http.get<ApiResponse<PageableResponse<Assessment>>>(`${this.unitsApiUrl}/${unitId}/assessments`).pipe(
             map((response) => response.data.content)
+        );
+    }
+
+    /**
+     * Gets the attempt history for an assessment.
+     */
+    getAssessmentHistory(assessmentId: string): Observable<AssessmentAttempt[]> {
+        return this.http.get<ApiResponse<AssessmentAttempt[]>>(`${this.apiUrl}/${assessmentId}/history`).pipe(
+            map((response) => response.data)
         );
     }
 

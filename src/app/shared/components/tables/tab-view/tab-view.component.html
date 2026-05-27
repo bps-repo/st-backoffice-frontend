@@ -1,14 +1,14 @@
 <p-tabView class="border-round-top-3xl" [scrollable]="true" [draggable]="false">
     <p-tabPanel
-        *ngFor="let tab of tabs "
+        *ngFor="let tab of tabs; let i = index"
         [header]="tab.header"
         [leftIcon]="tab.icon"
         [cache]="true"
         [style]="tab.style"
         draggable="false"
     >
-        <ng-container #dynamicComponentContainer>
-            <ng-container *ngComponentOutlet="tab.template; injector: getInjector(tab.data.token , tab.data?.value)"  ></ng-container>
+        <ng-container>
+            <ng-container *ngComponentOutlet="tab.template; injector: tabInjectors[i]"></ng-container>
         </ng-container>
     </p-tabPanel>
 </p-tabView>

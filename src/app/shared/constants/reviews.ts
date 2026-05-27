@@ -2,6 +2,7 @@ import { Tab } from '../@types/tab';
 import { GeneralComponent } from '../../features/schoolar/features/assessments/pages/detail/tabs/general/general.component';
 import { StudentsComponent } from '../../features/schoolar/features/assessments/pages/detail/tabs/students/students.component';
 import { ScoresComponent } from '../../features/schoolar/features/assessments/pages/detail/tabs/scores/scores.component';
+import { HistoryComponent } from '../../features/schoolar/features/assessments/pages/detail/tabs/history/history.component';
 import { ASSESSMENT_DETAIL_TOKEN } from '../tokens/assessment-detail.token';
 
 export const ASSESSMENTS_TABS: Tab[] = [
@@ -27,6 +28,14 @@ export const ASSESSMENTS_TABS: Tab[] = [
         title: 'Notas e Estatísticas',
         description: 'Notas e análise de desempenho',
         template: ScoresComponent,
+        data: { token: ASSESSMENT_DETAIL_TOKEN },
+    },
+    {
+        header: 'Histórico',
+        icon: 'pi pi-history',
+        title: 'Histórico de Tentativas',
+        description: 'Todas as tentativas registadas para esta avaliação',
+        template: HistoryComponent,
         data: { token: ASSESSMENT_DETAIL_TOKEN },
     },
 ];
