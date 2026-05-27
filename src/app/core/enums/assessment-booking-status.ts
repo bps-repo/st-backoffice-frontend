@@ -2,6 +2,6 @@
 export enum AssessmentBookingStatus {
     BOOKED = 'BOOKED',
     CANCELLED = 'CANCELLED',
-    ATTENDED = 'ATTENDED',
+    COMPLETED = 'COMPLETED',
     MISSED = 'MISSED',
 }

@@ -23,14 +23,6 @@ export const ASSESSMENTS_TABS: Tab[] = [
         data: { token: ASSESSMENT_DETAIL_TOKEN },
     },
     {
-        header: 'Notas',
-        icon: 'pi pi-chart-bar',
-        title: 'Notas e Estatísticas',
-        description: 'Notas e análise de desempenho',
-        template: ScoresComponent,
-        data: { token: ASSESSMENT_DETAIL_TOKEN },
-    },
-    {
         header: 'Histórico',
         icon: 'pi pi-history',
         title: 'Histórico de Tentativas',

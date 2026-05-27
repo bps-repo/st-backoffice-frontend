@@ -45,7 +45,7 @@ export class StudentsComponent implements OnInit {
     private bookingService = inject(AssessmentBookingService);
     private studentService = inject(StudentService);
     private messageService = inject(MessageService);
-    readonly assessment = inject<Assessment>(ASSESSMENT_DETAIL_TOKEN, { optional: true } as any);
+    readonly assessment = inject<Assessment | null>(ASSESSMENT_DETAIL_TOKEN, { optional: true });
 
     readonly bookings = signal<AssessmentBooking[]>([]);
     readonly loading = signal(true);
@@ -72,14 +72,14 @@ export class StudentsComponent implements OnInit {
     readonly statusLabels: Record<string, string> = {
         [AssessmentBookingStatus.BOOKED]: 'Agendado',
         [AssessmentBookingStatus.CANCELLED]: 'Cancelado',
-        [AssessmentBookingStatus.ATTENDED]: 'Compareceu',
+        [AssessmentBookingStatus.COMPLETED]: 'Compareceu',
         [AssessmentBookingStatus.MISSED]: 'Faltou',
     };
 
     readonly statusSeverity: Record<string, 'info' | 'success' | 'danger' | 'warn'> = {
         [AssessmentBookingStatus.BOOKED]: 'info',
         [AssessmentBookingStatus.CANCELLED]: 'danger',
-        [AssessmentBookingStatus.ATTENDED]: 'success',
+        [AssessmentBookingStatus.COMPLETED]: 'success',
         [AssessmentBookingStatus.MISSED]: 'warn',
     };
 

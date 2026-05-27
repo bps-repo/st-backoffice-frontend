@@ -19,13 +19,26 @@ import { ASSESSMENT_DETAIL_TOKEN } from 'src/app/shared/tokens/assessment-detail
 })
 export class HistoryComponent implements OnInit {
     private assessmentService = inject(AssessmentService);
-    readonly assessment = inject<Assessment>(ASSESSMENT_DETAIL_TOKEN, { optional: true } as any);
+    readonly assessment = inject<Assessment | null>(ASSESSMENT_DETAIL_TOKEN, { optional: true });
 
     readonly attempts = signal<AssessmentAttempt[]>([]);
     readonly loading = signal(true);
     readonly error = signal<string | null>(null);
+    readonly expandedRows = signal<Record<string, boolean>>({});
 
     readonly EvaluationType = EvaluationType;
+
+    toggleRow(id: string): void {
+        this.expandedRows.update((m) => {
+            const next = { ...m };
+            if (next[id]) {
+                delete next[id];
+            } else {
+                next[id] = true;
+            }
+            return next;
+        });
+    }
 
     ngOnInit(): void {
         if (!this.assessment?.id) {
