@@ -61,21 +61,13 @@
                     <label class="font-semibold">Tipo de Avaliação (Conteúdo) <span class="text-red-500">*</span></label>
                     <p-dropdown
                         [options]="evaluationTypeOptions"
-                        [(ngModel)]="evaluationType"
+                        [ngModel]="evaluationType()"
+                        (ngModelChange)="onEvaluationTypeChange($event)"
                         optionLabel="label"
                         optionValue="value"
                         placeholder="Selecione"
                         [showClear]="true"
                     ></p-dropdown>
-                    @if (evaluationType) {
-                        <small class="text-color-secondary mt-1 block">
-                            @if (isSkillsMode()) {
-                                Informe as habilidades que serão avaliadas abaixo.
-                            } @else {
-                                Informe as unidades que serão avaliadas abaixo.
-                            }
-                        </small>
-                    }
                 </div>
 
                 <!-- Status -->
@@ -87,21 +79,6 @@
                         optionLabel="label"
                         optionValue="value"
                         placeholder="Status"
-                    ></p-dropdown>
-                </div>
-
-                <!-- Unit (the unit this assessment belongs to) -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Unidade <span class="text-red-500">*</span></label>
-                    <p-dropdown
-                        [options]="unitOptions()"
-                        [(ngModel)]="unitId"
-                        optionLabel="label"
-                        optionValue="value"
-                        placeholder="Selecione a unidade"
-                        [showClear]="true"
-                        [filter]="true"
-                        filterPlaceholder="Buscar unidade..."
                     ></p-dropdown>
                 </div>
 
@@ -142,36 +119,55 @@
                     ></p-datepicker>
                 </div>
 
-                <!-- Skills (only when evaluationType = SKILLS) -->
+                <!-- Skills multi-selector — only when evaluationType = SKILLS -->
                 @if (isSkillsMode()) {
                     <div class="col-12 field">
                         <label class="font-semibold">Habilidades avaliadas <span class="text-red-500">*</span></label>
                         <p-multiSelect
-                            [options]="skillOptions"
+                            [options]="skillOptions()"
                             [(ngModel)]="selectedSkillIds"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Selecione as habilidades"
                             display="chip"
+                            [filter]="true"
+                            filterPlaceholder="Buscar habilidade..."
                         ></p-multiSelect>
                     </div>
                 }
 
-                <!-- Evaluated Units (only when evaluationType = UNITS) -->
+                <!-- Units mode: level first, then filtered units -->
                 @if (isUnitsMode()) {
-                    <div class="col-12 field">
-                        <label class="font-semibold">Unidades avaliadas <span class="text-red-500">*</span></label>
-                        <p-multiSelect
-                            [options]="unitOptions()"
-                            [(ngModel)]="selectedEvaluatedUnitIds"
+                    <div class="col-12 md:col-6 field">
+                        <label class="font-semibold">Nível <span class="text-red-500">*</span></label>
+                        <p-dropdown
+                            [options]="levelOptions()"
+                            [ngModel]="selectedLevelId()"
+                            (ngModelChange)="onLevelChange($event)"
                             optionLabel="label"
                             optionValue="value"
-                            placeholder="Selecione as unidades avaliadas"
-                            display="chip"
+                            placeholder="Selecione o nível"
+                            [showClear]="true"
                             [filter]="true"
-                            filterPlaceholder="Buscar unidade..."
-                        ></p-multiSelect>
+                            filterPlaceholder="Buscar nível..."
+                        ></p-dropdown>
                     </div>
+
+                    @if (hasLevelSelected()) {
+                        <div class="col-12 field">
+                            <label class="font-semibold">Unidades avaliadas <span class="text-red-500">*</span></label>
+                            <p-multiSelect
+                                [options]="filteredUnitOptions()"
+                                [(ngModel)]="selectedEvaluatedUnitIds"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Selecione as unidades avaliadas"
+                                display="chip"
+                                [filter]="true"
+                                filterPlaceholder="Buscar unidade..."
+                            ></p-multiSelect>
+                        </div>
+                    }
                 }
 
             </div>

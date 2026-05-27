@@ -1,34 +1,32 @@
-import {Tab} from '../@types/tab';
-import {GeneralComponent} from "../../features/schoolar/features/lessons/components/detail/tabs/general/general.component";
-import {
-    StudentsComponent
-} from "../../features/schoolar/features/lessons/components/detail/tabs/students/students.component";
-import {ScoresComponent} from "../../features/schoolar/features/assessments/pages/detail/tabs/scores/scores.component";
-import {STUDENT_DATA} from "../tokens/student.token";
+import { Tab } from '../@types/tab';
+import { GeneralComponent } from '../../features/schoolar/features/assessments/pages/detail/tabs/general/general.component';
+import { StudentsComponent } from '../../features/schoolar/features/assessments/pages/detail/tabs/students/students.component';
+import { ScoresComponent } from '../../features/schoolar/features/assessments/pages/detail/tabs/scores/scores.component';
+import { ASSESSMENT_DETAIL_TOKEN } from '../tokens/assessment-detail.token';
 
 export const ASSESSMENTS_TABS: Tab[] = [
     {
-        header: 'student Information',
+        header: 'Visão Geral',
         icon: 'pi pi-info-circle',
-        title: 'Evaluation Overview',
-        description: 'View general information about the evaluation',
+        title: 'Informações Gerais',
+        description: 'Informações gerais da avaliação',
         template: GeneralComponent,
-        data: { token: STUDENT_DATA }
+        data: { token: ASSESSMENT_DETAIL_TOKEN },
     },
     {
-        header: 'Students',
+        header: 'Alunos',
         icon: 'pi pi-users',
-        title: 'Evaluated Students',
-        description: 'View students who took this evaluation',
+        title: 'Alunos Avaliados',
+        description: 'Alunos que realizaram esta avaliação',
         template: StudentsComponent,
-        data: { token: STUDENT_DATA }
+        data: { token: ASSESSMENT_DETAIL_TOKEN },
     },
     {
-        header: 'Scores',
+        header: 'Notas',
         icon: 'pi pi-chart-bar',
-        title: 'Evaluation Scores',
-        description: 'View detailed scores and analytics',
+        title: 'Notas e Estatísticas',
+        description: 'Notas e análise de desempenho',
         template: ScoresComponent,
-        data: { token: STUDENT_DATA }
-    }
+        data: { token: ASSESSMENT_DETAIL_TOKEN },
+    },
 ];

@@ -1,141 +1,85 @@
-<div class="grid">
-    <!-- Header Section -->
-    <div class="col-12 flex flex-row justify-content-between align-items-center mb-4">
-        <div class="flex justify-between items-start mb-4">
-            <div class="flex flex-column">
-                <h1 class="text-3xl font-bold text-900 mb-1" *ngIf="assessment">{{ assessment.name }}</h1>
-                <p class="text-lg text-600 mb-0" *ngIf="assessment">{{ assessment.type }} • {{ assessment.level }} - {{
-                    assessment.unit }}</p>
-            </div>
+<!-- src/app/features/schoolar/features/assessments/pages/detail/detail.component.html -->
+<p-toast></p-toast>
+
+<div class="grid p-3">
+
+    @if (loading()) {
+        <div class="col-12 flex justify-content-center align-items-center p-6">
+            <p-progressSpinner strokeWidth="4" animationDuration=".8s"></p-progressSpinner>
         </div>
+    }
 
-        <!-- Action Buttons -->
-        <div class="flex gap-3 mb-4">
-            <button pButton label="Editar" icon="pi pi-pencil" class="p-button-outlined"></button>
-            <button pButton label="Lançar Notas" icon="pi pi-user-plus" class="p-button-outlined"></button>
-            <button pButton label="Exportar" icon="pi pi-download" class="p-button-primary"></button>
-            <button pButton label="Imprimir" icon="pi pi-print" class="p-button-danger"></button>
-        </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="col-12 mb-4">
-        <p-tabMenu [model]="tabItems" [activeItem]="tabItems[0]" styleClass="border-none"></p-tabMenu>
-    </div>
-
-    <!-- Overview Cards -->
-    <div class="col-12 mb-4" *ngIf="assessment">
-        <div class="grid">
-            <div class="col-12 md:col-4">
-                <div class="card text-center">
-                    <div class="flex align-items-center justify-content-center mb-3">
-                        <i class="pi pi-file text-blue-500 text-2xl mr-2"></i>
-                        <span class="text-900 font-medium text-xl">Status</span>
+    @if (assessment(); as a) {
+        <!-- Header -->
+        <div class="col-12 flex align-items-start justify-content-between gap-3 mb-2">
+            <div class="flex align-items-center gap-3">
+                <p-button
+                    icon="pi pi-arrow-left"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="goBack()"
+                    pTooltip="Voltar"
+                ></p-button>
+                <div>
+                    <div class="flex align-items-center gap-2 mb-1">
+                        <h1 class="text-2xl font-bold m-0">{{ a.title }}</h1>
+                        <p-tag
+                            [value]="statusLabel(a.status)"
+                            [severity]="statusSeverity(a.status)"
+                        ></p-tag>
                     </div>
-                    <span class="p-badge text-lg p-2" [ngClass]="{
-                        'p-badge-success': assessment.status === 'Concluída',
-                        'p-badge-warning': assessment.status === 'Pendente',
-                        'p-badge-info': assessment.status === 'Ativo',
-                        'p-badge-danger': assessment.status === 'Cancelado'
-                    }">
-                        {{ assessment.status }}
+                    <span class="text-color-secondary">
+                        {{ assessmentTypeLabels[a.assessmentType] }} &bull; {{ evaluationTypeLabels[a.evaluationType] }}
                     </span>
                 </div>
             </div>
 
-            <div class="col-12 md:col-4">
-                <div class="card text-center">
-                    <div class="flex align-items-center justify-content-center mb-3">
-                        <i class="pi pi-calendar text-blue-500 text-2xl mr-2"></i>
-                        <span class="text-900 font-medium text-xl">Data da Avaliação</span>
-                    </div>
-                    <div class="text-900 font-medium text-xl">{{ assessment.date }}</div>
-                </div>
+            <div class="flex gap-2">
+                <p-button
+                    label="Lançar Nota"
+                    icon="pi pi-user-plus"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="recordAttempt()"
+                ></p-button>
+                <p-button
+                    label="Editar"
+                    icon="pi pi-pencil"
+                    (onClick)="edit()"
+                ></p-button>
             </div>
+        </div>
 
-            <div class="col-12 md:col-4">
-                <div class="card text-center">
-                    <div class="flex align-items-center justify-content-center mb-3">
-                        <i class="pi pi-target text-blue-500 text-2xl mr-2"></i>
-                        <span class="text-900 font-medium text-xl">Pontuação Máxima</span>
-                    </div>
-                    <div class="text-900 font-medium text-xl">100</div>
+        <!-- Info strip -->
+        <div class="col-12 mb-3">
+            <div class="flex flex-wrap gap-4 surface-50 border-round p-3">
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-star text-color-secondary"></i>
+                    <span class="text-color-secondary text-sm">Nota mínima:</span>
+                    <span class="font-semibold">{{ a.passingScore }} pts</span>
+                </div>
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-calendar text-color-secondary"></i>
+                    <span class="text-color-secondary text-sm">Início:</span>
+                    <span class="font-semibold">{{ a.startDatetime | date: 'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-calendar-times text-color-secondary"></i>
+                    <span class="text-color-secondary text-sm">Término:</span>
+                    <span class="font-semibold">{{ a.endDatetime | date: 'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-clock text-color-secondary"></i>
+                    <span class="text-color-secondary text-sm">Criada em:</span>
+                    <span class="font-semibold">{{ a.createdAt | date: 'dd/MM/yyyy' }}</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Assessment Details Section -->
-    <div class="col-12 md:col-6 mb-4" *ngIf="assessment">
-        <div class="card">
-            <h3 class="text-xl font-semibold mb-4">Detalhes da Avaliação</h3>
-
-            <!-- Basic Information -->
-            <div class="mb-4">
-                <h4 class="text-lg font-medium mb-3">Informações Básicas</h4>
-                <div class="grid">
-                    <div class="col-12 mb-3">
-                        <label class="block text-sm font-medium text-600 mb-1">Tipo</label>
-                        <span class="text-900">{{ assessment.type || 'Prova Oral' }}</span>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label class="block text-sm font-medium text-600 mb-1">Unidade</label>
-                        <span class="text-900">{{ assessment.level }} - {{ assessment.unit }}</span>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label class="block text-sm font-medium text-600 mb-1">Aplicada a</label>
-                        <span class="text-900">{{ assessment.class }}</span>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label class="block text-sm font-medium text-600 mb-1">Criada em</label>
-                        <span class="text-900">{{ assessment.createdAt || '10/01/2024' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Evaluated Competencies -->
-            <div>
-                <h4 class="text-lg font-medium mb-3">Competências Avaliadas</h4>
-                <div class="flex gap-2 flex-wrap">
-                    <span class="p-badge p-badge-secondary" *ngFor="let competency of assessment.competencies">{{
-                        competency
-                        }}</span>
-                </div>
-            </div>
+        <!-- Tab content -->
+        <div class="col-12">
+            <app-tab-view [tabs]="tabs" [data]="a"></app-tab-view>
         </div>
-    </div>
+    }
 
-    <!-- Results Summary Section -->
-    <div class="col-12 md:col-6 mb-4" *ngIf="assessment">
-        <div class="card">
-            <h3 class="text-xl font-semibold mb-4">Resumo dos Resultados</h3>
-
-            <div class="grid">
-                <div class="col-12 md:col-4">
-                    <div class="text-center">
-                        <div class="text-900 font-bold text-3xl mb-1">{{ assessment.gradesCount || 1 }}</div>
-                        <div class="text-600 text-sm">Notas Lançadas</div>
-                    </div>
-                </div>
-                <div class="col-12 md:col-4">
-                    <div class="text-center">
-                        <div class="text-green-500 font-bold text-3xl mb-1">{{ assessment.average || 84.0 }}</div>
-                        <div class="text-600 text-sm">Média Geral</div>
-                    </div>
-                </div>
-                <div class="col-12 md:col-4">
-                    <div class="text-center">
-                        <div class="text-purple-500 font-bold text-3xl mb-1">{{ assessment.completionRate || '10%' }}
-                        </div>
-                        <div class="text-600 text-sm">Taxa de Conclusão</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="col-12">
-        <app-tab-view [tabs]="tabs" class="w-full"></app-tab-view>
-    </div>
 </div>

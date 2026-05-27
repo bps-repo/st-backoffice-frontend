@@ -45,7 +45,7 @@ export interface CreateAssessmentRequest {
     status: AssessmentStatus;
     startDatetime: string;
     endDatetime: string;
-    unitId: string;
+    unitId?: string;
     skillIds: string[];
     evaluatedUnitIds: string[];
 }
