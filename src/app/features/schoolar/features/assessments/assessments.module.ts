@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AssessmentsRoutes } from './assessments.routes';
 
 @NgModule({
-    imports: [AssessmentsRoutes, CommonModule],
+    imports: [CommonModule, AssessmentsRoutes],
     declarations: [],
 })
 export class AssessmentsModule {}

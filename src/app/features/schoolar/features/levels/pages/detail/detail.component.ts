@@ -489,7 +489,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                 progress: progress,
                 done: completed,
                 inProgress: inProgress,
-                chips: unit.assessments?.map(a => a.name) || []
+                chips: unit.assessments?.map(a => a.title) || []
             };
         });
 

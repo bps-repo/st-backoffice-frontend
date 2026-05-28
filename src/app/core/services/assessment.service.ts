@@ -1,9 +1,17 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable, inject} from '@angular/core';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
+// src/app/core/services/assessment.service.ts
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
+import { Assessment, AssessmentAttempt, CreateAssessmentRequest, RecordAttemptRequest } from '../models/academic/assessment';
+
+export interface AssessmentListParams {
+    page?: number;
+    size?: number;
+    sort?: string;
+}
 
 @Injectable({
     providedIn: 'root',
@@ -11,142 +19,99 @@ import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
 export class AssessmentService {
     private http = inject(HttpClient);
 
+    private apiUrl = `${environment.apiUrl}/assessments`;
     private unitsApiUrl = `${environment.apiUrl}/units`;
-    private assessmentsApiUrl = `${environment.apiUrl}/assessments`;
 
     /**
-     * Gets assessments for a specific unit.
-     * @param unitId The ID of the unit.
-     * @returns An observable containing an array of Assessment objects.
+     * Lists all assessments with pageable support.
      */
-    getUnitAssessments(unitId: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.unitsApiUrl}/${unitId}/assessments`).pipe(
-            map((response) => response.data.content as any[])
-        );
-    }
-
-    /**
-     * Gets all assessments.
-     * @returns An observable containing an array of Assessment objects.
-     */
-    getAssessments(): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(this.assessmentsApiUrl).pipe(
-            map((response) => response.data.content as any[])
-        );
+    listAssessments(params: AssessmentListParams = {}): Observable<ApiResponse<PageableResponse<Assessment>>> {
+        let httpParams = new HttpParams();
+        if (params.page !== undefined) httpParams = httpParams.set('page', params.page);
+        if (params.size !== undefined) httpParams = httpParams.set('size', params.size);
+        if (params.sort) httpParams = httpParams.set('sort', params.sort);
+        return this.http.get<ApiResponse<PageableResponse<Assessment>>>(this.apiUrl, { params: httpParams });
     }
 
     /**
      * Gets an assessment by ID.
-     * @param id The ID of the assessment.
-     * @returns An observable containing the Assessment object.
      */
-    getAssessmentById(id: string): Observable<any> {
-        return this.http.get<ApiResponse<any>>(`${this.assessmentsApiUrl}/${id}`).pipe(
+    getAssessmentById(id: string): Observable<Assessment> {
+        return this.http.get<ApiResponse<Assessment>>(`${this.apiUrl}/${id}`).pipe(
             map((response) => response.data)
         );
     }
 
     /**
-     * Creates a new assessment for a unit.
-     * @param unitId The ID of the unit.
-     * @param assessmentData The assessment data to create.
-     * @returns An observable containing the created Assessment object.
+     * Creates a new assessment.
      */
-    createAssessment(unitId: string, assessmentData: any): Observable<any> {
-        return this.http.post<ApiResponse<any>>(`${this.unitsApiUrl}/${unitId}/assessments`, assessmentData).pipe(
+    createAssessment(body: CreateAssessmentRequest): Observable<Assessment> {
+        return this.http.post<ApiResponse<Assessment>>(this.apiUrl, body).pipe(
             map((response) => response.data)
         );
     }
 
     /**
      * Updates an assessment.
-     * @param id The ID of the assessment.
-     * @param assessmentData The updated assessment data.
-     * @returns An observable containing the updated Assessment object.
      */
-    updateAssessment(id: string, assessmentData: any): Observable<any> {
-        return this.http.patch<ApiResponse<any>>(`${this.assessmentsApiUrl}/${id}`, assessmentData).pipe(
+    updateAssessment(id: string, body: Partial<CreateAssessmentRequest>): Observable<Assessment> {
+        return this.http.patch<ApiResponse<Assessment>>(`${this.apiUrl}/${id}`, body).pipe(
             map((response) => response.data)
         );
     }
 
     /**
      * Deletes an assessment.
-     * @param id The ID of the assessment to delete.
-     * @returns An observable containing the response.
      */
-    deleteAssessment(id: string): Observable<any> {
-        return this.http.delete<ApiResponse<any>>(`${this.assessmentsApiUrl}/${id}`).pipe(
+    deleteAssessment(id: string): Observable<void> {
+        return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`).pipe(
+            map(() => undefined)
+        );
+    }
+
+    /**
+     * Convenience wrapper — returns flat content array (page 0, size 100).
+     * Prefer listAssessments() when pagination is needed.
+     */
+    getAssessments(): Observable<Assessment[]> {
+        return this.listAssessments({ page: 0, size: 100 }).pipe(
+            map((res) => res.data.content)
+        );
+    }
+
+    /**
+     * Gets assessments for a specific unit.
+     */
+    getUnitAssessments(unitId: string): Observable<Assessment[]> {
+        return this.http.get<ApiResponse<PageableResponse<Assessment>>>(`${this.unitsApiUrl}/${unitId}/assessments`).pipe(
+            map((response) => response.data.content)
+        );
+    }
+
+    /**
+     * Gets the attempt history for an assessment.
+     */
+    getAssessmentHistory(assessmentId: string): Observable<AssessmentAttempt[]> {
+        return this.http.get<ApiResponse<AssessmentAttempt[]>>(`${this.apiUrl}/${assessmentId}/history`).pipe(
             map((response) => response.data)
         );
     }
 
-    /**
-     * Gets assessments by type.
-     * @param type The type to filter by.
-     * @returns An observable containing an array of Assessment objects.
-     */
-    getAssessmentsByType(type: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.assessmentsApiUrl}/by-type/${type}`).pipe(
-            map((response) => response.data.content as any[])
-        );
+    recordAttempt(assessmentId: string, body: RecordAttemptRequest): Observable<AssessmentAttempt> {
+        return this.http
+            .post<ApiResponse<AssessmentAttempt>>(`${this.apiUrl}/${assessmentId}/record-attempt`, body)
+            .pipe(map((res) => res.data));
     }
 
-    /**
-     * Gets assessments by date range.
-     * @param startDate The start date.
-     * @param endDate The end date.
-     * @returns An observable containing an array of Assessment objects.
-     */
-    getAssessmentsByDateRange(startDate: string, endDate: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.assessmentsApiUrl}/by-date-range/${startDate}/${endDate}`).pipe(
-            map((response) => response.data.content as any[])
-        );
+    getStudentHistory(studentId: string): Observable<AssessmentAttempt[]> {
+        return this.http
+            .get<ApiResponse<AssessmentAttempt[]>>(`${this.apiUrl}/student/${studentId}/history`)
+            .pipe(map((res) => res.data));
     }
 
-    /**
-     * Gets assessments by student.
-     * @param studentId The ID of the student.
-     * @returns An observable containing an array of Assessment objects.
-     */
-    getAssessmentsByStudent(studentId: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.assessmentsApiUrl}/by-student/${studentId}`).pipe(
-            map((response) => response.data.content as any[])
-        );
-    }
-
-    /**
-     * Submits an assessment result for a student.
-     * @param assessmentId The ID of the assessment.
-     * @param studentId The ID of the student.
-     * @param resultData The result data to submit.
-     * @returns An observable containing the submitted result.
-     */
-    submitAssessmentResult(assessmentId: string, studentId: string, resultData: any): Observable<any> {
-        return this.http.post<ApiResponse<any>>(`${this.assessmentsApiUrl}/${assessmentId}/results/${studentId}`, resultData).pipe(
-            map((response) => response.data)
-        );
-    }
-
-    /**
-     * Gets assessment results for a student.
-     * @param studentId The ID of the student.
-     * @returns An observable containing an array of assessment results.
-     */
-    getStudentAssessmentResults(studentId: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.assessmentsApiUrl}/results/student/${studentId}`).pipe(
-            map((response) => response.data.content as any[])
-        );
-    }
-
-    /**
-     * Gets assessment results for an assessment.
-     * @param assessmentId The ID of the assessment.
-     * @returns An observable containing an array of assessment results.
-     */
-    getAssessmentResults(assessmentId: string): Observable<any[]> {
-        return this.http.get<ApiResponse<PageableResponse<any[]>>>(`${this.assessmentsApiUrl}/${assessmentId}/results`).pipe(
-            map((response) => response.data.content as any[])
-        );
+    getAssessmentSummaryPdf(assessmentId: string): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${assessmentId}/summary/pdf`, {
+            responseType: 'blob',
+        });
     }
 }

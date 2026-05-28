@@ -163,16 +163,7 @@
 
         <!-- Avaliações Tab Content -->
         @if (currentView === 'assessments') {
-        <div class="col-12 animate-scale px-scalein">
-            <div class="card">
-                <h3>Avaliações</h3>
-                <p>Histórico de avaliações, notas e desempenho acadêmico do aluno.</p>
-                <!-- Placeholder content -->
-                <div class="mt-4 p-4 surface-100 border-round">
-                    <p>Informações de avaliações serão exibidas aqui.</p>
-                </div>
-            </div>
-        </div>
+        <app-avaliacoes [studentId]="studentId"></app-avaliacoes>
         }
 
         <!-- Frequências Tab Content -->

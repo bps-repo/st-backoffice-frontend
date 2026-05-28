@@ -25,6 +25,7 @@ import {StudentPaymentTabComponent} from "./tabs/payments/payment.tab.component"
 import {StudentLessonsTabComponent} from "./tabs/lessons/lessons.tab.component";
 import {GeneralComponent} from "./tabs/general/general.component";
 import {StudentCertificatesTabComponent} from "./tabs/certificates/certificates.tab.component";
+import {AvaliacoesComponent} from "./tabs/avaliacoes/avaliacoes.component";
 
 
 @Component({
@@ -49,6 +50,7 @@ import {StudentCertificatesTabComponent} from "./tabs/certificates/certificates.
         StudentLessonsTabComponent,
         GeneralComponent,
         StudentCertificatesTabComponent,
+        AvaliacoesComponent,
     ],
     providers: [DatePipe, MessageService],
     templateUrl: './detail.component.html',

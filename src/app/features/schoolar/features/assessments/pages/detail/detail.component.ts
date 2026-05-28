@@ -1,125 +1,141 @@
+// src/app/features/schoolar/features/assessments/pages/detail/detail.component.ts
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { TabViewModule } from 'primeng/tabview';
-import { Tab } from 'src/app/shared/@types/tab';
-import { TabViewComponent } from 'src/app/shared/components/tables/tab-view/tab-view.component';
-import { ASSESSMENTS_TABS } from 'src/app/shared/constants/reviews';
-import { Observable, Subject, takeUntil } from 'rxjs';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { MenuItem } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { selectSelectedExam } from 'src/app/core/store/schoolar/assessments/exams.selectors';
-import { Exam } from 'src/app/core/models/academic/exam';
-import { examsActions } from "../../../../../../core/store/schoolar/assessments/exams.actions";
+import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
+import { TabViewComponent } from 'src/app/shared/components/tables/tab-view/tab-view.component';
+import { AssessmentService } from 'src/app/core/services/assessment.service';
+import { Assessment } from 'src/app/core/models/academic/assessment';
+import { AssessmentStatus } from 'src/app/core/enums/assessment-status';
+import { AssessmentType } from 'src/app/core/enums/assessment-type';
+import { EvaluationType } from 'src/app/core/enums/evaluation-type';
+import { ASSESSMENTS_TABS } from 'src/app/shared/constants/reviews';
+import { Tab } from 'src/app/shared/@types/tab';
 
 @Component({
     selector: 'app-assessment-detail',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        TabMenuModule,
-        TabViewModule,
         CommonModule,
-        TabViewComponent,
-        SplitButtonModule,
         ButtonModule,
-        InputTextModule,
-        InputGroupModule,
-        InputGroupAddonModule,
+        TagModule,
+        ToastModule,
+        ProgressSpinnerModule,
+        TabViewComponent,
     ],
-    templateUrl: './detail.component.html'
+    providers: [MessageService],
+    templateUrl: './detail.component.html',
 })
-export class DetailComponent implements OnInit, OnDestroy {
+export class DetailComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
-    private store = inject(Store);
+    private assessmentService = inject(AssessmentService);
+    private messageService = inject(MessageService);
 
-    tabs!: Tab[];
-    items!: MenuItem[];
-    tabItems!: MenuItem[];
-    assessment: Exam | null = null;
-    private destroy$ = new Subject<void>();
+    readonly assessment = signal<Assessment | null>(null);
+    readonly loading = signal(true);
+    readonly exportingPdf = signal(false);
+    readonly tabs: Tab[] = ASSESSMENTS_TABS;
 
-    ngOnInit() {
-        this.tabs = ASSESSMENTS_TABS;
+    readonly assessmentTypeLabels: Record<AssessmentType, string> = {
+        [AssessmentType.QUIZ]: 'Quiz',
+        [AssessmentType.MIDTERM]: 'Prova Parcial',
+        [AssessmentType.PLACEMENT]: 'Nivelamento',
+        [AssessmentType.FINAL]: 'Prova Final',
+        [AssessmentType.SKILL_CHECK]: 'Verificação de Habilidades',
+    };
 
-        // Initialize tab items for the header navigation
-        this.tabItems = [
-            {
-                label: 'Visão Geral',
-                icon: 'pi pi-home'
+    readonly evaluationTypeLabels: Record<EvaluationType, string> = {
+        [EvaluationType.SKILLS]: 'Habilidades',
+        [EvaluationType.UNITS]: 'Unidades',
+    };
+
+    ngOnInit(): void {
+        const id = this.route.snapshot.params['id'];
+        if (!id) {
+            this.router.navigate(['/schoolar/assessments']);
+            return;
+        }
+
+        this.assessmentService.getAssessmentById(id).subscribe({
+            next: (assessment) => {
+                this.assessment.set(assessment);
+                this.loading.set(false);
             },
-            {
-                label: 'Notas (1)',
-                icon: 'pi pi-chart-bar'
+            error: (err: HttpErrorResponse) => {
+                this.loading.set(false);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: err.error?.error ?? 'Não foi possível carregar a avaliação.',
+                });
             },
-            {
-                label: 'Estatísticas',
-                icon: 'pi pi-chart-line'
-            }
-        ];
-
-        // Get the exam ID from the route
-        this.route.params
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(params => {
-                const id = params['id'];
-                if (id) {
-                    // Dispatch action to load the exam
-                    this.store.dispatch(examsActions.loadExam({ id }));
-                }
-            });
-
-        // Subscribe to the selected exam
-        this.store.select(selectSelectedExam)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(exam => {
-                this.assessment = exam;
-            });
-
-        this.items = [
-            {
-                label: 'Edit Evaluation',
-                icon: 'pi pi-pencil',
-                command: () => {
-                    if (this.assessment && this.assessment.id) {
-                        this.router.navigate(['/schoolar/assessments/edit', this.assessment.id]);
-                    } else {
-                        console.error('No exam selected or exam ID is missing');
-                    }
-                }
-            },
-            {
-                label: 'Record Student Attempt',
-                icon: 'pi pi-user-plus',
-                command: () => {
-                    if (this.assessment && this.assessment.id) {
-                        this.router.navigate(['/schoolar/assessments/attempt', this.assessment.id]);
-                    } else {
-                        console.error('No exam selected or exam ID is missing');
-                    }
-                }
-            },
-            { separator: true },
-            { label: 'Print Evaluation Report', icon: 'pi pi-file-pdf' },
-            { label: 'Export Results', icon: 'pi pi-file-excel' },
-            { separator: true },
-            {
-                label: 'Cancel Evaluation',
-                icon: 'pi pi-times',
-                styleClass: 'text-red-500',
-                tooltip: 'Cancel this evaluation',
-            },
-        ];
+        });
     }
 
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
+    statusSeverity(status: AssessmentStatus): 'success' | 'warn' | 'danger' | 'secondary' | 'info' {
+        const map: Record<AssessmentStatus, 'success' | 'warn' | 'danger' | 'secondary' | 'info'> = {
+            [AssessmentStatus.ACTIVE]: 'success',
+            [AssessmentStatus.DRAFT]: 'warn',
+            [AssessmentStatus.INACTIVE]: 'secondary',
+            [AssessmentStatus.ARCHIVED]: 'secondary',
+        };
+        return map[status] ?? 'info';
+    }
+
+    statusLabel(status: AssessmentStatus): string {
+        const map: Record<AssessmentStatus, string> = {
+            [AssessmentStatus.ACTIVE]: 'Ativa',
+            [AssessmentStatus.DRAFT]: 'Rascunho',
+            [AssessmentStatus.INACTIVE]: 'Inativa',
+            [AssessmentStatus.ARCHIVED]: 'Arquivada',
+        };
+        return map[status] ?? status;
+    }
+
+    edit(): void {
+        const id = this.assessment()?.id;
+        if (id) this.router.navigate(['/schoolar/assessments/edit', id]);
+    }
+
+    recordAttempt(): void {
+        const id = this.assessment()?.id;
+        if (id) this.router.navigate(['/schoolar/assessments/attempt', id]);
+    }
+
+    exportSummaryPdf(): void {
+        const assessment = this.assessment();
+        if (!assessment) return;
+
+        this.exportingPdf.set(true);
+        this.assessmentService.getAssessmentSummaryPdf(assessment.id).subscribe({
+            next: (blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `avaliacao-${assessment.id}-resumo.pdf`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.exportingPdf.set(false);
+            },
+            error: (err: HttpErrorResponse) => {
+                this.exportingPdf.set(false);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: err.error?.error ?? 'Não foi possível exportar o resumo.',
+                });
+            },
+        });
+    }
+
+    goBack(): void {
+        this.router.navigate(['/schoolar/assessments']);
     }
 }

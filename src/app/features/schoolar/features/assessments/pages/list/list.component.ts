@@ -1,268 +1,174 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, HostListener, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+// src/app/features/schoolar/features/assessments/pages/list/list.component.ts
 import {
-    TableColumn,
-} from 'src/app/shared/components/tables/global-table/global-table.component';
-import { TableService } from 'src/app/shared/services/table.service';
-import { Router } from "@angular/router";
-import { AssessmentService } from 'src/app/core/services/assessment.service';
-import { CardModule } from 'primeng/card';
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+    signal,
+    computed,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
+import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
-import { TabViewModule } from 'primeng/tabview';
-import { BadgeModule } from 'primeng/badge';
+import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { FormsModule } from '@angular/forms';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { AssessmentService } from 'src/app/core/services/assessment.service';
+import { Assessment } from 'src/app/core/models/academic/assessment';
+import { AssessmentType } from 'src/app/core/enums/assessment-type';
+import { AssessmentStatus } from 'src/app/core/enums/assessment-status';
 
 @Component({
     selector: 'app-assessments-list',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonModule,
-        CardModule,
+        FormsModule,
         ButtonModule,
-        InputTextModule,
+        CardModule,
         DropdownModule,
-        TabViewModule,
-        BadgeModule,
+        InputTextModule,
         TableModule,
         TagModule,
         TooltipModule,
-        FormsModule,
-        SelectButtonModule
+        ToastModule,
+        ConfirmDialogModule,
     ],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './list.component.html',
-    styles: [`
-        ::ng-deep .p-selectbutton {
-            display: flex;
-            flex-wrap: nowrap;
-        }
-
-        ::ng-deep .p-selectbutton .p-button {
-            margin-right: 0.5rem;
-            border: none;
-        }
-
-        ::ng-deep .p-selectbutton .p-button:last-child {
-            margin-right: 0;
-        }
-
-        .sticky-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .sticky-active {
-            background-color: var(--surface-card);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .animate-fade {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-    `]
 })
-export class ListComponent implements OnInit, AfterViewInit {
-    private tableService = inject<TableService<any>>(TableService);
-    private router = inject(Router);
+export class ListComponent implements OnInit {
     private assessmentService = inject(AssessmentService);
+    private router = inject(Router);
+    private messageService = inject(MessageService);
+    private confirmationService = inject(ConfirmationService);
 
-    @ViewChild('mainHeader') mainHeader!: ElementRef;
-    @ViewChild('viewSelector') viewSelector!: ElementRef;
+    readonly assessments = signal<Assessment[]>([]);
+    readonly loading = signal(false);
+    readonly totalRecords = signal(0);
+    readonly pageSize = signal(10);
+    readonly currentPage = signal(0);
 
-    assessments: any[] = []; // This would be populated from a service
-    columns: TableColumn[] = [];
-    globalFilterFields: string[] = [];
-    loading = false;
+    readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
-    // KPI metrics
-    totalAssessments = 2;
-    activeAssessments = 1;
-    completedAssessments = 1;
-    gradesReleased = 1;
-
-    // Current view and filters
-    currentView = 'list';
-    searchTerm = '';
-    typeFilter = '';
-    statusFilter = '';
-
-    // Sticky state tracking
-    isMainHeaderSticky = false;
-    isViewSelectorSticky = false;
-
-    // View options for the select button
-    viewOptions = [
-        { label: 'Lista de Avaliações', value: 'list' },
-        { label: 'Calendário', value: 'calendario' },
-        { label: 'Relatórios', value: 'relatorios' },
-        { label: 'Estatísticas', value: 'estatisticas' },
-        { label: 'Nova Avaliação', value: 'nova-avaliacao' }
+    readonly typeOptions = [
+        { label: 'Todos os Tipos', value: null },
+        { label: 'Quiz', value: AssessmentType.QUIZ },
+        { label: 'Midterm', value: AssessmentType.MIDTERM },
+        { label: 'Placement', value: AssessmentType.PLACEMENT },
+        { label: 'Final', value: AssessmentType.FINAL },
+        { label: 'Skill Check', value: AssessmentType.SKILL_CHECK },
     ];
 
-    // Filter options
-    typeOptions = [
-        { label: 'Todos os Tipos', value: '' },
-        { label: 'Prova Oral', value: 'oral' },
-        { label: 'Prova Escrita', value: 'written' },
-        { label: 'Quiz', value: 'quiz' }
+    readonly statusOptions = [
+        { label: 'Todos os Status', value: null },
+        { label: 'Ativa', value: AssessmentStatus.ACTIVE },
+        { label: 'Inativa', value: AssessmentStatus.INACTIVE },
+        { label: 'Rascunho', value: AssessmentStatus.DRAFT },
+        { label: 'Arquivada', value: AssessmentStatus.ARCHIVED },
     ];
 
-    statusOptions = [
-        { label: 'Todos os Status', value: '' },
-        { label: 'Ativa', value: 'active' },
-        { label: 'Concluída', value: 'completed' },
-        { label: 'Rascunho', value: 'draft' }
-    ];
-
-    // Sample assessment data
-    sampleAssessments = [
-        {
-            id: 1,
-            name: 'Unit 1 - Basic Conversation',
-            type: 'Prova Oral',
-            unit: 'Basic Level - Unit 1',
-            date: '15/01/2024',
-            status: 'Concluída',
-            competencies: ['speaking', 'listening', 'vocabulary'],
-            score: 100
-        },
-        {
-            id: 2,
-            name: 'Grammar Test - Present Tense',
-            type: 'Prova Escrita',
-            unit: 'Basic Level - Unit 2',
-            date: '20/01/2024',
-            status: 'Ativa',
-            competencies: ['grammar', 'writing'],
-            score: 50
-        }
-    ];
+    selectedType: AssessmentType | null = null;
+    selectedStatus: AssessmentStatus | null = null;
 
     ngOnInit(): void {
-        // Initialize with sample data - in real app, load from service
-        this.assessments = this.sampleAssessments;
-        this.loading = false;
-
-        // Define custom column templates for different filter types
-        this.columns = [
-            {
-                field: 'name',
-                header: 'Nome',
-                filterType: 'text',
-            },
-            {
-                field: 'type',
-                header: 'Tipo',
-                filterType: 'text',
-            },
-            {
-                field: 'unit',
-                header: 'Unidade',
-                filterType: 'text',
-            },
-            {
-                field: 'date',
-                header: 'Data',
-                filterType: 'date',
-            },
-            {
-                field: 'status',
-                header: 'Status',
-                filterType: 'text',
-            },
-            {
-                field: 'competencies',
-                header: 'Competências',
-                filterType: 'text',
-            },
-            {
-                field: 'score',
-                header: 'Pontuação',
-                filterType: 'text',
-            }
-        ];
-
-        // Populate globalFilterFields
-        this.globalFilterFields = this.columns.map(col => col.field);
+        this.load();
     }
 
-    ngAfterViewInit(): void {
-        this.setupStickyHeaders();
+    load(): void {
+        this.loading.set(true);
+        this.assessmentService
+            .listAssessments({ page: this.currentPage(), size: this.pageSize() })
+            .subscribe({
+                next: (res) => {
+                    this.assessments.set(res.data.content);
+                    this.totalRecords.set(res.data.totalElements);
+                    this.loading.set(false);
+                },
+                error: () => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erro',
+                        detail: 'Não foi possível carregar as avaliações.',
+                    });
+                    this.loading.set(false);
+                },
+            });
     }
 
-    @HostListener('window:scroll', ['$event'])
-    onWindowScroll(): void {
-        this.updateStickyState();
+    onPage(event: { first: number; rows: number }): void {
+        this.currentPage.set(event.first / event.rows);
+        this.pageSize.set(event.rows);
+        this.load();
     }
 
-    private setupStickyHeaders(): void {
-        this.updateStickyState();
+    navigateToCreate(): void {
+        this.router.navigate(['/schoolar/assessments/create']);
     }
 
-    private updateStickyState(): void {
-        if (this.mainHeader) {
-            const rect = this.mainHeader.nativeElement.getBoundingClientRect();
-            this.isMainHeaderSticky = rect.top <= 0;
-        }
-
-        if (this.viewSelector) {
-            const rect = this.viewSelector.nativeElement.getBoundingClientRect();
-            this.isViewSelectorSticky = rect.top <= 80;
-        }
-    }
-
-    onViewChange(event: any): void {
-        this.currentView = event.value;
-        // Add any additional logic needed when view changes
-    }
-
-    getStatusSeverity(status: string): string {
-        switch (status) {
-            case 'Concluída':
-                return 'success';
-            case 'Ativa':
-                return 'info';
-            case 'Rascunho':
-                return 'warning';
-            default:
-                return 'secondary';
-        }
-    }
-
-    getCompetencyLabel(competency: string): string {
-        const labels: any = {
-            'speaking': 'Speaking',
-            'listening': 'Listening',
-            'vocabulary': 'Vocabulary',
-            'grammar': 'Grammar',
-            'writing': 'Writing',
-            'fluency': 'Fluency'
-        };
-        return labels[competency] || competency;
-    }
-
-    editAssessment(assessment: any) {
-        this.router.navigate(['/schoolar/assessments/edit', assessment.id]);
-    }
-
-    deleteAssessment(assessment: any) {
-        // Implement delete functionality
-        console.log('Delete assessment:', assessment);
-    }
-
-    viewDetails(assessment: any) {
+    viewDetails(assessment: Assessment): void {
         this.router.navigate(['/schoolar/assessments', assessment.id]);
     }
 
-    createAssessment() {
-        this.router.navigate(['/schoolar/assessments/create']);
+    editAssessment(assessment: Assessment): void {
+        this.router.navigate(['/schoolar/assessments/edit', assessment.id]);
+    }
+
+    confirmDelete(assessment: Assessment): void {
+        this.confirmationService.confirm({
+            message: `Tem certeza que deseja excluir a avaliação "${assessment.title}"?`,
+            header: 'Confirmar exclusão',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sim',
+            rejectLabel: 'Não',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                this.assessmentService.deleteAssessment(assessment.id).subscribe({
+                    next: () => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Sucesso',
+                            detail: 'Avaliação excluída com sucesso.',
+                        });
+                        this.load();
+                    },
+                    error: () => {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Erro',
+                            detail: 'Não foi possível excluir a avaliação.',
+                        });
+                    },
+                });
+            },
+        });
+    }
+
+    statusSeverity(status: AssessmentStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+        const map: Record<AssessmentStatus, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
+            [AssessmentStatus.ACTIVE]: 'success',
+            [AssessmentStatus.DRAFT]: 'warn',
+            [AssessmentStatus.INACTIVE]: 'secondary',
+            [AssessmentStatus.ARCHIVED]: 'danger',
+        };
+        return map[status] ?? 'secondary';
+    }
+
+    assessmentTypeLabel(type: AssessmentType): string {
+        const map: Record<AssessmentType, string> = {
+            [AssessmentType.QUIZ]: 'Quiz',
+            [AssessmentType.MIDTERM]: 'Midterm',
+            [AssessmentType.PLACEMENT]: 'Placement',
+            [AssessmentType.FINAL]: 'Final',
+            [AssessmentType.SKILL_CHECK]: 'Skill Check',
+        };
+        return map[type] ?? type;
     }
 }

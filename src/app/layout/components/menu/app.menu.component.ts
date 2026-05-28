@@ -234,6 +234,12 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                                 visible: (this.hasPermission('users.view')
                                     || this.hasPermission('roles.view')
                                 )
+                            },
+                            {
+                                label: 'Gestão Escolar',
+                                icon: 'pi pi-fw pi-graduation-cap',
+                                routerLink: ['/schoolar/settings'],
+                                visible: true,
                             }
                         ]
                     },

@@ -1,18 +1,18 @@
 import {
-    Component, inject,
-    InjectionToken,
+    Component,
+    inject,
     Injector,
     Input,
+    OnChanges,
     OnDestroy,
     OnInit,
-    ViewChild,
-    ViewContainerRef
+    SimpleChanges,
 } from '@angular/core';
-import {TabMenuModule} from 'primeng/tabmenu';
-import {TabViewModule} from 'primeng/tabview';
-import {Tab} from '../../../@types/tab';
-import {CommonModule} from '@angular/common';
-import {Observable, of, Subscription} from 'rxjs';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { TabViewModule } from 'primeng/tabview';
+import { Tab } from '../../../@types/tab';
+import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-tab-view',
@@ -21,27 +21,22 @@ import {Observable, of, Subscription} from 'rxjs';
     standalone: true,
     styleUrl: './tab-view.component.scss'
 })
-export class TabViewComponent implements OnInit, OnDestroy {
-    @ViewChild('dynamicComponentContainer', {read: ViewContainerRef})
-    container!: ViewContainerRef;
+export class TabViewComponent implements OnInit, OnChanges, OnDestroy {
+    @Input() tabs: Tab[] = [];
+    @Input() data: any;
 
-    injector = inject(Injector)
+    tabInjectors: Injector[] = [];
 
-    @Input()
-    tabs: Tab[] = [];
-
-    @Input()
-    data: any
-
+    private parentInjector = inject(Injector);
     private subscription = new Subscription();
 
     ngOnInit(): void {
-        // Subscribe to data changes and update tab data values
-        if (this.data) {
-            // Update each tab's data value
-            this.tabs.forEach(tab => {
-                tab.data.value = this.data;
-            })
+        this.buildInjectors();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['data'] && !changes['data'].firstChange) {
+            this.buildInjectors();
         }
     }
 
@@ -49,10 +44,12 @@ export class TabViewComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 
-    getInjector<T>(token: InjectionToken<string>, data: T): Injector {
-        return Injector.create({
-            providers: [{provide: token, useValue: data}],
-            parent: this.injector
-        });
+    private buildInjectors(): void {
+        this.tabInjectors = this.tabs.map(tab =>
+            Injector.create({
+                providers: [{ provide: tab.data.token, useValue: this.data }],
+                parent: this.parentInjector
+            })
+        );
     }
 }

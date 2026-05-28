@@ -13,4 +13,5 @@ export enum LessonStatus {
     NOT_TAUGHT  = 'NOT_TAUGHT',
     /** Lesson was rescheduled to a different slot (reagendado). */
     RESCHEDULED = 'RESCHEDULED',
+    RESCHEDULE  = 'RESCHEDULE',
 }

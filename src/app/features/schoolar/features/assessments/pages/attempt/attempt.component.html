@@ -1,57 +1,153 @@
-<div class="grid">
-    <div class="col-12">
-        <p-card>
-            <ng-template pTemplate="title">
-                <h2>Record Assessment Attempt</h2>
-            </ng-template>
-            <ng-template pTemplate="subtitle">
-                <div *ngIf="exam" class="text-lg text-primary">
-                    {{ exam.name }}
+<!-- src/app/features/schoolar/features/assessments/pages/attempt/attempt.component.html -->
+<p-toast></p-toast>
+
+<div class="grid p-3">
+
+    @if (loading()) {
+        <div class="col-12 flex justify-content-center align-items-center p-6">
+            <p-progressSpinner strokeWidth="4" animationDuration=".8s"></p-progressSpinner>
+        </div>
+    }
+
+    @if (!loading(); as a) {
+        @if (assessment(); as assessment) {
+            <!-- Header -->
+            <div class="col-12 flex align-items-center gap-3 mb-3">
+                <p-button
+                    icon="pi pi-arrow-left"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="cancel()"
+                    pTooltip="Voltar"
+                ></p-button>
+                <div>
+                    <h1 class="text-xl font-bold m-0 mb-1">Lançar Nota</h1>
+                    <span class="text-color-secondary">{{ assessment.title }}</span>
                 </div>
-            </ng-template>
-            <ng-template pTemplate="content">
-                <div class="grid p-fluid">
-                    <div class="col-12 md:col-6 field">
-                        <label for="student" class="font-bold">Student</label>
-                        <p-dropdown id="student" [options]="students" [(ngModel)]="selectedStudent"
-                            optionLabel="name" placeholder="Select a student" [showClear]="true"
-                            (onChange)="onStudentChange()"></p-dropdown>
-                    </div>
+            </div>
 
-                    <div class="col-12 md:col-6 field">
-                        <label for="date" class="font-bold">Date</label>
-                        <input id="date" type="text" pInputText [value]="attempt.date | date:'yyyy-MM-dd'" disabled>
-                    </div>
+            <!-- Student selector -->
+            <div class="col-12 md:col-6 mb-2">
+                <label class="block font-medium mb-2">Aluno <span class="text-red-500">*</span></label>
+                <p-dropdown
+                    [options]="studentOptions()"
+                    [ngModel]="selectedStudentId()"
+                    (ngModelChange)="selectedStudentId.set($event)"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecionar aluno"
+                    [filter]="true"
+                    filterPlaceholder="Pesquisar..."
+                    styleClass="w-full"
+                    [showClear]="true"
+                ></p-dropdown>
+                @if (studentOptions().length === 0) {
+                    <small class="text-color-secondary mt-1 block">
+                        Nenhum aluno agendado. Agende alunos primeiro no separador "Alunos".
+                    </small>
+                }
+            </div>
 
-                    <div class="col-12">
-                        <p-tabView>
-                            <p-tabPanel *ngFor="let category of skillCategories" [header]="category.label">
-                                <div class="grid p-fluid">
-                                    <div class="col-12 md:col-6 field">
-                                        <label [for]="'score-' + category.value" class="font-bold">Score</label>
-                                        <p-inputNumber [id]="'score-' + category.value"
-                                            [(ngModel)]="attempt.skillEvaluations[category.value].score"
-                                            [min]="0" [max]="100" [showButtons]="true"></p-inputNumber>
-                                    </div>
-
-                                    <div class="col-12 field">
-                                        <label [for]="'feedback-' + category.value" class="font-bold">Feedback</label>
-                                        <textarea [id]="'feedback-' + category.value" pInputTextarea
-                                            [(ngModel)]="attempt.skillEvaluations[category.value].feedback"
-                                            rows="5" placeholder="Enter feedback for this skill"></textarea>
-                                    </div>
+            <!-- Evaluation rows -->
+            @if (assessment.evaluationType === EvaluationType.SKILLS) {
+                <div class="col-12">
+                    <h2 class="text-lg font-semibold mt-3 mb-3">Avaliação por Habilidade</h2>
+                    @if (skillRows().length === 0) {
+                        <p class="text-color-secondary">Nenhuma habilidade associada a esta avaliação.</p>
+                    }
+                    @for (row of skillRows(); track row.skillId) {
+                        <div class="surface-50 border-round p-3 mb-3">
+                            <div class="flex align-items-center gap-2 mb-3">
+                                <i class="pi pi-star text-color-secondary"></i>
+                                <span class="font-semibold text-900">{{ row.skillName }}</span>
+                            </div>
+                            <div class="grid">
+                                <div class="col-12 md:col-3">
+                                    <label class="block text-sm font-medium mb-2">Nota (0–100)</label>
+                                    <p-inputNumber
+                                        [ngModel]="row.score"
+                                        (ngModelChange)="updateSkillScore(row.skillId, $event)"
+                                        [min]="0"
+                                        [max]="100"
+                                        [showButtons]="true"
+                                        styleClass="w-full"
+                                    ></p-inputNumber>
                                 </div>
-                            </p-tabPanel>
-                        </p-tabView>
-                    </div>
+                                <div class="col-12 md:col-9">
+                                    <label class="block text-sm font-medium mb-2">Feedback</label>
+                                    <textarea
+                                        pInputTextarea
+                                        class="w-full"
+                                        rows="2"
+                                        placeholder="Comentário opcional..."
+                                        [ngModel]="row.feedback"
+                                        (ngModelChange)="updateSkillFeedback(row.skillId, $event)"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
-            </ng-template>
-            <ng-template pTemplate="footer">
-                <div class="flex justify-content-end">
-                    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2" (click)="cancel()"></button>
-                    <button pButton label="Save" icon="pi pi-check" (click)="saveAttempt()" [disabled]="!selectedStudent"></button>
+            }
+
+            @if (assessment.evaluationType === EvaluationType.UNITS) {
+                <div class="col-12">
+                    <h2 class="text-lg font-semibold mt-3 mb-3">Avaliação por Unidade</h2>
+                    @if (unitRows().length === 0) {
+                        <p class="text-color-secondary">Nenhuma unidade associada a esta avaliação.</p>
+                    }
+                    @for (row of unitRows(); track row.unitId) {
+                        <div class="surface-50 border-round p-3 mb-3">
+                            <div class="flex align-items-center gap-2 mb-3">
+                                <i class="pi pi-book text-color-secondary"></i>
+                                <span class="font-semibold text-900">{{ row.unitName }}</span>
+                            </div>
+                            <div class="grid">
+                                <div class="col-12 md:col-3">
+                                    <label class="block text-sm font-medium mb-2">Nota (0–100)</label>
+                                    <p-inputNumber
+                                        [ngModel]="row.score"
+                                        (ngModelChange)="updateUnitScore(row.unitId, $event)"
+                                        [min]="0"
+                                        [max]="100"
+                                        [showButtons]="true"
+                                        styleClass="w-full"
+                                    ></p-inputNumber>
+                                </div>
+                                <div class="col-12 md:col-9">
+                                    <label class="block text-sm font-medium mb-2">Feedback</label>
+                                    <textarea
+                                        pInputTextarea
+                                        class="w-full"
+                                        rows="2"
+                                        placeholder="Comentário opcional..."
+                                        [ngModel]="row.feedback"
+                                        (ngModelChange)="updateUnitFeedback(row.unitId, $event)"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
-            </ng-template>
-        </p-card>
-    </div>
+            }
+
+            <!-- Footer actions -->
+            <div class="col-12 flex justify-content-end gap-2 mt-2">
+                <p-button
+                    label="Cancelar"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="cancel()"
+                ></p-button>
+                <p-button
+                    label="Registar Nota"
+                    icon="pi pi-check"
+                    [loading]="submitting()"
+                    [disabled]="!canSubmit()"
+                    (onClick)="submit()"
+                ></p-button>
+            </div>
+        }
+    }
+
 </div>
