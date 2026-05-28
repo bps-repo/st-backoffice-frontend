@@ -108,4 +108,10 @@ export class AssessmentService {
             .get<ApiResponse<AssessmentAttempt[]>>(`${this.apiUrl}/student/${studentId}/history`)
             .pipe(map((res) => res.data));
     }
+
+    getAssessmentSummaryPdf(assessmentId: string): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${assessmentId}/summary/pdf`, {
+            responseType: 'blob',
+        });
+    }
 }

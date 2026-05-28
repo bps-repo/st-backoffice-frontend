@@ -36,6 +36,14 @@
 
             <div class="flex gap-2">
                 <p-button
+                    label="Exportar Resumo"
+                    icon="pi pi-file-pdf"
+                    severity="secondary"
+                    [outlined]="true"
+                    [loading]="exportingPdf()"
+                    (onClick)="exportSummaryPdf()"
+                ></p-button>
+                <p-button
                     label="Lançar Nota"
                     icon="pi pi-user-plus"
                     severity="secondary"

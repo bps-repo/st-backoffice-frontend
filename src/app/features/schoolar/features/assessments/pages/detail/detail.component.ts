@@ -40,6 +40,7 @@ export class DetailComponent implements OnInit {
 
     readonly assessment = signal<Assessment | null>(null);
     readonly loading = signal(true);
+    readonly exportingPdf = signal(false);
     readonly tabs: Tab[] = ASSESSMENTS_TABS;
 
     readonly assessmentTypeLabels: Record<AssessmentType, string> = {
@@ -106,6 +107,32 @@ export class DetailComponent implements OnInit {
     recordAttempt(): void {
         const id = this.assessment()?.id;
         if (id) this.router.navigate(['/schoolar/assessments/attempt', id]);
+    }
+
+    exportSummaryPdf(): void {
+        const assessment = this.assessment();
+        if (!assessment) return;
+
+        this.exportingPdf.set(true);
+        this.assessmentService.getAssessmentSummaryPdf(assessment.id).subscribe({
+            next: (blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `avaliacao-${assessment.id}-resumo.pdf`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.exportingPdf.set(false);
+            },
+            error: (err: HttpErrorResponse) => {
+                this.exportingPdf.set(false);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: err.error?.error ?? 'Não foi possível exportar o resumo.',
+                });
+            },
+        });
     }
 
     goBack(): void {
