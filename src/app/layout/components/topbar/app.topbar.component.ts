@@ -14,6 +14,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { Store } from '@ngrx/store';
 import { authActions } from 'src/app/core/store/auth/auth.actions';
 import { UserProfileService } from 'src/app/core/services/user-profile.service';
+import { CommandPaletteService } from 'src/app/shared/services/command-palette.service';
 
 @Component({
     selector: 'app-topbar',
@@ -36,6 +37,7 @@ export class AppTopbarComponent implements OnInit {
     layoutService = inject(LayoutService);
     private store = inject(Store);
     userProfileService = inject(UserProfileService);
+    commandPaletteService = inject(CommandPaletteService);
 
     @ViewChild('menubutton') menuButton!: ElementRef;
 

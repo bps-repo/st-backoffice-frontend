@@ -16,15 +16,16 @@
     <div class="topbar-end">
         <ul class="topbar-menu">
             <li class="topbar-search">
-                <span class="p-input-icon-left">
+                <button
+                    type="button"
+                    class="topbar-search-trigger p-link"
+                    (click)="commandPaletteService.open()"
+                    pTooltip="Pesquisar (Ctrl+K)"
+                    tooltipPosition="bottom">
                     <i class="pi pi-search"></i>
-                    <input
-                        type="text"
-                        pInputText
-                        placeholder="Pesquisar..."
-                        class="topbar-search-input"
-                    />
-                </span>
+                    <span class="topbar-search-label">Pesquisar...</span>
+                    <kbd class="topbar-search-shortcut">Ctrl K</kbd>
+                </button>
             </li>
 
             <li class="topbar-notification">

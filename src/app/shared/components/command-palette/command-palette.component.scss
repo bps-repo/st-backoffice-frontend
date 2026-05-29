@@ -1,0 +1,201 @@
+.command-palette {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+// ── Search bar ────────────────────────────────────────────────────────────────
+
+.cp-search {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--surface-border);
+    background: var(--surface-overlay);
+}
+
+.cp-search-icon {
+    font-size: 1rem;
+    color: var(--text-color-secondary);
+    flex-shrink: 0;
+}
+
+.cp-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-family: inherit;
+
+    &::placeholder {
+        color: var(--text-color-secondary);
+    }
+}
+
+.cp-esc-hint {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 4px;
+    color: var(--text-color-secondary);
+    background: var(--surface-ground);
+    font-family: inherit;
+}
+
+// ── Results ───────────────────────────────────────────────────────────────────
+
+.cp-results {
+    max-height: 380px;
+    overflow-y: auto;
+    background: var(--surface-overlay);
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--surface-border);
+        border-radius: 2px;
+    }
+}
+
+.cp-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2rem 1rem;
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.cp-empty-icon {
+    font-size: 1.5rem;
+    opacity: 0.5;
+}
+
+// ── Group ─────────────────────────────────────────────────────────────────────
+
+.cp-group {
+    padding: 0.5rem 0;
+
+    & + & {
+        border-top: 1px solid var(--surface-border);
+    }
+}
+
+.cp-group-label {
+    padding: 0.25rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-color-secondary);
+}
+
+// ── Item ──────────────────────────────────────────────────────────────────────
+
+.cp-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.12s;
+
+    &:hover,
+    &.cp-item--active {
+        background: var(--highlight-bg);
+
+        .cp-item-label {
+            color: var(--highlight-text-color, var(--primary-color));
+        }
+
+        .cp-item-arrow {
+            opacity: 1;
+        }
+    }
+}
+
+.cp-item-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    background: var(--surface-ground);
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    color: var(--primary-color);
+}
+
+.cp-item-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cp-item-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.12s;
+}
+
+.cp-item-desc {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cp-item-arrow {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    opacity: 0;
+    flex-shrink: 0;
+    transition: opacity 0.12s;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+.cp-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--surface-border);
+    background: var(--surface-ground);
+}
+
+.cp-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: var(--text-color-secondary);
+
+    kbd {
+        font-size: 0.65rem;
+        padding: 0.1rem 0.3rem;
+        border: 1px solid var(--surface-border);
+        border-radius: 3px;
+        background: var(--surface-overlay);
+        font-family: inherit;
+    }
+}
