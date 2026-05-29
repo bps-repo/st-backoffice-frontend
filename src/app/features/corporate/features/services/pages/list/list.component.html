@@ -24,7 +24,7 @@
 
             <!-- Filters -->
             <div class="grid mt-3 mb-4">
-                <div class="col-12 md:col-4">
+                <div class="col-12 md:col-3">
                     <input
                         pInputText
                         type="text"
@@ -34,7 +34,17 @@
                         (input)="onFilterChange()"
                     />
                 </div>
-                <div class="col-12 md:col-4">
+                <div class="col-12 md:col-3">
+                    <p-select
+                        [options]="categoryOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        styleClass="w-full"
+                        [(ngModel)]="categoryFilter"
+                        (onChange)="onFilterChange()"
+                    ></p-select>
+                </div>
+                <div class="col-12 md:col-3">
                     <p-select
                         [options]="typeOptions"
                         optionLabel="label"
@@ -44,7 +54,7 @@
                         (onChange)="onFilterChange()"
                     ></p-select>
                 </div>
-                <div class="col-12 md:col-4">
+                <div class="col-12 md:col-3">
                     <p-select
                         [options]="statusOptions"
                         optionLabel="label"
@@ -91,10 +101,12 @@
                     <tr>
                         <th>Nome</th>
                         <th>Descrição</th>
+                        <th>Categoria</th>
                         <th>Tipo</th>
                         <th>Valor</th>
+                        <th>Stock</th>
                         <th>Estado</th>
-                        <th style="width: 8rem">Acções</th>
+                        <th style="width: 10rem">Acções</th>
                     </tr>
                 </ng-template>
 
@@ -102,8 +114,16 @@
                     <tr>
                         <td class="font-medium">{{ service.name }}</td>
                         <td class="text-color-secondary">{{ service.description || '—' }}</td>
+                        <td>{{ getCategoryLabel(service.category) }}</td>
                         <td>{{ getTypeLabel(service.type) }}</td>
                         <td>{{ service.value | currency:'AOA':'symbol':'1.2-2' }}</td>
+                        <td>
+                            @if (service.hasStock) {
+                                {{ service.currentStock ?? 0 }} / {{ service.minimumStock ?? 0 }}
+                            } @else {
+                                —
+                            }
+                        </td>
                         <td>
                             <p-tag
                                 [value]="service.active ? 'Activo' : 'Inactivo'"
@@ -112,6 +132,15 @@
                         </td>
                         <td>
                             <div class="flex gap-1">
+                                <button
+                                    pButton
+                                    type="button"
+                                    icon="pi pi-eye"
+                                    class="p-button-rounded p-button-text p-button-sm"
+                                    pTooltip="Ver detalhes"
+                                    tooltipPosition="top"
+                                    (click)="openDetail(service)"
+                                ></button>
                                 <button
                                     pButton
                                     type="button"
@@ -137,7 +166,7 @@
 
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-color-secondary">
+                        <td colspan="8" class="text-center py-5 text-color-secondary">
                             Nenhum produto / serviço encontrado.
                         </td>
                     </tr>

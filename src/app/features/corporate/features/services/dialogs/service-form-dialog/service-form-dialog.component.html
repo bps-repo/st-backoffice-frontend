@@ -4,13 +4,12 @@
     [(visible)]="visible"
     [header]="editMode ? 'Editar Produto / Serviço' : 'Novo Produto / Serviço'"
     [modal]="true"
-    [style]="{ width: '520px' }"
+    [style]="{ width: '560px' }"
     [draggable]="false"
     [resizable]="false"
 >
     <div class="flex flex-column gap-4 pt-2">
 
-        <!-- Nome -->
         <div class="flex flex-column gap-1">
             <label class="font-semibold text-sm" for="svc-name">Nome <span class="text-red-500">*</span></label>
             <input
@@ -23,7 +22,6 @@
             />
         </div>
 
-        <!-- Descrição -->
         <div class="flex flex-column gap-1">
             <label class="font-semibold text-sm" for="svc-desc">Descrição</label>
             <input
@@ -36,21 +34,58 @@
             />
         </div>
 
-        <!-- Tipo -->
-        <div class="flex flex-column gap-1">
-            <label class="font-semibold text-sm" for="svc-type">Tipo <span class="text-red-500">*</span></label>
-            <p-select
-                inputId="svc-type"
-                [options]="typeOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecionar tipo"
-                styleClass="w-full"
-                [(ngModel)]="form.type"
-            ></p-select>
+        <div class="grid">
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="svc-code">Código</label>
+                <input
+                    id="svc-code"
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Ex: CRS-ADULT-EN"
+                    [(ngModel)]="form.code"
+                />
+            </div>
+
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="svc-provider">Fornecedor</label>
+                <input
+                    id="svc-provider"
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Nome do fornecedor"
+                    [(ngModel)]="form.providerName"
+                />
+            </div>
+
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="svc-category">Categoria <span class="text-red-500">*</span></label>
+                <p-select
+                    inputId="svc-category"
+                    [options]="categoryOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecionar categoria"
+                    styleClass="w-full"
+                    [(ngModel)]="form.category"
+                ></p-select>
+            </div>
+
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="svc-type">Tipo <span class="text-red-500">*</span></label>
+                <p-select
+                    inputId="svc-type"
+                    [options]="typeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecionar tipo"
+                    styleClass="w-full"
+                    [(ngModel)]="form.type"
+                ></p-select>
+            </div>
         </div>
 
-        <!-- Valor -->
         <div class="flex flex-column gap-1">
             <label class="font-semibold text-sm" for="svc-value">Valor (Kz)</label>
             <p-inputNumber
@@ -65,7 +100,44 @@
             ></p-inputNumber>
         </div>
 
-        <!-- Activo -->
+        <div class="flex align-items-center gap-2">
+            <p-checkbox
+                inputId="svc-has-stock"
+                [(ngModel)]="form.hasStock"
+                [binary]="true"
+                (ngModelChange)="onHasStockChange()"
+            ></p-checkbox>
+            <label class="font-semibold text-sm mb-0" for="svc-has-stock">Controla stock</label>
+        </div>
+
+        @if (form.hasStock) {
+            <div class="grid">
+                <div class="col-12 md:col-6 flex flex-column gap-1">
+                    <label class="font-semibold text-sm" for="svc-min-stock">Stock mínimo <span class="text-red-500">*</span></label>
+                    <p-inputNumber
+                        inputId="svc-min-stock"
+                        [(ngModel)]="form.minimumStock"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="w-full"
+                        inputStyleClass="w-full"
+                    ></p-inputNumber>
+                </div>
+
+                <div class="col-12 md:col-6 flex flex-column gap-1">
+                    <label class="font-semibold text-sm" for="svc-current-stock">Stock actual <span class="text-red-500">*</span></label>
+                    <p-inputNumber
+                        inputId="svc-current-stock"
+                        [(ngModel)]="form.currentStock"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="w-full"
+                        inputStyleClass="w-full"
+                    ></p-inputNumber>
+                </div>
+            </div>
+        }
+
         <div class="flex align-items-center gap-3">
             <label class="font-semibold text-sm">Estado</label>
             <p-toggleButton

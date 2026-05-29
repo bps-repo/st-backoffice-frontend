@@ -11,12 +11,11 @@
     } @else {
         <div class="col-12">
 
-            <!-- Breadcrumb / back -->
             <div class="flex align-items-center justify-content-between mb-4">
                 <div class="flex align-items-center gap-3">
                     <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-secondary" (click)="goBack()" pTooltip="Voltar à lista"></button>
                     <div>
-                        <h2 class="text-2xl font-bold m-0">{{ service?.name || 'Detalhe do serviço' }}</h2>
+                        <h2 class="text-2xl font-bold m-0">{{ service?.name || 'Detalhe do produto' }}</h2>
                         <p class="text-color-secondary mt-1 mb-0 text-sm">Edite os dados abaixo e clique em <strong>Guardar</strong>.</p>
                     </div>
                 </div>
@@ -28,7 +27,6 @@
                 }
             </div>
 
-            <!-- Error -->
             @if (error) {
                 <div class="p-3 mb-4 border-1 border-red-200 border-round bg-red-50">
                     <span class="text-red-700">{{ error }}</span>
@@ -36,10 +34,60 @@
             }
 
             @if (service) {
-                <div class="card">
+                <!-- Resumo do produto -->
+                <div class="card mb-4">
+                    <h3 class="text-lg font-semibold mt-0 mb-3">Detalhes do produto</h3>
+                    <div class="grid">
+                        <div class="col-12 md:col-4">
+                            <span class="text-sm text-color-secondary block mb-1">Categoria</span>
+                            <span class="font-medium">{{ getCategoryLabel(service.category) }}</span>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <span class="text-sm text-color-secondary block mb-1">Tipo</span>
+                            <span class="font-medium">{{ getTypeLabel(service.type) }}</span>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <span class="text-sm text-color-secondary block mb-1">Valor</span>
+                            <span class="font-medium">{{ service.value | currency:'AOA':'symbol':'1.2-2' }}</span>
+                        </div>
+                        @if (service.code) {
+                            <div class="col-12 md:col-4">
+                                <span class="text-sm text-color-secondary block mb-1">Código</span>
+                                <span class="font-medium">{{ service.code }}</span>
+                            </div>
+                        }
+                        @if (service.providerName) {
+                            <div class="col-12 md:col-4">
+                                <span class="text-sm text-color-secondary block mb-1">Fornecedor</span>
+                                <span class="font-medium">{{ service.providerName }}</span>
+                            </div>
+                        }
+                        @if (service.description) {
+                            <div class="col-12">
+                                <span class="text-sm text-color-secondary block mb-1">Descrição</span>
+                                <span>{{ service.description }}</span>
+                            </div>
+                        }
+                        @if (service.hasStock) {
+                            <div class="col-12 md:col-6">
+                                <span class="text-sm text-color-secondary block mb-1">Stock</span>
+                                <span class="font-medium">{{ service.currentStock ?? 0 }} / mín. {{ service.minimumStock ?? 0 }}</span>
+                            </div>
+                        }
+                        @if (service.createdAt) {
+                            <div class="col-12 md:col-6">
+                                <span class="text-sm text-color-secondary block mb-1">Criado em</span>
+                                <span>{{ service.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Formulário de edição -->
+                <div class="card mb-4">
+                    <h3 class="text-lg font-semibold mt-0 mb-3">Editar produto</h3>
                     <div class="grid gap-y-4">
 
-                        <!-- Nome -->
                         <div class="col-12 md:col-6">
                             <label class="font-semibold text-sm block mb-1" for="det-name">
                                 Nome <span class="text-red-500">*</span>
@@ -54,7 +102,45 @@
                             />
                         </div>
 
-                        <!-- Tipo -->
+                        <div class="col-12 md:col-6">
+                            <label class="font-semibold text-sm block mb-1" for="det-code">Código</label>
+                            <input
+                                id="det-code"
+                                pInputText
+                                type="text"
+                                class="w-full"
+                                placeholder="Ex: CRS-ADULT-EN"
+                                [(ngModel)]="form.code"
+                                (ngModelChange)="markDirty()"
+                            />
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <label class="font-semibold text-sm block mb-1" for="det-provider">Fornecedor</label>
+                            <input
+                                id="det-provider"
+                                pInputText
+                                type="text"
+                                class="w-full"
+                                placeholder="Nome do fornecedor"
+                                [(ngModel)]="form.providerName"
+                                (ngModelChange)="markDirty()"
+                            />
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <label class="font-semibold text-sm block mb-1" for="det-category">Categoria</label>
+                            <p-select
+                                inputId="det-category"
+                                [options]="categoryOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                styleClass="w-full"
+                                [(ngModel)]="form.category"
+                                (ngModelChange)="markDirty()"
+                            ></p-select>
+                        </div>
+
                         <div class="col-12 md:col-6">
                             <label class="font-semibold text-sm block mb-1" for="det-type">Tipo</label>
                             <p-select
@@ -68,20 +154,6 @@
                             ></p-select>
                         </div>
 
-                        <!-- Descrição -->
-                        <div class="col-12">
-                            <label class="font-semibold text-sm block mb-1" for="det-desc">Descrição</label>
-                            <input
-                                id="det-desc"
-                                pInputText
-                                type="text"
-                                class="w-full"
-                                [(ngModel)]="form.description"
-                                (ngModelChange)="markDirty()"
-                            />
-                        </div>
-
-                        <!-- Valor -->
                         <div class="col-12 md:col-6">
                             <label class="font-semibold text-sm block mb-1" for="det-value">Valor (Kz)</label>
                             <p-inputNumber
@@ -97,7 +169,56 @@
                             ></p-inputNumber>
                         </div>
 
-                        <!-- Estado -->
+                        <div class="col-12">
+                            <label class="font-semibold text-sm block mb-1" for="det-desc">Descrição</label>
+                            <input
+                                id="det-desc"
+                                pInputText
+                                type="text"
+                                class="w-full"
+                                [(ngModel)]="form.description"
+                                (ngModelChange)="markDirty()"
+                            />
+                        </div>
+
+                        <div class="col-12 flex align-items-center gap-2">
+                            <p-checkbox
+                                inputId="det-has-stock"
+                                [(ngModel)]="form.hasStock"
+                                [binary]="true"
+                                (ngModelChange)="onHasStockChange()"
+                            ></p-checkbox>
+                            <label class="font-semibold text-sm mb-0" for="det-has-stock">Controla stock</label>
+                        </div>
+
+                        @if (form.hasStock) {
+                            <div class="col-12 md:col-6">
+                                <label class="font-semibold text-sm block mb-1" for="det-min-stock">Stock mínimo</label>
+                                <p-inputNumber
+                                    inputId="det-min-stock"
+                                    [(ngModel)]="form.minimumStock"
+                                    (ngModelChange)="markDirty()"
+                                    [min]="0"
+                                    [useGrouping]="false"
+                                    styleClass="w-full"
+                                    inputStyleClass="w-full"
+                                ></p-inputNumber>
+                            </div>
+
+                            <div class="col-12 md:col-6">
+                                <label class="font-semibold text-sm block mb-1" for="det-current-stock">Stock actual</label>
+                                <p-inputNumber
+                                    inputId="det-current-stock"
+                                    [(ngModel)]="form.currentStock"
+                                    (ngModelChange)="markDirty()"
+                                    [min]="0"
+                                    [useGrouping]="false"
+                                    styleClass="w-full"
+                                    inputStyleClass="w-full"
+                                ></p-inputNumber>
+                            </div>
+                        }
+
                         <div class="col-12 md:col-6 flex flex-column justify-content-end">
                             <label class="font-semibold text-sm block mb-1">Estado</label>
                             <p-toggleButton
@@ -110,22 +231,8 @@
                             ></p-toggleButton>
                         </div>
 
-                        <!-- Datas (read-only) -->
-                        @if (service.createdAt) {
-                            <div class="col-12">
-                                <hr class="my-2 border-top-1 border-200" />
-                                <div class="flex gap-4 text-sm text-color-secondary">
-                                    <span>Criado em: {{ service.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                                    @if (service.updatedAt) {
-                                        <span>Actualizado em: {{ service.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                                    }
-                                </div>
-                            </div>
-                        }
-
                     </div>
 
-                    <!-- Footer actions -->
                     <div class="flex justify-content-end gap-2 mt-4">
                         <button
                             pButton
@@ -145,6 +252,74 @@
                         ></button>
                     </div>
                 </div>
+
+                <!-- Níveis (curso de idiomas) -->
+                @if (isLanguageCourse) {
+                    <div class="card">
+                        <div class="flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <h3 class="text-lg font-semibold m-0">Níveis do curso</h3>
+                                <p class="text-color-secondary text-sm mt-1 mb-0">{{ levels.length }} nível(is) associado(s)</p>
+                            </div>
+                        </div>
+
+                        @if (levelsError) {
+                            <div class="p-3 mb-3 border-1 border-red-200 border-round bg-red-50">
+                                <span class="text-red-700">{{ levelsError }}</span>
+                            </div>
+                        }
+
+                        @if (levelsLoading) {
+                            <div class="flex align-items-center justify-content-center py-5">
+                                <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+                                <span class="ml-2 text-color-secondary">A carregar níveis…</span>
+                            </div>
+                        } @else {
+                            <p-table
+                                [value]="levels"
+                                responsiveLayout="scroll"
+                                styleClass="p-datatable-sm"
+                                [rowHover]="true"
+                            >
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th style="width: 4rem">Ordem</th>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th style="width: 6rem">Duração</th>
+                                        <th style="width: 7rem">Máx. unidades</th>
+                                        <th style="width: 6rem">Unidades</th>
+                                    </tr>
+                                </ng-template>
+
+                                <ng-template pTemplate="body" let-level>
+                                    <tr>
+                                        <td class="text-center font-medium">{{ level.order }}</td>
+                                        <td class="font-medium">{{ level.name }}</td>
+                                        <td class="text-color-secondary">{{ level.description || '—' }}</td>
+                                        <td>{{ level.duration }} {{ level.duration === 1 ? 'mês' : 'meses' }}</td>
+                                        <td class="text-center">{{ level.maximumUnits }}</td>
+                                        <td class="text-center">
+                                            @if (level.units?.length) {
+                                                {{ level.units.length }}
+                                            } @else {
+                                                <span class="text-color-secondary">0</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </ng-template>
+
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5 text-color-secondary">
+                                            Nenhum nível encontrado para este curso.
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        }
+                    </div>
+                }
             }
 
         </div>

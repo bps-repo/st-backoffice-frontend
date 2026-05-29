@@ -5,7 +5,8 @@ import {map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
 import {Product} from '../models/corporate/product';
-import {Service} from '../models/course/service';
+import {ProductLevel} from '../models/course/product-level';
+import {Service, ServicePayload} from '../models/course/service';
 
 @Injectable({
     providedIn: 'root',
@@ -13,7 +14,7 @@ import {Service} from '../models/course/service';
 export class ServiceService {
     private http = inject(HttpClient);
 
-    private apiUrl = `${environment.apiUrl}/services`;
+    private apiUrl = `${environment.apiUrl}/products`;
 
 
     getServices(
@@ -35,14 +36,19 @@ export class ServiceService {
         );
     }
 
-    createService(serviceData: any): Observable<Service> {
+    getServiceLevels(productId: string): Observable<ProductLevel[]> {
+        return this.http.get<ApiResponse<ProductLevel[]>>(`${this.apiUrl}/${productId}/levels`).pipe(
+            map((response) => response.data ?? []),
+        );
+    }
+
+    createService(serviceData: ServicePayload): Observable<Service> {
         return this.http.post<ApiResponse<Service>>(this.apiUrl, serviceData).pipe(
             map((response) => response.data)
         );
     }
 
-
-    updateService(id: string, serviceData: Service): Observable<Service> {
+    updateService(id: string, serviceData: ServicePayload): Observable<Service> {
         return this.http.patch<ApiResponse<Service>>(`${this.apiUrl}/${id}`, serviceData).pipe(
             map((response) => response.data)
         );

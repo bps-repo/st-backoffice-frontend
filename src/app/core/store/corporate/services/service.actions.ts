@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Service } from 'src/app/core/models/course/service';
+import { Service, ServicePayload } from 'src/app/core/models/course/service';
 
 export const loadServices = createAction('[Service] Load Services');
 export const loadServicesPaged = createAction(
@@ -9,7 +9,7 @@ export const loadServicesPaged = createAction(
 
 export const createService = createAction(
     '[Service] Create Service',
-    props<{ service: Service }>()
+    props<{ service: ServicePayload }>()
 );
 
 export const createServiceSuccess = createAction(
@@ -79,7 +79,7 @@ export const deleteServiceFailure = createAction(
 
 export const updateService = createAction(
     '[Service] Update Service',
-    props<{ id: string; service: Service }>()
+    props<{ id: string; service: ServicePayload }>()
 );
 
 export const updateServiceSuccess = createAction(
