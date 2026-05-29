@@ -86,3 +86,57 @@ $gutter: 1rem; //for primeflex grid system
         stroke-dashoffset: -124px;
     }
 }
+
+// ── Command Palette ───────────────────────────────────────────────────────────
+
+.command-palette-dialog {
+    margin-top: 80px !important;
+
+    .p-dialog-content {
+        padding: 0 !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+
+// Topbar search trigger button
+.topbar-search-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    background: var(--surface-ground);
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 180px;
+
+    &:hover {
+        border-color: var(--primary-color);
+        background: var(--surface-hover);
+    }
+
+    .pi-search {
+        font-size: 0.875rem;
+    }
+}
+
+.topbar-search-label {
+    flex: 1;
+    font-size: 0.875rem;
+    text-align: left;
+}
+
+.topbar-search-shortcut {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 4px;
+    background: var(--surface-overlay);
+    font-family: inherit;
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+}

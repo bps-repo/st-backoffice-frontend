@@ -1,4 +1,4 @@
-import { Component, OnDestroy, Renderer2, ViewChild, inject } from '@angular/core';
+import { Component, HostListener, OnDestroy, Renderer2, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +22,8 @@ import { AppBreadcrumbComponent } from './components/breadcrumb/app.breadcrumb.c
 
 import { LayoutService } from './service/app.layout.service';
 import { MenuService } from './components/menu/app.menu.service';
+import { CommandPaletteService } from 'src/app/shared/services/command-palette.service';
+import { CommandPaletteComponent } from 'src/app/shared/components/command-palette/command-palette.component';
 
 import { AppConfigModule } from './config/app.config.module';
 import { ToastModule } from 'primeng/toast';
@@ -49,14 +51,24 @@ import { ToastModule } from 'primeng/toast';
         AppTopbarComponent,
         AppProfileSidebarComponent,
         AppBreadcrumbComponent,
+        CommandPaletteComponent,
     ],
     templateUrl: './app.layout.component.html'
 })
 export class AppLayoutComponent implements OnDestroy {
     private menuService = inject(MenuService);
+    private commandPaletteService = inject(CommandPaletteService);
     layoutService = inject(LayoutService);
     renderer = inject(Renderer2);
     router = inject(Router);
+
+    @HostListener('window:keydown', ['$event'])
+    onGlobalKeydown(event: KeyboardEvent): void {
+        if (event.key === 'k' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            this.commandPaletteService.toggle();
+        }
+    }
 
     overlayMenuOpenSubscription: Subscription;
 

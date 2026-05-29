@@ -1,9 +1,6 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, Subject, takeUntil } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
-import { MenuMode } from '../../../shared/@types/layout';
-import { MenuService } from '../menu/app.menu.service';
 import { AppBreadcrumbComponent } from "../breadcrumb/app.breadcrumb.component";
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { SidebarModule } from 'primeng/sidebar';
@@ -15,10 +12,9 @@ import { ButtonModule } from 'primeng/button';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { AvatarModule } from 'primeng/avatar';
 import { Store } from '@ngrx/store';
-import { authFeature } from 'src/app/core/store/auth/auth.reducers';
 import { authActions } from 'src/app/core/store/auth/auth.actions';
-import { User } from 'src/app/core/models/auth/user';
 import { UserProfileService } from 'src/app/core/services/user-profile.service';
+import { CommandPaletteService } from 'src/app/shared/services/command-palette.service';
 
 @Component({
     selector: 'app-topbar',
@@ -37,55 +33,31 @@ import { UserProfileService } from 'src/app/core/services/user-profile.service';
         AvatarModule,
     ]
 })
-export class AppTopbarComponent implements OnInit, OnDestroy {
+export class AppTopbarComponent implements OnInit {
     layoutService = inject(LayoutService);
-    menuService = inject(MenuService);
     private store = inject(Store);
     userProfileService = inject(UserProfileService);
+    commandPaletteService = inject(CommandPaletteService);
 
     @ViewChild('menubutton') menuButton!: ElementRef;
 
-    currentUser$: Observable<User | null>;
-    private destroy$ = new Subject<void>();
-
-    constructor() {
-        this.currentUser$ = this.store.select(authFeature.selectUser);
-    }
-
     ngOnInit(): void {
-        // Load user profile when component
         this.store.dispatch(authActions.loadUserProfile());
     }
 
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
+    get isSidebarExpanded(): boolean {
+        return this.layoutService.config().menuMode === 'static';
     }
 
-    get menuMode(): MenuMode {
-        return this.layoutService.config().menuMode;
-    }
-    set menuMode(_val: MenuMode) {
-        this.layoutService.config.update((config) => ({
-            ...config,
-            menuMode: _val,
-        }));
-        if (
-            this.layoutService.isSlimPlus() ||
-            this.layoutService.isSlim() ||
-            this.layoutService.isHorizontal()
-        ) {
-            this.menuService.reset();
-        }
-    }
-
-    onMenuButtonClick() {
-        this.layoutService.onMenuToggle();
+    onMenuButtonClick(): void {
+        const next = this.isSidebarExpanded ? 'drawer' : 'static';
+        this.layoutService.config.update(config => ({ ...config, menuMode: next }));
     }
 
     onProfileButtonClick() {
         this.layoutService.showProfileSidebar();
     }
+
     onConfigButtonClick() {
         this.layoutService.showConfigSidebar();
     }

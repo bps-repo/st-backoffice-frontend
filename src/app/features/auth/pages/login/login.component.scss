@@ -12,7 +12,11 @@ $muted: #a0a0a0;
     min-height: 100vh;
     overflow: hidden;
     background-color: $bg;
-    background-image: url('../../../../../assets/bg-login.png');
+    background-image: url('../../../../../assets/bg-login.jpg');
+    background-image: image-set(
+        url('../../../../../assets/bg-login.webp') type('image/webp'),
+        url('../../../../../assets/bg-login.jpg') type('image/jpeg')
+    );
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;

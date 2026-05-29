@@ -205,6 +205,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
                 next: centers => {
                     this.centerOptions = centers.map(c => ({ label: c.name, value: c.id }));
                     this.loadingCenters.set(false);
+                    if (centers.length && !this.form.get('centerId')?.value) {
+                        this.form.get('centerId')?.setValue(centers[0].id);
+                    }
                     this.tryApplyDuplicatePrefill();
                 },
                 error: () => {

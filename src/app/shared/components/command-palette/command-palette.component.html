@@ -1,0 +1,64 @@
+<p-dialog
+    [visible]="paletteService.isOpen()"
+    [showHeader]="false"
+    [modal]="true"
+    [dismissableMask]="true"
+    [closeOnEscape]="false"
+    [style]="{ width: '580px', 'max-width': '95vw', padding: '0' }"
+    position="top"
+    styleClass="command-palette-dialog"
+    (onHide)="onHide()">
+
+    <div class="command-palette">
+        <div class="cp-search">
+            <i class="pi pi-search cp-search-icon"></i>
+            <input
+                #searchInput
+                type="text"
+                class="cp-search-input"
+                placeholder="Pesquisar comandos..."
+                [value]="query()"
+                (input)="query.set($any($event.target).value); activeIndex.set(0)"
+                (keydown)="onKeydown($event)"
+                autocomplete="off"
+            />
+            <kbd class="cp-esc-hint">ESC</kbd>
+        </div>
+
+        <div class="cp-results">
+            @if (filteredGroups().length === 0) {
+                <div class="cp-empty">
+                    <i class="pi pi-search cp-empty-icon"></i>
+                    <span>Nenhum resultado para "<strong>{{ query() }}</strong>"</span>
+                </div>
+            }
+            @for (group of filteredGroups(); track group.label) {
+                <div class="cp-group">
+                    <div class="cp-group-label">{{ group.label }}</div>
+                    @for (cmd of group.commands; track cmd.id) {
+                        <div
+                            class="cp-item"
+                            [class.cp-item--active]="isActive(cmd)"
+                            (click)="execute(cmd)"
+                            (mouseenter)="onItemHover(cmd)">
+                            <span class="cp-item-icon-wrap">
+                                <i class="pi {{ cmd.icon }}"></i>
+                            </span>
+                            <div class="cp-item-text">
+                                <span class="cp-item-label">{{ cmd.label }}</span>
+                                <span class="cp-item-desc">{{ cmd.description }}</span>
+                            </div>
+                            <i class="pi pi-arrow-right cp-item-arrow"></i>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="cp-footer">
+            <span class="cp-hint"><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
+            <span class="cp-hint"><kbd>↵</kbd> selecionar</span>
+            <span class="cp-hint"><kbd>Esc</kbd> fechar</span>
+        </div>
+    </div>
+</p-dialog>
