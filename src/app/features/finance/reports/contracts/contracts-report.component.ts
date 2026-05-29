@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
@@ -7,7 +7,9 @@ import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ChipModule } from 'primeng/chip';
 import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
@@ -40,11 +42,15 @@ import * as EmployeesSelectors from 'src/app/core/store/corporate/employees/empl
         TagModule,
         SkeletonModule,
         PaginatorModule,
+        ChipModule,
+        DialogModule,
     ],
 })
 export class ContractsReportComponent implements OnInit {
     private readonly service = inject(FinanceDashboardService);
     private readonly store = inject(Store);
+    private readonly destroyRef = inject(DestroyRef);
+
     readonly loading$ = new BehaviorSubject<boolean>(false);
 
     readonly statusOptions: SelectItem[] = [
@@ -84,6 +90,58 @@ export class ContractsReportComponent implements OnInit {
     page = 0;
     size = 20;
     totalRecords = 0;
+    filterVisible = false;
+
+    get formattedDateRange(): string {
+        const fmt = (d: Date) => d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        if (!this.dateRange?.[0]) return '—';
+        const to = this.dateRange[1] ? fmt(this.dateRange[1]) : '...';
+        return `${fmt(this.dateRange[0])} - ${to}`;
+    }
+
+    get formattedStatuses(): string {
+        return this.selectedStatuses
+            .map((v) => this.statusOptions.find((o) => o.value === v)?.label ?? v)
+            .join(', ');
+    }
+
+    get formattedContractTypes(): string {
+        return this.selectedContractTypes
+            .map((v) => this.contractTypeOptions.find((o) => o.value === v)?.label ?? v)
+            .join(', ');
+    }
+
+    get selectedSellerLabel(): string {
+        return this.sellerOptions.find((o) => o.value === this.selectedSellerId)?.label ?? this.selectedSellerId;
+    }
+
+    get selectedCenterLabel(): string {
+        return this.centerOptions.find((o) => o.value === this.selectedCenterId)?.label ?? this.selectedCenterId;
+    }
+
+    clearStatuses(): void {
+        this.selectedStatuses = [];
+        this.page = 0;
+        this.load();
+    }
+
+    clearContractTypes(): void {
+        this.selectedContractTypes = [];
+        this.page = 0;
+        this.load();
+    }
+
+    clearSeller(): void {
+        this.selectedSellerId = '';
+        this.page = 0;
+        this.load();
+    }
+
+    clearCenter(): void {
+        this.selectedCenterId = '';
+        this.page = 0;
+        this.load();
+    }
 
     ngOnInit(): void {
         this.store.dispatch(CenterActions.loadCenters());
@@ -91,7 +149,7 @@ export class ContractsReportComponent implements OnInit {
 
         this.store
             .select(CenterSelectors.selectAllCenters)
-            .pipe(takeUntilDestroyed())
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((centers) => {
                 this.centerOptions = [
                     { label: 'Todos os centros', value: '' },
@@ -101,7 +159,7 @@ export class ContractsReportComponent implements OnInit {
 
         this.store
             .select(EmployeesSelectors.selectAllEmployees)
-            .pipe(takeUntilDestroyed())
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((employees) => {
                 this.sellerOptions = [
                     { label: 'Todos os vendedores', value: '' },
@@ -119,6 +177,7 @@ export class ContractsReportComponent implements OnInit {
     }
 
     applyFilter(): void {
+        this.filterVisible = false;
         this.page = 0;
         this.load();
     }
