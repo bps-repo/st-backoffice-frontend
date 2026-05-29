@@ -5,6 +5,7 @@ import { map, tap, catchError, finalize, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { User } from '../models/auth/user';
 import { ApiResponse } from '../models/ApiResponseService';
+import { JwtTokenService } from './jwtToken.service';
 
 
 @Injectable({
@@ -192,5 +193,9 @@ export class UserProfileService {
 
     isAccountActive(): boolean {
         return this.getAccountStatus() === 'ACTIVE';
+    }
+
+    getCenterName(): string | null {
+        return JwtTokenService.getCenterName();
     }
 }

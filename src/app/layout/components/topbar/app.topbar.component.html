@@ -1,33 +1,20 @@
 <div class="layout-topbar">
     <div class="topbar-start flex-grow-1">
-        <!-- Toggle to Drawer when not in drawer mode -->
         <button
             *ngIf="menuMode !== 'drawer'"
             type="button"
-            class=" p-link border-1 border-white cursor-pointer bg-white"
-            (click)="menuMode = 'drawer'"
-        >
-            <i class="pi pi-bars text-xl"></i>
+            class="topbar-menubutton p-link p-trigger"
+            (click)="menuMode = 'drawer'">
+            <i class="pi pi-bars"></i>
         </button>
 
-        <button
-            *ngIf="menuMode != 'static'"
-            type="button"
-            class=" p-link border-1 border-white cursor-pointer bg-white"
-            (click)="menuMode = 'static'"
-        >
-            <i class="pi pi-arrow-right text-xl"></i>
-        </button>
-
-        <!-- Toggle back to Static when in drawer mode -->
         <button
             *ngIf="menuMode === 'drawer'"
             type="button"
             class="topbar-menubutton p-link p-trigger"
             (click)="menuMode = 'static'"
             pTooltip="Voltar para menu estático"
-            tooltipPosition="bottom"
-        >
+            tooltipPosition="bottom">
             <i class="pi pi-th-large"></i>
         </button>
 
@@ -38,39 +25,45 @@
         <ul class="topbar-menu">
             <li class="topbar-search">
                 <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
                     <input
                         type="text"
                         pInputText
-                        placeholder="Pesquisar"
-                        class="w-12rem sm:w-full"
+                        placeholder="Pesquisar..."
+                        class="topbar-search-input"
                     />
                 </span>
             </li>
-            <!-- <li class="ml-3">
-                 <button
-                     pButton
-                     type="button"
-                     icon="pi pi-cog"
-                     class="p-button-text p-button-secondary p-button-rounded flex-shrink-0"
-                     (click)="onConfigButtonClick()"
-                 ></button>
-             </li> -->
+
+            <li class="topbar-notification">
+                <button type="button" class="p-link notification-button" pTooltip="Notificações" tooltipPosition="bottom">
+                    <span class="notification-icon-wrap">
+                        <i class="pi pi-bell"></i>
+                        <span class="notification-dot"></span>
+                    </span>
+                </button>
+            </li>
+
             <li class="topbar-profile">
                 <button
                     type="button"
                     class="p-link profile-button"
-                    (click)="onProfileButtonClick()"
-                    pTooltip="{{ (currentUser$ | async) ? userProfileService.getFullName() : 'Profile' }}"
-                    tooltipPosition="bottom">
-                    <div class="profile-avatar-container text-white bg-primary-500 border-round-lg">
+                    (click)="onProfileButtonClick()">
+                    <div class="profile-avatar-container">
                         <p-avatar
                             [image]="userProfileService.getPhotoUrl()"
                             [label]="userProfileService.getInitials()"
                             size="normal"
-                            shape="circle"
-                            class="profile-avatar text-white font-bold">
+                            shape="circle">
                         </p-avatar>
                     </div>
+                    <div class="profile-user-info">
+                        <span class="profile-name">{{ userProfileService.getFullName() }}</span>
+                        @if (userProfileService.getCenterName()) {
+                            <span class="profile-center">{{ userProfileService.getCenterName() }}</span>
+                        }
+                    </div>
+                    <i class="pi pi-chevron-down profile-chevron"></i>
                 </button>
             </li>
         </ul>

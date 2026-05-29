@@ -8,6 +8,12 @@
             <div class="profile-info">
                 <h3 class="text-color font-medium mb-2">{{ userProfileService.getFullName() }}</h3>
                 <p class="text-color-secondary font-medium mb-2">{{ user.username }}</p>
+                @if (userProfileService.getCenterName()) {
+                    <div class="flex align-items-center gap-1 mb-2">
+                        <i class="pi pi-building text-xs text-color-secondary"></i>
+                        <span class="text-sm text-color-secondary font-medium">{{ userProfileService.getCenterName() }}</span>
+                    </div>
+                }
                 <div class="profile-badges">
                     <p-badge
                         [value]="user.role.name"

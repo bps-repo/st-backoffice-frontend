@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {User} from '../models/user.model';
 
 @Injectable({
     providedIn: 'root',
@@ -33,5 +32,13 @@ export class JwtTokenService {
 
         const currentTime = Math.floor(Date.now() / 1000);
         return currentTime > this.decodedToken.exp;
+    }
+
+    static getCenterId(): string | null {
+        return this.decodedToken?.centerId ?? null;
+    }
+
+    static getCenterName(): string | null {
+        return this.decodedToken?.centerName ?? null;
     }
 }
