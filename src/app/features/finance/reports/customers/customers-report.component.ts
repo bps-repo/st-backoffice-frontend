@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
@@ -7,7 +7,9 @@ import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SelectItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ChipModule } from 'primeng/chip';
 import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -21,11 +23,13 @@ import * as CenterSelectors from 'src/app/core/store/corporate/center/centers.se
     selector: 'app-customers-report',
     standalone: true,
     templateUrl: './customers-report.component.html',
-    imports: [CommonModule, FormsModule, DatePickerModule, DropdownModule, ButtonModule, TableModule, SkeletonModule, PaginatorModule],
+    imports: [CommonModule, FormsModule, DatePickerModule, DropdownModule, ButtonModule, TableModule, SkeletonModule, PaginatorModule, ChipModule, DialogModule],
 })
 export class CustomersReportComponent implements OnInit {
     private readonly service = inject(FinanceDashboardService);
     private readonly store = inject(Store);
+    private readonly destroyRef = inject(DestroyRef);
+
     readonly loading$ = new BehaviorSubject<boolean>(false);
     readonly formatOptions: SelectItem[] = [
         { label: 'PDF', value: 'pdf' },
@@ -44,12 +48,30 @@ export class CustomersReportComponent implements OnInit {
     page = 0;
     size = 20;
     totalRecords = 0;
+    filterVisible = false;
+
+    get formattedDateRange(): string {
+        const fmt = (d: Date) => d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        if (!this.dateRange?.[0]) return '—';
+        const to = this.dateRange[1] ? fmt(this.dateRange[1]) : '...';
+        return `${fmt(this.dateRange[0])} - ${to}`;
+    }
+
+    get selectedCenterLabel(): string {
+        return this.centerOptions.find((o) => o.value === this.selectedCenterId)?.label ?? this.selectedCenterId;
+    }
+
+    clearCenter(): void {
+        this.selectedCenterId = '';
+        this.page = 0;
+        this.load();
+    }
 
     ngOnInit(): void {
         this.store.dispatch(CenterActions.loadCenters());
         this.store
             .select(CenterSelectors.selectAllCenters)
-            .pipe(takeUntilDestroyed())
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((centers) => {
                 this.centerOptions = [
                     { label: 'Todos os centros', value: '' },
@@ -64,6 +86,7 @@ export class CustomersReportComponent implements OnInit {
     }
 
     applyFilter(): void {
+        this.filterVisible = false;
         this.page = 0;
         this.load();
     }
