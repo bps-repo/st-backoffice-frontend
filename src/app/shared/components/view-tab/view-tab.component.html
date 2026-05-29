@@ -3,18 +3,12 @@
         <h2 class="font-bold">{{ title }} - {{ selectedView.label }} </h2>
         <div class="flex gap-2">
             <p-button label="Exportar" icon="pi pi-file-export" class="p-button-outlined"></p-button>
-            <p-selectButton
+            <p-select
                 [options]="viewOptions"
                 [(ngModel)]="selectedView"
                 optionLabel="label"
-                class="p-button-text"
                 (onChange)="changeView()"
-            >
-                <ng-template let-option pTemplate="item" class="flex items-center">
-                    <div><i [class]="option.icon"></i></div>
-                    <span>{{ option.label }}</span>
-                </ng-template>
-            </p-selectButton>
+            />
         </div>
     </div>
     <ng-container *ngIf="getSelectedComponent">

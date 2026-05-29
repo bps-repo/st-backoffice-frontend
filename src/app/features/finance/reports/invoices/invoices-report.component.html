@@ -3,8 +3,79 @@
 
     <div class="col-12">
         <div class="card">
-            <div class="flex flex-wrap gap-3 align-items-center">
-                <span class="font-semibold text-color-secondary">Período:</span>
+            <div class="flex align-items-center gap-3 flex-wrap">
+                <p-button
+                    label="Filtros"
+                    icon="pi pi-filter"
+                    [outlined]="true"
+                    (onClick)="filterVisible = true"
+                ></p-button>
+
+                <div class="flex align-items-center gap-2 flex-wrap flex-1">
+                    <p-chip [label]="formattedDateRange" icon="pi pi-calendar" styleClass="text-sm" />
+                    @if (selectedDocumentTypes.length) {
+                        <p-chip
+                            [label]="formattedDocumentTypes"
+                            icon="pi pi-file"
+                            [removable]="true"
+                            (onRemove)="clearDocumentTypes()"
+                            styleClass="text-sm"
+                        />
+                    }
+                    @if (selectedPaymentStatuses.length) {
+                        <p-chip
+                            [label]="formattedPaymentStatuses"
+                            icon="pi pi-credit-card"
+                            [removable]="true"
+                            (onRemove)="clearPaymentStatuses()"
+                            styleClass="text-sm"
+                        />
+                    }
+                    @if (selectedCenterId) {
+                        <p-chip
+                            [label]="selectedCenterLabel"
+                            icon="pi pi-building"
+                            [removable]="true"
+                            (onRemove)="clearCenter()"
+                            styleClass="text-sm"
+                        />
+                    }
+                </div>
+
+                <div class="flex align-items-center gap-2">
+                    <p-dropdown
+                        [options]="formatOptions"
+                        [(ngModel)]="selectedExportFormat"
+                        optionLabel="label"
+                        optionValue="value"
+                        styleClass="min-w-9rem"
+                        appendTo="body"
+                    ></p-dropdown>
+                    <p-button
+                        label="Exportar"
+                        icon="pi pi-file-export"
+                        severity="help"
+                        [outlined]="true"
+                        [loading]="exportLoading"
+                        [disabled]="loading"
+                        (onClick)="exportData()"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-dialog
+        header="Filtros"
+        [(visible)]="filterVisible"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        styleClass="w-full md:w-30rem"
+    >
+        <div class="flex flex-column gap-4 pt-2">
+            <div class="flex flex-column gap-1">
+                <label class="font-medium text-sm">Período</label>
                 <p-datepicker
                     [(ngModel)]="dateRange"
                     selectionMode="range"
@@ -12,68 +83,66 @@
                     dateFormat="dd/mm/yy"
                     placeholder="Data início - Data fim"
                     [showIcon]="true"
-                    styleClass="w-18rem"
+                    styleClass="w-full"
                 ></p-datepicker>
+            </div>
 
+            <div class="flex flex-column gap-1">
+                <label class="font-medium text-sm">Tipo de documento</label>
                 <p-multiSelect
                     [options]="documentTypeOptions"
                     [(ngModel)]="selectedDocumentTypes"
                     optionLabel="label"
                     optionValue="value"
-                    defaultLabel="Tipo de documento"
-                    styleClass="min-w-14rem"
+                    defaultLabel="Todos"
+                    styleClass="w-full"
                     appendTo="body"
                 ></p-multiSelect>
+            </div>
 
+            <div class="flex flex-column gap-1">
+                <label class="font-medium text-sm">Estado de pagamento</label>
                 <p-multiSelect
                     [options]="paymentStatusOptions"
                     [(ngModel)]="selectedPaymentStatuses"
                     optionLabel="label"
                     optionValue="value"
-                    defaultLabel="Estado de pagamento"
-                    styleClass="min-w-14rem"
+                    defaultLabel="Todos"
+                    styleClass="w-full"
                     appendTo="body"
                 ></p-multiSelect>
+            </div>
 
+            <div class="flex flex-column gap-1">
+                <label class="font-medium text-sm">Centro</label>
                 <p-dropdown
                     [options]="centerOptions"
                     [(ngModel)]="selectedCenterId"
                     optionLabel="label"
                     optionValue="value"
                     placeholder="Todos os centros"
-                    styleClass="min-w-14rem"
+                    styleClass="w-full"
                     appendTo="body"
                 ></p-dropdown>
-
-                <p-button label="Aplicar" icon="pi pi-filter" (onClick)="applyFilter()" [loading]="loading"></p-button>
-                <p-button
-                    label="Limpar"
-                    icon="pi pi-times"
-                    severity="secondary"
-                    [outlined]="true"
-                    (onClick)="clearFilter()"
-                    [disabled]="loading"
-                ></p-button>
-                <p-dropdown
-                    [options]="formatOptions"
-                    [(ngModel)]="selectedExportFormat"
-                    optionLabel="label"
-                    optionValue="value"
-                    styleClass="min-w-9rem"
-                    appendTo="body"
-                ></p-dropdown>
-                <p-button
-                    label="Exportar"
-                    icon="pi pi-file-export"
-                    severity="help"
-                    [outlined]="true"
-                    [loading]="exportLoading"
-                    [disabled]="loading"
-                    (onClick)="exportData()"
-                ></p-button>
             </div>
         </div>
-    </div>
+
+        <ng-template pTemplate="footer">
+            <p-button
+                label="Limpar"
+                icon="pi pi-times"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="clearFilter()"
+            ></p-button>
+            <p-button
+                label="Aplicar"
+                icon="pi pi-filter"
+                (onClick)="applyFilter()"
+                [loading]="loading"
+            ></p-button>
+        </ng-template>
+    </p-dialog>
 
     @if (error) {
         <div class="col-12">

@@ -3,7 +3,6 @@ import {Component, OnInit} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {FormsModule} from '@angular/forms';
 import {DatePickerModule} from 'primeng/datepicker';
-import {SelectButtonModule} from "primeng/selectbutton";
 import {InvoicesDashboardComponent} from "../invoices/invoices-dashboard.component";
 import {PaymentDashboardComponent} from "../payments/payment-dashboard.component";
 import {TabViewComponent} from "../../../../shared/components/tables/tab-view/tab-view.component";
@@ -21,7 +20,7 @@ type ViewOption = { label: string; value: { key: string; component: any } };
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, SelectButtonModule, ViewTabComponent],
+    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, ViewTabComponent],
     template: `
         <app-view-tab [title]="'Dashboard'" [viewOptions]="viewOptions"/>`,
 })

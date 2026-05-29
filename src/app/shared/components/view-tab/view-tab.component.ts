@@ -3,7 +3,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {FormsModule} from '@angular/forms';
 import {DatePickerModule} from 'primeng/datepicker';
-import {SelectButtonModule} from "primeng/selectbutton";
+import {Select} from "primeng/select";
 import {Button} from "primeng/button";
 
 type ViewOption = { label: string; value: { key: string; component: any }, icon?: string };
@@ -11,7 +11,7 @@ type ViewOption = { label: string; value: { key: string; component: any }, icon?
 @Component({
     selector: 'app-view-tab',
     standalone: true,
-    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, SelectButtonModule, Button],
+    imports: [ChartModule, CommonModule, FormsModule, DatePickerModule, Select, Button],
     templateUrl: './view-tab.component.html',
 })
 export class ViewTabComponent implements OnInit {
