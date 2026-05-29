@@ -38,30 +38,30 @@
                     <!-- Filter Section -->
                     <div class="grid mt-3 mb-3">
                         <div class="col-12 md:col-4">
-                            <p-select [options]="(levels$ | async)!" [ngModel]="selectedLevelId()"
-                                (onChange)="selectedLevelId.set($event.value)" optionLabel="name" optionValue="id"
+                            <p-select [options]="filterLevelOptions" [ngModel]="selectedLevelId()"
+                                (onChange)="onLevelFilterChange($event.value)" optionLabel="name" optionValue="id"
                                 placeholder="Filtrar por nível" [showClear]="true" class="w-full"></p-select>
                         </div>
                     </div>
 
                     <!-- Loading Indicator -->
-                    <div *ngIf="loading$ | async" class="grid mt-3">
+                    <div *ngIf="listLoading" class="grid mt-3">
                         <div class="col-12 flex justify-content-center py-6">
                             <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
                         </div>
                     </div>
 
                     <!-- Levels Grid -->
-                    <div class="grid mt-3" *ngIf="!(loading$ | async)">
+                    <div class="grid mt-3" *ngIf="!listLoading">
                         <!-- Level Cards -->
-                        <div *ngFor="let level of (filteredLevels$ | async); let i = index" class="col-12 mb-3">
+                        <div *ngFor="let level of paginatedLevels; let i = index" class="col-12 mb-3">
                             <div class="card level-card p-3">
                                 <!-- Level Header -->
                                 <div class="flex justify-content-between align-items-center"
                                     (click)="toggleExpand(level.id)">
                                     <div class="flex align-items-center">
                                         <span class="level-color-indicator"
-                                            [style.background-color]="getLevelColor(i)"></span>
+                                            [style.background-color]="getLevelColorForPage(i)"></span>
                                         <div class="flex flex-column">
                                             <span class="font-bold text-lg">{{ level.name }}</span>
                                             <span class="text-sm text-color-secondary">{{ level.description }}</span>
@@ -75,7 +75,7 @@
                                         <div class="flex gap-2">
                                             <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
                                                 (click)="viewDetails(level); $event.stopPropagation()"
-                                                pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                                                pTooltip="Ver detalhes" tooltipPosition="top"></button>
                                             <button pButton pRipple icon="pi pi-pencil"
                                                 class="p-button-rounded p-button-text p-button-warning"
                                                 (click)="viewDetails(level); $event.stopPropagation()" pTooltip="Editar"
@@ -113,11 +113,24 @@
                         </div>
 
                         <!-- Empty State -->
-                        <div *ngIf="(levels$ | async)?.length === 0" class="col-12 text-center p-5">
+                        <div *ngIf="paginatedLevels.length === 0" class="col-12 text-center p-5">
                             <i class="pi pi-info-circle text-4xl text-color-secondary mb-3"></i>
                             <h3>Nenhum nível encontrado</h3>
                             <p>Clique em "Novo nível" para adicionar um nível</p>
                         </div>
+                    </div>
+
+                    <!-- Paginação da lista -->
+                    <div class="col-12 mt-3" *ngIf="!listLoading && !selectedLevelId() && totalRecords > 0">
+                        <p-paginator
+                            [rows]="pageSize"
+                            [totalRecords]="totalRecords"
+                            [first]="currentPage * pageSize"
+                            [rowsPerPageOptions]="[10, 20, 50]"
+                            (onPageChange)="onPageChange($event)"
+                            currentPageReportTemplate="A mostrar {first} a {last} de {totalRecords} níveis"
+                            [showCurrentPageReport]="true"
+                        ></p-paginator>
                     </div>
                 </p-tabpanel>
 
@@ -132,7 +145,7 @@
                                     <input type="text" pInputText placeholder="Buscar alunos..." class="w-20rem">
                                 </span>
                                 <div class="flex gap-2">
-                                    <p-select [options]="(levels$ | async)!" optionLabel="name"
+                                    <p-select [options]="filterLevelOptions" optionLabel="name"
                                         placeholder="Todos os Níveis"></p-select>
                                     <p-select
                                         [options]="[{label: 'Todos os Status', value: ''}, {label: 'Em Progresso', value: 'progress'}, {label: 'Concluído', value: 'done'}]"
