@@ -130,6 +130,7 @@ export enum ContractType {
     VIP = 'VIP',
 }
 
+
 export interface Contract {
     id: string;
     code: string;
@@ -157,12 +158,16 @@ export interface Contract {
 export interface CreateStudentContractRequest {
     studentId: string;
     sellerId?: string;
+    productId: string;
+    materialProductId?: string;
+    companyId?: string;
+    durationMonths?: number;
     amount: number;
     enrollmentFee: number;
     enrollmentFeePaid: boolean;
     discountPercent: number;
     unitPrice: number;
-    contractLevel: {
+    contractLevel?: {
         id?: string;
         levelId: string;
         duration: number;

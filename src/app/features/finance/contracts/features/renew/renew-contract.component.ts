@@ -13,14 +13,16 @@ import { MessageService } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import { Student } from 'src/app/core/models/academic/students/student';
 import { ContractService, } from 'src/app/core/services/contract.service';
+import { ServiceService } from 'src/app/core/services/service.service';
+import { Service } from 'src/app/core/models/course/service';
+import { ServiceCategory } from 'src/app/core/enums/service-category';
+import { ServiceAudienceType } from 'src/app/core/enums/service-audience-type';
+import { ProductLevel } from 'src/app/core/models/course/product-level';
 import { StudentsActions } from "../../../../../core/store/schoolar/students/students.actions";
 import { selectAllStudents } from "../../../../../core/store/schoolar/students/students.selectors";
 import { CreateStudentContractRequest } from 'src/app/core/models/corporate/contract';
 import { EmployeesActions } from '../../../../../core/store/corporate/employees/employees.actions';
 import { selectAllEmployees } from '../../../../../core/store/corporate/employees/employees.selectors';
-import { LevelActions } from '../../../../../core/store/schoolar/level/level.actions';
-import { selectAllLevels } from '../../../../../core/store/schoolar/level/level.selector';
-import { Level } from '../../../../../core/models/course/level';
 import { Employee } from '../../../../../core/models/corporate/employee';
 import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
 import { Subject } from "rxjs";
@@ -51,6 +53,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     private fb = inject(FormBuilder);
     private messageService = inject(MessageService);
     private contractService = inject(ContractService);
+    private serviceService = inject(ServiceService);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
 
@@ -65,7 +68,11 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     students: Student[] = [];
     selectedStudent: Student | null = null;
     employees: Employee[] = [];
-    levels: Level[] = [];
+    products: Service[] = [];
+    materialProducts: Service[] = [];
+    productLevels: ProductLevel[] = [];
+    loadingLevels = false;
+    selectedProduct: Service | null = null;
     contractForm: FormGroup;
     loading = false;
 
@@ -90,12 +97,16 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     constructor() {
         this.contractForm = this.fb.group({
             student: [null, [Validators.required]],
+            productId: [null, [Validators.required]],
+            materialProductId: [null],
+            companyId: [null],
+            durationMonths: [null],
             discountPercent: [0, [Validators.min(0), Validators.max(100)]],
             contractType: ['STANDARD', [Validators.required]],
             numberOfInstallments: [1, [Validators.required, Validators.min(1)]],
             notes: [''],
-            levelId: [null, [Validators.required]],
-            duration: [0, [Validators.required, Validators.min(1)]],
+            levelId: [null],
+            duration: [0, [Validators.min(1)]],
             levelPrice: [0, [Validators.required, Validators.min(0)]],
             courseMaterialPrice: [0, [Validators.required, Validators.min(0)]],
             courseMaterialPaid: [true],
@@ -117,10 +128,14 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
 
         this.loadStudents();
         this.loadEmployees();
-        this.loadLevels();
+        this.loadProducts();
 
         this.contractForm.get('student')?.valueChanges.subscribe((val) => {
             this.selectedStudent = val;
+        });
+
+        this.contractForm.get('productId')?.valueChanges.subscribe((productId: string | null) => {
+            this.onProductChange(productId);
         });
 
         this.contractForm.valueChanges.subscribe(() => {
@@ -229,11 +244,80 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         });
     }
 
-    loadLevels(): void {
-        this.store.dispatch(LevelActions.loadLevels({}));
-        this.store.select(selectAllLevels).subscribe(levels => {
-            this.levels = levels;
-        });
+    loadProducts(): void {
+        this.serviceService.getServices(0, 200)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(response => {
+                const all = response.data?.content ?? [];
+                this.products = all.filter(p =>
+                    p.category !== ServiceCategory.MATERIAL && p.category !== ServiceCategory.GENERAL
+                );
+                this.materialProducts = all.filter(p => p.category === ServiceCategory.MATERIAL);
+            });
+    }
+
+    private onProductChange(productId: string | null): void {
+        this.selectedProduct = productId ? (this.products.find(p => p.id === productId) ?? null) : null;
+
+        const materialProductId = this.contractForm.get('materialProductId')!;
+        const companyId = this.contractForm.get('companyId')!;
+        const durationMonths = this.contractForm.get('durationMonths')!;
+        const levelId = this.contractForm.get('levelId')!;
+
+        materialProductId.clearValidators();
+        companyId.clearValidators();
+        durationMonths.clearValidators();
+        levelId.clearValidators();
+
+        if (this.selectedProduct) {
+            if (this.isCorporate) {
+                companyId.setValidators([Validators.required]);
+            }
+
+            if (this.isLanguageCourse) {
+                materialProductId.setValidators([Validators.required]);
+                levelId.setValidators([Validators.required]);
+                this.loadingLevels = true;
+                this.productLevels = [];
+                this.contractForm.patchValue({ levelId: null, duration: 0 }, { emitEvent: false });
+                this.serviceService.getServiceLevels(productId!)
+                    .pipe(takeUntil(this.destroy$))
+                    .subscribe({
+                        next: (levels) => {
+                            this.productLevels = levels;
+                            this.loadingLevels = false;
+                        },
+                        error: () => {
+                            this.loadingLevels = false;
+                            this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar os níveis do produto' });
+                        }
+                    });
+            } else {
+                this.productLevels = [];
+                this.contractForm.patchValue({ levelId: null, duration: 0 }, { emitEvent: false });
+                durationMonths.setValidators([Validators.required, Validators.min(1)]);
+            }
+        } else {
+            this.productLevels = [];
+            this.contractForm.patchValue({ levelId: null, duration: 0 }, { emitEvent: false });
+        }
+
+        materialProductId.updateValueAndValidity();
+        companyId.updateValueAndValidity();
+        durationMonths.updateValueAndValidity();
+        levelId.updateValueAndValidity();
+    }
+
+    get isLanguageCourse(): boolean {
+        return this.selectedProduct?.category === ServiceCategory.LANGUAGE_COURSE;
+    }
+
+    get isCorporate(): boolean {
+        return this.selectedProduct?.type === ServiceAudienceType.CORPORATE;
+    }
+
+    get needsDurationMonths(): boolean {
+        return !!this.selectedProduct && !this.isLanguageCourse;
     }
 
     private registerLevelChangeHandlers() {
@@ -327,12 +411,9 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
     }
 
     onLevelSelected(levelId: string): void {
-        const selectedLevel = this.levels.find(level => level.id === levelId);
+        const selectedLevel = this.productLevels.find(level => level.id === levelId);
         if (selectedLevel) {
-            this.contractForm.patchValue({
-                duration: selectedLevel.duration
-            });
-
+            this.contractForm.patchValue({ duration: selectedLevel.duration });
             setTimeout(() => {
                 this.calculateContractSummary();
                 this.generateInstallments();
@@ -454,7 +535,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         const formValue = this.contractForm.getRawValue(); // Get all values including disabled
 
         // Validate
-        if (!formValue.student || !formValue.levelId) {
+        if (!formValue.student || !formValue.productId) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Erro',
@@ -503,12 +584,16 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
 
         const payload: CreateStudentContractRequest = {
             studentId: formValue.student.id || this.createdStudentId!,
+            productId: formValue.productId,
+            materialProductId: formValue.materialProductId || undefined,
+            companyId: formValue.companyId || undefined,
+            durationMonths: formValue.durationMonths || undefined,
             amount: this.contractSummary.finalAmount || 0,
             enrollmentFee: 0,
             enrollmentFeePaid: true,
             discountPercent: formValue.discountPercent ?? 0,
             unitPrice: Number(formValue.levelPrice || 0),
-            contractLevel: {
+            contractLevel: formValue.levelId ? {
                 levelId: formValue.levelId,
                 duration: Number(formValue.duration || 0),
                 levelPrice: Number(formValue.levelPrice || 0),
@@ -517,7 +602,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
                 courseMaterialPaid: Boolean(formValue.courseMaterialPaid),
                 includeRegistrationFee: Boolean(formValue.includeRegistrationFee),
                 notes: formValue.levelNotes
-            },
+            } : undefined,
             includeRegistrationFee: Boolean(formValue.includeRegistrationFee),
             numberOfLevelsOffered: 0,
             notes: formValue.notes,
