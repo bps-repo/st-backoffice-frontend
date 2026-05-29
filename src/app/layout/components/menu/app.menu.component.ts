@@ -102,13 +102,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         icon: 'pi pi-fw pi-sitemap',
                         routerLink: ['/schoolar/levels'],
                         visible: this.hasPermission('levels.view')
-                    },
-                    {
-                        label: 'Relatórios',
-                        icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/schoolar/reports'],
-                        visible: this.hasPermission('reports.generate')
-                    },
+                    }
                 ],
             },
             {
@@ -198,12 +192,6 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         icon: 'pi pi-fw pi-box',
                         routerLink: ['/corporate/services'],
                         visible: this.hasPermission('services.view')
-                    },
-                    {
-                        label: 'Relatório',
-                        icon: 'pi pi-fw pi-file-pdf',
-                        routerLink: ['/corporate/reports'],
-                        visible: this.hasPermission('reports.export')
                     },
                     {
                         label: 'Administração',
