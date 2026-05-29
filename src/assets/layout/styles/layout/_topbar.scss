@@ -14,25 +14,42 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-right: 1rem;
-            border-radius: 50%;
+            margin-right: 0.75rem;
             width: 2.5rem;
             height: 2.5rem;
             flex-shrink: 0;
-            transition: background-color var(--transition-duration);
+            border-radius: 0.625rem;
+            border: 1px solid var(--surface-border);
+            background-color: var(--surface-card);
+            transition:
+                background-color var(--transition-duration),
+                border-color var(--transition-duration),
+                box-shadow var(--transition-duration),
+                transform 0.15s ease;
 
             i {
-                font-size: 1.25rem;
-                color: var(--text-color);
-                transition: color var(--transition-duration);
+                font-size: 1rem;
+                color: var(--text-color-secondary);
+                transition: color var(--transition-duration), transform 0.15s ease;
             }
 
             &:hover {
-                background-color: var(--primary-color);
+                background-color: var(--surface-hover);
+                border-color: var(--primary-color);
 
                 i {
-                    color: var(--primary-color-text);
+                    color: var(--primary-color);
+                    transform: scale(1.15);
                 }
+            }
+
+            &:active {
+                transform: scale(0.93);
+            }
+
+            &:focus {
+                outline: none;
+                box-shadow: var(--focus-ring);
             }
         }
     }
