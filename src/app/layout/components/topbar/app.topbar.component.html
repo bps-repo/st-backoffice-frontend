@@ -1,21 +1,13 @@
 <div class="layout-topbar">
     <div class="topbar-start flex-grow-1">
         <button
-            *ngIf="menuMode !== 'drawer'"
+            #menubutton
             type="button"
             class="topbar-menubutton p-link p-trigger"
-            (click)="menuMode = 'drawer'">
-            <i class="pi pi-bars"></i>
-        </button>
-
-        <button
-            *ngIf="menuMode === 'drawer'"
-            type="button"
-            class="topbar-menubutton p-link p-trigger"
-            (click)="menuMode = 'static'"
-            pTooltip="Voltar para menu estático"
+            (click)="onMenuButtonClick()"
+            [pTooltip]="isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'"
             tooltipPosition="bottom">
-            <i class="pi pi-th-large"></i>
+            <i [class]="isSidebarExpanded ? 'pi pi-bars' : 'pi pi-chevron-right'"></i>
         </button>
 
         <app-breadcrumb class="topbar-breadcrumb"></app-breadcrumb>

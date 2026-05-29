@@ -1,12 +1,6 @@
 @media screen and (min-width: $breakpoint) {
     .layout-container {
         &.layout-drawer {
-            .layout-topbar {
-                .topbar-menubutton {
-                    display: none;
-                }
-            }
-
             .layout-sidebar {
                 height: 100%;
                 top: 0;
