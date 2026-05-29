@@ -25,6 +25,7 @@ import { EmployeesActions } from '../../../../../core/store/corporate/employees/
 import { selectAllEmployees } from '../../../../../core/store/corporate/employees/employees.selectors';
 import { Employee } from '../../../../../core/models/corporate/employee';
 import { CanComponentDeactivate } from "../../../../../core/guards/pending-changes.guard";
+import { ShowToastErrorService } from '../../../../../shared/services/show-toast-error-service';
 import { Subject } from "rxjs";
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
@@ -106,7 +107,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
             numberOfInstallments: [1, [Validators.required, Validators.min(1)]],
             notes: [''],
             levelId: [null],
-            duration: [0, [Validators.min(1)]],
+            duration: [0],
             levelPrice: [0, [Validators.required, Validators.min(0)]],
             courseMaterialPrice: [0, [Validators.required, Validators.min(0)]],
             courseMaterialPaid: [true],
@@ -637,8 +638,7 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
                 }
             },
             error: (err) => {
-                const detail = err?.error?.message || err?.message || 'Falha ao criar contrato.';
-                this.messageService.add({ severity: 'error', summary: 'Erro', detail });
+                ShowToastErrorService.showToastError('Erro', err, this.messageService, 'Falha ao criar contrato.');
                 this.loading = false;
             }
         });

@@ -1,16 +1,18 @@
 <div class="grid">
     <div class="col-12">
+
+        <!-- Header -->
         <div class="flex justify-content-between align-items-center mb-3">
-            <h1>Gestão de Contratos</h1>
+            <h1 class="m-0">Gestão de Contratos</h1>
             <div class="flex gap-2">
-                <button pButton label="Renovar Contrato" icon="pi pi-plus" class="p-button-primary"
+                <button pButton label="Renovar Contrato" icon="pi pi-sync" class="p-button-outlined"
                         (click)="createNewContract()"></button>
                 <button pButton label="Novo Contrato" icon="pi pi-plus" class="p-button-primary"
                         (click)="createNewContract(true)"></button>
             </div>
         </div>
 
-        <!-- Cards de estatísticas -->
+        <!-- Statistics -->
         <div class="grid mb-4">
             <div class="col-12 md:col-3">
                 <p-card styleClass="h-full">
@@ -23,8 +25,8 @@
             <div class="col-12 md:col-3">
                 <p-card styleClass="h-full">
                     <div class="flex flex-column align-items-center justify-content-center">
-                        <span class="text-500 mb-2">Contratos Ativos</span>
-                        <span class="text-900 text-4xl font-medium">{{ activeContracts() }}</span>
+                        <span class="text-500 mb-2">Ativos nesta página</span>
+                        <span class="text-900 text-4xl font-medium text-green-500">{{ activeContracts() }}</span>
                     </div>
                 </p-card>
             </div>
@@ -40,73 +42,198 @@
                 <p-card styleClass="h-full">
                     <div class="flex flex-column align-items-center justify-content-center">
                         <span class="text-500 mb-2">Taxa de Quitação</span>
-                        <span class="text-900 text-4xl font-medium text-blue-500">{{ renewalRate() }}</span>
+                        <span class="text-900 text-4xl font-medium text-blue-500">{{ paymentRate() }}</span>
                     </div>
                 </p-card>
             </div>
         </div>
 
-        <!-- Tabela de contratos -->
-        <p-table   [value]="(contracts$ | async)!" [paginator]="true" [rows]="10" [loading]="(loading$ | async)!"
-                 [showCurrentPageReport]="true" [tableStyle]="{'min-width': '50rem'}"
-                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} contratos"
-                 [rowsPerPageOptions]="[5, 10, 25, 50]">
+        <!-- Filters -->
+        <div class="card mb-3">
+            <div class="grid formgrid p-fluid align-items-end">
 
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Código</th>
-                    <th>Aluno</th>
-                    <th>Curso</th>
-                    <th>Período</th>
-                    <th>Valor Total</th>
-                    <th>Parcelas</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </ng-template>
+                <!-- Student name -->
+                <div class="field col-12 md:col-3">
+                    <label>Nome do Aluno</label>
+                    <span class="p-input-icon-left w-full">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" [(ngModel)]="filterStudentName"
+                               (ngModelChange)="onStudentNameInput()"
+                               placeholder="Pesquisar por aluno..." class="w-full" />
+                    </span>
+                </div>
 
-            <ng-template pTemplate="body" let-contract>
-                <tr>
-                    <td>{{ contract.code }}</td>
-                    <td>{{ contract.studentName }}</td>
-                    <td>{{ contract.level }}</td>
-                    <td>{{ contract.period }}</td>
-                    <td>{{ contract.amount }}</td>
-                    <td>
-                        <div>{{ contract.installments }}</div>
-                        <div *ngIf="contract.pendingValue" class="text-sm text-orange-500">{{ contract.pendingValue }}
-                        </div>
-                    </td>
-                    <td>
-                        <p-tag [value]="contract.status" [severity]="getStatusClass(contract.status)"></p-tag>
-                    </td>
-                    <td>
-                        <div class="flex gap-2">
-                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text"
-                                    pTooltip="Visualizar" (click)="viewContract(contract)"></button>
-                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" pTooltip="Editar"
-                                    (click)="editContract(contract)"></button>
-                            <button *ngIf="contract.status === 'Ativo'" pButton icon="pi pi-refresh"
-                                    class="p-button-rounded p-button-text" pTooltip="Renovar"
-                                    (click)="renewContract(contract)"></button>
-                            <button *ngIf="contract.status === 'Ativo'" pButton icon="pi pi-times"
-                                    class="p-button-rounded p-button-text p-button-danger" pTooltip="Cancelar"
-                                    (click)="cancelContract(contract)"></button>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
+                <!-- Status -->
+                <div class="field col-12 md:col-2">
+                    <label>Estado</label>
+                    <p-dropdown [options]="statusOptions" [(ngModel)]="filterStatus"
+                                optionLabel="label" optionValue="value"
+                                (ngModelChange)="onDropdownFilterChange()"
+                                placeholder="Todos">
+                    </p-dropdown>
+                </div>
 
-            <ng-template pTemplate="paginatorleft">
-                <button (click)="loadContracts()" pButton type="button" icon="pi pi-refresh"
-                        class="p-button-text"></button>
-            </ng-template>
+                <!-- Contract type -->
+                <div class="field col-12 md:col-2">
+                    <label>Tipo de Contrato</label>
+                    <p-dropdown [options]="contractTypeOptions" [(ngModel)]="filterContractType"
+                                optionLabel="label" optionValue="value"
+                                (ngModelChange)="onDropdownFilterChange()"
+                                placeholder="Todos">
+                    </p-dropdown>
+                </div>
 
-            <ng-template pTemplate="paginatorright">
-                <button (click)="loadContracts()" pButton type="button" icon="pi pi-download"
-                        class="p-button-text"></button>
-            </ng-template>
-        </p-table>
+                <!-- Course type -->
+                <div class="field col-12 md:col-2">
+                    <label>Tipo de Curso</label>
+                    <p-dropdown [options]="courseTypeOptions" [(ngModel)]="filterCourseType"
+                                optionLabel="label" optionValue="value"
+                                (ngModelChange)="onDropdownFilterChange()"
+                                placeholder="Todos">
+                    </p-dropdown>
+                </div>
+
+                <!-- Sort -->
+                <div class="field col-12 md:col-2">
+                    <label>Ordenar por</label>
+                    <p-dropdown [options]="sortOptions" [(ngModel)]="filterSort"
+                                optionLabel="label" optionValue="value"
+                                (ngModelChange)="onDropdownFilterChange()">
+                    </p-dropdown>
+                </div>
+
+                <!-- Clear button -->
+                <div class="field col-12 md:col-1 flex align-items-end">
+                    <button pButton icon="pi pi-filter-slash" class="p-button-outlined p-button-secondary w-full"
+                            pTooltip="Limpar filtros" (click)="clearAllFilters()"
+                            [disabled]="activeFilters.length === 0">
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active filter chips -->
+            @if (activeFilters.length > 0) {
+                <div class="flex flex-wrap gap-2 mt-2">
+                    @for (chip of activeFilters; track chip.key) {
+                        <p-chip [label]="chip.label" [removable]="true"
+                                (onRemove)="removeFilter(chip.key)">
+                        </p-chip>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+            <p-table [value]="rows" [loading]="(loading$ | async)!"
+                     [tableStyle]="{'min-width': '60rem'}" [rows]="size">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Código</th>
+                        <th>Aluno</th>
+                        <th>Produto</th>
+                        <th>Tipo</th>
+                        <th>Período</th>
+                        <th>Valor Final</th>
+                        <th>Parcelas</th>
+                        <th>Estado</th>
+                        <th>Ações</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-contract>
+                    <tr>
+                        <td>
+                            <span class="font-semibold text-primary cursor-pointer"
+                                  (click)="viewContract(contract)">
+                                {{ contract.code }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="font-medium">{{ contract.student?.name || '—' }}</div>
+                            <div class="text-sm text-500">{{ contract.student?.center?.name || '—' }}</div>
+                            @if (contract.student?.level) {
+                                <div class="text-xs text-400">{{ contract.student.level.name }}</div>
+                            }
+                        </td>
+                        <td>
+                            <div>{{ contract.productName || '—' }}</div>
+                            @if (contract.materialProductName) {
+                                <div class="text-sm text-500">+ {{ contract.materialProductName }}</div>
+                            }
+                        </td>
+                        <td>
+                            <div class="flex flex-column gap-1">
+                                <p-tag [value]="contract.contractType"
+                                       [severity]="contract.contractType === 'VIP' ? 'warning' : 'secondary'">
+                                </p-tag>
+                                @if (contract.courseType) {
+                                    <p-tag [value]="getCourseTypeLabel(contract.courseType)"
+                                           [severity]="contract.courseType === 'LANGUAGE' ? 'info' : 'secondary'">
+                                    </p-tag>
+                                }
+                            </div>
+                        </td>
+                        <td class="text-sm">{{ formatPeriod(contract.startDate, contract.endDate) }}</td>
+                        <td class="font-semibold">
+                            {{ formatCurrency(contract.financial?.finalAmount ?? contract.financial?.totalAmount ?? 0) }}
+                        </td>
+                        <td>
+                            <span class="font-medium">{{ formatInstallments(contract.installments) }}</span>
+                        </td>
+                        <td>
+                            <p-tag [value]="getStatusLabel(contract.status)"
+                                   [severity]="getStatusSeverity(contract.status)">
+                            </p-tag>
+                        </td>
+                        <td>
+                            <div class="flex gap-1">
+                                <button pButton icon="pi pi-eye"
+                                        class="p-button-rounded p-button-text p-button-sm"
+                                        pTooltip="Ver detalhes"
+                                        (click)="viewContract(contract)"></button>
+                                <button pButton icon="pi pi-pencil"
+                                        class="p-button-rounded p-button-text p-button-sm"
+                                        pTooltip="Editar"
+                                        (click)="editContract(contract)"></button>
+                                @if (contract.status === 'ACTIVE') {
+                                    <button pButton icon="pi pi-sync"
+                                            class="p-button-rounded p-button-text p-button-sm"
+                                            pTooltip="Renovar"
+                                            (click)="renewContract(contract)"></button>
+                                    <button pButton icon="pi pi-times"
+                                            class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                                            pTooltip="Cancelar"
+                                            (click)="cancelContract(contract)"></button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="9" class="text-center text-500 p-5">
+                            <i class="pi pi-file-o text-4xl mb-3 block"></i>
+                            Nenhum contrato encontrado para os filtros aplicados.
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <!-- Server-side paginator -->
+            <p-paginator
+                [rows]="size"
+                [totalRecords]="totalRecords"
+                [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [first]="page * size"
+                (onPageChange)="onPageChange($event)"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} contratos"
+                [showCurrentPageReport]="true"
+                [showJumpToPageDropdown]="false">
+            </p-paginator>
+        </div>
     </div>
 </div>
 

@@ -1,15 +1,14 @@
-import {HttpStatusCode} from "@angular/common/http";
-import {ApiResponse} from "./ApiResponseService";
+export interface ApiValidationError {
+    field: string;
+    message: string;
+}
 
-export interface ApiError extends ApiResponse<any> {
-    timestamp: string,
-    status: HttpStatusCode,
-    error: string,
-    message: string,
-    errorCode: string,
-    path: string,
-    validationErrors: {
-        field: string,
-        message: string
-    }[]
+export interface ApiError {
+    timestamp: string;
+    status: number;
+    error: string;       // user-facing category label, e.g. "Validação falhou"
+    message: string;     // developer-facing detail, e.g. "Invalid input parameters"
+    errorCode: string;
+    path: string;
+    validationErrors?: ApiValidationError[];
 }

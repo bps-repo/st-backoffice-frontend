@@ -14,15 +14,13 @@ export class ContractEffects {
     private contractService = inject(ContractService);
 
 
-    // Load all contracts
+    // Load all contracts (unfiltered, used for entity hydration outside the list view)
     loadContracts$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ContractActions.loadContracts),
             switchMap(() =>
-                this.contractService.getContracts().pipe(
-                    map(contracts => {
-                        return ContractActions.loadContractsSuccess({ contracts });
-                    }),
+                this.contractService.getContracts({ size: 200 }).pipe(
+                    map(page => ContractActions.loadContractsSuccess({ contracts: page.content ?? [] })),
                     catchError(error => of(ContractActions.loadContractsFailure({ error })))
                 )
             )

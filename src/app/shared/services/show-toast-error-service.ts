@@ -1,70 +1,45 @@
-import { ApiError } from "../../core/models/ApiError";
-import { MessageService } from "primeng/api";
+import { MessageService } from 'primeng/api';
+import { parseApiError } from '../../core/utils/parse-api-error';
 
 export class ShowToastErrorService {
 
+    /**
+     * Displays one or more PrimeNG error toasts from any thrown value.
+     *
+     * - If the API returned validationErrors, each field error is shown as its own toast.
+     * - Otherwise the user-facing `error` label is shown (e.g. "Validação falhou"),
+     *   falling back to `message` and then to `fallbackMessage`.
+     *
+     * @param title       Toast summary / heading
+     * @param err         Anything caught in a catchError / try-catch block
+     * @param messageService  PrimeNG MessageService instance
+     * @param fallbackMessage Shown when the error carries no displayable text
+     */
     static showToastError(
         title: string,
-        error: Partial<ApiError> | string | null | undefined,
+        err: unknown,
         messageService: MessageService,
         fallbackMessage?: string
     ): void {
-        const normalizedError = this.normalizeError(error);
+        const apiError = parseApiError(err);
 
-        if (normalizedError?.validationErrors?.length) {
-            const summaryBase = normalizedError.message || title;
-            normalizedError.validationErrors.forEach(e => {
-                messageService.add({
-                    life: 5000,
-                    severity: 'error',
-                    summary: `${summaryBase}${e.field ? ` - ${e.field}` : ''}`,
-                    detail: e.message
-                });
-            });
+        if (apiError?.validationErrors?.length) {
+            for (const ve of apiError.validationErrors) {
+                const detail = ve.field ? `${ve.field}: ${ve.message}` : ve.message;
+                messageService.add({ life: 5000, severity: 'error', summary: title, detail });
+            }
             return;
         }
 
-        const rawMessage = normalizedError?.message || fallbackMessage;
-        if (!rawMessage) return;
+        // error = user-facing Portuguese label; message = dev-facing English string
+        const detail = apiError?.error || apiError?.message || fallbackMessage;
+        if (!detail) return;
 
-        rawMessage
+        // Support pipe-delimited multi-message strings (legacy pattern)
+        detail
             .split('|')
-            .map((message) => message.trim())
+            .map(s => s.trim())
             .filter(Boolean)
-            .forEach((message) => {
-                messageService.add({
-                    life: 5000,
-                    severity: 'error',
-                    summary: title,
-                    detail: message
-                });
-            });
-    }
-
-    private static normalizeError(error: Partial<ApiError> | string | null | undefined): Partial<ApiError> | null {
-        if (!error) return null;
-        if (typeof error === 'string') {
-            return { message: error };
-        }
-
-        const nestedError = (error as any).error;
-        if (nestedError && typeof nestedError === 'object') {
-            return {
-                ...(error as any),
-                ...(nestedError as any),
-                message: (nestedError as any).message || (error as any).message,
-                validationErrors: (nestedError as any).validationErrors || (error as any).validationErrors
-            };
-        }
-
-        if (!(error as any).message && typeof nestedError === 'string') {
-            return { ...(error as any), message: nestedError };
-        }
-
-        if (!(error as any).message && typeof (error as any).detail === 'string') {
-            return { ...(error as any), message: (error as any).detail };
-        }
-
-        return error;
+            .forEach(msg => messageService.add({ life: 5000, severity: 'error', summary: title, detail: msg }));
     }
 }
