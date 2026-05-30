@@ -3,10 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { Textarea } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MessageService } from 'primeng/api';
@@ -34,16 +37,20 @@ import { CreateInstallment, Installment, InstallmentStatus } from 'src/app/core/
 @Component({
     selector: 'finance-renew-contract',
     templateUrl: './renew-contract.component.html',
+    styleUrls: ['./renew-contract.component.scss'],
     standalone: true,
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         ButtonModule,
+        CheckboxModule,
         DropdownModule,
         InputTextModule,
-        TableModule,
         InputNumberModule,
+        TableModule,
+        TagModule,
+        Textarea,
         ToastModule,
         DatePickerModule,
     ],
