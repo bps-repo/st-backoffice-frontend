@@ -117,7 +117,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     loading$: Observable<boolean>;
 
     readonly DEFAULT_PAGE_SIZE = 100;
-    readonly DEFAULT_SORT = 'code,asc';
+    readonly DEFAULT_SORT = 'status,asc';
     private currentSort = this.DEFAULT_SORT;
 
     // Filter options
