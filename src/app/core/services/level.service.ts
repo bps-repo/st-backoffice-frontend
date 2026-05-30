@@ -1,9 +1,10 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
+import {Level} from '../models/course/level';
 
 @Injectable({
     providedIn: 'root',
@@ -15,6 +16,16 @@ export class LevelService {
     getLevels(): Observable<any[]> {
         return this.http.get<ApiResponse<PageableResponse<any[]>>>(this.apiUrl).pipe(
             map((response) => response.data.content as any[])
+        );
+    }
+
+    getLevelsPaginated(page = 0, size = 10): Observable<PageableResponse<Level>> {
+        const params = new HttpParams()
+            .set('page', String(page))
+            .set('size', String(size));
+
+        return this.http.get<ApiResponse<PageableResponse<Level>>>(this.apiUrl, {params}).pipe(
+            map((response) => response.data)
         );
     }
 

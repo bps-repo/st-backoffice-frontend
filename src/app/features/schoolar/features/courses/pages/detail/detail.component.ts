@@ -10,7 +10,8 @@ import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
-import {Service} from 'src/app/core/models/course/service';
+import {Service, ServicePayload} from 'src/app/core/models/course/service';
+import {toServiceRequestPayload} from 'src/app/core/constants/service-options';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {DropdownModule} from 'primeng/dropdown';
 
@@ -65,15 +66,21 @@ export class DetailComponent implements OnInit {
 
     editService(): void {
         if (this.editableService) {
-            const updatedService: Partial<Service> = {
+            const payload: ServicePayload = {
                 name: this.editableService.name,
-                description: this.editableService.description,
+                description: this.editableService.description ?? '',
                 value: this.editableService.value,
+                active: this.editableService.active,
+                category: this.editableService.category,
                 type: this.editableService.type,
-                active: this.editableService.active
+                code: this.editableService.code ?? '',
+                providerName: this.editableService.providerName ?? '',
+                hasStock: this.editableService.hasStock,
+                minimumStock: this.editableService.minimumStock ?? 0,
+                currentStock: this.editableService.currentStock ?? 0,
             };
 
-            this.store.dispatch(ServiceActions.updateService({id: this.serviceId, service: updatedService as Service}));
+            this.store.dispatch(ServiceActions.updateService({ id: this.serviceId, service: toServiceRequestPayload(payload) }));
         }
     }
 

@@ -232,7 +232,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             levels: fallback(this.levelService.getLevels(), [] as unknown[]),
             centers: fallback(this.centerService.getAllCenters(), [] as Center[]),
             employees: fallback(this.employeeService.getEmployees(), [] as Employee[]),
-            contracts: fallback(this.contractService.getContracts(), [] as Contract[]),
+            contracts: fallback(this.contractService.getContracts().pipe(map(p => p.content ?? [])), [] as Contract[]),
             units: fallback(this.unitService.loadUnits(), [] as Unit[]),
             assessments: fallback(this.assessmentService.getAssessments(), [] as unknown[])
         })

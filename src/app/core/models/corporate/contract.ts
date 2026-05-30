@@ -52,7 +52,7 @@ export interface Level {
     updatedAt: string;
 }
 
-// New API student shape for contracts
+// Student level summary embedded in contract responses
 export interface ContractStudentLevelSummary {
     id: string;
     name: string;
@@ -71,11 +71,10 @@ export interface Student {
     email: string;
     phone: string;
     status: string;
-    level: ContractStudentLevelSummary;
+    level?: ContractStudentLevelSummary;
     center: ContractStudentCenterSummary;
 }
 
-// New API seller shape for contracts
 export interface Seller {
     id: string;
     name: string;
@@ -108,12 +107,11 @@ export interface ContractFinancialSummary {
     totalAmount: number;
     discountPercent: number;
     finalAmount: number;
-    courseMaterialPrice: number | null;
+    courseMaterialPrice?: number | null;
     courseMaterialPaid: boolean;
     currency: string;
-    levelPrice: number;
+    levelPrice?: number;
 }
-
 
 export enum ContractStatus {
     ACTIVE = 'ACTIVE',
@@ -130,39 +128,54 @@ export enum ContractType {
     VIP = 'VIP',
 }
 
+export enum CourseType {
+    LANGUAGE = 'LANGUAGE',
+    CATALOG = 'CATALOG',
+}
+
 export interface Contract {
     id: string;
     code: string;
+    deleted?: boolean;
     student: Student;
-    seller: Seller;
+    seller?: Seller;
     startDate: string;
     endDate?: string;
-    contractNumber: string | null;
-    financial: ContractFinancialSummary;
-    amount?: number; // Deprecated: use financial.totalAmount
-    discountPercent: number; // Deprecated: use financial.discountPercent
     status: ContractStatus;
     contractType: ContractType;
-    contractLevel: ContractLevel;
+    courseType?: CourseType;
+    productId?: string;
+    productName?: string;
+    materialProductId?: string;
+    materialProductName?: string;
+    financial: ContractFinancialSummary;
     installments?: Installment[];
-    numberOfInstallments: number;
     notes?: string;
-    createdAt?: string | null;
-    updatedAt?: string | null;
-    // Legacy support - these might still be returned by the API for backward compatibility
-    levels?: ContractLevel[]; // Alias for contractLevels
 }
 
+export interface ContractListFilter {
+    status?: ContractStatus;
+    contractType?: ContractType;
+    courseType?: CourseType;
+    studentName?: string;
+    page?: number;
+    size?: number;
+    sort?: string;
+}
 
 export interface CreateStudentContractRequest {
     studentId: string;
     sellerId?: string;
+    productId: string;
+    materialProductId?: string;
+    companyId?: string;
+    durationMonths?: number;
     amount: number;
     enrollmentFee: number;
     enrollmentFeePaid: boolean;
     discountPercent: number;
     unitPrice: number;
-    contractLevel: {
+    contractLevel?: {
         id?: string;
         levelId: string;
         duration: number;
@@ -181,4 +194,3 @@ export interface CreateStudentContractRequest {
     firstInstallmentDate?: string;
     customInstallments?: CreateInstallment[];
 }
-

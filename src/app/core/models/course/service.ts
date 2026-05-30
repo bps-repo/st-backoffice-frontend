@@ -1,4 +1,5 @@
-export type ServiceType = 'ADULT_ENGLISH_COURSE' | 'KIDS_ENGLISH_COURSE' | 'GENERAL' | 'ATL';
+import { ServiceAudienceType } from '../../enums/service-audience-type';
+import { ServiceCategory } from '../../enums/service-category';
 
 export interface Service {
     id: string;
@@ -6,7 +7,13 @@ export interface Service {
     description: string;
     value: number;
     active: boolean;
-    type: ServiceType;
+    category: ServiceCategory;
+    type: ServiceAudienceType;
+    code?: string;
+    providerName?: string;
+    hasStock: boolean;
+    minimumStock?: number;
+    currentStock?: number;
     createdAt?: string;
     updatedAt?: string;
     deleted?: boolean;
@@ -17,5 +24,11 @@ export interface ServicePayload {
     description: string;
     value: number;
     active: boolean;
-    type: ServiceType;
+    category: ServiceCategory;
+    type: ServiceAudienceType;
+    code?: string;
+    providerName?: string;
+    hasStock: boolean;
+    minimumStock: number;
+    currentStock: number;
 }

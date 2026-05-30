@@ -1,7 +1,7 @@
 <p-dialog
     [(visible)]="visible"
-    [style]="{ width: '500px' }"
-    header="Create Service"
+    [style]="{ width: '560px' }"
+    header="Novo produto / serviço"
     [modal]="true"
     styleClass="p-fluid"
     [draggable]="false"
@@ -9,81 +9,159 @@
     [closable]="true"
     (onHide)="resetForm()">
 
-    <div class="grid p-fluid">
-        <div class="col-12 field">
-            <label for="name" class="font-bold">Name</label>
+    <div class="flex flex-column gap-4 pt-2">
+
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold text-sm" for="name">Nome <span class="text-red-500">*</span></label>
             <input
                 id="name"
                 type="text"
                 pInputText
-                [(ngModel)]="service.name"
-                placeholder="Enter service name"
-                required>
+                class="w-full"
+                [(ngModel)]="form.name"
+                placeholder="Nome do produto / serviço">
         </div>
 
-        <div class="col-12 field">
-            <label for="description" class="font-bold">Description</label>
-            <textarea
-                id="description"
-                rows="3"
-                pInputTextarea
-                [(ngModel)]="service.description"
-                placeholder="Enter service description">
-            </textarea>
-        </div>
-
-        <div class="col-12 field">
-            <label for="value" class="font-bold">Value</label>
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold text-sm" for="description">Descrição</label>
             <input
-                id="value"
-                type="number"
+                id="description"
+                type="text"
                 pInputText
-                [(ngModel)]="service.value"
-                placeholder="Enter service value"
-                required>
+                class="w-full"
+                [(ngModel)]="form.description"
+                placeholder="Descrição opcional">
         </div>
 
-        <div class="col-12 field">
-            <label for="type" class="font-bold">Type</label>
-            <p-dropdown
-                id="type"
-                [options]="typeOptions"
-                [(ngModel)]="service.type"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select a type"
-                [showClear]="true"
-                [required]="true">
-            </p-dropdown>
+        <div class="grid">
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="code">Código</label>
+                <input
+                    id="code"
+                    type="text"
+                    pInputText
+                    class="w-full"
+                    [(ngModel)]="form.code"
+                    placeholder="Ex: CRS-ADULT-EN">
+            </div>
+
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="providerName">Fornecedor</label>
+                <input
+                    id="providerName"
+                    type="text"
+                    pInputText
+                    class="w-full"
+                    [(ngModel)]="form.providerName"
+                    placeholder="Nome do fornecedor">
+            </div>
+
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="category">Categoria <span class="text-red-500">*</span></label>
+                <p-select
+                    inputId="category"
+                    [options]="categoryOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecionar categoria"
+                    styleClass="w-full"
+                    [(ngModel)]="form.category">
+                </p-select>
+            </div>
+
+            <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="font-semibold text-sm" for="type">Tipo <span class="text-red-500">*</span></label>
+                <p-select
+                    inputId="type"
+                    [options]="typeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecionar tipo"
+                    styleClass="w-full"
+                    [(ngModel)]="form.type">
+                </p-select>
+            </div>
         </div>
 
-        <div class="col-12 field">
-            <label for="active" class="font-bold">Active</label>
-            <p-dropdown
-                id="active"
-                [options]="activeOptions"
-                [(ngModel)]="service.active"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select status"
-                [showClear]="true">
-            </p-dropdown>
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold text-sm" for="value">Valor (Kz)</label>
+            <p-inputNumber
+                inputId="value"
+                [(ngModel)]="form.value"
+                [min]="0"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                mode="decimal"
+                styleClass="w-full"
+                inputStyleClass="w-full">
+            </p-inputNumber>
         </div>
+
+        <div class="flex align-items-center gap-2">
+            <p-checkbox
+                inputId="hasStock"
+                [(ngModel)]="form.hasStock"
+                [binary]="true"
+                (ngModelChange)="onHasStockChange()">
+            </p-checkbox>
+            <label class="font-semibold text-sm mb-0" for="hasStock">Controla stock</label>
+        </div>
+
+        @if (form.hasStock) {
+            <div class="grid">
+                <div class="col-12 md:col-6 flex flex-column gap-1">
+                    <label class="font-semibold text-sm" for="minimumStock">Stock mínimo</label>
+                    <p-inputNumber
+                        inputId="minimumStock"
+                        [(ngModel)]="form.minimumStock"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="w-full"
+                        inputStyleClass="w-full">
+                    </p-inputNumber>
+                </div>
+
+                <div class="col-12 md:col-6 flex flex-column gap-1">
+                    <label class="font-semibold text-sm" for="currentStock">Stock actual</label>
+                    <p-inputNumber
+                        inputId="currentStock"
+                        [(ngModel)]="form.currentStock"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="w-full"
+                        inputStyleClass="w-full">
+                    </p-inputNumber>
+                </div>
+            </div>
+        }
+
+        <div class="flex align-items-center gap-3">
+            <label class="font-semibold text-sm">Estado</label>
+            <p-toggleButton
+                [(ngModel)]="form.active"
+                onLabel="Activo"
+                offLabel="Inactivo"
+                onIcon="pi pi-check"
+                offIcon="pi pi-times">
+            </p-toggleButton>
+        </div>
+
     </div>
 
     <ng-template pTemplate="footer">
-        <div class="flex justify-content-end">
+        <div class="flex justify-content-end gap-2">
             <button
                 pButton
-                label="Cancel"
+                label="Cancelar"
                 icon="pi pi-times"
-                class="p-button-text mr-2"
+                class="p-button-text p-button-secondary"
                 (click)="hide()">
             </button>
             <button
                 pButton
-                label="Save"
-                icon="pi pi-check"
+                label="Criar"
+                icon="pi pi-plus"
+                [loading]="(loading$ | async) || false"
                 (click)="saveService()">
             </button>
         </div>

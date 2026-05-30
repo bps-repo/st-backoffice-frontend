@@ -107,7 +107,6 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
     unitOptions: SelectItem[] = [];
     centerOptions: SelectItem[] = [];
     weekDayOptions: SelectItem[] = [];
-    weekRangeOptions: SelectItem[] = [];
     statusOptions: SelectItem[] = [
         { label: 'Available', value: LessonStatus.AVAILABLE },
         { label: 'Booked', value: LessonStatus.BOOKED },
@@ -409,10 +408,10 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             teacherId,
             levelId,
             unitId,
-            online: !!lesson.online,
+            online: lesson.online,
             onlineLink: lesson.onlineLink || '',
             type,
-            status: lesson.status || LessonStatus.AVAILABLE
+            status: LessonStatus.AVAILABLE
         });
 
         const selectedDayOption = this.weekDayOptions.find(
@@ -495,11 +494,9 @@ export class CreateLessonComponent implements OnInit, OnDestroy {
             return type as LessonType;
         }
 
-        if (typeof type === 'string') {
-            const enumValue = (LessonType as any)[type.toUpperCase()];
-            if (typeof enumValue === 'number') {
-                return enumValue as LessonType;
-            }
+        const enumValue = (LessonType as any)[type.toUpperCase()];
+        if (typeof enumValue === 'number') {
+            return enumValue as LessonType;
         }
 
         return LessonType.GENERAL;

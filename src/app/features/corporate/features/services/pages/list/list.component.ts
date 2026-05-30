@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -17,6 +18,12 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { Actions, ofType } from '@ngrx/effects';
 import { take } from 'rxjs/operators';
 import { Service } from 'src/app/core/models/course/service';
+import {
+    SERVICE_AUDIENCE_TYPE_OPTIONS,
+    SERVICE_CATEGORY_OPTIONS,
+    getServiceAudienceTypeLabel,
+    getServiceCategoryLabel,
+} from 'src/app/core/constants/service-options';
 import * as ServiceActions from 'src/app/core/store/corporate/services/service.actions';
 import {
     selectAllServices,
@@ -51,6 +58,7 @@ export class ListComponent implements OnInit {
     @ViewChild('formDialog') formDialog!: ServiceFormDialogComponent;
 
     private store = inject(Store);
+    private router = inject(Router);
     private actions$ = inject(Actions);
     private confirmationService = inject(ConfirmationService);
     private messageService = inject(MessageService);
@@ -61,18 +69,14 @@ export class ListComponent implements OnInit {
     totalElements$: Observable<number> = this.store.select(selectServicesTotalElements);
 
     searchTerm = '';
+    categoryFilter = '';
     typeFilter = '';
     statusFilter: '' | 'active' | 'inactive' = '';
     rows = 15;
     page = 0;
 
-    readonly typeOptions = [
-        { label: 'Todos os tipos', value: '' },
-        { label: 'Geral', value: 'GENERAL' },
-        { label: 'Curso Inglês Adulto', value: 'ADULT_ENGLISH_COURSE' },
-        { label: 'Curso Inglês Kids', value: 'KIDS_ENGLISH_COURSE' },
-        { label: 'ATL', value: 'ATL' },
-    ];
+    readonly categoryOptions = [{ label: 'Todas as categorias', value: '' }, ...SERVICE_CATEGORY_OPTIONS];
+    readonly typeOptions = [{ label: 'Todos os tipos', value: '' }, ...SERVICE_AUDIENCE_TYPE_OPTIONS];
 
     readonly statusOptions = [
         { label: 'Todos os estados', value: '' },
@@ -86,14 +90,12 @@ export class ListComponent implements OnInit {
         this.store.dispatch(ServiceActions.loadServicesPaged({ page: this.page, size: this.rows }));
     }
 
+    getCategoryLabel(category: string): string {
+        return getServiceCategoryLabel(category);
+    }
+
     getTypeLabel(type: string): string {
-        switch (type) {
-            case 'ADULT_ENGLISH_COURSE': return 'Curso Inglês Adulto';
-            case 'KIDS_ENGLISH_COURSE':  return 'Curso Inglês Kids';
-            case 'GENERAL':              return 'Geral';
-            case 'ATL':                  return 'ATL';
-            default:                     return type || '-';
-        }
+        return getServiceAudienceTypeLabel(type);
     }
 
     getStatusSeverity(active: boolean): 'success' | 'danger' {
@@ -114,6 +116,10 @@ export class ListComponent implements OnInit {
 
     openCreate(): void {
         this.formDialog.open();
+    }
+
+    openDetail(service: Service): void {
+        this.router.navigate(['/corporate/services', service.id]);
     }
 
     openEdit(service: Service): void {
@@ -150,12 +156,13 @@ export class ListComponent implements OnInit {
                 services.filter((s) => {
                     const search = this.searchTerm.trim().toLowerCase();
                     const matchSearch = !search || s.name?.toLowerCase().includes(search) || s.description?.toLowerCase().includes(search);
+                    const matchCategory = !this.categoryFilter || s.category === this.categoryFilter;
                     const matchType = !this.typeFilter || s.type === this.typeFilter;
                     const matchStatus =
                         !this.statusFilter
                         || (this.statusFilter === 'active' && s.active)
                         || (this.statusFilter === 'inactive' && !s.active);
-                    return matchSearch && matchType && matchStatus;
+                    return matchSearch && matchCategory && matchType && matchStatus;
                 }),
             ),
         );
