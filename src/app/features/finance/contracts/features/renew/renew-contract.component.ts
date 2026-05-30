@@ -395,9 +395,25 @@ export class RenewContractComponent implements OnInit, OnChanges, OnDestroy, Can
         const installments: CreateInstallment[] = [];
         const baseDate = new Date();
 
+        // Contract duration in months: level duration for language courses, durationMonths otherwise.
+        // When not yet configured, fall back to monthly spacing.
+        const contractDurationMonths = this.isLanguageCourse
+            ? (Number(formValue.duration) || 0)
+            : (Number(formValue.durationMonths) || 0);
+
+        const intervalMonths = contractDurationMonths > 0
+            ? contractDurationMonths / numberOfInstallments
+            : 1;
+
         for (let i = 0; i < numberOfInstallments; i++) {
             const dueDate = new Date(baseDate);
-            dueDate.setMonth(dueDate.getMonth() + i);
+            const exactOffset = i * intervalMonths;
+            const wholeMonths = Math.floor(exactOffset);
+            // Remaining fraction converted to days so sub-monthly intervals produce distinct dates
+            const remainingDays = Math.round((exactOffset - wholeMonths) * 30);
+
+            dueDate.setMonth(dueDate.getMonth() + wholeMonths);
+            if (remainingDays > 0) dueDate.setDate(dueDate.getDate() + remainingDays);
 
             installments.push({
                 installmentNumber: i + 1,
