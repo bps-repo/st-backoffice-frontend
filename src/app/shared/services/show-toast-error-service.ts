@@ -31,8 +31,8 @@ export class ShowToastErrorService {
             return;
         }
 
-        // error = user-facing Portuguese label; message = dev-facing English string
-        const detail = apiError?.error || apiError?.message || fallbackMessage;
+        // message = descriptive detail from the backend; error = generic HTTP status label
+        const detail = apiError?.message || apiError?.error || fallbackMessage;
         if (!detail) return;
 
         // Support pipe-delimited multi-message strings (legacy pattern)

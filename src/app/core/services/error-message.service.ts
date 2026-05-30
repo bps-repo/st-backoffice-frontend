@@ -43,6 +43,11 @@ export class ErrorMessageService {
             return 'Ocorreu um erro inesperado. Tente novamente ou entre em contato com o administrador.';
         }
 
+        // For validation errors the backend message is the specific business rule violation — prefer it
+        if (apiError.errorCode === 'VALIDATION_ERROR' && apiError.message) {
+            return apiError.message;
+        }
+
         if (apiError.errorCode && this.errorCodeMessages[apiError.errorCode]) {
             return this.errorCodeMessages[apiError.errorCode];
         }
@@ -51,8 +56,7 @@ export class ErrorMessageService {
             return this.statusMessages[apiError.status];
         }
 
-        // Prefer the user-facing Portuguese label over the developer message
-        return apiError.error || apiError.message
+        return apiError.message || apiError.error
             || 'Ocorreu um erro inesperado. Tente novamente ou entre em contato com o administrador.';
     }
 
