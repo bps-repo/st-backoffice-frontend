@@ -103,6 +103,7 @@ export class StudentService {
         code?: number;
         email?: string;
         username?: string;
+        fullName?: string;
         province?: string;
         municipality?: string;
     }): Observable<Student[]> {
@@ -138,6 +139,7 @@ export class StudentService {
             code?: number;
             email?: string;
             username?: string;
+            fullName?: string;
             province?: string;
             municipality?: string;
         },
