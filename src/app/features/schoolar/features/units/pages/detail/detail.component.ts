@@ -1,19 +1,25 @@
-// student.component.ts
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, OnDestroy, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {Observable, of} from 'rxjs';
+import {Subject, switchMap, takeUntil} from 'rxjs';
+import {Actions, ofType} from '@ngrx/effects';
 import {SkeletonModule} from 'primeng/skeleton';
 import {InputTextModule} from 'primeng/inputtext';
+import {TextareaModule} from 'primeng/textarea';
+import {InputNumberModule} from 'primeng/inputnumber';
 import {ButtonModule} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {Unit} from 'src/app/core/models/course/unit';
+import {ToastModule} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
+import {Unit, toUpdateUnitPayload} from 'src/app/core/models/course/unit';
 import {Level} from 'src/app/core/models/course/level';
-import {RippleModule} from "primeng/ripple";
+import {RippleModule} from 'primeng/ripple';
 import {ChartModule} from 'primeng/chart';
-import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
+import {UnitActions} from '../../../../../../core/store/schoolar/units/unit.actions';
+import {selectUnitById, selectLoading, selectLoadingUpdate} from '../../../../../../core/store/schoolar/units/unit.selectors';
+import {ShowToastErrorService} from '../../../../../../shared/services/show-toast-error-service';
 
 
 @Component({
@@ -24,27 +30,32 @@ import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.acti
         CommonModule,
         SkeletonModule,
         InputTextModule,
+        TextareaModule,
+        InputNumberModule,
         ButtonModule,
         FormsModule,
         ProgressSpinnerModule,
+        ToastModule,
         RippleModule,
-        ChartModule
-    ]
+        ChartModule,
+    ],
+    providers: [MessageService],
 })
-export class DetailComponent implements OnInit {
+export class DetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private store = inject(Store);
+    private actions$ = inject(Actions);
+    private messageService = inject(MessageService);
 
-
-    unitId: string = '';
-    unit$: Observable<Unit | null> = of();
+    unitId = '';
     unit: Unit | null = null;
     editableUnit: Unit | null = null;
-    loading$: Observable<boolean> = of();
-    loading: boolean = true;
+    loading = true;
+    saving = false;
     levels: Level[] = [];
 
-    // Chart properties
+    private destroy$ = new Subject<void>();
+
     progressChartData: any;
     progressChartOptions: any;
     assessmentChartData: any;
@@ -53,17 +64,20 @@ export class DetailComponent implements OnInit {
     lessonDistributionOptions: any;
 
     ngOnInit(): void {
-        this.route.params.subscribe(params => {
-            this.unitId = params['id'];
-            this.loadUnit();
-        });
-
-        this.unit$.subscribe(unit => {
+        this.route.params.pipe(
+            switchMap((params) => {
+                this.unitId = params['id'];
+                this.loading = true;
+                this.store.dispatch(UnitActions.loadUnit({id: this.unitId}));
+                return this.store.select(selectUnitById(this.unitId));
+            }),
+            takeUntil(this.destroy$),
+        ).subscribe((unit) => {
             this.unit = unit;
             this.editableUnit = unit ? {...unit} : null;
+            this.loading = false;
             this.setUnitLevel();
 
-            // Initialize charts when unit data is available
             if (unit) {
                 this.initProgressChart();
                 this.initAssessmentChart();
@@ -71,16 +85,49 @@ export class DetailComponent implements OnInit {
             }
         });
 
-        this.loading$.subscribe(loading => {
-            this.loading = loading;
+        this.store.select(selectLoading).pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+            if (this.unitId) {
+                this.loading = loading;
+            }
         });
+
+        this.store.select(selectLoadingUpdate).pipe(takeUntil(this.destroy$)).subscribe((saving) => {
+            this.saving = saving;
+        });
+
+        this.actions$.pipe(
+            ofType(UnitActions.updateUnitSuccess),
+            takeUntil(this.destroy$),
+        ).subscribe(() => {
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: 'Unidade atualizada com sucesso.',
+            });
+        });
+
+        this.actions$.pipe(
+            ofType(UnitActions.updateUnitFailure),
+            takeUntil(this.destroy$),
+        ).subscribe(({error}) => {
+            ShowToastErrorService.showToastError(
+                'Erro',
+                error,
+                this.messageService,
+                'Falha ao atualizar unidade.',
+            );
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     initProgressChart(): void {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // general data - in a real app, this would come from the unit data
         this.progressChartData = {
             labels: ['Completed', 'In Progress', 'Not Started'],
             datasets: [
@@ -95,9 +142,9 @@ export class DetailComponent implements OnInit {
                         documentStyle.getPropertyValue('--green-400'),
                         documentStyle.getPropertyValue('--blue-400'),
                         documentStyle.getPropertyValue('--gray-200'),
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         };
 
         this.progressChartOptions = {
@@ -114,12 +161,10 @@ export class DetailComponent implements OnInit {
                 title: {
                     display: true,
                     text: 'Student Progress',
-                    font: {
-                        size: 16
-                    }
-                }
+                    font: {size: 16},
+                },
             },
-            cutout: '60%'
+            cutout: '60%',
         };
     }
 
@@ -127,43 +172,38 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // general data - in a real app, this would come from the unit's assessment data
         this.assessmentChartData = {
             labels: ['Excellent', 'Good', 'Average', 'Poor'],
             datasets: [
                 {
                     label: 'Assessment Results',
                     backgroundColor: documentStyle.getPropertyValue('--primary-500'),
-                    data: [40, 30, 20, 10]
-                }
-            ]
+                    data: [40, 30, 20, 10],
+                },
+            ],
         };
 
         this.assessmentChartOptions = {
             responsive: true,
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: {display: false},
                 title: {
                     display: true,
                     text: 'Assessment Performance',
-                    font: {
-                        size: 16
-                    }
-                }
+                    font: {size: 16},
+                },
             },
             scales: {
                 x: {
                     ticks: {color: textColor},
-                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')},
                 },
                 y: {
                     beginAtZero: true,
                     ticks: {color: textColor},
-                    grid: {color: documentStyle.getPropertyValue('--surface-border')}
-                }
-            }
+                    grid: {color: documentStyle.getPropertyValue('--surface-border')},
+                },
+            },
         };
     }
 
@@ -171,7 +211,6 @@ export class DetailComponent implements OnInit {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
 
-        // general data - in a real app, this would come from the unit's lessons
         this.lessonDistributionData = {
             labels: ['Theory', 'Practice', 'Assessment', 'Review'],
             datasets: [
@@ -188,9 +227,9 @@ export class DetailComponent implements OnInit {
                         documentStyle.getPropertyValue('--primary-500'),
                         documentStyle.getPropertyValue('--primary-300'),
                         documentStyle.getPropertyValue('--primary-100'),
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         };
 
         this.lessonDistributionOptions = {
@@ -207,40 +246,32 @@ export class DetailComponent implements OnInit {
                 title: {
                     display: true,
                     text: 'Lesson Type Distribution',
-                    font: {
-                        size: 16
-                    }
-                }
-            }
+                    font: {size: 16},
+                },
+            },
         };
     }
 
-    loadUnit(): void {
-        this.store.dispatch(UnitActions.loadUnit({id: this.unitId}));
-    }
-
-    editUnit(): void {
-
-        if (this.editableUnit) {
-            const updatedUnit: any = {
-                name: this.editableUnit.name,
-                description: this.editableUnit.description,
-                orderUnit: this.editableUnit.orderUnit,
-
-            };
-
-            //this.store.dispatch(UnitActions.updateUnit({id: this.unitId, unit: updatedUnit}));
+    saveUnit(): void {
+        if (!this.editableUnit || !this.unitId) {
+            return;
         }
+
+        const payload = toUpdateUnitPayload({
+            name: this.editableUnit.name.trim(),
+            description: this.editableUnit.description.trim(),
+            orderUnit: this.editableUnit.orderUnit,
+            maximumAssessmentAttempt: this.editableUnit.maximumAssessmentAttempt,
+        });
+
+        this.store.dispatch(UnitActions.updateUnit({id: this.unitId, unit: payload}));
     }
 
     setUnitLevel(): void {
         if (this.unit && this.levels.length > 0) {
-            const matchedLevel = this.levels.find(l => l.id === this.unit?.levelId);
+            const matchedLevel = this.levels.find((l) => l.id === this.unit?.levelId);
             if (matchedLevel) {
-                this.unit = {
-                    ...this.unit,
-                    level: matchedLevel
-                };
+                this.unit = {...this.unit, level: matchedLevel};
                 this.editableUnit = {...this.unit};
             }
         }

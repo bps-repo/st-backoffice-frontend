@@ -22,6 +22,15 @@
             ></button>
 
             <button
+                pButton pRipple
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-text"
+                (click)="editUnit(unit)"
+                pTooltip="Editar"
+                tooltipPosition="top"
+            ></button>
+
+            <button
                 pButton
                 pRipple
                 icon="pi pi-trash"
@@ -34,5 +43,6 @@
     </ng-template>
 
     <app-create-unit-dialog></app-create-unit-dialog>
+    <app-edit-unit-dialog (unitUpdated)="onUnitUpdated($event)"></app-edit-unit-dialog>
     <p-confirmDialog></p-confirmDialog>
 </div>

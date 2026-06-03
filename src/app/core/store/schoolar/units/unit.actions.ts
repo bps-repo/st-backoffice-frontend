@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { Unit } from 'src/app/core/models/course/unit';
+import { Unit, UpdateUnitPayload } from 'src/app/core/models/course/unit';
 
 export const UNIT_FEATURE_KEY = 'units';
 
@@ -11,7 +11,7 @@ export const UnitActions = createActionGroup({
         'Create Unit Success': props<{ unit: Unit }>(),
         'Create Unit Failure': props<{ error: string }>(),
 
-        'Update Unit': props<{ id: string, unit: Partial<Unit> }>(),
+        'Update Unit': props<{ id: string, unit: UpdateUnitPayload }>(),
         'Update Unit Success': props<{ unit: Unit }>(),
         'Update Unit Failure': props<{ error: string }>(),
 

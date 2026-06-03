@@ -17,7 +17,7 @@
     <!-- KPI Cards -->
     <div class="col-12 mb-3">
         <div class="grid">
-            <div *ngFor="let kpi of kpis" class="col-12 md:col-6 lg:col-6">
+            <div *ngFor="let kpi of kpis()" class="col-12 md:col-6 lg:col-6">
                 <app-kpi-indicators class="w-full h-full" [kpi]="kpi"></app-kpi-indicators>
             </div>
         </div>
@@ -28,8 +28,6 @@
         <p-tabs value="0" (onChange)="onTabChange($event)">
             <p-tablist>
                 <p-tab value="0">Hierarquia</p-tab>
-                <p-tab value="1">Progresso</p-tab>
-                <p-tab value="2">Relatórios</p-tab>
             </p-tablist>
 
             <p-tabpanels>
@@ -38,23 +36,23 @@
                     <!-- Filter Section -->
                     <div class="grid mt-3 mb-3">
                         <div class="col-12 md:col-4">
-                            <p-select [options]="filterLevelOptions" [ngModel]="selectedLevelId()"
-                                (onChange)="onLevelFilterChange($event.value)" optionLabel="name" optionValue="id"
+                            <p-select [options]="filterLevelOptions()" [ngModel]="selectedLevelId()"
+                                (ngModelChange)="onLevelFilterChange($event)" optionLabel="name" optionValue="id"
                                 placeholder="Filtrar por nível" [showClear]="true" class="w-full"></p-select>
                         </div>
                     </div>
 
                     <!-- Loading Indicator -->
-                    <div *ngIf="listLoading" class="grid mt-3">
+                    <div *ngIf="listLoading()" class="grid mt-3">
                         <div class="col-12 flex justify-content-center py-6">
                             <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
                         </div>
                     </div>
 
                     <!-- Levels Grid -->
-                    <div class="grid mt-3" *ngIf="!listLoading">
+                    <div class="grid mt-3" *ngIf="!listLoading()">
                         <!-- Level Cards -->
-                        <div *ngFor="let level of paginatedLevels; let i = index" class="col-12 mb-3">
+                        <div *ngFor="let level of paginatedLevels(); let i = index" class="col-12 mb-3">
                             <div class="card level-card p-3">
                                 <!-- Level Header -->
                                 <div class="flex justify-content-between align-items-center"
@@ -69,11 +67,12 @@
                                     </div>
                                     <div class="flex align-items-center gap-3">
                                         <div class="flex flex-column align-items-center mr-3">
-                                            <span class="font-bold">{{ (unitsByLevel$ | async)?.[level.id]?.length }}</span>
+                                            <span class="font-bold">{{ unitsByLevel()[level.id]?.length ?? 0 }}</span>
                                             <span class="text-xs">Unidades</span>
                                         </div>
                                         <div class="flex gap-2">
-                                            <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text"
+                                            <button pButton pRipple icon="pi pi-eye"
+                                                class="p-button-rounded p-button-text"
                                                 (click)="viewDetails(level); $event.stopPropagation()"
                                                 pTooltip="Ver detalhes" tooltipPosition="top"></button>
                                             <button pButton pRipple icon="pi pi-pencil"
@@ -82,8 +81,8 @@
                                                 tooltipPosition="top"></button>
                                             <button pButton pRipple icon="pi pi-trash"
                                                 class="p-button-rounded p-button-text p-button-danger"
-                                                (click)="deleteLevel(level); $event.stopPropagation()" pTooltip="Excluir"
-                                                tooltipPosition="top"></button>
+                                                (click)="deleteLevel(level); $event.stopPropagation()"
+                                                pTooltip="Excluir" tooltipPosition="top"></button>
                                             <button pButton pRipple
                                                 [icon]="isExpanded(level.id) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
                                                 class="p-button-rounded p-button-text"
@@ -94,26 +93,38 @@
                                 </div>
 
                                 <!-- Units List (Expandable) -->
-                                <div *ngIf="isExpanded(level.id)" class="unit-list mt-3">
-                                    <div *ngFor="let unit of (unitsByLevel$ | async)?.[level.id]" class="unit-item">
+                                <div *ngIf="isExpanded(level.id)" class="unit-list mt-3"
+                                    (click)="$event.stopPropagation()">
+                                    <div *ngFor="let unit of unitsByLevel()[level.id] ?? []" class="unit-item">
                                         <div class="flex justify-content-between align-items-center">
                                             <div class="flex flex-column">
                                                 <span class="font-medium">{{ unit.name }}</span>
                                                 <span class="text-sm text-color-secondary">{{ unit.description }}</span>
                                             </div>
-                                            <p-badge [value]="unit.status"
-                                                [severity]="unit.status === 'active' ? 'success' : 'warn'"></p-badge>
+                                            <div class="flex align-items-center gap-2">
+                                                <p-badge [value]="unit.status"
+                                                    [severity]="unit.status === 'active' ? 'success' : 'warn'"></p-badge>
+                                                <button pButton pRipple icon="pi pi-eye"
+                                                    class="p-button-rounded p-button-text p-button-sm"
+                                                    (click)="viewUnit(unit, level)" pTooltip="Ver detalhes"
+                                                    tooltipPosition="top"></button>
+                                                <button pButton pRipple icon="pi pi-pencil"
+                                                    class="p-button-rounded p-button-text p-button-sm"
+                                                    (click)="editUnit(unit)" pTooltip="Editar"
+                                                    tooltipPosition="top"></button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div *ngIf="getUnitsForLevel(level.id).length === 0" class="text-center p-3">
-                                        <span class="text-color-secondary">Nenhuma unidade encontrada para este nível</span>
+                                    <div *ngIf="(unitsByLevel()[level.id] ?? []).length === 0" class="text-center p-3">
+                                        <span class="text-color-secondary">Nenhuma unidade encontrada para este
+                                            nível</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Empty State -->
-                        <div *ngIf="paginatedLevels.length === 0" class="col-12 text-center p-5">
+                        <div *ngIf="paginatedLevels().length === 0" class="col-12 text-center p-5">
                             <i class="pi pi-info-circle text-4xl text-color-secondary mb-3"></i>
                             <h3>Nenhum nível encontrado</h3>
                             <p>Clique em "Novo nível" para adicionar um nível</p>
@@ -121,16 +132,11 @@
                     </div>
 
                     <!-- Paginação da lista -->
-                    <div class="col-12 mt-3" *ngIf="!listLoading && !selectedLevelId() && totalRecords > 0">
-                        <p-paginator
-                            [rows]="pageSize"
-                            [totalRecords]="totalRecords"
-                            [first]="currentPage * pageSize"
-                            [rowsPerPageOptions]="[10, 20, 50]"
-                            (onPageChange)="onPageChange($event)"
+                    <div class="col-12 mt-3" *ngIf="!listLoading() && !selectedLevelId() && totalRecords() > 0">
+                        <p-paginator [rows]="pageSize" [totalRecords]="totalRecords()" [first]="currentPage * pageSize"
+                            [rowsPerPageOptions]="[10, 20, 50]" (onPageChange)="onPageChange($event)"
                             currentPageReportTemplate="A mostrar {first} a {last} de {totalRecords} níveis"
-                            [showCurrentPageReport]="true"
-                        ></p-paginator>
+                            [showCurrentPageReport]="true"></p-paginator>
                     </div>
                 </p-tabpanel>
 
@@ -145,7 +151,7 @@
                                     <input type="text" pInputText placeholder="Buscar alunos..." class="w-20rem">
                                 </span>
                                 <div class="flex gap-2">
-                                    <p-select [options]="filterLevelOptions" optionLabel="name"
+                                    <p-select [options]="filterLevelOptions()" optionLabel="name"
                                         placeholder="Todos os Níveis"></p-select>
                                     <p-select
                                         [options]="[{label: 'Todos os Status', value: ''}, {label: 'Em Progresso', value: 'progress'}, {label: 'Concluído', value: 'done'}]"
@@ -163,7 +169,8 @@
                                             class="border-circle w-2rem h-2rem bg-gray-200 flex align-items-center justify-content-center"><i
                                                 class="pi pi-user text-gray-600"></i></span>
                                         <div class="flex flex-column">
-                                            <span class="font-bold">{{ i % 2 === 0 ? 'Maria Santos' : 'João Silva' }}</span>
+                                            <span class="font-bold">{{ i % 2 === 0 ? 'Maria Santos' : 'João Silva'
+                                                }}</span>
                                             <small class="text-color-secondary">{{ i % 3 === 0 ? 'Conversação Básica' :
                                                 'Apresentações e Cumprimentos' }}</small>
                                         </div>
@@ -180,7 +187,8 @@
                                 </div>
                                 <p-progressBar [value]="i % 3 === 0 ? 100 : (i % 2 === 0 ? 67 : 33)" [showValue]="false"
                                     styleClass="mb-3"></p-progressBar>
-                                <div class="text-xs text-color-secondary mb-2">{{ i % 2 === 0 ? '2 de 3 tópicos concluídos'
+                                <div class="text-xs text-color-secondary mb-2">{{ i % 2 === 0 ? '2 de 3 tópicos
+                                    concluídos'
                                     : '1 de 3 tópicos concluídos' }}
                                 </div>
                                 <div class="text-xs text-color-secondary mb-3 flex justify-content-between">
@@ -240,3 +248,6 @@
 </section>
 <!-- Diálogo de confirmação -->
 <p-confirmDialog></p-confirmDialog>
+
+<app-edit-unit-dialog (unitUpdated)="onUnitUpdated($event)"></app-edit-unit-dialog>
+<app-view-unit-detail-dialog></app-view-unit-detail-dialog>
