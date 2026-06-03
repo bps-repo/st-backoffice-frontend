@@ -42,6 +42,11 @@ export const CORPORATE_ROUTES: Routes = [
                     import('./features/services/services.routes').then((m) => m.ServicesRoutes),
             },
             {
+                path: 'companies',
+                loadChildren: () =>
+                    import('./features/companies/companies.routes').then((m) => m.CompaniesRoutes),
+            },
+            {
                 path: 'settings',
                 component: CorporateSettingsComponent,
             },

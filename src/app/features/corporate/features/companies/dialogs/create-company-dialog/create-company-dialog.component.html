@@ -1,0 +1,52 @@
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '500px' }"
+    header="Criar Empresa"
+    [modal]="true"
+    styleClass="p-fluid"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="reset()">
+
+    <div class="grid p-fluid">
+        @if (errorCreate()) {
+            <div class="col-12">
+                <p class="text-red-500 text-sm">{{ errorCreate() }}</p>
+            </div>
+        }
+
+        <div class="col-12 field">
+            <label for="name" class="font-bold">Nome</label>
+            <input id="name" type="text" pInputText [(ngModel)]="company.name" placeholder="Nome da empresa" required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="contactEmail" class="font-bold">Email de Contacto</label>
+            <input id="contactEmail" type="email" pInputText [(ngModel)]="company.contactEmail" placeholder="email@empresa.com" required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="contactPhone" class="font-bold">Telefone</label>
+            <input id="contactPhone" type="text" pInputText [(ngModel)]="company.contactPhone" placeholder="+244 900 000 000" required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="registrationNumber" class="font-bold">Nº de Registo</label>
+            <input id="registrationNumber" type="text" pInputText [(ngModel)]="company.registrationNumber" placeholder="Número de registo comercial" required>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hide()"></button>
+            <button
+                pButton
+                [label]="loadingCreate() ? 'Salvando...' : 'Salvar'"
+                icon="pi pi-check"
+                [disabled]="loadingCreate()"
+                (click)="save()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
