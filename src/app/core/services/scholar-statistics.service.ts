@@ -41,8 +41,16 @@ export class ScholarStatisticsService {
         );
     }
 
-    getDashboardStatistics(): Observable<any> {
-        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/dashboard`).pipe(
+    getDashboardStatistics(filters?: {
+        centerId?: string;
+        startDate?: string;
+        endDate?: string;
+    }): Observable<any> {
+        let params = new HttpParams();
+        if (filters?.centerId) params = params.set('centerId', filters.centerId);
+        if (filters?.startDate) params = params.set('startDate', filters.startDate);
+        if (filters?.endDate) params = params.set('endDate', filters.endDate);
+        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/dashboard`, { params }).pipe(
             map((response) => response.data)
         );
     }
