@@ -8,6 +8,7 @@ import {ButtonModule} from 'primeng/button';
 import {TableModule} from 'primeng/table';
 import {SkeletonModule} from 'primeng/skeleton';
 import {DropdownModule} from 'primeng/dropdown';
+import {InputSwitchModule} from 'primeng/inputswitch';
 import {Store} from '@ngrx/store';
 import {Observable, Subject} from 'rxjs';
 import {map, takeUntil, first} from 'rxjs/operators';
@@ -17,6 +18,19 @@ import {
     selectLessonsDashboardStatistics,
     selectLoadingLessonsDashboardStatistics
 } from 'src/app/core/store/schoolar/statistics/statistics.selectors';
+import {Lesson} from 'src/app/core/models/academic/lesson';
+import {LessonService} from 'src/app/core/services/lessons/lesson.service';
+
+interface SelectOption {
+    label: string;
+    value: string | null;
+}
+
+interface ActiveFilterChip {
+    key: string;
+    label: string;
+    value: string;
+}
 
 @Component({
     selector: 'app-lessons-dashboard',
@@ -30,12 +44,14 @@ import {
         ButtonModule,
         TableModule,
         SkeletonModule,
-        DropdownModule
+        DropdownModule,
+        InputSwitchModule
     ],
     templateUrl: './lessons-dashboard.component.html',
 })
 export class LessonsDashboardComponent implements OnInit, OnDestroy {
     private store = inject(Store);
+    private lessonService = inject(LessonService);
 
     private destroy$ = new Subject<void>();
 
@@ -67,11 +83,101 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
     selectedLevelFilter: string | null = null;
     levelFilterOptions$!: Observable<Array<{ label: string; value: string | null }>>;
 
+    // Raw lessons for client-side advanced filtering
+    private lessonsCache: Lesson[] = [];
+
+    // Advanced search chart
+    showAdvancedSearchChart = false;
+    advancedSearchChartData: any;
+    advancedSearchChartOptions: any;
+    advancedBarsValuePlugin: any;
+    filteredLessonsCount = 0;
+    private advancedChartRawCounts: number[] = [];
+
+    // Advanced filter state
+    selectedStatusAdvanced: string | null = null;
+    selectedTypeAdvanced: string | null = null;
+    selectedOnlineAdvanced: string | null = null;
+    selectedCenterAdvanced: string | null = null;
+    selectedLevelAdvanced: string | null = null;
+    selectedUnitAdvanced: string | null = null;
+
+    // Advanced filter options
+    statusAdvancedOptions: SelectOption[] = [];
+    typeAdvancedOptions: SelectOption[] = [];
+    onlineAdvancedOptions: SelectOption[] = [
+        { label: 'Online', value: 'true' },
+        { label: 'Presencial', value: 'false' },
+    ];
+    centerAdvancedOptions: SelectOption[] = [];
+    levelAdvancedOptions: SelectOption[] = [];
+    unitAdvancedOptions: SelectOption[] = [];
+
+    get activeAdvancedFilterChips(): ActiveFilterChip[] {
+        const chips: ActiveFilterChip[] = [];
+        if (this.selectedStatusAdvanced) {
+            chips.push({ key: 'status', label: 'Estado', value: this.findOptionLabel(this.statusAdvancedOptions, this.selectedStatusAdvanced) });
+        }
+        if (this.selectedTypeAdvanced) {
+            chips.push({ key: 'type', label: 'Tipo', value: this.findOptionLabel(this.typeAdvancedOptions, this.selectedTypeAdvanced) });
+        }
+        if (this.selectedOnlineAdvanced !== null) {
+            chips.push({ key: 'online', label: 'Modo', value: this.findOptionLabel(this.onlineAdvancedOptions, this.selectedOnlineAdvanced) });
+        }
+        if (this.selectedCenterAdvanced) {
+            chips.push({ key: 'center', label: 'Centro', value: this.selectedCenterAdvanced });
+        }
+        if (this.selectedLevelAdvanced) {
+            chips.push({ key: 'level', label: 'Nivel', value: this.selectedLevelAdvanced });
+        }
+        if (this.selectedUnitAdvanced) {
+            chips.push({ key: 'unit', label: 'Unidade', value: this.selectedUnitAdvanced });
+        }
+        return chips;
+    }
+
+    clearAdvancedFilters(): void {
+        this.selectedStatusAdvanced = null;
+        this.selectedTypeAdvanced = null;
+        this.selectedOnlineAdvanced = null;
+        this.selectedCenterAdvanced = null;
+        this.selectedLevelAdvanced = null;
+        this.selectedUnitAdvanced = null;
+        this.applyAdvancedSearchChart();
+    }
+
+    onAdvancedFiltersChange(): void {
+        this.applyAdvancedSearchChart();
+    }
+
+    removeAdvancedFilter(key: string): void {
+        switch (key) {
+            case 'status': this.selectedStatusAdvanced = null; break;
+            case 'type': this.selectedTypeAdvanced = null; break;
+            case 'online': this.selectedOnlineAdvanced = null; break;
+            case 'center': this.selectedCenterAdvanced = null; break;
+            case 'level': this.selectedLevelAdvanced = null; break;
+            case 'unit': this.selectedUnitAdvanced = null; break;
+        }
+        this.applyAdvancedSearchChart();
+    }
+
+    private findOptionLabel(options: SelectOption[], value: string | null): string {
+        if (!value) return '';
+        return options.find(o => o.value === value)?.label || value;
+    }
+
     ngOnInit(): void {
-        // Dispatch action to load lessons dashboard statistics
         this.store.dispatch(StatisticsActions.loadLessonsDashboardStatistics());
         this.loadData();
         this.initCharts();
+
+        this.lessonService.getAllLessons().pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(lessons => {
+            this.lessonsCache = lessons;
+            this.applyAdvancedSearchChart(lessons);
+        });
     }
 
     ngOnDestroy(): void {
@@ -80,7 +186,6 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private loadData(): void {
-        // Load lessons dashboard statistics from store
         this.lessonsDashboardStatistics$ = this.store.select(selectLessonsDashboardStatistics);
         this.loadingLessonsDashboardStatistics$ = this.store.select(selectLoadingLessonsDashboardStatistics);
 
@@ -111,12 +216,13 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
             })
         );
 
-        // Update charts when dashboard data changes
+        // Update charts and advanced filter options when dashboard data changes
         this.lessonsDashboardStatistics$.pipe(
             takeUntil(this.destroy$)
         ).subscribe(dashboardStats => {
             if (dashboardStats && Object.keys(dashboardStats).length > 0) {
                 this.updateChartsFromDashboard(dashboardStats);
+                this.buildAdvancedFilterOptions(dashboardStats);
             }
         });
     }
@@ -586,6 +692,71 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
             }
         };
 
+        // Advanced search chart defaults
+        this.advancedSearchChartData = {
+            labels: [],
+            datasets: [{
+                type: 'bar',
+                label: 'Quantidade de Aulas',
+                backgroundColor: documentStyle.getPropertyValue('--primary-500'),
+                borderRadius: 5,
+                barPercentage: 0.7,
+                categoryPercentage: 0.72,
+                data: []
+            }]
+        };
+
+        this.advancedSearchChartOptions = {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: textColor }, position: 'bottom' },
+                title: {
+                    display: true,
+                    text: 'Pesquisa Avancada de Aulas (por Centro)',
+                    color: textColor,
+                    font: { size: 16, weight: 'bold' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context: any) => {
+                            const count = this.advancedChartRawCounts[context.dataIndex] ?? 0;
+                            return `Aulas: ${count}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: textColorSecondary }, grid: { color: surfaceBorder } },
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 100,
+                    ticks: { color: textColorSecondary },
+                    grid: { color: surfaceBorder },
+                    title: { display: true, text: 'Escala Normalizada', color: textColor }
+                }
+            }
+        };
+
+        this.advancedBarsValuePlugin = {
+            id: 'lessonAdvancedBarsValuePlugin',
+            afterDatasetsDraw: (chart: any) => {
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.font = '600 11px sans-serif';
+                ctx.textAlign = 'center';
+                chart.data.datasets.forEach((_: any, datasetIndex: number) => {
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    if (!meta?.data) return;
+                    meta.data.forEach((bar: any, index: number) => {
+                        const raw = this.advancedChartRawCounts[index] ?? 0;
+                        ctx.fillStyle = documentStyle.getPropertyValue('--primary-700') || '#1D4ED8';
+                        ctx.fillText(`${raw}`, bar.x, bar.y - 8);
+                    });
+                });
+                ctx.restore();
+            }
+        };
+
         // Attendance bar chart options
         this.barChartAttendanceOptions = {
             plugins: {
@@ -621,7 +792,93 @@ export class LessonsDashboardComponent implements OnInit, OnDestroy {
     }
 
     filterData() {
-        // Implement filtering logic based on date range
         console.log('Filtering by date range:', this.dateRange);
+    }
+
+    private buildAdvancedFilterOptions(stats: LessonsDashboardStatistics): void {
+        this.statusAdvancedOptions = this.toOptions(
+            Object.keys(stats.lessonsByStatus || {}),
+            this.mapStatusLabel
+        );
+        this.typeAdvancedOptions = this.toOptions(
+            Object.keys(stats.lessonsByType || {}),
+            this.mapTypeLabel
+        );
+        this.centerAdvancedOptions = this.toOptions(
+            Object.keys(stats.lessonsByCenter || {})
+        );
+        this.levelAdvancedOptions = this.toOptions(
+            Object.keys(stats.lessonsByLevel || {})
+        );
+        const allUnits = Object.values(stats.lessonsByUnit || {}).flatMap(units => Object.keys(units));
+        this.unitAdvancedOptions = this.toOptions(
+            Array.from(new Set(allUnits)).sort((a, b) => a.localeCompare(b))
+        );
+    }
+
+    private applyAdvancedSearchChart(lessonsArg?: Lesson[]): void {
+        const lessons = lessonsArg ?? this.lessonsCache;
+        const filtered = this.filterLessonsByAdvancedCriteria(lessons);
+        this.filteredLessonsCount = filtered.length;
+
+        const grouped: Record<string, number> = {};
+        for (const lesson of filtered) {
+            const label = lesson.center?.name || 'Sem centro';
+            grouped[label] = (grouped[label] ?? 0) + 1;
+        }
+
+        const labels = Object.keys(grouped);
+        const counts = labels.map(l => grouped[l]);
+        this.advancedChartRawCounts = counts;
+
+        const max = Math.max(...counts, 0);
+        const normalized = counts.map(c => max > 0 ? Math.max(12, Number(((c / max) * 100).toFixed(1))) : 0);
+
+        this.advancedSearchChartData = {
+            ...this.advancedSearchChartData,
+            labels,
+            datasets: [{ ...this.advancedSearchChartData.datasets[0], data: normalized }]
+        };
+    }
+
+    private filterLessonsByAdvancedCriteria(lessons: Lesson[]): Lesson[] {
+        return lessons.filter(lesson => {
+            if (this.selectedStatusAdvanced && String(lesson.status) !== this.selectedStatusAdvanced) return false;
+            if (this.selectedTypeAdvanced && String(lesson.type) !== this.selectedTypeAdvanced) return false;
+            if (this.selectedOnlineAdvanced !== null && String(lesson.online) !== this.selectedOnlineAdvanced) return false;
+            if (this.selectedCenterAdvanced && lesson.center?.name !== this.selectedCenterAdvanced) return false;
+            if (this.selectedLevelAdvanced) {
+                const lessonLevel = lesson.level ?? lesson.unit?.name;
+                if (lessonLevel !== this.selectedLevelAdvanced) return false;
+            }
+            if (this.selectedUnitAdvanced && lesson.unit?.name !== this.selectedUnitAdvanced) return false;
+            return true;
+        });
+    }
+
+    private toOptions(values: string[], labelMapper?: (v: string) => string): SelectOption[] {
+        return values.map(v => ({ value: v, label: labelMapper ? labelMapper(v) : v }));
+    }
+
+    private mapStatusLabel(value: string): string {
+        const map: Record<string, string> = {
+            AVAILABLE: 'Disponível', SCHEDULED: 'Agendada', COMPLETED: 'Completa',
+            CANCELLED: 'Cancelada', BOOKED: 'Reservada', POSTPONED: 'Adiada',
+            TAUGHT: 'Leccionada', NOT_TAUGHT: 'Não Leccionada', RESCHEDULED: 'Reagendada', RESCHEDULE: 'Reagendada'
+        };
+        return map[value] || value;
+    }
+
+    private mapTypeLabel(value: string): string {
+        const map: Record<string, string> = {
+            GENERAL: 'Geral', GRAMMAR: 'Gramática', VOCABULARY: 'Vocabulário',
+            PRONUNCIATION: 'Pronúncia', LISTENING: 'Compreensão Oral', WRITING: 'Escrita',
+            SPEAKING: 'Expressão Oral', READING: 'Leitura', CONVERSATION: 'Conversação',
+            PRACTICAL: 'Prática', BUSINESS: 'Negócios', OTHER: 'Outro',
+            '0': 'Geral', '1': 'Gramática', '2': 'Vocabulário', '3': 'Pronúncia',
+            '4': 'Compreensão Oral', '5': 'Escrita', '6': 'Expressão Oral', '7': 'Leitura',
+            '8': 'Conversação', '9': 'Prática', '10': 'Negócios', '11': 'Outro'
+        };
+        return map[value] || value;
     }
 }

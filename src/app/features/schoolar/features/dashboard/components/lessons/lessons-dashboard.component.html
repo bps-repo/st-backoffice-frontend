@@ -28,6 +28,149 @@
         </div>
     </ng-template>
 
+    <!-- Advanced Lesson Research Chart -->
+    <div class="col-12">
+        <div class="card h-full p-4">
+            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3 mb-4">
+                <h5 class="text-xl font-semibold m-0">Pesquisa Avancada de Aulas</h5>
+                <div class="flex align-items-center gap-3">
+                    <div class="flex align-items-center gap-2 px-3 py-2 border-round-xl surface-100 border-1 surface-border">
+                        <i class="pi pi-sliders-h text-primary"></i>
+                        <span class="text-sm font-medium">Mostrar pesquisa</span>
+                        <p-inputSwitch [(ngModel)]="showAdvancedSearchChart"></p-inputSwitch>
+                    </div>
+                    <div class="flex align-items-center gap-2" *ngIf="showAdvancedSearchChart">
+                        <span class="text-600">Resultados: <strong>{{ filteredLessonsCount }}</strong></span>
+                        <button
+                            pButton
+                            type="button"
+                            label="Limpar filtros"
+                            class="p-button-sm p-button-outlined"
+                            (click)="clearAdvancedFilters()"
+                        ></button>
+                    </div>
+                </div>
+            </div>
+
+            <ng-container *ngIf="showAdvancedSearchChart; else advancedChartDisabled">
+                <div class="flex flex-wrap gap-2 mb-4" *ngIf="activeAdvancedFilterChips.length > 0">
+                    <button
+                        type="button"
+                        class="p-button p-component p-button-text p-button-sm border-round-sm surface-100 text-color px-2 py-1"
+                        *ngFor="let chip of activeAdvancedFilterChips"
+                        (click)="removeAdvancedFilter(chip.key)"
+                    >
+                        <span>{{ chip.label }}: {{ chip.value }}</span>
+                        <i class="pi pi-times ml-2 text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="grid mb-4" style="row-gap: 0.85rem;">
+                    <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                        <label class="block mb-2 font-medium">Estado</label>
+                        <p-dropdown
+                            [options]="statusAdvancedOptions"
+                            [(ngModel)]="selectedStatusAdvanced"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            placeholder="Todos"
+                            (onChange)="onAdvancedFiltersChange()"
+                            styleClass="w-full"
+                        ></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                        <label class="block mb-2 font-medium">Tipo</label>
+                        <p-dropdown
+                            [options]="typeAdvancedOptions"
+                            [(ngModel)]="selectedTypeAdvanced"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            placeholder="Todos"
+                            (onChange)="onAdvancedFiltersChange()"
+                            styleClass="w-full"
+                        ></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                        <label class="block mb-2 font-medium">Modo</label>
+                        <p-dropdown
+                            [options]="onlineAdvancedOptions"
+                            [(ngModel)]="selectedOnlineAdvanced"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            placeholder="Todos"
+                            (onChange)="onAdvancedFiltersChange()"
+                            styleClass="w-full"
+                        ></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                        <label class="block mb-2 font-medium">Centro</label>
+                        <p-dropdown
+                            [options]="centerAdvancedOptions"
+                            [(ngModel)]="selectedCenterAdvanced"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            placeholder="Todos"
+                            (onChange)="onAdvancedFiltersChange()"
+                            styleClass="w-full"
+                        ></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                        <label class="block mb-2 font-medium">Nivel</label>
+                        <p-dropdown
+                            [options]="levelAdvancedOptions"
+                            [(ngModel)]="selectedLevelAdvanced"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            placeholder="Todos"
+                            (onChange)="onAdvancedFiltersChange()"
+                            styleClass="w-full"
+                        ></p-dropdown>
+                    </div>
+
+                    <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                        <label class="block mb-2 font-medium">Unidade</label>
+                        <p-dropdown
+                            [options]="unitAdvancedOptions"
+                            [(ngModel)]="selectedUnitAdvanced"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            placeholder="Todas"
+                            (onChange)="onAdvancedFiltersChange()"
+                            styleClass="w-full"
+                        ></p-dropdown>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <p-chart
+                        type="bar"
+                        [data]="advancedSearchChartData"
+                        [options]="advancedSearchChartOptions"
+                        [plugins]="[advancedBarsValuePlugin]"
+                        height="360px"
+                    ></p-chart>
+                </div>
+            </ng-container>
+
+            <ng-template #advancedChartDisabled>
+                <div class="surface-50 border-1 surface-border border-round-lg p-4 text-center">
+                    <i class="pi pi-sliders-h text-2xl text-500 mb-2"></i>
+                    <p class="m-0 text-600">Ative o toggle para mostrar os filtros e o grafico avancado.</p>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+
     <!-- Lesson Status Distribution Pie Chart -->
     <div class="col-12 md:col-6">
         <div class="card h-full">

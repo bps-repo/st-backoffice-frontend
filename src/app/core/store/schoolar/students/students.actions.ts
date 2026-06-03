@@ -32,6 +32,7 @@ export const StudentsActions = createActionGroup({
                 code?: number;
                 email?: string;
                 username?: string;
+                fullName?: string;
                 province?: string;
                 municipality?: string;
             };
@@ -49,6 +50,7 @@ export const StudentsActions = createActionGroup({
                 code?: number;
                 email?: string;
                 username?: string;
+                fullName?: string;
                 province?: string;
                 municipality?: string;
             }

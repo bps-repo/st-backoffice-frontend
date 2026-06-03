@@ -190,6 +190,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         code?: number;
         email?: string;
         username?: string;
+        fullName?: string;
         province?: string;
         municipality?: string;
     } = {};
@@ -430,7 +431,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
         } else if (/^\d+$/.test(searchTerm.trim())) {
             filters.code = parseInt(searchTerm.trim(), 10);
         } else {
-            filters.username = searchTerm;
+            filters.fullName = searchTerm;
         }
 
         const mergedFilters = {...this.searchFilters, ...filters};
@@ -603,7 +604,7 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             } else if (/^\d+$/.test(this.searchTerm.trim())) {
                 filters.code = parseInt(this.searchTerm.trim(), 10);
             } else {
-                filters.username = this.searchTerm;
+                filters.fullName = this.searchTerm;
             }
         }
 
