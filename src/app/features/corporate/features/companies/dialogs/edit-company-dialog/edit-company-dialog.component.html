@@ -1,0 +1,97 @@
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '500px' }"
+    header="Editar Empresa"
+    [modal]="true"
+    styleClass="p-fluid"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="reset()">
+
+    <form #editForm="ngForm" class="grid p-fluid">
+        @if (errorUpdate()) {
+            <div class="col-12">
+                <p class="text-red-500 text-sm">{{ errorUpdate() }}</p>
+            </div>
+        }
+
+        <div class="col-12 field">
+            <label for="edit-name" class="font-bold">Nome <span class="text-red-500">*</span></label>
+            <input
+                id="edit-name"
+                name="name"
+                type="text"
+                pInputText
+                [(ngModel)]="form.name"
+                #nameRef="ngModel"
+                placeholder="Nome da empresa"
+                required
+                [class.ng-invalid]="nameRef.invalid && nameRef.touched"
+                [class.ng-dirty]="nameRef.dirty">
+            @if (nameRef.invalid && nameRef.touched) {
+                <small class="text-red-500">Nome é obrigatório.</small>
+            }
+        </div>
+
+        <div class="col-12 field">
+            <label for="edit-contactEmail" class="font-bold">Email de Contacto <span class="text-red-500">*</span></label>
+            <input
+                id="edit-contactEmail"
+                name="contactEmail"
+                type="email"
+                pInputText
+                [(ngModel)]="form.contactEmail"
+                #emailRef="ngModel"
+                placeholder="email@empresa.com"
+                required
+                [class.ng-invalid]="emailRef.invalid && emailRef.touched"
+                [class.ng-dirty]="emailRef.dirty">
+            @if (emailRef.invalid && emailRef.touched) {
+                <small class="text-red-500">Email de contacto é obrigatório.</small>
+            }
+        </div>
+
+        <div class="col-12 field">
+            <label for="edit-contactPhone" class="font-bold">Telefone <span class="text-red-500">*</span></label>
+            <input
+                id="edit-contactPhone"
+                name="contactPhone"
+                type="text"
+                pInputText
+                [(ngModel)]="form.contactPhone"
+                #phoneRef="ngModel"
+                placeholder="+244 900 000 000"
+                required
+                [class.ng-invalid]="phoneRef.invalid && phoneRef.touched"
+                [class.ng-dirty]="phoneRef.dirty">
+            @if (phoneRef.invalid && phoneRef.touched) {
+                <small class="text-red-500">Telefone é obrigatório.</small>
+            }
+        </div>
+
+        <div class="col-12 field">
+            <label for="edit-registrationNumber" class="font-bold">Nº de Registo</label>
+            <input
+                id="edit-registrationNumber"
+                name="registrationNumber"
+                type="text"
+                pInputText
+                [(ngModel)]="form.registrationNumber"
+                placeholder="Número de registo comercial">
+        </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hide()"></button>
+            <button
+                pButton
+                [label]="loadingUpdate() ? 'Salvando...' : 'Salvar'"
+                icon="pi pi-check"
+                [disabled]="loadingUpdate() || editForm.invalid"
+                (click)="save()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,44 @@
+<div class="grid">
+
+    <div class="col-12 flex justify-content-end mb-3">
+        <button pButton type="button" label="Criar Empresa" icon="pi pi-plus" (click)="openCreate()"></button>
+    </div>
+
+    <app-global-table
+        tableLabel="Empresas"
+        [data]="facade.companies()"
+        [entity]="'companies'"
+        [columns]="columns"
+        [columnTemplates]="{ actions: actionsTemplate }"
+        [loading]="facade.loading()"
+        class="w-full"
+        (createEntity)="openCreate()"
+    ></app-global-table>
+
+    <ng-template #actionsTemplate let-company>
+        <div class="flex gap-2 justify-content-center">
+            <button
+                pButton
+                pRipple
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-text"
+                (click)="editCompany(company)"
+                pTooltip="Editar"
+                tooltipPosition="top"
+            ></button>
+            <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                (click)="deleteCompany(company)"
+                pTooltip="Excluir"
+                tooltipPosition="top"
+            ></button>
+        </div>
+    </ng-template>
+
+    <app-create-company-dialog></app-create-company-dialog>
+    <app-edit-company-dialog></app-edit-company-dialog>
+    <p-confirmDialog></p-confirmDialog>
+</div>

@@ -1,0 +1,51 @@
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '520px' }"
+    header="Detalhes da Unidade"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="reset()">
+
+    @if (unit) {
+        <div class="flex flex-column gap-3">
+            <div>
+                <span class="text-sm text-color-secondary block mb-1">Nome</span>
+                <span class="font-semibold text-lg">{{ unit.name }}</span>
+            </div>
+
+            <p-divider></p-divider>
+
+            <div>
+                <span class="text-sm text-color-secondary block mb-1">Descrição</span>
+                <p class="m-0 line-height-3">{{ unit.description || '—' }}</p>
+            </div>
+
+            <div class="grid">
+                <div class="col-6">
+                    <span class="text-sm text-color-secondary block mb-1">Ordem</span>
+                    <span class="font-medium">{{ unit.orderUnit }}</span>
+                </div>
+                <div class="col-6">
+                    <span class="text-sm text-color-secondary block mb-1">Tentativas máx. de avaliação</span>
+                    <span class="font-medium">{{ unit.maximumAssessmentAttempt }}</span>
+                </div>
+                <div class="col-6">
+                    <span class="text-sm text-color-secondary block mb-1">Nível</span>
+                    <span class="font-medium">{{ levelName }}</span>
+                </div>
+                <div class="col-6">
+                    <span class="text-sm text-color-secondary block mb-1">Estado</span>
+                    <p-tag [value]="unit.status" [severity]="statusSeverity(unit.status)"></p-tag>
+                </div>
+            </div>
+        </div>
+    }
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+            <button pButton label="Fechar" icon="pi pi-times" class="p-button-text" (click)="hide()"></button>
+        </div>
+    </ng-template>
+</p-dialog>

@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {Observable, of} from 'rxjs';
 import {CreateUnitDialogComponent} from '../../dialogs/create-unit-dialog/create-unit-dialog.component';
+import {EditUnitDialogComponent} from '../../dialogs/edit-unit-dialog/edit-unit-dialog.component';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmationService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
@@ -16,7 +17,7 @@ import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.acti
 
 @Component({
     selector: 'app-unit-general',
-    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateUnitDialogComponent],
+    imports: [CommonModule, GlobalTable, ConfirmDialogModule, ButtonModule, CreateUnitDialogComponent, EditUnitDialogComponent],
     templateUrl: './list.component.html',
     standalone: true,
     providers: [ConfirmationService]
@@ -28,6 +29,7 @@ export class ListComponent implements OnInit {
 
 
     @ViewChild(CreateUnitDialogComponent) createUnitDialog!: CreateUnitDialogComponent;
+    @ViewChild(EditUnitDialogComponent) editUnitDialog!: EditUnitDialogComponent;
 
     units$: Observable<Unit[]>;
     loading$: Observable<boolean> = of();
@@ -93,6 +95,15 @@ export class ListComponent implements OnInit {
 
     navigateToCreate(): void {
         this.router.navigate(['/schoolar/units/create']);
+    }
+
+    editUnit(unit: Unit): void {
+        this.editUnitDialog.show(unit);
+    }
+
+    onUnitUpdated(updated: Unit): void {
+        this.units = this.units.map((u) => (u.id === updated.id ? {...u, ...updated} : u));
+        this.mapLevelNames();
     }
 
     deleteUnit(unit: Unit): void {

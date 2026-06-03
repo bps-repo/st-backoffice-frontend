@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div *ngIf="loading" class="spinner-container">
     <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
 </div>
@@ -19,13 +21,29 @@
 
                 <div class="field col-12 md:col-6">
                     <label for="orderUnit">Ordem da Unidade</label>
-                    <input id="orderUnit" type="number" pInputText [(ngModel)]="editableUnit.orderUnit"/>
+                    <p-inputNumber
+                        id="orderUnit"
+                        [(ngModel)]="editableUnit.orderUnit"
+                        [min]="1"
+                        [useGrouping]="false"
+                        styleClass="w-full">
+                    </p-inputNumber>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="maximumAssessmentAttempt">Tentativas máx. de avaliação</label>
+                    <p-inputNumber
+                        id="maximumAssessmentAttempt"
+                        [(ngModel)]="editableUnit.maximumAssessmentAttempt"
+                        [min]="1"
+                        [useGrouping]="false"
+                        styleClass="w-full">
+                    </p-inputNumber>
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="level">Nível</label>
                     <input id="level" type="text" pInputText [value]="editableUnit.level?.name" readonly/>
-
                 </div>
             </div>
 
@@ -33,10 +51,11 @@
                 <button
                     pButton
                     pRipple
-                    label="Editar"
-                    icon="pi pi-pencil"
+                    [label]="saving ? 'Salvando...' : 'Guardar'"
+                    icon="pi pi-save"
                     class="p-button-primary"
-                    (click)="editUnit()"
+                    [disabled]="saving"
+                    (click)="saveUnit()"
                 ></button>
                 <button
                     pButton

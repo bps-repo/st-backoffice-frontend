@@ -1,7 +1,7 @@
 import {Injectable, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map, Observable} from 'rxjs';
-import {Unit} from '../models/course/unit';
+import {Unit, UpdateUnitPayload} from '../models/course/unit';
 import {environment} from 'src/environments/environment';
 import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
 
@@ -18,19 +18,24 @@ export class UnitService {
         return this.http.post<ApiResponse<Unit>>(this.apiUrl, unit);
     }
 
-    updateUnit(id: string, unit: Partial<Unit>): Observable<ApiResponse<Unit>> {
-        return this.http.patch<ApiResponse<Unit>>(`${this.apiUrl}/${id}`, unit);
+    updateUnit(id: string, unit: UpdateUnitPayload): Observable<ApiResponse<Unit>> {
+        return this.http.patch<ApiResponse<Unit>>(`${this.apiUrl}/${id}`, unit).pipe(
+            map((response) => ({...response, data: this.mapUnit(response.data)})),
+        );
     }
 
     loadUnitById(id: string): Observable<ApiResponse<Unit>> {
-        return this.http.get<ApiResponse<Unit>>(`${this.apiUrl}/${id}`);
+        return this.http.get<ApiResponse<Unit>>(`${this.apiUrl}/${id}`).pipe(
+            map((response) => ({...response, data: this.mapUnit(response.data)})),
+        );
     }
 
     loadUnits(): Observable<Unit[]> {
         return this.http.get<ApiResponse<any>>(`${this.apiUrl}/search`).pipe(
             map(response => {
                 const data = response.data;
-                return (Array.isArray(data) ? data : (data?.content ?? [])) as Unit[];
+                const units = (Array.isArray(data) ? data : (data?.content ?? [])) as Unit[];
+                return units.map((unit) => this.mapUnit(unit));
             })
         );
     }
@@ -56,5 +61,12 @@ export class UnitService {
 
     loadUnitProgresses(unitId: string): Observable<ApiResponse<any[]>> {
         return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/${unitId}/unit-progresses`);
+    }
+
+    private mapUnit(raw: Unit & {unitOrder?: number}): Unit {
+        return {
+            ...raw,
+            orderUnit: raw.orderUnit ?? raw.unitOrder ?? 0,
+        };
     }
 }

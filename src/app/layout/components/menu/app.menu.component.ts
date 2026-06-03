@@ -1,11 +1,11 @@
-import {inject, OnInit, OnDestroy} from '@angular/core';
-import {Component} from '@angular/core';
-import {AppMenuitemComponent} from './app.menuitem.component';
-import {CommonModule} from '@angular/common';
-import {Store} from '@ngrx/store';
-import {selectUserPermissionNames} from 'src/app/core/store/auth/auth.selectors';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import { inject, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
+import { AppMenuitemComponent } from './app.menuitem.component';
+import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { selectUserPermissionNames } from 'src/app/core/store/auth/auth.selectors';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'app-menu',
@@ -159,6 +159,39 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         visible: this.hasPermission('sales.generate_reports')
                     },
                 ],
+            },
+            {
+                label: 'Gestão Corporativa',
+                icon: 'pi pi-fw pi-building',
+                visible: (this.hasPermission('centers.view')
+                    || this.hasPermission('reports.export')
+                    || this.hasPermission('users.view')
+                    || this.hasPermission('roles.view')
+                    || this.hasPermission('users.edit')
+                    || this.hasPermission('users.create')
+                    || this.hasPermission('users.delete')
+                    || this.hasPermission('services.view')
+                ),
+                items: [
+                    {
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-th-large',
+                        routerLink: ['/corporate/dashboards'],
+                        visible: this.hasPermission('centers.view')
+                    },
+                    {
+                        label: 'Corporações',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/corporate/companies'],
+                        visible: this.hasPermission('centers.view')
+                    },
+                    {
+                        label: 'Relatórios',
+                        icon: 'pi pi-fw pi-file-pdf',
+                        routerLink: ['/corporate/reports'],
+                        visible: this.hasPermission('reports.export')
+                    },
+                ]
             },
             {
                 label: 'Empresa',

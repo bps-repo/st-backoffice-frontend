@@ -1,4 +1,5 @@
 import {
+    ChangeDetectorRef,
     Component,
     Input,
     OnChanges,
@@ -47,6 +48,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
     private certService = inject(CertificateService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
+    private cdr = inject(ChangeDetectorRef);
 
     certificates: StudentCertificate[] = [];
     loading = false;
@@ -62,12 +64,9 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
             .pipe(
                 switchMap((sid) => {
                     if (!sid) return of([]);
-                    this.loading = true;
-                    this.error = null;
                     return this.certService.getStudentCertificates(sid).pipe(
-                        catchError((err) => {
+                        catchError(() => {
                             this.error = 'Erro ao carregar certificados.';
-                            this.loading = false;
                             return of([]);
                         }),
                     );
@@ -77,16 +76,17 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
             .subscribe((certs) => {
                 this.certificates = certs;
                 this.loading = false;
+                this.cdr.detectChanges();
             });
 
         if (this.studentId) {
-            this.loadTrigger$.next(this.studentId);
+            this.triggerLoad();
         }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['studentId'] && !changes['studentId'].firstChange && this.studentId) {
-            this.loadTrigger$.next(this.studentId);
+            this.triggerLoad();
         }
     }
 
@@ -96,7 +96,14 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
     }
 
     reload(): void {
-        if (this.studentId) this.loadTrigger$.next(this.studentId);
+        this.triggerLoad();
+    }
+
+    private triggerLoad(): void {
+        if (!this.studentId) return;
+        this.loading = true;
+        this.error = null;
+        this.loadTrigger$.next(this.studentId);
     }
 
     // ── Issue certificate ─────────────────────────────────────────────────────
@@ -112,6 +119,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
             rejectLabel: 'Cancelar',
             accept: () => {
                 this.issuing = true;
+                this.cdr.detectChanges();
                 this.certService
                     .issueCertificate(this.studentId!)
                     .pipe(takeUntil(this.destroy$))
@@ -119,6 +127,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
                         next: (cert) => {
                             this.certificates = [...this.certificates, cert];
                             this.issuing = false;
+                            this.cdr.detectChanges();
                             this.messageService.add({
                                 severity: 'success',
                                 summary: 'Certificado emitido',
@@ -127,6 +136,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
                         },
                         error: () => {
                             this.issuing = false;
+                            this.cdr.detectChanges();
                             this.messageService.add({
                                 severity: 'error',
                                 summary: 'Erro',
@@ -149,6 +159,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
             rejectLabel: 'Cancelar',
             accept: () => {
                 this.publishing.add(cert.id);
+                this.cdr.detectChanges();
                 this.certService
                     .publishCertificate(cert.id)
                     .pipe(takeUntil(this.destroy$))
@@ -158,6 +169,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
                             this.certificates = this.certificates.map((c) =>
                                 c.id === updated.id ? updated : c,
                             );
+                            this.cdr.detectChanges();
                             this.messageService.add({
                                 severity: 'success',
                                 summary: 'Publicado',
@@ -166,6 +178,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
                         },
                         error: () => {
                             this.publishing.delete(cert.id);
+                            this.cdr.detectChanges();
                             this.messageService.add({
                                 severity: 'error',
                                 summary: 'Erro',
@@ -182,12 +195,14 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
     downloadCertificate(cert: StudentCertificate): void {
         if (!this.studentId) return;
         this.downloading.add(cert.id);
+        this.cdr.detectChanges();
         this.certService
             .downloadCertificate(cert.id)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (blob) => {
                     this.downloading.delete(cert.id);
+                    this.cdr.detectChanges();
 
                     // Guard: if the server returned JSON (ApiResponse envelope) instead of
                     // a real PDF, read it and extract the download URL from data.url / data.
@@ -224,6 +239,7 @@ export class StudentCertificatesTabComponent implements OnInit, OnChanges, OnDes
                 },
                 error: () => {
                     this.downloading.delete(cert.id);
+                    this.cdr.detectChanges();
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Erro',

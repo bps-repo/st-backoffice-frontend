@@ -1,0 +1,82 @@
+<p-dialog
+    [(visible)]="visible"
+    [style]="{ width: '500px' }"
+    header="Editar Unidade"
+    [modal]="true"
+    styleClass="p-fluid"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="resetForm()">
+
+    <div class="grid p-fluid">
+        @if (error()) {
+            <div class="col-12">
+                <p class="text-red-500 text-sm m-0">{{ error() }}</p>
+            </div>
+        }
+
+        <div class="col-12 field">
+            <label for="edit-name" class="font-bold">Nome</label>
+            <input
+                id="edit-name"
+                type="text"
+                pInputText
+                [(ngModel)]="form.name"
+                placeholder="Nome da unidade"
+                required>
+        </div>
+
+        <div class="col-12 field">
+            <label for="edit-description" class="font-bold">Descrição</label>
+            <textarea
+                id="edit-description"
+                rows="3"
+                pTextarea
+                [(ngModel)]="form.description"
+                placeholder="Descrição da unidade">
+            </textarea>
+        </div>
+
+        <div class="col-12 field">
+            <label for="edit-order" class="font-bold">Ordem</label>
+            <p-inputNumber
+                id="edit-order"
+                [(ngModel)]="form.orderUnit"
+                [min]="1"
+                [useGrouping]="false"
+                styleClass="w-full">
+            </p-inputNumber>
+        </div>
+
+        <div class="col-12 field">
+            <label for="edit-max-attempts" class="font-bold">Tentativas máx. de avaliação</label>
+            <p-inputNumber
+                id="edit-max-attempts"
+                [(ngModel)]="form.maximumAssessmentAttempt"
+                [min]="1"
+                [useGrouping]="false"
+                styleClass="w-full">
+            </p-inputNumber>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button
+                pButton
+                label="Cancelar"
+                icon="pi pi-times"
+                class="p-button-text"
+                (click)="hide()">
+            </button>
+            <button
+                pButton
+                [label]="loading() ? 'Salvando...' : 'Salvar'"
+                icon="pi pi-check"
+                [disabled]="loading() || !form.name.trim() || !form.description.trim()"
+                (click)="saveUnit()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

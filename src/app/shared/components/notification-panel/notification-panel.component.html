@@ -1,0 +1,67 @@
+<button
+    type="button"
+    class="p-link notification-button"
+    pTooltip="Notificações"
+    tooltipPosition="bottom"
+    (click)="toggle($event)">
+    <span class="notification-icon-wrap">
+        <i class="pi pi-bell"></i>
+        @if (hasUnread()) {
+            <span class="notification-dot"></span>
+        }
+    </span>
+    @if (unreadCount() > 0) {
+        <p-badge [value]="unreadCount().toString()" severity="danger" class="notification-badge"></p-badge>
+    }
+</button>
+
+<p-overlayPanel #op [style]="{ width: '380px', 'max-height': '520px' }" styleClass="notification-overlay p-0">
+    <div class="notification-header flex align-items-center justify-content-between px-3 py-2 border-bottom-1 surface-border">
+        <span class="font-semibold text-lg">Notificações</span>
+        @if (hasUnread()) {
+            <button
+                pButton
+                pRipple
+                label="Marcar todas como lidas"
+                class="p-button-text p-button-sm p-0"
+                (click)="markAllAsRead()">
+            </button>
+        }
+    </div>
+
+    @if (loading()) {
+        <div class="flex justify-content-center align-items-center py-5">
+            <i class="pi pi-spin pi-spinner text-2xl text-primary"></i>
+        </div>
+    } @else if (notifications().length === 0) {
+        <div class="flex flex-column align-items-center justify-content-center py-5 gap-2 text-color-secondary">
+            <i class="pi pi-bell-slash text-4xl"></i>
+            <span class="text-sm">Sem notificações</span>
+        </div>
+    } @else {
+        <ul class="notification-list list-none m-0 p-0" style="max-height: 420px; overflow-y: auto;">
+            @for (n of notifications(); track n.id) {
+                <li
+                    class="notification-item flex gap-3 px-3 py-3 border-bottom-1 surface-border cursor-pointer transition-colors transition-duration-150"
+                    [class.notification-unread]="!n.read"
+                    (click)="markAsRead(n)">
+                    <div class="notification-icon flex align-items-start pt-1">
+                        <i [class]="iconForType(n.type) + ' text-xl'"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex align-items-center justify-content-between gap-2 mb-1">
+                            <span class="font-medium text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                                {{ n.title }}
+                            </span>
+                            @if (!n.read) {
+                                <span class="unread-dot flex-shrink-0"></span>
+                            }
+                        </div>
+                        <p class="text-color-secondary text-xs m-0 line-height-3">{{ n.message }}</p>
+                        <span class="text-color-secondary text-xs">{{ n.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</p-overlayPanel>

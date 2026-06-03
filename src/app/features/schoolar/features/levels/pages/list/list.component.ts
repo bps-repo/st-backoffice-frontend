@@ -7,17 +7,16 @@ import {
     AfterViewInit,
     inject,
     signal,
+    computed,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {Observable, map, combineLatest} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmationService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {Level} from 'src/app/core/models/course/level';
 import {Unit} from 'src/app/core/models/course/unit';
-import {RippleModule} from "primeng/ripple";
+import {RippleModule} from 'primeng/ripple';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
@@ -26,17 +25,15 @@ import {BadgeModule} from 'primeng/badge';
 import {TooltipModule} from 'primeng/tooltip';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {FormsModule} from '@angular/forms';
-import * as UnitSelectors from "../../../../../../core/store/schoolar/units/unit.selectors";
-import {LevelActions} from "../../../../../../core/store/schoolar/level/level.actions";
-import {UnitActions} from "../../../../../../core/store/schoolar/units/unit.actions";
-import {KpiIndicatorsComponent, Kpi} from "../../../../../../shared/kpi-indicator/kpi-indicator.component";
+import {KpiIndicatorsComponent, Kpi} from '../../../../../../shared/kpi-indicator/kpi-indicator.component';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ChipModule} from 'primeng/chip';
 import {PaginatorModule} from 'primeng/paginator';
 import {LevelService} from 'src/app/core/services/level.service';
-import {Actions, ofType} from '@ngrx/effects';
-import {take} from 'rxjs/operators';
+import {UnitService} from 'src/app/core/services/unit.service';
+import {EditUnitDialogComponent} from '../../../units/dialogs/edit-unit-dialog/edit-unit-dialog.component';
+import {ViewUnitDetailDialogComponent} from '../../../units/dialogs/view-unit-detail-dialog/view-unit-detail-dialog.component';
 
 @Component({
     selector: 'app-level-general',
@@ -58,6 +55,8 @@ import {take} from 'rxjs/operators';
         ProgressSpinnerModule,
         ChipModule,
         PaginatorModule,
+        EditUnitDialogComponent,
+        ViewUnitDetailDialogComponent,
     ],
     templateUrl: './list.component.html',
     standalone: true,
@@ -130,31 +129,39 @@ import {take} from 'rxjs/operators';
 })
 export class ListComponent implements OnInit, AfterViewInit {
     private router = inject(Router);
-    private store$ = inject(Store);
     private levelService = inject(LevelService);
-    private actions$ = inject(Actions);
+    private unitService = inject(UnitService);
     private confirmationService = inject(ConfirmationService);
 
     @ViewChild('mainHeader') mainHeader!: ElementRef;
     @ViewChild('viewSelector') viewSelector!: ElementRef;
+    @ViewChild(EditUnitDialogComponent) editUnitDialog!: EditUnitDialogComponent;
+    @ViewChild(ViewUnitDetailDialogComponent) viewUnitDialog!: ViewUnitDetailDialogComponent;
 
-    units$ = this.store$.select(UnitSelectors.selectAllUnits);
-    unitsByLevel$?: Observable<Record<string, Unit[]>>;
+    units = signal<Unit[]>([]);
+    unitsByLevel = computed(() => {
+        const map: Record<string, Unit[]> = {};
+        for (const unit of this.units()) {
+            (map[unit.levelId] ??= []).push(unit);
+        }
+        return map;
+    });
 
-    paginatedLevels: Level[] = [];
-    filterLevelOptions: Level[] = [];
-    totalRecords = 0;
+    paginatedLevels = signal<Level[]>([]);
+    filterLevelOptions = signal<Level[]>([]);
+    totalRecords = signal(0);
     pageSize = 10;
     currentPage = 0;
-    listLoading = false;
+    listLoading = signal(false);
+    unitsLoading = signal(false);
 
-    expandedLevels: Set<string> = new Set();
+    expandedLevels = signal<Set<string>>(new Set());
     selectedLevelId = signal<string | null>(null);
     currentTab = 0;
     isMainHeaderSticky = false;
     isViewSelectorSticky = false;
 
-    kpis: Kpi[] = [];
+    kpis = signal<Kpi[]>([]);
 
     levelColors = [
         '#3B82F6',
@@ -168,25 +175,33 @@ export class ListComponent implements OnInit, AfterViewInit {
     ];
 
     ngOnInit(): void {
-        this.store$.dispatch(UnitActions.loadUnits());
+        this.loadUnits();
         this.loadPaginatedLevels();
         this.loadFilterOptions();
         this.initializeKpis();
+    }
 
-        this.unitsByLevel$ = this.units$.pipe(
-            map(units => {
-                const filtered = units.filter(u => !u.generic);
-                return filtered.reduce((acc, u) => {
-                    (acc[u.levelId] ??= []).push(u);
-                    return acc;
-                }, {} as Record<string, Unit[]>);
-            })
-        );
+    private loadUnits(): void {
+        this.unitsLoading.set(true);
+        this.unitService.loadUnits().subscribe({
+            next: (units) => {
+                this.units.set(units.filter((u) => !u.generic));
+                this.unitsLoading.set(false);
+                this.updateUnitsKpi();
+            },
+            error: () => {
+                this.units.set([]);
+                this.unitsLoading.set(false);
+                this.updateUnitsKpi();
+            },
+        });
     }
 
     private loadFilterOptions(): void {
         this.levelService.getLevels().subscribe({
-            next: (levels) => this.filterLevelOptions = levels ?? [],
+            next: (levels) => {
+                this.filterLevelOptions.set(levels ?? []);
+            },
         });
     }
 
@@ -212,66 +227,72 @@ export class ListComponent implements OnInit, AfterViewInit {
     }
 
     initializeKpis(): void {
-        combineLatest([this.units$]).subscribe(([totalUnits]) => {
-            this.kpis = [
-                {
-                    label: 'Total de níveis',
-                    value: this.totalRecords,
-                    icon: {label: 'layers', color: 'text-blue-500', type: 'mat'}
-                },
-                {
-                    label: 'Total de unidades',
-                    value: totalUnits.length,
-                    icon: {label: 'book', color: 'text-green-500', type: 'mat'}
-                }
-            ];
-        });
+        this.kpis.set([
+            {
+                label: 'Total de níveis',
+                value: this.totalRecords(),
+                icon: {label: 'layers', color: 'text-blue-500', type: 'mat'},
+            },
+            {
+                label: 'Total de unidades',
+                value: this.units().length,
+                icon: {label: 'book', color: 'text-green-500', type: 'mat'},
+            },
+        ]);
     }
 
     private updateKpiTotalLevels(): void {
         if (this.selectedLevelId()) return;
 
-        const levelsKpi = this.kpis.find(k => k.label === 'Total de níveis');
-        if (levelsKpi) {
-            levelsKpi.value = this.totalRecords;
-        }
+        this.kpis.update((items) =>
+            items.map((k) =>
+                k.label === 'Total de níveis' ? {...k, value: this.totalRecords()} : k,
+            ),
+        );
+    }
+
+    private updateUnitsKpi(): void {
+        this.kpis.update((items) =>
+            items.map((k) =>
+                k.label === 'Total de unidades' ? {...k, value: this.units().length} : k,
+            ),
+        );
     }
 
     loadPaginatedLevels(): void {
         const levelId = this.selectedLevelId();
+        this.listLoading.set(true);
 
         if (levelId) {
-            this.listLoading = true;
             this.levelService.getLevelById(levelId).subscribe({
                 next: (level) => {
-                    this.paginatedLevels = [level];
-                    this.totalRecords = 1;
+                    this.paginatedLevels.set([level]);
+                    this.totalRecords.set(1);
                     this.currentPage = 0;
-                    this.listLoading = false;
+                    this.listLoading.set(false);
                     this.updateKpiTotalLevels();
                 },
                 error: () => {
-                    this.paginatedLevels = [];
-                    this.totalRecords = 0;
-                    this.listLoading = false;
+                    this.paginatedLevels.set([]);
+                    this.totalRecords.set(0);
+                    this.listLoading.set(false);
                     this.updateKpiTotalLevels();
                 },
             });
             return;
         }
 
-        this.listLoading = true;
         this.levelService.getLevelsPaginated(this.currentPage, this.pageSize).subscribe({
             next: (page) => {
-                this.paginatedLevels = page.content ?? [];
-                this.totalRecords = page.totalElements ?? 0;
-                this.listLoading = false;
+                this.paginatedLevels.set(page.content ?? []);
+                this.totalRecords.set(page.totalElements ?? 0);
+                this.listLoading.set(false);
                 this.updateKpiTotalLevels();
             },
             error: () => {
-                this.paginatedLevels = [];
-                this.totalRecords = 0;
-                this.listLoading = false;
+                this.paginatedLevels.set([]);
+                this.totalRecords.set(0);
+                this.listLoading.set(false);
                 this.updateKpiTotalLevels();
             },
         });
@@ -284,9 +305,10 @@ export class ListComponent implements OnInit, AfterViewInit {
         this.loadPaginatedLevels();
     }
 
-    onLevelFilterChange(levelId: string | null): void {
-        this.selectedLevelId.set(levelId);
+    onLevelFilterChange(levelId: string | null | undefined): void {
+        this.selectedLevelId.set(levelId ?? null);
         this.currentPage = 0;
+        this.paginatedLevels.set([]);
         this.loadPaginatedLevels();
     }
 
@@ -295,23 +317,19 @@ export class ListComponent implements OnInit, AfterViewInit {
     }
 
     toggleExpand(levelId: string): void {
-        if (this.expandedLevels.has(levelId)) {
-            this.expandedLevels.delete(levelId);
-        } else {
-            this.expandedLevels.add(levelId);
-        }
+        this.expandedLevels.update((current) => {
+            const next = new Set(current);
+            if (next.has(levelId)) {
+                next.delete(levelId);
+            } else {
+                next.add(levelId);
+            }
+            return next;
+        });
     }
 
     isExpanded(levelId: string): boolean {
-        return this.expandedLevels.has(levelId);
-    }
-
-    getUnitsForLevel(levelId: string): Unit[] {
-        let units: Unit[] = [];
-        this.store$.select(UnitSelectors.selectUnitsByLevelId(levelId)).subscribe(u => {
-            units = u;
-        });
-        return units;
+        return this.expandedLevels().has(levelId);
     }
 
     getLevelColor(index: number): string {
@@ -324,6 +342,21 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     viewDetails(level: Level): void {
         this.router.navigate(['/schoolar/levels', level.id]).then();
+    }
+
+    viewUnit(unit: Unit, level: Level): void {
+        this.viewUnitDialog.show(unit, level.name);
+    }
+
+    editUnit(unit: Unit): void {
+        this.editUnitDialog.show(unit);
+    }
+
+    onUnitUpdated(updated: Unit): void {
+        this.units.update((list) =>
+            list.map((u) => (u.id === updated.id ? updated : u)),
+        );
+        this.updateUnitsKpi();
     }
 
     navigateToCreateLevel(): void {
@@ -344,9 +377,9 @@ export class ListComponent implements OnInit, AfterViewInit {
             acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => {
-                this.store$.dispatch(LevelActions.deleteLevel({id: level.id}));
-                this.actions$.pipe(ofType(LevelActions.deleteLevelSuccess), take(1))
-                    .subscribe(() => this.loadPaginatedLevels());
+                this.levelService.deleteLevel(level.id).subscribe({
+                    next: () => this.loadPaginatedLevels(),
+                });
             },
         });
     }

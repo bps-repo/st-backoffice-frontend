@@ -1,0 +1,30 @@
+.notification-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    pointer-events: none;
+}
+
+.notification-item {
+    &:hover {
+        background-color: var(--surface-hover);
+    }
+
+    &.notification-unread {
+        background-color: var(--highlight-bg);
+    }
+}
+
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+}
