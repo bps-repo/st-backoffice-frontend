@@ -95,15 +95,13 @@
                                 <!-- Units List (Expandable) -->
                                 <div *ngIf="isExpanded(level.id)" class="unit-list mt-3"
                                     (click)="$event.stopPropagation()">
-                                    <div *ngFor="let unit of unitsByLevel()[level.id] ?? []" class="unit-item">
+                                    <div *ngFor="let unit of unitsByLevel()[level.id]" class="unit-item">
                                         <div class="flex justify-content-between align-items-center">
                                             <div class="flex flex-column">
                                                 <span class="font-medium">{{ unit.name }}</span>
                                                 <span class="text-sm text-color-secondary">{{ unit.description }}</span>
                                             </div>
                                             <div class="flex align-items-center gap-2">
-                                                <p-badge [value]="unit.status"
-                                                    [severity]="unit.status === 'active' ? 'success' : 'warn'"></p-badge>
                                                 <button pButton pRipple icon="pi pi-eye"
                                                     class="p-button-rounded p-button-text p-button-sm"
                                                     (click)="viewUnit(unit, level)" pTooltip="Ver detalhes"
@@ -115,7 +113,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div *ngIf="(unitsByLevel()[level.id] ?? []).length === 0" class="text-center p-3">
+                                    <div *ngIf="(unitsByLevel()[level.id]).length === 0" class="text-center p-3">
                                         <span class="text-color-secondary">Nenhuma unidade encontrada para este
                                             nível</span>
                                     </div>
