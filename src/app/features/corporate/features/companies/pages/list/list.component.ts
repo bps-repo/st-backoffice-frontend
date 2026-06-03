@@ -1,6 +1,5 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
 import {ConfirmationService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ButtonModule} from 'primeng/button';
@@ -28,9 +27,7 @@ import {COMPANY_COLUMNS} from '../../company.const';
     templateUrl: './list.component.html',
     providers: [ConfirmationService]
 })
-export class ListComponent implements OnInit, AfterViewInit {
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+export class ListComponent implements OnInit {
     private confirmationService = inject(ConfirmationService);
 
     readonly facade = inject(CompanyFacadeService);
@@ -45,14 +42,8 @@ export class ListComponent implements OnInit, AfterViewInit {
         this.facade.loadCompanies();
     }
 
-    ngAfterViewInit(): void {
-        if (this.router.url.endsWith('/create')) {
-            setTimeout(() => this.createDialog?.show());
-        }
-    }
-
     openCreate(): void {
-        this.router.navigate(['create'], {relativeTo: this.route});
+        this.createDialog.show();
     }
 
     editCompany(company: Company): void {

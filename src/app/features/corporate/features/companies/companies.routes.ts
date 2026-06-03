@@ -6,9 +6,4 @@ export const CompaniesRoutes: Routes = [
         loadComponent: () =>
             import('./pages/list/list.component').then((m) => m.ListComponent),
     },
-    {
-        path: 'create',
-        loadComponent: () =>
-            import('./pages/list/list.component').then((m) => m.ListComponent),
-    },
 ];
