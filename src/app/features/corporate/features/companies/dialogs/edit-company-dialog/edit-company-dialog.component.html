@@ -1,7 +1,7 @@
 <p-dialog
     [(visible)]="visible"
     [style]="{ width: '500px' }"
-    header="Criar Empresa"
+    header="Editar Empresa"
     [modal]="true"
     styleClass="p-fluid"
     [draggable]="false"
@@ -9,21 +9,21 @@
     [closable]="true"
     (onHide)="reset()">
 
-    <form #form="ngForm" class="grid p-fluid">
-        @if (errorCreate()) {
+    <form #editForm="ngForm" class="grid p-fluid">
+        @if (errorUpdate()) {
             <div class="col-12">
-                <p class="text-red-500 text-sm">{{ errorCreate() }}</p>
+                <p class="text-red-500 text-sm">{{ errorUpdate() }}</p>
             </div>
         }
 
         <div class="col-12 field">
-            <label for="name" class="font-bold">Nome <span class="text-red-500">*</span></label>
+            <label for="edit-name" class="font-bold">Nome <span class="text-red-500">*</span></label>
             <input
-                id="name"
+                id="edit-name"
                 name="name"
                 type="text"
                 pInputText
-                [(ngModel)]="company.name"
+                [(ngModel)]="form.name"
                 #nameRef="ngModel"
                 placeholder="Nome da empresa"
                 required
@@ -35,13 +35,13 @@
         </div>
 
         <div class="col-12 field">
-            <label for="contactEmail" class="font-bold">Email de Contacto <span class="text-red-500">*</span></label>
+            <label for="edit-contactEmail" class="font-bold">Email de Contacto <span class="text-red-500">*</span></label>
             <input
-                id="contactEmail"
+                id="edit-contactEmail"
                 name="contactEmail"
                 type="email"
                 pInputText
-                [(ngModel)]="company.contactEmail"
+                [(ngModel)]="form.contactEmail"
                 #emailRef="ngModel"
                 placeholder="email@empresa.com"
                 required
@@ -53,13 +53,13 @@
         </div>
 
         <div class="col-12 field">
-            <label for="contactPhone" class="font-bold">Telefone <span class="text-red-500">*</span></label>
+            <label for="edit-contactPhone" class="font-bold">Telefone <span class="text-red-500">*</span></label>
             <input
-                id="contactPhone"
+                id="edit-contactPhone"
                 name="contactPhone"
                 type="text"
                 pInputText
-                [(ngModel)]="company.contactPhone"
+                [(ngModel)]="form.contactPhone"
                 #phoneRef="ngModel"
                 placeholder="+244 900 000 000"
                 required
@@ -71,13 +71,13 @@
         </div>
 
         <div class="col-12 field">
-            <label for="registrationNumber" class="font-bold">Nº de Registo</label>
+            <label for="edit-registrationNumber" class="font-bold">Nº de Registo</label>
             <input
-                id="registrationNumber"
+                id="edit-registrationNumber"
                 name="registrationNumber"
                 type="text"
                 pInputText
-                [(ngModel)]="company.registrationNumber"
+                [(ngModel)]="form.registrationNumber"
                 placeholder="Número de registo comercial">
         </div>
     </form>
@@ -87,9 +87,9 @@
             <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hide()"></button>
             <button
                 pButton
-                [label]="loadingCreate() ? 'Salvando...' : 'Salvar'"
+                [label]="loadingUpdate() ? 'Salvando...' : 'Salvar'"
                 icon="pi pi-check"
-                [disabled]="loadingCreate() || form.invalid"
+                [disabled]="loadingUpdate() || editForm.invalid"
                 (click)="save()">
             </button>
         </div>

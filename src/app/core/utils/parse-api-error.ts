@@ -1,5 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { ApiError } from '../models/ApiError';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ApiError} from '../models/ApiError';
 
 /**
  * Normalizes any thrown value into a typed ApiError.
@@ -57,4 +57,15 @@ export function parseApiError(err: unknown): ApiError | null {
     }
 
     return null;
+}
+
+export function extractApiErrorMessage(err: unknown): string {
+    const apiError = parseApiError(err);
+    if (!apiError) return 'Ocorreu um erro inesperado.';
+
+    if (apiError.validationErrors?.length) {
+        return apiError.validationErrors.map((e) => e.message).join(', ');
+    }
+
+    return apiError.error || apiError.message || 'Ocorreu um erro inesperado.';
 }

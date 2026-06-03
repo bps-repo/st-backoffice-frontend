@@ -29,6 +29,7 @@ export class CreateCompanyDialogComponent {
     readonly errorCreate = this.facade.errorCreate;
 
     show(): void {
+        this.facade.clearCreateError();
         this.visible = true;
     }
 

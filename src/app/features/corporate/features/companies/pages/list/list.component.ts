@@ -9,6 +9,7 @@ import {GlobalTable, TableColumn} from 'src/app/shared/components/tables/global-
 import {Company} from 'src/app/core/models/corporate/company';
 import {CompanyFacadeService} from '../../../../../../core/services/company-facade.service';
 import {CreateCompanyDialogComponent} from '../../dialogs/create-company-dialog/create-company-dialog.component';
+import {EditCompanyDialogComponent} from '../../dialogs/edit-company-dialog/edit-company-dialog.component';
 import {COMPANY_COLUMNS} from '../../company.const';
 
 @Component({
@@ -19,6 +20,7 @@ import {COMPANY_COLUMNS} from '../../company.const';
         CommonModule,
         GlobalTable,
         CreateCompanyDialogComponent,
+        EditCompanyDialogComponent,
         ButtonModule,
         ConfirmDialogModule,
         RippleModule,
@@ -34,6 +36,7 @@ export class ListComponent implements OnInit, AfterViewInit {
     readonly facade = inject(CompanyFacadeService);
 
     @ViewChild(CreateCompanyDialogComponent) createDialog!: CreateCompanyDialogComponent;
+    @ViewChild(EditCompanyDialogComponent) editDialog!: EditCompanyDialogComponent;
 
     columns: TableColumn[] = COMPANY_COLUMNS;
     columnTemplates?: {[key: string]: TemplateRef<any>};
@@ -50,6 +53,10 @@ export class ListComponent implements OnInit, AfterViewInit {
 
     openCreate(): void {
         this.router.navigate(['create'], {relativeTo: this.route});
+    }
+
+    editCompany(company: Company): void {
+        this.editDialog.show(company);
     }
 
     deleteCompany(company: Company): void {

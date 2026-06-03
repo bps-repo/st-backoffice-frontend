@@ -20,6 +20,15 @@
             <button
                 pButton
                 pRipple
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-text"
+                (click)="editCompany(company)"
+                pTooltip="Editar"
+                tooltipPosition="top"
+            ></button>
+            <button
+                pButton
+                pRipple
                 icon="pi pi-trash"
                 class="p-button-rounded p-button-danger"
                 (click)="deleteCompany(company)"
@@ -30,5 +39,6 @@
     </ng-template>
 
     <app-create-company-dialog></app-create-company-dialog>
+    <app-edit-company-dialog></app-edit-company-dialog>
     <p-confirmDialog></p-confirmDialog>
 </div>
