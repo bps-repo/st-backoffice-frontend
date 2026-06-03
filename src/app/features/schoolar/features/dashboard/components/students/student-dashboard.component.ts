@@ -10,17 +10,15 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { Store } from '@ngrx/store';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, takeUntil, first } from 'rxjs/operators';
 import { Student, StudentStatus } from 'src/app/core/models/academic/students/student';
 import { selectAllStudents, selectLoading } from 'src/app/core/store/schoolar/students/students.selectors';
 import { StudentsActions } from 'src/app/core/store/schoolar/students/students.actions';
 import { StudentDashboardStatistics } from 'src/app/core/models/academic/students/student-dashboard-statistics';
-import { StatisticsActions } from 'src/app/core/store/schoolar/statistics/statistics.actions';
-import {
-    selectDashboardStatistics,
-    selectLoadingDashboardStatistics
-} from 'src/app/core/store/schoolar/statistics/statistics.selectors';
+import { ScholarStatisticsService } from 'src/app/core/services/scholar-statistics.service';
+import { CenterService } from 'src/app/core/services/center.service';
+import { Center } from 'src/app/core/models/corporate/center';
 
 interface SelectOption {
     label: string;
@@ -52,16 +50,30 @@ interface ActiveFilterChip {
 })
 export class StudentsDashboardComponent implements OnInit, OnDestroy {
     private store = inject(Store);
+    private statsService = inject(ScholarStatisticsService);
+    private centerService = inject(CenterService);
 
     private destroy$ = new Subject<void>();
     private studentsCache: Student[] = [];
     private dashboardStatisticsSnapshot: StudentDashboardStatistics | null = null;
 
+    // Stats backing subjects
+    private statsSubject = new BehaviorSubject<StudentDashboardStatistics | null>(null);
+    private statsLoadingSubject = new BehaviorSubject<boolean>(true);
+
     // Data observables
     students$!: Observable<Student[]>;
     loading$!: Observable<boolean>;
-    dashboardStatistics$!: Observable<StudentDashboardStatistics | null>;
-    loadingDashboardStatistics$!: Observable<boolean>;
+    readonly dashboardStatistics$: Observable<StudentDashboardStatistics | null> = this.statsSubject.asObservable();
+    readonly loadingDashboardStatistics$: Observable<boolean> = this.statsLoadingSubject.asObservable();
+
+    // Stats dashboard filters
+    filterDateRange: Date[] = [
+        new Date(new Date().getFullYear(), 0, 1),
+        new Date(new Date().getFullYear(), 11, 31)
+    ];
+    selectedCenterId: string | null = null;
+    centers: Center[] = [];
 
     // Chart data
     pieDataGender: any;
@@ -196,21 +208,18 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        // Dispatch action to load students if not already loaded
         this.store.dispatch(StudentsActions.loadStudents());
-        // Dispatch action to load dashboard statistics
-        this.store.dispatch(StatisticsActions.loadDashboardStatistics());
         this.loadData();
         this.initCharts();
+        this.loadCenters();
+        this.loadStats();
 
-        // Update monthly enrollments chart when students change
         this.students$.pipe(takeUntil(this.destroy$)).subscribe((students) => {
             if (!Array.isArray(students)) {
                 return;
             }
 
             this.studentsCache = students;
-            this.updateMonthlyEnrollmentChart(students);
             this.buildAdvancedFilterOptions(students, this.dashboardStatisticsSnapshot);
             this.applyAdvancedSearchChart(students);
         });
@@ -221,14 +230,42 @@ export class StudentsDashboardComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
+    private loadCenters(): void {
+        this.centerService.getAllCenters().pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(centers => { this.centers = centers; });
+    }
+
+    private loadStats(): void {
+        const [start, end] = this.filterDateRange ?? [];
+        this.statsLoadingSubject.next(true);
+        this.statsService.getDashboardStatistics({
+            centerId: this.selectedCenterId ?? undefined,
+            startDate: start ? this.toDateString(start) : undefined,
+            endDate: end ? this.toDateString(end) : undefined,
+        }).pipe(takeUntil(this.destroy$)).subscribe({
+            next: stats => {
+                this.statsSubject.next(stats);
+                this.statsLoadingSubject.next(false);
+            },
+            error: () => this.statsLoadingSubject.next(false),
+        });
+    }
+
+    onStatsFilterChange(): void {
+        const [start, end] = this.filterDateRange ?? [];
+        if (start && end) {
+            this.loadStats();
+        }
+    }
+
+    private toDateString(date: Date): string {
+        return date.toISOString().split('T')[0];
+    }
+
     private loadData(): void {
-        // Load students data from store
         this.students$ = this.store.select(selectAllStudents);
         this.loading$ = this.store.select(selectLoading);
-
-        // Load dashboard statistics from store
-        this.dashboardStatistics$ = this.store.select(selectDashboardStatistics);
-        this.loadingDashboardStatistics$ = this.store.select(selectLoadingDashboardStatistics);
 
         // Build province filter options
         this.provinceFilterOptions$ = this.dashboardStatistics$.pipe(
@@ -996,45 +1033,21 @@ private calculateGrade(student: Student): string {
         return 'N/A';
     }
 
-    private updateMonthlyEnrollmentChart(students: Student[]): void {
-        if (!this.monthlyEnrollmentsData || !Array.isArray(students)) return;
-
-        // Aggregate by month for the current year
-        const now = new Date();
-        const year = now.getFullYear();
-        const counts = new Array(12).fill(0);
-
-        for (const s of students) {
-            const d = s.enrollmentDate ? new Date(s.enrollmentDate) : null;
-            if (!d || isNaN(d.getTime())) continue;
-            if (d.getFullYear() !== year) continue;
-            const m = d.getMonth(); // 0..11
-            counts[m] = (counts[m] || 0) + 1;
-        }
-
-        // Compute month-to-month percentage change
+    private updateMonthlyEnrollmentChartFromStats(counts: number[]): void {
         const pct: Array<number | null> = new Array(12).fill(null);
         for (let i = 1; i < 12; i++) {
             const prev = counts[i - 1];
-            const curr = counts[i];
-            if (prev === 0) {
-                pct[i] = null; // undefined change from zero base
-            } else {
-                pct[i] = ((curr - prev) / prev) * 100;
-            }
+            pct[i] = prev === 0 ? null : ((counts[i] - prev) / prev) * 100;
         }
         this.monthlyPctChanges = pct;
 
-        // Update datasets (bar + line)
-        if (this.monthlyEnrollmentsData.datasets && this.monthlyEnrollmentsData.datasets.length >= 2) {
-            this.monthlyEnrollmentsData = {
-                ...this.monthlyEnrollmentsData,
-                datasets: [
-                    { ...this.monthlyEnrollmentsData.datasets[0], data: counts },
-                    { ...this.monthlyEnrollmentsData.datasets[1], data: counts },
-                ]
-            };
-        }
+        this.monthlyEnrollmentsData = {
+            ...this.monthlyEnrollmentsData,
+            datasets: [
+                { ...this.monthlyEnrollmentsData.datasets[0], data: counts },
+                { ...this.monthlyEnrollmentsData.datasets[1], data: counts },
+            ]
+        };
     }
 
     private updateChartsFromDashboard(dashboardStats: StudentDashboardStatistics): void {
@@ -1046,6 +1059,9 @@ private calculateGrade(student: Student): string {
         this.updateAcademicBackgroundChart(dashboardStats);
         this.updateLevelChart(dashboardStats);
         this.updateCenterChart(dashboardStats);
+        if (dashboardStats.enrollmentsByMonth?.length === 12) {
+            this.updateMonthlyEnrollmentChartFromStats(dashboardStats.enrollmentsByMonth);
+        }
     }
 
     private updateStatusChart(dashboardStats: StudentDashboardStatistics): void {

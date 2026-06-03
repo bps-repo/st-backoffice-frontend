@@ -8,5 +8,7 @@ export interface StudentDashboardStatistics {
   studentsByAcademicBackground: Record<string, number>;
   studentsByLevel: Record<string, number>;
   studentsByCenter: Record<string, number>;
+  /** 12-element array, index 0 = January … 11 = December, for the current calendar year */
+  enrollmentsByMonth?: number[];
 }
 

@@ -1,4 +1,46 @@
 <div class="grid">
+    <!-- Dashboard stats filters -->
+    <div class="col-12">
+        <div class="card py-3">
+            <div class="flex flex-wrap align-items-end gap-3">
+                <div class="flex flex-column gap-1">
+                    <label class="font-medium text-sm">Centro</label>
+                    <p-dropdown
+                        [options]="centers"
+                        [(ngModel)]="selectedCenterId"
+                        optionLabel="name"
+                        optionValue="id"
+                        [showClear]="true"
+                        placeholder="Todos os centros"
+                        (onChange)="onStatsFilterChange()"
+                        styleClass="w-14rem"
+                    ></p-dropdown>
+                </div>
+                <div class="flex flex-column gap-1">
+                    <label class="font-medium text-sm">Período</label>
+                    <p-datePicker
+                        [(ngModel)]="filterDateRange"
+                        selectionMode="range"
+                        [readonlyInput]="true"
+                        placeholder="Selecionar período"
+                        dateFormat="dd/mm/yy"
+                        (onSelect)="onStatsFilterChange()"
+                        styleClass="w-16rem"
+                    ></p-datePicker>
+                </div>
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-refresh"
+                    label="Atualizar"
+                    class="p-button-outlined"
+                    [disabled]="!!(loadingDashboardStatistics$ | async)"
+                    (click)="onStatsFilterChange()"
+                ></button>
+            </div>
+        </div>
+    </div>
+
     <!-- KPIs -->
     <ng-container *ngIf="loadingDashboardStatistics$ | async; else kpisContent">
         <div class="col-12 md:col-6 xl:col-3" *ngFor="let i of [1,2,3,4]">
@@ -29,7 +71,7 @@
     <!-- Monthly Enrollments Mixed Chart (Bar + Line with % change) -->
     <div class="col-12">
         <div class="card h-full">
-            <div *ngIf="!(loading$ | async); else chartSkeletonMonthly">
+            <div *ngIf="!(loadingDashboardStatistics$ | async); else chartSkeletonMonthly">
                 <p-chart
                     type="bar"
                     [data]="monthlyEnrollmentsData"
