@@ -2,6 +2,12 @@
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
+<app-create-assessment
+    [visible]="showCreateModal()"
+    (visibleChange)="showCreateModal.set($event)"
+    (created)="load()"
+></app-create-assessment>
+
 <div class="grid">
     <!-- Header -->
     <div class="col-12 flex justify-content-between align-items-center mb-3">
@@ -12,7 +18,7 @@
         <p-button
             label="Nova Avaliação"
             icon="pi pi-plus"
-            (onClick)="navigateToCreate()"
+            (onClick)="openCreateModal()"
         ></p-button>
     </div>
 
