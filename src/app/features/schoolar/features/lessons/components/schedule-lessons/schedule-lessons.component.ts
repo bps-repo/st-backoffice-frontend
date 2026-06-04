@@ -9,17 +9,15 @@ import { BulkBookingRequest, BulkBookingResult, FailedBooking } from 'src/app/co
 import { LessonService } from 'src/app/core/services/lessons/lesson.service';
 import { StudentService } from 'src/app/core/services/student.service';
 import { LevelService } from 'src/app/core/services/level.service';
-import { filter, map, Subject, takeUntil } from 'rxjs';
+import { catchError, debounceTime, EMPTY, exhaustMap, Subject, takeUntil, tap } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
-import { Store } from '@ngrx/store';
-import * as StudentActions from 'src/app/core/store/schoolar/students/students.actions';
-import { selectAllStudents } from 'src/app/core/store/schoolar/students/students.selectors';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SkeletonModule } from 'primeng/skeleton';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -34,7 +32,7 @@ export type ScheduleMode = 'lesson-to-students' | 'student-to-lessons';
     standalone: true,
     imports: [
         CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, BadgeModule,
-        CardModule, ProgressSpinnerModule, ScrollPanelModule, ToastModule, DropdownModule, TooltipModule
+        CardModule, ProgressSpinnerModule, SkeletonModule, ScrollPanelModule, ToastModule, DropdownModule, TooltipModule
     ],
     templateUrl: './schedule-lessons.component.html'
 })
@@ -43,7 +41,6 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     private readonly lessonApi = inject(LessonService);
     private readonly studentApi = inject(StudentService);
     private readonly levelService = inject(LevelService);
-    private readonly store = inject(Store);
     private readonly messageService = inject(MessageService);
     private readonly route = inject(ActivatedRoute);
 
@@ -52,7 +49,6 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
 
     // ── Lesson-to-Students state ─────────────────────────────────────────────
     lessons: Lesson[] = [];
-    filteredLessons: Lesson[] = [];
     selectedLesson: Lesson | null = null;
 
     enrolled: Student[] = [];
@@ -62,8 +58,13 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     toRemove: string[] = [];
 
     loadingLessons = signal(false);
+    loadingMoreLessons = signal(false);
     loadingStudents = signal(false);
     savingChanges = signal(false);
+
+    lessonsHasMore = false;
+    private lessonsPage = 0;
+    private readonly lessonsPageSize = 20;
 
     searchLessonsCtrl = this.fb.control('');
     levelFilterCtrl = this.fb.control(null);
@@ -73,15 +74,19 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
 
     // ── Student-to-Lessons state ─────────────────────────────────────────────
     students: Student[] = [];
-    filteredStudents: Student[] = [];
     selectedStudent: Student | null = null;
 
     availableLessonsForStudent: Lesson[] = [];
     lessonsToEnroll: Lesson[] = [];
 
     loadingStudentsList = signal(false);
+    loadingMoreStudents = signal(false);
     loadingAvailableLessons = signal(false);
     savingStudentLessons = signal(false);
+
+    studentsHasMore = false;
+    private studentsPage = 0;
+    private readonly studentsPageSize = 20;
 
     searchStudentsListCtrl = this.fb.control('');
 
@@ -89,50 +94,92 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     searchStudentsCtrl = this.fb.control('');
 
     private destroy$ = new Subject<void>();
-
-    constructor() {
-        this.store.dispatch(StudentActions.StudentsActions.loadStudents());
-    }
+    private loadMoreLessons$ = new Subject<void>();
+    private loadMoreStudents$ = new Subject<void>();
 
     ngOnInit(): void {
         this.loadLessons();
-        this.loadStudentsFromStore();
+        this.loadStudents();
         this.loadLevels();
 
-        this.searchLessonsCtrl.valueChanges.pipe(takeUntil(this.destroy$))
-            .subscribe((term) => this.applyLessonFilter(String(term || '')));
-        this.searchStudentsCtrl.valueChanges.pipe(takeUntil(this.destroy$))
-            .subscribe((term) => this.applyStudentsFilter(String(term || '')));
-        this.levelFilterCtrl.valueChanges.pipe(takeUntil(this.destroy$))
-            .subscribe((levelId) => this.applyLevelFilter(levelId));
-        this.searchStudentsListCtrl.valueChanges.pipe(takeUntil(this.destroy$))
-            .subscribe((term) => this.applyStudentListFilter(String(term || '')));
+        // exhaustMap drops scroll emissions that arrive while a request is in-flight,
+        // and page-increment only happens when a request actually fires.
+        this.loadMoreLessons$.pipe(
+            takeUntil(this.destroy$),
+            exhaustMap(() => {
+                this.lessonsPage++;
+                this.loadingMoreLessons.set(true);
+                return this.lessonApi.searchLessons({
+                    status: LessonStatus.AVAILABLE,
+                    titleContains: this.searchLessonsCtrl.value || undefined,
+                    levelId: this.levelFilterCtrl.value || undefined,
+                    page: this.lessonsPage,
+                    size: this.lessonsPageSize
+                }).pipe(
+                    tap(response => {
+                        this.lessons = [...this.lessons, ...(response.content ?? []) as Lesson[]];
+                        this.lessonsHasMore = !response.last;
+                        this.loadingMoreLessons.set(false);
+                    }),
+                    catchError(() => {
+                        this.loadingMoreLessons.set(false);
+                        return EMPTY;
+                    })
+                );
+            })
+        ).subscribe();
 
-        // Auto-select lesson from query param (lesson-to-students flow)
+        this.loadMoreStudents$.pipe(
+            takeUntil(this.destroy$),
+            exhaustMap(() => {
+                this.studentsPage++;
+                this.loadingMoreStudents.set(true);
+                return this.studentApi.searchStudentsPaginated(
+                    { fullName: this.searchStudentsListCtrl.value || undefined },
+                    this.studentsPage,
+                    this.studentsPageSize
+                ).pipe(
+                    tap(response => {
+                        this.students = [...this.students, ...(response.content ?? [])];
+                        this.studentsHasMore = !response.last;
+                        this.loadingMoreStudents.set(false);
+                    }),
+                    catchError(() => {
+                        this.loadingMoreStudents.set(false);
+                        return EMPTY;
+                    })
+                );
+            })
+        ).subscribe();
+
+        this.searchLessonsCtrl.valueChanges.pipe(
+            takeUntil(this.destroy$),
+            debounceTime(300)
+        ).subscribe(() => this.loadLessons());
+
+        this.levelFilterCtrl.valueChanges.pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.loadLessons());
+
+        this.searchStudentsListCtrl.valueChanges.pipe(
+            takeUntil(this.destroy$),
+            debounceTime(300)
+        ).subscribe(() => this.loadStudents());
+
+        // Auto-select lesson from query param
         const preselectedLessonId = this.route.snapshot.queryParamMap.get('lessonId');
         if (preselectedLessonId) {
-            // Wait until lessons are loaded, then auto-select the matching one
-            const lessonCheckInterval = setInterval(() => {
-                const found = this.lessons.find(l => l.id === preselectedLessonId);
-                if (found) {
-                    clearInterval(lessonCheckInterval);
-                    this.selectLesson(found);
-                }
-            }, 100);
-            // Stop polling after 10 s to avoid memory leaks
-            setTimeout(() => clearInterval(lessonCheckInterval), 10000);
+            this.lessonApi.getLesson(preselectedLessonId)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({ next: (lesson) => this.selectLesson(lesson) });
         }
 
-        // Auto-select student from query param (student-to-lessons flow)
+        // Auto-select student from query param
         const preselectedStudentId = this.route.snapshot.queryParamMap.get('studentId');
         if (preselectedStudentId) {
             this.mode.set('student-to-lessons');
-            this.store.select(selectAllStudents).pipe(
-                takeUntil(this.destroy$),
-                filter((s) => s != null && s.length > 0),
-                map((s) => s!.find(x => x.id === preselectedStudentId) ?? null),
-                filter((student): student is Student => student !== null),
-            ).subscribe((student) => this.selectStudent(student));
+            this.studentApi.getStudent(preselectedStudentId)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({ next: (student) => this.selectStudent(student) });
         }
     }
 
@@ -167,18 +214,34 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
 
     // ── Lesson-to-Students logic ─────────────────────────────────────────────
     private loadLessons(): void {
+        this.lessonsPage = 0;
+        this.lessons = [];
+        this.lessonsHasMore = false;
         this.loadingLessons.set(true);
-        this.lessonApi.searchLessons({status: LessonStatus.AVAILABLE, size: 1000})
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: (response) => {
-                    const lessons = (response.content ?? []) as Lesson[];
-                    this.lessons = lessons;
-                    this.filteredLessons = lessons;
-                    this.loadingLessons.set(false);
-                },
-                error: () => this.loadingLessons.set(false)
-            });
+
+        this.lessonApi.searchLessons({
+            status: LessonStatus.AVAILABLE,
+            titleContains: this.searchLessonsCtrl.value || undefined,
+            levelId: this.levelFilterCtrl.value || undefined,
+            page: 0,
+            size: this.lessonsPageSize
+        }).pipe(takeUntil(this.destroy$)).subscribe({
+            next: (response) => {
+                this.lessons = (response.content ?? []) as Lesson[];
+                this.lessonsHasMore = !response.last;
+                this.loadingLessons.set(false);
+            },
+            error: () => this.loadingLessons.set(false)
+        });
+    }
+
+    onLessonsScroll(event: Event): void {
+        const el = event.target as HTMLElement;
+        if (this.lessonsHasMore && !this.loadingMoreLessons() && !this.loadingLessons()) {
+            if (el.scrollHeight - el.scrollTop - el.clientHeight < 120) {
+                this.loadMoreLessons$.next();
+            }
+        }
     }
 
     private loadLevels(): void {
@@ -278,7 +341,7 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
             currentUnitId: student.currentUnit?.id || '',
             currentUnitName: student.currentUnit?.name || '',
             level: student.level,
-            levelName: student.level.name,
+            levelName: student.level?.name || 'N/A',
             center: student.center,
             centerName: student.center.name
         };
@@ -320,19 +383,33 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
     }
 
     // ── Student-to-Lessons logic ─────────────────────────────────────────────
-    private loadStudentsFromStore(): void {
+    private loadStudents(): void {
+        this.studentsPage = 0;
+        this.students = [];
+        this.studentsHasMore = false;
         this.loadingStudentsList.set(true);
-        this.store.select(selectAllStudents).pipe(
-            takeUntil(this.destroy$),
-            filter((s) => s !== null),
-        ).subscribe({
-            next: (students) => {
-                this.students = students as Student[];
-                this.filteredStudents = students as Student[];
+
+        this.studentApi.searchStudentsPaginated(
+            { fullName: this.searchStudentsListCtrl.value || undefined },
+            0,
+            this.studentsPageSize
+        ).pipe(takeUntil(this.destroy$)).subscribe({
+            next: (response) => {
+                this.students = response.content ?? [];
+                this.studentsHasMore = !response.last;
                 this.loadingStudentsList.set(false);
             },
             error: () => this.loadingStudentsList.set(false)
         });
+    }
+
+    onStudentsScroll(event: Event): void {
+        const el = event.target as HTMLElement;
+        if (this.studentsHasMore && !this.loadingMoreStudents() && !this.loadingStudentsList()) {
+            if (el.scrollHeight - el.scrollTop - el.clientHeight < 120) {
+                this.loadMoreStudents$.next();
+            }
+        }
     }
 
     selectStudent(student: Student): void {
@@ -410,38 +487,9 @@ export class ScheduleLessonsComponent implements OnInit, OnDestroy {
         }
     }
 
-    private applyLessonFilter(term: string): void {
-        this.applyFilters(term, this.levelFilterCtrl.value);
-    }
-
-    private applyLevelFilter(levelId: string | null): void {
-        this.applyFilters(this.searchLessonsCtrl.value || '', levelId);
-    }
-
-    private applyFilters(searchTerm: string, levelId: string | null): void {
-        const term = searchTerm.toLowerCase();
-        this.filteredLessons = this.lessons.filter(l => {
-            const matchesSearch = (l.title || '').toLowerCase().includes(term) || (l.teacher?.name || '').toLowerCase().includes(term);
-            const matchesLevel = !levelId || l.unit?.levelId === levelId;
-            return matchesSearch && matchesLevel;
-        });
-    }
-
-    private applyStudentListFilter(term: string): void {
-        const t = term.toLowerCase();
-        this.filteredStudents = this.students.filter(s => {
-            const name = `${s.user?.firstname || ''} ${s.user?.lastname || ''}`.toLowerCase();
-            const email = (s.user?.email || '').toLowerCase();
-            return name.includes(t) || email.includes(t);
-        });
-    }
-
-    private applyStudentsFilter(_term: string): void {
-        // reserved for right-panel student search
-    }
-
     // ── Template helpers ─────────────────────────────────────────────────────
     getStudentName(student: Student): string {
+        console.log(student);
         if (student.user?.firstname && student.user?.lastname) return `${student.user.firstname} ${student.user.lastname}`;
         return student.user?.firstname || student.user?.lastname || 'Aluno';
     }

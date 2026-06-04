@@ -10,7 +10,7 @@ export interface Student {
     status: StudentStatus;
     levelProgressPercentage: number;
     center: Center;
-    level: Level;
+    level?: Level;
     currentUnit?: Unit;
     enrollmentDate: string;
     certificates?: any[];

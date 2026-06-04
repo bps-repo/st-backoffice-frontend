@@ -11,7 +11,7 @@ export interface AvailableStudent {
     birthdate: string;
     currentUnitId: string;
     currentUnitName: string;
-    level: Level;
+    level?: Level;
     levelName: string;
     center: Center;
     centerName: string;

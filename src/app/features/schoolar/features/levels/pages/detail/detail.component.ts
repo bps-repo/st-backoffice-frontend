@@ -257,7 +257,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                 })
             ),
             students: this.studentService.getStudents().pipe(
-                map(students => students.filter(student => student.level.id === this.levelId)),
+                map(students => students.filter(student => student.level?.id === this.levelId || undefined)),
                 catchError(error => {
                     console.error('Error loading students:', error);
                     return of([]);
@@ -329,7 +329,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
 
         this.studentService.getStudents().pipe(
-            map(students => students.filter(student => student.level.id === this.levelId)),
+            map(students => students.filter(student => student.level?.id === this.levelId)),
             catchError(error => {
                 console.error('Error loading students:', error);
                 return of([]);
