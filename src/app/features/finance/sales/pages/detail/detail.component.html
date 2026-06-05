@@ -27,12 +27,9 @@
                 <button pButton label="Registar Pagamento" icon="pi pi-money-bill"
                     class="p-button-success" (click)="openPaymentDialog()"></button>
                 }
-                <button pButton label="Editar" icon="pi pi-pencil"
-                    class="p-button-outlined" (click)="editSale()"></button>
-                <button pButton label="Segunda Via Fatura" icon="pi pi-file-pdf"
-                    class="p-button-danger" (click)="downloadInvoice()"></button>
-                <button pButton label="Segunda Via Recibo" icon="pi pi-receipt"
-                    class="p-button-primary" (click)="downloadReceipt()"></button>
+                <button pButton label="Emitir Recibo" icon="pi pi-receipt"
+                    class="p-button-primary" [loading]="issuingReceipt" [disabled]="issuingReceipt"
+                    (click)="issueReceipt()"></button>
             </div>
         </div>
 
@@ -111,8 +108,8 @@
                     </div>
                 </div>
 
-                <!-- Change History -->
-                <div class="card">
+                <!-- Invoice Items -->
+                <div class="card mb-4">
                     <h3 class="text-xl font-semibold mb-4">Itens da Fatura</h3>
                     <p-table [value]="sale.items" styleClass="p-datatable-sm">
                         <ng-template pTemplate="header">
@@ -131,6 +128,34 @@
                                 <td>{{ item.unitPrice | currency:'Kz':'symbol':'1.2-2' }}</td>
                                 <td>{{ item.discountAmount | currency:'Kz':'symbol':'1.2-2' }}</td>
                                 <td>{{ item.totalAmount | currency:'Kz':'symbol':'1.2-2' }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Payments -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-4">Pagamentos</h3>
+                    <p-table [value]="payments" [loading]="loadingPayments" styleClass="p-datatable-sm">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Data</th>
+                                <th>Método</th>
+                                <th>Valor</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-payment>
+                            <tr>
+                                <td>{{ formatDate(payment.paymentDate) }}</td>
+                                <td>{{ payment.paymentMethod | paymentMethodLabel }}</td>
+                                <td>{{ payment.amount | currency:'Kz':'symbol':'1.2-2' }}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="3" class="text-center text-600 py-4">
+                                    Nenhum pagamento registado.
+                                </td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -201,8 +226,9 @@
                             class="p-button-outlined w-full" (click)="downloadProof()"></button>
                         <button pButton label="Enviar Fatura por Email" icon="pi pi-envelope"
                             class="p-button-outlined w-full" (click)="sendInvoiceByEmail()"></button>
-                        <button pButton label="Imprimir Recibo" icon="pi pi-print"
-                            class="p-button-outlined w-full" (click)="printReceipt()"></button>
+                        <button pButton label="Emitir Recibo" icon="pi pi-receipt"
+                            class="p-button-outlined w-full" [loading]="issuingReceipt"
+                            [disabled]="issuingReceipt" (click)="issueReceipt()"></button>
                     </div>
                 </div>
             </div>

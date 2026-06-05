@@ -18,6 +18,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import {
     InvoiceDetail,
+    InvoicePayment,
     INVOICE_PAYMENT_METHOD_OPTIONS,
     getInvoiceDocumentTypeLabel,
 } from 'src/app/core/models/invoice/invoice.model';
@@ -66,8 +67,11 @@ export class DetailComponent implements OnInit, OnDestroy {
 
     showPaymentDialog = false;
     paymentSubmitting = false;
+    issuingReceipt = false;
+    loadingPayments = false;
     paymentMethod: PaymentMethod | null = PaymentMethod.CASH;
     paymentAmount: number | null = null;
+    payments: InvoicePayment[] = [];
 
     readonly paymentMethodOptions = INVOICE_PAYMENT_METHOD_OPTIONS;
 
@@ -92,6 +96,7 @@ export class DetailComponent implements OnInit, OnDestroy {
             this.saleId = params['id'];
             if (this.saleId) {
                 this.loadSaleDetails();
+                this.loadPayments();
             }
             this.cdr.markForCheck();
         });
@@ -105,6 +110,27 @@ export class DetailComponent implements OnInit, OnDestroy {
     loadSaleDetails(): void {
         if (!this.saleId) return;
         this.store.dispatch(SalesActions.loadSaleDetails({ id: this.saleId }));
+    }
+
+    loadPayments(): void {
+        if (!this.saleId) return;
+
+        this.loadingPayments = true;
+        this.invoiceService
+            .getInvoicePayments(this.saleId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: ({ data }) => {
+                    this.payments = data ?? [];
+                    this.loadingPayments = false;
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    this.loadingPayments = false;
+                    ShowToastErrorService.showToastError('Erro ao carregar pagamentos', error, this.messageService);
+                    this.cdr.detectChanges();
+                },
+            });
     }
 
     getStatusSeverity(status: string): string {
@@ -164,22 +190,6 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.router.navigate(['/finances/sales']);
     }
 
-    editSale(): void {
-        if (this.saleId) {
-            this.router.navigate(['/finances/sales', this.saleId, 'edit']);
-        }
-    }
-
-    downloadInvoice(): void {
-        console.log('Downloading invoice for sale:', this.saleId);
-        // Implementation for downloading invoice
-    }
-
-    downloadReceipt(): void {
-        console.log('Downloading receipt for sale:', this.saleId);
-        // Implementation for downloading receipt
-    }
-
     downloadProof(): void {
         console.log('Downloading proof for sale:', this.saleId);
         // Implementation for downloading proof
@@ -190,9 +200,33 @@ export class DetailComponent implements OnInit, OnDestroy {
         // Implementation for sending invoice by email
     }
 
-    printReceipt(): void {
-        console.log('Printing receipt for sale:', this.saleId);
-        // Implementation for printing receipt
+    issueReceipt(): void {
+        if (!this.saleId || this.issuingReceipt) return;
+
+        this.issuingReceipt = true;
+        this.cdr.detectChanges();
+
+        this.invoiceService
+            .issueInvoiceReceipt(this.saleId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.issuingReceipt = false;
+                    this.messageService.add({
+                        life: 5000,
+                        severity: 'success',
+                        summary: 'Sucesso',
+                        detail: 'Recibo emitido com sucesso.',
+                    });
+                    this.loadSaleDetails();
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    this.issuingReceipt = false;
+                    ShowToastErrorService.showToastError('Erro ao emitir recibo', error, this.messageService);
+                    this.cdr.detectChanges();
+                },
+            });
     }
 
     get canRegisterPayment(): boolean {
@@ -243,6 +277,7 @@ export class DetailComponent implements OnInit, OnDestroy {
                         detail: 'Pagamento registado com sucesso.',
                     });
                     this.loadSaleDetails();
+                    this.loadPayments();
                     this.cdr.detectChanges();
                 },
                 error: (error) => {

@@ -12,7 +12,6 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { BadgeModule } from 'primeng/badge';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { InvoiceListItem, getInvoiceDocumentTypeLabel } from 'src/app/core/models/invoice/invoice.model';
@@ -27,6 +26,8 @@ interface SaleListItem {
     type: string;
     quantity: number;
     total: number;
+    paidAmount: number;
+    pendingAmount: number;
     paymentStatus: string;
     date: string;
 }
@@ -44,26 +45,11 @@ interface SaleListItem {
         TagModule,
         TooltipModule,
         FormsModule,
-        SelectButtonModule,
         BadgeModule,
         ProgressSpinnerModule
     ],
     templateUrl: './list.component.html',
     styles: [`
-        ::ng-deep .p-selectbutton {
-            display: flex;
-            flex-wrap: nowrap;
-        }
-
-        ::ng-deep .p-selectbutton .p-button {
-            margin-right: 0.5rem;
-            border: none;
-        }
-
-        ::ng-deep .p-selectbutton .p-button:last-child {
-            margin-right: 0;
-        }
-
         .sticky-header {
             position: sticky;
             top: 0;
@@ -90,7 +76,6 @@ export class ListComponent implements OnInit, OnDestroy {
     /** NgRx — `selectSalesLoading`. */
     readonly loading$ = this.store.select(selectSalesLoading).pipe(distinctUntilChanged());
     @ViewChild('mainHeader') mainHeader!: ElementRef;
-    @ViewChild('viewSelector') viewSelector!: ElementRef;
 
     // Local state
     allSales: SaleListItem[] = [];
@@ -100,19 +85,7 @@ export class ListComponent implements OnInit, OnDestroy {
     typeFilter = '';
     statusFilter = '';
 
-    // Sticky state tracking
     isMainHeaderSticky = false;
-    isViewSelectorSticky = false;
-
-    // View selection
-    currentView: string = 'list';
-
-    viewOptions = [
-        { label: 'Lista de Vendas', value: 'list' },
-        { label: 'Relatórios', value: 'relatorios' },
-        { label: 'Estatísticas', value: 'estatisticas' },
-        { label: 'Nova Venda', value: 'nova-venda' }
-    ];
 
     // Filter options
     typeOptions = [
@@ -155,7 +128,7 @@ export class ListComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll(): void {
         this.updateStickyState();
     }
@@ -164,11 +137,6 @@ export class ListComponent implements OnInit, OnDestroy {
         if (this.mainHeader) {
             const rect = this.mainHeader.nativeElement.getBoundingClientRect();
             this.isMainHeaderSticky = rect.top <= 0;
-        }
-
-        if (this.viewSelector) {
-            const rect = this.viewSelector.nativeElement.getBoundingClientRect();
-            this.isViewSelectorSticky = rect.top <= 80;
         }
     }
 
@@ -185,9 +153,27 @@ export class ListComponent implements OnInit, OnDestroy {
             type: this.normalizeType(invoice.documentType),
             quantity: invoice.items?.reduce((total, item) => total + item.quantity, 0) || 0,
             total: invoice.amount || 0,
+            paidAmount: invoice.paidAmount || 0,
+            pendingAmount: invoice.pendingAmount || 0,
             paymentStatus: this.normalizeStatus(invoice.paymentStatus),
             date: invoice.issueDate
         };
+    }
+
+    get kpiTotalSales(): number {
+        return this.sales.length;
+    }
+
+    get kpiTotalAmount(): number {
+        return this.sales.reduce((sum, sale) => sum + sale.total, 0);
+    }
+
+    get kpiPaidAmount(): number {
+        return this.sales.reduce((sum, sale) => sum + sale.paidAmount, 0);
+    }
+
+    get kpiPendingAmount(): number {
+        return this.sales.reduce((sum, sale) => sum + sale.pendingAmount, 0);
     }
 
     private filterSales(sales: SaleListItem[]): SaleListItem[] {
@@ -229,15 +215,6 @@ export class ListComponent implements OnInit, OnDestroy {
 
     private normalizeType(type: string): string {
         return getInvoiceDocumentTypeLabel(type);
-    }
-
-    onViewChange(event: any): void {
-        this.currentView = event.value;
-
-        // Navigate to create page if "Nova Venda" is selected
-        if (event.value === 'nova-venda') {
-            this.router.navigate(['/finances/sales/create']);
-        }
     }
 
     onSearchChange(): void {

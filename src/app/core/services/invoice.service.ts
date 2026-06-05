@@ -44,6 +44,12 @@ export class InvoiceService {
         return this.http.post<ApiResponse<InvoiceDetail>>(this.apiUrl, invoice);
     }
 
+    getInvoicePayments(invoiceId: string | number): Observable<ApiResponse<InvoicePayment[]>> {
+        return this.http.get<ApiResponse<InvoicePayment[]>>(
+            `${this.apiUrl}/${encodeURIComponent(String(invoiceId))}/payments`,
+        );
+    }
+
     createInvoicePayment(
         invoiceId: string | number,
         payload: CreateInvoicePaymentRequest,
@@ -51,6 +57,13 @@ export class InvoiceService {
         return this.http.post<ApiResponse<InvoicePayment>>(
             `${this.apiUrl}/${encodeURIComponent(String(invoiceId))}/payments`,
             payload,
+        );
+    }
+
+    issueInvoiceReceipt(invoiceId: string | number): Observable<ApiResponse<InvoiceDetail>> {
+        return this.http.post<ApiResponse<InvoiceDetail>>(
+            `${this.apiUrl}/${encodeURIComponent(String(invoiceId))}/receipt`,
+            {},
         );
     }
 
