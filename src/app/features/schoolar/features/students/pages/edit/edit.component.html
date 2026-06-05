@@ -1,1 +1,156 @@
-<p>edit works!</p>
+<p-toast></p-toast>
+
+<div class="grid">
+    <div class="col-12 flex justify-content-between align-items-center gap-4">
+        <div class="flex align-items-center gap-3">
+            <button pButton icon="pi pi-arrow-left" class="p-button-secondary p-button-outlined"
+                    label="Voltar" (click)="cancel()">
+            </button>
+            <h2 class="text-xl font-bold m-0">Editar Aluno</h2>
+        </div>
+
+        <div class="flex gap-2">
+            <button pButton label="Cancelar" icon="pi pi-times"
+                    class="p-button-outlined p-button-secondary"
+                    [disabled]="saving()"
+                    (click)="cancel()">
+            </button>
+            <button pButton label="Guardar" icon="pi pi-check"
+                    [loading]="saving()"
+                    [disabled]="saving()"
+                    (click)="save()">
+            </button>
+        </div>
+    </div>
+
+    <!-- Enrollment & Status -->
+    <div class="col-12 mt-3">
+        <div class="card">
+            <h3 class="text-lg font-semibold mb-4">Informações de Matrícula</h3>
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Estado</label>
+                    <p-dropdown [options]="statusOptions"
+                                [(ngModel)]="form.status"
+                                name="status"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Selecionar estado"
+                                styleClass="w-full"
+                                appendTo="body">
+                    </p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Data de Matrícula</label>
+                    <p-calendar [(ngModel)]="enrollmentDateModel"
+                                name="enrollmentDate"
+                                dateFormat="dd/mm/yy"
+                                [showIcon]="true"
+                                styleClass="w-full"
+                                appendTo="body"
+                                (onSelect)="onDateChange($event)"
+                                (onClearClick)="onDateChange(null)">
+                    </p-calendar>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Centro</label>
+                    <p-dropdown [options]="centers"
+                                [(ngModel)]="form.centerId"
+                                name="centerId"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Selecionar centro"
+                                styleClass="w-full"
+                                appendTo="body"
+                                [filter]="true"
+                                filterPlaceholder="Pesquisar">
+                    </p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Nível</label>
+                    <p-dropdown [options]="levels"
+                                [(ngModel)]="form.levelId"
+                                name="levelId"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Selecionar nível"
+                                styleClass="w-full"
+                                appendTo="body"
+                                [filter]="true"
+                                filterPlaceholder="Pesquisar">
+                    </p-dropdown>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal & Academic Info -->
+    <div class="col-12">
+        <div class="card">
+            <h3 class="text-lg font-semibold mb-4">Informações Pessoais</h3>
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Formação Académica</label>
+                    <p-dropdown [options]="academicBackgroundOptions"
+                                [(ngModel)]="form.academicBackground"
+                                name="academicBackground"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Selecionar formação"
+                                styleClass="w-full"
+                                appendTo="body">
+                    </p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Província</label>
+                    <input pInputText [(ngModel)]="form.province" name="province"
+                           placeholder="Ex: Luanda" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Município</label>
+                    <input pInputText [(ngModel)]="form.municipality" name="municipality"
+                           placeholder="Ex: Luanda" class="w-full" />
+                </div>
+
+                <div class="col-12 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Notas</label>
+                    <textarea pInputTextarea [(ngModel)]="form.notes" name="notes"
+                              rows="3" placeholder="Observações sobre o aluno…"
+                              class="w-full">
+                    </textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Contact -->
+    <div class="col-12">
+        <div class="card">
+            <h3 class="text-lg font-semibold mb-4">Contacto de Emergência</h3>
+            <div class="grid">
+                <div class="col-12 md:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Nome</label>
+                    <input pInputText [(ngModel)]="form.emergencyContactName" name="emergencyContactName"
+                           placeholder="Nome completo" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Telefone</label>
+                    <input pInputText [(ngModel)]="form.emergencyContactNumber" name="emergencyContactNumber"
+                           placeholder="+244 9XX XXX XXX" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Parentesco</label>
+                    <input pInputText [(ngModel)]="form.emergencyContactRelationship" name="emergencyContactRelationship"
+                           placeholder="Ex: Pai, Mãe, Irmão" class="w-full" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

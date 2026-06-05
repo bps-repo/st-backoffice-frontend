@@ -2,6 +2,7 @@ import {Center} from "../../corporate/center";
 import {Level} from "../../course/level";
 import {Unit} from "../../course/unit";
 import {User} from "../../user.model";
+import {LegalGuardian} from "./legal-guardian";
 
 export interface Student {
     id?: string;
@@ -30,6 +31,7 @@ export interface Student {
     province?: string | null;
     municipality?: string | null;
     notes?: string | null;
+    legalGuardians?: LegalGuardian[];
     createdAt?: string;
     updatedAt?: string;
 }
