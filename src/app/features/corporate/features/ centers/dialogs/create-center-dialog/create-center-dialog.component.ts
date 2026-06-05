@@ -1,17 +1,31 @@
-import {CommonModule} from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {SelectItem} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {DialogModule} from 'primeng/dialog';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextModule} from 'primeng/inputtext';
-import {Store} from '@ngrx/store';
-import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
-import {Observable} from 'rxjs';
-import {CenterState} from "../../../../../../core/store/corporate/center/center.state";
-import * as CenterSeletors from "../../../../../../core/store/corporate/center/centers.selector";
-import {CenterActions} from "../../../../../../core/store/corporate/center/centers.actions";
+import { CommonModule } from '@angular/common';
+import {
+    ChangeDetectorRef,
+    Component,
+    DestroyRef,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule, NgForm } from '@angular/forms';
+import { Actions, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
+import { Observable, finalize } from 'rxjs';
+import { CreateCenter } from 'src/app/core/models/corporate/center';
+import { Municipality, Province } from 'src/app/core/models/location/location';
+import { LocationService } from 'src/app/core/services/location.service';
+import { CenterState } from '../../../../../../core/store/corporate/center/center.state';
+import * as CenterSeletors from '../../../../../../core/store/corporate/center/centers.selector';
+import { CenterActions } from '../../../../../../core/store/corporate/center/centers.actions';
+import { ShowToastErrorService } from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-create-center-dialog',
@@ -23,85 +37,182 @@ import {CenterActions} from "../../../../../../core/store/corporate/center/cente
         ButtonModule,
         DropdownModule,
         InputTextModule,
-        InputTextModule
+        ToastModule,
     ],
-    templateUrl: './create-center-dialog.component.html'
+    providers: [MessageService],
+    templateUrl: './create-center-dialog.component.html',
 })
 export class CreateCenterDialogComponent implements OnInit {
     private store = inject<Store<CenterState>>(Store);
+    private actions$ = inject(Actions);
+    private messageService = inject(MessageService);
+    private locationService = inject(LocationService);
+    private cdr = inject(ChangeDetectorRef);
+    private destroyRef = inject(DestroyRef);
 
+    visible = false;
 
-    visible: boolean = false;
+    name = '';
+    email = '';
+    phone = '';
+    provinceName: string | null = null;
+    municipalityId: string | null = null;
 
-    center: Partial<Center> = {
-        name: '',
-        email: '',
-        address: '',
-        city: '',
-        phone: '',
-        active: true
-    };
+    readonly provinces = signal<Province[]>([]);
+    readonly municipalities = signal<Municipality[]>([]);
+    readonly loadingProvinces = signal(false);
+    readonly loadingMunicipalities = signal(false);
 
-    // Dropdown options
-    activeOptions: SelectItem[] = [
-        {label: 'Yes', value: true},
-        {label: 'No', value: false}
-    ];
+    readonly provinceOptions = computed(() =>
+        this.provinces().map((province) => ({
+            label: province.name,
+            value: province.name,
+        })),
+    );
+
+    readonly municipalityOptions = computed(() =>
+        this.municipalities().map((municipality) => ({
+            label: municipality.name,
+            value: municipality.id,
+        })),
+    );
 
     loading$: Observable<boolean>;
 
-    error$: Observable<any>;
-
     constructor() {
         this.loading$ = this.store.select(CenterSeletors.selectLoadingCreateCenter);
-        this.error$ = this.store.select(CenterSeletors.selectErrorCreateCenter);
     }
 
-    ngOnInit() {
-        this.error$.subscribe((error) => {
-            if (error) {
-                console.error('Error creating center:', error);
-            }
-        });
+    ngOnInit(): void {
+        this.actions$
+            .pipe(ofType(CenterActions.createCenterSuccess), takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+                this.messageService.add({
+                    life: 5000,
+                    severity: 'success',
+                    summary: 'Sucesso',
+                    detail: 'Centro criado com sucesso.',
+                });
+                this.hide();
+                this.resetForm();
+            });
+
+        this.actions$
+            .pipe(ofType(CenterActions.createCenterFailure), takeUntilDestroyed(this.destroyRef))
+            .subscribe(({ error }) => {
+                ShowToastErrorService.showToastError(
+                    'Erro ao criar centro',
+                    error,
+                    this.messageService,
+                );
+            });
     }
 
-    show() {
+    show(): void {
+        this.store.dispatch(CenterActions.clearCentersErrors());
         this.visible = true;
+        this.loadProvinces();
     }
 
-    hide() {
+    hide(): void {
         this.visible = false;
     }
 
-    saveCenter() {
-        const payload = {
-            name: this.center.name,
-            email: this.center.email,
-            address: this.center.address,
-            city: this.center.city,
-            phone: this.center.phone,
-            active: this.center.active
-        } as CreateCenter;
+    onProvinceChange(provinceName: string | null): void {
+        this.provinceName = provinceName;
+        this.municipalityId = null;
+        this.municipalities.set([]);
 
-        this.store.dispatch(CenterActions.createCenter({center: payload}));
+        if (!provinceName) {
+            return;
+        }
 
-        // Monitorar o estado de carregamento e sucesso
-        this.loading$.subscribe((loading) => {
-            if (!loading) {
-                this.hide();
-                this.resetForm();
-            }
-        });
+        this.loadingMunicipalities.set(true);
+        this.locationService
+            .getProvinceById(provinceName)
+            .pipe(
+                finalize(() => {
+                    this.loadingMunicipalities.set(false);
+                    this.cdr.detectChanges();
+                }),
+            )
+            .subscribe({
+                next: (province) => {
+                    this.municipalities.set(province.municipalities ?? []);
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    ShowToastErrorService.showToastError(
+                        'Erro ao carregar municípios',
+                        error,
+                        this.messageService,
+                    );
+                },
+            });
     }
 
-    resetForm() {
-        this.center = {
-            name: '',
-            email: '',
-            address: '',
-            city: '',
-            phone: '',
-            active: true
+    saveCenter(form: NgForm): void {
+        form.control.markAllAsTouched();
+
+        if (form.invalid || !this.municipalityId) {
+            this.messageService.add({
+                life: 5000,
+                severity: 'error',
+                summary: 'Validação',
+                detail: 'Nome, telefone, província e município são obrigatórios.',
+            });
+            return;
+        }
+
+        const payload: CreateCenter = {
+            name: this.name.trim(),
+            municipalityId: this.municipalityId,
+            phone: this.phone.trim(),
         };
+
+        const email = this.email.trim();
+        if (email) {
+            payload.email = email;
+        }
+
+        this.store.dispatch(CenterActions.createCenter({ center: payload }));
+    }
+
+    private loadProvinces(): void {
+        if (this.provinces().length) {
+            return;
+        }
+
+        this.loadingProvinces.set(true);
+        this.locationService
+            .getProvinces()
+            .pipe(
+                finalize(() => {
+                    this.loadingProvinces.set(false);
+                    this.cdr.detectChanges();
+                }),
+            )
+            .subscribe({
+                next: (provinces) => {
+                    this.provinces.set(provinces);
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    ShowToastErrorService.showToastError(
+                        'Erro ao carregar províncias',
+                        error,
+                        this.messageService,
+                    );
+                },
+            });
+    }
+
+    resetForm(): void {
+        this.name = '';
+        this.email = '';
+        this.phone = '';
+        this.provinceName = null;
+        this.municipalityId = null;
+        this.municipalities.set([]);
     }
 }

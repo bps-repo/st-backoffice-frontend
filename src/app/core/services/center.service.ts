@@ -1,7 +1,7 @@
 import {Injectable, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Center, CreateCenter} from 'src/app/core/models/corporate/center';
+import {Center, CreateCenter, UpdateCenter} from 'src/app/core/models/corporate/center';
 import {environment} from '../../../environments/environment';
 import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
@@ -36,7 +36,7 @@ export class CenterService {
         return this.http.delete<any>(`${this.apiUrl}/${id}`);
     }
 
-    updateCenter(id: string, center: Partial<Center>): Observable<Center> {
+    updateCenter(id: string, center: UpdateCenter): Observable<Center> {
         return this.http.patch<ApiResponse<Center>>(`${this.apiUrl}/${id}`, center).pipe(
             map(response => response.data as Center)
         );

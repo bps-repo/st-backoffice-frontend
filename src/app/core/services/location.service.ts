@@ -25,12 +25,12 @@ export class LocationService {
     }
 
     /**
-     * Gets a province by ID with its municipalities.
-     * @param provinceId The ID of the province.
+     * Gets a province by name with its municipalities.
+     * @param provinceName The name of the province.
      * @returns An observable containing the Province object with municipalities.
      */
-    getProvinceById(provinceId: string): Observable<Province> {
-        return this.http.get<ApiResponse<Province>>(`${this.apiUrl}/provinces/${provinceId}`).pipe(
+    getProvinceById(provinceName: string): Observable<Province> {
+        return this.http.get<ApiResponse<Province>>(`${this.apiUrl}/provinces/${encodeURIComponent(provinceName)}`).pipe(
             map((response) => response.data as Province)
         );
     }

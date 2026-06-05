@@ -10,7 +10,8 @@ const routes: Routes = [
         },
         {
             path: 'create',
-            component: ListComponent,
+            redirectTo: '',
+            pathMatch: 'full',
         },
         {
             path: ':id',
