@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../models/ApiResponseService';
-import { TaskAction, TaskItem } from '../models/task-item.model';
+import { TaskAction, TaskItem, TaskStatus } from '../models/task-item.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +14,12 @@ export class TaskService {
 
   private apiUrl = `${environment.apiUrl}/tasks`;
 
-  getDailyTasks(): Observable<TaskItem[]> {
-    return this.http.get<ApiResponse<TaskItem[]>>(`${this.apiUrl}/daily`).pipe(
+  getDailyTasks(status: TaskStatus = 'OPEN', centerId?: string): Observable<TaskItem[]> {
+    let params = new HttpParams().set('status', status);
+    if (centerId) {
+      params = params.set('centerId', centerId);
+    }
+    return this.http.get<ApiResponse<TaskItem[]>>(`${this.apiUrl}/daily`, { params }).pipe(
       map(response => response.data)
     );
   }

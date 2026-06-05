@@ -19,9 +19,12 @@ import {BadgeModule} from 'primeng/badge';
 import {TooltipModule} from 'primeng/tooltip';
 import {RippleModule} from 'primeng/ripple';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {DropdownModule} from 'primeng/dropdown';
 import {Router, RouterModule} from '@angular/router';
-import {TaskAction, TaskItem, TaskType} from '../../../../core/models/task-item.model';
+import {TaskAction, TaskItem, TaskStatus, TaskType} from '../../../../core/models/task-item.model';
 import {TaskService} from '../../../../core/services/task.service';
+import {CenterService} from '../../../../core/services/center.service';
+import {Center} from '../../../../core/models/corporate/center';
 
 @Component({
     selector: 'settings-tasks',
@@ -39,17 +42,22 @@ import {TaskService} from '../../../../core/services/task.service';
         RippleModule,
         RouterModule,
         ProgressSpinnerModule,
+        DropdownModule,
     ],
     templateUrl: './tasks.component.html',
     styleUrls: ['./tasks.component.scss'],
 })
 export class TasksComponent implements OnInit {
     private taskService = inject(TaskService);
+    private centerService = inject(CenterService);
     private router = inject(Router);
 
     readonly tasks = signal<TaskItem[]>([]);
     readonly loading = signal(false);
     readonly currentView = signal<TaskType>('NO_ACTIVE_CONTRACT');
+    readonly selectedStatus = signal<TaskStatus>('OPEN');
+    readonly selectedCenterId = signal<string | null>(null);
+    readonly centers = signal<Center[]>([]);
 
     protected readonly Math = Math;
 
@@ -61,6 +69,19 @@ export class TasksComponent implements OnInit {
         {label: 'Término de contrato',  value: 'CONTRACT_ENDING_SOON'},
         {label: 'Ausências longas',     value: 'LONG_ABSENCE'},
     ];
+
+    readonly statusOptions: {label: string; value: TaskStatus}[] = [
+        {label: 'Aberta',       value: 'OPEN'},
+        {label: 'Em progresso', value: 'IN_PROGRESS'},
+        {label: 'Concluída',    value: 'COMPLETED'},
+        {label: 'Ignorada',     value: 'IGNORED'},
+        {label: 'Adiada',       value: 'SNOOZED'},
+    ];
+
+    readonly centerOptions = computed(() => [
+        {label: 'Todos os centros', value: null},
+        ...this.centers().map(c => ({label: c.name, value: c.id})),
+    ]);
 
     readonly filteredTasks = computed(() =>
         this.tasks().filter(t => t.taskType === this.currentView())
@@ -105,6 +126,7 @@ export class TasksComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.centerService.getAllCenters().subscribe(centers => this.centers.set(centers));
         this.loadTasks();
     }
 
@@ -112,15 +134,48 @@ export class TasksComponent implements OnInit {
         this.currentView.set(value as TaskType);
     }
 
+    setStatus(status: TaskStatus) {
+        this.selectedStatus.set(status);
+        this.loadTasks();
+    }
+
+    setCenterId(centerId: string | null) {
+        this.selectedCenterId.set(centerId);
+        this.loadTasks();
+    }
+
     loadTasks() {
         this.loading.set(true);
-        this.taskService.getDailyTasks().subscribe({
+        const centerId = this.selectedCenterId() ?? undefined;
+        this.taskService.getDailyTasks(this.selectedStatus(), centerId).subscribe({
             next: tasks => {
                 this.tasks.set(tasks);
                 this.loading.set(false);
             },
             error: () => this.loading.set(false),
         });
+    }
+
+    taskStatusClass(status: TaskStatus): string {
+        const map: Record<TaskStatus, string> = {
+            OPEN:        'bg-blue-100 text-blue-800',
+            IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
+            COMPLETED:   'bg-green-100 text-green-800',
+            IGNORED:     'bg-gray-100 text-gray-800',
+            SNOOZED:     'bg-purple-100 text-purple-800',
+        };
+        return map[status] ?? '';
+    }
+
+    taskStatusLabel(status: TaskStatus): string {
+        const map: Record<TaskStatus, string> = {
+            OPEN:        'Aberta',
+            IN_PROGRESS: 'Em progresso',
+            COMPLETED:   'Concluída',
+            IGNORED:     'Ignorada',
+            SNOOZED:     'Adiada',
+        };
+        return map[status] ?? status;
     }
 
     handleTaskAction(task: TaskItem, action: TaskAction) {
