@@ -1,0 +1,128 @@
+<!-- src/app/features/schoolar/features/meetings/pages/form/meeting-form.component.html -->
+<p-toast></p-toast>
+
+<p-dialog
+    [visible]="dialogVisible()"
+    (onHide)="onDialogHide()"
+    [header]="isEditMode() ? 'Editar Reunião' : 'Nova Reunião'"
+    [modal]="true"
+    [style]="{ width: '720px', maxWidth: '95vw' }"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="p-fluid"
+>
+    <div class="grid">
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Aluno <span class="text-red-500">*</span></label>
+            <p-dropdown
+                [options]="studentOptions"
+                [(ngModel)]="studentId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Pesquisar aluno..."
+                [filter]="true"
+                [showClear]="true"
+                [loading]="loadingStudents()"
+                (onFilter)="onStudentFilter($event)"
+                appendTo="body"
+            ></p-dropdown>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Funcionário <span class="text-red-500">*</span></label>
+            <p-dropdown
+                [options]="employeeOptions"
+                [(ngModel)]="employeeId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione o funcionário"
+                [filter]="true"
+                [showClear]="true"
+                appendTo="body"
+            ></p-dropdown>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Início <span class="text-red-500">*</span></label>
+            <p-datepicker
+                [(ngModel)]="startAt"
+                [showTime]="true"
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                appendTo="body"
+                placeholder="Data e hora de início"
+            ></p-datepicker>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Fim <span class="text-red-500">*</span></label>
+            <p-datepicker
+                [(ngModel)]="endAt"
+                [showTime]="true"
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                appendTo="body"
+                placeholder="Data e hora de fim"
+            ></p-datepicker>
+        </div>
+
+        <div class="col-12 field">
+            <label class="font-semibold">Propósito <span class="text-red-500">*</span></label>
+            <textarea
+                pTextarea
+                [(ngModel)]="purpose"
+                rows="3"
+                placeholder="Ex: Reunião de acompanhamento pedagógico"
+                autoResize="true"
+            ></textarea>
+        </div>
+
+        <div class="col-12 md:col-6 field flex align-items-center gap-2 mt-2">
+            <p-inputSwitch [(ngModel)]="online"></p-inputSwitch>
+            <label class="font-semibold mb-0">Reunião online</label>
+        </div>
+
+        @if (online) {
+            <div class="col-12 md:col-6 field">
+                <label class="font-semibold">Link online <span class="text-red-500">*</span></label>
+                <input
+                    pInputText
+                    [(ngModel)]="onlineLink"
+                    placeholder="https://..."
+                />
+            </div>
+        }
+
+        @if (isEditMode()) {
+            <div class="col-12 md:col-6 field">
+                <label class="font-semibold">Status</label>
+                <p-dropdown
+                    [options]="statusOptions"
+                    [(ngModel)]="status"
+                    optionLabel="label"
+                    optionValue="value"
+                    appendTo="body"
+                ></p-dropdown>
+            </div>
+        }
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Cancelar"
+            severity="secondary"
+            [text]="true"
+            (onClick)="close()"
+            [disabled]="loading()"
+        ></p-button>
+        <p-button
+            [label]="isEditMode() ? 'Guardar' : 'Criar'"
+            icon="pi pi-check"
+            (onClick)="save()"
+            [loading]="loading()"
+            [disabled]="!isFormValid()"
+        ></p-button>
+    </ng-template>
+</p-dialog>

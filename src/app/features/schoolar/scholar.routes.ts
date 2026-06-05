@@ -46,6 +46,11 @@ export const ScholarRoutes: Routes = [
                 data: {permission: 'lessons.view'},
             },
             {
+                path: 'meetings',
+                loadChildren: () =>
+                    import('./features/meetings/meetings.routes').then((m) => m.MeetingsRoutes),
+            },
+            {
                 path: 'assessments',
                 loadChildren: () =>
                     import('./features/assessments/assessments.routes').then((m) => m.AssessmentsRoutes),
