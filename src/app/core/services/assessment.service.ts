@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse, PageableResponse } from '../models/ApiResponseService';
-import { Assessment, AssessmentAttempt, CreateAssessmentRequest, RecordAttemptRequest } from '../models/academic/assessment';
+import { Assessment, AssessmentAttempt, CreateAssessmentRequest, RecordAttemptRequest, UpdateAssessmentRequest } from '../models/academic/assessment';
 
 export interface AssessmentListParams {
     page?: number;
@@ -54,7 +54,7 @@ export class AssessmentService {
     /**
      * Updates an assessment.
      */
-    updateAssessment(id: string, body: Partial<CreateAssessmentRequest>): Observable<Assessment> {
+    updateAssessment(id: string, body: UpdateAssessmentRequest): Observable<Assessment> {
         return this.http.patch<ApiResponse<Assessment>>(`${this.apiUrl}/${id}`, body).pipe(
             map((response) => response.data)
         );
@@ -113,5 +113,29 @@ export class AssessmentService {
         return this.http.get(`${this.apiUrl}/${assessmentId}/summary/pdf`, {
             responseType: 'blob',
         });
+    }
+
+    addSkillToAssessment(assessmentId: string, skillId: string): Observable<Assessment> {
+        return this.http
+            .post<ApiResponse<Assessment>>(`${this.apiUrl}/${assessmentId}/skills/${skillId}`, {})
+            .pipe(map((res) => res.data));
+    }
+
+    removeSkillFromAssessment(assessmentId: string, skillId: string): Observable<void> {
+        return this.http
+            .delete<ApiResponse<void>>(`${this.apiUrl}/${assessmentId}/skills/${skillId}`)
+            .pipe(map(() => undefined));
+    }
+
+    addEvaluatedUnit(assessmentId: string, unitId: string): Observable<Assessment> {
+        return this.http
+            .post<ApiResponse<Assessment>>(`${this.apiUrl}/${assessmentId}/evaluated-units/${unitId}`, {})
+            .pipe(map((res) => res.data));
+    }
+
+    removeEvaluatedUnit(assessmentId: string, unitId: string): Observable<void> {
+        return this.http
+            .delete<ApiResponse<void>>(`${this.apiUrl}/${assessmentId}/evaluated-units/${unitId}`)
+            .pipe(map(() => undefined));
     }
 }
