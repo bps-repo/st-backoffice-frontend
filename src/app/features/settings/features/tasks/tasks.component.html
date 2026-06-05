@@ -52,7 +52,7 @@
                         'bg-blue-100 text-blue-800':  item.value === 'CONTRACT_ENDING_SOON',
                         'bg-indigo-100 text-indigo-800': item.value === 'LONG_ABSENCE'
                     }">
-                        {{ taskCountByType()[item.value] ?? 0 }}
+                        {{ getTypeCount(item.value) }}
                     </span>
                 </div>
             </ng-template>
@@ -88,20 +88,20 @@
                         class="p-button-outlined" (click)="loadTasks()" [loading]="loading()"></button>
             </div>
 
-            <div *ngIf="loading()" class="flex align-items-center justify-content-center p-6">
-                <div class="flex flex-column align-items-center gap-3">
-                    <p-progressSpinner [style]="{'width': '50px', 'height': '50px'}" strokeWidth="4"></p-progressSpinner>
-                    <span class="text-color-secondary">Carregando tarefas...</span>
-                </div>
-            </div>
-
-            <p-table *ngIf="!loading()"
-                     [value]="filteredTasks()"
+            <p-table
+                     [value]="tasks()"
+                     [loading]="loading()"
                      styleClass="p-datatable-sm"
                      [tableStyle]="{'min-width': '50rem'}"
                      [paginator]="true"
-                     [rows]="10"
-                     [rowsPerPageOptions]="[5, 10, 25, 50]"
+                     [lazy]="true"
+                     [rows]="pageSize()"
+                     [first]="currentPage() * pageSize()"
+                     [totalRecords]="totalRecords()"
+                     [rowsPerPageOptions]="[10, 25, 50, 100]"
+                     (onLazyLoad)="onPageChange($event)"
+                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} tarefas"
+                     [showCurrentPageReport]="true"
                      [globalFilterFields]="globalFilterFields">
 
                 <!-- Header -->

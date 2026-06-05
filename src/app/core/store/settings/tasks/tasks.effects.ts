@@ -15,7 +15,7 @@ export class TasksEffects {
       ofType(TasksActions.loadDailyTasks),
       switchMap(() =>
         this.taskService.getDailyTasks().pipe(
-          map((tasks) => TasksActions.loadDailyTasksSuccess({ tasks })),
+          map((page) => TasksActions.loadDailyTasksSuccess({ tasks: page.items })),
           catchError((error) => of(TasksActions.loadDailyTasksFailure({ error })))
         )
       )

@@ -12,7 +12,7 @@ import {
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputTextarea} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
@@ -69,6 +69,10 @@ export class TasksComponent implements OnInit {
     readonly selectedStatus = signal<TaskStatus>('OPEN');
     readonly selectedCenterId = signal<string | null>(null);
     readonly centers = signal<Center[]>([]);
+    readonly totalRecords = signal(0);
+    readonly pageSize = signal(50);
+    readonly currentPage = signal(0);
+    readonly countsByType = signal<Partial<Record<TaskType, number>>>({});
 
     readonly meetingDialogVisible = signal(false);
     readonly meetingSubmitting = signal(false);
@@ -102,18 +106,6 @@ export class TasksComponent implements OnInit {
         ...this.centers().map(c => ({label: c.name, value: c.id})),
     ]);
 
-    readonly filteredTasks = computed(() =>
-        this.tasks().filter(t => t.taskType === this.currentView())
-    );
-
-    readonly taskCountByType = computed(() => {
-        const counts: Record<string, number> = {};
-        for (const task of this.tasks()) {
-            counts[task.taskType] = (counts[task.taskType] ?? 0) + 1;
-        }
-        return counts;
-    });
-
     readonly isContractView = computed(() =>
         (['INSTALLMENT_OVERDUE', 'INSTALLMENT_DUE_SOON', 'CONTRACT_ENDING_SOON'] as TaskType[])
             .includes(this.currentView())
@@ -146,29 +138,52 @@ export class TasksComponent implements OnInit {
 
     ngOnInit() {
         this.centerService.getAllCenters().subscribe(centers => this.centers.set(centers));
-        this.loadTasks();
     }
 
     setView(value: string) {
         this.currentView.set(value as TaskType);
+        this.currentPage.set(0);
+        this.loadTasks();
     }
 
     setStatus(status: TaskStatus) {
         this.selectedStatus.set(status);
+        this.currentPage.set(0);
         this.loadTasks();
     }
 
     setCenterId(centerId: string | null) {
         this.selectedCenterId.set(centerId);
+        this.currentPage.set(0);
         this.loadTasks();
     }
 
-    loadTasks() {
+    onPageChange(event: TableLazyLoadEvent): void {
+        const rows = event.rows ?? this.pageSize();
+        const first = event.first ?? 0;
+        this.pageSize.set(rows);
+        this.currentPage.set(Math.floor(first / rows));
+        this.loadTasks();
+    }
+
+    loadTasks(): void {
         this.loading.set(true);
         const centerId = this.selectedCenterId() ?? undefined;
-        this.taskService.getDailyTasks(this.selectedStatus(), centerId).subscribe({
-            next: tasks => {
-                this.tasks.set(tasks);
+
+        this.taskService.getDailyTasks({
+            status: this.selectedStatus(),
+            centerId,
+            taskType: this.currentView(),
+            page: this.currentPage(),
+            size: this.pageSize(),
+        }).subscribe({
+            next: (page) => {
+                this.tasks.set(page.items);
+                this.totalRecords.set(page.total);
+                this.countsByType.update((counts) => ({
+                    ...counts,
+                    [this.currentView()]: page.total,
+                }));
                 this.loading.set(false);
             },
             error: () => this.loading.set(false),
@@ -239,8 +254,12 @@ export class TasksComponent implements OnInit {
         this.pendingMeetingTask.set(null);
     }
 
-    getLevelName(level: {id: string; name: string} | null): string {
+    getLevelName(level: {id: string; name: string} | null | undefined): string {
         return level?.name ?? '-';
+    }
+
+    getTypeCount(taskType: TaskType): number {
+        return this.countsByType()[taskType] ?? 0;
     }
 
     getDaysFromDateString = getDaysFromDateString;

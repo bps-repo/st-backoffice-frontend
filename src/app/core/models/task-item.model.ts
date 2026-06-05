@@ -51,13 +51,31 @@ export interface TaskContract {
   status: ContractStatus;
 }
 
+export interface DailyTasksFilter {
+  status?: TaskStatus;
+  centerId?: string;
+  taskType?: TaskType;
+  page?: number;
+  size?: number;
+}
+
+export interface DailyTasksPage {
+  items: TaskItem[];
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface TaskItem {
   id: string;
   studentId: string;
   studentCode: string;
   studentName: string;
   studentStatus: StudentStatus;
-  level: { id: string; name: string };
+  level?: { id: string; name: string } | null;
   center: { id: string; name: string };
   taskType: TaskType;
   description: string;

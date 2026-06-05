@@ -149,7 +149,8 @@
                         <label for="relationType" class="font-medium text-900">Selecione a entidade *</label>
                         <p-dropdown id="relationType" [options]="relatedEntityTypeOptions"
                             [(ngModel)]="newRelation.relatedEntityType" optionLabel="label" optionValue="value"
-                            placeholder="Selecione o tipo" (onChange)="onEntityTypeChange()"></p-dropdown>
+                            placeholder="Selecione o tipo"
+                            (ngModelChange)="onEntityTypeChange($event)"></p-dropdown>
                     </div>
 
                     <!-- Level Selection for Units -->
@@ -157,10 +158,15 @@
                         <label for="levelSelection" class="font-medium text-900">Selecionar Nível *</label>
                         <p-dropdown id="levelSelection" [options]="levelOptions" [(ngModel)]="selectedLevelId"
                             optionLabel="label" optionValue="value" placeholder="Selecione o nível"
-                            (onChange)="onLevelChange()"
+                            (ngModelChange)="onLevelChange($event)"
+                            [loading]="isEntityLoading(RelatedEntityType.LEVEL)"
                             [disabled]="isEntityLoading(RelatedEntityType.LEVEL)"></p-dropdown>
-                        <small *ngIf="!isEntityLoading(RelatedEntityType.LEVEL)" class="text-500">
-                            {{ levelOptions.length }} níveis disponíveis
+                        <small class="text-500">
+                            @if (isEntityLoading(RelatedEntityType.LEVEL)) {
+                                Carregando níveis...
+                            } @else {
+                                {{ levelOptions.length }} níveis disponíveis
+                            }
                         </small>
                     </div>
 
@@ -169,10 +175,11 @@
                             {{ newRelation.relatedEntityType ? 'Selecione ' + getEntityType(selectedType()) : 'Selecione
                             a entidade relacionada' }} *
                         </label>
-                        <p-dropdown id="relatedEntity" [options]="getRelatedEntityOptions()"
+                        <p-dropdown id="relatedEntity" [options]="relatedEntityOptions"
                             [(ngModel)]="newRelation.relatedEntityId" optionLabel="label" optionValue="value"
                             [placeholder]="getRelatedEntityPlaceholder()"
-                            [disabled]="isRelatedEntityDisabled()"></p-dropdown>
+                            [disabled]="isRelatedEntityDisabled()"
+                            [loading]="isEntityLoading(newRelation.relatedEntityType)"></p-dropdown>
                         <small *ngIf="newRelation.relatedEntityType && !isEntityLoading(newRelation.relatedEntityType)"
                             class="text-500">
                             {{ getEntityCount(newRelation.relatedEntityType) }}

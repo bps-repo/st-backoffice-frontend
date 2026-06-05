@@ -4,7 +4,13 @@ import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../models/ApiResponseService';
-import { TaskAction, TaskItem, TaskStatus } from '../models/task-item.model';
+import {
+  DailyTasksFilter,
+  DailyTasksPage,
+  TaskAction,
+  TaskItem,
+  TaskStatus,
+} from '../models/task-item.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,19 +20,29 @@ export class TaskService {
 
   private apiUrl = `${environment.apiUrl}/tasks`;
 
-  getDailyTasks(status: TaskStatus = 'OPEN', centerId?: string): Observable<TaskItem[]> {
-    let params = new HttpParams().set('status', status);
-    if (centerId) {
-      params = params.set('centerId', centerId);
+  getDailyTasks(filter: DailyTasksFilter = {}): Observable<DailyTasksPage> {
+    let params = new HttpParams()
+      .set('page', String(filter.page ?? 0))
+      .set('size', String(filter.size ?? 50));
+
+    if (filter.status) {
+      params = params.set('status', filter.status);
     }
-    return this.http.get<ApiResponse<TaskItem[]>>(`${this.apiUrl}/daily`, { params }).pipe(
-      map(response => response.data)
+    if (filter.centerId) {
+      params = params.set('centerId', filter.centerId);
+    }
+    if (filter.taskType) {
+      params = params.set('taskType', filter.taskType);
+    }
+
+    return this.http.get<ApiResponse<DailyTasksPage>>(`${this.apiUrl}/daily`, { params }).pipe(
+      map((response) => response.data),
     );
   }
 
   getDailyTaskById(taskId: string, centerId?: string): Observable<TaskItem> {
     return this.http.get<ApiResponse<TaskItem>>(`${this.apiUrl}/daily/${taskId}`).pipe(
-      map(response => response.data),
+      map((response) => response.data),
       catchError(() => this.findTaskInDailyList(taskId, centerId)),
     );
   }
@@ -35,7 +51,10 @@ export class TaskService {
     const statuses: TaskStatus[] = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'IGNORED', 'SNOOZED'];
     return forkJoin(
       statuses.map((status) =>
-        this.getDailyTasks(status, centerId).pipe(catchError(() => of([] as TaskItem[]))),
+        this.getDailyTasks({ status, centerId, page: 0, size: 1000 }).pipe(
+          map((page) => page.items),
+          catchError(() => of([] as TaskItem[])),
+        ),
       ),
     ).pipe(
       map((results) => {
@@ -65,7 +84,7 @@ export class TaskService {
     if (options?.title)        body['title']        = options.title;
     if (options?.description)  body['description']  = options.description;
     return this.http.patch<ApiResponse<TaskItem>>(`${this.apiUrl}/daily/${taskId}/action`, body, { params }).pipe(
-      map(response => response.data)
+      map((response) => response.data),
     );
   }
 }
