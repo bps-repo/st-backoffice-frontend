@@ -15,14 +15,17 @@
 
     <!-- KPI Cards - only visible in list view with smooth animation -->
     @if (currentView === 'list') {
-        @if (kpis$ | async; as kpis) {
-            @for (k of kpis; track k) {
-                <div [ngClass]="'col-12 md:col-6 xl:col-' + Math.floor(12 / kpis.length)"
-                     class="animate-fade px-fadein">
-                    <app-kpi-indicators class="w-full h-full" [kpi]="k"></app-kpi-indicators>
+        <div class="col-12">
+            @if (kpis$ | async; as kpis) {
+                <div class="grid">
+                    @for (k of kpis; track k.label) {
+                        <div class="col-12 sm:col-6 lg:col-4 xl:col-3 animate-fade px-fadein">
+                            <app-kpi-indicators class="w-full h-full block" [kpi]="k"></app-kpi-indicators>
+                        </div>
+                    }
                 </div>
             }
-        }
+        </div>
     }
 
     <!-- List View -->

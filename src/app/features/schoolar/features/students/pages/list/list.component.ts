@@ -11,7 +11,7 @@ import {Store} from '@ngrx/store';
 import {Observable, Subject, take, debounceTime, distinctUntilChanged, takeUntil, BehaviorSubject, map, of} from 'rxjs';
 import {ChartModule} from 'primeng/chart';
 import {ButtonModule} from 'primeng/button';
-import {COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
+import {buildStudentListKpis, COLUMNS, GLOBAL_FILTERS, HEADER_ACTIONS} from "../../constants";
 import {TableHeaderAction} from "../../../../../../shared/components/tables/global-table/table-header.component";
 import * as StudentSelectors from "../../../../../../core/store/schoolar/students/students.selectors";
 import {StudentsActions} from "../../../../../../core/store/schoolar/students/students.actions";
@@ -37,6 +37,8 @@ import {SelectItem} from 'primeng/api';
 import {LocationActions} from 'src/app/core/store/location/location.actions';
 import * as LocationSelectors from 'src/app/core/store/location/location.selectors';
 import {AppState} from 'src/app/core/store';
+import {StatisticsActions} from 'src/app/core/store/schoolar/statistics/statistics.actions';
+import {selectDashboardStatistics} from 'src/app/core/store/schoolar/statistics/statistics.selectors';
 
 @Component({
     selector: 'schoolar-students-list',
@@ -258,55 +260,13 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
             maintainAspectRatio: false
         };
 
-        // Build KPI indicators dynamically from students data
-        this.kpis$ = this.students$.pipe(
-            map((students: Student[]) => {
-                const total = students.length;
-                const active = students.filter(s => s.status === StudentStatus.ACTIVE).length;
-                const inactive = students.filter(s => s.status === StudentStatus.INACTIVE).length;
-                const renewing = students.filter(s => s.status === StudentStatus.PENDING_PAYMENT).length;
-                const vip = students.filter(s => !!s.vip).length;
-                const standard = students.filter(s => !s.vip).length;
-
-                const kpis: Kpi[] = [
-                    {
-                        label: 'Total de Alunos',
-                        value: total,
-                        icon: {label: 'users', color: 'text-blue-500', type: 'mat'},
-                    },
-                    {
-                        label: 'Ativos',
-                        value: active,
-                        icon: {label: 'user-check', color: 'text-green-500', type: 'mat'},
-                    },
-                    {
-                        label: 'Inativos',
-                        value: inactive,
-                        icon: {label: 'user-cancel', color: 'text-red-500', type: 'mat'},
-                    },
-                    {
-                        label: 'Em renovação',
-                        value: renewing,
-                        icon: {label: 'exclamation-circle', color: 'text-orange-500'},
-                    },
-                    {
-                        label: 'VIP',
-                        value: vip,
-                        icon: {label: 'graduation-cap', color: 'text-purple-500'},
-                    },
-                    {
-                        label: 'Standard',
-                        value: standard,
-                        icon: {label: 'calendar', color: 'text-secondary'},
-                    },
-                ];
-
-                return kpis;
-            })
+        this.kpis$ = this.store.select(selectDashboardStatistics).pipe(
+            map((stats) => buildStudentListKpis(stats)),
         );
     }
 
     ngOnInit(): void {
+        this.store.dispatch(StatisticsActions.loadDashboardStatistics());
         this.store.dispatch(LevelActions.loadLevels({}))
         this.store.dispatch(CenterActions.loadCenters());
         this.store.dispatch(StudentsActions.loadStudentsPaginated({
@@ -650,5 +610,4 @@ export class ListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     protected StudentStatus = StudentStatus
-    protected readonly Math = Math;
 }
