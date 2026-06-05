@@ -1,57 +1,160 @@
-<div *ngIf="(loading$ | async)" class="spinner-container">
-    <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
-</div>
+<p-toast></p-toast>
 
-<div *ngIf="(error$ | async) !== null">
-    {{ (error$ | async) | json }}
-</div>
+@if (loading$ | async) {
+    <div class="spinner-container">
+        <p-progressSpinner styleClass="custom-spinner" fill="#EEEEEE"></p-progressSpinner>
+    </div>
+} @else {
+    <div class="grid">
+        <div class="col-12">
+            <div class="card">
+                <h5>Detalhes do Centro</h5>
 
-<div class="grid" *ngIf="!(loading$ | async) && editableCenter">
-    <div class="col-12">
-        <div class="card">
-            <h5>Detalhes do Center</h5>
-            <div class="p-fluid grid">
-                <div class="field col-12 md:col-6">
-                    <label for="name">Nome</label>
-                    <input id="name" type="text" pInputText [(ngModel)]="editableCenter.name"/>
+                <form #form="ngForm" class="p-fluid grid">
+                    <div class="field col-12 md:col-6">
+                        <label for="name" class="font-bold">Nome <span class="text-red-500">*</span></label>
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            pInputText
+                            [(ngModel)]="name"
+                            #nameRef="ngModel"
+                            required
+                            [class.ng-invalid]="nameRef.invalid && nameRef.touched">
+                        @if (nameRef.invalid && nameRef.touched) {
+                            <small class="text-red-500">Nome é obrigatório.</small>
+                        }
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="email" class="font-bold">Email</label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            pInputText
+                            [(ngModel)]="email">
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="address" class="font-bold">Endereço <span class="text-red-500">*</span></label>
+                        <input
+                            id="address"
+                            name="address"
+                            type="text"
+                            pInputText
+                            [(ngModel)]="address"
+                            #addressRef="ngModel"
+                            required
+                            [class.ng-invalid]="addressRef.invalid && addressRef.touched">
+                        @if (addressRef.invalid && addressRef.touched) {
+                            <small class="text-red-500">Endereço é obrigatório.</small>
+                        }
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="phoneNumber" class="font-bold">Telefone <span class="text-red-500">*</span></label>
+                        <input
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            type="text"
+                            pInputText
+                            [(ngModel)]="phone"
+                            #phoneRef="ngModel"
+                            required
+                            [class.ng-invalid]="phoneRef.invalid && phoneRef.touched">
+                        @if (phoneRef.invalid && phoneRef.touched) {
+                            <small class="text-red-500">Telefone é obrigatório.</small>
+                        }
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="province" class="font-bold">Província <span class="text-red-500">*</span></label>
+                        <p-dropdown
+                            id="province"
+                            name="province"
+                            [options]="provinceOptions()"
+                            [(ngModel)]="provinceName"
+                            (ngModelChange)="onProvinceChange($event)"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecione a província"
+                            [loading]="loadingProvinces()"
+                            [showClear]="true"
+                            required
+                            #provinceRef="ngModel"
+                            [class.ng-invalid]="provinceRef.invalid && provinceRef.touched">
+                        </p-dropdown>
+                        @if (provinceRef.invalid && provinceRef.touched) {
+                            <small class="text-red-500">Província é obrigatória.</small>
+                        }
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="municipality" class="font-bold">Município <span class="text-red-500">*</span></label>
+                        <p-dropdown
+                            id="municipality"
+                            name="municipality"
+                            [options]="municipalityOptions()"
+                            [(ngModel)]="municipalityId"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecione o município"
+                            [loading]="loadingMunicipalities()"
+                            [disabled]="!provinceName"
+                            [showClear]="true"
+                            required
+                            #municipalityRef="ngModel"
+                            [class.ng-invalid]="municipalityRef.invalid && municipalityRef.touched">
+                        </p-dropdown>
+                        @if (municipalityRef.invalid && municipalityRef.touched) {
+                            <small class="text-red-500">Município é obrigatório.</small>
+                        }
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="active" class="font-bold">Ativo</label>
+                        <p-dropdown
+                            id="active"
+                            name="active"
+                            [options]="activeOptions"
+                            [(ngModel)]="active"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecione o status">
+                        </p-dropdown>
+                    </div>
+                </form>
+
+                <div class="flex justify-content-end gap-2 mt-4">
+                    <button
+                        pButton
+                        pRipple
+                        label="{{ (loading$ | async) ? 'Salvando...' : 'Guardar' }}"
+                        icon="pi pi-check"
+                        class="p-button-primary"
+                        [disabled]="(loading$ | async) || form.invalid || !municipalityId"
+                        (click)="saveCenter(form)">
+                    </button>
+                    <button
+                        pButton
+                        pRipple
+                        label="Descarregar"
+                        icon="pi pi-download"
+                        class="p-button-secondary"
+                        (click)="downloadCenterDetails()">
+                    </button>
+                    <button
+                        pButton
+                        pRipple
+                        label="Enviar"
+                        icon="pi pi-send"
+                        class="p-button-secondary"
+                        (click)="sendCenterDetails()">
+                    </button>
                 </div>
-                <div class="field col-12 md:col-6">
-                    <label for="email">Email</label>
-                    <input id="email" type="text" pInputText [(ngModel)]="editableCenter.email"/>
-                </div>
-                <div class="field col-12 md:col-6">
-                    <label for="address">Endereço</label>
-                    <input id="address" type="text" pInputText [(ngModel)]="editableCenter.address"/>
-                </div>
-                <div class="field col-12 md:col-6">
-                    <label for="phoneNumber">Telefone</label>
-                    <input id="phoneNumber" type="text" pInputText [(ngModel)]="editableCenter.phone"/>
-                </div>
-                <div class="field col-12 md:col-6">
-                    <label for="city">City</label>
-                    <input id="city" type="text" pInputText [(ngModel)]="editableCenter.city"/>
-                </div>
-                <div class="field col-12 md:col-6">
-                    <label for="active">Ativo</label>
-                    <p-dropdown
-                        id="active"
-                        [options]="activeOptions"
-                        [(ngModel)]="editableCenter.active"
-                        optionLabel="label"
-                        optionValue="value"
-                        placeholder="Selecione o status"
-                        [showClear]="true">
-                    </p-dropdown>
-                </div>
-            </div>
-            <div class="flex justify-content-end gap-2 mt-4">
-                <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-primary"
-                        (click)="editCenter()"></button>
-                <button pButton pRipple label="Descarregar" icon="pi pi-download" class="p-button-secondary"
-                        (click)="downloadCenterDetails()"></button>
-                <button pButton pRipple label="Enviar" icon="pi pi-send" class="p-button-secondary"
-                        (click)="sendCenterDetails()"></button>
             </div>
         </div>
     </div>
-</div>
+}

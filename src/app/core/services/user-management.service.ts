@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/auth/user';
+import { UpdateUserRequest } from '../models/update-user-request';
 import { Role } from '../models/auth/role';
 import { Permission } from '../models/auth/permission';
 import { UserProfileService } from './user-profile.service';
@@ -30,6 +31,10 @@ export class UserManagementService {
 
     updateUser(user: User): Observable<User> {
         return this.http.put<User>(`${this.apiUrl}/${user.id}`, user);
+    }
+
+    patchUser(id: string, request: UpdateUserRequest): Observable<User> {
+        return this.http.patch<User>(`${this.apiUrl}/${id}`, request);
     }
 
     // User roles management

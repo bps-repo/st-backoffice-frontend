@@ -1,3 +1,12 @@
+import { EntityPayment, PaymentMethod } from '../payment/installment';
+
+export const INVOICE_PAYMENT_METHOD_OPTIONS: { label: string; value: PaymentMethod }[] = [
+    { label: 'Dinheiro', value: PaymentMethod.CASH },
+    { label: 'Transferência Bancária', value: PaymentMethod.BANK_TRANSFER },
+    { label: 'Cartão de Débito', value: PaymentMethod.DEBIT_CARD },
+    { label: 'Cartão de Crédito', value: PaymentMethod.CREDIT_CARD },
+];
+
 export interface Invoice {
     total: number;
     subtotal: number;
@@ -86,6 +95,7 @@ export interface InvoiceDetail {
     description: string;
     notes: string;
     paymentSchedule: string;
+    paymentMethod?: PaymentMethod | string;
     subtotal: number;
     discountAmount: number;
     amount: number;
@@ -97,13 +107,28 @@ export interface InvoiceDetail {
     items: InvoiceListItemProduct[];
 }
 
+export type InvoiceDocumentType = 'PROFORMA' | 'RECEIPT' | 'GENERAL';
+
+export const INVOICE_DOCUMENT_TYPE_OPTIONS: { label: string; value: InvoiceDocumentType }[] = [
+    { label: 'Proforma', value: 'PROFORMA' },
+    { label: 'Recibo', value: 'RECEIPT' },
+    { label: 'Geral', value: 'GENERAL' },
+];
+
+export function getInvoiceDocumentTypeLabel(type: InvoiceDocumentType | string | undefined): string {
+    return INVOICE_DOCUMENT_TYPE_OPTIONS.find((o) => o.value === type)?.label ?? type ?? '-';
+}
+
+export type CreateInvoiceAction = 'SAVE' | 'SAVE_AND_GENERATE_INVOICE' | 'SAVE_AND_GENERATE_PAYMENT';
+
 export interface CreateInvoiceRequest {
-    documentType: string;
+    action: CreateInvoiceAction;
     issueDate: string;
     customerId: string;
     centerId: string;
     description: string;
     notes: string;
+    paymentMethod: PaymentMethod;
     discountAmount: number;
     items: CreateInvoiceItemRequest[];
 }
@@ -115,6 +140,13 @@ export interface CreateInvoiceItemRequest {
     unitPrice: number;
     discountAmount: number;
 }
+
+export interface CreateInvoicePaymentRequest {
+    paymentMethod: PaymentMethod;
+    amount: number;
+}
+
+export type InvoicePayment = EntityPayment;
 
 export interface InvoiceItem {
     tax_rate: number;

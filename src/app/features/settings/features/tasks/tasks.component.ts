@@ -1,326 +1,266 @@
-import { Component, OnInit, ViewChild, TemplateRef, AfterViewInit, ElementRef, HostListener, OnDestroy, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    HostListener,
+    OnInit,
+    ViewChild,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Task} from './models/task.model';
 import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
+import {InputTextarea} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
 import {BadgeModule} from 'primeng/badge';
 import {TooltipModule} from 'primeng/tooltip';
-import {TableColumn} from 'src/app/shared/components/tables/global-table/global-table.component';
-import {RippleModule} from "primeng/ripple";
+import {RippleModule} from 'primeng/ripple';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {Store} from '@ngrx/store';
-import {TasksActions} from '../../../../core/store/settings/tasks/tasks.actions';
-import * as TasksSelectors from '../../../../core/store/settings/tasks/tasks.selectors';
-import {TaskItem} from '../../../../core/models/task-item.model';
-import {Subject, takeUntil} from 'rxjs';
+import {DropdownModule} from 'primeng/dropdown';
+import {DialogModule} from 'primeng/dialog';
+import {DatePickerModule} from 'primeng/datepicker';
 import {Router, RouterModule} from '@angular/router';
+import {TaskAction, TaskItem, TaskStatus, TaskType} from '../../../../core/models/task-item.model';
+import {TaskService} from '../../../../core/services/task.service';
+import {CenterService} from '../../../../core/services/center.service';
+import {Center} from '../../../../core/models/corporate/center';
+import {
+    TASK_STATUS_LABELS,
+    getDaysFromDateString,
+    taskStatusClass,
+} from './task-presenter';
 
 @Component({
     selector: 'settings-tasks',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonModule,
         FormsModule,
         SelectButtonModule,
         TableModule,
         InputTextModule,
+        InputTextarea,
         ButtonModule,
         BadgeModule,
         TooltipModule,
         RippleModule,
         RouterModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        DropdownModule,
+        DialogModule,
+        DatePickerModule,
     ],
     templateUrl: './tasks.component.html',
-    styleUrls: ['./tasks.component.scss']
+    styleUrls: ['./tasks.component.scss'],
 })
-export class TasksComponent implements OnInit, AfterViewInit, OnDestroy {
-    private store = inject(Store);
+export class TasksComponent implements OnInit {
+    private taskService = inject(TaskService);
+    private centerService = inject(CenterService);
     private router = inject(Router);
 
-    tasks: TaskItem[] = [];
-    pendingRegistrations: TaskItem[] = [];
-    overdueInstallments: TaskItem[] = [];
-    private destroy$ = new Subject<void>();
+    readonly tasks = signal<TaskItem[]>([]);
+    readonly loading = signal(false);
+    readonly currentView = signal<TaskType>('NO_ACTIVE_CONTRACT');
+    readonly selectedStatus = signal<TaskStatus>('OPEN');
+    readonly selectedCenterId = signal<string | null>(null);
+    readonly centers = signal<Center[]>([]);
+    readonly totalRecords = signal(0);
+    readonly pageSize = signal(50);
+    readonly currentPage = signal(0);
+    readonly countsByType = signal<Partial<Record<TaskType, number>>>({});
 
-    // Task counts for each category
-    contratosTerminadosCount: number = 0;
-    parcelasVencerCount: number = 0;
-    parcelasVencidasCount: number = 0;
-    ausenciasLongasCount: number = 0;
-    inscricoesPendentesCount: number = 0;
+    readonly meetingDialogVisible = signal(false);
+    readonly meetingSubmitting = signal(false);
+    readonly pendingMeetingTask = signal<TaskItem | null>(null);
+    readonly meetingDate = signal<Date | null>(null);
+    readonly meetingTitle = signal('');
+    readonly meetingDescription = signal('');
 
-    // Loading state from store
-    loading$ = this.store.select(TasksSelectors.selectTasksLoading);
-
-    // Make Math available to the template
     protected readonly Math = Math;
+    readonly today = new Date();
 
-    // View selection
-    currentView: string = 'contratos_terminados'; // Default view is terminated contracts
-
-    viewOptions = [
-        {label: 'Contratos terminados', value: 'contratos_terminados'},
-        {label: 'Parcelas a vencer', value: 'parcelas_vencer'},
-        {label: 'Parcelas vencidas', value: 'parcelas_vencidas'},
-        {label: 'Ausências longas', value: 'ausencias_longas'},
-        {label: 'Inscrições pendentes', value: 'inscricoes_pendentes'},
+    readonly viewOptions: {label: string; value: TaskType}[] = [
+        {label: 'Sem contrato activo',  value: 'NO_ACTIVE_CONTRACT'},
+        {label: 'Sem nível activado',   value: 'LEVEL_NEEDS_ACTIVATION'},
+        {label: 'Pagamentos vencidos',  value: 'INSTALLMENT_OVERDUE'},
+        {label: 'Pagamentos a vencer',  value: 'INSTALLMENT_DUE_SOON'},
+        {label: 'Término de contrato',  value: 'CONTRACT_ENDING_SOON'},
+        {label: 'Ausências longas',     value: 'LONG_ABSENCE'},
     ];
 
-    // Table columns
-    columns: TableColumn[] = [
-        {field: 'id', header: 'ID'},
-        {field: 'title', header: 'Título'},
-        {field: 'description', header: 'Descrição'},
-        {field: 'status', header: 'Status'},
-        {field: 'priority', header: 'Prioridade'},
-        {field: 'dueDate', header: 'Data de Vencimento'},
-        {field: 'assignedTo', header: 'Responsável'},
-        {field: 'category', header: 'Categoria'}
+    readonly statusOptions: {label: string; value: TaskStatus}[] = [
+        {label: 'Aberta',       value: 'OPEN'},
+        {label: 'Em progresso', value: 'IN_PROGRESS'},
+        {label: 'Concluída',    value: 'COMPLETED'},
+        {label: 'Ignorada',     value: 'IGNORED'},
+        {label: 'Adiada',       value: 'SNOOZED'},
     ];
 
-    globalFilterFields: string[] = ['title', 'description', 'assignedTo', 'category'];
-    customTemplates: Record<string, TemplateRef<any>> = {};
+    readonly centerOptions = computed(() => [
+        {label: 'Todos os centros', value: null},
+        ...this.centers().map(c => ({label: c.name, value: c.id})),
+    ]);
 
-    // References to sticky header elements
-    @ViewChild('mainHeader', {static: false})
-    mainHeader!: ElementRef;
+    readonly isContractView = computed(() =>
+        (['INSTALLMENT_OVERDUE', 'INSTALLMENT_DUE_SOON', 'CONTRACT_ENDING_SOON'] as TaskType[])
+            .includes(this.currentView())
+    );
 
-    @ViewChild('viewSelector', {static: false})
-    viewSelector!: ElementRef;
+    readonly showDelayColumn = computed(() => this.currentView() === 'INSTALLMENT_OVERDUE');
 
-    // Sticky state tracking
-    isMainHeaderSticky: boolean = false;
-    isViewSelectorSticky: boolean = false;
+    readonly showStudentStatusColumn = computed(() =>
+        (['NO_ACTIVE_CONTRACT', 'LEVEL_NEEDS_ACTIVATION', 'LONG_ABSENCE'] as TaskType[])
+            .includes(this.currentView())
+    );
 
-    // Status templates
-    @ViewChild('statusTemplate', {static: true})
-    statusTemplate!: TemplateRef<any>;
+    globalFilterFields = ['studentName', 'studentCode', 'center.name', 'level.name', 'description'];
 
-    @ViewChild('priorityTemplate', {static: true})
-    priorityTemplate!: TemplateRef<any>;
+    @ViewChild('mainHeader', {static: false}) mainHeader!: ElementRef;
+    @ViewChild('viewSelector', {static: false}) viewSelector!: ElementRef;
 
-    @ViewChild('dueDateTemplate', {static: true})
-    dueDateTemplate!: TemplateRef<any>;
+    isMainHeaderSticky = false;
+    isViewSelectorSticky = false;
 
-    @ViewChild('actionsTemplate', {static: true})
-    actionsTemplate!: TemplateRef<any>;
-
-    // Method to handle view selection
-    onViewChange(event: any) {
-        this.currentView = event.value;
-        // Reload tasks when switching to inscricoes_pendentes or parcelas_vencidas
-        if (this.currentView === 'inscricoes_pendentes' || this.currentView === 'parcelas_vencidas') {
-            this.store.dispatch(TasksActions.loadDailyTasks());
-        }
-    }
-
-    // Listen for scroll events
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll() {
-        this.checkStickyState();
-    }
-
-    // Check if headers are in sticky state
-    checkStickyState() {
-        if (this.mainHeader && this.mainHeader.nativeElement) {
-            const mainHeaderRect = this.mainHeader.nativeElement.getBoundingClientRect();
-            this.isMainHeaderSticky = mainHeaderRect.top <= 0;
+        if (this.mainHeader?.nativeElement) {
+            this.isMainHeaderSticky = this.mainHeader.nativeElement.getBoundingClientRect().top <= 0;
         }
-
-        if (this.viewSelector && this.viewSelector.nativeElement) {
-            const viewSelectorRect = this.viewSelector.nativeElement.getBoundingClientRect();
-            this.isViewSelectorSticky = viewSelectorRect.top <= 80;
+        if (this.viewSelector?.nativeElement) {
+            this.isViewSelectorSticky = this.viewSelector.nativeElement.getBoundingClientRect().top <= 80;
         }
-    }
-
-    // Get filtered tasks based on current view
-    get filteredTasks(): TaskItem[] {
-        switch (this.currentView) {
-            case 'contratos_terminados':
-                return this.tasks.filter(task => task.taskType === 'Contrato Terminado');
-            case 'parcelas_vencer':
-                return this.tasks.filter(task => task.taskType === 'Parcela a Vencer');
-            case 'parcelas_vencidas':
-                return [];
-            case 'ausencias_longas':
-                return this.tasks.filter(task => task.taskType === 'Ausência Longa');
-            case 'inscricoes_pendentes':
-                return [];
-            default:
-                return this.tasks;
-        }
-    }
-
-    // Get filtered pending registrations
-    get filteredPendingRegistrations(): TaskItem[] {
-        if (this.currentView !== 'inscricoes_pendentes') {
-            return [];
-        }
-        return this.pendingRegistrations || [];
-    }
-
-    // Get filtered overdue installments
-    get filteredOverdueInstallments(): TaskItem[] {
-        if (this.currentView !== 'parcelas_vencidas') {
-            return [];
-        }
-        return this.overdueInstallments || [];
-    }
-
-    // Check if we should show loading for inscricoes_pendentes or parcelas_vencidas
-    get isLoadingPendingRegistrations(): boolean {
-        return this.currentView === 'inscricoes_pendentes' || this.currentView === 'parcelas_vencidas';
-    }
-
-    // Update task counts
-    updateTaskCounts(): void {
-        this.contratosTerminadosCount = this.tasks.filter(task => task.taskType === 'Contrato Terminado').length;
-        this.parcelasVencerCount = this.tasks.filter(task => task.taskType === 'Parcela a Vencer').length;
-        this.parcelasVencidasCount = this.overdueInstallments.length;
-        this.ausenciasLongasCount = this.tasks.filter(task => task.taskType === 'Ausência Longa').length;
-        this.inscricoesPendentesCount = this.pendingRegistrations.length;
     }
 
     ngOnInit() {
-        // Dispatch action to load daily tasks
-        this.store.dispatch(TasksActions.loadDailyTasks());
-
-        // Subscribe to pending registrations
-        this.store.select(TasksSelectors.selectPendingRegistrations)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(tasks => {
-                this.pendingRegistrations = tasks;
-                this.updateTaskCounts();
-            });
-
-        // Subscribe to overdue installments
-        this.store.select(TasksSelectors.selectOverdueInstallments)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(tasks => {
-                this.overdueInstallments = tasks;
-                this.updateTaskCounts();
-            });
-
-        // Update task counts
-        this.updateTaskCounts();
+        this.centerService.getAllCenters().subscribe(centers => this.centers.set(centers));
     }
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
+    setView(value: string) {
+        this.currentView.set(value as TaskType);
+        this.currentPage.set(0);
+        this.loadTasks();
     }
 
-    ngAfterViewInit() {
-        this.customTemplates = {
-            status: this.statusTemplate,
-            priority: this.priorityTemplate,
-            dueDate: this.dueDateTemplate,
-            actions: this.actionsTemplate
-        };
+    setStatus(status: TaskStatus) {
+        this.selectedStatus.set(status);
+        this.currentPage.set(0);
+        this.loadTasks();
+    }
 
-        // Initialize sticky state check after view is initialized
-        setTimeout(() => {
-            this.checkStickyState();
+    setCenterId(centerId: string | null) {
+        this.selectedCenterId.set(centerId);
+        this.currentPage.set(0);
+        this.loadTasks();
+    }
+
+    onPageChange(event: TableLazyLoadEvent): void {
+        const rows = event.rows ?? this.pageSize();
+        const first = event.first ?? 0;
+        this.pageSize.set(rows);
+        this.currentPage.set(Math.floor(first / rows));
+        this.loadTasks();
+    }
+
+    loadTasks(): void {
+        this.loading.set(true);
+        const centerId = this.selectedCenterId() ?? undefined;
+
+        this.taskService.getDailyTasks({
+            status: this.selectedStatus(),
+            centerId,
+            taskType: this.currentView(),
+            page: this.currentPage(),
+            size: this.pageSize(),
+        }).subscribe({
+            next: (page) => {
+                this.tasks.set(page.items);
+                this.totalRecords.set(page.total);
+                this.countsByType.update((counts) => ({
+                    ...counts,
+                    [this.currentView()]: page.total,
+                }));
+                this.loading.set(false);
+            },
+            error: () => this.loading.set(false),
         });
     }
 
-    // Action methods
-    editTask(task: Task) {
-        console.log('Edit task:', task);
+    taskStatusClass = taskStatusClass;
+
+    taskStatusLabel(status: TaskStatus): string {
+        return TASK_STATUS_LABELS[status] ?? status;
     }
 
-    deleteTask(task: Task) {
-        console.log('Delete task:', task);
+    viewTask(task: TaskItem): void {
+        this.router.navigate(['/settings/tasks', task.id], {state: {task}});
     }
 
-    completeTask(task: Task) {
-        console.log('Complete task:', task);
-    }
+    handleTaskAction(task: TaskItem, action: TaskAction) {
+        if (action === 'MARK_MEETING') {
+            this.pendingMeetingTask.set(task);
+            this.meetingDate.set(null);
+            this.meetingTitle.set('');
+            this.meetingDescription.set('');
+            this.meetingDialogVisible.set(true);
+            return;
+        }
 
-    // Action methods for pending registrations and overdue installments
-    handleTaskAction(task: TaskItem, action: string) {
         switch (action) {
-            case 'proceed':
-                // Navigate to student detail or handle proceed action
-                this.router.navigate(['/finances/contracts/renew'], {
-                    queryParams: {studentId: task.studentId}
-                });
+            case 'PROCEED':
+                this.router.navigate(['/finances/contracts/renew'], {queryParams: {studentId: task.studentId}});
                 break;
-            case 'create_contract':
-                // Navigate to create contract page
-                this.router.navigate(['/finances/contracts/create'], {
-                    queryParams: {studentId: task.studentId}
-                });
-                break;
-            case 'remind':
-                console.log('Remind about installment:', task);
-                // Implement remind logic
-                break;
-            case 'billing_call':
-                console.log('Billing call for task:', task);
-                // Implement billing call logic
-                break;
-            case 'complete':
-                console.log('Complete task:', task);
-                // Implement complete logic
-                break;
-            case 'delete':
-                console.log('Delete task:', task);
-                // Implement delete logic
-                break;
-            case 'ignore':
-                console.log('Ignore task:', task);
-                // Implement ignore logic
+            case 'CREATE_CONTRACT':
+                this.router.navigate(['/finances/contracts/create'], {queryParams: {studentId: task.studentId}});
                 break;
             default:
-                console.log('Unknown action:', action);
+                this.taskService.applyTaskAction(task.id, action).subscribe({
+                    next: updated => {
+                        this.tasks.update(all => all.map(t => t.id === updated.id ? updated : t));
+                    },
+                });
         }
     }
 
-    // Helper method to get level name
-    getLevelName(level: string | { id: string; name: string } | null): string {
-        if (!level) return '-';
-        if (typeof level === 'string') return level;
-        return level.name;
+    submitMeeting() {
+        const task = this.pendingMeetingTask();
+        const date = this.meetingDate();
+        if (!task || !date || !this.meetingTitle().trim()) return;
+
+        this.meetingSubmitting.set(true);
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
+        this.taskService.applyTaskAction(task.id, 'MARK_MEETING', {
+            date: dateStr,
+            title: this.meetingTitle().trim(),
+            description: this.meetingDescription().trim(),
+        }).subscribe({
+            next: updated => {
+                this.tasks.update(all => all.map(t => t.id === updated.id ? updated : t));
+                this.meetingSubmitting.set(false);
+                this.meetingDialogVisible.set(false);
+            },
+            error: () => this.meetingSubmitting.set(false),
+        });
     }
 
-    // Helper method to format currency
-    formatCurrency(amount: number): string {
-        return new Intl.NumberFormat('pt-PT', {
-            style: 'currency',
-            currency: 'AOA'
-        }).format(amount);
+    closeMeetingDialog() {
+        this.meetingDialogVisible.set(false);
+        this.pendingMeetingTask.set(null);
     }
 
-    // Calculate days between a date string and today
-    getDaysFromDateString(dateString: string): number {
-        const today = new Date();
-        const targetDate = new Date(dateString);
-
-        // Reset time part for accurate day calculation
-        today.setHours(0, 0, 0, 0);
-        targetDate.setHours(0, 0, 0, 0);
-
-        // Calculate difference in milliseconds and convert to days
-        const diffTime = targetDate.getTime() - today.getTime();
-        return Math.round(diffTime / (1000 * 60 * 60 * 24));
+    getLevelName(level: {id: string; name: string} | null | undefined): string {
+        return level?.name ?? '-';
     }
 
-    // Calculate days between a date and today
-    getDaysFromNow(date: Date): number {
-        const today = new Date();
-        const targetDate = new Date(date);
-
-        // Reset time part for accurate day calculation
-        today.setHours(0, 0, 0, 0);
-        targetDate.setHours(0, 0, 0, 0);
-
-        // Calculate difference in milliseconds and convert to days
-        const diffTime = targetDate.getTime() - today.getTime();
-        return Math.round(diffTime / (1000 * 60 * 60 * 24));
+    getTypeCount(taskType: TaskType): number {
+        return this.countsByType()[taskType] ?? 0;
     }
+
+    getDaysFromDateString = getDaysFromDateString;
 }

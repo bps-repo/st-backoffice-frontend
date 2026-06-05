@@ -1,0 +1,218 @@
+<p-toast></p-toast>
+
+<div class="grid p-3">
+    @if (loading()) {
+        <div class="col-12 flex justify-content-center align-items-center p-6">
+            <p-progressSpinner strokeWidth="4" animationDuration=".8s"></p-progressSpinner>
+        </div>
+    }
+
+    @if (!loading() && error()) {
+        <div class="col-12">
+            <div class="card text-center p-5">
+                <i class="pi pi-exclamation-triangle text-4xl text-red-500 mb-3"></i>
+                <h3 class="mt-0">{{ error() }}</h3>
+                <button pButton label="Voltar" icon="pi pi-arrow-left" class="p-button-outlined" (click)="goBack()"></button>
+            </div>
+        </div>
+    }
+
+    @if (!loading() && task(); as t) {
+        <div class="col-12 flex align-items-start justify-content-between gap-3 mb-2">
+            <div class="flex align-items-center gap-3">
+                <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-secondary"
+                    pTooltip="Voltar" tooltipPosition="right" (click)="goBack()"></button>
+                <div>
+                    <div class="flex align-items-center gap-2 mb-1 flex-wrap">
+                        <h1 class="text-2xl font-bold m-0">{{ taskTypeLabels[t.taskType] }}</h1>
+                        <span [ngClass]="taskStatusClass(t.taskStatus)"
+                              class="px-2 py-1 rounded-full text-xs font-semibold">
+                            {{ taskStatusLabels[t.taskStatus] }}
+                        </span>
+                    </div>
+                    <span class="text-color-secondary">{{ t.description }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+            <div class="card h-full">
+                <h3 class="text-lg font-semibold mt-0 mb-3">Aluno</h3>
+                <div class="flex flex-column gap-3">
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Nome</span>
+                        <button type="button"
+                                class="p-0 border-none bg-transparent font-semibold text-primary cursor-pointer"
+                                (click)="viewStudent()">
+                            {{ t.studentName }}
+                        </button>
+                    </div>
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Código</span>
+                        <span class="font-medium">{{ t.studentCode }}</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Estado do aluno</span>
+                        <span [ngClass]="studentStatusClass(t.studentStatus)"
+                              class="px-2 py-1 rounded-full text-xs">
+                            {{ t.studentStatus }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Nível</span>
+                        <span class="font-medium">{{ t.level?.name ?? '—' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Centro</span>
+                        <span class="font-medium">{{ t.center.name }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+            <div class="card h-full">
+                <h3 class="text-lg font-semibold mt-0 mb-3">Informação da tarefa</h3>
+                <div class="flex flex-column gap-3">
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Data de geração</span>
+                        <span class="font-medium">{{ t.generatedDate | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Data de resolução</span>
+                        <span class="font-medium">
+                            {{ t.resolvedDate ? (t.resolvedDate | date:'dd/MM/yyyy') : '—' }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-color-secondary block mb-1">Última ação</span>
+                        <span class="font-medium">
+                            {{ t.lastAction ? taskActionLabels[t.lastAction] : '—' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (isContractTaskType(t.taskType)) {
+            <div class="col-12">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mt-0 mb-3">Contrato</h3>
+                    @if (t.contract) {
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <span class="text-sm text-color-secondary block mb-1">ID</span>
+                                <span class="font-medium">{{ t.contract.id }}</span>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <span class="text-sm text-color-secondary block mb-1">Estado</span>
+                                <p-tag [value]="t.contract.status"></p-tag>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <span class="text-sm text-color-secondary block mb-1">Data</span>
+                                <span class="font-medium">{{ t.contract.endDate | date:'dd/MM/yyyy' }}</span>
+                            </div>
+                            @if (t.taskType === 'INSTALLMENT_OVERDUE') {
+                                <div class="col-12 md:col-4">
+                                    <span class="text-sm text-color-secondary block mb-1">Atraso</span>
+                                    <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                        {{ Math.abs(getDaysFromDateString(t.contract.endDate)) }} dias
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <span class="text-color-secondary">Sem contrato associado.</span>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="col-12">
+            <div class="card">
+                <h3 class="text-lg font-semibold mt-0 mb-3">Ações disponíveis</h3>
+                @if (t.availableActions?.length) {
+                    <div class="flex flex-wrap gap-2">
+                        @for (action of t.availableActions; track action) {
+                            <button pButton pRipple
+                                    [label]="taskActionLabels[action]"
+                                    [icon]="actionIcon(action)"
+                                    [severity]="actionSeverity(action)"
+                                    [outlined]="true"
+                                    [loading]="actionLoading()"
+                                    [disabled]="actionLoading()"
+                                    (click)="handleTaskAction(action)">
+                            </button>
+                        }
+                    </div>
+                } @else {
+                    <span class="text-color-secondary">Nenhuma ação disponível para esta tarefa.</span>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<p-dialog
+    header="Marcar Reunião"
+    [visible]="meetingDialogVisible()"
+    (visibleChange)="$event ? null : closeMeetingDialog()"
+    [modal]="true"
+    [style]="{'width': '480px'}"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="flex flex-column gap-4 pt-2">
+        <div class="flex flex-column gap-2">
+            <label class="font-medium text-sm">Aluno</label>
+            <span class="text-color-secondary text-sm">{{ task()?.studentName }}</span>
+        </div>
+
+        <div class="flex flex-column gap-2">
+            <label for="detailMeetingTitle" class="font-medium text-sm">Título <span class="text-red-500">*</span></label>
+            <input id="detailMeetingTitle" pInputText
+                   [ngModel]="meetingTitle()"
+                   (ngModelChange)="meetingTitle.set($event)"
+                   placeholder="Ex: Reunião de renovação de contrato"
+                   class="w-full"/>
+        </div>
+
+        <div class="flex flex-column gap-2">
+            <label for="detailMeetingDate" class="font-medium text-sm">Data <span class="text-red-500">*</span></label>
+            <p-datepicker inputId="detailMeetingDate"
+                          [ngModel]="meetingDate()"
+                          (ngModelChange)="meetingDate.set($event)"
+                          [showIcon]="true"
+                          dateFormat="dd/mm/yy"
+                          [minDate]="today"
+                          styleClass="w-full"
+                          placeholder="Selecione uma data">
+            </p-datepicker>
+        </div>
+
+        <div class="flex flex-column gap-2">
+            <label for="detailMeetingDesc" class="font-medium text-sm">Descrição</label>
+            <textarea id="detailMeetingDesc" pInputTextarea
+                      [ngModel]="meetingDescription()"
+                      (ngModelChange)="meetingDescription.set($event)"
+                      rows="3"
+                      placeholder="Detalhes sobre a reunião..."
+                      class="w-full resize-none">
+            </textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancelar" icon="pi pi-times"
+                class="p-button-outlined p-button-secondary"
+                (click)="closeMeetingDialog()"
+                [disabled]="meetingSubmitting()">
+        </button>
+        <button pButton type="button" label="Confirmar" icon="pi pi-calendar-plus"
+                class="p-button-primary"
+                (click)="submitMeeting()"
+                [loading]="meetingSubmitting()"
+                [disabled]="!meetingDate() || !meetingTitle().trim()">
+        </button>
+    </ng-template>
+</p-dialog>

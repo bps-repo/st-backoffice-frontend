@@ -1,0 +1,208 @@
+<!-- src/app/features/schoolar/features/meetings/pages/list/list.component.html -->
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<app-meeting-form
+    [visible]="showFormDialog()"
+    [meeting]="editingMeeting()"
+    (visibleChange)="onFormDialogVisibleChange($event)"
+    (saved)="load()"
+></app-meeting-form>
+
+<div class="grid">
+    <div class="col-12 flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="font-bold text-2xl mb-1">Reuniões</h2>
+            <span class="text-color-secondary">Agende e acompanhe reuniões entre alunos e funcionários</span>
+        </div>
+        <p-button
+            label="Nova Reunião"
+            icon="pi pi-plus"
+            (onClick)="openCreateDialog()"
+        ></p-button>
+    </div>
+
+    <div class="col-12 flex flex-wrap gap-3 align-items-end mb-3">
+        <div class="field mb-0">
+            <label class="font-medium text-sm block mb-1">Aluno</label>
+            <p-dropdown
+                [options]="studentFilterOptions"
+                [(ngModel)]="filterStudentId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Pesquisar aluno..."
+                [filter]="true"
+                [showClear]="true"
+                [loading]="loadingStudents()"
+                (onFilter)="onStudentFilter($event)"
+                styleClass="w-14rem"
+            ></p-dropdown>
+        </div>
+
+        <div class="field mb-0">
+            <label class="font-medium text-sm block mb-1">Funcionário</label>
+            <p-dropdown
+                [options]="employeeFilterOptions"
+                [(ngModel)]="filterEmployeeId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Funcionário"
+                [filter]="true"
+                [showClear]="true"
+                styleClass="w-14rem"
+            ></p-dropdown>
+        </div>
+
+        <div class="field mb-0">
+            <label class="font-medium text-sm block mb-1">Status</label>
+            <p-dropdown
+                [options]="statusOptions"
+                [(ngModel)]="filterStatus"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Status"
+                [showClear]="true"
+                styleClass="w-12rem"
+            ></p-dropdown>
+        </div>
+
+        <div class="field mb-0">
+            <label class="font-medium text-sm block mb-1">De</label>
+            <p-datepicker
+                [(ngModel)]="filterStartAt"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                placeholder="Início"
+                styleClass="w-12rem"
+            ></p-datepicker>
+        </div>
+
+        <div class="field mb-0">
+            <label class="font-medium text-sm block mb-1">Até</label>
+            <p-datepicker
+                [(ngModel)]="filterEndAt"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                placeholder="Fim"
+                styleClass="w-12rem"
+            ></p-datepicker>
+        </div>
+
+        <p-button
+            label="Filtrar"
+            icon="pi pi-search"
+            severity="secondary"
+            (onClick)="load()"
+        ></p-button>
+
+        <p-button
+            label="Limpar"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            [text]="true"
+            (onClick)="clearFilters()"
+        ></p-button>
+    </div>
+
+    <div class="col-12">
+        <p-table
+            [value]="meetings()"
+            [loading]="loading()"
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Aluno</th>
+                    <th>Funcionário</th>
+                    <th>Início</th>
+                    <th>Fim</th>
+                    <th>Propósito</th>
+                    <th>Modalidade</th>
+                    <th>Status</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-meeting>
+                <tr>
+                    <td>
+                        <span class="font-medium">{{ meeting.studentName }}</span>
+                    </td>
+                    <td>{{ meeting.employeeName }}</td>
+                    <td>{{ meeting.startAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ meeting.endAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                        <span>{{ meeting.purpose }}</span>
+                        @if (meeting.createdByName) {
+                            <div class="text-color-secondary text-sm mt-1">
+                                Criada por {{ meeting.createdByName }}
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        @if (meeting.online) {
+                            <p-tag value="Online" severity="info" icon="pi pi-video"></p-tag>
+                        } @else {
+                            <p-tag value="Presencial" severity="secondary" icon="pi pi-map-marker"></p-tag>
+                        }
+                    </td>
+                    <td>
+                        <p-tag
+                            [value]="statusLabel(meeting.status)"
+                            [severity]="statusSeverity(meeting.status)"
+                        ></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex gap-1 justify-content-center">
+                            @if (meeting.online && meeting.onlineLink) {
+                                <a
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-external-link"
+                                    class="p-button-rounded p-button-text"
+                                    pTooltip="Abrir link"
+                                    tooltipPosition="top"
+                                    [href]="meeting.onlineLink"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                ></a>
+                            }
+                            @if (canCancel(meeting.status)) {
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-times"
+                                    class="p-button-rounded p-button-text p-button-danger"
+                                    pTooltip="Cancelar reunião"
+                                    tooltipPosition="top"
+                                    [loading]="isCancelling(meeting.id)"
+                                    [disabled]="isCancelling(meeting.id)"
+                                    (click)="confirmCancelMeeting(meeting)"
+                                ></button>
+                            }
+                            <button
+                                pButton
+                                pRipple
+                                icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text p-button-warning"
+                                pTooltip="Editar"
+                                tooltipPosition="top"
+                                (click)="openEditDialog(meeting)"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="empty">
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-color-secondary">
+                        <i class="pi pi-calendar text-4xl mb-3 block"></i>
+                        Nenhuma reunião encontrada.
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CreateComponent } from '../create/create.component';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
@@ -40,6 +41,7 @@ import { AssessmentStatus } from 'src/app/core/enums/assessment-status';
         TooltipModule,
         ToastModule,
         ConfirmDialogModule,
+        CreateComponent,
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './list.component.html',
@@ -55,6 +57,7 @@ export class ListComponent implements OnInit {
     readonly totalRecords = signal(0);
     readonly pageSize = signal(10);
     readonly currentPage = signal(0);
+    readonly showCreateModal = signal(false);
 
     readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
@@ -109,8 +112,8 @@ export class ListComponent implements OnInit {
         this.load();
     }
 
-    navigateToCreate(): void {
-        this.router.navigate(['/schoolar/assessments/create']);
+    openCreateModal(): void {
+        this.showCreateModal.set(true);
     }
 
     viewDetails(assessment: Assessment): void {

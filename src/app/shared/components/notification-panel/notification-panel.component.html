@@ -15,7 +15,7 @@
     }
 </button>
 
-<p-overlayPanel #op [style]="{ width: '380px', 'max-height': '520px' }" styleClass="notification-overlay p-0">
+<p-popover #op [style]="{ width: '380px', 'max-height': '520px' }" styleClass="notification-overlay p-0">
     <div class="notification-header flex align-items-center justify-content-between px-3 py-2 border-bottom-1 surface-border">
         <span class="font-semibold text-lg">Notificações</span>
         @if (hasUnread()) {
@@ -64,4 +64,4 @@
             }
         </ul>
     }
-</p-overlayPanel>
+</p-popover>

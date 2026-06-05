@@ -1,5 +1,6 @@
 import { TableColumn } from "../../../../shared/components/tables/global-table/global-table.component";
 import { Kpi } from "../../../../shared/kpi-indicator/kpi-indicator.component";
+import { StudentDashboardStatistics } from 'src/app/core/models/academic/students/student-dashboard-statistics';
 
 export const GLOBAL_FILTERS = ['id', 'name', 'code', 'center', 'level', 'phone', 'email', 'course', 'unit', 'classEntity', 'status', 'dateOfBirth'];
 export const COLUMNS: TableColumn[] = [
@@ -86,37 +87,44 @@ export const HEADER_ACTIONS = [
     },
 ];
 
-export const KPI: Kpi[] = [
-    {
-        label: 'Total de Alunos',
-        value: 4,
-        icon: { label: 'users', color: 'text-blue-500', type: 'mat' },
-    },
-    {
-        label: 'Ativos',
-        value: 3,
-        icon: { label: 'user-check', color: 'text-green-500', type: 'mat' },
-    },
-    {
-        label: 'Inativos',
-        value: 1,
-        icon: { label: 'user-cancel', color: 'text-red-500', type: 'mat' },
-    },
-    {
-        label: 'Em renovação',
-        value: 0,
-        icon: { label: 'exclamation-circle', color: 'text-orange-500' },
-    },
-    {
-        label: 'VIP',
-        value: 2,
-        icon: { label: 'graduation-cap', color: 'text-purple-500' },
-    },
-    {
-        label: 'Standard',
-        value: 1,
-        icon: { label: 'calendar', color: 'text-secondary' },
-    }
-]
+export function buildStudentListKpis(stats: StudentDashboardStatistics | null): Kpi[] {
+    return [
+        {
+            label: 'Total de Alunos',
+            value: stats?.totalStudents ?? 0,
+            icon: { label: 'users', color: 'text-blue-500', type: 'mat' },
+        },
+        {
+            label: 'Ativos',
+            value: stats?.studentsByStatus?.['ACTIVE'] ?? 0,
+            icon: { label: 'user-check', color: 'text-green-500', type: 'mat' },
+        },
+        {
+            label: 'Inativos',
+            value: stats?.studentsByStatus?.['INACTIVE'] ?? 0,
+            icon: { label: 'user-cancel', color: 'text-red-500', type: 'mat' },
+        },
+        {
+            label: 'Masculino',
+            value: stats?.studentsByGender?.['MALE'] ?? 0,
+            icon: { label: 'users', color: 'text-cyan-500', type: 'mat' },
+        },
+        {
+            label: 'Feminino',
+            value: stats?.studentsByGender?.['FEMALE'] ?? 0,
+            icon: { label: 'users', color: 'text-pink-500', type: 'mat' },
+        },
+        {
+            label: 'VIP',
+            value: stats?.studentsByType?.['VIP'] ?? 0,
+            icon: { label: 'graduation-cap', color: 'text-purple-500' },
+        },
+        {
+            label: 'Standard',
+            value: stats?.studentsByType?.['STANDARD'] ?? 0,
+            icon: { label: 'calendar', color: 'text-secondary' },
+        },
+    ];
+}
 
 

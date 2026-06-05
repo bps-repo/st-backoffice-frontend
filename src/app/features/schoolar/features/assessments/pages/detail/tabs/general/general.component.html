@@ -1,5 +1,7 @@
 <!-- src/app/features/schoolar/features/assessments/pages/detail/tabs/general/general.component.html -->
-@if (assessment; as a) {
+<p-toast></p-toast>
+
+@if (assessment(); as a) {
     <div class="grid mt-2">
 
         <!-- Basic info -->
@@ -86,42 +88,92 @@
         </div>
 
         <!-- Skills (SKILLS mode) -->
-        @if (a.evaluationType === 'SKILLS' && a.skills.length) {
+        @if (a.evaluationType === 'SKILLS') {
             <div class="col-12">
                 <div class="card">
-                    <h3 class="text-lg font-semibold mb-4 flex align-items-center gap-2">
-                        <i class="pi pi-star text-yellow-500"></i>
-                        Habilidades Avaliadas
-                    </h3>
-                    <div class="flex flex-wrap gap-2">
-                        @for (skill of a.skills; track skill.id) {
-                            <span class="surface-100 border-round px-3 py-2 text-900 font-medium text-sm">
-                                {{ skill.name }}
-                            </span>
-                        }
+                    <div class="flex align-items-center justify-content-between mb-4">
+                        <h3 class="text-lg font-semibold m-0 flex align-items-center gap-2">
+                            <i class="pi pi-star text-yellow-500"></i>
+                            Habilidades Avaliadas
+                        </h3>
+                        <p-button
+                            label="Adicionar Habilidade"
+                            icon="pi pi-plus"
+                            size="small"
+                            [outlined]="true"
+                            (onClick)="openAddSkillDialog()"
+                        ></p-button>
                     </div>
+
+                    @if (a.skills.length) {
+                        <div class="flex flex-wrap gap-2">
+                            @for (skill of a.skills; track skill.id) {
+                                <div class="flex align-items-center gap-1 surface-100 border-round px-3 py-2">
+                                    <span class="text-900 font-medium text-sm">{{ skill.name }}</span>
+                                    <p-button
+                                        icon="pi pi-times"
+                                        [text]="true"
+                                        severity="danger"
+                                        size="small"
+                                        styleClass="w-1rem h-1rem p-0 ml-1"
+                                        [loading]="removingSkillId() === skill.id"
+                                        (onClick)="removeSkill(skill.id)"
+                                        pTooltip="Remover habilidade"
+                                    ></p-button>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <p class="text-color-secondary text-sm m-0">Nenhuma habilidade associada.</p>
+                    }
                 </div>
             </div>
         }
 
         <!-- Evaluated units (UNITS mode) -->
-        @if (a.evaluationType === 'UNITS' && a.evaluatedUnits.length) {
+        @if (a.evaluationType === 'UNITS') {
             <div class="col-12">
                 <div class="card">
-                    <h3 class="text-lg font-semibold mb-4 flex align-items-center gap-2">
-                        <i class="pi pi-book text-orange-500"></i>
-                        Unidades Avaliadas
-                    </h3>
-                    <div class="flex flex-wrap gap-2">
-                        @for (unit of a.evaluatedUnits; track unit.id) {
-                            <div class="surface-100 border-round px-3 py-2">
-                                <div class="text-900 font-medium text-sm">{{ unit.name }}</div>
-                                @if (unit.levelName) {
-                                    <div class="text-color-secondary text-xs mt-1">{{ unit.levelName }}</div>
-                                }
-                            </div>
-                        }
+                    <div class="flex align-items-center justify-content-between mb-4">
+                        <h3 class="text-lg font-semibold m-0 flex align-items-center gap-2">
+                            <i class="pi pi-book text-orange-500"></i>
+                            Unidades Avaliadas
+                        </h3>
+                        <p-button
+                            label="Adicionar Unidade"
+                            icon="pi pi-plus"
+                            size="small"
+                            [outlined]="true"
+                            (onClick)="openAddUnitDialog()"
+                        ></p-button>
                     </div>
+
+                    @if (a.evaluatedUnits.length) {
+                        <div class="flex flex-wrap gap-2">
+                            @for (unit of a.evaluatedUnits; track unit.id) {
+                                <div class="flex align-items-center gap-1 surface-100 border-round px-3 py-2">
+                                    <div>
+                                        <div class="text-900 font-medium text-sm">{{ unit.name }}</div>
+                                        @if (unit.levelName) {
+                                            <div class="text-color-secondary text-xs mt-1">{{ unit.levelName }}</div>
+                                        }
+                                    </div>
+                                    <p-button
+                                        icon="pi pi-times"
+                                        [text]="true"
+                                        severity="danger"
+                                        size="small"
+                                        styleClass="w-1rem h-1rem p-0 ml-2"
+                                        [loading]="removingUnitId() === unit.id"
+                                        (onClick)="removeUnit(unit.id)"
+                                        pTooltip="Remover unidade"
+                                    ></p-button>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <p class="text-color-secondary text-sm m-0">Nenhuma unidade associada.</p>
+                    }
                 </div>
             </div>
         }
@@ -133,3 +185,129 @@
         Nenhum dado disponível.
     </div>
 }
+
+<!-- Add Skill Dialog -->
+<p-dialog
+    [visible]="showAddSkillDialog()"
+    (onHide)="showAddSkillDialog.set(false)"
+    header="Adicionar Habilidade"
+    [modal]="true"
+    [style]="{ width: '420px' }"
+    [draggable]="false"
+    [resizable]="false"
+>
+    <div class="p-fluid">
+        <label class="block font-semibold mb-2">Habilidade <span class="text-red-500">*</span></label>
+        <p-dropdown
+            [options]="skillOptions()"
+            [ngModel]="selectedSkillId()"
+            (ngModelChange)="selectedSkillId.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione uma habilidade"
+            [filter]="true"
+            filterPlaceholder="Buscar ou criar habilidade..."
+            [resetFilterOnHide]="true"
+            [showClear]="true"
+            appendTo="body"
+            (onFilter)="onSkillFilter($event)"
+        >
+            <ng-template pTemplate="footer">
+                @if (showCreateSkillButton()) {
+                    <div class="px-3 py-2 flex align-items-center gap-2 border-top-1 surface-border">
+                        <span class="text-sm text-color-secondary flex-shrink-0">Criar habilidade:</span>
+                        <p-button
+                            [label]="skillFilterValue()"
+                            icon="pi pi-plus"
+                            size="small"
+                            [loading]="creatingSkill()"
+                            (onClick)="createSkillInline()"
+                            styleClass="p-button-text"
+                        ></p-button>
+                    </div>
+                }
+            </ng-template>
+        </p-dropdown>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="showAddSkillDialog.set(false)"
+        ></p-button>
+        <p-button
+            label="Adicionar"
+            icon="pi pi-check"
+            [loading]="addingItem()"
+            [disabled]="!selectedSkillId()"
+            (onClick)="confirmAddSkill()"
+        ></p-button>
+    </ng-template>
+</p-dialog>
+
+<!-- Add Unit Dialog -->
+<p-dialog
+    [visible]="showAddUnitDialog()"
+    (onHide)="showAddUnitDialog.set(false)"
+    header="Adicionar Unidade"
+    [modal]="true"
+    [style]="{ width: '460px' }"
+    [draggable]="false"
+    [resizable]="false"
+>
+    <div class="p-fluid flex flex-column gap-3">
+        <div>
+            <label class="block font-semibold mb-2">Nível <span class="text-red-500">*</span></label>
+            <p-dropdown
+                [options]="levelOptions()"
+                [ngModel]="selectedLevelId()"
+                (ngModelChange)="onLevelChange($event)"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione o nível"
+                [filter]="true"
+                filterPlaceholder="Buscar nível..."
+                [showClear]="true"
+                appendTo="body"
+            ></p-dropdown>
+        </div>
+
+        @if (selectedLevelId()) {
+            <div>
+                <label class="block font-semibold mb-2">Unidade <span class="text-red-500">*</span></label>
+                <p-dropdown
+                    [options]="unitOptions()"
+                    [ngModel]="selectedUnitId()"
+                    (ngModelChange)="selectedUnitId.set($event)"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecione uma unidade"
+                    [filter]="true"
+                    filterPlaceholder="Buscar unidade..."
+                    [showClear]="true"
+                    appendTo="body"
+                ></p-dropdown>
+            </div>
+        }
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="showAddUnitDialog.set(false)"
+        ></p-button>
+        <p-button
+            label="Adicionar"
+            icon="pi pi-check"
+            [loading]="addingItem()"
+            [disabled]="!selectedUnitId()"
+            (onClick)="confirmAddUnit()"
+        ></p-button>
+    </ng-template>
+</p-dialog>

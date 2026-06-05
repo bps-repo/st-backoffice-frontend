@@ -1,11 +1,20 @@
 // src/app/features/schoolar/features/assessments/pages/create/create.component.ts
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    inject,
+    signal,
+    computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DropdownModule } from 'primeng/dropdown';
@@ -13,6 +22,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
+import { DividerModule } from 'primeng/divider';
 import { MessageService } from 'primeng/api';
 import { AssessmentService } from 'src/app/core/services/assessment.service';
 import { UnitService } from 'src/app/core/services/unit.service';
@@ -34,7 +44,7 @@ import { Level } from 'src/app/core/models/course/level';
         CommonModule,
         FormsModule,
         ButtonModule,
-        CardModule,
+        DialogModule,
         InputTextModule,
         TextareaModule,
         DropdownModule,
@@ -42,6 +52,7 @@ import { Level } from 'src/app/core/models/course/level';
         InputNumberModule,
         MultiSelectModule,
         ToastModule,
+        DividerModule,
     ],
     providers: [MessageService],
     templateUrl: './create.component.html',
@@ -51,25 +62,34 @@ export class CreateComponent implements OnInit {
     private unitService = inject(UnitService);
     private skillService = inject(SkillService);
     private levelService = inject(LevelService);
-    private router = inject(Router);
     private messageService = inject(MessageService);
 
+    @Input() set visible(val: boolean) {
+        this.dialogVisible.set(val);
+        if (val) this.resetForm();
+    }
+    @Output() visibleChange = new EventEmitter<boolean>();
+    @Output() created = new EventEmitter<void>();
+
+    readonly dialogVisible = signal(false);
     readonly loading = signal(false);
+    readonly creatingSkill = signal(false);
     readonly units = signal<Unit[]>([]);
     readonly skills = signal<Skill[]>([]);
     readonly levels = signal<Level[]>([]);
 
-    // Signals so computed() tracks them correctly under OnPush
     readonly evaluationType = signal<EvaluationType | null>(null);
     readonly selectedLevelId = signal<string | null>(null);
+    readonly skillFilterValue = signal('');
 
     title = '';
     description = '';
     assessmentType: AssessmentType | null = null;
     status: AssessmentStatus = AssessmentStatus.DRAFT;
     passingScore: number = 50;
-    startDatetime: Date | null = null;
-    endDatetime: Date | null = null;
+    sharedDate: Date | null = null;
+    startTime: Date | null = null;
+    endTime: Date | null = null;
     selectedSkillIds: string[] = [];
     selectedEvaluatedUnitIds: string[] = [];
 
@@ -111,6 +131,12 @@ export class CreateComponent implements OnInit {
             .map((u) => ({ label: u.name, value: u.id }))
     );
 
+    readonly showCreateSkillButton = computed(() => {
+        const filter = this.skillFilterValue().trim().toLowerCase();
+        if (!filter) return false;
+        return !this.skillOptions().some((o) => o.label.toLowerCase() === filter);
+    });
+
     ngOnInit(): void {
         this.levelService.getLevels().subscribe({
             next: (levels) => this.levels.set(levels),
@@ -146,11 +172,42 @@ export class CreateComponent implements OnInit {
         this.selectedEvaluatedUnitIds = [];
     }
 
+    onSkillFilter(event: { filter: string }): void {
+        this.skillFilterValue.set(event.filter ?? '');
+    }
+
+    createSkillInline(): void {
+        const name = this.skillFilterValue().trim();
+        if (!name) return;
+
+        this.creatingSkill.set(true);
+        this.skillService.createSkill({ name, description: '' }).subscribe({
+            next: (newSkill) => {
+                this.skills.update((list) => [...list, newSkill]);
+                this.selectedSkillIds = [...this.selectedSkillIds, newSkill.id];
+                this.creatingSkill.set(false);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Habilidade criada',
+                    detail: `"${name}" adicionada com sucesso.`,
+                });
+            },
+            error: () => {
+                this.creatingSkill.set(false);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Não foi possível criar a habilidade.',
+                });
+            },
+        });
+    }
+
     isFormValid(): boolean {
         if (!this.title.trim() || !this.assessmentType || !this.evaluationType()) {
             return false;
         }
-        if (!this.startDatetime || !this.endDatetime) return false;
+        if (!this.sharedDate || !this.startTime || !this.endTime) return false;
         if (this.isSkillsMode() && this.selectedSkillIds.length === 0) return false;
         if (this.isUnitsMode() && (!this.selectedLevelId() || this.selectedEvaluatedUnitIds.length === 0)) return false;
         return true;
@@ -173,8 +230,8 @@ export class CreateComponent implements OnInit {
             evaluationType: this.evaluationType()!,
             status: this.status,
             passingScore: this.passingScore,
-            startDatetime: this.startDatetime!.toISOString().slice(0, 19),
-            endDatetime: this.endDatetime!.toISOString().slice(0, 19),
+            startDatetime: this.combineDateTime(this.sharedDate!, this.startTime!),
+            endDatetime: this.combineDateTime(this.sharedDate!, this.endTime!),
             skillIds: this.isSkillsMode() ? this.selectedSkillIds : [],
             evaluatedUnitIds: this.isUnitsMode() ? this.selectedEvaluatedUnitIds : [],
         };
@@ -183,12 +240,8 @@ export class CreateComponent implements OnInit {
         this.assessmentService.createAssessment(body).subscribe({
             next: () => {
                 this.loading.set(false);
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Avaliação criada com sucesso!',
-                });
-                setTimeout(() => this.router.navigate(['/schoolar/assessments']), 1500);
+                this.created.emit();
+                this.close();
             },
             error: (err: HttpErrorResponse) => {
                 this.loading.set(false);
@@ -208,7 +261,33 @@ export class CreateComponent implements OnInit {
         });
     }
 
-    cancel(): void {
-        this.router.navigate(['/schoolar/assessments']);
+    close(): void {
+        this.dialogVisible.set(false);
+    }
+
+    onDialogHide(): void {
+        this.visibleChange.emit(false);
+    }
+
+    private combineDateTime(date: Date, time: Date): string {
+        const result = new Date(date);
+        result.setHours(time.getHours(), time.getMinutes(), 0, 0);
+        return result.toISOString().slice(0, 19);
+    }
+
+    private resetForm(): void {
+        this.title = '';
+        this.description = '';
+        this.assessmentType = null;
+        this.status = AssessmentStatus.DRAFT;
+        this.passingScore = 50;
+        this.sharedDate = null;
+        this.startTime = null;
+        this.endTime = null;
+        this.selectedSkillIds = [];
+        this.selectedEvaluatedUnitIds = [];
+        this.evaluationType.set(null);
+        this.selectedLevelId.set(null);
+        this.skillFilterValue.set('');
     }
 }

@@ -4,6 +4,7 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ApiResponse} from '../models/ApiResponseService';
+import {StudentDashboardStatistics} from '../models/academic/students/student-dashboard-statistics';
 
 @Injectable({
     providedIn: 'root',
@@ -45,12 +46,12 @@ export class ScholarStatisticsService {
         centerId?: string;
         startDate?: string;
         endDate?: string;
-    }): Observable<any> {
+    }): Observable<StudentDashboardStatistics> {
         let params = new HttpParams();
         if (filters?.centerId) params = params.set('centerId', filters.centerId);
         if (filters?.startDate) params = params.set('startDate', filters.startDate);
         if (filters?.endDate) params = params.set('endDate', filters.endDate);
-        return this.http.get<ApiResponse<any>>(`${this.apiUrl}/dashboard`, { params }).pipe(
+        return this.http.get<ApiResponse<StudentDashboardStatistics>>(`${this.apiUrl}/dashboard`, { params }).pipe(
             map((response) => response.data)
         );
     }

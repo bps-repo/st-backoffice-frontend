@@ -1,16 +1,12 @@
 <style>
     ::ng-deep .p-selectbutton {
         display: flex;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     ::ng-deep .p-selectbutton .p-button {
-        margin-right: 0.5rem;
         border: none;
-    }
-
-    ::ng-deep .p-selectbutton .p-button:last-child {
-        margin-right: 0;
     }
 
     .sticky-header {
@@ -26,457 +22,330 @@
         background-color: var(--surface-card);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-
-    /* Animation classes */
-    .animate-fade {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .animate-scale {
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    /* For elements that need to stick to the top */
-    .content-sticky {
-        position: sticky;
-        top: 140px;
-        /* Adjust based on header height */
-        z-index: 90;
-    }
 </style>
 
 <section class="grid">
-    <div #mainHeader id="mainHeader" class="col-12 flex justify-content-between items-center mb-4 sticky-header"
+    <div #mainHeader class="col-12 flex justify-content-between align-items-center mb-4 sticky-header"
          [ngClass]="{'sticky-active': isMainHeaderSticky}">
         <div>
-            <h2 class="font-bold text-2xl mb-4">Gestão de Tarefas</h2>
-            <span class="text-lg">Acompanhe tarefas que requerem atenção especial</span>
+            <h2 class="font-bold text-2xl mb-1">Gestão de Tarefas</h2>
+            <span class="text-color-secondary">Acompanhe tarefas que requerem atenção especial</span>
         </div>
     </div>
 
-    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
+    <div #viewSelector class="col-12 mb-4 sticky-header"
          style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
-        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-                        optionLabel="label" optionValue="value">
+        <p-selectButton
+            [options]="viewOptions"
+            [ngModel]="currentView()"
+            (ngModelChange)="setView($event)"
+            optionLabel="label"
+            optionValue="value">
             <ng-template let-item pTemplate="item">
-                <div class="flex align-items-center">
+                <div class="flex align-items-center gap-2">
                     <span>{{ item.label }}</span>
-                    <span *ngIf="item.value === 'contratos_terminados'"
-                          class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 border-round">
-                        {{ contratosTerminadosCount }}
-                    </span>
-                    <span *ngIf="item.value === 'parcelas_vencer'"
-                          class="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 border-round">
-                        {{ parcelasVencerCount }}
-                    </span>
-                    <span *ngIf="item.value === 'parcelas_vencidas'"
-                          class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 border-round">
-                        {{ parcelasVencidasCount }}
-                    </span>
-                    <span *ngIf="item.value === 'ausencias_longas'"
-                          class="ml-2 px-2 py-1 text-xs bg-purple-100 text-purple-800 border-round">
-                        {{ ausenciasLongasCount }}
-                    </span>
-                    <span *ngIf="item.value === 'inscricoes_pendentes'"
-                          class="ml-2 px-2 py-1 text-xs bg-orange-100 text-orange-800 border-round">
-                        {{ inscricoesPendentesCount }}
+                    <span class="px-2 py-1 text-xs border-round font-semibold" [ngClass]="{
+                        'bg-orange-100 text-orange-800': item.value === 'NO_ACTIVE_CONTRACT',
+                        'bg-purple-100 text-purple-800': item.value === 'LEVEL_NEEDS_ACTIVATION',
+                        'bg-red-100 text-red-800':    item.value === 'INSTALLMENT_OVERDUE',
+                        'bg-yellow-100 text-yellow-800': item.value === 'INSTALLMENT_DUE_SOON',
+                        'bg-blue-100 text-blue-800':  item.value === 'CONTRACT_ENDING_SOON',
+                        'bg-indigo-100 text-indigo-800': item.value === 'LONG_ABSENCE'
+                    }">
+                        {{ getTypeCount(item.value) }}
                     </span>
                 </div>
             </ng-template>
         </p-selectButton>
     </div>
 
-    <!-- Task Table -->
-    <div class="col-12 animate-fade px-fadein">
+    <div class="col-12">
         <div class="card">
             <div class="flex gap-2 align-items-center mb-3">
                 <span class="p-input-icon-left flex-1">
                     <i class="pi pi-search"></i>
                     <input pInputText type="text" class="w-full" placeholder="Buscar tarefas..."/>
                 </span>
-                <button pButton type="button" icon="pi pi-filter" label="Filtros" class="p-button-outlined"></button>
-                <button pButton type="button" icon="pi pi-download" label="Exportar" class="p-button-outlined"></button>
+                <p-dropdown
+                    [options]="statusOptions"
+                    [ngModel]="selectedStatus()"
+                    (ngModelChange)="setStatus($event)"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Estado"
+                    styleClass="w-12rem">
+                </p-dropdown>
+                <p-dropdown
+                    [options]="centerOptions()"
+                    [ngModel]="selectedCenterId()"
+                    (ngModelChange)="setCenterId($event)"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Centro"
+                    styleClass="w-14rem">
+                </p-dropdown>
+                <button pButton type="button" icon="pi pi-refresh" label="Atualizar"
+                        class="p-button-outlined" (click)="loadTasks()" [loading]="loading()"></button>
             </div>
 
-            <div *ngIf="((loading$ | async) ?? false) && isLoadingPendingRegistrations; else tableContent"
-                 class="flex align-items-center justify-content-center p-6">
-                <div class="flex flex-column align-items-center gap-3">
-                    <p-progressSpinner [style]="{'width': '50px', 'height': '50px'}"
-                                       strokeWidth="4"></p-progressSpinner>
-                    <span class="text-600">
-                        {{
-                            currentView === 'inscricoes_pendentes' ? 'Carregando inscrições pendentes...' :
-                                currentView === 'parcelas_vencidas' ? 'Carregando parcelas vencidas...' :
-                                    'Carregando tarefas...'
-                        }}
-                    </span>
-                </div>
-            </div>
-            <ng-template #tableContent>
-                <p-table [value]="currentView === 'inscricoes_pendentes' ? filteredPendingRegistrations :
-                                  currentView === 'parcelas_vencidas' ? filteredOverdueInstallments :
-                                  filteredTasks"
-                         styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}" [paginator]="true"
-                         [rows]="10"
-                         [rowsPerPageOptions]="[5,10,25,50]"
-                         [loading]="((loading$ | async) ?? false) && isLoadingPendingRegistrations"
-                         [globalFilterFields]="currentView === 'inscricoes_pendentes' ? ['studentName', 'studentCode', 'center.name', 'description'] :
-                                          currentView === 'parcelas_vencidas' ? ['studentName', 'studentCode', 'center.name', 'level.name', 'description'] :
-                                          globalFilterFields">
-                    <ng-template pTemplate="header">
-                        <tr *ngIf="currentView === 'contratos_terminados'">
-                            <th>Aluno</th>
-                            <th>Nível</th>
-                            <th>Centro</th>
-                            <th>Término</th>
-                            <th>Progresso</th>
-                            <th>Situação Financeira</th>
-                            <th>Ações</th>
-                        </tr>
-                        <tr *ngIf="currentView === 'parcelas_vencer'">
-                            <th>Aluno</th>
-                            <th>Nível</th>
-                            <th>Centro</th>
-                            <th>Parcela</th>
-                            <th>Vencimento</th>
-                            <th>Valor</th>
-                            <th>Método</th>
-                            <th>Ações</th>
-                        </tr>
-                        <tr *ngIf="currentView === 'parcelas_vencidas'">
-                            <th>Aluno</th>
-                            <th>Nível</th>
-                            <th>Centro</th>
-                            <th>Parcela</th>
-                            <th>Vencida em</th>
-                            <th>Atraso (dias)</th>
-                            <th>Valor</th>
-                            <th>Ações</th>
-                        </tr>
-                        <tr *ngIf="currentView === 'ausencias_longas'">
-                            <th>Aluno</th>
-                            <th>Nível</th>
-                            <th>Centro</th>
-                            <th>Última Presença</th>
-                            <th>Dias Ausentes</th>
-                            <th>Frequência</th>
-                            <th>Progresso</th>
-                            <th>Ações</th>
-                        </tr>
-                        <tr *ngIf="currentView === 'inscricoes_pendentes'">
-                            <th>Aluno</th>
-                            <th>Código</th>
-                            <th>Centro</th>
-                            <th>Nível</th>
-                            <th>Status</th>
-                            <th>Descrição</th>
-                            <th>Ações</th>
-                        </tr>
-                    </ng-template>
-                    <!-- Contratos Terminados -->
-                    <ng-template pTemplate="body" let-task *ngIf="currentView === 'contratos_terminados'">
-                        <tr>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">{{ task.title }}</span>
-                                    <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
-                                </div>
-                            </td>
-                            <td>Intermediário</td>
-                            <td>Centro Lisboa</td>
-                            <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">75%</span>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 75%"></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span [ngClass]="{
-                'bg-green-100 text-green-800': task.status === 'PENDENTE',
-                'bg-yellow-100 text-yellow-800': task.status === 'EM_ANDAMENTO',
-                'bg-red-100 text-red-800': task.status === 'CONCLUIDA'
-              }" class="px-2 py-1 rounded-full text-xs">
-                                    Em dia
-                                </span>
-                            </td>
-                            <td>
-                                <div class="flex gap-2 justify-content-center">
-                                    <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
-                                            pTooltip="Reunião" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-times" class="p-button-rounded p-button-text"
-                                            pTooltip="Ignorar" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-check"
-                                            class="p-button-rounded p-button-text p-button-success" pTooltip="Renovar"
-                                            tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-text"
-                                            pTooltip="Relatório" tooltipPosition="top"></button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
+            <p-table
+                     [value]="tasks()"
+                     [loading]="loading()"
+                     styleClass="p-datatable-sm"
+                     [tableStyle]="{'min-width': '50rem'}"
+                     [paginator]="true"
+                     [lazy]="true"
+                     [rows]="pageSize()"
+                     [first]="currentPage() * pageSize()"
+                     [totalRecords]="totalRecords()"
+                     [rowsPerPageOptions]="[10, 25, 50, 100]"
+                     (onLazyLoad)="onPageChange($event)"
+                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} tarefas"
+                     [showCurrentPageReport]="true"
+                     [globalFilterFields]="globalFilterFields">
 
-                    <!-- Parcelas a Vencer -->
-                    <ng-template pTemplate="body" let-task *ngIf="currentView === 'parcelas_vencer'">
-                        <tr>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">{{ task.title }}</span>
-                                    <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
-                                </div>
-                            </td>
-                            <td>Intermediário</td>
-                            <td>Centro Lisboa</td>
-                            <td>{{ task.description.split(' ')[1] }}</td>
-                            <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
-                            <td>€350,00</td>
-                            <td>Cartão de Crédito</td>
-                            <td>
-                                <div class="flex gap-2 justify-content-center">
-                                    <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
-                                            pTooltip="Reunião" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-clock" class="p-button-rounded p-button-text"
-                                            pTooltip="Estender" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-check-circle"
-                                            class="p-button-rounded p-button-text" pTooltip="Concluir"
-                                            tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-credit-card"
-                                            class="p-button-rounded p-button-primary p-button-text" pTooltip="Pagar"
-                                            tooltipPosition="top"></button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
+                <!-- Header -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Nível</th>
+                        <th>Centro</th>
+                        <th *ngIf="isContractView()">Contrato</th>
+                        <th *ngIf="isContractView()">Data</th>
+                        <th *ngIf="showDelayColumn()">Atraso</th>
+                        <th *ngIf="showStudentStatusColumn()">Status</th>
+                        <th>Estado</th>
+                        <th>Descrição</th>
+                        <th>Ações</th>
+                    </tr>
+                </ng-template>
 
-                    <!-- Parcelas Vencidas -->
-                    <ng-template pTemplate="body" let-taskItem *ngIf="currentView === 'parcelas_vencidas'">
-                        <tr>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">{{ taskItem.studentName }}</span>
-                                    <span class="text-sm text-gray-500">{{ taskItem.studentCode }}</span>
-                                </div>
-                            </td>
-                            <td>{{ getLevelName(taskItem.level) }}</td>
-                            <td>{{ taskItem.center.name }}</td>
-                            <td>
-                                <div class="flex flex-column"
-                                     *ngIf="taskItem.installments && taskItem.installments.length > 0">
-                                    <span class="font-medium">Parcela {{ taskItem.installments[0].number }}</span>
-                                    <span class="text-sm text-gray-500">{{ taskItem.installments[0].contractId }}</span>
-                                </div>
-                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
-                                      class="text-sm text-gray-400">-</span>
-                            </td>
-                            <td>
-                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0">
-                                    {{ taskItem.installments[0].dueDate | date:'dd/MM/yyyy' }}
-                                </span>
-                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
-                                      class="text-sm text-gray-400">-</span>
-                            </td>
-                            <td>
-                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0"
-                                      class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">
-                                    {{ Math.abs(getDaysFromDateString(taskItem.installments[0].dueDate)) }} dias
-                                </span>
-                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
-                                      class="text-sm text-gray-400">-</span>
-                            </td>
-                            <td>
-                                <span *ngIf="taskItem.installments && taskItem.installments.length > 0"
-                                      class="font-medium">
-                                    {{ formatCurrency(taskItem.installments[0].amount) }}
-                                </span>
-                                <span *ngIf="!taskItem.installments || taskItem.installments.length === 0"
-                                      class="text-sm text-gray-400">-</span>
-                            </td>
-                            <td>
-                                <div class="flex gap-2 justify-content-center">
-                                    <button *ngIf="taskItem.actions.includes('remind')"
-                                            pButton pRipple icon="pi pi-bell"
-                                            class="p-button-rounded p-button-text"
-                                            (click)="handleTaskAction(taskItem, 'remind')"
-                                            pTooltip="Lembrar" tooltipPosition="top"></button>
-                                    <button *ngIf="taskItem.actions.includes('billing_call')"
-                                            pButton pRipple icon="pi pi-phone"
-                                            class="p-button-rounded p-button-text p-button-info"
-                                            (click)="handleTaskAction(taskItem, 'billing_call')"
-                                            pTooltip="Ligação de Cobrança" tooltipPosition="top"></button>
-                                    <button *ngIf="taskItem.actions.includes('complete')"
-                                            pButton pRipple icon="pi pi-check"
-                                            class="p-button-rounded p-button-text p-button-success"
-                                            (click)="handleTaskAction(taskItem, 'complete')"
-                                            pTooltip="Concluir" tooltipPosition="top"></button>
-                                    <button *ngIf="taskItem.actions.includes('ignore')"
-                                            pButton pRipple icon="pi pi-times"
-                                            class="p-button-rounded p-button-text p-button-warning"
-                                            (click)="handleTaskAction(taskItem, 'ignore')"
-                                            pTooltip="Ignorar" tooltipPosition="top"></button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
+                <!-- Body -->
+                <ng-template pTemplate="body" let-task>
+                    <tr>
+                        <!-- Aluno -->
+                        <td>
+                            <div class="flex flex-column">
+                                <button type="button"
+                                        class="p-0 border-none bg-transparent font-medium text-primary text-left cursor-pointer"
+                                        (click)="viewTask(task)">
+                                    {{ task.studentName }}
+                                </button>
+                                <span class="text-sm text-color-secondary">{{ task.studentCode }}</span>
+                            </div>
+                        </td>
 
-                    <!-- Ausências Longas -->
-                    <ng-template pTemplate="body" let-task *ngIf="currentView === 'ausencias_longas'">
-                        <tr>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">{{ task.title }}</span>
-                                    <span class="text-sm text-gray-500">ID: {{ task.id }}</span>
-                                </div>
-                            </td>
-                            <td>Intermediário</td>
-                            <td>Centro Lisboa</td>
-                            <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
-                            <td>
-                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
-                                    {{ Math.abs(getDaysFromNow(task.dueDate)) }} dias
-                                </span>
-                            </td>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">65%</span>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 65%"></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">45%</span>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex gap-2 justify-content-center">
-                                    <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-text"
-                                            pTooltip="Reunião" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-text"
-                                            pTooltip="Relatório" tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-exclamation-triangle"
-                                            class="p-button-rounded p-button-danger p-button-text" pTooltip="Alerta"
-                                            tooltipPosition="top"></button>
-                                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text"
-                                            pTooltip="Nota" tooltipPosition="top"></button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
+                        <!-- Nível -->
+                        <td>{{ getLevelName(task.level) }}</td>
 
-                    <!-- Inscrições Pendentes -->
-                    <ng-template pTemplate="body" let-taskItem *ngIf="currentView === 'inscricoes_pendentes'">
-                        <tr>
-                            <td>
-                                <div class="flex flex-column">
-                                    <span class="font-medium">{{ taskItem.studentName }}</span>
-                                    <span class="text-sm text-gray-500">{{ taskItem.taskType }}</span>
-                                </div>
-                            </td>
-                            <td>{{ taskItem.studentCode }}</td>
-                            <td>{{ taskItem.center.name }}</td>
-                            <td>
-                                <span class="text-sm">{{ getLevelName(taskItem.level) }}</span>
-                            </td>
-                            <td>
-                                <span [ngClass]="{
-                                'bg-green-100 text-green-800': taskItem.status === 'ACTIVE',
-                                'bg-gray-100 text-gray-800': taskItem.status === 'INACTIVE',
-                                'bg-yellow-100 text-yellow-800': taskItem.status !== 'ACTIVE' && taskItem.status !== 'INACTIVE'
+                        <!-- Centro -->
+                        <td>{{ task.center.name }}</td>
+
+                        <!-- Contrato ID (contract views) -->
+                        <td *ngIf="isContractView()">
+                            <span *ngIf="task.contract" class="text-sm text-color-secondary">{{ task.contract.id }}</span>
+                            <span *ngIf="!task.contract" class="text-color-secondary">-</span>
+                        </td>
+
+                        <!-- Data de vencimento / término (contract views) -->
+                        <td *ngIf="isContractView()">
+                            <ng-container *ngIf="task.contract">
+                                <span *ngIf="currentView() === 'CONTRACT_ENDING_SOON'" [ngClass]="{
+                                    'bg-green-100 text-green-800': task.contract.status === 'ACTIVE',
+                                    'bg-red-100 text-red-800': task.contract.status === 'OVERDUE',
+                                    'bg-gray-100 text-gray-800': task.contract.status === 'CANCELLED'
+                                }" class="px-2 py-1 rounded-full text-xs font-semibold">
+                                    {{ task.contract.status }}
+                                </span>
+                                <span class="ml-2 text-sm">{{ task.contract.endDate | date:'dd/MM/yyyy' }}</span>
+                            </ng-container>
+                            <span *ngIf="!task.contract" class="text-color-secondary">-</span>
+                        </td>
+
+                        <!-- Atraso em dias (INSTALLMENT_OVERDUE only) -->
+                        <td *ngIf="showDelayColumn()">
+                            <span *ngIf="task.contract"
+                                  class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                {{ Math.abs(getDaysFromDateString(task.contract.endDate)) }} dias
+                            </span>
+                            <span *ngIf="!task.contract" class="text-color-secondary">-</span>
+                        </td>
+
+                        <!-- Status do aluno (non-contract views) -->
+                        <td *ngIf="showStudentStatusColumn()">
+                            <span [ngClass]="{
+                                'bg-green-100 text-green-800':  task.studentStatus === 'ACTIVE',
+                                'bg-gray-100 text-gray-800':    task.studentStatus === 'INACTIVE',
+                                'bg-yellow-100 text-yellow-800': task.studentStatus === 'PENDING_PAYMENT',
+                                'bg-red-100 text-red-800':      task.studentStatus === 'SUSPENDED',
+                                'bg-blue-100 text-blue-800':    task.studentStatus === 'RENEWABLE',
+                                'bg-orange-100 text-orange-800': task.studentStatus === 'DEBTOR'
                             }" class="px-2 py-1 rounded-full text-xs">
-                                    {{ taskItem.status }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="text-sm">{{ taskItem.description }}</span>
-                            </td>
-                            <td>
-                                <div class="flex gap-2 justify-content-center">
-                                    <button *ngIf="taskItem.actions.includes('proceed')" pButton pRipple
-                                            icon="pi pi-arrow-right" class="p-button-rounded p-button-text"
-                                            (click)="handleTaskAction(taskItem, 'proceed')" pTooltip="Prosseguir"
-                                            tooltipPosition="top"></button>
-                                    <button *ngIf="taskItem.actions.includes('create_contract')" pButton pRipple
-                                            icon="pi pi-file-plus"
-                                            class="p-button-rounded p-button-text p-button-success"
-                                            (click)="handleTaskAction(taskItem, 'create_contract')"
-                                            pTooltip="Criar Contrato" tooltipPosition="top"></button>
-                                    <button *ngIf="taskItem.actions.includes('delete')" pButton pRipple
-                                            icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-                                            (click)="handleTaskAction(taskItem, 'delete')" pTooltip="Excluir"
-                                            tooltipPosition="top"></button>
-                                    <button *ngIf="taskItem.actions.includes('ignore')" pButton pRipple
-                                            icon="pi pi-times" class="p-button-rounded p-button-text p-button-warning"
-                                            (click)="handleTaskAction(taskItem, 'ignore')" pTooltip="Ignorar"
-                                            tooltipPosition="top"></button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="emptymessage">
-                        <tr *ngIf="currentView === 'contratos_terminados'">
-                            <td colspan="7" class="text-center p-4">Nenhum contrato terminado encontrado.</td>
-                        </tr>
-                        <tr *ngIf="currentView === 'parcelas_vencer'">
-                            <td colspan="8" class="text-center p-4">Nenhuma parcela a vencer encontrada.</td>
-                        </tr>
-                        <tr *ngIf="currentView === 'parcelas_vencidas'">
-                            <td colspan="8" class="text-center p-4">Nenhuma parcela vencida encontrada.</td>
-                        </tr>
-                        <tr *ngIf="currentView === 'ausencias_longas'">
-                            <td colspan="8" class="text-center p-4">Nenhuma ausência longa encontrada.</td>
-                        </tr>
-                        <tr *ngIf="currentView === 'inscricoes_pendentes'">
-                            <td colspan="7" class="text-center p-4">Nenhuma inscrição pendente encontrada.</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </ng-template>
+                                {{ task.studentStatus }}
+                            </span>
+                        </td>
+
+                        <!-- Estado -->
+                        <td>
+                            <span [ngClass]="taskStatusClass(task.taskStatus)"
+                                  class="px-2 py-1 rounded-full text-xs font-semibold">
+                                {{ taskStatusLabel(task.taskStatus) }}
+                            </span>
+                        </td>
+
+                        <!-- Descrição -->
+                        <td>
+                            <span class="text-sm">{{ task.description }}</span>
+                        </td>
+
+                        <!-- Ações -->
+                        <td>
+                            <div class="flex gap-1 justify-content-center flex-wrap">
+                                <button pButton pRipple icon="pi pi-eye"
+                                        class="p-button-rounded p-button-text"
+                                        (click)="viewTask(task)"
+                                        pTooltip="Ver detalhes" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('PROCEED')"
+                                        pButton pRipple icon="pi pi-arrow-right"
+                                        class="p-button-rounded p-button-text p-button-success"
+                                        (click)="handleTaskAction(task, 'PROCEED')"
+                                        pTooltip="Prosseguir" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('CREATE_CONTRACT')"
+                                        pButton pRipple icon="pi pi-file-plus"
+                                        class="p-button-rounded p-button-text p-button-success"
+                                        (click)="handleTaskAction(task, 'CREATE_CONTRACT')"
+                                        pTooltip="Criar Contrato" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('PROCEED_WITH_PENDING_PAYMENT')"
+                                        pButton pRipple icon="pi pi-arrow-circle-right"
+                                        class="p-button-rounded p-button-text p-button-warning"
+                                        (click)="handleTaskAction(task, 'PROCEED_WITH_PENDING_PAYMENT')"
+                                        pTooltip="Prosseguir c/ pend. pagamento" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('BILLING_CALL')"
+                                        pButton pRipple icon="pi pi-phone"
+                                        class="p-button-rounded p-button-text p-button-info"
+                                        (click)="handleTaskAction(task, 'BILLING_CALL')"
+                                        pTooltip="Ligação de Cobrança" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('REMIND')"
+                                        pButton pRipple icon="pi pi-bell"
+                                        class="p-button-rounded p-button-text"
+                                        (click)="handleTaskAction(task, 'REMIND')"
+                                        pTooltip="Lembrar" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('MARK_MEETING')"
+                                        pButton pRipple icon="pi pi-calendar"
+                                        class="p-button-rounded p-button-text"
+                                        (click)="handleTaskAction(task, 'MARK_MEETING')"
+                                        pTooltip="Marcar Reunião" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('EXTEND_PAYMENT')"
+                                        pButton pRipple icon="pi pi-clock"
+                                        class="p-button-rounded p-button-text"
+                                        (click)="handleTaskAction(task, 'EXTEND_PAYMENT')"
+                                        pTooltip="Estender Pagamento" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('SUSPEND')"
+                                        pButton pRipple icon="pi pi-ban"
+                                        class="p-button-rounded p-button-text p-button-danger"
+                                        (click)="handleTaskAction(task, 'SUSPEND')"
+                                        pTooltip="Suspender" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('COMPLETE')"
+                                        pButton pRipple icon="pi pi-check"
+                                        class="p-button-rounded p-button-text p-button-success"
+                                        (click)="handleTaskAction(task, 'COMPLETE')"
+                                        pTooltip="Concluir" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('IGNORE')"
+                                        pButton pRipple icon="pi pi-times"
+                                        class="p-button-rounded p-button-text p-button-warning"
+                                        (click)="handleTaskAction(task, 'IGNORE')"
+                                        pTooltip="Ignorar" tooltipPosition="top"></button>
+                                <button *ngIf="task.availableActions?.includes('DELETE')"
+                                        pButton pRipple icon="pi pi-trash"
+                                        class="p-button-rounded p-button-text p-button-danger"
+                                        (click)="handleTaskAction(task, 'DELETE')"
+                                        pTooltip="Excluir" tooltipPosition="top"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td [attr.colspan]="5 + (isContractView() ? 2 : 0) + (showDelayColumn() ? 1 : 0) + (showStudentStatusColumn() ? 1 : 0) + 1"
+                            class="text-center p-5 text-color-secondary">
+                            <div class="flex flex-column align-items-center gap-2">
+                                <i class="pi pi-check-circle text-3xl text-green-400"></i>
+                                <span>Nenhuma tarefa encontrada para este tipo.</span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </div>
-</section>
 
-<!-- Templates for custom columns -->
-<ng-template #statusTemplate let-task>
-    <span [ngClass]="{
-    'bg-blue-100 text-blue-800': task.status === 'PENDENTE',
-    'bg-orange-100 text-orange-800': task.status === 'EM_ANDAMENTO',
-    'bg-green-100 text-green-800': task.status === 'CONCLUIDA'
-  }" class="px-2 py-1 rounded-full text-xs">
-        {{
-            task.status === 'PENDENTE' ? 'Pendente' :
-                task.status === 'EM_ANDAMENTO' ? 'Em Andamento' : 'Concluída'
-        }}
-    </span>
-</ng-template>
+<p-dialog
+    header="Marcar Reunião"
+    [visible]="meetingDialogVisible()"
+    (visibleChange)="$event ? null : closeMeetingDialog()"
+    [modal]="true"
+    [style]="{'width': '480px'}"
+    [draggable]="false"
+    [resizable]="false">
 
-<ng-template #priorityTemplate let-task>
-    <span [ngClass]="{
-    'bg-red-100 text-red-800': task.priority === 'ALTA',
-    'bg-orange-100 text-orange-800': task.priority === 'MEDIA',
-    'bg-blue-100 text-blue-800': task.priority === 'BAIXA'
-  }" class="px-2 py-1 rounded-full text-xs">
-        {{ task.priority }}
-    </span>
-</ng-template>
+    <div class="flex flex-column gap-4 pt-2">
+        <div class="flex flex-column gap-2">
+            <label class="font-medium text-sm">Aluno</label>
+            <span class="text-color-secondary text-sm">{{ pendingMeetingTask()?.studentName }}</span>
+        </div>
 
-<ng-template #dueDateTemplate let-task>
-    <span>{{ task.dueDate | date:'dd/MM/yyyy' }}</span>
-</ng-template>
+        <div class="flex flex-column gap-2">
+            <label for="meetingTitle" class="font-medium text-sm">Título <span class="text-red-500">*</span></label>
+            <input
+                id="meetingTitle"
+                pInputText
+                [ngModel]="meetingTitle()"
+                (ngModelChange)="meetingTitle.set($event)"
+                placeholder="Ex: Reunião de renovação de contrato"
+                class="w-full"/>
+        </div>
 
-<ng-template #actionsTemplate let-task>
-    <div class="flex gap-2 justify-content-center">
-        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editTask(task)"
-                pTooltip="Editar" tooltipPosition="top"></button>
-        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-                (click)="deleteTask(task)" pTooltip="Excluir" tooltipPosition="top"></button>
-        <button *ngIf="task.status !== 'CONCLUIDA'" pButton pRipple icon="pi pi-check"
-                class="p-button-rounded p-button-text p-button-success" (click)="completeTask(task)" pTooltip="Concluir"
-                tooltipPosition="top"></button>
+        <div class="flex flex-column gap-2">
+            <label for="meetingDate" class="font-medium text-sm">Data <span class="text-red-500">*</span></label>
+            <p-datepicker
+                inputId="meetingDate"
+                [ngModel]="meetingDate()"
+                (ngModelChange)="meetingDate.set($event)"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                [minDate]="today"
+                styleClass="w-full"
+                placeholder="Selecione uma data">
+            </p-datepicker>
+        </div>
+
+        <div class="flex flex-column gap-2">
+            <label for="meetingDesc" class="font-medium text-sm">Descrição</label>
+            <textarea
+                id="meetingDesc"
+                pInputTextarea
+                [ngModel]="meetingDescription()"
+                (ngModelChange)="meetingDescription.set($event)"
+                rows="3"
+                placeholder="Detalhes sobre a reunião..."
+                class="w-full resize-none">
+            </textarea>
+        </div>
     </div>
-</ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancelar" icon="pi pi-times"
+                class="p-button-outlined p-button-secondary"
+                (click)="closeMeetingDialog()"
+                [disabled]="meetingSubmitting()">
+        </button>
+        <button pButton type="button" label="Confirmar" icon="pi pi-calendar-plus"
+                class="p-button-primary"
+                (click)="submitMeeting()"
+                [loading]="meetingSubmitting()"
+                [disabled]="!meetingDate() || !meetingTitle().trim()">
+        </button>
+    </ng-template>
+</p-dialog>
+</section>

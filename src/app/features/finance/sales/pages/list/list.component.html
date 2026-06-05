@@ -10,15 +10,64 @@
             (click)="createNewSale()"></p-button>
     </div>
 
-    <!-- View Selector -->
-    <div #viewSelector id="viewSelector" class="col-12 flex justify-content-start gap-2 items-center mb-4 sticky-header"
-        style="top: 80px;" [ngClass]="{'sticky-active': isViewSelectorSticky}">
-        <p-selectButton [options]="viewOptions" [(ngModel)]="currentView" (onChange)="onViewChange($event)"
-            optionLabel="label" optionValue="value"></p-selectButton>
+    <!-- KPI Cards -->
+    <div class="col-12">
+        <div class="grid">
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1 mb-0">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Total de Vendas</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                            style="width:2.5rem;height:2.5rem;background:var(--primary-100,#e0e7ff)">
+                            <i class="pi pi-shopping-cart text-primary text-xl"></i>
+                        </span>
+                    </div>
+                    <p class="text-2xl font-bold text-900 m-0">{{ kpiTotalSales }}</p>
+                    <span class="text-xs text-color-secondary">vendas no filtro atual</span>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1 mb-0">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Valor Total</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                            style="width:2.5rem;height:2.5rem;background:var(--blue-100,#dbeafe)">
+                            <i class="pi pi-wallet text-blue-500 text-xl"></i>
+                        </span>
+                    </div>
+                    <p class="text-2xl font-bold text-900 m-0">{{ kpiTotalAmount | currency:'Kz':'symbol':'1.0-0' }}</p>
+                    <span class="text-xs text-color-secondary">soma das faturas</span>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1 mb-0">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Valor Recebido</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                            style="width:2.5rem;height:2.5rem;background:var(--green-100,#dcfce7)">
+                            <i class="pi pi-check-circle text-green-500 text-xl"></i>
+                        </span>
+                    </div>
+                    <p class="text-2xl font-bold text-green-600 m-0">{{ kpiPaidAmount | currency:'Kz':'symbol':'1.0-0' }}</p>
+                    <span class="text-xs text-color-secondary">pagamentos confirmados</span>
+                </div>
+            </div>
+            <div class="col-12 sm:col-6 xl:col-3">
+                <div class="card flex flex-column gap-1 mb-0">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="text-color-secondary text-sm font-medium">Valor Pendente</span>
+                        <span class="flex align-items-center justify-content-center border-round"
+                            style="width:2.5rem;height:2.5rem;background:var(--orange-100,#ffedd5)">
+                            <i class="pi pi-clock text-orange-500 text-xl"></i>
+                        </span>
+                    </div>
+                    <p class="text-2xl font-bold text-orange-500 m-0">{{ kpiPendingAmount | currency:'Kz':'symbol':'1.0-0' }}</p>
+                    <span class="text-xs text-color-secondary">a receber</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Lista de Vendas View -->
-    @if (currentView === 'list') {
     <div class="col-12 animate-fade">
         @let loading = (loading$ | async) ?? false;
         <!-- Filters Section -->
@@ -127,49 +176,4 @@
             }
         </div>
     </div>
-    }
-
-    <!-- Relatórios View -->
-    @if (currentView === 'relatorios') {
-    <div class="col-12 animate-fade">
-        <div class="card">
-            <h3>Relatórios de Vendas</h3>
-            <p>Gere relatórios detalhados sobre as vendas avulsas.</p>
-            <!-- Placeholder content for reports view -->
-            <div class="mt-4 p-4 surface-100 border-round">
-                <p>Relatórios de vendas serão implementados aqui.</p>
-            </div>
-        </div>
-    </div>
-    }
-
-    <!-- Estatísticas View -->
-    @if (currentView === 'estatisticas') {
-    <div class="col-12 animate-fade">
-        <div class="card">
-            <h3>Estatísticas de Vendas</h3>
-            <p>Análise estatística das vendas avulsas.</p>
-            <!-- Placeholder content for statistics view -->
-            <div class="mt-4 p-4 surface-100 border-round">
-                <p>Estatísticas de vendas serão implementadas aqui.</p>
-            </div>
-        </div>
-    </div>
-    }
-
-    <!-- Nova Venda View -->
-    @if (currentView === 'nova-venda') {
-    <div class="col-12 animate-fade">
-        <div class="card">
-            <h3>Nova Venda Avulsa</h3>
-            <p>Formulário para criar nova venda avulsa.</p>
-            <!-- Placeholder content for new sale view -->
-            <div class="mt-4 p-4 surface-100 border-round">
-                <p>Formulário de nova venda será implementado aqui.</p>
-            </div>
-            <button pButton type="button" label="Voltar à Lista" class="p-button-outlined mt-3"
-                (click)="currentView = 'list'"></button>
-        </div>
-    </div>
-    }
 </div>

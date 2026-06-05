@@ -1,30 +1,88 @@
-export interface InstallmentItem {
-  dueDate: string;
-  number: number;
-  contractId: string;
-  amount: number;
+export type StudentStatus =
+  | 'ACTIVE'
+  | 'INACTIVE'
+  | 'SUSPENDED'
+  | 'PENDING_PAYMENT'
+  | 'RENEWABLE'
+  | 'RENEWABLE_MEETING'
+  | 'EXTENDED_PAYMENT'
+  | 'EXTENDED_PENDING_PAYMENT'
+  | 'DEBTOR'
+  | 'UNMARKABLE'
+  | 'CANCELLED'
+  | 'QUIT'
+  | 'ENROLLED';
+
+export type TaskType =
+  | 'NO_ACTIVE_CONTRACT'
+  | 'LEVEL_NEEDS_ACTIVATION'
+  | 'INSTALLMENT_OVERDUE'
+  | 'INSTALLMENT_DUE_SOON'
+  | 'CONTRACT_ENDING_SOON'
+  | 'LONG_ABSENCE';
+
+export type TaskStatus = 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'IGNORED' | 'SNOOZED';
+
+export type TaskAction =
+  | 'PROCEED'
+  | 'CREATE_CONTRACT'
+  | 'IGNORE'
+  | 'COMPLETE'
+  | 'BILLING_CALL'
+  | 'EXTEND_PAYMENT'
+  | 'SUSPEND'
+  | 'REMIND'
+  | 'MARK_MEETING'
+  | 'DELETE'
+  | 'PROCEED_WITH_PENDING_PAYMENT';
+
+export type ContractStatus =
+  | 'ACTIVE'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'OVERDUE'
+  | 'PENDING_PAYMENT'
+  | 'EXTENDED_PAYMENT'
+  | 'HOLD';
+
+export interface TaskContract {
   id: string;
-  status: string;
+  endDate: string;
+  status: ContractStatus;
 }
 
-export interface LevelItem {
-  id: string;
-  name: string;
+export interface DailyTasksFilter {
+  status?: TaskStatus;
+  centerId?: string;
+  taskType?: TaskType;
+  page?: number;
+  size?: number;
+}
+
+export interface DailyTasksPage {
+  items: TaskItem[];
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 export interface TaskItem {
+  id: string;
   studentId: string;
-  studentCode: number;
+  studentCode: string;
   studentName: string;
-  status: string;
-  level: string | LevelItem | null;
-  center: {
-    id: string;
-    name: string;
-  };
-  taskType: string;
+  studentStatus: StudentStatus;
+  level?: { id: string; name: string } | null;
+  center: { id: string; name: string };
+  taskType: TaskType;
   description: string;
-  actions: string[];
-  installments?: InstallmentItem[];
+  taskStatus: TaskStatus;
+  availableActions: TaskAction[];
+  lastAction: TaskAction | null;
+  generatedDate: string;
+  resolvedDate: string | null;
+  contract: TaskContract | null;
 }
-

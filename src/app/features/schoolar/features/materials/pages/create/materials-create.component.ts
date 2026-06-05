@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router'; // Add ActivatedRoute
 import {MessageService, SelectItem} from 'primeng/api';
@@ -36,9 +36,10 @@ import {Contract} from 'src/app/core/models/corporate/contract';
 import {Center} from 'src/app/core/models/corporate/center';
 import {Unit} from 'src/app/core/models/course/unit';
 import {Employee} from 'src/app/core/models/corporate/employee';
-import {forkJoin, of, Subject, takeUntil} from 'rxjs';
+import {debounceTime, distinctUntilChanged, of, Subject, switchMap, takeUntil} from 'rxjs';
 import type {Observable} from 'rxjs';
 import {catchError, finalize, map, take} from 'rxjs/operators';
+import {DropdownFilterEvent} from 'primeng/dropdown';
 import {Store} from '@ngrx/store';
 import {authFeature} from 'src/app/core/store/auth/auth.reducers';
 import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
@@ -80,12 +81,17 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
     private unitService = inject(UnitService);
     private materialsFacade = inject(MaterialsFacade);
     private store = inject(Store);
+    private cdr = inject(ChangeDetectorRef);
 
     loading = this.materialsFacade.loading;
     private destroy$ = new Subject<void>();
+    private studentSearch$ = new Subject<string>();
+    private readonly minStudentSearchLength = 2;
 
     /** All units from API — used when picking units by level without NgRx selectors. */
     private allUnits: Unit[] = [];
+    private readonly loadedEntityTypes = new Set<RelatedEntityType>();
+    private unitsLoaded = false;
 
     // Material data
     material: MaterialCreateRequest = {
@@ -164,6 +170,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
     selectedLevelId: string = '';
     levelOptions: SelectItem[] = [];
     unitsByLevel: { [levelId: string]: Unit[] } = {};
+    relatedEntityOptions: SelectItem[] = [];
 
     ngOnInit() {
         this.store.select(authFeature.selectUser).pipe(take(1), takeUntil(this.destroy$)).subscribe(user => {
@@ -178,15 +185,65 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         this.material.availabilityStartDate = today.toISOString().split('T')[0];
         this.material.availabilityEndDate = nextYear.toISOString().split('T')[0];
 
+        this.setupStudentSearch();
+
         // Get query params
         this.route.queryParams
             .pipe(takeUntil(this.destroy$))
             .subscribe(params => {
                 this.queryParamEntity = params['entity'] || null;
                 this.queryParamEntityId = params['entityId'] || null;
-            });
 
-        this.loadAllEntityData();
+                if (this.queryParamEntity && Object.values(RelatedEntityType).includes(this.queryParamEntity as RelatedEntityType)) {
+                    this.preloadQueryParamEntity(this.queryParamEntity as RelatedEntityType);
+                }
+            });
+    }
+
+    private setupStudentSearch(): void {
+        this.studentSearch$
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                switchMap((query) => {
+                    const trimmed = query.trim();
+                    if (trimmed.length < this.minStudentSearchLength) {
+                        this.relatedEntities[RelatedEntityType.STUDENT] = [];
+                        this.relatedEntityOptions = [];
+                        return of([] as SelectItem[]);
+                    }
+
+                    this.loadingEntities[RelatedEntityType.STUDENT] = true;
+                    this.cdr.detectChanges();
+
+                    return this.studentService
+                        .searchStudentsPaginated({ fullName: trimmed }, 0, 20)
+                        .pipe(
+                            map((response) => this.mapStudentsToOptions(response.content ?? [])),
+                            catchError(() => {
+                                this.messageService.add({
+                                    severity: 'warn',
+                                    summary: 'Aviso',
+                                    detail: 'Erro ao pesquisar estudantes',
+                                });
+                                return of([] as SelectItem[]);
+                            }),
+                            finalize(() => {
+                                this.loadingEntities[RelatedEntityType.STUDENT] = false;
+                                this.cdr.detectChanges();
+                            }),
+                        );
+                }),
+                takeUntil(this.destroy$),
+            )
+            .subscribe((options) => {
+                if (this.newRelation.relatedEntityType !== RelatedEntityType.STUDENT) {
+                    return;
+                }
+                this.relatedEntities[RelatedEntityType.STUDENT] = options;
+                this.relatedEntityOptions = [...options];
+                this.cdr.detectChanges();
+            });
     }
 
     protected getEntityType(type: RelatedEntityType) {
@@ -212,123 +269,224 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         }
     }
 
-    loadAllEntityData(): void {
-        const fallback = <T>(source: Observable<T>, empty: T) =>
-            source.pipe(catchError(() => of(empty)));
-
-        const clearRelationsLoadingFlags = () => {
-            for (const type of Object.values(RelatedEntityType)) {
-                this.loadingEntities[type] = false;
-            }
-        };
-
-        for (const type of Object.values(RelatedEntityType)) {
-            this.loadingEntities[type] = true;
+    private preloadQueryParamEntity(entityType: RelatedEntityType): void {
+        if (entityType === RelatedEntityType.UNIT) {
+            this.loadEntityOptions(RelatedEntityType.LEVEL);
+            return;
         }
 
-        forkJoin({
-            students: fallback(this.studentService.getStudents(), [] as Student[]),
-            lessons: fallback(this.lessonService.searchLessons({size: 1000}).pipe(map(r => r.content ?? [])), [] as Lesson[]),
-            levels: fallback(this.levelService.getLevels(), [] as unknown[]),
-            centers: fallback(this.centerService.getAllCenters(), [] as Center[]),
-            employees: fallback(this.employeeService.getEmployees(), [] as Employee[]),
-            contracts: fallback(this.contractService.getContracts().pipe(map(p => p.content ?? [])), [] as Contract[]),
-            units: fallback(this.unitService.loadUnits(), [] as Unit[]),
-            assessments: fallback(this.assessmentService.getAssessments(), [] as unknown[])
-        })
-            .pipe(
-                takeUntil(this.destroy$),
-                // forkJoin may complete without calling next/error if an inner observable completes empty;
-                // without this the UI stays stuck showing "Carregando…" forever.
-                finalize(() => clearRelationsLoadingFlags())
-            )
-            .subscribe({
-                next: result => {
-                    try {
-                        this.applyFetchedRelations(result);
-                    } catch (e) {
-                        console.error('Materials create: erro ao aplicar dados das relações', e);
+        if (entityType === RelatedEntityType.STUDENT && this.queryParamEntityId) {
+            this.newRelation.relatedEntityType = RelatedEntityType.STUDENT;
+            this.selectedType.set(RelatedEntityType.STUDENT);
+            this.loadingEntities[RelatedEntityType.STUDENT] = true;
+            this.cdr.detectChanges();
+
+            this.studentService.getStudent(this.queryParamEntityId)
+                .pipe(
+                    takeUntil(this.destroy$),
+                    catchError(() => {
                         this.messageService.add({
                             severity: 'warn',
                             summary: 'Aviso',
-                            detail: 'Erro ao processar dados carregados. Tente atualizar a página.'
+                            detail: 'Erro ao carregar estudante',
                         });
+                        return of(null);
+                    }),
+                    finalize(() => {
+                        this.loadingEntities[RelatedEntityType.STUDENT] = false;
+                        this.cdr.detectChanges();
+                    }),
+                )
+                .subscribe((student) => {
+                    if (!student) {
+                        return;
                     }
-                },
-                error: () => {
-                    clearRelationsLoadingFlags();
+                    const options = this.mapStudentsToOptions([student]);
+                    this.relatedEntities[RelatedEntityType.STUDENT] = options;
+                    this.relatedEntityOptions = [...options];
+                    this.processQueryParams();
+                    this.cdr.detectChanges();
+                });
+            return;
+        }
+
+        this.loadEntityOptions(entityType, () => this.processQueryParams());
+    }
+
+    private loadEntityOptions(
+        entityType: RelatedEntityType,
+        onComplete?: () => void,
+    ): void {
+        if (this.loadedEntityTypes.has(entityType)) {
+            this.refreshRelatedEntityOptions();
+            onComplete?.();
+            return;
+        }
+
+        this.loadingEntities[entityType] = true;
+        this.relatedEntityOptions = [];
+        this.cdr.detectChanges();
+
+        this.fetchEntityOptions(entityType)
+            .pipe(
+                takeUntil(this.destroy$),
+                catchError(() => {
                     this.messageService.add({
                         severity: 'warn',
                         summary: 'Aviso',
-                        detail: 'Erro ao carregar dados relacionados'
+                        detail: `Erro ao carregar ${this.getEntityType(entityType).toLowerCase()}s`,
                     });
+                    return of([] as SelectItem[]);
+                }),
+                finalize(() => {
+                    this.loadingEntities[entityType] = false;
+                    this.refreshRelatedEntityOptions();
+                    this.cdr.detectChanges();
+                }),
+            )
+            .subscribe((options) => {
+                this.relatedEntities[entityType] = options;
+                this.loadedEntityTypes.add(entityType);
+
+                if (entityType === RelatedEntityType.LEVEL) {
+                    this.levelOptions = [...options];
                 }
+
+                this.refreshRelatedEntityOptions();
+                onComplete?.();
+                this.cdr.detectChanges();
             });
     }
 
-    private applyFetchedRelations(result: {
-        students: Student[];
-        lessons: Lesson[];
-        levels: unknown[];
-        centers: Center[];
-        employees: Employee[];
-        contracts: Contract[];
-        units: Unit[];
-        assessments: unknown[];
-    }): void {
-        const {students, lessons, levels, centers, employees, contracts, units, assessments} = result;
+    private fetchEntityOptions(entityType: RelatedEntityType): Observable<SelectItem[]> {
+        switch (entityType) {
+            case RelatedEntityType.STUDENT:
+                return of([]);
+            case RelatedEntityType.LESSON:
+                return this.lessonService.searchLessons({ size: 1000 }).pipe(
+                    map((response) => this.mapLessonsToOptions(response.content ?? [])),
+                );
+            case RelatedEntityType.LEVEL:
+                return this.levelService.getLevels().pipe(
+                    map((levels) => this.mapLevelsToOptions(levels)),
+                );
+            case RelatedEntityType.CENTER:
+                return this.centerService.getAllCenters().pipe(
+                    map((centers) => this.mapCentersToOptions(centers)),
+                );
+            case RelatedEntityType.EMPLOYEE:
+                return this.employeeService.getEmployees().pipe(
+                    map((employees) => this.mapEmployeesToOptions(employees)),
+                );
+            case RelatedEntityType.CONTRACT:
+                return this.contractService.getContracts({ size: 1000 }).pipe(
+                    map((page) => this.mapContractsToOptions(page.content ?? [])),
+                );
+            case RelatedEntityType.ASSESSMENT:
+                return this.assessmentService.getAssessments().pipe(
+                    map((assessments) => this.mapAssessmentsToOptions(assessments)),
+                );
+            default:
+                return of([]);
+        }
+    }
 
-        this.relatedEntities[RelatedEntityType.ASSESSMENT] = (assessments ?? []).map((assessment: any) => ({
-            label: `${assessment.title || 'Assessment'}`,
-            value: assessment.id || ''
-        }));
+    private loadUnitsData(onComplete?: () => void): void {
+        if (this.unitsLoaded) {
+            onComplete?.();
+            return;
+        }
 
-        this.relatedEntities[RelatedEntityType.STUDENT] = (students ?? []).map(student => ({
-            label: `${student.user?.firstname || ''} ${student.user?.lastname || ''}`,
-            value: student.id || ''
-        }));
+        this.loadingEntities[RelatedEntityType.UNIT] = true;
+        this.cdr.detectChanges();
 
-        this.relatedEntities[RelatedEntityType.LESSON] = (lessons ?? []).map(lesson => ({
-            label: `${lesson.title}`,
-            value: lesson.id || ''
-        }));
+        this.unitService.loadUnits()
+            .pipe(
+                takeUntil(this.destroy$),
+                catchError(() => {
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Aviso',
+                        detail: 'Erro ao carregar unidades',
+                    });
+                    return of([] as Unit[]);
+                }),
+                finalize(() => {
+                    this.loadingEntities[RelatedEntityType.UNIT] = false;
+                    this.cdr.detectChanges();
+                }),
+            )
+            .subscribe((units) => {
+                this.allUnits = units;
+                this.unitsLoaded = true;
+                this.buildUnitsByLevelIndex();
+                onComplete?.();
+                this.cdr.detectChanges();
+            });
+    }
 
-        this.levelOptions = (levels ?? []).map(level => ({
-            label: `${(level as {name?: string}).name || 'Nível'}`,
-            value: (level as {id: string}).id || ''
-        }));
-        this.relatedEntities[RelatedEntityType.LEVEL] = [...this.levelOptions];
-
-        this.relatedEntities[RelatedEntityType.CENTER] = (centers ?? []).map(center => ({
-            label: `${center.name}`,
-            value: center.id || ''
-        }));
-
-        this.relatedEntities[RelatedEntityType.EMPLOYEE] = (employees ?? []).map((employee: Employee) => ({
-            label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''}`,
-            value: employee.id || ''
-        }));
-
-        this.relatedEntities[RelatedEntityType.CONTRACT] = (contracts ?? []).map((contract: Contract) => ({
-            label: `Contracto ${contract.code}`,
-            value: contract.id || ''
-        }));
-
-        this.allUnits = units ?? [];
+    private buildUnitsByLevelIndex(): void {
         this.unitsByLevel = {};
-        this.allUnits.forEach(unit => {
+        this.allUnits.forEach((unit) => {
             if (!unit.levelId) {
                 return;
             }
             if (!this.unitsByLevel[unit.levelId]) {
                 this.unitsByLevel[unit.levelId] = [];
             }
-            if (!this.unitsByLevel[unit.levelId].some(u => u.id === unit.id)) {
+            if (!this.unitsByLevel[unit.levelId].some((u) => u.id === unit.id)) {
                 this.unitsByLevel[unit.levelId].push(unit);
             }
         });
+    }
 
-        this.processQueryParams();
+    private mapStudentsToOptions(students: Student[]): SelectItem[] {
+        return students.map((student) => ({
+            label: `${student.user?.firstname || ''} ${student.user?.lastname || ''}`.trim() || 'Estudante',
+            value: student.id || '',
+        }));
+    }
+
+    private mapLessonsToOptions(lessons: Lesson[]): SelectItem[] {
+        return lessons.map((lesson) => ({
+            label: lesson.title,
+            value: lesson.id || '',
+        }));
+    }
+
+    private mapLevelsToOptions(levels: unknown[]): SelectItem[] {
+        return levels.map((level) => ({
+            label: `${(level as { name?: string }).name || 'Nível'}`,
+            value: (level as { id: string }).id || '',
+        }));
+    }
+
+    private mapCentersToOptions(centers: Center[]): SelectItem[] {
+        return centers.map((center) => ({
+            label: center.name,
+            value: center.id || '',
+        }));
+    }
+
+    private mapEmployeesToOptions(employees: Employee[]): SelectItem[] {
+        return employees.map((employee) => ({
+            label: `${employee.personalInfo?.firstName || ''} ${employee.personalInfo?.lastName || ''}`.trim() || 'Funcionário',
+            value: employee.id || '',
+        }));
+    }
+
+    private mapContractsToOptions(contracts: Contract[]): SelectItem[] {
+        return contracts.map((contract) => ({
+            label: `Contracto ${contract.code}`,
+            value: contract.id || '',
+        }));
+    }
+
+    private mapAssessmentsToOptions(assessments: unknown[]): SelectItem[] {
+        return assessments.map((assessment) => ({
+            label: `${(assessment as { title?: string }).title || 'Avaliação'}`,
+            value: (assessment as { id?: string }).id || '',
+        }));
     }
 
     private processQueryParams(): void {
@@ -398,6 +556,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
     loadUnitsByLevel(levelId: string): void {
         if (!levelId) {
             this.relatedEntities[RelatedEntityType.UNIT] = [];
+            this.relatedEntityOptions = [];
             return;
         }
 
@@ -409,10 +568,12 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             }
         }
 
-        this.relatedEntities[RelatedEntityType.UNIT] = (units ?? []).map(unit => ({
+        const options = (units ?? []).map(unit => ({
             label: `${unit.name}`,
             value: unit.id || ''
         }));
+        this.relatedEntities[RelatedEntityType.UNIT] = options;
+        this.relatedEntityOptions = [...options];
     }
 
     /** p-dropdown sometimes binds the whole option object unless optionValue resolves — keeps store keys aligned. */
@@ -537,9 +698,23 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         });
     }
 
-    getRelatedEntityOptions(): SelectItem[] {
+    private refreshRelatedEntityOptions(): void {
         const key = this.normalizeRelationEntityType(this.newRelation.relatedEntityType);
-        return key ? this.relatedEntities[key] ?? [] : [];
+        if (!key) {
+            this.relatedEntityOptions = [];
+            return;
+        }
+
+        if (key === RelatedEntityType.UNIT) {
+            if (!this.selectedLevelId) {
+                this.relatedEntityOptions = [];
+                return;
+            }
+            this.loadUnitsByLevel(this.selectedLevelId);
+            return;
+        }
+
+        this.relatedEntityOptions = [...(this.relatedEntities[key] ?? [])];
     }
 
     isEntityLoading(entityType: string | RelatedEntityType | unknown): boolean {
@@ -555,34 +730,68 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         return key ? this.relatedEntities[key]?.length || 0 : 0;
     }
 
-    onEntityTypeChange(): void {
-        const normalized = this.normalizeRelationEntityType(this.newRelation.relatedEntityType as unknown);
+    onEntityTypeChange(entityType: string | SelectItem | unknown): void {
+        const normalized = this.normalizeRelationEntityType(entityType);
         this.newRelation.relatedEntityType = normalized;
         if (normalized) {
             this.selectedType.set(normalized as RelatedEntityType);
         }
         this.newRelation.relatedEntityId = '';
         this.selectedLevelId = '';
+        this.relatedEntityOptions = [];
 
-        if (this.newRelation.relatedEntityType === RelatedEntityType.UNIT) {
-            this.relatedEntities[RelatedEntityType.UNIT] = [];
+        if (!normalized) {
+            this.cdr.detectChanges();
+            return;
         }
+
+        if (normalized === RelatedEntityType.UNIT) {
+            this.relatedEntities[RelatedEntityType.UNIT] = [];
+            this.loadEntityOptions(RelatedEntityType.LEVEL);
+            return;
+        }
+
+        if (normalized === RelatedEntityType.STUDENT) {
+            this.relatedEntities[RelatedEntityType.STUDENT] = [];
+            this.cdr.detectChanges();
+            return;
+        }
+
+        this.loadEntityOptions(normalized as RelatedEntityType);
     }
 
-    onLevelChange(): void {
+    onStudentFilter(event: DropdownFilterEvent): void {
+        if (!this.isStudentEntityType()) {
+            return;
+        }
+        this.studentSearch$.next(event.filter ?? '');
+    }
+
+    onLevelChange(levelId: string): void {
+        this.selectedLevelId = levelId;
         this.newRelation.relatedEntityId = '';
 
-        if (this.newRelation.relatedEntityType === RelatedEntityType.UNIT) {
-            this.loadUnitsByLevel(this.selectedLevelId);
+        if (this.newRelation.relatedEntityType !== RelatedEntityType.UNIT || !levelId) {
+            this.cdr.detectChanges();
+            return;
         }
+
+        this.loadUnitsData(() => {
+            this.loadUnitsByLevel(this.selectedLevelId);
+            this.cdr.detectChanges();
+        });
     }
 
     isUnitEntityType(): boolean {
         return this.newRelation.relatedEntityType === RelatedEntityType.UNIT;
     }
 
+    isStudentEntityType(): boolean {
+        return this.newRelation.relatedEntityType === RelatedEntityType.STUDENT;
+    }
+
     shouldShowLevelSelection(): boolean {
-        return this.isUnitEntityType() && this.levelOptions.length > 0;
+        return this.isUnitEntityType();
     }
 
     getRelatedEntityPlaceholder(): string {
@@ -597,6 +806,10 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             return 'Selecione a unidade';
         }
 
+        if (this.isStudentEntityType()) {
+            return 'Digite o nome completo para pesquisar';
+        }
+
         return 'Selecione a entidade';
     }
 
@@ -607,6 +820,10 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
 
         if (this.isUnitEntityType()) {
             return !this.selectedLevelId;
+        }
+
+        if (this.isStudentEntityType()) {
+            return this.isEntityLoading(RelatedEntityType.STUDENT);
         }
 
         return false;

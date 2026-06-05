@@ -149,7 +149,8 @@
                         <label for="relationType" class="font-medium text-900">Selecione a entidade *</label>
                         <p-dropdown id="relationType" [options]="relatedEntityTypeOptions"
                             [(ngModel)]="newRelation.relatedEntityType" optionLabel="label" optionValue="value"
-                            placeholder="Selecione o tipo" (onChange)="onEntityTypeChange()"></p-dropdown>
+                            placeholder="Selecione o tipo"
+                            (ngModelChange)="onEntityTypeChange($event)"></p-dropdown>
                     </div>
 
                     <!-- Level Selection for Units -->
@@ -157,10 +158,15 @@
                         <label for="levelSelection" class="font-medium text-900">Selecionar Nível *</label>
                         <p-dropdown id="levelSelection" [options]="levelOptions" [(ngModel)]="selectedLevelId"
                             optionLabel="label" optionValue="value" placeholder="Selecione o nível"
-                            (onChange)="onLevelChange()"
+                            (ngModelChange)="onLevelChange($event)"
+                            [loading]="isEntityLoading(RelatedEntityType.LEVEL)"
                             [disabled]="isEntityLoading(RelatedEntityType.LEVEL)"></p-dropdown>
-                        <small *ngIf="!isEntityLoading(RelatedEntityType.LEVEL)" class="text-500">
-                            {{ levelOptions.length }} níveis disponíveis
+                        <small class="text-500">
+                            @if (isEntityLoading(RelatedEntityType.LEVEL)) {
+                                Carregando níveis...
+                            } @else {
+                                {{ levelOptions.length }} níveis disponíveis
+                            }
                         </small>
                     </div>
 
@@ -169,15 +175,31 @@
                             {{ newRelation.relatedEntityType ? 'Selecione ' + getEntityType(selectedType()) : 'Selecione
                             a entidade relacionada' }} *
                         </label>
-                        <p-dropdown id="relatedEntity" [options]="getRelatedEntityOptions()"
+                        <p-dropdown id="relatedEntity" [options]="relatedEntityOptions"
                             [(ngModel)]="newRelation.relatedEntityId" optionLabel="label" optionValue="value"
                             [placeholder]="getRelatedEntityPlaceholder()"
-                            [disabled]="isRelatedEntityDisabled()"></p-dropdown>
-                        <small *ngIf="newRelation.relatedEntityType && !isEntityLoading(newRelation.relatedEntityType)"
-                            class="text-500">
-                            {{ getEntityCount(newRelation.relatedEntityType) }}
-                            {{ getEntityType(selectedType()) | lowercase }}s disponíveis
-                        </small>
+                            [disabled]="isRelatedEntityDisabled()"
+                            [loading]="isEntityLoading(newRelation.relatedEntityType)"
+                            [filter]="isStudentEntityType()"
+                            [showClear]="isStudentEntityType()"
+                            filterPlaceholder="Pesquisar por nome completo"
+                            emptyMessage="Digite pelo menos 2 caracteres para pesquisar"
+                            emptyFilterMessage="Nenhum estudante encontrado"
+                            (onFilter)="onStudentFilter($event)"></p-dropdown>
+                        @if (isStudentEntityType()) {
+                            <small class="text-500">
+                                @if (isEntityLoading(RelatedEntityType.STUDENT)) {
+                                    A pesquisar estudantes...
+                                } @else {
+                                    Digite pelo menos 2 caracteres do nome completo para pesquisar
+                                }
+                            </small>
+                        } @else if (newRelation.relatedEntityType && !isEntityLoading(newRelation.relatedEntityType)) {
+                            <small class="text-500">
+                                {{ getEntityCount(newRelation.relatedEntityType) }}
+                                {{ getEntityType(selectedType()) | lowercase }}s disponíveis
+                            </small>
+                        }
                     </div>
                     <div class="field col-12 md:col-4">
                         <label for="relationDescription" class="font-medium text-900">Descrição</label>

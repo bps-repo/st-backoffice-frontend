@@ -84,3 +84,5 @@ export interface RecordAttemptRequest {
     skillEvaluations: { skillId: string; score: number; feedback: string }[];
     unitEvaluations: { unitId: string; score: number; feedback: string }[];
 }
+
+export type UpdateAssessmentRequest = Partial<CreateAssessmentRequest>;

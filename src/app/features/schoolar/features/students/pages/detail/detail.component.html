@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
 <div class="grid">
     <div class="col-12 flex justify-content-between align-items-center gap-4">
@@ -31,6 +32,19 @@
         </div>
 
         <div class="flex align-items-center gap-2">
+            <!-- Edit student -->
+            <button pButton icon="pi pi-pencil" label="Editar"
+                    class="p-button-outlined"
+                    (click)="navigateToEdit()">
+            </button>
+
+            <!-- Quick actions dropdown -->
+            <p-menu #actionsMenu [model]="actionsMenuItems" [popup]="true"></p-menu>
+            <button pButton icon="pi pi-bolt" label="Ações"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="actionsMenu.toggle($event)">
+            </button>
+
             <!-- Documents menu -->
             <p-menu #docMenu [model]="documentMenuItems" [popup]="true"></p-menu>
             <button pButton
@@ -75,6 +89,144 @@
             <button pButton label="Descarregar" icon="pi pi-download"
                     [disabled]="!selectedCertificateLevel"
                     (click)="downloadCertificate()">
+            </button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Center action dialog -->
+    <p-dialog [header]="centerActionDialogTitle"
+              [(visible)]="centerActionDialogVisible"
+              [modal]="true"
+              [style]="{width: '420px'}"
+              [draggable]="false">
+        <div class="flex flex-column gap-3 pt-2">
+            <p class="text-sm text-color-secondary m-0">{{ centerActionDialogDescription }}</p>
+            <div class="flex flex-column gap-1">
+                <label class="text-sm font-medium">Centro</label>
+                <p-dropdown [options]="centers"
+                            [(ngModel)]="selectedCenterId"
+                            optionLabel="name"
+                            optionValue="id"
+                            placeholder="Selecionar centro"
+                            styleClass="w-full"
+                            appendTo="body"
+                            [filter]="true"
+                            filterPlaceholder="Pesquisar centro">
+                </p-dropdown>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancelar" icon="pi pi-times"
+                    class="p-button-outlined p-button-secondary"
+                    [disabled]="centerActionLoading()"
+                    (click)="centerActionDialogVisible = false">
+            </button>
+            <button pButton
+                    [label]="centerActionMode === 'assign' ? 'Atribuir' : 'Remover'"
+                    [icon]="centerActionMode === 'assign' ? 'pi pi-check' : 'pi pi-trash'"
+                    [severity]="centerActionMode === 'assign' ? 'primary' : 'danger'"
+                    [loading]="centerActionLoading()"
+                    [disabled]="!selectedCenterId || centerActionLoading()"
+                    (click)="submitCenterAction()">
+            </button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Status update dialog -->
+    <p-dialog header="Alterar Estado"
+              [(visible)]="statusDialogVisible"
+              [modal]="true"
+              [style]="{width: '380px'}"
+              [draggable]="false">
+        <div class="flex flex-column gap-3 pt-2">
+            <p class="text-sm text-color-secondary m-0">Selecione o novo estado do aluno.</p>
+            <p-dropdown [options]="statusOptions"
+                        [(ngModel)]="selectedStatus"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecionar estado"
+                        styleClass="w-full"
+                        appendTo="body">
+            </p-dropdown>
+        </div>
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancelar" icon="pi pi-times"
+                    class="p-button-outlined p-button-secondary"
+                    [disabled]="statusUpdateLoading()"
+                    (click)="statusDialogVisible = false">
+            </button>
+            <button pButton label="Guardar" icon="pi pi-check"
+                    [loading]="statusUpdateLoading()"
+                    [disabled]="!selectedStatus || statusUpdateLoading()"
+                    (click)="submitStatusUpdate()">
+            </button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Legal guardians dialog -->
+    <p-dialog header="Responsáveis Legais"
+              [(visible)]="legalGuardiansDialogVisible"
+              [modal]="true"
+              [style]="{width: '560px'}"
+              [draggable]="false">
+        <div class="flex flex-column gap-3 pt-2">
+            <p class="text-sm text-color-secondary m-0">
+                Defina os responsáveis legais do aluno. Máximo de 2 responsáveis.
+            </p>
+            @for (guardian of legalGuardians; track $index) {
+            <div class="p-3 border-1 border-round surface-border">
+                <div class="flex justify-content-between align-items-center mb-3">
+                    <span class="font-medium text-sm">Responsável {{ $index + 1 }}</span>
+                    <button pButton icon="pi pi-trash"
+                            class="p-button-text p-button-danger p-button-sm"
+                            (click)="removeLegalGuardian($index)">
+                    </button>
+                </div>
+                <div class="grid">
+                    <div class="col-12 md:col-6 flex flex-column gap-1">
+                        <label class="text-sm">Nome</label>
+                        <input pInputText [(ngModel)]="legalGuardians[$index].name"
+                               [name]="'g_name_' + $index"
+                               placeholder="Nome completo" class="w-full" />
+                    </div>
+                    <div class="col-12 md:col-6 flex flex-column gap-1">
+                        <label class="text-sm">Parentesco</label>
+                        <input pInputText [(ngModel)]="legalGuardians[$index].kinship"
+                               [name]="'g_kinship_' + $index"
+                               placeholder="Ex: Mãe, Pai" class="w-full" />
+                    </div>
+                    <div class="col-12 md:col-6 flex flex-column gap-1">
+                        <label class="text-sm">Telefone</label>
+                        <input pInputText [(ngModel)]="legalGuardians[$index].phone"
+                               [name]="'g_phone_' + $index"
+                               placeholder="9XXXXXXXX" class="w-full" />
+                    </div>
+                    <div class="col-12 md:col-6 flex flex-column gap-1">
+                        <label class="text-sm">Email</label>
+                        <input pInputText [(ngModel)]="legalGuardians[$index].email"
+                               [name]="'g_email_' + $index"
+                               placeholder="email@exemplo.com" class="w-full" />
+                    </div>
+                </div>
+            </div>
+            }
+            @if (legalGuardians.length < 2) {
+            <button pButton label="Adicionar Responsável" icon="pi pi-plus"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="addLegalGuardian()">
+            </button>
+            }
+        </div>
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancelar" icon="pi pi-times"
+                    class="p-button-outlined p-button-secondary"
+                    [disabled]="legalGuardiansLoading()"
+                    (click)="legalGuardiansDialogVisible = false">
+            </button>
+            <button pButton label="Guardar" icon="pi pi-check"
+                    [loading]="legalGuardiansLoading()"
+                    [disabled]="legalGuardiansLoading()"
+                    (click)="submitLegalGuardians()">
             </button>
         </ng-template>
     </p-dialog>
@@ -202,6 +354,14 @@
         <!-- Certificados Tab Content -->
         @if (currentView === 'certificates') {
         <scholar-student-certificates-tab [studentId]="studentId"></scholar-student-certificates-tab>
+        }
+
+        <!-- Acesso ao portal Tab Content -->
+        @if (currentView === 'portal-access') {
+        <scholar-student-portal-access-tab
+            [studentId]="studentId"
+            [student]="student$ | async">
+        </scholar-student-portal-access-tab>
         }
     </div>
 </div>

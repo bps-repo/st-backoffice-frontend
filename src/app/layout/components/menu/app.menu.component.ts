@@ -86,6 +86,15 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                         visible: this.hasPermission('lessons.view')
                     },
                     {
+                        label: 'Reuniões',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/schoolar/meetings'],
+                        visible: (
+                            this.hasPermission('automation.manage_workflows')
+                            || this.hasPermission('students.view')
+                        ),
+                    },
+                    {
                         label: 'Avaliações',
                         icon: 'pi pi-fw pi-wallet',
                         routerLink: ['/schoolar/assessments'],

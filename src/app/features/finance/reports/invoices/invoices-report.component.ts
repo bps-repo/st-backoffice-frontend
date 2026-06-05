@@ -53,7 +53,6 @@ export class InvoicesReportComponent implements OnInit {
     readonly documentTypeOptions: SelectItem[] = [
         { label: 'Proforma', value: 'PROFORMA' },
         { label: 'Recibo', value: 'RECEIPT' },
-        { label: 'Relatório', value: 'REPORT' },
         { label: 'Geral', value: 'GENERAL' },
     ];
     readonly paymentStatusOptions: SelectItem[] = [

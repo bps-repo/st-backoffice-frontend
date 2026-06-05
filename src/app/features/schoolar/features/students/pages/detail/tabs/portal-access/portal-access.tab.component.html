@@ -1,0 +1,110 @@
+<!-- src/app/.../tabs/portal-access/portal-access.tab.component.html -->
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="card">
+    <div class="flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="m-0 font-semibold text-lg">Acesso ao portal</h3>
+            <p class="m-0 mt-1 text-sm text-color-secondary">Credenciais de acesso do aluno ao portal estudante.</p>
+        </div>
+        <button pButton icon="pi pi-pencil" label="Atualizar credenciais"
+                class="p-button-outlined"
+                (click)="openDialog()">
+        </button>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Credentials info -->
+    <div class="grid mt-2">
+        <div class="col-12 md:col-4">
+            <div class="flex flex-column gap-1">
+                <span class="text-sm text-color-secondary font-medium">Nome de utilizador</span>
+                <span class="font-semibold">{{ student?.user?.username || '—' }}</span>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <div class="flex flex-column gap-1">
+                <span class="text-sm text-color-secondary font-medium">Telefone</span>
+                <span class="font-semibold">{{ student?.user?.phone || '—' }}</span>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <div class="flex flex-column gap-1">
+                <span class="text-sm text-color-secondary font-medium">Email</span>
+                <span class="font-semibold">{{ student?.user?.email || '—' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Account status -->
+    <div class="flex justify-content-between align-items-center mb-3">
+        <div class="flex align-items-center gap-3">
+            <span class="font-semibold">Estado da conta</span>
+            <p-tag [value]="student?.user?.status || '—'"
+                   [severity]="statusSeverity(student?.user?.status)">
+            </p-tag>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+        @for (action of statusActions; track action.status) {
+        <button pButton
+                [icon]="action.icon"
+                [label]="action.label"
+                [severity]="action.severity"
+                class="p-button-outlined p-button-sm"
+                [loading]="statusUpdating() && student?.user?.status !== action.status"
+                [disabled]="statusUpdating() || student?.user?.status === action.status"
+                (click)="updateAccountStatus(action.status)">
+        </button>
+        }
+    </div>
+</div>
+
+<!-- Update credentials dialog -->
+<p-dialog header="Atualizar credenciais"
+          [(visible)]="dialogVisible"
+          [modal]="true"
+          [style]="{width: '440px'}"
+          [draggable]="false">
+
+    <form [formGroup]="form" class="flex flex-column gap-3 pt-2">
+        <div class="flex flex-column gap-1">
+            <label class="text-sm font-medium" for="username">Nome de utilizador</label>
+            <input pInputText id="username" formControlName="username"
+                   placeholder="joao.silva" class="w-full" />
+        </div>
+
+        <div class="flex flex-column gap-1">
+            <label class="text-sm font-medium" for="phone">Telefone</label>
+            <input pInputText id="phone" formControlName="phone"
+                   placeholder="+244923000000" class="w-full" />
+        </div>
+
+        <div class="flex flex-column gap-1">
+            <label class="text-sm font-medium" for="password">Nova palavra-passe</label>
+            <p-password inputId="password" formControlName="password"
+                        [feedback]="false" [toggleMask]="true"
+                        placeholder="Deixe em branco para não alterar"
+                        styleClass="w-full" inputStyleClass="w-full">
+            </p-password>
+        </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times"
+                class="p-button-outlined p-button-secondary"
+                [disabled]="saving()"
+                (click)="dialogVisible = false">
+        </button>
+        <button pButton label="Guardar" icon="pi pi-check"
+                [loading]="saving()"
+                [disabled]="form.invalid || saving()"
+                (click)="save()">
+        </button>
+    </ng-template>
+</p-dialog>

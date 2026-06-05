@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <p-dialog
     [(visible)]="visible"
     [style]="{ width: '500px' }"
@@ -9,76 +11,98 @@
     [closable]="true"
     (onHide)="resetForm()">
 
-    <div class="grid p-fluid">
-        <div *ngIf="(error$ | async)">{{ (error$ | async) | json }}</div>
+    <form #form="ngForm" class="grid p-fluid">
         <div class="col-12 field">
-            <label for="name" class="font-bold">Nome</label>
+            <label for="name" class="font-bold">Nome <span class="text-red-500">*</span></label>
             <input
                 id="name"
+                name="name"
                 type="text"
                 pInputText
-                [(ngModel)]="center.name"
+                [(ngModel)]="name"
+                #nameRef="ngModel"
                 placeholder="Digite o nome do centro"
-                required>
+                required
+                [class.ng-invalid]="nameRef.invalid && nameRef.touched"
+                [class.ng-dirty]="nameRef.dirty">
+            @if (nameRef.invalid && nameRef.touched) {
+                <small class="text-red-500">Nome é obrigatório.</small>
+            }
+        </div>
+
+        <div class="col-12 field">
+            <label for="province" class="font-bold">Província <span class="text-red-500">*</span></label>
+            <p-dropdown
+                id="province"
+                name="province"
+                [options]="provinceOptions()"
+                [(ngModel)]="provinceName"
+                (ngModelChange)="onProvinceChange($event)"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione a província"
+                [loading]="loadingProvinces()"
+                [showClear]="true"
+                required
+                #provinceRef="ngModel"
+                [class.ng-invalid]="provinceRef.invalid && provinceRef.touched">
+            </p-dropdown>
+            @if (provinceRef.invalid && provinceRef.touched) {
+                <small class="text-red-500">Província é obrigatória.</small>
+            }
+        </div>
+
+        <div class="col-12 field">
+            <label for="municipality" class="font-bold">Município <span class="text-red-500">*</span></label>
+            <p-dropdown
+                id="municipality"
+                name="municipality"
+                [options]="municipalityOptions()"
+                [(ngModel)]="municipalityId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione o município"
+                [loading]="loadingMunicipalities()"
+                [disabled]="!provinceName"
+                [showClear]="true"
+                required
+                #municipalityRef="ngModel"
+                [class.ng-invalid]="municipalityRef.invalid && municipalityRef.touched">
+            </p-dropdown>
+            @if (municipalityRef.invalid && municipalityRef.touched) {
+                <small class="text-red-500">Município é obrigatório.</small>
+            }
+        </div>
+
+        <div class="col-12 field">
+            <label for="phoneNumber" class="font-bold">Telefone <span class="text-red-500">*</span></label>
+            <input
+                id="phoneNumber"
+                name="phoneNumber"
+                type="text"
+                pInputText
+                [(ngModel)]="phone"
+                #phoneNumberRef="ngModel"
+                placeholder="Digite o telefone do centro"
+                required
+                [class.ng-invalid]="phoneNumberRef.invalid && phoneNumberRef.touched"
+                [class.ng-dirty]="phoneNumberRef.dirty">
+            @if (phoneNumberRef.invalid && phoneNumberRef.touched) {
+                <small class="text-red-500">Telefone é obrigatório.</small>
+            }
         </div>
 
         <div class="col-12 field">
             <label for="email" class="font-bold">Email</label>
             <input
                 id="email"
-                type="text"
+                name="email"
+                type="email"
                 pInputText
-                [(ngModel)]="center.email"
-                placeholder="Digite o email do centro"
-                required>
+                [(ngModel)]="email"
+                placeholder="Digite o email do centro">
         </div>
-
-        <div class="col-12 field">
-            <label for="address" class="font-bold">Endereço</label>
-            <textarea
-                id="address"
-                rows="3"
-                pInputTextarea
-                [(ngModel)]="center.address"
-                placeholder="Digite o endereço do centro">
-            </textarea>
-        </div>
-
-        <div class="col-12 field">
-            <label for="phone" class="font-bold">Telefone</label>
-            <input
-                id="phone"
-                type="text"
-                pInputText
-                [(ngModel)]="center.phone"
-                placeholder="Digite o telefone do centro"
-                required>
-        </div>
-
-        <div class="col-12 field">
-            <label for="city" class="font-bold">Cidade</label>
-            <input
-                id="city"
-                type="text"
-                pInputText
-                [(ngModel)]="center.city"
-                placeholder="Digite a cidade do centro"
-                required>
-        </div>
-
-        <div class="col-12 field">
-            <label for="active" class="font-bold">Ativo</label>
-            <p-dropdown
-                id="active"
-                [options]="activeOptions"
-                [(ngModel)]="center.active"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecione o status"
-                [showClear]="true">
-            </p-dropdown>
-        </div>
-    </div>
+    </form>
 
     <ng-template pTemplate="footer">
         <div class="flex justify-content-end">
@@ -93,7 +117,8 @@
                 pButton
                 label="{{(loading$ | async) ? 'Salvando...' : 'Salvar'}}"
                 icon="pi pi-check"
-                (click)="saveCenter()">
+                [disabled]="(loading$ | async) || form.invalid || !municipalityId"
+                (click)="saveCenter(form)">
             </button>
         </div>
     </ng-template>

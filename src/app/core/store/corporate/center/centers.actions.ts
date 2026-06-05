@@ -1,5 +1,5 @@
 import {createActionGroup, emptyProps, props} from "@ngrx/store";
-import {Center, CreateCenter} from "../../../models/corporate/center";
+import {Center, CreateCenter, UpdateCenter} from "../../../models/corporate/center";
 
 export const CENTER_FEATURE_KEY = 'Center';
 
@@ -19,7 +19,7 @@ export const CenterActions = createActionGroup(
             'Create Center Success': props<{ center: Center }>(),
             'Create Center Failure': props<{ error: any }>(),
 
-            'Update Center': props<{ id: string, center: Partial<Center> }>(),
+            'Update Center': props<{ id: string, center: UpdateCenter }>(),
             'Update Center Success': props<{ center: Center }>(),
             'Update Center Failure': props<{ error: any }>(),
 

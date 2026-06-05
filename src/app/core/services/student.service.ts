@@ -7,6 +7,8 @@ import {StudentUnitProgress} from 'src/app/core/models/academic/students/student
 import {ApiResponse, PageableResponse} from "../models/ApiResponseService";
 import {map} from "rxjs/operators";
 import {CreateStudentRequest} from "../models/academic/students/create-student-request";
+import {UpdateStudentRequest} from "../models/academic/students/update-student-request";
+import {LegalGuardian} from "../models/academic/students/legal-guardian";
 
 
 @Injectable({
@@ -54,6 +56,12 @@ export class StudentService {
         );
     }
 
+    updateStudentWithRequest(id: string, request: UpdateStudentRequest): Observable<Student> {
+        return this.http.put<ApiResponse<any>>(`${this.apiUrl}/${id}`, request).pipe(
+            map((response) => this.normalizeStudent(response.data))
+        );
+    }
+
     deleteStudent(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
@@ -81,12 +89,40 @@ export class StudentService {
         return this.http.post<any>(`${this.apiUrl}/remove-from-class/${classId}`, {studentId});
     }
 
-    addStudentToCenter(studentId: string, centerId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/add-to-center/${centerId}`, {studentId});
+    manageStudentCenter(
+        studentId: string,
+        centerId: string,
+        action: 'assign' | 'remove',
+    ): Observable<Student> {
+        const params = new HttpParams()
+            .set('centerId', centerId)
+            .set('action', action);
+
+        return this.http.put<ApiResponse<any>>(`${this.apiUrl}/${studentId}/centers`, null, {params}).pipe(
+            map((response) => this.normalizeStudent(response.data)),
+        );
     }
 
-    removeStudentFromCenter(studentId: string, centerId: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/remove-from-center/${centerId}`, {studentId});
+    addStudentToCenter(studentId: string, centerId: string): Observable<Student> {
+        return this.manageStudentCenter(studentId, centerId, 'assign');
+    }
+
+    removeStudentFromCenter(studentId: string, centerId: string): Observable<Student> {
+        return this.manageStudentCenter(studentId, centerId, 'remove');
+    }
+
+    updateLegalGuardians(studentId: string, guardians: LegalGuardian[]): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/${studentId}/legal-guardians`, guardians);
+    }
+
+    updateCredentials(studentId: string, payload: {password?: string; phone?: string; username?: string}): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/${studentId}/credentials`, payload);
+    }
+
+    syncStudentLevel(studentId: string): Observable<Student> {
+        return this.http.post<ApiResponse<any>>(`${this.apiUrl}/${studentId}/sync-level`, {}).pipe(
+            map((response) => this.normalizeStudent(response.data)),
+        );
     }
 
     /**
@@ -244,6 +280,7 @@ export class StudentService {
             province: apiStudent.province ?? apiStudent.user?.province ?? apiStudent.user?.address?.province ?? null,
             municipality: apiStudent.municipality ?? apiStudent.user?.municipality ?? apiStudent.user?.address?.municipality ?? null,
             notes: apiStudent.notes ?? null,
+            legalGuardians: apiStudent.legalGuardians ?? [],
         } as Student;
     }
 }

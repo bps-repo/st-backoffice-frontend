@@ -1,196 +1,217 @@
 <!-- src/app/features/schoolar/features/assessments/pages/create/create.component.html -->
 <p-toast></p-toast>
 
-<div class="grid p-3">
-    <!-- Page header -->
-    <div class="col-12 flex align-items-center gap-3 mb-3">
-        <p-button
-            icon="pi pi-arrow-left"
-            severity="secondary"
-            [text]="true"
-            (onClick)="cancel()"
-            pTooltip="Voltar"
-        ></p-button>
-        <div>
-            <h2 class="font-bold text-2xl mb-1">Nova Avaliação</h2>
-            <span class="text-color-secondary">Preencha os dados da avaliação</span>
+<p-dialog
+    [visible]="dialogVisible()"
+    (onHide)="onDialogHide()"
+    header="Nova Avaliação"
+    [modal]="true"
+    [style]="{ width: '860px', maxWidth: '95vw' }"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="p-fluid"
+>
+    <div class="grid">
+
+        <!-- Title -->
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Título <span class="text-red-500">*</span></label>
+            <input
+                pInputText
+                [(ngModel)]="title"
+                placeholder="Ex: Final Exam – Unit 1"
+            />
         </div>
-    </div>
 
-    <div class="col-12">
-        <p-card>
-            <div class="grid p-fluid">
+        <!-- Assessment Type -->
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Tipo de Avaliação <span class="text-red-500">*</span></label>
+            <p-dropdown
+                [options]="assessmentTypeOptions"
+                [(ngModel)]="assessmentType"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione o tipo"
+                [showClear]="true"
+                appendTo="body"
+            ></p-dropdown>
+        </div>
 
-                <!-- Title -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Título <span class="text-red-500">*</span></label>
-                    <input
-                        pInputText
-                        [(ngModel)]="title"
-                        placeholder="Ex: Final Exam – Unit 1"
-                    />
-                </div>
+        <!-- Description -->
+        <div class="col-12 field">
+            <label class="font-semibold">Descrição</label>
+            <textarea
+                pTextarea
+                [(ngModel)]="description"
+                rows="3"
+                placeholder="Descreva o objetivo da avaliação..."
+                autoResize="true"
+            ></textarea>
+        </div>
 
-                <!-- Assessment Type -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Tipo de Avaliação <span class="text-red-500">*</span></label>
-                    <p-dropdown
-                        [options]="assessmentTypeOptions"
-                        [(ngModel)]="assessmentType"
-                        optionLabel="label"
-                        optionValue="value"
-                        placeholder="Selecione o tipo"
-                        [showClear]="true"
-                    ></p-dropdown>
-                </div>
+        <!-- Evaluation Type -->
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Tipo de Conteúdo <span class="text-red-500">*</span></label>
+            <p-dropdown
+                [options]="evaluationTypeOptions"
+                [ngModel]="evaluationType()"
+                (ngModelChange)="onEvaluationTypeChange($event)"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione"
+                [showClear]="true"
+                appendTo="body"
+            ></p-dropdown>
+        </div>
 
-                <!-- Description -->
-                <div class="col-12 field">
-                    <label class="font-semibold">Descrição</label>
-                    <textarea
-                        pTextarea
-                        [(ngModel)]="description"
-                        rows="3"
-                        placeholder="Descreva o objetivo da avaliação..."
-                        autoResize="true"
-                    ></textarea>
-                </div>
+        <!-- Status -->
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Status <span class="text-red-500">*</span></label>
+            <p-dropdown
+                [options]="statusOptions"
+                [(ngModel)]="status"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Status"
+                appendTo="body"
+            ></p-dropdown>
+        </div>
 
-                <!-- Evaluation Type -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Tipo de Avaliação (Conteúdo) <span class="text-red-500">*</span></label>
-                    <p-dropdown
-                        [options]="evaluationTypeOptions"
-                        [ngModel]="evaluationType()"
-                        (ngModelChange)="onEvaluationTypeChange($event)"
-                        optionLabel="label"
-                        optionValue="value"
-                        placeholder="Selecione"
-                        [showClear]="true"
-                    ></p-dropdown>
-                </div>
+        <!-- Passing Score -->
+        <div class="col-12 md:col-6 field">
+            <label class="font-semibold">Nota mínima de aprovação</label>
+            <p-inputNumber
+                [(ngModel)]="passingScore"
+                [min]="0"
+                [max]="100"
+                suffix=" pts"
+            ></p-inputNumber>
+        </div>
 
-                <!-- Status -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Status <span class="text-red-500">*</span></label>
-                    <p-dropdown
-                        [options]="statusOptions"
-                        [(ngModel)]="status"
-                        optionLabel="label"
-                        optionValue="value"
-                        placeholder="Status"
-                    ></p-dropdown>
-                </div>
+        <!-- Shared date -->
+        <div class="col-12 md:col-4 field">
+            <label class="font-semibold">Data <span class="text-red-500">*</span></label>
+            <p-datepicker
+                [(ngModel)]="sharedDate"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                placeholder="dd/mm/aaaa"
+                appendTo="body"
+            ></p-datepicker>
+        </div>
 
-                <!-- Passing Score -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Nota mínima de aprovação</label>
-                    <p-inputNumber
-                        [(ngModel)]="passingScore"
-                        [min]="0"
-                        [max]="100"
-                        suffix=" pts"
-                    ></p-inputNumber>
-                </div>
+        <!-- Start time -->
+        <div class="col-12 md:col-4 field">
+            <label class="font-semibold">Hora de início <span class="text-red-500">*</span></label>
+            <p-datepicker
+                [(ngModel)]="startTime"
+                [timeOnly]="true"
+                hourFormat="24"
+                placeholder="hh:mm"
+                appendTo="body"
+            ></p-datepicker>
+        </div>
 
-                <!-- Start datetime -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Data/Hora de início <span class="text-red-500">*</span></label>
-                    <p-datepicker
-                        [(ngModel)]="startDatetime"
-                        [showIcon]="true"
-                        [showTime]="true"
-                        hourFormat="24"
-                        dateFormat="dd/mm/yy"
-                        placeholder="dd/mm/aaaa hh:mm"
-                    ></p-datepicker>
-                </div>
+        <!-- End time -->
+        <div class="col-12 md:col-4 field">
+            <label class="font-semibold">Hora de término <span class="text-red-500">*</span></label>
+            <p-datepicker
+                [(ngModel)]="endTime"
+                [timeOnly]="true"
+                hourFormat="24"
+                placeholder="hh:mm"
+                appendTo="body"
+            ></p-datepicker>
+        </div>
 
-                <!-- End datetime -->
-                <div class="col-12 md:col-6 field">
-                    <label class="font-semibold">Data/Hora de término <span class="text-red-500">*</span></label>
-                    <p-datepicker
-                        [(ngModel)]="endDatetime"
-                        [showIcon]="true"
-                        [showTime]="true"
-                        hourFormat="24"
-                        dateFormat="dd/mm/yy"
-                        placeholder="dd/mm/aaaa hh:mm"
-                    ></p-datepicker>
-                </div>
+        <!-- Skills multi-selector — only when evaluationType = SKILLS -->
+        @if (isSkillsMode()) {
+            <div class="col-12 field">
+                <label class="font-semibold">Habilidades avaliadas <span class="text-red-500">*</span></label>
+                <p-multiSelect
+                    [options]="skillOptions()"
+                    [(ngModel)]="selectedSkillIds"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecione as habilidades"
+                    display="chip"
+                    [filter]="true"
+                    filterPlaceholder="Buscar habilidade..."
+                    [resetFilterOnHide]="true"
+                    appendTo="body"
+                    (onFilter)="onSkillFilter($event)"
+                >
+                    <ng-template pTemplate="footer">
+                        @if (showCreateSkillButton()) {
+                            <div class="px-3 py-2 flex align-items-center gap-2 border-top-1 surface-border">
+                                <span class="text-sm text-color-secondary flex-shrink-0">Criar habilidade:</span>
+                                <p-button
+                                    [label]="skillFilterValue()"
+                                    icon="pi pi-plus"
+                                    size="small"
+                                    [loading]="creatingSkill()"
+                                    (onClick)="createSkillInline()"
+                                    styleClass="p-button-text"
+                                ></p-button>
+                            </div>
+                        }
+                    </ng-template>
+                </p-multiSelect>
+            </div>
+        }
 
-                <!-- Skills multi-selector — only when evaluationType = SKILLS -->
-                @if (isSkillsMode()) {
-                    <div class="col-12 field">
-                        <label class="font-semibold">Habilidades avaliadas <span class="text-red-500">*</span></label>
-                        <p-multiSelect
-                            [options]="skillOptions()"
-                            [(ngModel)]="selectedSkillIds"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Selecione as habilidades"
-                            display="chip"
-                            [filter]="true"
-                            filterPlaceholder="Buscar habilidade..."
-                        ></p-multiSelect>
-                    </div>
-                }
-
-                <!-- Units mode: level first, then filtered units -->
-                @if (isUnitsMode()) {
-                    <div class="col-12 md:col-6 field">
-                        <label class="font-semibold">Nível <span class="text-red-500">*</span></label>
-                        <p-dropdown
-                            [options]="levelOptions()"
-                            [ngModel]="selectedLevelId()"
-                            (ngModelChange)="onLevelChange($event)"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Selecione o nível"
-                            [showClear]="true"
-                            [filter]="true"
-                            filterPlaceholder="Buscar nível..."
-                        ></p-dropdown>
-                    </div>
-
-                    @if (hasLevelSelected()) {
-                        <div class="col-12 field">
-                            <label class="font-semibold">Unidades avaliadas <span class="text-red-500">*</span></label>
-                            <p-multiSelect
-                                [options]="filteredUnitOptions()"
-                                [(ngModel)]="selectedEvaluatedUnitIds"
-                                optionLabel="label"
-                                optionValue="value"
-                                placeholder="Selecione as unidades avaliadas"
-                                display="chip"
-                                [filter]="true"
-                                filterPlaceholder="Buscar unidade..."
-                            ></p-multiSelect>
-                        </div>
-                    }
-                }
-
+        <!-- Units mode: level first, then filtered units -->
+        @if (isUnitsMode()) {
+            <div class="col-12 md:col-6 field">
+                <label class="font-semibold">Nível <span class="text-red-500">*</span></label>
+                <p-dropdown
+                    [options]="levelOptions()"
+                    [ngModel]="selectedLevelId()"
+                    (ngModelChange)="onLevelChange($event)"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecione o nível"
+                    [showClear]="true"
+                    [filter]="true"
+                    filterPlaceholder="Buscar nível..."
+                    appendTo="body"
+                ></p-dropdown>
             </div>
 
-            <!-- Actions -->
-            <ng-template pTemplate="footer">
-                <div class="flex justify-content-end gap-2">
-                    <p-button
-                        label="Cancelar"
-                        icon="pi pi-times"
-                        severity="secondary"
-                        [outlined]="true"
-                        (onClick)="cancel()"
-                    ></p-button>
-                    <p-button
-                        label="Salvar Avaliação"
-                        icon="pi pi-check"
-                        [loading]="loading()"
-                        [disabled]="!isFormValid()"
-                        (onClick)="save()"
-                    ></p-button>
+            @if (hasLevelSelected()) {
+                <div class="col-12 field">
+                    <label class="font-semibold">Unidades avaliadas <span class="text-red-500">*</span></label>
+                    <p-multiSelect
+                        [options]="filteredUnitOptions()"
+                        [(ngModel)]="selectedEvaluatedUnitIds"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecione as unidades avaliadas"
+                        display="chip"
+                        [filter]="true"
+                        filterPlaceholder="Buscar unidade..."
+                        appendTo="body"
+                    ></p-multiSelect>
                 </div>
-            </ng-template>
-        </p-card>
+            }
+        }
+
     </div>
-</div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="close()"
+        ></p-button>
+        <p-button
+            label="Salvar Avaliação"
+            icon="pi pi-check"
+            [loading]="loading()"
+            [disabled]="!isFormValid()"
+            (onClick)="save()"
+        ></p-button>
+    </ng-template>
+</p-dialog>

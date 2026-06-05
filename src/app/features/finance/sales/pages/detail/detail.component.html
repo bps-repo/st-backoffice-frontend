@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="grid">
     @let loading = (loading$ | async) ?? false;
     <!-- Loading State -->
@@ -21,12 +23,13 @@
                 </div>
             </div>
             <div class="flex gap-3">
-                <button pButton label="Editar" icon="pi pi-pencil"
-                    class="p-button-outlined" (click)="editSale()"></button>
-                <button pButton label="Segunda Via Fatura" icon="pi pi-file-pdf"
-                    class="p-button-danger" (click)="downloadInvoice()"></button>
-                <button pButton label="Segunda Via Recibo" icon="pi pi-receipt"
-                    class="p-button-primary" (click)="downloadReceipt()"></button>
+                @if (canRegisterPayment) {
+                <button pButton label="Registar Pagamento" icon="pi pi-money-bill"
+                    class="p-button-success" (click)="openPaymentDialog()"></button>
+                }
+                <button pButton label="Emitir Recibo" icon="pi pi-receipt"
+                    class="p-button-primary" [loading]="issuingReceipt" [disabled]="issuingReceipt"
+                    (click)="issueReceipt()"></button>
             </div>
         </div>
 
@@ -94,17 +97,19 @@
                                 <span class="text-900 font-bold text-blue-600">{{ sale.amount | currency:'Kz':'symbol':'1.2-2' }}</span>
                             </div>
                         </div>
+                        @if (sale.paymentMethod) {
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Método de Pagamento</label>
-                                <span class="text-900">{{ sale.paymentSchedule || '-' }}</span>
+                                <span class="text-900">{{ sale.paymentMethod | paymentMethodLabel }}</span>
                             </div>
                         </div>
+                        }
                     </div>
                 </div>
 
-                <!-- Change History -->
-                <div class="card">
+                <!-- Invoice Items -->
+                <div class="card mb-4">
                     <h3 class="text-xl font-semibold mb-4">Itens da Fatura</h3>
                     <p-table [value]="sale.items" styleClass="p-datatable-sm">
                         <ng-template pTemplate="header">
@@ -123,6 +128,34 @@
                                 <td>{{ item.unitPrice | currency:'Kz':'symbol':'1.2-2' }}</td>
                                 <td>{{ item.discountAmount | currency:'Kz':'symbol':'1.2-2' }}</td>
                                 <td>{{ item.totalAmount | currency:'Kz':'symbol':'1.2-2' }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Payments -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-4">Pagamentos</h3>
+                    <p-table [value]="payments" [loading]="loadingPayments" styleClass="p-datatable-sm">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Data</th>
+                                <th>Método</th>
+                                <th>Valor</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-payment>
+                            <tr>
+                                <td>{{ formatDate(payment.paymentDate) }}</td>
+                                <td>{{ payment.paymentMethod | paymentMethodLabel }}</td>
+                                <td>{{ payment.amount | currency:'Kz':'symbol':'1.2-2' }}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="3" class="text-center text-600 py-4">
+                                    Nenhum pagamento registado.
+                                </td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -150,6 +183,14 @@
                         <div class="flex justify-content-between align-items-center">
                             <span class="text-600">Total:</span>
                             <span class="text-900 font-bold text-blue-600">{{ sale.amount | currency:'Kz':'symbol':'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Valor Pago:</span>
+                            <span class="text-900 font-medium">{{ sale.paidAmount | currency:'Kz':'symbol':'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Valor Pendente:</span>
+                            <span class="text-900 font-medium">{{ sale.pendingAmount | currency:'Kz':'symbol':'1.2-2' }}</span>
                         </div>
                     </div>
                 </div>
@@ -185,8 +226,9 @@
                             class="p-button-outlined w-full" (click)="downloadProof()"></button>
                         <button pButton label="Enviar Fatura por Email" icon="pi pi-envelope"
                             class="p-button-outlined w-full" (click)="sendInvoiceByEmail()"></button>
-                        <button pButton label="Imprimir Recibo" icon="pi pi-print"
-                            class="p-button-outlined w-full" (click)="printReceipt()"></button>
+                        <button pButton label="Emitir Recibo" icon="pi pi-receipt"
+                            class="p-button-outlined w-full" [loading]="issuingReceipt"
+                            [disabled]="issuingReceipt" (click)="issueReceipt()"></button>
                     </div>
                 </div>
             </div>
@@ -207,3 +249,40 @@
     </div>
     }
 </div>
+
+<p-dialog header="Registar Pagamento" [(visible)]="showPaymentDialog" [modal]="true"
+    [style]="{ width: '500px' }" [draggable]="false" [resizable]="false" (onHide)="closePaymentDialog()">
+    @if (sale) {
+    <div class="flex flex-column gap-4">
+        <div class="flex justify-content-between align-items-center">
+            <span class="text-600">Fatura</span>
+            <span class="font-medium">#{{ sale.invoiceNumber }}</span>
+        </div>
+        <div class="flex justify-content-between align-items-center">
+            <span class="text-600">Valor pendente</span>
+            <span class="font-bold text-blue-600">{{ sale.pendingAmount | currency:'Kz':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <div>
+            <label class="block text-600 font-medium mb-2">Método de Pagamento *</label>
+            <p-dropdown [options]="paymentMethodOptions" [(ngModel)]="paymentMethod"
+                optionLabel="label" optionValue="value" placeholder="Selecione o método"
+                class="w-full"></p-dropdown>
+        </div>
+
+        <div>
+            <label class="block text-600 font-medium mb-2">Valor *</label>
+            <p-inputNumber [(ngModel)]="paymentAmount" [min]="0.01" [maxFractionDigits]="2"
+                [minFractionDigits]="2" class="w-full"></p-inputNumber>
+        </div>
+
+        <div class="flex justify-content-end gap-2">
+            <button pButton type="button" label="Cancelar" class="p-button-outlined"
+                [disabled]="paymentSubmitting" (click)="closePaymentDialog()"></button>
+            <button pButton type="button" label="Registar Pagamento" icon="pi pi-check"
+                [loading]="paymentSubmitting" [disabled]="paymentSubmitting"
+                (click)="registerPayment()"></button>
+        </div>
+    </div>
+    }
+</p-dialog>

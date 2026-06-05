@@ -1,4 +1,4 @@
-export type FinanceInvoiceDocumentType = 'PROFORMA' | 'RECEIPT' | 'REPORT' | 'GENERAL';
+export type FinanceInvoiceDocumentType = 'PROFORMA' | 'RECEIPT' | 'GENERAL';
 
 export type FinanceInvoicePaymentStatus = 'PENDING' | 'PARTIALLY_PAID' | 'PAID';
 

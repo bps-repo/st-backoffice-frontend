@@ -54,7 +54,7 @@ export class CentersEffects {
             mergeMap(({center}) =>
                 this.centerService.createCenter(center).pipe(
                     map((createdCenter) => CenterActions.createCenterSuccess({center: createdCenter})),
-                    catchError((error: HttpErrorResponse) => of(CenterActions.createCenterFailure({error: error.message})))
+                    catchError((error: HttpErrorResponse) => of(CenterActions.createCenterFailure({error})))
                 )
             )
         )
@@ -66,7 +66,7 @@ export class CentersEffects {
             mergeMap(({id, center}) =>
                 this.centerService.updateCenter(id, center).pipe(
                     map((updatedCenter) => CenterActions.updateCenterSuccess({center: updatedCenter})),
-                    catchError((error: HttpErrorResponse) => of(CenterActions.updateCenterFailure({error: error.message})))
+                    catchError((error: HttpErrorResponse) => of(CenterActions.updateCenterFailure({error})))
                 )
             )
         )

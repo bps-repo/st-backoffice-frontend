@@ -94,6 +94,7 @@ export const CenterFeature = createFeature({
             changes: center
         }, {
             ...state,
+            selectedCenter: state.selectedCenter?.id === center.id ? center : state.selectedCenter,
             loadingUpdate: false,
             errorUpdate: null
         })),

@@ -10,7 +10,7 @@ import {DropdownModule} from 'primeng/dropdown';
 import {BadgeModule} from 'primeng/badge';
 import {TooltipModule} from 'primeng/tooltip';
 import {DividerModule} from 'primeng/divider';
-import {OverlayPanelModule} from 'primeng/overlaypanel';
+import {PopoverModule} from 'primeng/popover';
 import {Subject, takeUntil, switchMap, of, catchError} from 'rxjs';
 import {LessonService} from 'src/app/core/services/lessons/lesson.service';
 import {StudentBooking, BookingStatus} from 'src/app/core/models/academic/student-booking';
@@ -31,7 +31,7 @@ import { Router } from '@angular/router';
         BadgeModule,
         TooltipModule,
         DividerModule,
-        OverlayPanelModule,
+        PopoverModule,
     ],
     templateUrl: 'lessons.tab.component.html',
 })

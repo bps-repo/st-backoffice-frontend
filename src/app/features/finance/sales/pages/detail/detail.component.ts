@@ -1,18 +1,33 @@
-import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TableModule } from 'primeng/table';
-import { InvoiceDetail } from 'src/app/core/models/invoice/invoice.model';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ToastModule } from 'primeng/toast';
+import {
+    InvoiceDetail,
+    InvoicePayment,
+    INVOICE_PAYMENT_METHOD_OPTIONS,
+    getInvoiceDocumentTypeLabel,
+} from 'src/app/core/models/invoice/invoice.model';
+import { PaymentMethod } from 'src/app/core/models/payment/installment';
+import { InvoiceService } from 'src/app/core/services/invoice.service';
 import { SalesActions } from 'src/app/core/store/finance/sales/sales.actions';
 import { selectSalesDetailError, selectSalesDetailLoading, selectSelectedSale } from 'src/app/core/store/finance/sales/sales.selectors';
+import { PaymentMethodLabelPipe } from 'src/app/shared/pipes/payment-method-label.pipe';
+import { ShowToastErrorService } from 'src/app/shared/services/show-toast-error-service';
 
 @Component({
     selector: 'app-sale-detail',
@@ -24,14 +39,23 @@ import { selectSalesDetailError, selectSalesDetailLoading, selectSelectedSale } 
         TagModule,
         TooltipModule,
         ProgressSpinnerModule,
-        TableModule
+        TableModule,
+        DialogModule,
+        DropdownModule,
+        InputNumberModule,
+        ToastModule,
+        FormsModule,
+        PaymentMethodLabelPipe,
     ],
-    templateUrl: './detail.component.html'
+    providers: [MessageService],
+    templateUrl: './detail.component.html',
 })
 export class DetailComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private readonly store = inject(Store);
+    private invoiceService = inject(InvoiceService);
+    private messageService = inject(MessageService);
     private cdr = inject(ChangeDetectorRef);
 
     /** NgRx — `selectSalesDetailLoading`. */
@@ -40,6 +64,16 @@ export class DetailComponent implements OnInit, OnDestroy {
     saleId: string | null = null;
     sale: InvoiceDetail | null = null;
     error: string | null = null;
+
+    showPaymentDialog = false;
+    paymentSubmitting = false;
+    issuingReceipt = false;
+    loadingPayments = false;
+    paymentMethod: PaymentMethod | null = PaymentMethod.CASH;
+    paymentAmount: number | null = null;
+    payments: InvoicePayment[] = [];
+
+    readonly paymentMethodOptions = INVOICE_PAYMENT_METHOD_OPTIONS;
 
     private destroy$ = new Subject<void>();
 
@@ -62,6 +96,7 @@ export class DetailComponent implements OnInit, OnDestroy {
             this.saleId = params['id'];
             if (this.saleId) {
                 this.loadSaleDetails();
+                this.loadPayments();
             }
             this.cdr.markForCheck();
         });
@@ -75,6 +110,27 @@ export class DetailComponent implements OnInit, OnDestroy {
     loadSaleDetails(): void {
         if (!this.saleId) return;
         this.store.dispatch(SalesActions.loadSaleDetails({ id: this.saleId }));
+    }
+
+    loadPayments(): void {
+        if (!this.saleId) return;
+
+        this.loadingPayments = true;
+        this.invoiceService
+            .getInvoicePayments(this.saleId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: ({ data }) => {
+                    this.payments = data ?? [];
+                    this.loadingPayments = false;
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    this.loadingPayments = false;
+                    ShowToastErrorService.showToastError('Erro ao carregar pagamentos', error, this.messageService);
+                    this.cdr.detectChanges();
+                },
+            });
     }
 
     getStatusSeverity(status: string): string {
@@ -127,38 +183,11 @@ export class DetailComponent implements OnInit, OnDestroy {
     }
 
     formatDocumentType(type: string): string {
-        switch ((type || '').toUpperCase()) {
-            case 'GENERAL':
-                return 'Serviço';
-            case 'BOOK':
-                return 'Livro';
-            case 'CERTIFICATE':
-                return 'Certificado';
-            case 'DECLARATION':
-                return 'Declaração';
-            default:
-                return type;
-        }
+        return getInvoiceDocumentTypeLabel(type);
     }
 
     goBack(): void {
         this.router.navigate(['/finances/sales']);
-    }
-
-    editSale(): void {
-        if (this.saleId) {
-            this.router.navigate(['/finances/sales', this.saleId, 'edit']);
-        }
-    }
-
-    downloadInvoice(): void {
-        console.log('Downloading invoice for sale:', this.saleId);
-        // Implementation for downloading invoice
-    }
-
-    downloadReceipt(): void {
-        console.log('Downloading receipt for sale:', this.saleId);
-        // Implementation for downloading receipt
     }
 
     downloadProof(): void {
@@ -171,8 +200,91 @@ export class DetailComponent implements OnInit, OnDestroy {
         // Implementation for sending invoice by email
     }
 
-    printReceipt(): void {
-        console.log('Printing receipt for sale:', this.saleId);
-        // Implementation for printing receipt
+    issueReceipt(): void {
+        if (!this.saleId || this.issuingReceipt) return;
+
+        this.issuingReceipt = true;
+        this.cdr.detectChanges();
+
+        this.invoiceService
+            .issueInvoiceReceipt(this.saleId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.issuingReceipt = false;
+                    this.messageService.add({
+                        life: 5000,
+                        severity: 'success',
+                        summary: 'Sucesso',
+                        detail: 'Recibo emitido com sucesso.',
+                    });
+                    this.loadSaleDetails();
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    this.issuingReceipt = false;
+                    ShowToastErrorService.showToastError('Erro ao emitir recibo', error, this.messageService);
+                    this.cdr.detectChanges();
+                },
+            });
+    }
+
+    get canRegisterPayment(): boolean {
+        return !!this.sale && !this.sale.paid && (this.sale.pendingAmount ?? 0) > 0;
+    }
+
+    openPaymentDialog(): void {
+        if (!this.sale) return;
+
+        this.paymentMethod = (this.sale.paymentMethod as PaymentMethod) || PaymentMethod.CASH;
+        this.paymentAmount = this.sale.pendingAmount ?? this.sale.amount ?? 0;
+        this.showPaymentDialog = true;
+    }
+
+    closePaymentDialog(): void {
+        this.showPaymentDialog = false;
+        this.paymentSubmitting = false;
+    }
+
+    registerPayment(): void {
+        if (!this.saleId || !this.paymentMethod || this.paymentAmount == null || this.paymentAmount < 0.01) {
+            this.messageService.add({
+                life: 5000,
+                severity: 'error',
+                summary: 'Validação',
+                detail: 'Selecione o método de pagamento e informe um valor mínimo de 0,01.',
+            });
+            return;
+        }
+
+        this.paymentSubmitting = true;
+        this.cdr.detectChanges();
+
+        this.invoiceService
+            .createInvoicePayment(this.saleId, {
+                paymentMethod: this.paymentMethod,
+                amount: this.paymentAmount,
+            })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.paymentSubmitting = false;
+                    this.showPaymentDialog = false;
+                    this.messageService.add({
+                        life: 5000,
+                        severity: 'success',
+                        summary: 'Sucesso',
+                        detail: 'Pagamento registado com sucesso.',
+                    });
+                    this.loadSaleDetails();
+                    this.loadPayments();
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    this.paymentSubmitting = false;
+                    ShowToastErrorService.showToastError('Erro ao registar pagamento', error, this.messageService);
+                    this.cdr.detectChanges();
+                },
+            });
     }
 }
