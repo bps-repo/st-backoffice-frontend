@@ -3,7 +3,8 @@ import {Component, OnInit, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {take} from 'rxjs';
+import {forkJoin, of, take} from 'rxjs';
+import {filter} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {DropdownModule} from 'primeng/dropdown';
@@ -15,12 +16,9 @@ import {MessageService} from 'primeng/api';
 import {StudentsActions} from '../../../../../../core/store/schoolar/students/students.actions';
 import {selectStudentById} from '../../../../../../core/store/schoolar/students/students.selectors';
 import {StudentService} from '../../../../../../core/services/student.service';
-import {LevelService} from '../../../../../../core/services/level.service';
-import {CenterService} from '../../../../../../core/services/center.service';
+import {UserManagementService} from '../../../../../../core/services/user-management.service';
 import {UpdateStudentRequest} from '../../../../../../core/models/academic/students/update-student-request';
-import {StudentStatus} from '../../../../../../core/models/academic/students/student';
-import {Level} from '../../../../../../core/models/course/level';
-import {Center} from '../../../../../../core/models/corporate/center';
+import {UpdateUserRequest} from '../../../../../../core/models/update-user-request';
 
 @Component({
     selector: 'app-edit',
@@ -44,20 +42,15 @@ export class EditComponent implements OnInit {
     private router = inject(Router);
     private store$ = inject(Store);
     private studentService = inject(StudentService);
-    private levelService = inject(LevelService);
-    private centerService = inject(CenterService);
+    private userManagementService = inject(UserManagementService);
     private messageService = inject(MessageService);
 
     studentId!: string;
-    loading = signal(false);
+    private userId!: string;
     saving = signal(false);
 
-    form: UpdateStudentRequest = {
+    studentForm: UpdateStudentRequest = {
         enrollmentDate: undefined,
-        status: undefined,
-        centerId: undefined,
-        levelId: undefined,
-        levelProgressPercentage: undefined,
         emergencyContactName: null,
         emergencyContactNumber: null,
         emergencyContactRelationship: null,
@@ -67,12 +60,23 @@ export class EditComponent implements OnInit {
         notes: null,
     };
 
+    userForm: UpdateUserRequest = {
+        firstname: undefined,
+        lastname: undefined,
+        email: undefined,
+        phone: undefined,
+        gender: undefined,
+        birthdate: undefined,
+    };
+
     enrollmentDateModel: Date | null = null;
+    birthdateModel: Date | null = null;
 
-    levels: Level[] = [];
-    centers: Center[] = [];
-
-    readonly statusOptions = Object.values(StudentStatus).map(v => ({label: v, value: v}));
+    readonly genderOptions = [
+        {label: 'Masculino', value: 'MALE'},
+        {label: 'Feminino', value: 'FEMALE'},
+        {label: 'Outro', value: 'OTHER'},
+    ];
 
     readonly academicBackgroundOptions = [
         {label: 'Ensino Primário', value: 'PRIMARY_SCHOOL'},
@@ -89,15 +93,13 @@ export class EditComponent implements OnInit {
             this.store$.dispatch(StudentsActions.loadStudent({id: this.studentId}));
 
             this.store$.select(selectStudentById(this.studentId))
-                .pipe(take(2))
+                .pipe(filter(Boolean), take(1))
                 .subscribe(student => {
-                    if (!student) return;
-                    this.form = {
+
+                    this.userId = student.user?.id;
+
+                    this.studentForm = {
                         enrollmentDate: student.enrollmentDate,
-                        status: student.status,
-                        centerId: student.center?.id,
-                        levelId: student.level?.id,
-                        levelProgressPercentage: student.levelProgressPercentage,
                         emergencyContactName: student.emergencyContactName ?? null,
                         emergencyContactNumber: student.emergencyContactNumber ?? null,
                         emergencyContactRelationship: student.emergencyContactRelationship ?? null,
@@ -106,30 +108,45 @@ export class EditComponent implements OnInit {
                         municipality: student.municipality ?? null,
                         notes: student.notes ?? null,
                     };
+
+                    this.userForm = {
+                        firstname: student.user?.firstname,
+                        lastname: student.user?.lastname,
+                        email: student.user?.email,
+                        phone: student.user?.phone,
+                        gender: student.user?.gender,
+                        birthdate: student.user?.birthdate,
+                    };
+
                     this.enrollmentDateModel = student.enrollmentDate
                         ? new Date(student.enrollmentDate)
                         : null;
+
+                    this.birthdateModel = student.user?.birthdate
+                        ? new Date(student.user.birthdate)
+                        : null;
                 });
-        });
-
-        this.levelService.getLevels().pipe(take(1)).subscribe(levels => {
-            this.levels = levels;
-        });
-
-        this.centerService.getAllCenters().pipe(take(1)).subscribe(centers => {
-            this.centers = centers;
         });
     }
 
-    onDateChange(date: Date | null): void {
-        this.form.enrollmentDate = date ? date.toISOString().split('T')[0] : undefined;
+    onEnrollmentDateChange(date: Date | null): void {
+        this.studentForm.enrollmentDate = date ? date.toISOString().split('T')[0] : undefined;
+    }
+
+    onBirthdateChange(date: Date | null): void {
+        this.userForm.birthdate = date ? date.toISOString().split('T')[0] : undefined;
     }
 
     save(): void {
         if (this.saving()) return;
         this.saving.set(true);
 
-        this.studentService.updateStudentWithRequest(this.studentId, this.form)
+        const student$ = this.studentService.updateStudentWithRequest(this.studentId, this.studentForm);
+        const user$ = this.userId
+            ? this.userManagementService.patchUser(this.userId, this.userForm)
+            : of(null);
+
+        forkJoin([student$, user$])
             .pipe(take(1))
             .subscribe({
                 next: () => {

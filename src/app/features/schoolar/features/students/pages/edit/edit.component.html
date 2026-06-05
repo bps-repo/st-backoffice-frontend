@@ -23,25 +23,70 @@
         </div>
     </div>
 
-    <!-- Enrollment & Status -->
+    <!-- Personal Data -->
     <div class="col-12 mt-3">
         <div class="card">
-            <h3 class="text-lg font-semibold mb-4">Informações de Matrícula</h3>
+            <h3 class="text-lg font-semibold mb-4">Dados Pessoais</h3>
             <div class="grid">
-                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
-                    <label class="text-sm font-medium">Estado</label>
-                    <p-dropdown [options]="statusOptions"
-                                [(ngModel)]="form.status"
-                                name="status"
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Nome</label>
+                    <input pInputText [(ngModel)]="userForm.firstname" name="firstname"
+                           placeholder="Nome" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Apelido</label>
+                    <input pInputText [(ngModel)]="userForm.lastname" name="lastname"
+                           placeholder="Apelido" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Email</label>
+                    <input pInputText [(ngModel)]="userForm.email" name="email"
+                           placeholder="email@exemplo.com" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Telefone</label>
+                    <input pInputText [(ngModel)]="userForm.phone" name="phone"
+                           placeholder="+244 9XX XXX XXX" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Género</label>
+                    <p-dropdown [options]="genderOptions"
+                                [(ngModel)]="userForm.gender"
+                                name="gender"
                                 optionLabel="label"
                                 optionValue="value"
-                                placeholder="Selecionar estado"
+                                placeholder="Selecionar género"
                                 styleClass="w-full"
                                 appendTo="body">
                     </p-dropdown>
                 </div>
 
-                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
+                <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
+                    <label class="text-sm font-medium">Data de Nascimento</label>
+                    <p-calendar [(ngModel)]="birthdateModel"
+                                name="birthdate"
+                                dateFormat="dd/mm/yy"
+                                [showIcon]="true"
+                                styleClass="w-full"
+                                appendTo="body"
+                                (onSelect)="onBirthdateChange($event)"
+                                (onClearClick)="onBirthdateChange(null)">
+                    </p-calendar>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollment -->
+    <div class="col-12">
+        <div class="card">
+            <h3 class="text-lg font-semibold mb-4">Informações de Matrícula</h3>
+            <div class="grid">
+                <div class="col-12 md:col-4 flex flex-column gap-1">
                     <label class="text-sm font-medium">Data de Matrícula</label>
                     <p-calendar [(ngModel)]="enrollmentDateModel"
                                 name="enrollmentDate"
@@ -49,39 +94,9 @@
                                 [showIcon]="true"
                                 styleClass="w-full"
                                 appendTo="body"
-                                (onSelect)="onDateChange($event)"
-                                (onClearClick)="onDateChange(null)">
+                                (onSelect)="onEnrollmentDateChange($event)"
+                                (onClearClick)="onEnrollmentDateChange(null)">
                     </p-calendar>
-                </div>
-
-                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
-                    <label class="text-sm font-medium">Centro</label>
-                    <p-dropdown [options]="centers"
-                                [(ngModel)]="form.centerId"
-                                name="centerId"
-                                optionLabel="name"
-                                optionValue="id"
-                                placeholder="Selecionar centro"
-                                styleClass="w-full"
-                                appendTo="body"
-                                [filter]="true"
-                                filterPlaceholder="Pesquisar">
-                    </p-dropdown>
-                </div>
-
-                <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-1">
-                    <label class="text-sm font-medium">Nível</label>
-                    <p-dropdown [options]="levels"
-                                [(ngModel)]="form.levelId"
-                                name="levelId"
-                                optionLabel="name"
-                                optionValue="id"
-                                placeholder="Selecionar nível"
-                                styleClass="w-full"
-                                appendTo="body"
-                                [filter]="true"
-                                filterPlaceholder="Pesquisar">
-                    </p-dropdown>
                 </div>
             </div>
         </div>
@@ -95,7 +110,7 @@
                 <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
                     <label class="text-sm font-medium">Formação Académica</label>
                     <p-dropdown [options]="academicBackgroundOptions"
-                                [(ngModel)]="form.academicBackground"
+                                [(ngModel)]="studentForm.academicBackground"
                                 name="academicBackground"
                                 optionLabel="label"
                                 optionValue="value"
@@ -107,19 +122,19 @@
 
                 <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
                     <label class="text-sm font-medium">Província</label>
-                    <input pInputText [(ngModel)]="form.province" name="province"
+                    <input pInputText [(ngModel)]="studentForm.province" name="province"
                            placeholder="Ex: Luanda" class="w-full" />
                 </div>
 
                 <div class="col-12 md:col-6 lg:col-4 flex flex-column gap-1">
                     <label class="text-sm font-medium">Município</label>
-                    <input pInputText [(ngModel)]="form.municipality" name="municipality"
+                    <input pInputText [(ngModel)]="studentForm.municipality" name="municipality"
                            placeholder="Ex: Luanda" class="w-full" />
                 </div>
 
                 <div class="col-12 flex flex-column gap-1">
                     <label class="text-sm font-medium">Notas</label>
-                    <textarea pInputTextarea [(ngModel)]="form.notes" name="notes"
+                    <textarea pInputTextarea [(ngModel)]="studentForm.notes" name="notes"
                               rows="3" placeholder="Observações sobre o aluno…"
                               class="w-full">
                     </textarea>
@@ -135,19 +150,19 @@
             <div class="grid">
                 <div class="col-12 md:col-4 flex flex-column gap-1">
                     <label class="text-sm font-medium">Nome</label>
-                    <input pInputText [(ngModel)]="form.emergencyContactName" name="emergencyContactName"
+                    <input pInputText [(ngModel)]="studentForm.emergencyContactName" name="emergencyContactName"
                            placeholder="Nome completo" class="w-full" />
                 </div>
 
                 <div class="col-12 md:col-4 flex flex-column gap-1">
                     <label class="text-sm font-medium">Telefone</label>
-                    <input pInputText [(ngModel)]="form.emergencyContactNumber" name="emergencyContactNumber"
+                    <input pInputText [(ngModel)]="studentForm.emergencyContactNumber" name="emergencyContactNumber"
                            placeholder="+244 9XX XXX XXX" class="w-full" />
                 </div>
 
                 <div class="col-12 md:col-4 flex flex-column gap-1">
                     <label class="text-sm font-medium">Parentesco</label>
-                    <input pInputText [(ngModel)]="form.emergencyContactRelationship" name="emergencyContactRelationship"
+                    <input pInputText [(ngModel)]="studentForm.emergencyContactRelationship" name="emergencyContactRelationship"
                            placeholder="Ex: Pai, Mãe, Irmão" class="w-full" />
                 </div>
             </div>

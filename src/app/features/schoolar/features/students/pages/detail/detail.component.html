@@ -355,5 +355,13 @@
         @if (currentView === 'certificates') {
         <scholar-student-certificates-tab [studentId]="studentId"></scholar-student-certificates-tab>
         }
+
+        <!-- Acesso ao portal Tab Content -->
+        @if (currentView === 'portal-access') {
+        <scholar-student-portal-access-tab
+            [studentId]="studentId"
+            [student]="student$ | async">
+        </scholar-student-portal-access-tab>
+        }
     </div>
 </div>

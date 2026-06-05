@@ -10,6 +10,7 @@ export interface User {
     gender: string;
     identificationNumber?: string;
     status: UserStatus;
+    username?: string;
 }
 
 export enum UserStatus {

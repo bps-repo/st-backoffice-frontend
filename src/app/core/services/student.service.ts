@@ -115,6 +115,10 @@ export class StudentService {
         return this.http.put<void>(`${this.apiUrl}/${studentId}/legal-guardians`, guardians);
     }
 
+    updateCredentials(studentId: string, payload: {password?: string; phone?: string; username?: string}): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/${studentId}/credentials`, payload);
+    }
+
     syncStudentLevel(studentId: string): Observable<Student> {
         return this.http.post<ApiResponse<any>>(`${this.apiUrl}/${studentId}/sync-level`, {}).pipe(
             map((response) => this.normalizeStudent(response.data)),

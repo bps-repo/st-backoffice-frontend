@@ -34,6 +34,7 @@ import {AvaliacoesComponent} from "./tabs/avaliacoes/avaliacoes.component";
 import {CenterService} from "../../../../../../core/services/center.service";
 import {StudentService} from "../../../../../../core/services/student.service";
 import {LegalGuardian} from "../../../../../../core/models/academic/students/legal-guardian";
+import {StudentPortalAccessTabComponent} from "./tabs/portal-access/portal-access.tab.component";
 
 
 @Component({
@@ -61,6 +62,7 @@ import {LegalGuardian} from "../../../../../../core/models/academic/students/leg
         GeneralComponent,
         StudentCertificatesTabComponent,
         AvaliacoesComponent,
+        StudentPortalAccessTabComponent,
     ],
     providers: [DatePipe, MessageService, ConfirmationService],
     templateUrl: './detail.component.html',
@@ -105,6 +107,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         {label: 'Avaliações', value: 'assessments'},
         {label: 'Contratos', value: 'payments'},
         {label: 'Certificados', value: 'certificates'},
+        {label: 'Acesso ao portal', value: 'portal-access'},
     ];
 
     // Documents menu
