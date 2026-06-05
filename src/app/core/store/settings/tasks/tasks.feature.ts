@@ -7,7 +7,6 @@ export const tasksFeature = createFeature({
   reducer: createReducer(
     initialTasksState,
 
-    // Load Daily Tasks
     on(TasksActions.loadDailyTasks, (state) => ({
       ...state,
       loading: true,
@@ -25,7 +24,36 @@ export const tasksFeature = createFeature({
       error
     })),
 
-    // Clear actions
+    on(TasksActions.runDailyTasks, (state) => ({
+      ...state,
+      loading: true,
+      error: null
+    })),
+    on(TasksActions.runDailyTasksSuccess, (state) => ({
+      ...state,
+      loading: false
+    })),
+    on(TasksActions.runDailyTasksFailure, (state, { error }) => ({
+      ...state,
+      loading: false,
+      error
+    })),
+
+    on(TasksActions.applyTaskAction, (state) => ({
+      ...state,
+      actionLoading: true,
+      error: null
+    })),
+    on(TasksActions.applyTaskActionSuccess, (state, { task }) => tasksAdapter.upsertOne(task, {
+      ...state,
+      actionLoading: false
+    })),
+    on(TasksActions.applyTaskActionFailure, (state, { error }) => ({
+      ...state,
+      actionLoading: false,
+      error
+    })),
+
     on(TasksActions.clearTasks, (state) => tasksAdapter.removeAll({
       ...state,
       lastUpdated: null
@@ -36,4 +64,3 @@ export const tasksFeature = createFeature({
     }))
   )
 });
-

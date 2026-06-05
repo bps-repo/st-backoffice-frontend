@@ -16,6 +16,11 @@ export const selectTasksLoading = createSelector(
   (state: TasksState) => state.loading
 );
 
+export const selectTasksActionLoading = createSelector(
+  selectTasksState,
+  (state: TasksState) => state.actionLoading
+);
+
 export const selectTasksError = createSelector(
   selectTasksState,
   (state: TasksState) => state.error
@@ -33,6 +38,11 @@ export const selectPendingRegistrations = createSelector(
 
 export const selectOverdueInstallments = createSelector(
   selectAllTasks,
-  (tasks) => tasks.filter(task => task.taskType === 'INSTALLMENT_DUE_SOON')
+  (tasks) => tasks.filter(task => task.taskType === 'INSTALLMENT_OVERDUE')
+);
+
+export const selectLongAbsences = createSelector(
+  selectAllTasks,
+  (tasks) => tasks.filter(task => task.taskType === 'LONG_ABSENCE')
 );
 

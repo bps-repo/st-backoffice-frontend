@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, OnInit, ViewChild, inject} from '@an
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from 'primeng/button';
 import {BadgeModule} from 'primeng/badge';
-import {OverlayPanel, OverlayPanelModule} from 'primeng/overlaypanel';
+import {Popover, PopoverModule} from 'primeng/popover';
 import {TooltipModule} from 'primeng/tooltip';
 import {RippleModule} from 'primeng/ripple';
 import {NotificationFacadeService} from '../../../core/services/notification-facade.service';
@@ -12,14 +12,14 @@ import {Notification, NotificationType} from '../../../core/models/notification'
     selector: 'app-notification-panel',
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [CommonModule, ButtonModule, BadgeModule, OverlayPanelModule, TooltipModule, RippleModule],
+    imports: [CommonModule, ButtonModule, BadgeModule, PopoverModule, TooltipModule, RippleModule],
     templateUrl: './notification-panel.component.html',
     styleUrl: './notification-panel.component.scss'
 })
 export class NotificationPanelComponent implements OnInit {
     private facade = inject(NotificationFacadeService);
 
-    @ViewChild('op') overlayPanel!: OverlayPanel;
+    @ViewChild('op') overlayPanel!: Popover;
 
     readonly notifications = this.facade.notifications;
     readonly loading = this.facade.loading;
