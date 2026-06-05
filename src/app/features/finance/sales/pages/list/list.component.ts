@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { BadgeModule } from 'primeng/badge';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { InvoiceListItem } from 'src/app/core/models/invoice/invoice.model';
+import { InvoiceListItem, getInvoiceDocumentTypeLabel } from 'src/app/core/models/invoice/invoice.model';
 import { SalesActions } from 'src/app/core/store/finance/sales/sales.actions';
 import { selectAllSales, selectSalesError, selectSalesLoading } from 'src/app/core/store/finance/sales/sales.selectors';
 
@@ -228,20 +228,7 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     private normalizeType(type: string): string {
-        switch ((type || '').toLowerCase()) {
-            case 'book':
-            case 'livro':
-                return 'Livro';
-            case 'certificate':
-            case 'certificado':
-                return 'Certificado';
-            case 'declaration':
-            case 'declaracao':
-            case 'declaração':
-                return 'Declaração';
-            default:
-                return 'Serviço';
-        }
+        return getInvoiceDocumentTypeLabel(type);
     }
 
     onViewChange(event: any): void {

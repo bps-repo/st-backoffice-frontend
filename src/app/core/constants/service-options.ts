@@ -15,6 +15,16 @@ export const SERVICE_AUDIENCE_TYPE_OPTIONS: { label: string; value: ServiceAudie
     { label: 'Kids', value: ServiceAudienceType.KIDS },
 ];
 
+/** Produtos elegíveis para vendas avulsas (Finanças → Vendas). */
+export const STANDALONE_SALE_CATEGORIES: ServiceCategory[] = [
+    ServiceCategory.MATERIAL,
+    ServiceCategory.GENERAL,
+];
+
+export function isStandaloneSaleProduct(category: ServiceCategory | string | undefined): boolean {
+    return STANDALONE_SALE_CATEGORIES.includes(category as ServiceCategory);
+}
+
 export function getServiceCategoryLabel(category: string | undefined): string {
     return SERVICE_CATEGORY_OPTIONS.find((o) => o.value === category)?.label ?? category ?? '-';
 }

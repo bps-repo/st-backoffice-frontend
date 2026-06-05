@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="grid">
     @let loading = (loading$ | async) ?? false;
     <!-- Loading State -->
@@ -21,6 +23,10 @@
                 </div>
             </div>
             <div class="flex gap-3">
+                @if (canRegisterPayment) {
+                <button pButton label="Registar Pagamento" icon="pi pi-money-bill"
+                    class="p-button-success" (click)="openPaymentDialog()"></button>
+                }
                 <button pButton label="Editar" icon="pi pi-pencil"
                     class="p-button-outlined" (click)="editSale()"></button>
                 <button pButton label="Segunda Via Fatura" icon="pi pi-file-pdf"
@@ -94,12 +100,14 @@
                                 <span class="text-900 font-bold text-blue-600">{{ sale.amount | currency:'Kz':'symbol':'1.2-2' }}</span>
                             </div>
                         </div>
+                        @if (sale.paymentMethod) {
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="block text-600 font-medium mb-2">Método de Pagamento</label>
-                                <span class="text-900">{{ sale.paymentSchedule || '-' }}</span>
+                                <span class="text-900">{{ sale.paymentMethod | paymentMethodLabel }}</span>
                             </div>
                         </div>
+                        }
                     </div>
                 </div>
 
@@ -150,6 +158,14 @@
                         <div class="flex justify-content-between align-items-center">
                             <span class="text-600">Total:</span>
                             <span class="text-900 font-bold text-blue-600">{{ sale.amount | currency:'Kz':'symbol':'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Valor Pago:</span>
+                            <span class="text-900 font-medium">{{ sale.paidAmount | currency:'Kz':'symbol':'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Valor Pendente:</span>
+                            <span class="text-900 font-medium">{{ sale.pendingAmount | currency:'Kz':'symbol':'1.2-2' }}</span>
                         </div>
                     </div>
                 </div>
@@ -207,3 +223,40 @@
     </div>
     }
 </div>
+
+<p-dialog header="Registar Pagamento" [(visible)]="showPaymentDialog" [modal]="true"
+    [style]="{ width: '500px' }" [draggable]="false" [resizable]="false" (onHide)="closePaymentDialog()">
+    @if (sale) {
+    <div class="flex flex-column gap-4">
+        <div class="flex justify-content-between align-items-center">
+            <span class="text-600">Fatura</span>
+            <span class="font-medium">#{{ sale.invoiceNumber }}</span>
+        </div>
+        <div class="flex justify-content-between align-items-center">
+            <span class="text-600">Valor pendente</span>
+            <span class="font-bold text-blue-600">{{ sale.pendingAmount | currency:'Kz':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <div>
+            <label class="block text-600 font-medium mb-2">Método de Pagamento *</label>
+            <p-dropdown [options]="paymentMethodOptions" [(ngModel)]="paymentMethod"
+                optionLabel="label" optionValue="value" placeholder="Selecione o método"
+                class="w-full"></p-dropdown>
+        </div>
+
+        <div>
+            <label class="block text-600 font-medium mb-2">Valor *</label>
+            <p-inputNumber [(ngModel)]="paymentAmount" [min]="0.01" [maxFractionDigits]="2"
+                [minFractionDigits]="2" class="w-full"></p-inputNumber>
+        </div>
+
+        <div class="flex justify-content-end gap-2">
+            <button pButton type="button" label="Cancelar" class="p-button-outlined"
+                [disabled]="paymentSubmitting" (click)="closePaymentDialog()"></button>
+            <button pButton type="button" label="Registar Pagamento" icon="pi pi-check"
+                [loading]="paymentSubmitting" [disabled]="paymentSubmitting"
+                (click)="registerPayment()"></button>
+        </div>
+    </div>
+    }
+</p-dialog>

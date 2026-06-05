@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="grid">
     <!-- Header -->
     <div class="col-12">
@@ -10,27 +12,6 @@
         </div>
     </div>
 
-    <!-- Error State -->
-    @if (error) {
-    <div class="col-12">
-        <div class="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <i class="pi pi-times-circle text-red-400"></i>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">
-                        Erro ao criar venda
-                    </h3>
-                    <div class="mt-2 text-sm text-red-700">
-                        <p>{{ error }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    }
-
     <form [formGroup]="saleForm" (ngSubmit)="onSave()">
         <div class="grid">
             <!-- Left Column -->
@@ -38,14 +19,17 @@
                 <!-- Client Data Card -->
                 <div class="card mb-4" formGroupName="client">
                     <h3 class="text-xl font-semibold mb-4">Dados do Cliente</h3>
-                    <p class="text-color-secondary mb-4">Selecione um aluno para preencher os dados do cliente automaticamente</p>
+                    <p class="text-color-secondary mb-4">Digite o nome do aluno para pesquisar e preencher os dados do cliente automaticamente</p>
 
                     <div class="grid">
                         <div class="col-12">
                             <label class="block text-600 font-medium mb-2">Aluno *</label>
                             <p-dropdown [options]="studentOptions" formControlName="studentId"
-                                placeholder="Selecione um aluno" optionLabel="label" optionValue="value"
-                                [filter]="true" [showClear]="true" class="w-full" [loading]="loadingStudents"></p-dropdown>
+                                placeholder="Digite para pesquisar alunos" optionLabel="label" optionValue="value"
+                                [filter]="true" [showClear]="true" class="w-full" [loading]="loadingStudents"
+                                emptyMessage="Digite pelo menos 2 caracteres para pesquisar"
+                                emptyFilterMessage="Nenhum aluno encontrado"
+                                (onFilter)="onStudentFilter($event)"></p-dropdown>
                             @if (saleForm.get('client.studentId')?.invalid && saleForm.get('client.studentId')?.touched) {
                             <small class="p-error block mt-1">Selecione um aluno</small>
                             }
@@ -81,42 +65,64 @@
                     </div>
                 </div>
 
-                <!-- Product/Service Data Card -->
+                <!-- Document & Product Data Card -->
                 <div class="card mb-4 ">
-                    <h3 class="text-xl font-semibold mb-4">Dados do Produto/Serviço</h3>
+                    <h3 class="text-xl font-semibold mb-4">Dados do Documento e Produto</h3>
+                    <p class="text-color-secondary mb-4">Apenas produtos das categorias Material ou Geral</p>
 
                     <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <label class="block text-600 font-medium mb-2">Data de emissão *</label>
+                            <p-datepicker formControlName="issueDate" [showIcon]="true" dateFormat="dd/mm/yy"
+                                styleClass="w-full" placeholder="Selecione a data"></p-datepicker>
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <label class="block text-600 font-medium mb-2">Desconto global (AOA)</label>
+                            <p-inputNumber formControlName="discountAmount" [min]="0" [maxFractionDigits]="2"
+                                [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="block text-600 font-medium mb-2">Descrição *</label>
+                            <input type="text" pInputText formControlName="description"
+                                placeholder="Descrição do documento" class="w-full" />
+                            @if (saleForm.get('description')?.invalid && saleForm.get('description')?.touched) {
+                            <small class="p-error block mt-1">Descrição é obrigatória</small>
+                            }
+                        </div>
+
                         <div class="col-12 contents" formGroupName="product">
                         <div class="col-12 md:col-6">
-                            <label class="block text-600 font-medium mb-2">Serviço *</label>
+                            <label class="block text-600 font-medium mb-2">Produto *</label>
                             <p-dropdown [options]="availableProducts" formControlName="centerProductId"
-                                placeholder="Selecione o serviço" optionLabel="label" optionValue="value"
+                                placeholder="Selecione o produto" optionLabel="label" optionValue="value"
                                 class="w-full" [loading]="loadingServices" [filter]="true"></p-dropdown>
                             @if (saleForm.get('product.centerProductId')?.invalid && saleForm.get('product.centerProductId')?.touched) {
-                            <small class="p-error block mt-1">Serviço é obrigatório</small>
+                            <small class="p-error block mt-1">Produto é obrigatório</small>
                             }
                         </div>
 
                         <div class="col-12 md:col-6">
-                            <label class="block text-600 font-medium mb-2">Nome do Serviço *</label>
+                            <label class="block text-600 font-medium mb-2">Nome do Produto *</label>
                             <input type="text" pInputText formControlName="name"
-                                placeholder="Nome do serviço" class="w-full" readonly />
+                                placeholder="Nome do produto" class="w-full" readonly />
                             @if (saleForm.get('product.name')?.invalid && saleForm.get('product.name')?.touched) {
-                            <small class="p-error block mt-1">Serviço é obrigatório</small>
+                            <small class="p-error block mt-1">Produto é obrigatório</small>
                             }
                         </div>
 
-                        <div class="col-12 md:col-4">
+                        <div class="col-12 md:col-3">
                             <label class="block text-600 font-medium mb-2">Quantidade *</label>
-                            <p-inputNumber formControlName="quantity" [min]="1" [max]="999"
-                                class="w-full"></p-inputNumber>
+                            <p-inputNumber formControlName="quantity" [min]="0.01" [max]="999"
+                                [minFractionDigits]="2" [maxFractionDigits]="2" class="w-full"></p-inputNumber>
                             @if (saleForm.get('product.quantity')?.invalid && saleForm.get('product.quantity')?.touched)
                             {
                             <small class="p-error block mt-1">Quantidade deve ser maior que 0</small>
                             }
                         </div>
 
-                        <div class="col-12 md:col-4">
+                        <div class="col-12 md:col-3">
                             <label class="block text-600 font-medium mb-2">Preço Unitário (AOA) *</label>
                             <p-inputNumber formControlName="unitPrice" [min]="0" [maxFractionDigits]="2"
                                 [minFractionDigits]="2" class="w-full"></p-inputNumber>
@@ -124,6 +130,12 @@
                             saleForm.get('product.unitPrice')?.touched) {
                             <small class="p-error block mt-1">Preço unitário deve ser maior ou igual a 0</small>
                             }
+                        </div>
+
+                        <div class="col-12 md:col-3">
+                            <label class="block text-600 font-medium mb-2">Desconto do item (AOA)</label>
+                            <p-inputNumber formControlName="discountAmount" [min]="0" [maxFractionDigits]="2"
+                                [minFractionDigits]="2" class="w-full"></p-inputNumber>
                         </div>
                         </div>
 
@@ -144,19 +156,27 @@
 
             <!-- Right Column - Sale Summary -->
             <div class="col-12 lg:col-4">
-                <div class="card mb-4" formGroupName="product">
+                <div class="card mb-4">
                     <h3 class="text-lg font-semibold mb-4">Resumo da Venda</h3>
 
                     <div class="flex flex-column gap-3">
                         <div class="flex justify-content-between align-items-center">
-                            <span class="text-600">Quantidade:</span>
-                            <span class="text-900 font-medium">{{ saleForm.get('product.quantity')?.value || 0 }}</span>
+                            <span class="text-600">Subtotal:</span>
+                            <span class="text-900 font-medium">{{ subtotal | currency:'Kz':'symbol':'1.2-2' }}</span>
                         </div>
 
                         <div class="flex justify-content-between align-items-center">
-                            <span class="text-600">Preço Unitário:</span>
-                            <span class="text-900 font-medium">{{ (saleForm.get('product.unitPrice')?.value || 0) |
-                                currency:'Kz':'symbol':'1.2-2' }}</span>
+                            <span class="text-600">Desconto do item:</span>
+                            <span class="text-900 font-medium">
+                                -{{ (saleForm.get('product.discountAmount')?.value || 0) | currency:'Kz':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-content-between align-items-center">
+                            <span class="text-600">Desconto global:</span>
+                            <span class="text-900 font-medium">
+                                -{{ (saleForm.get('discountAmount')?.value || 0) | currency:'Kz':'symbol':'1.2-2' }}
+                            </span>
                         </div>
 
                         <div class="border-top-1 surface-border pt-3">
@@ -178,14 +198,15 @@
                     [disabled]="loading"></button>
 
                 <button type="submit" pButton label="Salvar" icon="pi pi-save" class="p-button-primary"
-                    [disabled]="!isFormValid || loading" [loading]="loading"></button>
+                    [disabled]="loading" [loading]="loading"></button>
 
                 <button type="button" pButton label="Salvar e Emitir Fatura" icon="pi pi-file-pdf" class="p-button-info"
-                    [disabled]="!isFormValid || loading" (click)="onSaveAndIssueInvoice()"></button>
+                    [disabled]="loading" [loading]="loading"
+                    (click)="onSaveAndGenerateInvoice()"></button>
 
                 <button type="button" pButton label="Salvar e Emitir Recibo" icon="pi pi-receipt"
-                    class="p-button-success" [disabled]="!isFormValid || loading"
-                    (click)="onSaveAndIssueReceipt()"></button>
+                    class="p-button-success" [disabled]="loading" [loading]="loading"
+                    (click)="onSaveAndGeneratePayment()"></button>
             </div>
         </div>
     </form>

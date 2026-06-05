@@ -3,7 +3,14 @@ import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {ApiResponse, PageableResponse} from '../models/ApiResponseService';
-import {CreateInvoiceRequest, Invoice, InvoiceDetail, InvoiceListItem} from '../models/invoice/invoice.model';
+import {
+    CreateInvoicePaymentRequest,
+    CreateInvoiceRequest,
+    Invoice,
+    InvoiceDetail,
+    InvoiceListItem,
+    InvoicePayment,
+} from '../models/invoice/invoice.model';
 
 @Injectable({
     providedIn: 'root',
@@ -35,6 +42,16 @@ export class InvoiceService {
 
     createInvoice(invoice: CreateInvoiceRequest): Observable<ApiResponse<InvoiceDetail>> {
         return this.http.post<ApiResponse<InvoiceDetail>>(this.apiUrl, invoice);
+    }
+
+    createInvoicePayment(
+        invoiceId: string | number,
+        payload: CreateInvoicePaymentRequest,
+    ): Observable<ApiResponse<InvoicePayment>> {
+        return this.http.post<ApiResponse<InvoicePayment>>(
+            `${this.apiUrl}/${encodeURIComponent(String(invoiceId))}/payments`,
+            payload,
+        );
     }
 
     updateInvoice(invoice: Invoice): Observable<Invoice> {

@@ -126,7 +126,11 @@
                         <!-- Aluno -->
                         <td>
                             <div class="flex flex-column">
-                                <span class="font-medium">{{ task.studentName }}</span>
+                                <button type="button"
+                                        class="p-0 border-none bg-transparent font-medium text-primary text-left cursor-pointer"
+                                        (click)="viewTask(task)">
+                                    {{ task.studentName }}
+                                </button>
                                 <span class="text-sm text-color-secondary">{{ task.studentCode }}</span>
                             </div>
                         </td>
@@ -197,6 +201,10 @@
                         <!-- Ações -->
                         <td>
                             <div class="flex gap-1 justify-content-center flex-wrap">
+                                <button pButton pRipple icon="pi pi-eye"
+                                        class="p-button-rounded p-button-text"
+                                        (click)="viewTask(task)"
+                                        pTooltip="Ver detalhes" tooltipPosition="top"></button>
                                 <button *ngIf="task.availableActions?.includes('PROCEED')"
                                         pButton pRipple icon="pi pi-arrow-right"
                                         class="p-button-rounded p-button-text p-button-success"

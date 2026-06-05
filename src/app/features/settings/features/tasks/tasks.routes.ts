@@ -5,8 +5,13 @@ import { TasksComponent } from './tasks.component';
 const routes: Routes = [
     {
         path: '',
-        component: TasksComponent
-    }
+        component: TasksComponent,
+    },
+    {
+        path: ':id',
+        loadComponent: () =>
+            import('./pages/detail/detail.component').then((m) => m.TaskDetailComponent),
+    },
 ];
 
 @NgModule({

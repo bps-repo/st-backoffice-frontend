@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../models/ApiResponseService';
 import { TaskAction, TaskItem, TaskStatus } from '../models/task-item.model';
@@ -21,6 +21,30 @@ export class TaskService {
     }
     return this.http.get<ApiResponse<TaskItem[]>>(`${this.apiUrl}/daily`, { params }).pipe(
       map(response => response.data)
+    );
+  }
+
+  getDailyTaskById(taskId: string, centerId?: string): Observable<TaskItem> {
+    return this.http.get<ApiResponse<TaskItem>>(`${this.apiUrl}/daily/${taskId}`).pipe(
+      map(response => response.data),
+      catchError(() => this.findTaskInDailyList(taskId, centerId)),
+    );
+  }
+
+  private findTaskInDailyList(taskId: string, centerId?: string): Observable<TaskItem> {
+    const statuses: TaskStatus[] = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'IGNORED', 'SNOOZED'];
+    return forkJoin(
+      statuses.map((status) =>
+        this.getDailyTasks(status, centerId).pipe(catchError(() => of([] as TaskItem[]))),
+      ),
+    ).pipe(
+      map((results) => {
+        const task = results.flat().find((item) => item.id === taskId);
+        if (!task) {
+          throw new Error('Tarefa não encontrada.');
+        }
+        return task;
+      }),
     );
   }
 

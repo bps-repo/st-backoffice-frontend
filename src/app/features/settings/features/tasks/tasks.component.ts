@@ -28,6 +28,11 @@ import {TaskAction, TaskItem, TaskStatus, TaskType} from '../../../../core/model
 import {TaskService} from '../../../../core/services/task.service';
 import {CenterService} from '../../../../core/services/center.service';
 import {Center} from '../../../../core/models/corporate/center';
+import {
+    TASK_STATUS_LABELS,
+    getDaysFromDateString,
+    taskStatusClass,
+} from './task-presenter';
 
 @Component({
     selector: 'settings-tasks',
@@ -170,26 +175,14 @@ export class TasksComponent implements OnInit {
         });
     }
 
-    taskStatusClass(status: TaskStatus): string {
-        const map: Record<TaskStatus, string> = {
-            OPEN:        'bg-blue-100 text-blue-800',
-            IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-            COMPLETED:   'bg-green-100 text-green-800',
-            IGNORED:     'bg-gray-100 text-gray-800',
-            SNOOZED:     'bg-purple-100 text-purple-800',
-        };
-        return map[status] ?? '';
-    }
+    taskStatusClass = taskStatusClass;
 
     taskStatusLabel(status: TaskStatus): string {
-        const map: Record<TaskStatus, string> = {
-            OPEN:        'Aberta',
-            IN_PROGRESS: 'Em progresso',
-            COMPLETED:   'Concluída',
-            IGNORED:     'Ignorada',
-            SNOOZED:     'Adiada',
-        };
-        return map[status] ?? status;
+        return TASK_STATUS_LABELS[status] ?? status;
+    }
+
+    viewTask(task: TaskItem): void {
+        this.router.navigate(['/settings/tasks', task.id], {state: {task}});
     }
 
     handleTaskAction(task: TaskItem, action: TaskAction) {
@@ -250,11 +243,5 @@ export class TasksComponent implements OnInit {
         return level?.name ?? '-';
     }
 
-    getDaysFromDateString(dateString: string): number {
-        const today = new Date();
-        const target = new Date(dateString);
-        today.setHours(0, 0, 0, 0);
-        target.setHours(0, 0, 0, 0);
-        return Math.round((target.getTime() - today.getTime()) / 86_400_000);
-    }
+    getDaysFromDateString = getDaysFromDateString;
 }
