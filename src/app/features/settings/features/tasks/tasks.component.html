@@ -271,4 +271,73 @@
             </p-table>
         </div>
     </div>
+
+<p-dialog
+    header="Marcar Reunião"
+    [visible]="meetingDialogVisible()"
+    (visibleChange)="$event ? null : closeMeetingDialog()"
+    [modal]="true"
+    [style]="{'width': '480px'}"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="flex flex-column gap-4 pt-2">
+        <div class="flex flex-column gap-2">
+            <label class="font-medium text-sm">Aluno</label>
+            <span class="text-color-secondary text-sm">{{ pendingMeetingTask()?.studentName }}</span>
+        </div>
+
+        <div class="flex flex-column gap-2">
+            <label for="meetingTitle" class="font-medium text-sm">Título <span class="text-red-500">*</span></label>
+            <input
+                id="meetingTitle"
+                pInputText
+                [ngModel]="meetingTitle()"
+                (ngModelChange)="meetingTitle.set($event)"
+                placeholder="Ex: Reunião de renovação de contrato"
+                class="w-full"/>
+        </div>
+
+        <div class="flex flex-column gap-2">
+            <label for="meetingDate" class="font-medium text-sm">Data <span class="text-red-500">*</span></label>
+            <p-datepicker
+                inputId="meetingDate"
+                [ngModel]="meetingDate()"
+                (ngModelChange)="meetingDate.set($event)"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                [minDate]="today"
+                styleClass="w-full"
+                placeholder="Selecione uma data">
+            </p-datepicker>
+        </div>
+
+        <div class="flex flex-column gap-2">
+            <label for="meetingDesc" class="font-medium text-sm">Descrição</label>
+            <textarea
+                id="meetingDesc"
+                pInputTextarea
+                [ngModel]="meetingDescription()"
+                (ngModelChange)="meetingDescription.set($event)"
+                rows="3"
+                placeholder="Detalhes sobre a reunião..."
+                class="w-full resize-none">
+            </textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancelar" icon="pi pi-times"
+                class="p-button-outlined p-button-secondary"
+                (click)="closeMeetingDialog()"
+                [disabled]="meetingSubmitting()">
+        </button>
+        <button pButton type="button" label="Confirmar" icon="pi pi-calendar-plus"
+                class="p-button-primary"
+                (click)="submitMeeting()"
+                [loading]="meetingSubmitting()"
+                [disabled]="!meetingDate() || !meetingTitle().trim()">
+        </button>
+    </ng-template>
+</p-dialog>
 </section>

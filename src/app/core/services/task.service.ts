@@ -29,12 +29,18 @@ export class TaskService {
     return this.http.post<void>(`${this.apiUrl}/daily/run`, null, { params });
   }
 
-  applyTaskAction(taskId: string, action: TaskAction, resolvedBy?: string): Observable<TaskItem> {
-    const body: { action: TaskAction; resolvedBy?: string } = { action };
-    if (resolvedBy) {
-      body.resolvedBy = resolvedBy;
-    }
-    return this.http.patch<ApiResponse<TaskItem>>(`${this.apiUrl}/daily/${taskId}/action`, body).pipe(
+  applyTaskAction(
+    taskId: string,
+    action: TaskAction,
+    options?: { resolvedBy?: string; date?: string; title?: string; description?: string }
+  ): Observable<TaskItem> {
+    const params = new HttpParams().set('action', action);
+    const body: Record<string, unknown> = {};
+    if (options?.resolvedBy)   body['resolvedBy']   = options.resolvedBy;
+    if (options?.date)         body['date']         = options.date;
+    if (options?.title)        body['title']        = options.title;
+    if (options?.description)  body['description']  = options.description;
+    return this.http.patch<ApiResponse<TaskItem>>(`${this.apiUrl}/daily/${taskId}/action`, body, { params }).pipe(
       map(response => response.data)
     );
   }

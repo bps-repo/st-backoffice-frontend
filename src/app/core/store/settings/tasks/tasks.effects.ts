@@ -38,7 +38,7 @@ export class TasksEffects {
     this.actions$.pipe(
       ofType(TasksActions.applyTaskAction),
       switchMap(({ taskId, action, resolvedBy }) =>
-        this.taskService.applyTaskAction(taskId, action, resolvedBy).pipe(
+        this.taskService.applyTaskAction(taskId, action, { resolvedBy }).pipe(
           map((task) => TasksActions.applyTaskActionSuccess({ task })),
           catchError((error) => of(TasksActions.applyTaskActionFailure({ error })))
         )

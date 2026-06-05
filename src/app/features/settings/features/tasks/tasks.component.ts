@@ -14,12 +14,15 @@ import {FormsModule} from '@angular/forms';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
+import {InputTextarea} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
 import {BadgeModule} from 'primeng/badge';
 import {TooltipModule} from 'primeng/tooltip';
 import {RippleModule} from 'primeng/ripple';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {DropdownModule} from 'primeng/dropdown';
+import {DialogModule} from 'primeng/dialog';
+import {DatePickerModule} from 'primeng/datepicker';
 import {Router, RouterModule} from '@angular/router';
 import {TaskAction, TaskItem, TaskStatus, TaskType} from '../../../../core/models/task-item.model';
 import {TaskService} from '../../../../core/services/task.service';
@@ -36,6 +39,7 @@ import {Center} from '../../../../core/models/corporate/center';
         SelectButtonModule,
         TableModule,
         InputTextModule,
+        InputTextarea,
         ButtonModule,
         BadgeModule,
         TooltipModule,
@@ -43,6 +47,8 @@ import {Center} from '../../../../core/models/corporate/center';
         RouterModule,
         ProgressSpinnerModule,
         DropdownModule,
+        DialogModule,
+        DatePickerModule,
     ],
     templateUrl: './tasks.component.html',
     styleUrls: ['./tasks.component.scss'],
@@ -59,7 +65,15 @@ export class TasksComponent implements OnInit {
     readonly selectedCenterId = signal<string | null>(null);
     readonly centers = signal<Center[]>([]);
 
+    readonly meetingDialogVisible = signal(false);
+    readonly meetingSubmitting = signal(false);
+    readonly pendingMeetingTask = signal<TaskItem | null>(null);
+    readonly meetingDate = signal<Date | null>(null);
+    readonly meetingTitle = signal('');
+    readonly meetingDescription = signal('');
+
     protected readonly Math = Math;
+    readonly today = new Date();
 
     readonly viewOptions: {label: string; value: TaskType}[] = [
         {label: 'Sem contrato activo',  value: 'NO_ACTIVE_CONTRACT'},
@@ -179,6 +193,15 @@ export class TasksComponent implements OnInit {
     }
 
     handleTaskAction(task: TaskItem, action: TaskAction) {
+        if (action === 'MARK_MEETING') {
+            this.pendingMeetingTask.set(task);
+            this.meetingDate.set(null);
+            this.meetingTitle.set('');
+            this.meetingDescription.set('');
+            this.meetingDialogVisible.set(true);
+            return;
+        }
+
         switch (action) {
             case 'PROCEED':
                 this.router.navigate(['/finances/contracts/renew'], {queryParams: {studentId: task.studentId}});
@@ -193,6 +216,34 @@ export class TasksComponent implements OnInit {
                     },
                 });
         }
+    }
+
+    submitMeeting() {
+        const task = this.pendingMeetingTask();
+        const date = this.meetingDate();
+        if (!task || !date || !this.meetingTitle().trim()) return;
+
+        this.meetingSubmitting.set(true);
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
+        this.taskService.applyTaskAction(task.id, 'MARK_MEETING', {
+            date: dateStr,
+            title: this.meetingTitle().trim(),
+            description: this.meetingDescription().trim(),
+        }).subscribe({
+            next: updated => {
+                this.tasks.update(all => all.map(t => t.id === updated.id ? updated : t));
+                this.meetingSubmitting.set(false);
+                this.meetingDialogVisible.set(false);
+            },
+            error: () => this.meetingSubmitting.set(false),
+        });
+    }
+
+    closeMeetingDialog() {
+        this.meetingDialogVisible.set(false);
+        this.pendingMeetingTask.set(null);
     }
 
     getLevelName(level: {id: string; name: string} | null): string {
