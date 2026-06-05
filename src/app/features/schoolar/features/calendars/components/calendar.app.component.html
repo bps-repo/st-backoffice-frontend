@@ -178,7 +178,8 @@
             <div class="grid gap-2">
                 @for (dayData of weeklyLessons; track dayData.dayKey) {
                 <div class="col-12 md:col">
-                    <div class="card h-full" [class.today-card]="dayData.isToday">
+                    <div class="card h-full" [class.today-card]="dayData.isToday"
+                        (dblclick)="onDateDoubleClick(dayData.date)">
                         <div class="card-header text-center mb-3">
                             <div class="day-header">
                                 <div class="day-name text-sm text-gray-600">{{ dayData.dayName }}</div>
@@ -199,7 +200,8 @@
                             <div class="class-card mb-2 p-2 border-round cursor-pointer hover:bg-gray-50 transition-colors"
                                 [ngClass]="'border-left-3 lesson-border-' + (classItem.lesson | lessonStatusSeverity)"
                                 (mouseenter)="showLessonDetails(classItem.lesson)" (mouseleave)="hideLessonDetails()"
-                                (click)="viewLesson(classItem.lesson.id!)">
+                                (click)="viewLesson(classItem.lesson.id!)"
+                                (dblclick)="$event.stopPropagation()">
                                 <div class="flex align-items-center justify-content-between mb-1">
                                     <div class="flex align-items-center gap-1">
                                         <i class="pi pi-clock text-xs text-gray-600"></i>
@@ -276,7 +278,8 @@
                     <div class="grid calendar-week border-bottom-1 border-gray-100">
                         @for (day of week; track day.date) {
                         <div class="col calendar-day" [class.text-gray-400]="!day.isCurrentMonth"
-                            [class.today-day]="day.isToday" [class.current-month]="day.isCurrentMonth">
+                            [class.today-day]="day.isToday" [class.current-month]="day.isCurrentMonth"
+                            (dblclick)="onDateDoubleClick(day.date)">
 
                             <!-- Day number -->
                             <div class="day-number" [class.today-number]="day.isToday">
@@ -295,7 +298,8 @@
                                 <div class="monthly-lesson-card cursor-pointer"
                                     [ngClass]="'border-left-2 lesson-border-' + (lesson.lesson | lessonStatusSeverity)"
                                     (mouseenter)="showLessonDetails(lesson.lesson)" (mouseleave)="hideLessonDetails()"
-                                    (click)="viewLesson(lesson.lesson.id!)">
+                                    (click)="viewLesson(lesson.lesson.id!)"
+                                    (dblclick)="$event.stopPropagation()">
                                     <div class="lesson-time text-xs font-bold">{{ lesson.time }}</div>
                                     <div class="lesson-title text-xs">{{ lesson.title }}</div>
                                 </div>
@@ -336,6 +340,23 @@
         </div>
     </ng-container>
 </section>
+
+<!-- Create Choice Dialog -->
+<p-dialog [(visible)]="createChoiceVisible" [modal]="true" [draggable]="false" [resizable]="false"
+    header="O que deseja criar?" [style]="{width: '340px'}">
+    <div class="flex flex-column gap-3 pt-2">
+        <p-button label="Aula" icon="pi pi-book" styleClass="w-full" (click)="chooseCreateLesson()"></p-button>
+        <p-button label="Avaliação" icon="pi pi-check-square" styleClass="w-full" [outlined]="true"
+            (click)="chooseCreateAssessment()"></p-button>
+    </div>
+</p-dialog>
+
+<!-- Assessment Create Dialog (opened from double-click on a date) -->
+<app-create-assessment
+    [initialDate]="pendingCreateDate"
+    [visible]="assessmentCreateVisible"
+    (visibleChange)="assessmentCreateVisible = $event">
+</app-create-assessment>
 
 <!-- Filter Dialog -->
 <p-dialog [(visible)]="showFilterDialog" [style]="{width: '560px'}" header="Filtrar Aulas" [modal]="true"

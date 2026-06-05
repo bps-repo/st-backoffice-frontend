@@ -128,14 +128,14 @@
                 <input
                     pInputText
                     class="w-full"
-                    placeholder="Pesquisar por nome ou código..."
+                    placeholder="Pesquisar por nome..."
                     [ngModel]="searchQuery()"
-                    (ngModelChange)="searchQuery.set($event)"
+                    (ngModelChange)="onSearchChange($event)"
                 />
             </div>
 
             <p-table
-                [value]="filteredStudents()"
+                [value]="allStudents()"
                 [selection]="selectedStudents()"
                 (selectionChange)="selectedStudents.set($event)"
                 dataKey="id"

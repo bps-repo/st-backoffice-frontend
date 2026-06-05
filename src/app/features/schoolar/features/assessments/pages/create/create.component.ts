@@ -68,8 +68,13 @@ export class CreateComponent implements OnInit {
         this.dialogVisible.set(val);
         if (val) this.resetForm();
     }
+    @Input() set initialDate(date: Date | null) {
+        this._initialDate = date;
+    }
     @Output() visibleChange = new EventEmitter<boolean>();
     @Output() created = new EventEmitter<void>();
+
+    private _initialDate: Date | null = null;
 
     readonly dialogVisible = signal(false);
     readonly loading = signal(false);
@@ -281,9 +286,9 @@ export class CreateComponent implements OnInit {
         this.assessmentType = null;
         this.status = AssessmentStatus.DRAFT;
         this.passingScore = 50;
-        this.sharedDate = null;
-        this.startTime = null;
-        this.endTime = null;
+        this.sharedDate = this._initialDate ? new Date(this._initialDate) : null;
+        this.startTime = this._initialDate ? new Date(this._initialDate) : null;
+        this.endTime = this._initialDate ? new Date(this._initialDate.getTime() + 60 * 60 * 1000) : null;
         this.selectedSkillIds = [];
         this.selectedEvaluatedUnitIds = [];
         this.evaluationType.set(null);

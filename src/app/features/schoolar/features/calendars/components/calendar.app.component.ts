@@ -32,6 +32,7 @@ import {LessonStatusSeverityPipe, resolveStatusSeverity} from 'src/app/shared/pi
 import {LessonStatusClassPipe} from 'src/app/shared/pipes/lesson-status-class.pipe';
 import {TagModule} from 'primeng/tag';
 import {SkeletonModule} from 'primeng/skeleton';
+import {CreateComponent as AssessmentCreateComponent} from 'src/app/features/schoolar/features/assessments/pages/create/create.component';
 
 @Component({
     selector: "app-lesson-calendar",
@@ -60,6 +61,7 @@ import {SkeletonModule} from 'primeng/skeleton';
         LessonStatusClassPipe,
         TagModule,
         SkeletonModule,
+        AssessmentCreateComponent,
     ],
     styleUrls: ['./calendar.app.component.scss']
 })
@@ -82,6 +84,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     showDialog: boolean = false;
     showFilterDialog: boolean = false;
+    createChoiceVisible: boolean = false;
+    pendingCreateDate: Date | null = null;
+    assessmentCreateVisible: boolean = false;
 
     clickedEvent: any = null;
 
@@ -676,28 +681,29 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
-     * Handle double-click on a date
+     * Handle double-click on a date — shows a choice dialog to create a lesson or assessment.
      */
     onDateDoubleClick(date: Date) {
-        // Format date for URL parameters
+        this.pendingCreateDate = date;
+        this.createChoiceVisible = true;
+    }
+
+    chooseCreateLesson(): void {
+        this.createChoiceVisible = false;
+        if (!this.pendingCreateDate) return;
+        const date = this.pendingCreateDate;
         const startDate = date.toISOString();
-
-        // Create end date (1 hour after start)
         const endDate = new Date(date.getTime() + 60 * 60 * 1000).toISOString();
-
-        // Extract time from the date
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
-        const time = `${hours}:${minutes}`;
-
-        // Redirect to lessons create page with date and time parameters
         this.router.navigate(['/schoolar/lessons/create'], {
-            queryParams: {
-                startDate: startDate,
-                endDate: endDate,
-                time: time
-            }
+            queryParams: { startDate, endDate, time: `${hours}:${minutes}` }
         });
+    }
+
+    chooseCreateAssessment(): void {
+        this.createChoiceVisible = false;
+        this.assessmentCreateVisible = true;
     }
 
     /**
@@ -1044,9 +1050,9 @@ export class CalendarAppComponent implements OnInit, AfterViewInit, OnDestroy {
                 );
 
             newWeeklyLessons.push({
-                // Separate properties so the template never has to split a locale string
-                dayName: currentDay.toLocaleDateString('pt-BR', { weekday: 'short' }),         // e.g. "seg."
-                dayDate: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), // e.g. "26/05"
+                date: currentDay,
+                dayName: currentDay.toLocaleDateString('pt-BR', { weekday: 'short' }),
+                dayDate: currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
                 dayKey,
                 isToday,
                 classes: dayLessons.map(lesson => ({

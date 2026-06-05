@@ -1,8 +1,10 @@
 // src/app/features/schoolar/features/assessments/pages/detail/tabs/students/students.component.ts
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subject, of } from 'rxjs';
+import { debounceTime, switchMap, catchError, takeUntil } from 'rxjs/operators';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
@@ -41,7 +43,7 @@ import { ASSESSMENT_DETAIL_TOKEN } from 'src/app/shared/tokens/assessment-detail
     providers: [MessageService],
     templateUrl: './students.component.html',
 })
-export class StudentsComponent implements OnInit {
+export class StudentsComponent implements OnInit, OnDestroy {
     private bookingService = inject(AssessmentBookingService);
     private studentService = inject(StudentService);
     private messageService = inject(MessageService);
@@ -60,14 +62,8 @@ export class StudentsComponent implements OnInit {
     readonly booking = signal(false);
     readonly bookingResults = signal<BulkBookingResultEntry[] | null>(null);
 
-    readonly filteredStudents = computed(() => {
-        const q = this.searchQuery().toLowerCase().trim();
-        if (!q) return this.allStudents();
-        return this.allStudents().filter((s) => {
-            const name = `${s.user?.firstname ?? ''} ${s.user?.lastname ?? ''}`.toLowerCase();
-            return name.includes(q) || String(s.code).includes(q);
-        });
-    });
+    private readonly searchSubject = new Subject<string>();
+    private readonly destroy$ = new Subject<void>();
 
     readonly statusLabels: Record<string, string> = {
         [AssessmentBookingStatus.BOOKED]: 'Agendado',
@@ -85,31 +81,47 @@ export class StudentsComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadBookings();
+
+        this.searchSubject.pipe(
+            debounceTime(250),
+            switchMap(query => {
+                this.studentsLoading.set(true);
+                const filters = query.trim() ? { fullName: query.trim() } : {};
+                return this.studentService.searchStudents(filters).pipe(
+                    catchError(() => {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Erro',
+                            detail: 'Não foi possível carregar a lista de alunos.',
+                        });
+                        return of([]);
+                    })
+                );
+            }),
+            takeUntil(this.destroy$)
+        ).subscribe(students => {
+            this.allStudents.set(students);
+            this.studentsLoading.set(false);
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     openBookingDialog(): void {
         this.selectedStudents.set([]);
         this.searchQuery.set('');
         this.bookingResults.set(null);
+        this.allStudents.set([]);
         this.dialogVisible.set(true);
+        this.searchSubject.next('');
+    }
 
-        if (this.allStudents().length === 0) {
-            this.studentsLoading.set(true);
-            this.studentService.getStudents().subscribe({
-                next: (students) => {
-                    this.allStudents.set(students);
-                    this.studentsLoading.set(false);
-                },
-                error: () => {
-                    this.studentsLoading.set(false);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Erro',
-                        detail: 'Não foi possível carregar a lista de alunos.',
-                    });
-                },
-            });
-        }
+    onSearchChange(query: string): void {
+        this.searchQuery.set(query);
+        this.searchSubject.next(query);
     }
 
     confirmBooking(): void {
