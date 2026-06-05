@@ -36,9 +36,10 @@ import {Contract} from 'src/app/core/models/corporate/contract';
 import {Center} from 'src/app/core/models/corporate/center';
 import {Unit} from 'src/app/core/models/course/unit';
 import {Employee} from 'src/app/core/models/corporate/employee';
-import {of, Subject, takeUntil} from 'rxjs';
+import {debounceTime, distinctUntilChanged, of, Subject, switchMap, takeUntil} from 'rxjs';
 import type {Observable} from 'rxjs';
 import {catchError, finalize, map, take} from 'rxjs/operators';
+import {DropdownFilterEvent} from 'primeng/dropdown';
 import {Store} from '@ngrx/store';
 import {authFeature} from 'src/app/core/store/auth/auth.reducers';
 import {ShowToastErrorService} from 'src/app/shared/services/show-toast-error-service';
@@ -84,6 +85,8 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
 
     loading = this.materialsFacade.loading;
     private destroy$ = new Subject<void>();
+    private studentSearch$ = new Subject<string>();
+    private readonly minStudentSearchLength = 2;
 
     /** All units from API — used when picking units by level without NgRx selectors. */
     private allUnits: Unit[] = [];
@@ -182,6 +185,8 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         this.material.availabilityStartDate = today.toISOString().split('T')[0];
         this.material.availabilityEndDate = nextYear.toISOString().split('T')[0];
 
+        this.setupStudentSearch();
+
         // Get query params
         this.route.queryParams
             .pipe(takeUntil(this.destroy$))
@@ -192,6 +197,52 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
                 if (this.queryParamEntity && Object.values(RelatedEntityType).includes(this.queryParamEntity as RelatedEntityType)) {
                     this.preloadQueryParamEntity(this.queryParamEntity as RelatedEntityType);
                 }
+            });
+    }
+
+    private setupStudentSearch(): void {
+        this.studentSearch$
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                switchMap((query) => {
+                    const trimmed = query.trim();
+                    if (trimmed.length < this.minStudentSearchLength) {
+                        this.relatedEntities[RelatedEntityType.STUDENT] = [];
+                        this.relatedEntityOptions = [];
+                        return of([] as SelectItem[]);
+                    }
+
+                    this.loadingEntities[RelatedEntityType.STUDENT] = true;
+                    this.cdr.detectChanges();
+
+                    return this.studentService
+                        .searchStudentsPaginated({ fullName: trimmed }, 0, 20)
+                        .pipe(
+                            map((response) => this.mapStudentsToOptions(response.content ?? [])),
+                            catchError(() => {
+                                this.messageService.add({
+                                    severity: 'warn',
+                                    summary: 'Aviso',
+                                    detail: 'Erro ao pesquisar estudantes',
+                                });
+                                return of([] as SelectItem[]);
+                            }),
+                            finalize(() => {
+                                this.loadingEntities[RelatedEntityType.STUDENT] = false;
+                                this.cdr.detectChanges();
+                            }),
+                        );
+                }),
+                takeUntil(this.destroy$),
+            )
+            .subscribe((options) => {
+                if (this.newRelation.relatedEntityType !== RelatedEntityType.STUDENT) {
+                    return;
+                }
+                this.relatedEntities[RelatedEntityType.STUDENT] = options;
+                this.relatedEntityOptions = [...options];
+                this.cdr.detectChanges();
             });
     }
 
@@ -221,6 +272,41 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
     private preloadQueryParamEntity(entityType: RelatedEntityType): void {
         if (entityType === RelatedEntityType.UNIT) {
             this.loadEntityOptions(RelatedEntityType.LEVEL);
+            return;
+        }
+
+        if (entityType === RelatedEntityType.STUDENT && this.queryParamEntityId) {
+            this.newRelation.relatedEntityType = RelatedEntityType.STUDENT;
+            this.selectedType.set(RelatedEntityType.STUDENT);
+            this.loadingEntities[RelatedEntityType.STUDENT] = true;
+            this.cdr.detectChanges();
+
+            this.studentService.getStudent(this.queryParamEntityId)
+                .pipe(
+                    takeUntil(this.destroy$),
+                    catchError(() => {
+                        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Aviso',
+                            detail: 'Erro ao carregar estudante',
+                        });
+                        return of(null);
+                    }),
+                    finalize(() => {
+                        this.loadingEntities[RelatedEntityType.STUDENT] = false;
+                        this.cdr.detectChanges();
+                    }),
+                )
+                .subscribe((student) => {
+                    if (!student) {
+                        return;
+                    }
+                    const options = this.mapStudentsToOptions([student]);
+                    this.relatedEntities[RelatedEntityType.STUDENT] = options;
+                    this.relatedEntityOptions = [...options];
+                    this.processQueryParams();
+                    this.cdr.detectChanges();
+                });
             return;
         }
 
@@ -275,9 +361,7 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
     private fetchEntityOptions(entityType: RelatedEntityType): Observable<SelectItem[]> {
         switch (entityType) {
             case RelatedEntityType.STUDENT:
-                return this.studentService.getStudents().pipe(
-                    map((students) => this.mapStudentsToOptions(students)),
-                );
+                return of([]);
             case RelatedEntityType.LESSON:
                 return this.lessonService.searchLessons({ size: 1000 }).pipe(
                     map((response) => this.mapLessonsToOptions(response.content ?? [])),
@@ -667,7 +751,20 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (normalized === RelatedEntityType.STUDENT) {
+            this.relatedEntities[RelatedEntityType.STUDENT] = [];
+            this.cdr.detectChanges();
+            return;
+        }
+
         this.loadEntityOptions(normalized as RelatedEntityType);
+    }
+
+    onStudentFilter(event: DropdownFilterEvent): void {
+        if (!this.isStudentEntityType()) {
+            return;
+        }
+        this.studentSearch$.next(event.filter ?? '');
     }
 
     onLevelChange(levelId: string): void {
@@ -689,6 +786,10 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
         return this.newRelation.relatedEntityType === RelatedEntityType.UNIT;
     }
 
+    isStudentEntityType(): boolean {
+        return this.newRelation.relatedEntityType === RelatedEntityType.STUDENT;
+    }
+
     shouldShowLevelSelection(): boolean {
         return this.isUnitEntityType();
     }
@@ -705,6 +806,10 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
             return 'Selecione a unidade';
         }
 
+        if (this.isStudentEntityType()) {
+            return 'Digite o nome completo para pesquisar';
+        }
+
         return 'Selecione a entidade';
     }
 
@@ -715,6 +820,10 @@ export class MaterialsCreateComponent implements OnInit, OnDestroy {
 
         if (this.isUnitEntityType()) {
             return !this.selectedLevelId;
+        }
+
+        if (this.isStudentEntityType()) {
+            return this.isEntityLoading(RelatedEntityType.STUDENT);
         }
 
         return false;

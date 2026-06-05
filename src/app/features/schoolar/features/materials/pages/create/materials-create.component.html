@@ -179,12 +179,27 @@
                             [(ngModel)]="newRelation.relatedEntityId" optionLabel="label" optionValue="value"
                             [placeholder]="getRelatedEntityPlaceholder()"
                             [disabled]="isRelatedEntityDisabled()"
-                            [loading]="isEntityLoading(newRelation.relatedEntityType)"></p-dropdown>
-                        <small *ngIf="newRelation.relatedEntityType && !isEntityLoading(newRelation.relatedEntityType)"
-                            class="text-500">
-                            {{ getEntityCount(newRelation.relatedEntityType) }}
-                            {{ getEntityType(selectedType()) | lowercase }}s disponíveis
-                        </small>
+                            [loading]="isEntityLoading(newRelation.relatedEntityType)"
+                            [filter]="isStudentEntityType()"
+                            [showClear]="isStudentEntityType()"
+                            filterPlaceholder="Pesquisar por nome completo"
+                            emptyMessage="Digite pelo menos 2 caracteres para pesquisar"
+                            emptyFilterMessage="Nenhum estudante encontrado"
+                            (onFilter)="onStudentFilter($event)"></p-dropdown>
+                        @if (isStudentEntityType()) {
+                            <small class="text-500">
+                                @if (isEntityLoading(RelatedEntityType.STUDENT)) {
+                                    A pesquisar estudantes...
+                                } @else {
+                                    Digite pelo menos 2 caracteres do nome completo para pesquisar
+                                }
+                            </small>
+                        } @else if (newRelation.relatedEntityType && !isEntityLoading(newRelation.relatedEntityType)) {
+                            <small class="text-500">
+                                {{ getEntityCount(newRelation.relatedEntityType) }}
+                                {{ getEntityType(selectedType()) | lowercase }}s disponíveis
+                            </small>
+                        }
                     </div>
                     <div class="field col-12 md:col-4">
                         <label for="relationDescription" class="font-medium text-900">Descrição</label>
